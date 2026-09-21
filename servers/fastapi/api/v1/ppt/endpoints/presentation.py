@@ -6,7 +6,7 @@ import logging
 import random
 import re
 import traceback
-from typing import Annotated, Any, List, Literal, Optional, Tuple
+from typing import Annotated, Any, List, Literal, Optional, Sequence, Tuple
 import dirtyjson
 from fastapi import (
     APIRouter,
@@ -122,7 +122,9 @@ from services.community_presentations import (
 from utils.llm_calls.generate_smart_presentation import (
     generate_smart_presentation,
     resolve_smart_slide_count,
+    smart_slide_type,
 )
+from utils.llm_calls.generate_smart_speaker_notes import generate_smart_speaker_notes
 from utils.get_env import is_community_enabled
 import uuid
 
@@ -1863,6 +1865,49 @@ async def prepare_presentation(
     return PresentationPrepareResponse(presentation_id=presentation.id)
 
 
+async def _apply_smart_speaker_notes(
+    slides: Sequence[SlideModel],
+    presentation: PresentationModel,
+    *,
+    deck_title: str,
+) -> list[SlideModel]:
+    """Fill missing Smart speaker notes from consolidated slides.
+
+    Runs after the deck is complete so a note can never describe a slide that a
+    later continuation or retry rewrote. Slides that already carry a note are
+    left untouched, which also backfills decks resumed from a checkpoint.
+    """
+    pending = [
+        index
+        for index, slide in enumerate(slides)
+        if not (slide.speaker_note or "").strip()
+    ]
+    if not pending:
+        return []
+    outline = [
+        {
+            "title": str((slide.content or {}).get("title") or "").strip(),
+            "slide_type": smart_slide_type(slide.html_content or ""),
+            "html": slide.html_content or "",
+        }
+        for slide in slides
+    ]
+    notes = await generate_smart_speaker_notes(
+        slides=outline,
+        deck_title=deck_title,
+        language=presentation.language,
+        tone=presentation.tone,
+        verbosity=presentation.verbosity,
+        instructions=presentation.instructions,
+        indexes=pending,
+    )
+    updated: list[SlideModel] = []
+    for index, note in notes.items():
+        slides[index].speaker_note = note
+        updated.append(slides[index])
+    return updated
+
+
 async def stream_smart_presentation(
     presentation: PresentationModel,
     sql_session: AsyncSession,
@@ -1907,6 +1952,17 @@ async def stream_smart_presentation(
                     or str(existing_slides[0].content.get("title") or "").strip()
                     or "Presentation"
                 )
+                resumed_slides = existing_slides[:slide_count]
+                if any(
+                    not (slide.speaker_note or "").strip() for slide in resumed_slides
+                ):
+                    yield SSEStatusResponse(status="Writing speaker notes").to_string()
+                    for slide in await _apply_smart_speaker_notes(
+                        resumed_slides,
+                        presentation,
+                        deck_title=presentation.title or "",
+                    ):
+                        sql_session.add(slide)
                 sql_session.add(presentation)
                 await sql_session.commit()
                 response = PresentationWithSlides(
@@ -2159,6 +2215,15 @@ async def stream_smart_presentation(
             sql_session.add(recovered_slide)
             slides_by_index[index] = recovered_slide
         slides = [slides_by_index[index] for index in range(slide_count)]
+
+        # Notes are generated only now: the deck is consolidated, so every note
+        # is written against the exact HTML that was persisted for its slide.
+        if any(not (slide.speaker_note or "").strip() for slide in slides):
+            yield SSEStatusResponse(status="Writing speaker notes").to_string()
+            for slide in await _apply_smart_speaker_notes(
+                slides, final_presentation, deck_title=final_title
+            ):
+                sql_session.add(slide)
 
         final_presentation.title = final_title
         final_presentation.n_slides = slide_count

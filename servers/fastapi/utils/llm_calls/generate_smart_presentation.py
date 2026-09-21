@@ -46,7 +46,7 @@ DEFAULT_SMART_SLIDE_COUNT = 8
 # Smart generation shares the same product-wide limit as every other deck path.
 # Keep this alias for callers that imported the older Smart-specific constant.
 MAX_SMART_SLIDE_COUNT = MAX_NUMBER_OF_SLIDES
-SMART_GENERATION_MAX_ATTEMPTS = 8
+SMART_GENERATION_MAX_ATTEMPTS = 12
 SMART_GENERATION_METRICS_INTERVAL_SECONDS = 5.0
 SMART_TITLE_MAX_VISIBLE_CHARACTERS = 800
 SMART_TITLE_MAX_VISIBLE_WORDS = 80
@@ -435,6 +435,22 @@ def normalize_smart_slide_html(value: Any) -> str:
     return html
 
 
+def smart_slide_type(html: str) -> str:
+    """Return the `data-slide-type` of a Smart slide, defaulting to `content`."""
+    root_match = _SECTION_OPEN.match(str(html or ""))
+    if root_match is None:
+        return "content"
+    return (_attribute(root_match.group(1), "data-slide-type") or "content").casefold()
+
+
+def extract_smart_slide_text(html: str) -> str:
+    """Return the audience-visible text of a Smart slide without markup."""
+    without_scripts = _SCRIPT_TAG.sub("", str(html or ""))
+    visible_text = _HTML_COMMENT.sub(" ", without_scripts)
+    visible_text = html_module.unescape(_HTML_TAG.sub(" ", visible_text))
+    return " ".join(visible_text.split())
+
+
 def _validate_smart_slide_layout_safety(html: str) -> None:
     """Reject overflow-prone Smart HTML so generation can retry before saving."""
     class_values = re.findall(
@@ -451,10 +467,7 @@ def _validate_smart_slide_layout_safety(html: str) -> None:
             ),
         )
 
-    without_scripts = _SCRIPT_TAG.sub("", html)
-    visible_text = _HTML_COMMENT.sub(" ", without_scripts)
-    visible_text = html_module.unescape(_HTML_TAG.sub(" ", visible_text))
-    visible_text = " ".join(visible_text.split())
+    visible_text = extract_smart_slide_text(html)
     word_count = len(visible_text.split())
     root_match = _SECTION_OPEN.match(html)
     root_attributes = root_match.group(1) if root_match else ""
