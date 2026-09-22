@@ -6,6 +6,7 @@ PRIVATE_APP_DATA_ROOTS = {
     "images",
     "exports",
     "uploads",
+    "audio",
     "pptx-to-html",
     "pptx-to-json",
 }

@@ -218,3 +218,7 @@ def get_exports_directory():
 
 def get_uploads_directory():
     return _owned_directory("uploads")
+
+
+def get_audio_directory():
+    return _owned_directory("audio")

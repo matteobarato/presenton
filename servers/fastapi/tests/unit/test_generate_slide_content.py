@@ -96,10 +96,7 @@ def test_slide_content_generation_normalizes_object_schema_and_calls_llm(
         captured["response_format"] = response_format
         captured["json_schema"] = json_schema
         captured["messages"] = _kwargs["messages"]
-        return {
-            "title": "Generated title",
-            "__speaker_note__": "Speaker note",
-        }
+        return {"title": "Generated title"}
 
     monkeypatch.setattr(generate_slide_content, "get_client", lambda **_kwargs: object())
     monkeypatch.setattr(generate_slide_content, "get_llm_config", lambda: {})
@@ -130,7 +127,9 @@ def test_slide_content_generation_normalizes_object_schema_and_calls_llm(
 
     assert result["title"] == "Generated title"
     assert captured["json_schema"]["type"] == "object"
-    assert "__speaker_note__" in captured["json_schema"]["properties"]
+    # Speaker notes are written after the deck is complete, so the slide
+    # content call must not ask for one.
+    assert "__speaker_note__" not in captured["json_schema"]["properties"]
     assert captured["response_format"].json_schema == captured["json_schema"]
     assert captured["response_format"].strict is True
     assert "# Slide Number:\n2" in captured["messages"][1].content

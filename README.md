@@ -502,6 +502,15 @@ These variables match `docker-compose.yml`. **`IMAGE_PROVIDER`** selects the bac
 | **OPEN_WEBUI_IMAGE_URL** / **OPEN_WEBUI_IMAGE_API_KEY** | Required for `IMAGE_PROVIDER=open_webui` | Open WebUI API root (`http://host:8080/api/v1`; a bare origin gets `/api/v1` appended) and API key. |
 | **OPENAI_COMPAT_IMAGE_BASE_URL** / **OPENAI_COMPAT_IMAGE_API_KEY** / **OPENAI_COMPAT_IMAGE_MODEL** | Required for `IMAGE_PROVIDER=openai_compatible` | Sends image requests to an OpenAI-compatible `/v1/images/*` endpoint such as LiteLLM, Azure, or a vLLM gateway. |
 
+#### Speaker Note Audio (Text-to-Speech)
+
+| Variable | Values / default | Purpose |
+| --- | --- | --- |
+| **OPENAI_COMPAT_TTS_BASE_URL** / **OPENAI_COMPAT_TTS_API_KEY** / **OPENAI_COMPAT_TTS_MODEL** | Required for speaker note audio | Sends speech requests to an OpenAI-compatible `/v1/audio/speech` endpoint (LiteLLM, OpenRouter, a vLLM gateway). Without all three, the speaker note audio endpoints return `400`. |
+| **OPENAI_COMPAT_TTS_VOICE** | `alloy` (default) | Voice the notes are read with. Valid values depend on the provider and model; a request can override it per call. |
+
+Speaker note audio is generated per slide through `POST /api/v1/ppt/presentation/{id}/speaker-notes/tts` (or its `/async` variant, which returns a pollable task). The deck is narrated in the language the request asks for: notes written in another language are translated first, because a speech endpoint reads the text it is given and has no language setting of its own. `GET /api/v1/ppt/presentation/speaker-notes/tts/languages` lists the supported languages.
+
 The parallel image generation option applies everywhere images are generated: initial presentation generation, slide editing and regeneration, direct image requests, and assistant image tools.
 
 #### Telemetry
@@ -706,6 +715,11 @@ Same variables as compose; use `-e` instead of `.env` when running `docker run` 
 
   This routes all slide image requests through your OpenAI-compatible gateway (LiteLLM, Azure, vLLM, etc.) while keeping the text LLM configuration independent:
     <pre><code class="language-bash">docker run -it --name presenton -p 5001:80 -e IMAGE_PROVIDER="openai_compatible" -e OPENAI_COMPAT_IMAGE_BASE_URL="https://proxy.example.com/v1" -e OPENAI_COMPAT_IMAGE_API_KEY="******" -e OPENAI_COMPAT_IMAGE_MODEL="gpt-image-1" -v "./app_data:/app_data" ghcr.io/presenton/presenton:latest</code></pre>
+
+- Narrating Speaker Notes
+
+  This points speaker note audio at an OpenAI-compatible speech endpoint, leaving the text LLM and image configuration untouched:
+    <pre><code class="language-bash">docker run -it --name presenton -p 5001:80 -e OPENAI_COMPAT_TTS_BASE_URL="https://proxy.example.com/v1" -e OPENAI_COMPAT_TTS_API_KEY="******" -e OPENAI_COMPAT_TTS_MODEL="google/gemini-3.1-flash-tts-preview" -v "./app_data:/app_data" ghcr.io/presenton/presenton:latest</code></pre>
 
 #
 

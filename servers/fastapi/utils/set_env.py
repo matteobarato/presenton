@@ -377,3 +377,20 @@ def set_openai_compat_image_api_key_env(value: str):
 
 def set_openai_compat_image_model_env(value: str):
     os.environ["OPENAI_COMPAT_IMAGE_MODEL"] = value
+
+
+# OpenAI-compatible TTS Provider (speaker note audio)
+def set_openai_compat_tts_base_url_env(value: str):
+    os.environ["OPENAI_COMPAT_TTS_BASE_URL"] = value
+
+
+def set_openai_compat_tts_api_key_env(value: str):
+    os.environ["OPENAI_COMPAT_TTS_API_KEY"] = value
+
+
+def set_openai_compat_tts_model_env(value: str):
+    os.environ["OPENAI_COMPAT_TTS_MODEL"] = value
+
+
+def set_openai_compat_tts_voice_env(value: str):
+    os.environ["OPENAI_COMPAT_TTS_VOICE"] = value

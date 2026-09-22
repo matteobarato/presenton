@@ -12,7 +12,6 @@ from utils.llm_config import get_llm_config
 from utils.llm_provider import get_model
 from utils.llm_utils import DisconnectChecker, generate_structured_with_schema_retries
 from utils.schema_utils import (
-    add_field_in_schema,
     ensure_array_schemas_have_items,
     remove_fields_from_schema,
 )
@@ -25,15 +24,13 @@ You need to generate structured content json based on the schema.
 1. Analyze the content.
 2. Analyze the response schema.
 3. Generate structured content json based on the schema.
-4. Generate speaker note if required.
-5. Provide structured content json as output.
+4. Provide structured content json as output.
 
 # General Rules
 - Follow language guidelines.
 - Slide Language is authoritative when it is explicitly set. If slide content
   or user instructions request a different language, ignore that conflicting
   language request unless Slide Language says auto-detect.
-- Speaker notes must be plain text (no markdown).
 - Never exceed max character limits; do not clip mid-sentence to fit—rephrase instead.
 - Do not use emojis or $schema fields.
 - Follow the intended outcome of user instructions when they do not conflict with Slide
@@ -43,7 +40,7 @@ You need to generate structured content json based on the schema.
 - If instructions are ambiguous, use the most direct interpretation without extending scope.
 - Treat chart, layout, styling, positioning, and other visual instructions as production
   controls. Honor them through the selected schema, but never emit those instructions or
-  meta-commentary as a title, body, label, table cell, or speaker note.
+  meta-commentary as a title, body, label, or table cell.
 - Output fields must contain only audience-facing content and data. For chart fields,
   populate the requested labels, series, and values rather than text such as "create a
   bar chart" or "show this data as a graph".
@@ -211,18 +208,10 @@ def _prepare_response_schema(json_schema: Optional[dict]) -> Optional[dict]:
     if response_schema.get("type") != "object":
         response_schema["type"] = "object"
 
-    response_schema = add_field_in_schema(
-        response_schema,
-        {
-            "__speaker_note__": {
-                "type": "string",
-                "minLength": 100,
-                "maxLength": 500,
-                "description": "Speaker note for the slide",
-            }
-        },
-        True,
-    )
+    # Speaker notes are not requested here. They are written after the deck is
+    # complete, by utils.llm_calls.generate_speaker_notes, so that every note
+    # is produced against the whole finished presentation rather than a single
+    # slide's outline.
     return ensure_array_schemas_have_items(response_schema)
 
 

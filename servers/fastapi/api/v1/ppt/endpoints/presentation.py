@@ -124,7 +124,28 @@ from utils.llm_calls.generate_smart_presentation import (
     resolve_smart_slide_count,
     smart_slide_type,
 )
-from utils.llm_calls.generate_smart_speaker_notes import generate_smart_speaker_notes
+from utils.llm_calls.generate_speaker_notes import generate_speaker_notes
+from constants.tts_languages import (
+    SUPPORTED_TTS_LANGUAGES,
+    UnsupportedTTSLanguageError,
+    resolve_tts_language,
+)
+from models.speaker_note_audio_response import (
+    SpeakerNoteAudioRequest,
+    SpeakerNoteAudioResponse,
+    SpeakerNoteAudiosResponse,
+    SupportedTTSLanguageResponse,
+)
+from services.speaker_note_tts_service import (
+    SpeakerNoteAudioGenerationResult,
+    SpeakerNoteTTSConfigurationError,
+    delete_speaker_note_audios,
+    generate_speaker_note_audios,
+    get_speaker_note_tts_config,
+    list_speaker_note_audios,
+    remove_speaker_note_audio_files,
+    speaker_note_audio_paths,
+)
 from utils.get_env import is_community_enabled
 import uuid
 
@@ -133,6 +154,7 @@ logger = logging.getLogger(__name__)
 
 PRESENTATION_ROUTER = APIRouter(prefix="/presentation", tags=["Presentation"])
 ASYNC_TASK_TYPE_PRESENTATION_GENERATE = "presentation.generate"
+ASYNC_TASK_TYPE_SPEAKER_NOTES_TTS = "presentation.speaker-notes.tts"
 CUSTOM_TEMPLATE_PREFIX = "custom-"
 BLANK_PRESENTATION_LAYOUT_GROUP = "blank"
 BLANK_PRESENTATION_LAYOUT_ID = "__blank_slide__"
@@ -1551,8 +1573,15 @@ async def delete_presentation(
     if not presentation:
         raise HTTPException(404, "Presentation not found")
 
+    # Audio rows go with the deck through the database's cascade, but the files
+    # they point at do not, so their paths are read before the rows disappear
+    # and the files are removed once the delete has actually committed.
+    audio_paths = await speaker_note_audio_paths(sql_session, presentation_id=id)
+
     await sql_session.delete(presentation)
     await sql_session.commit()
+
+    remove_speaker_note_audio_files(id, audio_paths)
 
 
 @PRESENTATION_ROUTER.post("/{id}/duplicate", response_model=PresentationWithSlides)
@@ -1584,6 +1613,468 @@ async def duplicate_presentation(
         **_presentation_response_data(new_presentation),
         slides=new_slides,
     )
+
+
+@PRESENTATION_ROUTER.post(
+    "/{id}/speaker-notes", response_model=PresentationWithSlides
+)
+async def generate_presentation_speaker_notes(
+    id: uuid.UUID,
+    slide_indexes: Annotated[Optional[List[int]], Body()] = None,
+    regenerate: Annotated[bool, Body()] = False,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Write speaker notes for a presentation that already exists.
+
+    Works for both generation modes: Smart slides are read from their HTML and
+    template slides from their structured content, and either way every note is
+    written against the whole deck so the notes read as one narration.
+
+    By default only slides without a note are filled, which backfills decks
+    generated before notes existed. Pass `regenerate` to rewrite notes that are
+    already there, and `slide_indexes` to limit the work to specific slides.
+    """
+    presentation = await sql_session.get(PresentationModel, id)
+    if not presentation:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+
+    slides = list(
+        await sql_session.scalars(
+            select(SlideModel)
+            .where(SlideModel.presentation == id)
+            .order_by(SlideModel.index)
+        )
+    )
+    if not slides:
+        raise HTTPException(
+            status_code=400,
+            detail="This presentation has no slides to write speaker notes for",
+        )
+    if slide_indexes is not None:
+        unknown = sorted(
+            set(slide_indexes) - {slide.index for slide in slides}
+        )
+        if unknown:
+            raise HTTPException(
+                status_code=422,
+                detail=(
+                    "These slide indexes do not exist in this presentation: "
+                    + ", ".join(str(index) for index in unknown)
+                ),
+            )
+
+    # Slides are ordered by index, but a deck can carry gaps, so notes are
+    # requested by position in that ordered list.
+    positions = (
+        None
+        if slide_indexes is None
+        else [
+            position
+            for position, slide in enumerate(slides)
+            if slide.index in set(slide_indexes)
+        ]
+    )
+    updated_slides = await _apply_speaker_notes(
+        slides,
+        presentation,
+        deck_title=presentation.title or "",
+        indexes=positions,
+        regenerate=regenerate,
+    )
+    if updated_slides:
+        sql_session.add_all(updated_slides)
+        await sql_session.commit()
+
+    return PresentationWithSlides(
+        **_presentation_response_data(presentation),
+        slides=slides,
+    )
+
+
+async def _presentation_with_slides_for_speaker_notes(
+    id: uuid.UUID, sql_session: AsyncSession
+) -> Tuple[PresentationModel, list[SlideModel]]:
+    presentation = await sql_session.get(PresentationModel, id)
+    if not presentation:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+    slides = list(
+        await sql_session.scalars(
+            select(SlideModel)
+            .where(SlideModel.presentation == id)
+            .order_by(SlideModel.index)
+        )
+    )
+    return presentation, slides
+
+
+def _validate_speaker_note_slide_indexes(
+    slides: Sequence[SlideModel], slide_indexes: Optional[List[int]]
+) -> None:
+    if slide_indexes is None:
+        return
+    unknown = sorted(set(slide_indexes) - {slide.index for slide in slides})
+    if unknown:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "These slide indexes do not exist in this presentation: "
+                + ", ".join(str(index) for index in unknown)
+            ),
+        )
+
+
+def _speaker_note_audio_http_error(exc: Exception) -> HTTPException:
+    """Turn a narration failure into the status code that describes it."""
+    if isinstance(exc, UnsupportedTTSLanguageError):
+        return HTTPException(status_code=422, detail=str(exc))
+    if isinstance(exc, SpeakerNoteTTSConfigurationError):
+        return HTTPException(status_code=400, detail=str(exc))
+    return HTTPException(
+        status_code=500, detail="Speaker note audio generation failed"
+    )
+
+
+def _speaker_note_audios_response(
+    presentation_id: uuid.UUID,
+    result: SpeakerNoteAudioGenerationResult,
+) -> SpeakerNoteAudiosResponse:
+    return SpeakerNoteAudiosResponse.from_models(
+        presentation_id=presentation_id,
+        language=result.language.code,
+        language_name=result.language.name,
+        audios=result.audios,
+        generated_slide_indexes=result.generated_slide_indexes,
+        reused_slide_indexes=result.reused_slide_indexes,
+        skipped=result.skipped,
+    )
+
+
+def _speaker_note_audio_task_data(
+    presentation_id: uuid.UUID,
+    *,
+    language: str,
+    completed: int,
+    total: int,
+) -> dict[str, Any]:
+    return {
+        "presentation_id": str(presentation_id),
+        "language": language,
+        "completed_slides": completed,
+        "remaining_slides": max(total - completed, 0),
+        "total_slides": total,
+    }
+
+
+async def run_generate_speaker_note_audios_task(
+    task_id: str,
+    presentation_id: uuid.UUID,
+    language: str,
+    slide_indexes: Optional[List[int]],
+    regenerate: bool,
+    voice: Optional[str],
+    owner_id: Optional[uuid.UUID],
+) -> None:
+    """Narrate a deck in the background, reporting progress on its async task."""
+    owner_token = set_current_owner_id(owner_id)
+    admin_token = set_current_owner_is_admin(False)
+    try:
+        async with async_session_maker() as sql_session:
+            presentation, slides = await _presentation_with_slides_for_speaker_notes(
+                presentation_id, sql_session
+            )
+
+            async def on_progress(completed: int, total: int) -> None:
+                async with async_session_maker() as progress_session:
+                    task = await progress_session.get(AsyncTaskModel, task_id)
+                    if task is None:
+                        return
+                    task.message = (
+                        f"Generated speaker note audio for {completed} of {total} slides"
+                    )
+                    task.data = _speaker_note_audio_task_data(
+                        presentation_id,
+                        language=language,
+                        completed=completed,
+                        total=total,
+                    )
+                    task.updated_at = datetime.now()
+                    progress_session.add(task)
+                    await progress_session.commit()
+
+            result = await generate_speaker_note_audios(
+                presentation=presentation,
+                slides=slides,
+                language=language,
+                sql_session=sql_session,
+                slide_indexes=slide_indexes,
+                regenerate=regenerate,
+                voice=voice,
+                on_progress=on_progress,
+            )
+
+            task = await sql_session.get(AsyncTaskModel, task_id)
+            if task is None:
+                return
+            task.status = AsyncTaskStatus.COMPLETED
+            task.message = "Speaker note audio generation completed"
+            task.data = {
+                **_speaker_note_audio_task_data(
+                    presentation_id,
+                    language=result.language.code,
+                    completed=len(result.generated_slide_indexes),
+                    total=len(result.generated_slide_indexes),
+                ),
+                **result.summary(),
+                "audios": _speaker_note_audios_response(
+                    presentation_id, result
+                ).model_dump(mode="json"),
+            }
+            task.updated_at = datetime.now()
+            sql_session.add(task)
+            await sql_session.commit()
+    except Exception as exc:
+        logger.exception(
+            "[speaker-notes.tts.async] generation failed task_id=%s", task_id
+        )
+        async with async_session_maker() as sql_session:
+            task = await sql_session.get(AsyncTaskModel, task_id)
+            if task is not None:
+                http_error = (
+                    exc
+                    if isinstance(exc, HTTPException)
+                    else _speaker_note_audio_http_error(exc)
+                )
+                task.status = AsyncTaskStatus.ERROR
+                task.message = "Speaker note audio generation failed"
+                task.error = APIErrorModel.from_exception(http_error).model_dump(
+                    mode="json"
+                )
+                task.updated_at = datetime.now()
+                sql_session.add(task)
+                await sql_session.commit()
+    finally:
+        reset_current_owner_is_admin(admin_token)
+        reset_current_owner_id(owner_token)
+
+
+@PRESENTATION_ROUTER.get(
+    "/speaker-notes/tts/languages",
+    response_model=List[SupportedTTSLanguageResponse],
+)
+async def list_speaker_note_audio_languages():
+    """Languages a deck's speaker notes can be narrated in."""
+    return [
+        SupportedTTSLanguageResponse(code=language.code, name=language.name)
+        for language in SUPPORTED_TTS_LANGUAGES
+    ]
+
+
+@PRESENTATION_ROUTER.post(
+    "/{id}/speaker-notes/tts", response_model=SpeakerNoteAudiosResponse
+)
+async def generate_presentation_speaker_note_audio(
+    id: uuid.UUID,
+    request: SpeakerNoteAudioRequest,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Read a presentation's speaker notes aloud and store one audio per slide.
+
+    The deck is narrated in the requested language: notes written in another
+    language are translated first, because a speech provider reads the text it
+    is given and cannot switch language on its own.
+
+    Slides whose audio is already current are left alone, so this is cheap to
+    call again after editing a few notes; `regenerate` re-reads every requested
+    slide, and `slide_indexes` limits the run to specific slides.
+
+    Long decks are better served by the `/async` variant, which returns a task
+    to poll instead of holding the request open for the whole deck.
+    """
+    presentation, slides = await _presentation_with_slides_for_speaker_notes(
+        id, sql_session
+    )
+    if not slides:
+        raise HTTPException(
+            status_code=400,
+            detail="This presentation has no slides to narrate",
+        )
+    _validate_speaker_note_slide_indexes(slides, request.slide_indexes)
+
+    try:
+        result = await generate_speaker_note_audios(
+            presentation=presentation,
+            slides=slides,
+            language=request.language,
+            sql_session=sql_session,
+            slide_indexes=request.slide_indexes,
+            regenerate=request.regenerate,
+            voice=request.voice,
+        )
+    except (UnsupportedTTSLanguageError, SpeakerNoteTTSConfigurationError) as exc:
+        raise _speaker_note_audio_http_error(exc)
+
+    return _speaker_note_audios_response(id, result)
+
+
+@PRESENTATION_ROUTER.post(
+    "/{id}/speaker-notes/tts/async", response_model=AsyncTaskModel
+)
+async def generate_presentation_speaker_note_audio_async(
+    id: uuid.UUID,
+    request: SpeakerNoteAudioRequest,
+    background_tasks: BackgroundTasks,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Queue narration of a deck and return a task that can be polled for progress.
+
+    The request is validated up front - the deck, the slide indexes, the
+    language and the speech provider's configuration - so a caller learns about
+    a bad request here rather than from a failed task later.
+    """
+    presentation, slides = await _presentation_with_slides_for_speaker_notes(
+        id, sql_session
+    )
+    if not slides:
+        raise HTTPException(
+            status_code=400,
+            detail="This presentation has no slides to narrate",
+        )
+    _validate_speaker_note_slide_indexes(slides, request.slide_indexes)
+    try:
+        language = resolve_tts_language(request.language)
+        get_speaker_note_tts_config(request.voice)
+    except (UnsupportedTTSLanguageError, SpeakerNoteTTSConfigurationError) as exc:
+        raise _speaker_note_audio_http_error(exc)
+
+    requested_slides = [
+        slide
+        for slide in slides
+        if request.slide_indexes is None or slide.index in set(request.slide_indexes)
+    ]
+    task = AsyncTaskModel(
+        type=ASYNC_TASK_TYPE_SPEAKER_NOTES_TTS,
+        status=AsyncTaskStatus.PENDING,
+        message="Queued for speaker note audio generation",
+        data=_speaker_note_audio_task_data(
+            id,
+            language=language.code,
+            completed=0,
+            total=len(requested_slides),
+        ),
+    )
+    sql_session.add(task)
+    await sql_session.commit()
+    await sql_session.refresh(task)
+    background_tasks.add_task(
+        run_generate_speaker_note_audios_task,
+        task.id,
+        id,
+        request.language,
+        list(request.slide_indexes) if request.slide_indexes is not None else None,
+        request.regenerate,
+        request.voice,
+        get_current_owner_id(),
+    )
+    return task
+
+
+@PRESENTATION_ROUTER.get(
+    "/{id}/speaker-notes/tts", response_model=SpeakerNoteAudiosResponse
+)
+async def get_presentation_speaker_note_audios(
+    id: uuid.UUID,
+    language: Optional[str] = Query(
+        default=None,
+        description="Restrict to one language; omit to return every stored reading",
+    ),
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Every stored reading of a deck, in slide order."""
+    presentation = await sql_session.get(PresentationModel, id)
+    if not presentation:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+    try:
+        audios = await list_speaker_note_audios(
+            sql_session, presentation_id=id, language=language
+        )
+        resolved = resolve_tts_language(language) if language else None
+    except UnsupportedTTSLanguageError as exc:
+        raise _speaker_note_audio_http_error(exc)
+
+    return SpeakerNoteAudiosResponse.from_models(
+        presentation_id=id,
+        language=resolved.code if resolved else "",
+        language_name=resolved.name if resolved else "",
+        audios=audios,
+    )
+
+
+@PRESENTATION_ROUTER.get(
+    "/{id}/speaker-notes/tts/{slide_index}",
+    response_model=SpeakerNoteAudioResponse,
+)
+async def get_presentation_speaker_note_audio(
+    id: uuid.UUID,
+    slide_index: int,
+    language: Optional[str] = Query(
+        default=None,
+        description=(
+            "Language of the reading to return. Required when a deck has been "
+            "narrated in more than one language."
+        ),
+    ),
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """One slide's narration."""
+    presentation = await sql_session.get(PresentationModel, id)
+    if not presentation:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+    try:
+        audios = await list_speaker_note_audios(
+            sql_session, presentation_id=id, language=language
+        )
+    except UnsupportedTTSLanguageError as exc:
+        raise _speaker_note_audio_http_error(exc)
+
+    matches = [audio for audio in audios if audio.slide_index == slide_index]
+    if not matches:
+        raise HTTPException(
+            status_code=404,
+            detail="No speaker note audio found for this slide",
+        )
+    if len(matches) > 1:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "This slide has been narrated in more than one language: "
+                "pass `language` to choose one ("
+                + ", ".join(sorted(audio.language for audio in matches))
+                + ")"
+            ),
+        )
+    return SpeakerNoteAudioResponse.from_model(matches[0])
+
+
+@PRESENTATION_ROUTER.delete("/{id}/speaker-notes/tts")
+async def delete_presentation_speaker_note_audios(
+    id: uuid.UUID,
+    language: Optional[str] = Query(
+        default=None,
+        description="Restrict to one language; omit to delete every stored reading",
+    ),
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Delete stored narration and the audio files behind it."""
+    presentation = await sql_session.get(PresentationModel, id)
+    if not presentation:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+    try:
+        deleted = await delete_speaker_note_audios(
+            sql_session, presentation_id=id, language=language
+        )
+    except UnsupportedTTSLanguageError as exc:
+        raise _speaker_note_audio_http_error(exc)
+    return {"deleted": deleted}
 
 
 @PRESENTATION_ROUTER.post("/{id}/export", response_model=PresentationPathAndEditPath)
@@ -1865,41 +2356,80 @@ async def prepare_presentation(
     return PresentationPrepareResponse(presentation_id=presentation.id)
 
 
-async def _apply_smart_speaker_notes(
+def _speaker_note_slide_title(slide: SlideModel) -> str:
+    content = slide.content or {}
+    title = content.get("title")
+    if not isinstance(title, str) or not title.strip():
+        for value in content.values():
+            if isinstance(value, dict):
+                nested = value.get("title") or value.get("headline")
+                if isinstance(nested, str) and nested.strip():
+                    return nested.strip()
+        return ""
+    return title.strip()
+
+
+def _speaker_note_deck_context(slides: Sequence[SlideModel]) -> list[dict[str, Any]]:
+    """Describe a deck for note generation, whichever mode produced it.
+
+    Smart slides carry their copy as HTML, template slides as structured
+    content, so each slide contributes whichever one it has and the note
+    generator sees the same shape for both.
+    """
+    context: list[dict[str, Any]] = []
+    for slide in slides:
+        html = slide.html_content or ""
+        context.append(
+            {
+                "title": _speaker_note_slide_title(slide),
+                "slide_type": (
+                    smart_slide_type(html) if html else (slide.layout or "content")
+                ),
+                "html": html,
+                "content": slide.content or {},
+            }
+        )
+    return context
+
+
+async def _apply_speaker_notes(
     slides: Sequence[SlideModel],
     presentation: PresentationModel,
     *,
     deck_title: str,
+    indexes: Optional[Sequence[int]] = None,
+    regenerate: bool = False,
 ) -> list[SlideModel]:
-    """Fill missing Smart speaker notes from consolidated slides.
+    """Write speaker notes for a finished deck and return the changed slides.
 
-    Runs after the deck is complete so a note can never describe a slide that a
-    later continuation or retry rewrote. Slides that already carry a note are
-    left untouched, which also backfills decks resumed from a checkpoint.
+    Runs after generation so a note can never describe a slide that a later
+    continuation, retry, or asset pass rewrote. Slides that already carry a
+    note are skipped unless `regenerate` is set, which also makes this safe to
+    call again to backfill a deck that was resumed from a checkpoint.
     """
+    targets = range(len(slides)) if indexes is None else indexes
     pending = [
         index
-        for index, slide in enumerate(slides)
-        if not (slide.speaker_note or "").strip()
+        for index in targets
+        if 0 <= index < len(slides)
+        and (regenerate or not (slides[index].speaker_note or "").strip())
     ]
     if not pending:
         return []
-    outline = [
-        {
-            "title": str((slide.content or {}).get("title") or "").strip(),
-            "slide_type": smart_slide_type(slide.html_content or ""),
-            "html": slide.html_content or "",
-        }
-        for slide in slides
-    ]
-    notes = await generate_smart_speaker_notes(
-        slides=outline,
+    pending_set = set(pending)
+    notes = await generate_speaker_notes(
+        slides=_speaker_note_deck_context(slides),
         deck_title=deck_title,
         language=presentation.language,
         tone=presentation.tone,
         verbosity=presentation.verbosity,
         instructions=presentation.instructions,
         indexes=pending,
+        known_notes={
+            index: slide.speaker_note
+            for index, slide in enumerate(slides)
+            if index not in pending_set and (slide.speaker_note or "").strip()
+        },
     )
     updated: list[SlideModel] = []
     for index, note in notes.items():
@@ -1957,7 +2487,7 @@ async def stream_smart_presentation(
                     not (slide.speaker_note or "").strip() for slide in resumed_slides
                 ):
                     yield SSEStatusResponse(status="Writing speaker notes").to_string()
-                    for slide in await _apply_smart_speaker_notes(
+                    for slide in await _apply_speaker_notes(
                         resumed_slides,
                         presentation,
                         deck_title=presentation.title or "",
@@ -2220,7 +2750,7 @@ async def stream_smart_presentation(
         # is written against the exact HTML that was persisted for its slide.
         if any(not (slide.speaker_note or "").strip() for slide in slides):
             yield SSEStatusResponse(status="Writing speaker notes").to_string()
-            for slide in await _apply_smart_speaker_notes(
+            for slide in await _apply_speaker_notes(
                 slides, final_presentation, deck_title=final_title
             ):
                 sql_session.add(slide)
@@ -2385,7 +2915,7 @@ async def stream_presentation(
                 layout_group=layout.name,
                 layout=slide_layout.id,
                 index=i,
-                speaker_note=slide_content.get("__speaker_note__", ""),
+                speaker_note="",
                 content=slide_content,
                 ui=_template_slide_ui(presentation.layout, slide_layout.id),
             )
@@ -2495,6 +3025,15 @@ async def stream_presentation(
         sql_session.add_all(slides)
         sql_session.add_all(generated_assets)
         await sql_session.commit()
+
+        # Notes are written only now, against the whole finished deck.
+        yield SSEStatusResponse(status="Writing speaker notes").to_string()
+        updated_slides = await _apply_speaker_notes(
+            slides, presentation, deck_title=presentation.title or ""
+        )
+        if updated_slides:
+            sql_session.add_all(updated_slides)
+            await sql_session.commit()
 
         response = PresentationWithSlides(
             **_presentation_response_data(presentation),
@@ -3014,7 +3553,7 @@ async def generate_presentation_handler(
                     layout_group=layout_model.name,
                     layout=slide_layout.id,
                     index=i,
-                    speaker_note=slide_content.get("__speaker_note__"),
+                    speaker_note="",
                     content=slide_content,
                     ui=_template_slide_ui(layout_payload, slide_layout.id),
                 )
@@ -3085,6 +3624,21 @@ async def generate_presentation_handler(
         sql_session.add_all(slides)
         sql_session.add_all(generated_assets)
         await sql_session.commit()
+
+        if async_status:
+            async_status.message = "Writing speaker notes"
+            async_status.updated_at = datetime.now()
+            sql_session.add(async_status)
+            await sql_session.commit()
+
+        # Notes are written against the whole finished deck, before the export
+        # runs, so the exported deck carries them too.
+        updated_slides = await _apply_speaker_notes(
+            slides, presentation, deck_title=presentation.title or ""
+        )
+        if updated_slides:
+            sql_session.add_all(updated_slides)
+            await sql_session.commit()
 
         if async_status:
             async_status.message = "Exporting presentation"

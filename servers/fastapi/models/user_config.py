@@ -109,6 +109,12 @@ class UserConfig(BaseModel):
     OPENAI_COMPAT_IMAGE_API_KEY: Optional[str] = None
     OPENAI_COMPAT_IMAGE_MODEL: Optional[str] = None
 
+    # OpenAI Compatible TTS Provider (speaker note audio)
+    OPENAI_COMPAT_TTS_BASE_URL: Optional[str] = None
+    OPENAI_COMPAT_TTS_API_KEY: Optional[str] = None
+    OPENAI_COMPAT_TTS_MODEL: Optional[str] = None
+    OPENAI_COMPAT_TTS_VOICE: Optional[str] = None
+
     # Dalle 3 Quality
     DALL_E_3_QUALITY: Optional[str] = None
     # Gpt Image 1.5 Quality

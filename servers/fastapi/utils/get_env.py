@@ -485,3 +485,20 @@ def get_openai_compat_image_api_key_env():
 
 def get_openai_compat_image_model_env():
     return os.getenv("OPENAI_COMPAT_IMAGE_MODEL")
+
+
+# OpenAI Compatible TTS Provider (speaker note audio)
+def get_openai_compat_tts_base_url_env():
+    return os.getenv("OPENAI_COMPAT_TTS_BASE_URL")
+
+
+def get_openai_compat_tts_api_key_env():
+    return os.getenv("OPENAI_COMPAT_TTS_API_KEY")
+
+
+def get_openai_compat_tts_model_env():
+    return os.getenv("OPENAI_COMPAT_TTS_MODEL")
+
+
+def get_openai_compat_tts_voice_env():
+    return os.getenv("OPENAI_COMPAT_TTS_VOICE")

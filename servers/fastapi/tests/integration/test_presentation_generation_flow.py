@@ -1031,10 +1031,13 @@ def test_stream_presentation_uses_template_schema_for_content_generation():
     async def fake_slide_content(slide_layout, *_args, **kwargs):
         generated_layouts.append(slide_layout)
         generated_slide_numbers.append(kwargs["slide_number"])
-        return {
-            "hero": {"headline": "Causes"},
-            "__speaker_note__": "Speaker note for this generated slide.",
-        }
+        return {"hero": {"headline": "Causes"}}
+
+    speaker_note_calls: list[dict] = []
+
+    async def fake_speaker_notes(**kwargs):
+        speaker_note_calls.append(kwargs)
+        return {0: "Note written after the deck was saved."}
 
     async def consume_stream():
         response = await presentation_endpoint.stream_presentation(
@@ -1066,6 +1069,10 @@ def test_stream_presentation_uses_template_schema_for_content_generation():
         presentation_endpoint.random,
         "randrange",
         return_value=0,
+    ), patch.object(
+        presentation_endpoint,
+        "generate_speaker_notes",
+        new=fake_speaker_notes,
     ):
         chunks = _run(consume_stream())
 
@@ -1090,9 +1097,15 @@ def test_stream_presentation_uses_template_schema_for_content_generation():
         },
         "required": ["headline"],
     }
-    generated_slides = [
-        item for item in session.added_all if isinstance(item, SlideModel)
-    ]
+    # The note pass re-adds the slides it changed, so the same slide can appear
+    # twice in the fake session's log.
+    generated_slides = list(
+        {
+            item.id: item
+            for item in session.added_all
+            if isinstance(item, SlideModel)
+        }.values()
+    )
     assert len(generated_slides) == 1
     assert (
         generated_slides[0].ui["components"][0]["elements"][0]["runs"][0]["text"]
@@ -1101,6 +1114,18 @@ def test_stream_presentation_uses_template_schema_for_content_generation():
     assert template_layouts["layouts"][0]["components"][0]["elements"][0].get(
         "runs"
     ) is None
+    # The slide content call no longer carries a note; it is written once the
+    # deck is saved, from the whole deck.
+    assert "__speaker_note__" not in generated_slides[0].content
+    assert len(speaker_note_calls) == 1
+    assert speaker_note_calls[0]["indexes"] == [0]
+    assert speaker_note_calls[0]["slides"][0]["content"] == {
+        "hero": {"headline": "Causes"}
+    }
+    assert (
+        generated_slides[0].speaker_note
+        == "Note written after the deck was saved."
+    )
 
 
 def test_generate_presentation_sync_rejects_invalid_slide_count(fake_async_session):
