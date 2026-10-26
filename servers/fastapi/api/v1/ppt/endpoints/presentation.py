@@ -130,6 +130,7 @@ from constants.tts_languages import (
     UnsupportedTTSLanguageError,
     resolve_tts_language,
 )
+from models.speaker_notes_update_request import SpeakerNotesUpdateRequest
 from models.speaker_note_audio_response import (
     SpeakerNoteAudioRequest,
     SpeakerNoteAudioResponse,
@@ -1684,6 +1685,45 @@ async def generate_presentation_speaker_notes(
     if updated_slides:
         sql_session.add_all(updated_slides)
         await sql_session.commit()
+
+    return PresentationWithSlides(
+        **_presentation_response_data(presentation),
+        slides=slides,
+    )
+
+
+@PRESENTATION_ROUTER.put(
+    "/{id}/speaker-notes", response_model=PresentationWithSlides
+)
+async def update_presentation_speaker_notes(
+    id: uuid.UUID,
+    request: SpeakerNotesUpdateRequest,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Set speaker notes by hand, slide by slide.
+
+    Only the slides named in `notes` change; every other note is left as it
+    is. An empty note clears the slide's note. Narration recorded from the old
+    text is not deleted here: its stored note digest no longer matches, so the
+    next TTS run re-synthesizes those slides.
+    """
+    presentation, slides = await _presentation_with_slides_for_speaker_notes(
+        id, sql_session
+    )
+    _validate_speaker_note_slide_indexes(
+        slides, [note.slide_index for note in request.notes]
+    )
+
+    notes_by_index = {
+        note.slide_index: note.speaker_note.strip() for note in request.notes
+    }
+    updated_slides = []
+    for slide in slides:
+        if slide.index in notes_by_index:
+            slide.speaker_note = notes_by_index[slide.index]
+            updated_slides.append(slide)
+    sql_session.add_all(updated_slides)
+    await sql_session.commit()
 
     return PresentationWithSlides(
         **_presentation_response_data(presentation),
