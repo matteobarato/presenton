@@ -157,3 +157,85 @@ def test_speaker_notes_endpoint_reports_a_missing_presentation_over_http(tmp_pat
         f"/api/v1/ppt/presentation/{uuid.uuid4()}/speaker-notes"
     )
     assert response.status_code == 404
+
+
+def test_speaker_notes_put_sets_notes_by_hand_over_http(tmp_path):
+    client, presentation_id = _build_client(tmp_path)
+
+    async def fail_notes(**kwargs):
+        raise AssertionError("manual notes must not call the LLM")
+
+    with patch.object(
+        presentation_endpoint, "generate_speaker_notes", new=fail_notes
+    ):
+        response = client.put(
+            f"/api/v1/ppt/presentation/{presentation_id}/speaker-notes",
+            json={
+                "notes": [
+                    {"slide_index": 0, "speaker_note": "  Hand-written opener.  "}
+                ]
+            },
+        )
+
+    assert response.status_code == 200
+    # Only the named slide changes; the other note is left as it was.
+    assert [slide["speaker_note"] for slide in response.json()["slides"]] == [
+        "Hand-written opener.",
+        "Existing closing note.",
+    ]
+
+    persisted = client.get(f"/api/v1/ppt/presentation/{presentation_id}")
+    assert [slide["speaker_note"] for slide in persisted.json()["slides"]] == [
+        "Hand-written opener.",
+        "Existing closing note.",
+    ]
+
+
+def test_speaker_notes_put_clears_a_note_over_http(tmp_path):
+    client, presentation_id = _build_client(tmp_path)
+    response = client.put(
+        f"/api/v1/ppt/presentation/{presentation_id}/speaker-notes",
+        json={"notes": [{"slide_index": 1, "speaker_note": ""}]},
+    )
+    assert response.status_code == 200
+    assert response.json()["slides"][1]["speaker_note"] == ""
+
+
+def test_speaker_notes_put_rejects_unknown_and_duplicate_slides_over_http(
+    tmp_path,
+):
+    client, presentation_id = _build_client(tmp_path)
+    url = f"/api/v1/ppt/presentation/{presentation_id}/speaker-notes"
+
+    unknown = client.put(
+        url, json={"notes": [{"slide_index": 4, "speaker_note": "x"}]}
+    )
+    assert unknown.status_code == 422
+    assert "4" in unknown.json()["detail"]
+
+    duplicate = client.put(
+        url,
+        json={
+            "notes": [
+                {"slide_index": 1, "speaker_note": "a"},
+                {"slide_index": 1, "speaker_note": "b"},
+            ]
+        },
+    )
+    assert duplicate.status_code == 422
+
+    empty = client.put(url, json={"notes": []})
+    assert empty.status_code == 422
+
+    # Nothing was written by the rejected requests.
+    persisted = client.get(f"/api/v1/ppt/presentation/{presentation_id}")
+    assert persisted.json()["slides"][1]["speaker_note"] == "Existing closing note."
+
+
+def test_speaker_notes_put_reports_a_missing_presentation_over_http(tmp_path):
+    client, _ = _build_client(tmp_path)
+    response = client.put(
+        f"/api/v1/ppt/presentation/{uuid.uuid4()}/speaker-notes",
+        json={"notes": [{"slide_index": 0, "speaker_note": "x"}]},
+    )
+    assert response.status_code == 404
