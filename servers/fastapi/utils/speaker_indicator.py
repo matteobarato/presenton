@@ -1,11 +1,14 @@
-"""The "speaker is talking" bubble drawn in the top-right corner of a video.
+"""The "speaker is talking" bubble drawn at the deck's bubble box on a video.
 
-A small round bubble with sound-wave bars that move in a seamless loop. It is
-not part of any slide: ffmpeg overlays it on the finished picture, so it
-keeps moving while a slide is held still for its narration (the slide frames
-themselves are a single repeated image then), and it does not take part in
-slide transitions. Consecutive narrated slides are merged into one interval,
-so the bubble stays put across their cut instead of blinking.
+The bubble sits in the deck's bubble box (bottom-right unless the author moved
+it), the same box the player shows it in, so the MP4 and the web playback put
+it in the same place. It is a small round bubble with sound-wave bars that
+move in a seamless loop. It is not part of any slide: ffmpeg overlays it on
+the finished picture, so it keeps moving while a slide is held still for its
+narration (the slide frames themselves are a single repeated image then), and
+it does not take part in slide transitions. Consecutive narrated slides are
+merged into one interval, so the bubble stays put across their cut instead of
+blinking.
 
 The loop frames are drawn with Pillow once per render, at the output
 resolution, as an RGBA PNG sequence that ffmpeg's image2 demuxer loops.
@@ -22,9 +25,12 @@ from PIL import Image, ImageDraw, ImageFilter
 
 FRAME_PATTERN = "indicator-%03d.png"
 
-# Relative to the output height, so 720p and 1440p look the same as 1080p.
-_DIAMETER_RATIO = 0.078
-_MARGIN_RATIO = 0.035
+# The bubble box is given in the 1280x720 slide stage (what `resolve_bubble`
+# returns) and scaled to the output, so 720p and 1440p look the same as 1080p.
+# The stage size is repeated here rather than imported from the service layer
+# to keep this module a drawing helper that depends on Pillow alone.
+_STAGE_WIDTH = 1280
+_STAGE_HEIGHT = 720
 _SHADOW_RATIO = 0.14
 _LOOP_SECONDS = 1.2
 _SUPERSAMPLE = 4
@@ -45,7 +51,7 @@ class SpeakerIndicatorFrames:
     pattern: str
     frame_count: int
     # Size of each frame (bubble plus room for its shadow) and where its top
-    # left corner goes, so the bubble itself sits `margin` from the corner.
+    # left corner goes, so the bubble itself is centred in the bubble box.
     size: int
     x: int
     y: int
@@ -101,13 +107,25 @@ def _draw_frame(frame: int, frame_count: int, diameter: int, padding: int) -> Im
 
 
 def write_speaker_indicator_frames(
-    directory: str, *, width: int, height: int, fps: int
+    directory: str,
+    *,
+    box: tuple[float, float, float, float],
+    width: int,
+    height: int,
+    fps: int,
 ) -> SpeakerIndicatorFrames:
-    """Draw one seamless loop of the bubble into `directory`."""
+    """Draw one seamless loop of the bubble into `directory`.
+
+    `box` is `(x, y, w, h)` in stage pixels. The bubble's diameter is the box's
+    shorter side and it is centred in the box, so a non-square box never
+    stretches the circle.
+    """
+    box_x, box_y, box_width, box_height = box
     os.makedirs(directory, exist_ok=True)
-    diameter = _even(height * _DIAMETER_RATIO)
+    diameter = _even(min(box_width, box_height) * height / _STAGE_HEIGHT)
     padding = _even(diameter * _SHADOW_RATIO)
-    margin = int(round(height * _MARGIN_RATIO))
+    centre_x = (box_x + box_width / 2) * width / _STAGE_WIDTH
+    centre_y = (box_y + box_height / 2) * height / _STAGE_HEIGHT
     frame_count = max(2, int(round(_LOOP_SECONDS * fps)))
     for frame in range(frame_count):
         _draw_frame(frame, frame_count, diameter, padding).save(
@@ -118,8 +136,8 @@ def write_speaker_indicator_frames(
         pattern=os.path.join(directory, FRAME_PATTERN),
         frame_count=frame_count,
         size=size,
-        x=width - margin - diameter - padding,
-        y=margin - padding,
+        x=int(round(centre_x - size / 2)),
+        y=int(round(centre_y - size / 2)),
     )
 
 

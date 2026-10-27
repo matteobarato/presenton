@@ -611,6 +611,48 @@ def test_full_pipeline_renders_and_persists(tmp_path, monkeypatch):
     assert len(calls) == 1
 
 
+@pytest.mark.parametrize(
+    "narration, expected",
+    [
+        (None, (1160.0, 600.0, 96.0, 96.0)),
+        (
+            {"bubble": {"position": {"x": 40, "y": 40}, "size": {"width": 120, "height": 120}}},
+            (40.0, 40.0, 120.0, 120.0),
+        ),
+    ],
+    ids=["default-bottom-right", "stored-box"],
+)
+def test_bubble_is_drawn_at_the_decks_bubble_box(tmp_path, monkeypatch, narration, expected):
+    _make_env(tmp_path, monkeypatch)
+    deck = _Deck(tmp_path)
+    _patched(monkeypatch, tmp_path)
+    boxes = []
+    real_write = pvs.write_speaker_indicator_frames
+
+    def capture(directory, *, box, **kwargs):
+        boxes.append(box)
+        return real_write(directory, box=box, **kwargs)
+
+    monkeypatch.setattr(pvs, "write_speaker_indicator_frames", capture)
+
+    async def scenario():
+        await deck.seed()
+        async with deck.session_maker() as session:
+            presentation = await session.get(PresentationModel, deck.presentation_id)
+            if narration is not None:
+                presentation.narration = narration
+            slides = [await session.get(SlideModel, sid) for sid in deck.slide_ids]
+            return await generate_presentation_video(
+                presentation=presentation,
+                slides=slides,
+                language="en",
+                sql_session=session,
+            )
+
+    asyncio.run(scenario())
+    assert boxes == [expected]
+
+
 def test_ffmpeg_not_available_raises_configuration_error(tmp_path, monkeypatch):
     _make_env(tmp_path, monkeypatch)
     deck = _Deck(tmp_path)
@@ -1103,7 +1145,9 @@ def test_speaker_indicator_is_on_by_default_and_part_of_the_cache_key():
 def _indicator(tmp_path):
     from utils.speaker_indicator import write_speaker_indicator_frames
 
-    return write_speaker_indicator_frames(str(tmp_path / "ind"), width=1920, height=1080, fps=30)
+    return write_speaker_indicator_frames(
+        str(tmp_path / "ind"), box=(1160, 600, 96, 96), width=1920, height=1080, fps=30
+    )
 
 
 def test_build_ffmpeg_args_overlays_indicator_under_burned_subtitles(tmp_path):

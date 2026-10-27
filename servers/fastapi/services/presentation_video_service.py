@@ -46,6 +46,7 @@ from constants.tts_languages import TTSLanguage, resolve_tts_language
 from models.sql.presentation import PresentationModel
 from models.sql.presentation_video import PresentationVideoModel
 from models.sql.slide import SlideModel
+from services.slide_video_service import resolve_bubble
 from services.speaker_note_tts_service import (
     SpeakerNoteAudioGenerationResult,
     generate_speaker_note_audios,
@@ -1413,8 +1414,15 @@ async def generate_presentation_video(
 
             speaker_indicator: Optional[SpeakerIndicatorFrames] = None
             if opts.speaker_indicator and _narrated_intervals(timings):
+                bubble = resolve_bubble(presentation)
                 speaker_indicator = write_speaker_indicator_frames(
                     os.path.join(tmp_dir, "speaker-indicator"),
+                    box=(
+                        float(bubble.position.x),
+                        float(bubble.position.y),
+                        float(bubble.size.width),
+                        float(bubble.size.height),
+                    ),
                     width=opts.width,
                     height=opts.height,
                     fps=opts.fps,
