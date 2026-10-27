@@ -370,6 +370,16 @@ def test_avatar_without_language_matches_any_language():
     assert _actors(slide, video=video, audio=audio, language=None).actor == "video"
 
 
+def test_avatar_with_a_language_plays_when_no_narration_language_is_in_play():
+    slide = _slide("")
+    video = _avatar(slide, language="en")
+
+    resolved = _actors(slide, video=video, audio=None, language=None)
+
+    assert resolved.actor == "video"
+    assert resolved.avatar_skipped is None
+
+
 def test_silent_avatar_slide_is_still_video():
     slide = _slide("")
     video = _avatar(slide, language="it")

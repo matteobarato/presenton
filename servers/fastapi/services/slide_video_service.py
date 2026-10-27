@@ -469,8 +469,10 @@ def resolve_slide_actors(
 
     The playback plan and the MP4 export both ask here, so what a viewer sees
     in the player is what the export renders. An avatar wins when avatars are
-    on and it was synced to `language` (or to no language in particular); an
-    avatar on a slide with no narration still plays, silently. Otherwise the
+    on and it was synced to `language` (or to no language in particular, or
+    no narration language is in play at all, so there is nothing for it to
+    disagree with); an avatar on a slide with no narration still plays,
+    silently. Otherwise the
     slide gets the voice bubble if it has audio, and nothing if it has none.
     """
     actors: list[SlideActor] = []
@@ -481,7 +483,11 @@ def resolve_slide_actors(
         if video is not None:
             if not avatars:
                 skipped = "disabled"
-            elif video.language is not None and video.language != language:
+            elif (
+                language is not None
+                and video.language is not None
+                and video.language != language
+            ):
                 skipped = "language"
             else:
                 actors.append(SlideActor(slide, "video", audio, video))
