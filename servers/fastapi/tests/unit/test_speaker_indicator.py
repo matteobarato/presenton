@@ -2,19 +2,7 @@ import os
 
 from PIL import Image
 
-from utils.speaker_indicator import (
-    speaker_indicator_input_args,
-    speaker_indicator_intervals,
-    speaker_indicator_overlay,
-    write_speaker_indicator_frames,
-)
-
-
-def test_consecutive_narrated_slides_merge_into_one_interval():
-    spans = [(0.0, 3.0, True), (3.0, 2.0, True), (5.0, 1.0, False), (6.0, 2.0, True)]
-    assert speaker_indicator_intervals(spans) == [(0.0, 5.0), (6.0, 8.0)]
-    assert speaker_indicator_intervals([(0.0, 3.0, False)]) == []
-
+from utils.speaker_indicator import write_speaker_indicator_frames
 
 _BOX = (1160, 600, 96, 96)
 
@@ -60,21 +48,3 @@ def test_frames_scale_with_resolution(tmp_path):
     )
     assert large.size > small.size
     assert small.frame_count == 29
-
-
-def test_overlay_filter_enables_only_narrated_time_and_ends_with_the_video(tmp_path):
-    frames = write_speaker_indicator_frames(
-        str(tmp_path), box=_BOX, width=1920, height=1080, fps=30
-    )
-    graph = speaker_indicator_overlay(
-        video_label="vbase",
-        indicator_input_index=7,
-        frames=frames,
-        intervals=[(0.0, 5.0), (6.0, 8.5)],
-        output_label="vout",
-    )
-    assert graph.startswith("[7:v]format=rgba[indicator];[vbase][indicator]overlay=")
-    assert "enable='between(t,0.000,5.000)+between(t,6.000,8.500)'" in graph
-    assert "shortest=1" in graph
-    assert graph.endswith("format=yuv420p[vout]")
-    assert speaker_indicator_input_args(frames, 30)[:4] == ["-f", "image2", "-loop", "1"]

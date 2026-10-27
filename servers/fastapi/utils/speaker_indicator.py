@@ -5,10 +5,10 @@ it), the same box the player shows it in, so the MP4 and the web playback put
 it in the same place. It is a small round bubble with sound-wave bars that
 move in a seamless loop. It is not part of any slide: ffmpeg overlays it on
 the finished picture, so it keeps moving while a slide is held still for its
-narration (the slide frames themselves are a single repeated image then), and
-it does not take part in slide transitions. Consecutive narrated slides are
-merged into one interval, so the bubble stays put across their cut instead of
-blinking.
+narration (the slide frames themselves are a single repeated image then).
+When and how long it shows - one steady bubble across consecutive narrated
+slides, fading with the slide where the presenter changes - is decided in
+`utils/video_actors.py`; this module only draws it.
 
 The loop frames are drawn with Pillow once per render, at the output
 resolution, as an RGBA PNG sequence that ffmpeg's image2 demuxer loops.
@@ -19,8 +19,6 @@ from __future__ import annotations
 import math
 import os
 from dataclasses import dataclass
-from typing import Sequence
-
 from PIL import Image, ImageDraw, ImageFilter
 
 FRAME_PATTERN = "indicator-%03d.png"
@@ -138,61 +136,4 @@ def write_speaker_indicator_frames(
         size=size,
         x=int(round(centre_x - size / 2)),
         y=int(round(centre_y - size / 2)),
-    )
-
-
-def speaker_indicator_intervals(
-    spans: Sequence[tuple[float, float, bool]],
-) -> list[tuple[float, float]]:
-    """Merge `(start, duration, narrated)` slide spans into on-screen intervals.
-
-    Narrated slides that follow each other become one interval, which is what
-    keeps the bubble steady across their transition.
-    """
-    intervals: list[tuple[float, float]] = []
-    for start, duration, narrated in spans:
-        if not narrated or duration <= 0:
-            continue
-        end = start + duration
-        if intervals and abs(intervals[-1][1] - start) < 1e-6:
-            intervals[-1] = (intervals[-1][0], end)
-        else:
-            intervals.append((start, end))
-    return intervals
-
-
-def speaker_indicator_input_args(frames: SpeakerIndicatorFrames, fps: int) -> list[str]:
-    return [
-        "-f",
-        "image2",
-        "-loop",
-        "1",
-        "-framerate",
-        str(fps),
-        "-i",
-        frames.pattern,
-    ]
-
-
-def speaker_indicator_overlay(
-    *,
-    video_label: str,
-    indicator_input_index: int,
-    frames: SpeakerIndicatorFrames,
-    intervals: Sequence[tuple[float, float]],
-    output_label: str,
-) -> str:
-    """Overlay filter putting the looping bubble on `video_label` while narrated.
-
-    The overlay is fed the frames in `rgba` and the result goes back to
-    `yuv420p` once, so the alpha edge of the bubble blends instead of being
-    flattened against black. The looping bubble input never ends, so
-    `shortest=1` is what ends the overlay with the video under it; without it
-    ffmpeg keeps encoding the last frame forever.
-    """
-    enable = "+".join(f"between(t,{start:.3f},{end:.3f})" for start, end in intervals)
-    return (
-        f"[{indicator_input_index}:v]format=rgba[indicator];"
-        f"[{video_label}][indicator]overlay=x={frames.x}:y={frames.y}:"
-        f"enable='{enable}':shortest=1:format=auto,format=yuv420p[{output_label}]"
     )

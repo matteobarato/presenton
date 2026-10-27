@@ -102,6 +102,9 @@ class PresentationVideoRequest(BaseModel):
     # Seconds of crossfade at each slide change, taken from the silence
     # around the narration (0 cuts); 0.5 when left out.
     crossfade_seconds: Optional[float] = None
+    # Play each slide's avatar video, muted, in its placeholder; off, those
+    # slides get the voice bubble instead.
+    avatars: bool = True
 
 
 class PresentationVideoGenerationResponse(BaseModel):
@@ -122,6 +125,9 @@ class PresentationVideoGenerationResponse(BaseModel):
     # Set when `animate` was requested: whether it was applied, to how many
     # slides, and if not, why the video was rendered as stills instead.
     animation: Optional[dict[str, Any]] = None
+    # What the render did with avatar videos: which slides played one, which
+    # were stale, skipped (and why) or a different length than their audio.
+    avatars: Optional[dict[str, Any]] = None
 
     @classmethod
     def from_result(cls, result: Any) -> "PresentationVideoGenerationResponse":
@@ -131,4 +137,5 @@ class PresentationVideoGenerationResponse(BaseModel):
             skipped=list(result.skipped or []),
             narration=result.narration,
             animation=getattr(result, "animation", None),
+            avatars=getattr(result, "avatars", None),
         )

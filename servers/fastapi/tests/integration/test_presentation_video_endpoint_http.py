@@ -449,3 +449,38 @@ def test_crossfade_out_of_range_is_422(tmp_path, monkeypatch):
     )
 
     assert response.status_code == 422
+
+
+def test_avatars_flag_reaches_the_renderer_and_the_summary_comes_back(
+    tmp_path, monkeypatch
+):
+    _configure_video(monkeypatch, tmp_path)
+    client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
+    seen = {}
+    summary = {
+        "requested": False,
+        "applied_slides": [],
+        "stale": [],
+        "skipped": [{"slide_index": 0, "reason": "disabled"}],
+        "duration_mismatch": [],
+    }
+
+    async def fake_generate(*, presentation, sql_session, options=None, **_kwargs):
+        seen["options"] = options
+        video = _fake_video_model(presentation.id, preset=options.preset)
+        sql_session.add(video)
+        await sql_session.commit()
+        await sql_session.refresh(video)
+        return PresentationVideoResult(video=video, reused=False, avatars=summary)
+
+    with patch.object(
+        presentation_endpoint, "generate_presentation_video", side_effect=fake_generate
+    ):
+        response = client.post(
+            f"/api/v1/ppt/presentation/{presentation_id}/video",
+            json={"language": "it", "avatars": False},
+        )
+
+    assert response.status_code == 200, response.text
+    assert seen["options"].avatars is False
+    assert response.json()["avatars"] == summary

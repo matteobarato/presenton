@@ -1,6 +1,7 @@
 import asyncio
 import os
 import uuid
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -13,6 +14,7 @@ from models.presentation_and_path import PresentationAndPath
 from models.sql.presentation import PresentationModel, PresentationVersion
 from models.sql.presentation_video import PresentationVideoModel
 from models.sql.slide import SlideModel
+from models.sql.slide_video import SlideVideoModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
 # Imported so the owner_id foreign keys can resolve their column type.
 from models.sql.user import User  # noqa: F401
@@ -179,6 +181,7 @@ class _FakeAudio:
         self.duration_seconds = duration_seconds
         self.source_note_hash = source_note_hash
         self.updated_at = None
+        self.language = "en"
 
 
 def _slide(index, slide_id=None):
@@ -426,6 +429,7 @@ class _Deck:
             await connection.run_sync(SlideModel.__table__.create)
             await connection.run_sync(SpeakerNoteAudioModel.__table__.create)
             await connection.run_sync(PresentationVideoModel.__table__.create)
+            await connection.run_sync(SlideVideoModel.__table__.create)
         async with self.session_maker() as session:
             session.add(
                 PresentationModel(
@@ -1170,10 +1174,11 @@ def test_build_ffmpeg_args_overlays_indicator_under_burned_subtitles(tmp_path):
     assert args[args.index("image2") + 2 : args.index("image2") + 3] == ["1"]
     graph = args[args.index("-filter_complex") + 1].split(";")
     assert graph[0].endswith("format=yuv420p[vbase]")
-    assert graph[1] == "[4:v]format=rgba[indicator]"
-    assert "enable='between(t,0.000,3.000)'" in graph[2]
-    assert graph[2].endswith("[vind]")
-    assert graph[3] == "[vind]subtitles='/tmp/subs.vtt'[vout]"
+    # The bubble is cut to the narrated slide and placed at its start.
+    assert graph[1] == "[4:v]format=rgba,trim=end_frame=90,setpts=N/30/TB+0.000000/TB[actor0]"
+    assert graph[2].startswith("[vbase][actor0]overlay=")
+    assert graph[3] == "[ov0]format=yuv420p[vact]"
+    assert graph[4] == "[vact]subtitles='/tmp/subs.vtt'[vout]"
 
 
 def test_no_indicator_input_when_no_slide_is_narrated(tmp_path):
@@ -1437,3 +1442,228 @@ def test_crossfaded_animated_video_keeps_every_hold_with_real_ffmpeg(tmp_path):
     asyncio.run(run_ffmpeg(args, total_duration_seconds=10.0))
 
     assert abs(_probe_frames(output) - 300) <= 1
+
+
+def test_avatars_are_on_by_default_and_off_changes_the_preset():
+    assert VideoRenderOptions().avatars is True
+    assert VideoRenderOptions(avatars=False).preset == "1080p-30-soft-noavatar"
+
+
+def _avatar_timing(**overrides):
+    base = dict(
+        slide_index=1,
+        page_index=1,
+        audio_path="/tmp/a1.mp3",
+        start_seconds=3.0,
+        duration_seconds=4.0,
+        actor="video",
+        avatar_id=uuid.UUID(int=9),
+        avatar_path="/tmp/avatar.mp4",
+        avatar_box=(1000.0, 400.0, 240.0, 400.0),
+        avatar_fit="fill",
+    )
+    base.update(overrides)
+    return _timing(**base)
+
+
+def test_avatar_slide_keeps_tts_audio_and_shows_no_bubble(tmp_path):
+    timings = [
+        _timing(audio_path="/tmp/a0.mp3", actor="voice", duration_seconds=3.0),
+        _avatar_timing(),
+    ]
+    args = build_ffmpeg_args(
+        concat_path="/tmp/concat.txt",
+        image_paths=["/tmp/0.png", "/tmp/1.png"],
+        timings=timings,
+        vtt_path=None,
+        options=VideoRenderOptions(subtitles_mode="none", crossfade_seconds=0),
+        language_code="en",
+        output_path="/tmp/out.mp4",
+        speaker_indicator=_indicator(tmp_path),
+    )
+    graph = _filter_graph(args)
+
+    assert "/tmp/a0.mp3" in args and "/tmp/a1.mp3" in args
+    assert args[args.index("/tmp/avatar.mp4") - 2] == "-an"
+    # One bubble, cut to slide 0 alone.
+    assert args.count("image2") == 1
+    assert args[args.index("image2") + 6] == "3.000000"
+    assert "overlay=x=1500:y=600:eof_action=pass" in graph
+
+
+def _source_hash(timings, **kwargs):
+    return compute_video_source_hash(
+        timings=timings, language_code="en", options=VideoRenderOptions(), **kwargs
+    )
+
+
+def test_source_hash_changes_when_avatar_is_replaced():
+    from datetime import datetime
+
+    assert _source_hash([_avatar_timing(avatar_updated_at=datetime(2026, 1, 1))]) != (
+        _source_hash([_avatar_timing(avatar_updated_at=datetime(2026, 1, 2))])
+    )
+
+
+def test_source_hash_changes_when_placeholder_moves():
+    assert _source_hash([_avatar_timing()]) != _source_hash(
+        [_avatar_timing(avatar_box=(10.0, 400.0, 240.0, 400.0))]
+    )
+
+
+def test_source_hash_changes_when_bubble_box_moves():
+    assert _source_hash([_timing()], bubble_box=(1160.0, 600.0, 96.0, 96.0)) != (
+        _source_hash([_timing()], bubble_box=(40.0, 40.0, 96.0, 96.0))
+    )
+
+
+async def _add_avatars(deck, tmp_path, rows):
+    from services.speaker_note_tts_service import note_digest
+
+    async with deck.session_maker() as session:
+        for index, (note, language, seconds) in rows.items():
+            path = str(tmp_path / f"avatar-{index}.mp4")
+            open(path, "wb").write(b"fake-video")
+            session.add(
+                SlideVideoModel(
+                    presentation=deck.presentation_id,
+                    slide=deck.slide_ids[index],
+                    source_note_hash=note_digest(note),
+                    path=path,
+                    url=f"/app_data/videos/avatar-{index}.mp4",
+                    format="mp4",
+                    mime_type="video/mp4",
+                    duration_seconds=seconds,
+                    width=720,
+                    height=1280,
+                    language=language,
+                )
+            )
+        await session.commit()
+
+
+def _run_with_avatars(deck, tmp_path, rows, **options):
+    async def scenario():
+        await deck.seed()
+        await _add_avatars(deck, tmp_path, rows)
+        async with deck.session_maker() as session:
+            presentation = await session.get(PresentationModel, deck.presentation_id)
+            slides = [await session.get(SlideModel, sid) for sid in deck.slide_ids]
+            return await generate_presentation_video(
+                presentation=presentation,
+                slides=slides,
+                language="en",
+                sql_session=session,
+                options=VideoRenderOptions(**options),
+            )
+
+    return asyncio.run(scenario())
+
+
+# Slide 0's avatar was made from an older note and runs a second longer than
+# its 4 s narration; slide 1's was synced to Italian narration.
+_AVATARS = {0: ("An older note.", None, 5.0), 1: ("", "it", 2.0)}
+
+
+def test_response_reports_stale_skipped_and_mismatched_avatars(tmp_path, monkeypatch):
+    _make_env(tmp_path, monkeypatch)
+    deck = _Deck(tmp_path)
+    calls, _ = _patched(monkeypatch, tmp_path)
+
+    result = _run_with_avatars(deck, tmp_path, _AVATARS)
+
+    assert result.avatars == {
+        "requested": True,
+        "applied_slides": [0],
+        "stale": [{"slide_index": 0, "reason": "note_changed"}],
+        "skipped": [{"slide_index": 1, "reason": "language"}],
+        "duration_mismatch": [
+            {"slide_index": 0, "video_seconds": 5.0, "audio_seconds": 4.0}
+        ],
+    }
+    args = calls[0]
+    assert args[args.index(str(tmp_path / "avatar-0.mp4")) - 2] == "-an"
+    assert str(tmp_path / "avatar-1.mp4") not in args
+
+
+def test_avatars_false_falls_back_to_the_bubble(tmp_path, monkeypatch):
+    _make_env(tmp_path, monkeypatch)
+    deck = _Deck(tmp_path)
+    calls, _ = _patched(monkeypatch, tmp_path)
+
+    result = _run_with_avatars(deck, tmp_path, _AVATARS, avatars=False)
+
+    assert result.video.preset.endswith("-noavatar")
+    assert result.avatars["applied_slides"] == []
+    assert result.avatars["skipped"] == [
+        {"slide_index": 0, "reason": "disabled"},
+        {"slide_index": 1, "reason": "disabled"},
+    ]
+    assert "-an" not in calls[0]
+    assert "image2" in calls[0]
+
+
+@pytest.mark.skipif(not pvs.ffmpeg_available(), reason="needs a real ffmpeg")
+def test_avatar_appears_in_its_box_only_on_its_slide_with_real_ffmpeg(tmp_path):
+    import subprocess
+
+    from PIL import Image
+
+    from utils.ffmpeg_utils import get_ffmpeg_binary, run_ffmpeg
+
+    ffmpeg = get_ffmpeg_binary()
+    images = []
+    for index in range(3):
+        image = str(tmp_path / f"slide-{index}.png")
+        subprocess.run(
+            [ffmpeg, "-v", "error", "-y", "-f", "lavfi", "-i", "color=white:size=1280x720",
+             "-frames:v", "1", image],
+            check=True,
+        )
+        images.append(image)
+    avatar = str(tmp_path / "avatar.mp4")
+    subprocess.run(
+        [ffmpeg, "-v", "error", "-y", "-f", "lavfi", "-i", "color=red:s=240x400:r=30:d=1",
+         "-pix_fmt", "yuv420p", avatar],
+        check=True,
+    )
+    timings = [
+        _timing(slide_index=0, audio_path=None, actor="none", start_seconds=0.0, duration_seconds=2.0),
+        _avatar_timing(
+            audio_path=None, start_seconds=2.0, duration_seconds=2.0, avatar_path=avatar,
+            avatar_box=(1000.0, 300.0, 240.0, 400.0),
+        ),
+        _timing(slide_index=2, audio_path=None, actor="none", start_seconds=4.0, duration_seconds=2.0),
+    ]
+    output = str(tmp_path / "out.mp4")
+    concat = str(tmp_path / "concat.txt")
+    pvs._write_concat_file([SimpleNamespace(path=image) for image in images], timings, concat)
+    args = build_ffmpeg_args(
+        concat_path=concat,
+        image_paths=images,
+        timings=timings,
+        vtt_path=None,
+        options=VideoRenderOptions(resolution="720p", subtitles_mode="none", crossfade_seconds=0),
+        language_code="en",
+        output_path=output,
+    )
+    asyncio.run(run_ffmpeg(args, total_duration_seconds=6.0))
+
+    def pixel(second):
+        still = str(tmp_path / f"at-{second}.png")
+        subprocess.run(
+            [ffmpeg, "-v", "error", "-y", "-ss", str(second), "-i", output,
+             "-frames:v", "1", still],
+            check=True,
+        )
+        return Image.open(still).convert("RGB").getpixel((1120, 500))
+
+    def is_red(rgb):
+        red, green, blue = rgb
+        return red > 180 and green < 80 and blue < 80
+
+    assert not is_red(pixel(1.0))
+    assert is_red(pixel(3.0))
+    # The 1 s avatar ended at 3.4 s; its last frame holds to the slide's end.
+    assert is_red(pixel(3.9))
+    assert not is_red(pixel(5.5))

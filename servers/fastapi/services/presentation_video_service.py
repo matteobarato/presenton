@@ -46,7 +46,15 @@ from constants.tts_languages import TTSLanguage, resolve_tts_language
 from models.sql.presentation import PresentationModel
 from models.sql.presentation_video import PresentationVideoModel
 from models.sql.slide import SlideModel
-from services.slide_video_service import resolve_bubble
+from services.slide_video_service import (
+    SlideActor,
+    avatar_box,
+    avatar_fit,
+    avatar_stale_reason,
+    list_slide_videos,
+    resolve_bubble,
+    resolve_slide_actors,
+)
 from services.speaker_note_tts_service import (
     SpeakerNoteAudioGenerationResult,
     generate_speaker_note_audios,
@@ -89,10 +97,15 @@ from utils.llm_calls.generate_slide_animations import (
 from utils.pdf_to_images import PdfRenderError, render_pdf_to_pngs_async
 from utils.speaker_indicator import (
     SpeakerIndicatorFrames,
-    speaker_indicator_input_args,
-    speaker_indicator_intervals,
-    speaker_indicator_overlay,
     write_speaker_indicator_frames,
+)
+from utils.video_actors import (
+    ActorSegment,
+    ActorSpan,
+    actor_input_args,
+    actor_overlay_filters,
+    plan_actor_segments,
+    scale_box,
 )
 from utils.runtime_limits import log_memory
 from utils.video_crossfade import (
@@ -131,6 +144,9 @@ _MAX_SLIDE_SECONDS = 3600.0
 # an ease.
 _ANIMATION_SETTLE_SECONDS = 0.3
 _DEFAULT_CROSSFADE_SECONDS = 0.5
+# An avatar is lip-synced to its narration, so lengths further apart than
+# this suggest it was made from a different take.
+_AVATAR_DURATION_TOLERANCE_SECONDS = 0.5
 _ANIMATION_PLAN_CACHE_FILENAME = "animation-plans.json"
 _COMPOSITION_FETCH_TIMEOUT_SECONDS = 120.0
 
@@ -167,6 +183,9 @@ class VideoRenderOptions:
     # taken from the silent lead-out/lead-in, so narration is never covered.
     # 0 cuts.
     crossfade_seconds: float = _DEFAULT_CROSSFADE_SECONDS
+    # Play each slide's avatar video, muted, in its placeholder. Off, those
+    # slides get the voice bubble like any other narrated slide.
+    avatars: bool = True
 
     def __post_init__(self) -> None:
         if self.resolution not in _RESOLUTIONS:
@@ -209,6 +228,8 @@ class VideoRenderOptions:
             preset += "-anim"
         if not self.speaker_indicator:
             preset += "-plain"
+        if not self.avatars:
+            preset += "-noavatar"
         if self.crossfade_seconds == 0:
             preset += "-cut"
         elif self.crossfade_seconds != _DEFAULT_CROSSFADE_SECONDS:
@@ -232,6 +253,15 @@ class SlideTiming:
     audio_id: Optional[uuid.UUID] = None
     source_note_hash: str = ""
     audio_updated_at: Optional[datetime] = None
+    # "video", "voice" or "none". Left None it follows the audio (voice when
+    # there is any), for timings built without a resolved presenter.
+    actor: Optional[str] = None
+    avatar_id: Optional[uuid.UUID] = None
+    avatar_updated_at: Optional[datetime] = None
+    avatar_path: Optional[str] = None
+    # The placeholder in stage pixels: (x, y, width, height).
+    avatar_box: Optional[tuple[float, float, float, float]] = None
+    avatar_fit: str = "fill"
 
 
 @dataclass
@@ -241,6 +271,7 @@ class PresentationVideoResult:
     skipped: list[dict[str, Any]] = field(default_factory=list)
     narration: Optional[dict[str, Any]] = None
     animation: Optional[dict[str, Any]] = None
+    avatars: Optional[dict[str, Any]] = None
 
 
 async def _emit_progress(
@@ -287,6 +318,7 @@ def compute_video_source_hash(
     timings: Sequence[SlideTiming],
     language_code: str,
     options: VideoRenderOptions,
+    bubble_box: Optional[tuple[float, float, float, float]] = None,
 ) -> str:
     """A stable freshness key for a render: same inputs, same hash, always.
 
@@ -311,6 +343,22 @@ def compute_video_source_hash(
                 )
             )
         )
+        if _slide_actor(timing) == "video":
+            lines.append(
+                "avatar|"
+                + "|".join(
+                    (
+                        str(timing.avatar_id),
+                        timing.avatar_updated_at.isoformat()
+                        if timing.avatar_updated_at
+                        else "",
+                        repr(timing.avatar_box),
+                        timing.avatar_fit,
+                    )
+                )
+            )
+    if bubble_box is not None:
+        lines.append(f"bubble={bubble_box!r}")
     lines.append(f"language={language_code}")
     lines.append(f"preset={options.preset}")
     lines.append(f"resolution={options.resolution}")
@@ -574,8 +622,9 @@ def build_ffmpeg_args(
     if soft_subtitles:
         subtitle_input_index = audio_input_start + len(timings)
         args.extend(["-i", vtt_path])
-    indicator_input_index = _add_speaker_indicator_input(
-        args, speaker_indicator, timings, options
+    actor_segments = _actor_segments(timings, options, speaker_indicator)
+    actor_input_index = _add_actor_inputs(
+        args, actor_segments, speaker_indicator, options
     )
 
     filter_parts: list[str] = []
@@ -626,9 +675,10 @@ def build_ffmpeg_args(
         _video_output_parts(
             video_chain,
             subtitles_vtt=vtt_path if burned_subtitles else None,
+            actor_segments=actor_segments,
+            actor_input_index=actor_input_index,
             speaker_indicator=speaker_indicator,
-            indicator_input_index=indicator_input_index,
-            timings=timings,
+            fps=options.fps,
         )
     )
     video_map = "[vout]"
@@ -655,26 +705,59 @@ def build_ffmpeg_args(
     return args
 
 
-def _narrated_intervals(timings: Sequence[SlideTiming]) -> list[tuple[float, float]]:
-    return speaker_indicator_intervals(
-        [
-            (timing.start_seconds, timing.duration_seconds, bool(timing.audio_path))
-            for timing in timings
-        ]
-    )
+def _slide_actor(timing: SlideTiming) -> str:
+    if timing.actor is not None:
+        return timing.actor
+    return "voice" if timing.audio_path else "none"
 
 
-def _add_speaker_indicator_input(
-    args: list[str],
-    speaker_indicator: Optional[SpeakerIndicatorFrames],
+def _actor_segments(
     timings: Sequence[SlideTiming],
     options: VideoRenderOptions,
+    speaker_indicator: Optional[SpeakerIndicatorFrames],
+) -> list[ActorSegment]:
+    """The presenter's overlays: every avatar, and the bubble when it is drawn."""
+    frames = slide_frames(
+        [(timing.start_seconds, timing.duration_seconds) for timing in timings],
+        options.fps,
+    )
+    lead_in_frames = round(options.lead_in_seconds * options.fps)
+    spans: list[ActorSpan] = []
+    for timing, (start, count) in zip(timings, frames):
+        actor = _slide_actor(timing)
+        if actor == "video" and timing.avatar_path and timing.avatar_box:
+            spans.append(
+                ActorSpan(
+                    "video",
+                    start,
+                    count,
+                    avatar_path=timing.avatar_path,
+                    box=scale_box(timing.avatar_box, options.width, options.height),
+                    fit=timing.avatar_fit,
+                    lead_in_frames=lead_in_frames,
+                )
+            )
+        elif actor == "voice" and speaker_indicator is not None:
+            spans.append(ActorSpan("voice", start, count))
+        else:
+            spans.append(ActorSpan("none", start, count))
+    half_fades = plan_half_fades(
+        [count for _, count in frames], options.crossfade_seconds, options.fps
+    )
+    return plan_actor_segments(spans, half_fades)
+
+
+def _add_actor_inputs(
+    args: list[str],
+    segments: Sequence[ActorSegment],
+    speaker_indicator: Optional[SpeakerIndicatorFrames],
+    options: VideoRenderOptions,
 ) -> Optional[int]:
-    """Append the looping bubble as the last input, if any slide is narrated."""
-    if speaker_indicator is None or not _narrated_intervals(timings):
+    """Append one input per presenter overlay; the first one's index, if any."""
+    if not segments:
         return None
     index = sum(1 for arg in args if arg == "-i")
-    args.extend(speaker_indicator_input_args(speaker_indicator, options.fps))
+    args.extend(actor_input_args(segments, speaker_indicator, options.fps))
     return index
 
 
@@ -682,31 +765,32 @@ def _video_output_parts(
     video_chain: str,
     *,
     subtitles_vtt: Optional[str],
+    actor_segments: Sequence[ActorSegment],
+    actor_input_index: Optional[int],
     speaker_indicator: Optional[SpeakerIndicatorFrames],
-    indicator_input_index: Optional[int],
-    timings: Sequence[SlideTiming],
+    fps: int,
 ) -> list[str]:
-    """Finish the picture as `[vout]`: bubble overlay first, burned captions on top."""
+    """Finish the picture as `[vout]`: the presenter first, burned captions on top."""
     subtitles = (
         f"subtitles='{_escape_filtergraph_path(subtitles_vtt)}'"
         if subtitles_vtt is not None
         else None
     )
-    if speaker_indicator is None or indicator_input_index is None:
+    if not actor_segments or actor_input_index is None:
         return [video_chain + (f",{subtitles}" if subtitles else "") + "[vout]"]
-    overlay_label = "vind" if subtitles else "vout"
-    parts = [
-        video_chain + "[vbase]",
-        speaker_indicator_overlay(
+    parts = [video_chain + "[vbase]"]
+    parts.extend(
+        actor_overlay_filters(
+            actor_segments,
+            first_input_index=actor_input_index,
+            indicator=speaker_indicator,
+            fps=fps,
             video_label="vbase",
-            indicator_input_index=indicator_input_index,
-            frames=speaker_indicator,
-            intervals=_narrated_intervals(timings),
-            output_label=overlay_label,
-        ),
-    ]
+            output_label="vact" if subtitles else "vout",
+        )
+    )
     if subtitles:
-        parts.append(f"[vind]{subtitles}[vout]")
+        parts.append(f"[vact]{subtitles}[vout]")
     return parts
 
 
@@ -886,8 +970,9 @@ def build_animated_ffmpeg_args(
     if soft_subtitles:
         subtitle_input_index = audio_input_start + len(timings)
         args.extend(["-i", vtt_path])
-    indicator_input_index = _add_speaker_indicator_input(
-        args, speaker_indicator, timings, options
+    actor_segments = _actor_segments(timings, options, speaker_indicator)
+    actor_input_index = _add_actor_inputs(
+        args, actor_segments, speaker_indicator, options
     )
 
     filter_parts: list[str] = []
@@ -945,9 +1030,10 @@ def build_animated_ffmpeg_args(
             subtitles_vtt=(
                 vtt_path if options.subtitles_mode == "burned" else None
             ),
+            actor_segments=actor_segments,
+            actor_input_index=actor_input_index,
             speaker_indicator=speaker_indicator,
-            indicator_input_index=indicator_input_index,
-            timings=timings,
+            fps=options.fps,
         )
     )
     filter_parts.extend(_audio_filter_parts(timings, options, audio_input_start))
@@ -1292,16 +1378,97 @@ async def _resolve_narration(
     return {audio.slide: audio for audio in audios}, narration_result
 
 
+def _timing_presenter(
+    slide: SlideModel,
+    actor: Optional[SlideActor],
+    audio_path: Optional[str],
+    resolved: bool,
+) -> dict[str, Any]:
+    """The `SlideTiming` fields that say who presents a slide in the video.
+
+    An avatar whose file has gone missing cannot be drawn, so its slide falls
+    back to the bubble (or nothing) rather than failing the render.
+    """
+    if not resolved:
+        return {}
+    video = actor.video if actor is not None and actor.actor == "video" else None
+    if video is not None and video.path and os.path.isfile(video.path):
+        box = avatar_box(slide, video)
+        return {
+            "actor": "video",
+            "avatar_id": video.id,
+            "avatar_updated_at": video.updated_at,
+            "avatar_path": video.path,
+            "avatar_box": (
+                float(box.position.x),
+                float(box.position.y),
+                float(box.size.width),
+                float(box.size.height),
+            ),
+            "avatar_fit": avatar_fit(slide),
+        }
+    return {"actor": "voice" if audio_path else "none"}
+
+
+def _avatar_summary(
+    actors: Sequence[SlideActor],
+    timings: Sequence[SlideTiming],
+    options: VideoRenderOptions,
+) -> dict[str, Any]:
+    """What the render did with the deck's avatars, for the response."""
+    applied: list[int] = []
+    stale: list[dict[str, Any]] = []
+    skipped: list[dict[str, Any]] = []
+    mismatched: list[dict[str, Any]] = []
+    for actor, timing in zip(actors, timings):
+        index = actor.slide.index
+        if actor.avatar_skipped is not None:
+            skipped.append({"slide_index": index, "reason": actor.avatar_skipped})
+            continue
+        if actor.actor != "video" or actor.video is None:
+            continue
+        if _slide_actor(timing) != "video":
+            skipped.append({"slide_index": index, "reason": "file_missing"})
+            continue
+        applied.append(index)
+        reason = avatar_stale_reason(actor.video, actor.slide, actor.audio)
+        if reason is not None:
+            stale.append({"slide_index": index, "reason": reason})
+        video_seconds = actor.video.duration_seconds
+        if (
+            video_seconds is not None
+            and timing.audio_seconds > 0
+            and abs(video_seconds - timing.audio_seconds)
+            > _AVATAR_DURATION_TOLERANCE_SECONDS
+        ):
+            mismatched.append(
+                {
+                    "slide_index": index,
+                    "video_seconds": round(video_seconds, 3),
+                    "audio_seconds": round(timing.audio_seconds, 3),
+                }
+            )
+    return {
+        "requested": options.avatars,
+        "applied_slides": applied,
+        "stale": stale,
+        "skipped": skipped,
+        "duration_mismatch": mismatched,
+    }
+
+
 async def _build_timings(
     *,
     ordered_slides: Sequence[SlideModel],
     audio_by_slide: dict[uuid.UUID, Any],
     options: VideoRenderOptions,
     already_skipped: Sequence[dict[str, Any]],
+    actors: Optional[Sequence[SlideActor]] = None,
 ) -> tuple[list[SlideTiming], list[dict[str, Any]]]:
     skipped: list[dict[str, Any]] = list(already_skipped)
     skipped_indexes = {entry["slide_index"] for entry in skipped}
 
+    actor_by_slide = {actor.slide.id: actor for actor in actors or []}
     timings: list[SlideTiming] = []
     start = 0.0
     for page_index, slide in enumerate(ordered_slides):
@@ -1339,6 +1506,9 @@ async def _build_timings(
             options.lead_in_seconds + audio_seconds + options.lead_out_seconds,
             options.min_slide_seconds,
         )
+        presenter = _timing_presenter(
+            slide, actor_by_slide.get(slide.id), audio_path, actors is not None
+        )
         timings.append(
             SlideTiming(
                 slide_index=slide.index,
@@ -1352,6 +1522,7 @@ async def _build_timings(
                 audio_id=audio_id,
                 source_note_hash=source_note_hash,
                 audio_updated_at=audio_updated_at,
+                **presenter,
             )
         )
         start += duration
@@ -1404,15 +1575,41 @@ async def generate_presentation_video(
         on_progress=on_progress,
     )
 
+    video_by_slide = {
+        video.slide: video
+        for video in await list_slide_videos(
+            sql_session, presentation_id=presentation.id
+        )
+    }
+    actors = resolve_slide_actors(
+        ordered_slides,
+        audio_by_slide,
+        video_by_slide,
+        language=target_language.code,
+        avatars=opts.avatars,
+    )
+
     timings, skipped = await _build_timings(
         ordered_slides=ordered_slides,
         audio_by_slide=audio_by_slide,
         options=opts,
         already_skipped=narration_result.skipped if narration_result else [],
+        actors=actors,
     )
+    avatars = _avatar_summary(actors, timings, opts)
 
+    bubble = resolve_bubble(presentation)
+    bubble_box = (
+        float(bubble.position.x),
+        float(bubble.position.y),
+        float(bubble.size.width),
+        float(bubble.size.height),
+    )
     source_hash = compute_video_source_hash(
-        timings=timings, language_code=target_language.code, options=opts
+        timings=timings,
+        language_code=target_language.code,
+        options=opts,
+        bubble_box=bubble_box if opts.speaker_indicator else None,
     )
 
     existing = await sql_session.scalar(
@@ -1438,6 +1635,7 @@ async def generate_presentation_video(
             # A still fallback is stored under a hash that never matches, so
             # an animated preset that is reused is always an animated render.
             animation={"requested": True, "applied": True} if opts.animate else None,
+            avatars=avatars,
         )
 
     if not timings:
@@ -1514,16 +1712,12 @@ async def generate_presentation_video(
                 _write_concat_file(pages, timings, concat_path)
 
             speaker_indicator: Optional[SpeakerIndicatorFrames] = None
-            if opts.speaker_indicator and _narrated_intervals(timings):
-                bubble = resolve_bubble(presentation)
+            if opts.speaker_indicator and any(
+                _slide_actor(timing) == "voice" for timing in timings
+            ):
                 speaker_indicator = write_speaker_indicator_frames(
                     os.path.join(tmp_dir, "speaker-indicator"),
-                    box=(
-                        float(bubble.position.x),
-                        float(bubble.position.y),
-                        float(bubble.size.width),
-                        float(bubble.size.height),
-                    ),
+                    box=bubble_box,
                     width=opts.width,
                     height=opts.height,
                     fps=opts.fps,
@@ -1662,4 +1856,5 @@ async def generate_presentation_video(
         skipped=skipped,
         narration=narration_result.summary() if narration_result else None,
         animation=animation,
+        avatars=avatars,
     )

@@ -2360,6 +2360,7 @@ def _presentation_video_options_from_request(
         "generate_missing_audio": request.generate_missing_audio,
         "animate": request.animate,
         "speaker_indicator": request.speaker_indicator,
+        "avatars": request.avatars,
     }
     if request.resolution is not None:
         kwargs["resolution"] = request.resolution
@@ -2483,6 +2484,7 @@ async def run_generate_presentation_video_task(
                 "reused": result.reused,
                 "skipped": result.skipped,
                 "animation": result.animation,
+                "avatars": result.avatars,
             }
             task.updated_at = datetime.now()
             sql_session.add(task)
