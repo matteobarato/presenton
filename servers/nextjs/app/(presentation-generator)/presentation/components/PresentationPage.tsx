@@ -45,6 +45,7 @@ import {
 } from "../../_shared/blank-slide";
 import PresentationHeader from "./PresentationHeader";
 import PresentationActions from "./PresentationActions";
+import { useLoadSlideVideos } from "../hooks/useSlideVideo";
 import {
   TEMPLATE_V2_ACTIVATE_SURFACE_EVENT,
   TEMPLATE_V2_SURFACE_SELECTED_EVENT,
@@ -270,6 +271,11 @@ const PresentationPage: React.FC<PresentationPageProps> = ({
       !isChatSending &&
       !isChatMutating,
   });
+
+  useLoadSlideVideos(
+    presentation_id,
+    isTemplateV2Presentation && !isSmartPresentation && !isStreaming
+  );
 
   // Custom hooks
   const { fetchUserSlides } = usePresentationData(

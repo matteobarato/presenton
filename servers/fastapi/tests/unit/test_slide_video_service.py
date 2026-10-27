@@ -50,6 +50,17 @@ def test_only_slides_with_an_element_tree_are_template_slides():
     )
 
 
+def test_a_layout_made_only_of_components_is_a_template_slide():
+    ui = {"id": "layout", "components": [{"id": "c", "elements": []}]}
+    assert is_template_slide(
+        SlideModel(layout_group="g", layout="l", index=0, content={}, ui=ui)
+    )
+
+    placed = ensure_video_placeholder(ui, video_width=1280, video_height=720)
+    assert placed["components"] == ui["components"]
+    assert placed["elements"][0]["video_placeholder"] is True
+
+
 def test_finds_a_placeholder_nested_in_components_but_not_plain_images():
     image = {"type": "image", "data": "a.png"}
     nested = _placeholder()

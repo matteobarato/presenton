@@ -53,6 +53,7 @@ import {
   Table2,
   Triangle,
   Type,
+  Video,
   ListMinus,
   Search,
   Sigma,
@@ -102,6 +103,7 @@ import {
   InsertPalettePreview,
   type InsertPalettePreviewKind,
 } from "./InsertPalettePreview";
+import { VideosPanel } from "./VideosPanel";
 
 type PresentationActionsProps = React.ComponentProps<typeof Chat> & {
   editingDisabled?: boolean;
@@ -118,6 +120,7 @@ type ActionId =
   | "infographics"
   | "tables"
   | "images"
+  | "videos"
   | "elements";
 
 type ActionItem = {
@@ -216,6 +219,7 @@ const insertActions: ActionItem[] = [
   { id: "infographics", label: "Infographics", icon: Shapes },
   { id: "tables", label: "Tables", icon: Rows3 },
   { id: "images", label: "Images", icon: Image },
+  { id: "videos", label: "Videos", icon: Video },
   { id: "elements", label: "Elements", icon: Shapes },
 ];
 
@@ -227,6 +231,7 @@ const actionIconSrc: Record<ActionId, string> = {
   infographics: "/figma/presentation-actions/infographics.svg",
   tables: "/figma/presentation-actions/tables.svg",
   images: "/figma/presentation-actions/images.svg",
+  videos: "/figma/presentation-actions/videos.svg",
   elements: "/figma/presentation-actions/elements.svg",
 };
 
@@ -1274,6 +1279,7 @@ function ActionsPanel({
   aiOnly = false,
   blocksUnavailable = false,
   chatProps,
+  currentSlide,
   editingDisabled = false,
   onBlockSelect,
   onChartItemSelect,
@@ -1296,6 +1302,7 @@ function ActionsPanel({
     | "panelOpen"
     | "onPanelOpenChange"
   >;
+  currentSlide?: number;
   editingDisabled?: boolean;
   onBlockSelect: (block: TemplateBlock) => void;
   onChartItemSelect: (item: PaletteItem) => void;
@@ -1374,6 +1381,14 @@ function ActionsPanel({
           onItemSelect={onImageItemSelect}
           previewKind="image"
           theme={templateTheme}
+        />
+      )}
+      {!aiOnly && activeAction === "videos" && (
+        <VideosPanel
+          currentSlide={currentSlide}
+          disabled={editingDisabled}
+          presentationData={presentationData}
+          presentationId={presentationId}
         />
       )}
       {!aiOnly && activeAction === "elements" && (
@@ -1733,6 +1748,11 @@ const PresentationActions = (props: PresentationActionsProps) => {
               ? () => setHiddenTargetReferenceKey(targetReferenceKey)
               : undefined,
           }}
+          currentSlide={
+            typeof props.currentSlide === "number"
+              ? props.currentSlide
+              : undefined
+          }
           editingDisabled={editingDisabled}
           onBlockSelect={handleBlockSelect}
           onChartItemSelect={handleChartItemSelect}

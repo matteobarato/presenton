@@ -11,7 +11,7 @@ import {
   type ChangeEvent as ReactChangeEvent,
 } from "react";
 import type Konva from "konva";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Loader2 } from "lucide-react";
 import { Layer, Line, Rect, Stage } from "react-konva";
 import { notify } from "@/components/ui/sonner";
@@ -88,8 +88,18 @@ import {
 
 
 import { updateSlideUi } from "@/store/slices/presentationGeneration";
+import type { RootState } from "@/store/store";
+import {
+  SlideVideoContext,
+  type SlideVideoRenderState,
+} from "@/components/slide-editor/video/SlideVideoContext";
+import {
+  findVideoPlaceholder,
+  isVideoPlaceholderElement,
+} from "@/components/slide-editor/video/video-placeholder";
+import { VideoToolbar } from "@/components/slide-editor/video/VideoToolbar";
 import { useNearViewport } from "@/app/hooks/useNearViewport";
-import { resolveBackendAssetSource } from "@/utils/api";
+import { resolveBackendAssetSource, resolveBackendAssetUrl } from "@/utils/api";
 import { bucketFileSize, sanitizeAnalyticsError } from "@/utils/analytics";
 import { MixpanelEvent, trackEvent } from "@/utils/mixpanel";
 import { ImagesApi } from "@/app/(presentation-generator)/services/api/images";
@@ -604,6 +614,7 @@ function TemplateV2KonvaSlideComponent({
     selection?.kind === "element"
       ? getElementAtSelection(uiDraft, selection)
       : null;
+  const isVideoPlaceholderSelected = isVideoPlaceholderElement(selectedElement);
   const selectedComponent =
     selection?.kind === "component"
       ? asRecord(readArray(uiDraft.components)[selection.componentIndex])
@@ -903,6 +914,23 @@ function TemplateV2KonvaSlideComponent({
           : chartEditorBase.size,
       }
     : null;
+  const slideVideoKey = slideId == null ? null : String(slideId);
+  const slideVideoUrl = useSelector((state: RootState) =>
+    slideVideoKey ? state.slideVideos.bySlideId[slideVideoKey]?.url : undefined,
+  );
+  const slideVideoPending = useSelector((state: RootState) =>
+    slideVideoKey ? state.slideVideos.pendingBySlideId[slideVideoKey] : undefined,
+  );
+  const slideVideoRender = useMemo<SlideVideoRenderState | null>(
+    () =>
+      isEditMode
+        ? {
+            url: slideVideoUrl ? resolveBackendAssetUrl(slideVideoUrl) : null,
+            pending: slideVideoPending ?? null,
+          }
+        : null,
+    [isEditMode, slideVideoPending, slideVideoUrl],
+  );
   const surfaceSlideIndex = useMemo(() => {
     const index = typeof renderIndex === "number" ? renderIndex : slideIndex;
     return Number.isFinite(index) ? index : null;
@@ -1751,6 +1779,20 @@ function TemplateV2KonvaSlideComponent({
 
   const deleteSelection = useCallback(() => {
     if (!selection) return;
+    const nextUi = deleteSelectionFromUi(currentUiRef.current, selection);
+    // Deleting the placeholder alone would leave the video playing in a spot
+    // the slide no longer shows, and an undo could not bring the file back.
+    if (
+      slideVideoRender?.url &&
+      findVideoPlaceholder(currentUiRef.current) &&
+      !findVideoPlaceholder(nextUi)
+    ) {
+      notify.warning(
+        "Remove the video first",
+        "Select the video and use Remove video in its toolbar.",
+      );
+      return;
+    }
     const element =
       selection.kind === "element"
         ? getElementAtSelection(currentUiRef.current, selection)
@@ -1764,7 +1806,7 @@ function TemplateV2KonvaSlideComponent({
             : "component",
       }),
     });
-    commitUi(deleteSelectionFromUi(currentUiRef.current, selection));
+    commitUi(nextUi);
     setSelection(null);
     clearTableCellSelection();
     clearInlineEdit();
@@ -1780,6 +1822,7 @@ function TemplateV2KonvaSlideComponent({
     commitUi,
     editorAnalyticsProps,
     selection,
+    slideVideoRender?.url,
   ]);
 
   const createClipboardPayload = useCallback((): TemplateV2ClipboardPayload | null => {
@@ -2949,6 +2992,7 @@ function TemplateV2KonvaSlideComponent({
         />
       ) : null}
       {isRenderActive ? (
+        <SlideVideoContext.Provider value={slideVideoRender}>
         <Stage
         width={STAGE_WIDTH}
         height={STAGE_HEIGHT}
@@ -3120,6 +3164,7 @@ function TemplateV2KonvaSlideComponent({
           </Layer>
         ) : null}
         </Stage>
+        </SlideVideoContext.Provider>
       ) : null}
       {isRenderActive ? (
         <StaticHtmlTextLayer
@@ -3255,9 +3300,20 @@ function TemplateV2KonvaSlideComponent({
       ) : null}
       {isEditMode &&
         selection?.kind === "element" &&
+        isVideoPlaceholderSelected &&
+        selectedBox ? (
+        <VideoToolbar
+          anchorBox={selectedBox}
+          presentationId={presentationId}
+          slideId={slideId}
+        />
+      ) : null}
+      {isEditMode &&
+        selection?.kind === "element" &&
         selectedElement &&
         selectedBox &&
         toolbarElement &&
+        !isVideoPlaceholderSelected &&
         !layoutToolbarTarget &&
         !chartToolbarTarget &&
         !tableToolbarTarget &&

@@ -88,8 +88,12 @@ class MultipleNarrationLanguagesError(ValueError):
 
 
 def is_template_slide(slide: SlideModel) -> bool:
+    # A layout can be made of components alone; the placeholder then starts
+    # the root `elements` list.
     ui = slide.ui
-    return isinstance(ui, dict) and isinstance(ui.get("elements"), list)
+    return isinstance(ui, dict) and (
+        isinstance(ui.get("elements"), list) or isinstance(ui.get("components"), list)
+    )
 
 
 def _is_video_placeholder(value: Any) -> bool:
