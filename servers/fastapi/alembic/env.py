@@ -30,6 +30,9 @@ from models.sql.speaker_note_audio import (  # noqa: F401, E402
     SpeakerNoteAudioModel,
 )
 from models.sql.slide_video import SlideVideoModel  # noqa: F401, E402
+from models.sql.presentation_video import (  # noqa: F401, E402
+    PresentationVideoModel,
+)
 from models.sql.template import TemplateModel  # noqa: F401, E402
 from models.sql.template_create_info import TemplateCreateInfoModel  # noqa: F401, E402
 from models.sql.template_v2 import TemplateV2  # noqa: F401, E402

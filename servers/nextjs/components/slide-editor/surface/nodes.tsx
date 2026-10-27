@@ -146,6 +146,9 @@ import {
   type SelectOptions,
   type Selection,
 } from "@/components/slide-editor/model/model";
+import { SlideVideoContext } from "@/components/slide-editor/video/SlideVideoContext";
+import { isVideoPlaceholderElement } from "@/components/slide-editor/video/video-placeholder";
+import { loadVideoFrame } from "@/components/slide-editor/video/videoFrame";
 
 type ComponentTransformAnchor =
   | "top-left"
@@ -2397,6 +2400,16 @@ function RawElementVisual({
     );
   }
   if (type === "image") {
+    if (isVideoPlaceholderElement(element)) {
+      return (
+        <RawVideoPlaceholderElement
+          element={element}
+          width={width}
+          height={height}
+          interactive={interactive}
+        />
+      );
+    }
     return <RawImageElement element={element} width={width} height={height} interactive={interactive} />;
   }
   if (type === "table") {
@@ -2697,6 +2710,154 @@ function RawImageElement({
     );
   }
 
+  return (
+    <RawImageContent
+      element={element}
+      image={loaded}
+      width={width}
+      height={height}
+      interactive={interactive}
+    />
+  );
+}
+
+const VIDEO_PLACEHOLDER_ACCENT = "#7A5AF8";
+
+// In the editor the placeholder shows a still of the slide's video, with a play
+// badge and an outline marking it as the spot the video plays in.
+function RawVideoPlaceholderElement({
+  element,
+  width,
+  height,
+  interactive,
+}: {
+  element: RawElement;
+  width: number;
+  height: number;
+  interactive: boolean;
+}) {
+  const video = useContext(SlideVideoContext);
+  const [frame, setFrame] = useState<HTMLCanvasElement | null>(null);
+  const url = video?.url ?? null;
+
+  useEffect(() => {
+    setFrame(null);
+    if (!url) return;
+    let cancelled = false;
+    void loadVideoFrame(url).then((nextFrame) => {
+      if (!cancelled) setFrame(nextFrame);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+
+  if (!video) {
+    return (
+      <RawImageElement
+        element={element}
+        width={width}
+        height={height}
+        interactive={interactive}
+      />
+    );
+  }
+
+  const message =
+    video.pending === "uploading"
+      ? "Uploading video..."
+      : video.pending === "removing"
+        ? "Removing video..."
+        : url
+          ? null
+          : "No video on this slide";
+  const badgeRadius = clamp(Math.min(width, height) * 0.12, 10, 32);
+  const centerX = width / 2;
+  const centerY = message ? height / 2 - badgeRadius * 0.6 : height / 2;
+  const triangle = badgeRadius * 0.42;
+  const fontSize = clamp(Math.min(width, height) * 0.08, 11, 18);
+
+  return (
+    <Group listening={interactive}>
+      {frame ? (
+        <RawImageContent
+          element={element}
+          image={frame}
+          width={width}
+          height={height}
+          interactive={interactive}
+        />
+      ) : (
+        <Rect
+          width={width}
+          height={height}
+          fill="#1F1B33"
+          cornerRadius={imageCornerRadii(element, width, height)}
+          listening={interactive}
+        />
+      )}
+      <Rect
+        width={width}
+        height={height}
+        stroke={VIDEO_PLACEHOLDER_ACCENT}
+        strokeWidth={2}
+        dash={[10, 6]}
+        strokeScaleEnabled={false}
+        listening={false}
+      />
+      <Circle
+        x={centerX}
+        y={centerY}
+        radius={badgeRadius}
+        fill="rgba(17, 19, 36, 0.62)"
+        listening={false}
+      />
+      <Line
+        points={[
+          centerX - triangle * 0.7,
+          centerY - triangle,
+          centerX - triangle * 0.7,
+          centerY + triangle,
+          centerX + triangle,
+          centerY,
+        ]}
+        closed
+        fill="#FFFFFF"
+        listening={false}
+      />
+      {message ? (
+        <Text
+          x={8}
+          y={centerY + badgeRadius + 8}
+          width={Math.max(0, width - 16)}
+          text={message}
+          align="center"
+          fontSize={fontSize}
+          fontFamily="Helvetica, Arial, sans-serif"
+          fill="#FFFFFF"
+          shadowColor="rgba(0, 0, 0, 0.6)"
+          shadowBlur={4}
+          listening={false}
+        />
+      ) : null}
+    </Group>
+  );
+}
+
+function RawImageContent({
+  element,
+  image: loaded,
+  width,
+  height,
+  interactive,
+}: {
+  element: RawElement;
+  // A canvas stands in for an image when the picture is a video still.
+  image: HTMLImageElement | HTMLCanvasElement;
+  width: number;
+  height: number;
+  interactive: boolean;
+}) {
   const fit = imageFit(element.fit);
   const focusX = clamp(readNumber(element.focus_x) ?? 50, 0, 100) / 100;
   const focusY = clamp(readNumber(element.focus_y) ?? 50, 0, 100) / 100;

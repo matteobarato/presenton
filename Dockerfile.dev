@@ -17,13 +17,15 @@ ENV APP_DATA_DIRECTORY=/app_data \
     PRESENTON_APP_ROOT=/app \
     HF_HOME=/root/.cache/huggingface \
     PRESENTON_FASTEMBED_ICON_CACHE_DIR=/root/.cache/presenton/fastembed-icons \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    HYPERFRAMES_BROWSER_PATH=/usr/bin/chromium \
+    HYPERFRAMES_RUNNER_PATH=/opt/video-render-hyperframes/render.mjs
 
 RUN printf 'Acquire::Check-Valid-Until "false";\n' > /etc/apt/apt.conf.d/99snapshot \
     && printf 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/%s trixie-security main\n' "$CHROMIUM_SNAPSHOT" > /etc/apt/sources.list.d/chromium-snapshot.list \
     && apt-get update && apt-get install -y --no-install-recommends --allow-downgrades \
     ca-certificates curl unzip \
-    nginx fontconfig imagemagick zstd \
+    nginx fontconfig imagemagick ffmpeg zstd \
     fonts-liberation fonts-noto-core fonts-noto-extra fonts-noto-mono fonts-noto-ui-core fonts-noto-ui-extra \
     fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji xdg-utils \
     libasound2t64 libatk-bridge2.0-0t64 libatk1.0-0t64 libatspi2.0-0t64 \
@@ -56,6 +58,12 @@ RUN mkdir -p /app/document-extraction-liteparse \
     && npm init -y \
     && npm install @llamaindex/liteparse@1.5.2 --omit=dev
 COPY electron/resources/document-extraction/liteparse_runner.mjs /app/document-extraction-liteparse/liteparse_runner.mjs
+
+# Installed outside /app because the dev bind mount (`.:/app`) would hide it.
+COPY video-render-hyperframes/package.json video-render-hyperframes/package-lock.json /opt/video-render-hyperframes/
+RUN cd /opt/video-render-hyperframes \
+    && PUPPETEER_SKIP_DOWNLOAD=1 npm ci --omit=dev
+COPY video-render-hyperframes/render.mjs /opt/video-render-hyperframes/render.mjs
 
 COPY scripts/sync-presentation-export.cjs /app/scripts/sync-presentation-export.cjs
 COPY scripts/run-presentation-export.mjs /app/scripts/run-presentation-export.mjs

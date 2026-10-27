@@ -15,7 +15,10 @@ the slides whose note, voice or model changed.
 from __future__ import annotations
 
 import asyncio
+import base64
+import binascii
 import hashlib
+import json
 import logging
 import os
 import struct
@@ -23,7 +26,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Optional, Sequence
 
-from openai import AsyncOpenAI
+from openai import APIStatusError, AsyncOpenAI
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -40,28 +43,101 @@ from utils.get_env import (
     get_app_data_directory_env,
     get_openai_compat_tts_api_key_env,
     get_openai_compat_tts_base_url_env,
+    get_openai_compat_tts_instruction_env,
     get_openai_compat_tts_model_env,
+    get_openai_compat_tts_transport_env,
     get_openai_compat_tts_voice_env,
+    get_openrouter_api_key_env,
+    get_openrouter_tts_api_key_env,
+    get_openrouter_tts_base_url_env,
+    get_openrouter_tts_format_env,
+    get_openrouter_tts_model_env,
+    get_openrouter_tts_voice_env,
 )
 from utils.llm_calls.translate_speaker_notes import translate_speaker_notes
+from utils.vertex_tts import (
+    VertexTTSConfig,
+    VertexTTSConfigurationError,
+    get_vertex_tts_config,
+    pcm_to_wav,
+    sample_rate_from_mime,
+    synthesize_vertex_speech,
+)
 
 LOGGER = logging.getLogger(__name__)
 
 SPEAKER_NOTE_TTS_CONCURRENCY = 4
 SPEAKER_NOTE_TTS_FORMAT = "mp3"
+# Raw 16-bit samples, which some speech models (Gemini, on OpenRouter) send
+# instead of any container. Wrapped as WAV before they are stored.
+SPEAKER_NOTE_TTS_PCM_FORMAT = "pcm"
+SPEAKER_NOTE_TTS_SPEECH_FORMATS = (SPEAKER_NOTE_TTS_FORMAT, SPEAKER_NOTE_TTS_PCM_FORMAT)
 # The OpenAI speech endpoint rejects input longer than this. Generated notes are
 # far shorter, so this only guards hand-edited notes.
 SPEAKER_NOTE_TTS_MAX_INPUT_CHARACTERS = 4000
 SPEAKER_NOTE_TTS_DEFAULT_VOICE = "alloy"
 
+# How the text reaches the provider. Not every OpenAI-compatible gateway serves
+# /v1/audio/speech: a proxy in front of OpenRouter, for instance, answers a
+# speech request with `unsupported_operation`, while the same model reads text
+# aloud through chat completions asked for an audio modality. "auto" tries the
+# speech endpoint first and remembers, per model, when it has to use chat.
+SPEAKER_NOTE_TTS_TRANSPORT_AUTO = "auto"
+SPEAKER_NOTE_TTS_TRANSPORT_SPEECH = "speech"
+SPEAKER_NOTE_TTS_TRANSPORT_CHAT = "chat"
+SPEAKER_NOTE_TTS_TRANSPORTS = (
+    SPEAKER_NOTE_TTS_TRANSPORT_AUTO,
+    SPEAKER_NOTE_TTS_TRANSPORT_SPEECH,
+    SPEAKER_NOTE_TTS_TRANSPORT_CHAT,
+)
+
+# Models reached through the chat transport are asked for audio only, which is
+# what text-to-speech models such as Gemini's expect. A model that also insists
+# on producing text (OpenAI's audio previews) is retried with both modalities.
+_CHAT_MODALITY_ATTEMPTS = (["audio"], ["text", "audio"])
+
+# What each (base URL, model) has already refused, so a deck of twenty slides
+# pays for a refusal once instead of twenty times. A gateway that turns down
+# both transports cannot read that model at all, and the next slide is failed
+# without another round trip.
+_UNSUPPORTED_TRANSPORTS: dict[tuple[str, str], set[str]] = {}
+# The wording each refusal came with, kept so the failure a user reads names
+# what the gateway actually said rather than which function raised.
+_TRANSPORT_REFUSALS: dict[tuple[tuple[str, str], str], str] = {}
+
+BOTH_TRANSPORTS_REFUSED_MESSAGE = (
+    "The gateway at {base_url} will not read {model} aloud: it answers speech "
+    "requests with \"{speech}\" and chat requests with \"{chat}\". The model and "
+    "the provider it is routed to disagree about which endpoint to use, so this "
+    "has to be settled in the gateway: route the model to a provider whose "
+    "speech endpoint the gateway implements, or point OPENAI_COMPAT_TTS_BASE_URL "
+    "straight at a provider that serves /v1/audio/speech."
+)
+
 MISSING_TTS_CONFIG_MESSAGE = (
     "OPENAI_COMPAT_TTS_BASE_URL, OPENAI_COMPAT_TTS_API_KEY and "
-    "OPENAI_COMPAT_TTS_MODEL must be set to generate speaker note audio."
+    "OPENAI_COMPAT_TTS_MODEL -- or the OPENROUTER_TTS_* variables, to use "
+    "OpenRouter's speech endpoint, or the VERTEX_COMPAT_TTS_* variables, to "
+    "reach a Gemini speech model on Vertex AI directly -- must be set to "
+    "generate speaker note audio."
 )
+MISSING_OPENROUTER_TTS_KEY_MESSAGE = (
+    "OPENROUTER_TTS_MODEL is set but there is no key to call it with: set "
+    "OPENROUTER_TTS_API_KEY, or OPENROUTER_API_KEY."
+)
+OPENROUTER_TTS_DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
 
 
 class SpeakerNoteTTSConfigurationError(RuntimeError):
     """Raised when the speech provider is not configured."""
+
+
+class SpeakerNoteTTSTransportError(RuntimeError):
+    """Raised when the provider serves neither of the two ways to read text.
+
+    Worth its own type because nothing about the deck, the note or the request
+    can fix it: the gateway has to be pointed at a provider that can speak.
+    """
 
 
 @dataclass
@@ -70,6 +146,13 @@ class SpeakerNoteTTSConfig:
     api_key: str
     model: str
     voice: str
+    transport: str = SPEAKER_NOTE_TTS_TRANSPORT_AUTO
+    instruction: str = ""
+    # What the speech endpoint is asked to return.
+    response_format: str = SPEAKER_NOTE_TTS_FORMAT
+    # Set when the notes are read on Vertex AI, which has no speech endpoint of
+    # any kind and is called as a Gemini model instead.
+    vertex: Optional[VertexTTSConfig] = None
 
 
 @dataclass
@@ -92,6 +175,26 @@ class SpeakerNoteAudioGenerationResult:
 
 
 def get_speaker_note_tts_config(voice: Optional[str] = None) -> SpeakerNoteTTSConfig:
+    # Vertex wins when it is configured: it is only ever set to go around a
+    # gateway that cannot carry speech, so leaving it as the fallback would
+    # defeat the point of setting it.
+    try:
+        vertex = get_vertex_tts_config(voice)
+    except VertexTTSConfigurationError as error:
+        raise SpeakerNoteTTSConfigurationError(str(error)) from error
+    if vertex is not None:
+        return SpeakerNoteTTSConfig(
+            base_url=vertex.label,
+            api_key=vertex.api_key or "",
+            model=vertex.model,
+            voice=vertex.voice,
+            vertex=vertex,
+        )
+
+    openrouter = get_openrouter_tts_config(voice)
+    if openrouter is not None:
+        return openrouter
+
     base_url = (get_openai_compat_tts_base_url_env() or "").strip()
     api_key = (get_openai_compat_tts_api_key_env() or "").strip()
     model = (get_openai_compat_tts_model_env() or "").strip()
@@ -102,9 +205,94 @@ def get_speaker_note_tts_config(voice: Optional[str] = None) -> SpeakerNoteTTSCo
         or (get_openai_compat_tts_voice_env() or "").strip()
         or SPEAKER_NOTE_TTS_DEFAULT_VOICE
     )
+    transport = (get_openai_compat_tts_transport_env() or "").strip().lower()
+    if transport not in SPEAKER_NOTE_TTS_TRANSPORTS:
+        transport = SPEAKER_NOTE_TTS_TRANSPORT_AUTO
     return SpeakerNoteTTSConfig(
-        base_url=base_url, api_key=api_key, model=model, voice=resolved_voice
+        base_url=base_url,
+        api_key=api_key,
+        model=model,
+        voice=resolved_voice,
+        transport=transport,
+        instruction=(get_openai_compat_tts_instruction_env() or "").strip(),
     )
+
+
+def get_openrouter_tts_config(
+    voice: Optional[str] = None,
+) -> Optional[SpeakerNoteTTSConfig]:
+    """OpenRouter's own speech endpoint, or None when it is not configured.
+
+    OpenRouter serves `/audio/speech` itself, so the notes go there directly and
+    only there: its chat completions carry audio only when streamed, which the
+    chat transport does not do, so falling back to it would just fail twice.
+    The key falls back to the one the deck's text model already uses.
+    """
+    model = (get_openrouter_tts_model_env() or "").strip()
+    if not model:
+        return None
+    api_key = (
+        (get_openrouter_tts_api_key_env() or "").strip()
+        or (get_openrouter_api_key_env() or "").strip()
+    )
+    if not api_key:
+        raise SpeakerNoteTTSConfigurationError(MISSING_OPENROUTER_TTS_KEY_MESSAGE)
+    return SpeakerNoteTTSConfig(
+        base_url=(get_openrouter_tts_base_url_env() or "").strip()
+        or OPENROUTER_TTS_DEFAULT_BASE_URL,
+        api_key=api_key,
+        model=model,
+        voice=(
+            (voice or "").strip()
+            or (get_openrouter_tts_voice_env() or "").strip()
+            or (get_openai_compat_tts_voice_env() or "").strip()
+            or SPEAKER_NOTE_TTS_DEFAULT_VOICE
+        ),
+        transport=SPEAKER_NOTE_TTS_TRANSPORT_SPEECH,
+        response_format=_openrouter_tts_format(model),
+    )
+
+
+def _openrouter_tts_format(model: str) -> str:
+    """mp3 unless the model cannot send it.
+
+    OpenRouter's Gemini speech models answer anything but `pcm` with
+    `Gemini TTS only supports response_format="pcm"`.
+    """
+    configured = (get_openrouter_tts_format_env() or "").strip().lower()
+    if configured in SPEAKER_NOTE_TTS_SPEECH_FORMATS:
+        return configured
+    if model.lower().startswith("google/"):
+        return SPEAKER_NOTE_TTS_PCM_FORMAT
+    return SPEAKER_NOTE_TTS_FORMAT
+
+
+def _asks_for_pcm(error: APIStatusError) -> bool:
+    """Whether the provider refused the format and said it only sends pcm."""
+    if getattr(error, "status_code", None) != 400:
+        return False
+    payload = _status_error_payload(error)
+    return "response_format" in payload and "pcm" in payload and "only" in payload
+
+
+def _speech_audio(response: Any, response_format: str) -> bytes:
+    """The bytes of a speech answer, as a file something can open."""
+    audio = response.content
+    if not audio:
+        raise RuntimeError("Speech provider returned no audio for a speaker note")
+    headers = getattr(getattr(response, "response", None), "headers", None) or {}
+    try:
+        content_type = str(headers.get("content-type") or "")
+    except Exception:
+        content_type = ""
+    kind = content_type.split(";")[0].strip().lower()
+    is_raw = kind in ("audio/pcm", "audio/l16", "audio/x-raw") or (
+        response_format == SPEAKER_NOTE_TTS_PCM_FORMAT
+        and kind in ("", "application/octet-stream")
+    )
+    if not is_raw or detect_audio_format(audio) == "wav":
+        return audio
+    return pcm_to_wav(audio, sample_rate=sample_rate_from_mime(content_type))
 
 
 def note_digest(note: str) -> str:
@@ -123,23 +311,290 @@ def clip_tts_input(text: str) -> str:
     return clipped.rsplit(" ", 1)[0] if " " in clipped else clipped
 
 
+def _status_error_payload(error: APIStatusError) -> str:
+    """Everything an error carries, as one lowercase string to look through.
+
+    Gateways nest their reason differently -- `error.code`, `error.message`, a
+    provider's own envelope -- so the whole body is searched rather than one
+    field that only some of them fill in.
+    """
+    parts = [str(getattr(error, "message", "") or "")]
+    body = getattr(error, "body", None)
+    if body is not None:
+        try:
+            parts.append(json.dumps(body, default=str))
+        except (TypeError, ValueError):
+            parts.append(str(body))
+    return " ".join(parts).lower()
+
+
+def _speech_endpoint_unsupported(error: APIStatusError) -> bool:
+    """Whether the provider is saying it has no speech endpoint at all.
+
+    A refusal of the endpoint itself is worth retrying through chat completions;
+    a bad voice, a missing key or a rate limit is not, and must keep failing.
+    """
+    status = getattr(error, "status_code", None)
+    if status not in (400, 404, 405, 501):
+        return False
+    payload = _status_error_payload(error)
+    if "unsupported_operation" in payload:
+        return True
+    if status in (404, 405) and ("audio/speech" in payload or "not found" in payload):
+        return True
+    return ("speech" in payload or "tts" in payload) and (
+        "not supported" in payload
+        or "unsupported" in payload
+        or "not implemented" in payload
+    )
+
+
+def _chat_endpoint_unsupported(error: APIStatusError) -> bool:
+    """Whether the provider refuses to run this model through chat at all.
+
+    A gateway that knows the model is a text-to-speech one turns a chat request
+    down on sight and points at its speech endpoint instead. When its speech
+    endpoint has already refused the same model, there is nowhere left to go and
+    the next slide should not repeat the pair of failing calls.
+    """
+    if getattr(error, "status_code", None) not in (400, 404, 405, 501):
+        return False
+    payload = _status_error_payload(error)
+    if "unsupported_operation" in payload:
+        return True
+    if "text-to-speech model" in payload or "tts model" in payload:
+        return True
+    return "chat" in payload and (
+        "cannot be used" in payload
+        or "not supported" in payload
+        or "unsupported" in payload
+    )
+
+
+def _refused(fingerprint: tuple[str, str], transport: str) -> bool:
+    return transport in _UNSUPPORTED_TRANSPORTS.get(fingerprint, set())
+
+
+def _remember_refusal(
+    fingerprint: tuple[str, str], transport: str, error: BaseException
+) -> None:
+    _UNSUPPORTED_TRANSPORTS.setdefault(fingerprint, set()).add(transport)
+    _TRANSPORT_REFUSALS[(fingerprint, transport)] = _provider_message(error)
+
+
+def _provider_message(error: BaseException) -> str:
+    """The provider's own wording, for a message someone has to act on."""
+    body = getattr(error, "body", None)
+    if isinstance(body, dict):
+        nested = body.get("error")
+        if isinstance(nested, dict) and nested.get("message"):
+            return str(nested["message"])
+        if isinstance(nested, str) and nested:
+            return nested
+        if body.get("message"):
+            return str(body["message"])
+    message = str(getattr(error, "message", "") or error)
+    return message or error.__class__.__name__
+
+
+def _both_transports_refused_error(
+    fingerprint: tuple[str, str],
+) -> SpeakerNoteTTSTransportError:
+    base_url, model = fingerprint
+    return SpeakerNoteTTSTransportError(
+        BOTH_TRANSPORTS_REFUSED_MESSAGE.format(
+            base_url=base_url,
+            model=model,
+            speech=_TRANSPORT_REFUSALS.get(
+                (fingerprint, SPEAKER_NOTE_TTS_TRANSPORT_SPEECH), "a refusal"
+            ),
+            chat=_TRANSPORT_REFUSALS.get(
+                (fingerprint, SPEAKER_NOTE_TTS_TRANSPORT_CHAT), "a refusal"
+            ),
+        )
+    )
+
+
+def _decode_audio_payload(data: Any) -> Optional[bytes]:
+    """Audio bytes out of whatever a chat response carried them in."""
+    if isinstance(data, (bytes, bytearray)):
+        return bytes(data) or None
+    if not isinstance(data, str) or not data.strip():
+        return None
+    encoded = data.strip()
+    if encoded.startswith("data:"):
+        _, _, encoded = encoded.partition(",")
+    try:
+        audio = base64.b64decode(encoded, validate=False)
+    except (binascii.Error, ValueError):
+        return None
+    return audio or None
+
+
+def _audio_from_chat_message(message: Any) -> Optional[bytes]:
+    """Find the reading inside a chat completion, whichever shape it took.
+
+    OpenAI returns it under `message.audio.data`; gateways in front of other
+    providers sometimes hand back a content part instead, and the part's key is
+    `data` or `audio` depending on who wrote the translation layer.
+    """
+    if hasattr(message, "model_dump"):
+        message = message.model_dump()
+    if not isinstance(message, dict):
+        return None
+
+    audio = message.get("audio")
+    if isinstance(audio, dict):
+        decoded = _decode_audio_payload(audio.get("data"))
+        if decoded:
+            return decoded
+
+    content = message.get("content")
+    if isinstance(content, list):
+        for part in content:
+            if not isinstance(part, dict):
+                continue
+            if part.get("type") not in (
+                None, "audio", "output_audio", "input_audio",
+            ):
+                continue
+            candidate = part.get("data")
+            if candidate is None:
+                nested = part.get("audio") or part.get("input_audio")
+                candidate = nested.get("data") if isinstance(nested, dict) else None
+            decoded = _decode_audio_payload(candidate)
+            if decoded:
+                return decoded
+    return None
+
+
+async def _synthesize_via_chat(
+    text: str,
+    *,
+    config: SpeakerNoteTTSConfig,
+    client: AsyncOpenAI,
+) -> bytes:
+    """Read text aloud through chat completions asked for an audio answer.
+
+    The note is the whole user message: a text-to-speech model reads what it is
+    handed, so an instruction wrapped around it would be read out too. Providers
+    whose model wants to be told how to sound take that wording from
+    OPENAI_COMPAT_TTS_INSTRUCTION, sent as a system message.
+    """
+    fingerprint = (config.base_url, config.model)
+    messages: list[dict[str, Any]] = []
+    if config.instruction:
+        messages.append({"role": "system", "content": config.instruction})
+    messages.append({"role": "user", "content": text})
+
+    last_error: Optional[BaseException] = None
+    for modalities in _CHAT_MODALITY_ATTEMPTS:
+        try:
+            response = await client.chat.completions.create(
+                model=config.model,
+                messages=messages,
+                modalities=modalities,
+                audio={
+                    "voice": config.voice,
+                    "format": SPEAKER_NOTE_TTS_FORMAT,
+                },
+            )
+        except APIStatusError as error:
+            # A gateway that refuses to run a speech model through chat has now
+            # turned down both ways of reaching it, and saying so is more use
+            # than a stack trace repeated once per slide.
+            if _chat_endpoint_unsupported(error):
+                _remember_refusal(
+                    fingerprint, SPEAKER_NOTE_TTS_TRANSPORT_CHAT, error
+                )
+                if _refused(fingerprint, SPEAKER_NOTE_TTS_TRANSPORT_SPEECH):
+                    raise _both_transports_refused_error(fingerprint) from error
+                raise
+            # A model that rejects the modality set it was offered is retried
+            # with the other one; anything else is the caller's problem.
+            if error.status_code != 400 or "modalit" not in _status_error_payload(
+                error
+            ):
+                raise
+            last_error = error
+            continue
+
+        choices = getattr(response, "choices", None) or []
+        audio = _audio_from_chat_message(choices[0].message) if choices else None
+        if audio:
+            return audio
+        last_error = RuntimeError(
+            "Speech provider returned a chat answer without audio for a speaker note"
+        )
+
+    raise last_error or RuntimeError(
+        "Speech provider returned no audio for a speaker note"
+    )
+
+
 async def synthesize_speech(
     text: str,
     *,
     config: SpeakerNoteTTSConfig,
 ) -> bytes:
     """Read one piece of text aloud through the configured provider."""
+    input_text = clip_tts_input(text)
+    if config.vertex is not None:
+        return await synthesize_vertex_speech(input_text, config=config.vertex)
+
     client = AsyncOpenAI(base_url=config.base_url, api_key=config.api_key)
-    response = await client.audio.speech.create(
-        model=config.model,
-        voice=config.voice,
-        input=clip_tts_input(text),
-        response_format=SPEAKER_NOTE_TTS_FORMAT,
-    )
-    audio = response.content
-    if not audio:
-        raise RuntimeError("Speech provider returned no audio for a speaker note")
-    return audio
+    fingerprint = (config.base_url, config.model)
+
+    if config.transport == SPEAKER_NOTE_TTS_TRANSPORT_AUTO and _refused(
+        fingerprint, SPEAKER_NOTE_TTS_TRANSPORT_SPEECH
+    ):
+        if _refused(fingerprint, SPEAKER_NOTE_TTS_TRANSPORT_CHAT):
+            # Both doors are already known to be shut: fail the rest of the deck
+            # on what the gateway said rather than on two more round trips each.
+            raise _both_transports_refused_error(fingerprint)
+        return await _synthesize_via_chat(input_text, config=config, client=client)
+
+    if config.transport == SPEAKER_NOTE_TTS_TRANSPORT_CHAT:
+        return await _synthesize_via_chat(input_text, config=config, client=client)
+
+    response_format = config.response_format
+    try:
+        try:
+            response = await client.audio.speech.create(
+                model=config.model,
+                voice=config.voice,
+                input=input_text,
+                response_format=response_format,
+            )
+        except APIStatusError as error:
+            if response_format == SPEAKER_NOTE_TTS_PCM_FORMAT or not _asks_for_pcm(error):
+                raise
+            # Said once per model, then asked for what it can send.
+            LOGGER.info(
+                "[speaker-notes.tts] %s only sends pcm; asking for that instead",
+                config.model,
+            )
+            config.response_format = response_format = SPEAKER_NOTE_TTS_PCM_FORMAT
+            response = await client.audio.speech.create(
+                model=config.model,
+                voice=config.voice,
+                input=input_text,
+                response_format=response_format,
+            )
+    except APIStatusError as error:
+        if config.transport != SPEAKER_NOTE_TTS_TRANSPORT_AUTO:
+            raise
+        if not _speech_endpoint_unsupported(error):
+            raise
+        LOGGER.info(
+            "[speaker-notes.tts] %s has no speech endpoint, reading notes through "
+            "chat completions instead",
+            config.model,
+        )
+        _remember_refusal(fingerprint, SPEAKER_NOTE_TTS_TRANSPORT_SPEECH, error)
+        return await _synthesize_via_chat(input_text, config=config, client=client)
+
+    return _speech_audio(response, response_format)
 
 
 _MPEG_BITRATES_V1_L3 = (
@@ -210,6 +665,91 @@ def mp3_duration_seconds(audio: bytes) -> Optional[float]:
         offset += frame_length
 
     return round(duration, 3) if frames else None
+
+
+def wav_duration_seconds(audio: bytes) -> Optional[float]:
+    """Length of a RIFF/WAVE stream, from its format and data chunks."""
+    if len(audio) < 12 or audio[:4] != b"RIFF" or audio[8:12] != b"WAVE":
+        return None
+    offset = 12
+    byte_rate = 0
+    while offset + 8 <= len(audio):
+        chunk_id = audio[offset : offset + 4]
+        chunk_size = struct.unpack("<I", audio[offset + 4 : offset + 8])[0]
+        body = offset + 8
+        if chunk_id == b"fmt " and chunk_size >= 16 and body + 16 <= len(audio):
+            byte_rate = struct.unpack("<I", audio[body + 8 : body + 12])[0]
+        elif chunk_id == b"data":
+            if not byte_rate:
+                return None
+            # A stream written while it is still being produced can carry a
+            # zero or oversized size, so what is really there wins.
+            data_size = min(chunk_size, len(audio) - body) or (len(audio) - body)
+            return round(data_size / byte_rate, 3)
+        offset = body + chunk_size + (chunk_size & 1)
+    return None
+
+
+def detect_audio_format(audio: bytes) -> str:
+    """Container the provider actually sent back.
+
+    The format asked for is not always the format returned: a model reached
+    through chat completions may answer with WAV whatever the request said, and
+    the file has to be named after what is in it.
+    """
+    if audio[:4] == b"RIFF" and audio[8:12] == b"WAVE":
+        return "wav"
+    if audio[:4] == b"OggS":
+        return "ogg"
+    if audio[:4] == b"fLaC":
+        return "flac"
+    if audio[:4] == b"\x1aE\xdf\xa3":
+        return "webm"
+    if len(audio) >= 12 and audio[4:8] == b"ftyp":
+        return "m4a"
+    if audio[:3] == b"ID3" or (
+        len(audio) >= 2 and audio[0] == 0xFF and (audio[1] & 0xE0) == 0xE0
+    ):
+        return SPEAKER_NOTE_TTS_FORMAT
+    return SPEAKER_NOTE_TTS_FORMAT
+
+
+def audio_duration_seconds(audio: bytes, audio_format: str) -> Optional[float]:
+    """Length of a reading, for the players and the video timeline."""
+    if audio_format == "wav":
+        return wav_duration_seconds(audio)
+    if audio_format == SPEAKER_NOTE_TTS_FORMAT:
+        return mp3_duration_seconds(audio)
+    # Anything else is measured with ffprobe when the deck is turned into a
+    # video; a missing duration here is only a missing hint.
+    return None
+
+
+SYNTHESIS_FAILURE_REASON = "The speech provider could not read this slide"
+_SYNTHESIS_FAILURE_REASON_LIMIT = 400
+
+
+def _synthesis_failure_reason(error: BaseException) -> str:
+    """What to tell the caller about a slide that went unread.
+
+    The provider's own words are carried through, because a configuration
+    problem -- a model that is not a speech model, a key without access -- is
+    only fixable by whoever reads this, and it is not in the log they have.
+    """
+    if isinstance(error, SpeakerNoteTTSTransportError):
+        detail = str(error)
+    elif isinstance(error, APIStatusError):
+        detail = _provider_message(error)
+    else:
+        detail = str(error)
+    detail = " ".join(detail.split())
+    if not detail:
+        return SYNTHESIS_FAILURE_REASON
+    if len(detail) > _SYNTHESIS_FAILURE_REASON_LIMIT:
+        detail = detail[:_SYNTHESIS_FAILURE_REASON_LIMIT].rstrip() + "..."
+    if isinstance(error, SpeakerNoteTTSTransportError):
+        return detail
+    return f"{SYNTHESIS_FAILURE_REASON}: {detail}"
 
 
 def _audio_url_for_path(path: str) -> str:
@@ -485,19 +1025,30 @@ async def generate_speaker_note_audios(
             if isinstance(audio_bytes, BaseException):
                 if isinstance(audio_bytes, asyncio.CancelledError):
                     raise audio_bytes
-                LOGGER.exception(
-                    "[speaker-notes.tts] synthesis failed slide=%s", slide.id,
-                    exc_info=audio_bytes,
-                )
+                if isinstance(audio_bytes, SpeakerNoteTTSTransportError):
+                    # Nothing about this slide caused it and nothing about the
+                    # next one will change it, so it is logged flat, once per
+                    # slide, without a stack trace that says the same thing.
+                    LOGGER.error(
+                        "[speaker-notes.tts] synthesis failed slide=%s: %s",
+                        slide.id,
+                        audio_bytes,
+                    )
+                else:
+                    LOGGER.exception(
+                        "[speaker-notes.tts] synthesis failed slide=%s", slide.id,
+                        exc_info=audio_bytes,
+                    )
                 result.skipped.append(
                     {
                         "slide_index": slide.index,
-                        "reason": "The speech provider could not read this slide",
+                        "reason": _synthesis_failure_reason(audio_bytes),
                     }
                 )
                 continue
 
-            filename = f"{slide.id}-{target_language.code}-{uuid.uuid4().hex}.{SPEAKER_NOTE_TTS_FORMAT}"
+            audio_format = detect_audio_format(audio_bytes)
+            filename = f"{slide.id}-{target_language.code}-{uuid.uuid4().hex}.{audio_format}"
             path = os.path.join(output_directory, filename)
             with open(path, "wb") as audio_file:
                 audio_file.write(audio_bytes)
@@ -518,9 +1069,11 @@ async def generate_speaker_note_audios(
                     source_note_hash=note_digest(slide.speaker_note or ""),
                     path=path,
                     url=_audio_url_for_path(path),
-                    format=SPEAKER_NOTE_TTS_FORMAT,
+                    format=audio_format,
                     size_bytes=len(audio_bytes),
-                    duration_seconds=mp3_duration_seconds(audio_bytes),
+                    duration_seconds=audio_duration_seconds(
+                        audio_bytes, audio_format
+                    ),
                 )
                 existing[slide.id] = record
             else:
@@ -533,9 +1086,11 @@ async def generate_speaker_note_audios(
                 record.source_note_hash = note_digest(slide.speaker_note or "")
                 record.path = path
                 record.url = _audio_url_for_path(path)
-                record.format = SPEAKER_NOTE_TTS_FORMAT
+                record.format = audio_format
                 record.size_bytes = len(audio_bytes)
-                record.duration_seconds = mp3_duration_seconds(audio_bytes)
+                record.duration_seconds = audio_duration_seconds(
+                    audio_bytes, audio_format
+                )
                 record.updated_at = get_current_utc_datetime()
             sql_session.add(record)
             # The previous file is replaced rather than overwritten so a client

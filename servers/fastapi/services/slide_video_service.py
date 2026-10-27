@@ -16,10 +16,11 @@ a video: uploading adds it, deleting the video removes it.
 from __future__ import annotations
 
 import copy
-import logging
 import os
 import uuid
-from typing import Any, Iterator, Optional, Sequence
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Any, Iterator, Literal, Mapping, Optional, Sequence
 
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,6 +40,7 @@ from models.speaker_note_audio_response import SpeakerNoteAudioResponse
 from models.sql.presentation import PresentationModel
 from models.sql.slide import SlideModel
 from models.sql.slide_video import SlideVideoModel
+from models.sql.speaker_note_audio import SpeakerNoteAudioModel
 from services.speaker_note_tts_service import list_speaker_note_audios, note_digest
 from utils.asset_directory_utils import (
     absolute_fastapi_asset_url,
@@ -48,11 +50,11 @@ from utils.asset_directory_utils import (
 from utils.datetime_utils import get_current_utc_datetime
 from utils.video_files import (
     get_slide_video_max_upload_bytes,
+    remove_deck_video_files,
+    remove_file,
     store_uploaded_video,
     video_metadata,
 )
-
-LOGGER = logging.getLogger(__name__)
 
 STAGE_WIDTH = 1280
 STAGE_HEIGHT = 720
@@ -88,8 +90,12 @@ class MultipleNarrationLanguagesError(ValueError):
 
 
 def is_template_slide(slide: SlideModel) -> bool:
+    # A layout can be made of components alone; the placeholder then starts
+    # the root `elements` list.
     ui = slide.ui
-    return isinstance(ui, dict) and isinstance(ui.get("elements"), list)
+    return isinstance(ui, dict) and (
+        isinstance(ui.get("elements"), list) or isinstance(ui.get("components"), list)
+    )
 
 
 def _is_video_placeholder(value: Any) -> bool:
@@ -272,36 +278,6 @@ def set_bubble(presentation: PresentationModel, box: StageBox) -> PlaybackBubble
     return resolve_bubble(presentation)
 
 
-def _remove_video_file(path: Optional[str]) -> None:
-    if not path:
-        return
-    try:
-        os.remove(path)
-    except FileNotFoundError:
-        return
-    except OSError as exc:
-        LOGGER.warning("Could not remove slide video %s: %s", path, exc)
-
-
-def remove_slide_video_files(
-    presentation_id: uuid.UUID, paths: Sequence[str]
-) -> None:
-    """Delete video files, and the deck's video folder once it is empty."""
-    directories: set[str] = set()
-    for path in paths:
-        if not path:
-            continue
-        directories.add(os.path.dirname(path))
-        _remove_video_file(path)
-    for directory in directories:
-        if os.path.basename(directory) != str(presentation_id):
-            continue
-        try:
-            os.rmdir(directory)
-        except OSError:
-            continue
-
-
 async def list_slide_videos(
     sql_session: AsyncSession,
     *,
@@ -331,9 +307,48 @@ async def slide_video_paths(
     return [video.path for video in videos if video.path]
 
 
+StaleReason = Literal["note_changed", "audio_regenerated"]
+
+
+def _as_utc(moment: datetime) -> datetime:
+    # SQLite hands timestamps back without a zone, Postgres with one; every
+    # stored value is UTC, so a naive one is read as UTC to compare the two.
+    return moment if moment.tzinfo is not None else moment.replace(tzinfo=timezone.utc)
+
+
+def avatar_stale_reason(
+    video: SlideVideoModel,
+    slide: SlideModel,
+    audio: Optional[SpeakerNoteAudioModel],
+) -> Optional[StaleReason]:
+    """Why the avatar no longer matches its narration, or None while it does.
+
+    The avatar was lip-synced to the note's audio at upload time. A note edited
+    since changes what should be said; audio regenerated since, in the avatar's
+    own language, changes how it sounds, so the lips drift from the voice. Audio
+    in another language says nothing about this avatar, and an avatar with no
+    language ("any") has no audio to compare against, so it only checks the
+    note. Staleness is a warning: stale avatars are still played.
+    """
+    if note_digest(slide.speaker_note or "") != video.source_note_hash:
+        return "note_changed"
+    if (
+        video.language is not None
+        and audio is not None
+        and audio.language == video.language
+        and _as_utc(audio.updated_at) > _as_utc(video.updated_at)
+    ):
+        return "audio_regenerated"
+    return None
+
+
 def slide_video_response(
-    video: SlideVideoModel, slide: SlideModel
+    video: SlideVideoModel,
+    slide: SlideModel,
+    audio: Optional[SpeakerNoteAudioModel] = None,
 ) -> SlideVideoResponse:
+    """`audio` is the slide's narration in the avatar's language, if any."""
+    stale_reason = avatar_stale_reason(video, slide, audio)
     return SlideVideoResponse(
         id=video.id,
         presentation_id=video.presentation,
@@ -347,7 +362,9 @@ def slide_video_response(
         duration_seconds=video.duration_seconds,
         width=video.width,
         height=video.height,
-        stale=note_digest(slide.speaker_note or "") != video.source_note_hash,
+        language=video.language,
+        stale=stale_reason is not None,
+        stale_reason=stale_reason,
         placeholder=placeholder_box(find_video_placeholder(slide.ui)),
         created_at=video.created_at,
         updated_at=video.updated_at,
@@ -358,10 +375,18 @@ def slide_videos_response(
     presentation_id: uuid.UUID,
     slides: Sequence[SlideModel],
     videos: Sequence[SlideVideoModel],
+    audios: Sequence[SpeakerNoteAudioModel] = (),
 ) -> SlideVideosResponse:
     by_slide = {video.slide: video for video in videos}
+    audio_by_slide_language = {
+        (audio.slide, audio.language): audio for audio in audios
+    }
     responses = [
-        slide_video_response(by_slide[slide.id], slide)
+        slide_video_response(
+            by_slide[slide.id],
+            slide,
+            audio_by_slide_language.get((slide.id, by_slide[slide.id].language)),
+        )
         for slide in slides
         if slide.id in by_slide
     ]
@@ -381,6 +406,97 @@ def slide_videos_response(
     )
 
 
+ActorKind = Literal["video", "voice", "none"]
+
+
+@dataclass(frozen=True)
+class SlideActor:
+    """Who presents one slide, and with what.
+
+    `video` is set only when `actor == "video"`. `audio` is the slide's TTS
+    narration in the language asked for; it is the soundtrack for `video` and
+    `voice` slides alike, since avatars are silent. `avatar_skipped` says why a
+    slide that has an avatar does not show it.
+    """
+
+    slide: SlideModel
+    actor: ActorKind
+    audio: Optional[SpeakerNoteAudioModel]
+    video: Optional[SlideVideoModel]
+    avatar_skipped: Optional[Literal["disabled", "language"]] = None
+
+
+def resolve_slide_actors(
+    slides: Sequence[SlideModel],
+    audio_by_slide: Mapping[uuid.UUID, SpeakerNoteAudioModel],
+    video_by_slide: Mapping[uuid.UUID, SlideVideoModel],
+    *,
+    language: Optional[str],
+    avatars: bool = True,
+) -> list[SlideActor]:
+    """Pick each slide's presenter, in slide order.
+
+    The playback plan and the MP4 export both ask here, so what a viewer sees
+    in the player is what the export renders. An avatar wins when avatars are
+    on and it was synced to `language` (or to no language in particular, or
+    no narration language is in play at all, so there is nothing for it to
+    disagree with); an avatar on a slide with no narration still plays,
+    silently. Otherwise the
+    slide gets the voice bubble if it has audio, and nothing if it has none.
+    """
+    actors: list[SlideActor] = []
+    for slide in slides:
+        audio = audio_by_slide.get(slide.id)
+        video = video_by_slide.get(slide.id)
+        skipped: Optional[Literal["disabled", "language"]] = None
+        if video is not None:
+            if not avatars:
+                skipped = "disabled"
+            elif (
+                language is not None
+                and video.language is not None
+                and video.language != language
+            ):
+                skipped = "language"
+            else:
+                actors.append(SlideActor(slide, "video", audio, video))
+                continue
+        actors.append(
+            SlideActor(
+                slide, "voice" if audio is not None else "none", audio, None, skipped
+            )
+        )
+    return actors
+
+
+def avatar_box(slide: SlideModel, video: SlideVideoModel) -> StageBox:
+    """Where the avatar plays: the slide's placeholder, or the default corner
+    spot shaped like the video when the placeholder was removed since upload."""
+    return placeholder_box(find_video_placeholder(slide.ui)) or default_placeholder_box(
+        video.width, video.height
+    )
+
+
+def avatar_fit(slide: SlideModel) -> Literal["fill", "cover", "contain"]:
+    """How the avatar sits in its box: the placeholder's `fit`, read the way the
+    editor reads an image's (anything unrecognised is `contain`), so the render
+    matches what the author saw."""
+    element = find_video_placeholder(slide.ui)
+    fit = element.get("fit") if element is not None else None
+    return fit if fit in ("fill", "cover", "contain") else "contain"
+
+
+async def _default_video_language(
+    sql_session: AsyncSession, presentation_id: uuid.UUID
+) -> Optional[str]:
+    """The deck's only narrated language, or None when it has none or several."""
+    audios = await list_speaker_note_audios(
+        sql_session, presentation_id=presentation_id
+    )
+    languages = {audio.language for audio in audios}
+    return languages.pop() if len(languages) == 1 else None
+
+
 async def save_slide_video(
     *,
     sql_session: AsyncSession,
@@ -391,8 +507,13 @@ async def save_slide_video(
     y: Optional[float] = None,
     width: Optional[float] = None,
     height: Optional[float] = None,
+    language: Optional[str] = None,
 ) -> SlideVideoModel:
     """Store a slide's avatar video, replacing any earlier one.
+
+    `language` is the narration language the avatar was synced to. Left unset
+    it is the deck's only narrated language, or None ("any") when the deck has
+    none or several; a given one must be a supported TTS language.
 
     The file is written under a new name on every upload, because the app
     serves stored media with a long cache lifetime and a replaced file at the
@@ -402,6 +523,11 @@ async def save_slide_video(
         raise SlideVideoNotSupportedError(
             "Avatar videos can only be added to template slides"
         )
+    # Resolved before the file is stored, so a bad code leaves nothing behind.
+    if language is not None and language.strip():
+        video_language: Optional[str] = resolve_tts_language(language).code
+    else:
+        video_language = await _default_video_language(sql_session, presentation.id)
 
     directory = os.path.join(get_videos_directory(), str(presentation.id))
     stored = await store_uploaded_video(
@@ -432,6 +558,7 @@ async def save_slide_video(
         if video is None:
             video = SlideVideoModel(presentation=presentation.id, slide=slide.id)
         video.source_note_hash = note_digest(slide.speaker_note or "")
+        video.language = video_language
         video.original_filename = file.filename
         video.path = stored.path
         video.url = app_data_file_url(stored.path)
@@ -449,11 +576,11 @@ async def save_slide_video(
         await sql_session.commit()
         await sql_session.refresh(video)
     except BaseException:
-        _remove_video_file(stored.path)
+        remove_file(stored.path)
         raise
 
     if previous_path and previous_path != stored.path:
-        _remove_video_file(previous_path)
+        remove_file(previous_path)
     return video
 
 
@@ -477,7 +604,7 @@ async def delete_slide_videos(
         await sql_session.delete(video)
     if videos:
         await sql_session.commit()
-    remove_slide_video_files(presentation_id, paths)
+    remove_deck_video_files(presentation_id, paths)
     return len(videos)
 
 
@@ -490,9 +617,15 @@ async def build_playback(
 ) -> PresentationPlaybackResponse:
     """Describe, slide by slide, what the narrator shows and plays.
 
+    The narration audio is the soundtrack on every slide. An avatar video is
+    silent and was lip-synced to that audio, so on a `video` slide the player
+    shows the clip and plays `audio` beside it, and the slide lasts as long as
+    the audio. Who presents each slide is decided by `resolve_slide_actors`,
+    the same rule the MP4 export uses.
+
     Narration audio comes in one language. Without `language`, the deck's only
     narrated language is used; a deck narrated in several needs the caller to
-    pick one.
+    pick one. An avatar synced to another language is not shown.
     """
     resolved = resolve_tts_language(language) if language else None
     audios = await list_speaker_note_audios(
@@ -514,32 +647,37 @@ async def build_playback(
     }
 
     playback_slides: list[PlaybackSlide] = []
-    for slide in slides:
-        video = video_by_slide.get(slide.id)
-        audio = audio_by_slide.get(slide.id)
-        video_response = slide_video_response(video, slide) if video else None
+    for resolved_actor in resolve_slide_actors(
+        slides,
+        audio_by_slide,
+        video_by_slide,
+        language=resolved.code if resolved else None,
+    ):
+        slide, audio, video = (
+            resolved_actor.slide,
+            resolved_actor.audio,
+            resolved_actor.video,
+        )
         audio_response = SpeakerNoteAudioResponse.from_model(audio) if audio else None
-        if video_response is not None:
-            actor = "video"
-            placeholder = video_response.placeholder or default_placeholder_box(
-                video.width, video.height
+        video_response = (
+            slide_video_response(video, slide, audio) if video is not None else None
+        )
+        placeholder = avatar_box(slide, video) if video is not None else None
+        if video is not None:
+            # The narration, not the clip, sets how long the slide lasts; the
+            # clip's own length is only a fallback for a slide with no audio.
+            duration = (
+                audio.duration_seconds
+                if audio is not None and audio.duration_seconds is not None
+                else video.duration_seconds
             )
-            duration = video_response.duration_seconds
-            if duration is None and audio_response is not None:
-                duration = audio_response.duration_seconds
-        elif audio_response is not None:
-            actor = "voice"
-            placeholder = None
-            duration = audio_response.duration_seconds
         else:
-            actor = "none"
-            placeholder = None
-            duration = None
+            duration = audio.duration_seconds if audio is not None else None
         playback_slides.append(
             PlaybackSlide(
                 slide_id=slide.id,
                 slide_index=slide.index,
-                actor=actor,
+                actor=resolved_actor.actor,
                 duration_seconds=duration,
                 placeholder=placeholder,
                 video=video_response,

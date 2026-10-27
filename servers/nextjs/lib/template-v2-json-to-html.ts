@@ -22,6 +22,7 @@ import {
   localFontOptionsFromUnknown,
   renderLocalFontFaceCss,
 } from "@/components/slide-editor/text/local-fonts";
+import { isVideoPlaceholderElement } from "@/components/slide-editor/video/video-placeholder";
 
 type JsonRecord = Record<string, unknown>;
 type RenderMode = "absolute" | "flow";
@@ -105,7 +106,20 @@ interface TemplateV2HtmlOptions {
   fonts?: unknown;
   width?: number;
   height?: number;
+  // Wrap every top-level element in a `data-hf-el="e{n}"` layer so a video
+  // render can animate it as one unit. Off for every on-screen render.
+  annotateElements?: boolean;
 }
+
+export interface TemplateV2AnimationTarget {
+  id: string;
+  kind: string;
+  box: { x: number; y: number; width: number | null; height: number | null };
+  text: string;
+}
+
+const ANIMATION_TARGET_TEXT_KEYS = new Set(["text", "content", "title", "label"]);
+const ANIMATION_TARGET_MAX_TEXT = 200;
 
 interface TemplateV2RenderPayload {
   items: JsonToHtmlItem[];
@@ -181,8 +195,110 @@ export function templateV2UiToHtmlFragment(
     payload.width,
     payload.height,
     payload.fonts,
-    payload.background
+    payload.background,
+    options.annotateElements === true
   );
+}
+
+/**
+ * The elements `annotateElements` wraps, in the same order and with the same
+ * ids, described for whoever decides how each one animates in. A video
+ * placeholder is rendered but never listed: the avatar video plays in it.
+ */
+export function templateV2AnimationTargets(
+  ui: unknown
+): TemplateV2AnimationTarget[] {
+  const payload = templateV2RenderPayload(ui, {});
+  if (!payload) return [];
+
+  const targets: TemplateV2AnimationTarget[] = [];
+  payload.items.map(readRecord).forEach((item, index) => {
+    if (isVideoPlaceholderElement(item) || !renderItem(item, "absolute")) return;
+    const box = readBox(item);
+    targets.push({
+      id: animationTargetId(index),
+      kind: animationTargetKind(item),
+      box: {
+        x: box.x,
+        y: box.y,
+        width: box.width ?? null,
+        height: box.height ?? null,
+      },
+      text: animationTargetText(item),
+    });
+  });
+  return targets;
+}
+
+/** Chart.js and the chart renderer that hydrates `canvas[data-presenton-chart]`. */
+export function templateV2ChartScripts(): string {
+  return renderChartScripts();
+}
+
+export function templateV2UiHasChart(ui: unknown): boolean {
+  const payload = templateV2RenderPayload(ui, {});
+  return payload ? payload.items.map(readRecord).some(hasChartItem) : false;
+}
+
+function animationTargetId(index: number): string {
+  return `e${index}`;
+}
+
+function animationTargetKind(item: JsonRecord): string {
+  if (isComponent(item)) return "group";
+  return readString(item.type) ?? "group";
+}
+
+function animationTargetText(item: JsonRecord): string {
+  const parts: string[] = [];
+  let length = 0;
+
+  const walk = (value: unknown, key?: string) => {
+    if (length >= ANIMATION_TARGET_MAX_TEXT) return;
+    if (Array.isArray(value)) {
+      value.forEach((child) => walk(child, key));
+      return;
+    }
+    if (value && typeof value === "object") {
+      Object.entries(value as JsonRecord).forEach(([childKey, child]) =>
+        walk(child, childKey)
+      );
+      return;
+    }
+    if (typeof value !== "string" || !key || !ANIMATION_TARGET_TEXT_KEYS.has(key)) {
+      return;
+    }
+    const text = value.replace(/\s+/g, " ").trim();
+    if (!text || /^(https?:|data:|\/)/.test(text)) return;
+    parts.push(text);
+    length += text.length + 1;
+  };
+
+  walk(item);
+  return parts.join(" ").slice(0, ANIMATION_TARGET_MAX_TEXT);
+}
+
+function annotateAnimationTarget(
+  html: string,
+  item: JsonRecord,
+  index: number,
+  width: number,
+  height: number
+): string {
+  if (!html) return html;
+  const box = readBox(item);
+  const originX = box.x + (box.width ?? 0) / 2;
+  const originY = box.y + (box.height ?? 0) / 2;
+  // The layer covers the whole slide at its origin, so the absolutely
+  // positioned element inside lands exactly where it would without it; only
+  // the transform origin is moved onto the element so scale/rotate pivot on it.
+  return `<div data-hf-el="${animationTargetId(index)}" data-hf-kind="${escapeAttribute(
+    animationTargetKind(item)
+  )}" style="position:absolute;left:0;top:0;width:${cssNumber(
+    width
+  )}px;height:${cssNumber(height)}px;pointer-events:none;transform-origin:${cssNumber(
+    originX
+  )}px ${cssNumber(originY)}px">${html}</div>`;
 }
 
 function templateV2RenderPayload(
@@ -270,7 +386,8 @@ function jsonToHtmlFragment(
   width: number,
   height: number,
   fonts: unknown = {},
-  background = "#FFFFFF"
+  background = "#FFFFFF",
+  annotateElements = false
 ): string {
   const records = items.map(readRecord);
   const bg = escapeCssColor(background);
@@ -279,7 +396,8 @@ function jsonToHtmlFragment(
     records,
     width,
     height,
-    bg
+    bg,
+    annotateElements
   )}`;
 }
 
@@ -287,9 +405,17 @@ function renderSlideRoot(
   records: JsonRecord[],
   width: number,
   height: number,
-  background: string
+  background: string,
+  annotateElements = false
 ): string {
-  const content = records.map((item) => renderItem(item, "absolute")).join("");
+  const content = records
+    .map((item, index) => {
+      const html = renderItem(item, "absolute");
+      return annotateElements && !isVideoPlaceholderElement(item)
+        ? annotateAnimationTarget(html, item, index, width, height)
+        : html;
+    })
+    .join("");
 
   return `<div class="relative overflow-hidden" data-template-v2-html-slide="true" style="box-sizing:border-box;position:relative;width:${cssNumber(
     width

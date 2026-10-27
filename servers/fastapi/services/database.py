@@ -27,6 +27,7 @@ from models.sql.template_v2 import TemplateV2
 from models.sql.slide import SlideModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
 from models.sql.slide_video import SlideVideoModel
+from models.sql.presentation_video import PresentationVideoModel
 from models.sql.webhook_subscription import WebhookSubscription
 from models.sql.user import User
 from models.sql.provider_settings import ProviderSettings
@@ -71,6 +72,7 @@ _STRICT_OWNER_MODELS = (
     WebhookSubscription,
     SpeakerNoteAudioModel,
     SlideVideoModel,
+    PresentationVideoModel,
 )
 
 
@@ -136,6 +138,7 @@ async def create_db_and_tables():
                         SlideModel.__table__,
                         SpeakerNoteAudioModel.__table__,
                         SlideVideoModel.__table__,
+                        PresentationVideoModel.__table__,
                         KeyValueSqlModel.__table__,
                         TemplateV2.__table__,
                         ChatHistoryMessageModel.__table__,

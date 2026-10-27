@@ -12,6 +12,7 @@ import api.v1.ppt.endpoints.presentation as presentation_endpoint
 from api.v1.ppt.endpoints.presentation import PRESENTATION_ROUTER
 from models.sql.async_task import AsyncTaskModel
 from models.sql.presentation import PresentationModel, PresentationVersion
+from models.sql.presentation_video import PresentationVideoModel
 from models.sql.slide import SlideModel
 from models.sql.slide_video import SlideVideoModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
@@ -94,6 +95,7 @@ def _build_client(tmp_path, monkeypatch):
                 SlideModel,
                 SpeakerNoteAudioModel,
                 SlideVideoModel,
+                PresentationVideoModel,
                 AsyncTaskModel,
             ):
                 await connection.run_sync(model.__table__.create)
@@ -176,7 +178,9 @@ def _rows(session_maker, model):
     return _run(session_maker, read)
 
 
-def _seed_audio(session_maker, app_data, presentation_id, slide_id, index, language="it"):
+def _seed_audio(
+    session_maker, app_data, presentation_id, slide_id, index, language="it", duration=2.5
+):
     directory = app_data / "audio" / str(presentation_id)
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"{slide_id}-{language}.mp3"
@@ -196,7 +200,7 @@ def _seed_audio(session_maker, app_data, presentation_id, slide_id, index, langu
                 source_note_hash="x",
                 path=str(path),
                 url=f"/app_data/audio/{presentation_id}/{path.name}",
-                duration_seconds=2.5,
+                duration_seconds=duration,
             )
         )
         await session.commit()
@@ -268,6 +272,89 @@ def test_upload_stores_the_video_and_adds_a_placeholder(tmp_path, monkeypatch):
     assert placeholder["data"].endswith("/static/images/video-placeholder.png")
     # The other slides are untouched.
     assert _placeholders(_slide_ui(client, presentation_id, 1)) == []
+
+
+def test_upload_records_the_given_language(tmp_path, monkeypatch):
+    client, presentation_id, _slide_ids, sessions, _app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+
+    response = _upload(client, presentation_id, 0, language="en")
+
+    assert response.status_code == 200, response.text
+    assert response.json()["language"] == "en"
+    assert [video.language for video in _rows(sessions, SlideVideoModel)] == ["en"]
+
+
+def test_upload_defaults_to_the_decks_only_narrated_language(tmp_path, monkeypatch):
+    client, presentation_id, slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[1], 1, language="en")
+
+    response = _upload(client, presentation_id, 0)
+
+    assert response.status_code == 200, response.text
+    assert response.json()["language"] == "en"
+
+
+def test_upload_without_narration_leaves_language_unset(tmp_path, monkeypatch):
+    client, presentation_id, _slide_ids, _sessions, _app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+
+    response = _upload(client, presentation_id, 0)
+
+    assert response.status_code == 200, response.text
+    assert response.json()["language"] is None
+
+
+def test_upload_in_a_multilingual_deck_leaves_language_unset(tmp_path, monkeypatch):
+    client, presentation_id, slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[1], 1, language="en")
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[1], 1, language="it")
+
+    response = _upload(client, presentation_id, 0)
+
+    assert response.status_code == 200, response.text
+    assert response.json()["language"] is None
+
+
+def test_upload_rejects_an_unsupported_language(tmp_path, monkeypatch):
+    client, presentation_id, _slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+
+    response = _upload(client, presentation_id, 0, language="xx-nope")
+
+    assert response.status_code == 422
+    assert _rows(sessions, SlideVideoModel) == []
+    assert not _video_dir(app_data, presentation_id).exists()
+
+
+def test_regenerated_narration_marks_the_avatar_stale_in_its_language(
+    tmp_path, monkeypatch
+):
+    client, presentation_id, slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    base = f"/api/v1/ppt/presentation/{presentation_id}"
+    _upload(client, presentation_id, 0, language="en")
+    assert client.get(f"{base}/videos/0").json()["stale_reason"] is None
+
+    # Narration made after the avatar, in another language and then in its own.
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[0], 0, language="it")
+    assert client.get(f"{base}/videos/0").json()["stale"] is False
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[0], 0, language="en")
+
+    single = client.get(f"{base}/videos/0").json()
+    listed = client.get(f"{base}/videos").json()["videos"][0]
+    for body in (single, listed):
+        assert body["stale"] is True
+        assert body["stale_reason"] == "audio_regenerated"
+        assert body["language"] == "en"
 
 
 def test_reupload_replaces_the_file_and_moves_the_placeholder(tmp_path, monkeypatch):
@@ -387,6 +474,56 @@ def test_deleting_the_deck_removes_its_video_files(tmp_path, monkeypatch):
     assert _rows(sessions, SlideVideoModel) == []
 
 
+def test_deleting_a_deck_removes_avatars_and_rendered_videos(tmp_path, monkeypatch):
+    client, presentation_id, _slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _upload(client, presentation_id, 0)
+    avatar = _rows(sessions, SlideVideoModel)[0].path
+
+    # A rendered MP4 and its subtitles live beside the avatars.
+    folder = _video_dir(app_data, presentation_id)
+    render, subtitles = folder / "export.mp4", folder / "export.vtt"
+    render.write_bytes(b"mp4")
+    subtitles.write_text("WEBVTT\n")
+
+    async def add_render(session):
+        session.add(
+            PresentationVideoModel(
+                presentation=presentation_id,
+                language="it",
+                language_name="Italian",
+                preset="1080p-30-soft",
+                path=str(render),
+                url=f"/app_data/videos/{presentation_id}/{render.name}",
+                subtitles_mode="soft",
+                subtitle_path=str(subtitles),
+                subtitle_url=f"/app_data/videos/{presentation_id}/{subtitles.name}",
+                resolution="1080p",
+                width=1920,
+                height=1080,
+                fps=30,
+                slide_count=3,
+                duration_seconds=7.5,
+                size_bytes=3,
+                source_hash="hash",
+            )
+        )
+        await session.commit()
+
+    _run(sessions, add_render)
+    assert os.path.exists(avatar) and render.exists() and subtitles.exists()
+
+    assert client.delete(f"/api/v1/ppt/presentation/{presentation_id}").status_code == 204
+
+    assert not os.path.exists(avatar)
+    assert not render.exists()
+    assert not subtitles.exists()
+    assert not folder.exists()
+    assert _rows(sessions, SlideVideoModel) == []
+    assert _rows(sessions, PresentationVideoModel) == []
+
+
 def test_playback_describes_the_actor_slide_by_slide(tmp_path, monkeypatch):
     client, presentation_id, slide_ids, sessions, app_data = _build_client(
         tmp_path, monkeypatch
@@ -409,7 +546,8 @@ def test_playback_describes_the_actor_slide_by_slide(tmp_path, monkeypatch):
     }
     video_slide, voice_slide, silent_slide = body["slides"]
     assert video_slide["actor"] == "video"
-    assert video_slide["duration_seconds"] == 4.0
+    # The narration sets the slide's length, not the avatar's (4.0s).
+    assert video_slide["duration_seconds"] == 2.5
     assert video_slide["placeholder"]["size"] == {"width": 320, "height": 180}
     # Kept for a viewer who switches the avatar off.
     assert video_slide["audio"]["language"] == "it"
@@ -425,9 +563,45 @@ def test_playback_describes_the_actor_slide_by_slide(tmp_path, monkeypatch):
     _seed_audio(sessions, app_data, presentation_id, slide_ids[1], 1, language="en")
     assert client.get(url).status_code == 409
     english = client.get(url, params={"language": "en"}).json()
-    assert [slide["actor"] for slide in english["slides"]] == ["video", "voice", "none"]
+    # The avatar was synced to Italian (the deck's only language when it was
+    # uploaded), so it is not shown over English narration.
+    assert [slide["actor"] for slide in english["slides"]] == ["none", "voice", "none"]
     assert english["slides"][0]["audio"] is None
+    assert english["slides"][0]["video"] is None
+    assert english["slides"][0]["placeholder"] is None
     assert client.get(url, params={"language": "xx"}).status_code == 422
+
+
+def test_playback_video_slide_duration_is_the_audio_duration(tmp_path, monkeypatch):
+    client, presentation_id, slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[0], 0, duration=4.2)
+    _upload(client, presentation_id, 0, data=_mp4(duration_ms=5000))
+
+    body = client.get(f"/api/v1/ppt/presentation/{presentation_id}/playback").json()
+
+    video_slide = body["slides"][0]
+    assert video_slide["actor"] == "video"
+    assert video_slide["video"]["duration_seconds"] == 5.0
+    assert video_slide["audio"]["duration_seconds"] == 4.2
+    assert video_slide["duration_seconds"] == 4.2
+
+
+def test_playback_silent_avatar_slide_falls_back_to_the_video_duration(
+    tmp_path, monkeypatch
+):
+    client, presentation_id, slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[1], 1)
+    _upload(client, presentation_id, 0, data=_mp4(duration_ms=5000))
+
+    body = client.get(f"/api/v1/ppt/presentation/{presentation_id}/playback").json()
+
+    assert body["slides"][0]["actor"] == "video"
+    assert body["slides"][0]["audio"] is None
+    assert body["slides"][0]["duration_seconds"] == 5.0
 
 
 def test_bubble_is_validated_and_kept_on_duplicate(tmp_path, monkeypatch):

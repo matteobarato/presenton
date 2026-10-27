@@ -285,6 +285,10 @@ Deploy and manage Presenton across your organization with versioned Helm charts 
     <strong>Prerequisites:</strong> Node.js (LTS), npm, Python 3.11, and
     <a href="https://docs.astral.sh/uv/">uv</a>
     (for the shared FastAPI backend in <code>servers/fastapi</code>).
+    Presentation video export additionally needs <code>ffmpeg</code> and
+    <code>ffprobe</code> on <code>PATH</code>, or the <code>FFMPEG_BINARY</code> /
+    <code>FFPROBE_BINARY</code> environment variables pointed at them; the Docker
+    image ships both already, so this only applies when running from source.
   </p>
 
 - Setup (First Time)
@@ -372,6 +376,7 @@ requests.
 | **PRESENTATION_GENERATION_MODE** | `both` (default), `standard`, `smart` | Controls the modes available in the UI and MCP server. A single-mode value hides the selector; `smart` also hides template features. See the **[presentation generation modes guide](docs/presentation-generation-modes.md)**. |
 | **PRESENTON_COMMUNITY_ENABLED** | `true` (default), `false` | Controls the cloud-backed Community gallery and design references. Set to `false` for air-gapped deployments to hide the feature and prevent community API requests. |
 | **LLM** | `openai`, `deepseek`, `google`, `vertex`, `azure`, `bedrock`, `openrouter`, `fireworks`, `together`, `cerebras`, `anthropic`, `litellm`, `lmstudio`, `ollama`, `custom`, `codex` | Selects the text LLM provider. |
+| **LLM_RATE_LIMIT_MAX_ATTEMPTS** | `10` (default) | Total calls made for one LLM request while the provider is rate limiting (HTTP 429, or a gateway such as Bifrost relaying an upstream 429 inside a 400). Waits back off from about 2s to 30s between calls, or follow `Retry-After`. `1` turns the retry off. |
 | **OPENAI_API_KEY** | Required for `LLM=openai` | OpenAI API key. |
 | **OPENAI_MODEL** | `gpt-4.1` (default) | OpenAI model. |
 | **DEEPSEEK_API_KEY** | Required for `LLM=deepseek` | DeepSeek API key. |
@@ -501,6 +506,9 @@ These variables match `docker-compose.yml`. **`IMAGE_PROVIDER`** selects the bac
 | **COMFYUI_URL** / **COMFYUI_WORKFLOW** | Required for `IMAGE_PROVIDER=comfyui` | Self-hosted ComfyUI endpoint and workflow JSON. |
 | **OPEN_WEBUI_IMAGE_URL** / **OPEN_WEBUI_IMAGE_API_KEY** | Required for `IMAGE_PROVIDER=open_webui` | Open WebUI API root (`http://host:8080/api/v1`; a bare origin gets `/api/v1` appended) and API key. |
 | **OPENAI_COMPAT_IMAGE_BASE_URL** / **OPENAI_COMPAT_IMAGE_API_KEY** / **OPENAI_COMPAT_IMAGE_MODEL** | Required for `IMAGE_PROVIDER=openai_compatible` | Sends image requests to an OpenAI-compatible `/v1/images/*` endpoint such as LiteLLM, Azure, or a vLLM gateway. |
+| **OPENAI_COMPAT_IMAGE_TRANSPORT** | `auto` (default), `images`, `chat` | How the prompt reaches the model. `auto` calls `/v1/images/generations` and, if the provider answers that it does not serve image generation (Bifrost in front of OpenRouter: `image_generation is not supported by openrouter provider`), draws the image through `/v1/chat/completions` with `modalities: ["image", "text"]` and remembers that choice for the model. `images` and `chat` pin one transport. |
+
+The parallel image generation option applies everywhere images are generated: initial presentation generation, slide editing and regeneration, direct image requests, and assistant image tools.
 
 #### Speaker Note Audio (Text-to-Speech)
 
@@ -508,6 +516,22 @@ These variables match `docker-compose.yml`. **`IMAGE_PROVIDER`** selects the bac
 | --- | --- | --- |
 | **OPENAI_COMPAT_TTS_BASE_URL** / **OPENAI_COMPAT_TTS_API_KEY** / **OPENAI_COMPAT_TTS_MODEL** | Required for speaker note audio | Sends speech requests to an OpenAI-compatible `/v1/audio/speech` endpoint (LiteLLM, OpenRouter, a vLLM gateway). Without all three, the speaker note audio endpoints return `400`. |
 | **OPENAI_COMPAT_TTS_VOICE** | `alloy` (default) | Voice the notes are read with. Valid values depend on the provider and model; a request can override it per call. |
+| **OPENAI_COMPAT_TTS_TRANSPORT** | `auto` (default), `speech`, `chat` | How the text reaches the model. `auto` calls `/v1/audio/speech` and, if the provider answers that it does not serve speech, re-reads the note through `/v1/chat/completions` with an audio modality and remembers that choice for the model. `speech` and `chat` pin one transport. |
+| **OPENAI_COMPAT_TTS_INSTRUCTION** | unset | Optional system message sent with the chat transport, for models that take direction on how to sound (`Read this warmly, at a measured pace.`). Left unset, the note is the whole prompt, which is what dedicated TTS models expect. |
+
+Gateways such as Bifrost, LiteLLM or OpenRouter do not all serve `/v1/audio/speech`: a speech request routed to a provider without that endpoint comes back as `unsupported_operation`. With the default `auto` transport this is handled on its own -- the note is read again through chat completions, which is how audio-output models are reached through those gateways -- so no configuration change is needed. Providers that return WAV rather than the MP3 that was asked for are stored as WAV.
+
+| **VERTEX_COMPAT_TTS_MODEL** | e.g. `google/gemini-3.1-flash-tts-preview` | Reads the notes with a Gemini speech model on Vertex AI, called directly rather than through a gateway. Set, it takes precedence over the `OPENAI_COMPAT_TTS_*` provider, since it exists to go around one. Vertex serves no `/v1/audio/speech`, so the model is called with an audio response modality; the raw samples that come back are stored as WAV. A `google/` or `publishers/google/models/` prefix is stripped. |
+| **VERTEX_COMPAT_TTS_API_KEY** *or* **VERTEX_COMPAT_TTS_PROJECT** / **VERTEX_COMPAT_TTS_LOCATION** | one form or the other | An express-mode API key, or a GCP project whose credentials come from the environment (a service account, workload identity, `gcloud auth application-default login`; in Docker, pass `GOOGLE_APPLICATION_CREDENTIALS` and mount the key file). `VERTEX_COMPAT_TTS_LOCATION` defaults to `global`, which is where the preview speech models are served. Setting a key and a project together is refused rather than guessed at. |
+| **VERTEX_COMPAT_TTS_BASE_URL** | unset | Overrides the Vertex endpoint, for a private or regional address. |
+| **VERTEX_COMPAT_TTS_VOICE** | `Kore` (default) | Prebuilt Gemini voice (`Kore`, `Puck`, `Charon`, `Aoede`, ...). Falls back to `OPENAI_COMPAT_TTS_VOICE` when only that is set; a request can still override it per call. |
+| **OPENROUTER_TTS_MODEL** | e.g. `openai/gpt-4o-mini-tts-2025-12-15`, `mistralai/voxtral-mini-tts-2603` | Reads the notes with OpenRouter's own `/api/v1/audio/speech` endpoint, not through a gateway. Set, it takes precedence over the `OPENAI_COMPAT_TTS_*` provider (Vertex, when configured, still comes first). Only the speech endpoint is used: OpenRouter returns chat audio only when streamed. Use the full dated model slug. |
+| **OPENROUTER_TTS_API_KEY** | falls back to `OPENROUTER_API_KEY` | OpenRouter key for speech. Without either, the speaker note audio endpoints return `400`. |
+| **OPENROUTER_TTS_VOICE** | `alloy` (default) | Voice for the model (`alloy`, `nova` for OpenAI models; `en_paul_neutral` for Voxtral; see each model's page). Falls back to `OPENAI_COMPAT_TTS_VOICE`; a request can override it per call. |
+| **OPENROUTER_TTS_BASE_URL** | `https://openrouter.ai/api/v1` (default) | Overrides the OpenRouter endpoint. |
+| **OPENROUTER_TTS_FORMAT** | `mp3`, `pcm`; `pcm` for `google/*` models, `mp3` otherwise | Format asked of the speech endpoint. OpenRouter's Gemini speech models (`google/gemini-3.1-flash-tts-preview`, voices such as `Kore`, `Aoede`, `Leda`) only send raw 24 kHz PCM, which is stored as WAV. A provider that refuses mp3 saying it only sends pcm is asked again for pcm on its own. |
+
+A gateway can also refuse both: Bifrost in front of OpenRouter answers a speech request for a Gemini or Voxtral TTS model with `speech is not supported by openrouter provider`, and a chat request for the same model with `is a text-to-speech model and cannot be used with the chat/completions endpoint`. Nothing in the request settles that, so the deck fails with both refusals quoted in one message instead of a stack trace per slide. The ways out are to set the `OPENROUTER_TTS_*` variables above, to point `OPENAI_COMPAT_TTS_BASE_URL` at a provider that serves speech itself (OpenRouter's own `https://openrouter.ai/api/v1`, OpenAI, or Google's OpenAI-compatible endpoint), to use a chat model with audio output (`openai/gpt-audio-mini`) with `OPENAI_COMPAT_TTS_TRANSPORT=chat`, or to leave the gateway out of the narration entirely with the `VERTEX_COMPAT_TTS_*` variables above.
 
 Speaker note audio is generated per slide through `POST /api/v1/ppt/presentation/{id}/speaker-notes/tts` (or its `/async` variant, which returns a pollable task). The deck is narrated in the language the request asks for: notes written in another language are translated first, because a speech endpoint reads the text it is given and has no language setting of its own. `GET /api/v1/ppt/presentation/speaker-notes/tts/languages` lists the supported languages.
 
@@ -517,16 +541,36 @@ Speaker note audio is generated per slide through `POST /api/v1/ppt/presentation
 | --- | --- | --- |
 | **SLIDE_VIDEO_MAX_UPLOAD_MB** | `100` (default) | Largest avatar video accepted per slide. The bundled nginx caps `/api/v1/` request bodies at 110 MB, so raise both together. |
 
-Any template slide can carry one avatar video (MP4 or WebM), made outside Presenton and lip-synced to that slide's narration. Upload it with `PUT /api/v1/ppt/presentation/{id}/videos/{slide_index}` (multipart `file`; optional `x`, `y`, `width`, `height` in 1280×720 slide coordinates). The upload adds a placeholder to the slide's `ui`: an image element tagged `"video_placeholder": true`, placed bottom-right if the slide has none. Its poster is transparent, so the placeholder is invisible in PDF/PPTX exports while still marking where the video plays. Deleting the video (`DELETE …/videos/{slide_index}`) removes the placeholder too. A video whose speaker note has been edited since the upload is reported as `stale`.
+Any template slide can carry one avatar video (MP4 or WebM), made outside Presenton and lip-synced to that slide's TTS narration. The avatar is silent: any audio track in the uploaded file is ignored, and the narration comes from the slide's speaker note audio. Upload it with `PUT /api/v1/ppt/presentation/{id}/videos/{slide_index}` (multipart `file`; optional `x`, `y`, `width`, `height` in 1280×720 slide coordinates; optional `language` form field, the narration language the avatar was synced to). When `language` is omitted it defaults to the deck's only narrated language, and when the deck has no narration yet or several languages it is left unset, meaning "any language". The upload adds a placeholder to the slide's `ui`: an image element tagged `"video_placeholder": true`, placed bottom-right if the slide has none. Its poster is transparent, so the placeholder is invisible in PDF/PPTX exports while still marking where the video plays. Deleting the video (`DELETE …/videos/{slide_index}`) removes the placeholder too. A video is reported `stale` with a `stale_reason`: `note_changed` when the speaker note was edited after the upload, or `audio_regenerated` when the narration audio in the avatar's language was regenerated after the upload (for example with a different TTS voice or provider). Stale avatars are still played.
 
 `GET /api/v1/ppt/presentation/{id}/playback?language=it` describes the narration slide by slide for a player. The presenter is one actor across the deck:
-- `actor: "video"` slides play the avatar video, with its own audio, inside `placeholder`.
+- `actor: "video"` slides play the muted avatar video inside `placeholder`, over the slide's narration `audio`.
 - `actor: "voice"` slides play the narration audio behind the voice bubble, whose spot is `bubble` (set it with `PUT …/playback/bubble`).
 - `actor: "none"` slides have no narration.
 
-Transitions follow from consecutive slides: the bubble expands into the placeholder when a video starts and collapses back when it ends. Video slides also carry their `audio`, so a viewer who switches the avatar off still hears the narration.
+An avatar synced to a different language than the one requested is not used; that slide falls back to `voice`.
 
-The parallel image generation option applies everywhere images are generated: initial presentation generation, slide editing and regeneration, direct image requests, and assistant image tools.
+In a player, transitions follow from consecutive slides: the bubble expands into the placeholder when a video starts and collapses back when it ends. Video slides also carry their `audio`, so a viewer who switches the avatar off still hears the narration.
+
+#### Presentation Video Export
+
+| Variable | Values / default | Purpose |
+| --- | --- | --- |
+| **FFMPEG_BINARY** / **FFPROBE_BINARY** | Optional path override | Points at the `ffmpeg` / `ffprobe` binaries directly. Unset, each falls back to a `PATH` lookup (and an unset `FFPROBE_BINARY` also falls back to the `ffprobe` next to `FFMPEG_BINARY` before searching `PATH`). Video export endpoints return `400` when neither binary can be found. |
+| **PRESENTATION_VIDEO_ENCODE_CONCURRENCY** | `1` (default) | Number of video encodes allowed to run at once. ffmpeg is CPU-bound, so raising this on a small box will starve the web workers. |
+| **PDF_TO_IMAGES_MAX_RENDER_SCALE** | `8.0` (default) | Ceiling on the PDF-to-PNG render scale used when rasterizing slides into video frames, a guard against an oversized frame exhausting memory. |
+| **PRESENTATION_VIDEO_ANIMATION_WORKERS** | Unset (default) | Number of headless Chrome workers HyperFrames uses for an animated video (`"animate": true`). Unset, HyperFrames sizes the pool from the machine; each worker is a full Chrome, so cap it on small boxes. |
+| **PRESENTATION_VIDEO_ANIMATION_TIMEOUT_SECONDS** | `1800` (default) | How long an animated render may run before it is abandoned and the video is made from still slides instead. |
+
+The export endpoints are `POST /api/v1/ppt/presentation/{id}/video-export` (renders, or reuses an earlier render), `POST …/video-export/async` (a background task with progress), `GET …/video-export` and `DELETE …/video-export`. Request options include `language`, `resolution`, `fps`, `subtitles`, `animate`, `speaker_indicator`, `avatars` (default `true`) and `crossfade_seconds` (default `0.5`, from `0` to `1.5`; `0` gives hard cuts).
+
+Video export renders the deck to PDF, rasterizes each page to a PNG frame, narrates the speaker notes with the same TTS configuration as speaker note audio above, and muxes frames, narration, and subtitles into an `.mp4` with ffmpeg. The Docker image already includes `ffmpeg`; running the FastAPI server from source needs `ffmpeg` and `ffprobe` installed and on `PATH`, or `FFMPEG_BINARY` / `FFPROBE_BINARY` pointed at them.
+
+With `"animate": true` on a video request, the elements of every Template-v2 slide animate in instead of the slide appearing as a still: an LLM plans each slide's entrance (validated against a fixed set of motions, and cached per slide), and [HyperFrames](https://hyperframes.heygen.com) renders the entrances in headless Chrome. Other slides stay still, and if the animated render cannot be made the video falls back to stills and the response's `animation.reason` says why. The Docker image includes the renderer; from source, run `npm ci` in `video-render-hyperframes/`. HyperFrames also needs `ffprobe` on `PATH` (or `HYPERFRAMES_FFPROBE_PATH`) and a Chrome/Chromium at `HYPERFRAMES_BROWSER_PATH` (falls back to `PUPPETEER_EXECUTABLE_PATH`).
+
+Every narrated slide without an avatar shows a small round bubble with moving sound-wave bars. It is drawn at the deck's bubble box, the same spot the player uses (bottom-right unless moved with `PUT …/playback/bubble`), and it stays steady across consecutive narrated slides. Pass `"speaker_indicator": false` to leave it out.
+
+Slides with an avatar play it muted in their placeholder, starting exactly when the narration starts and holding its last frame until the slide ends; `"avatars": false` uses the bubble instead. Slides change with a crossfade centred on the change and taken from the silence around the narration, so narration is never covered and the video keeps its length. Where the presenter changes (bubble ↔ avatar), the presenter fades with the slide. The response's `avatars` summary lists the slides that played an avatar and any that were stale, skipped (with a reason) or a different length than their narration.
 
 #### Telemetry
 
