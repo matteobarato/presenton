@@ -2,6 +2,7 @@ import asyncio
 import base64
 import json
 import os
+import re
 import secrets
 from weakref import WeakKeyDictionary
 from urllib.parse import urlparse
@@ -10,7 +11,7 @@ import aiohttp
 from fastapi import HTTPException
 from google import genai
 from google.genai import types
-from openai import NOT_GIVEN, AsyncOpenAI
+from openai import NOT_GIVEN, APIStatusError, AsyncOpenAI
 from models.image_prompt import ImagePrompt
 from models.sql.image_asset import ImageAsset
 from utils.get_env import (
@@ -22,6 +23,7 @@ from utils.get_env import (
     get_openai_compat_image_base_url_env,
     get_openai_compat_image_api_key_env,
     get_openai_compat_image_model_env,
+    get_openai_compat_image_transport_env,
     is_parallel_image_generation_enabled,
 )
 from utils.get_env import get_pixabay_api_key_env
@@ -50,6 +52,123 @@ COMFYUI_SEED_SOURCE_VALUE_KEYS = {"value", "int", "integer", "number"}
 _IMAGE_GENERATION_LOCKS: WeakKeyDictionary[
     asyncio.AbstractEventLoop, asyncio.Lock
 ] = WeakKeyDictionary()
+
+
+OPENAI_COMPAT_IMAGE_TRANSPORT_AUTO = "auto"
+OPENAI_COMPAT_IMAGE_TRANSPORT_IMAGES = "images"
+OPENAI_COMPAT_IMAGE_TRANSPORT_CHAT = "chat"
+OPENAI_COMPAT_IMAGE_TRANSPORTS = (
+    OPENAI_COMPAT_IMAGE_TRANSPORT_AUTO,
+    OPENAI_COMPAT_IMAGE_TRANSPORT_IMAGES,
+    OPENAI_COMPAT_IMAGE_TRANSPORT_CHAT,
+)
+# (base_url, model) pairs whose `/images/generations` has already said no, so
+# the rest of the deck goes straight to chat instead of failing once per slide.
+_IMAGES_ENDPOINT_REFUSED: set[tuple[str, str]] = set()
+_DATA_URL_IMAGE = re.compile(
+    r"data:image/[a-z0-9.+-]+;base64,[A-Za-z0-9+/=_-]+", re.IGNORECASE
+)
+_MARKDOWN_IMAGE_URL = re.compile(r"!\[[^\]]*\]\((https?://[^)\s]+)\)")
+
+
+def get_openai_compat_image_transport() -> str:
+    transport = (get_openai_compat_image_transport_env() or "").strip().lower()
+    if transport not in OPENAI_COMPAT_IMAGE_TRANSPORTS:
+        return OPENAI_COMPAT_IMAGE_TRANSPORT_AUTO
+    return transport
+
+
+def _images_endpoint_unsupported(error: APIStatusError) -> bool:
+    """Whether the provider is saying it has no image endpoint at all.
+
+    Gateways such as Bifrost in front of OpenRouter answer
+    `image_generation is not supported by openrouter provider`: OpenRouter
+    only draws images through chat completions. A rejected prompt, a missing
+    key or a rate limit is not that, and must keep failing.
+    """
+    status = getattr(error, "status_code", None)
+    if status not in (400, 404, 405, 501):
+        return False
+    parts = [str(getattr(error, "message", "") or "")]
+    body = getattr(error, "body", None)
+    if body is not None:
+        try:
+            parts.append(json.dumps(body, default=str))
+        except (TypeError, ValueError):
+            parts.append(str(body))
+    payload = " ".join(parts).lower()
+    if "unsupported_operation" in payload:
+        return True
+    if status in (404, 405) and (
+        "images/generations" in payload or "not found" in payload
+    ):
+        return True
+    return "image" in payload and (
+        "not supported" in payload
+        or "unsupported" in payload
+        or "not implemented" in payload
+    )
+
+
+def _field(value, name: str):
+    if isinstance(value, dict):
+        return value.get(name)
+    found = getattr(value, name, None)
+    if found is None:
+        extra = getattr(value, "model_extra", None) or {}
+        found = extra.get(name)
+    return found
+
+
+def _image_url_of(part) -> str | None:
+    """The URL (often a `data:` URL) one image part of a chat answer points at."""
+    image_url = _field(part, "image_url")
+    if isinstance(image_url, str):
+        return image_url
+    if image_url is not None:
+        url = _field(image_url, "url")
+        if url:
+            return str(url)
+    for key in ("url", "b64_json", "data"):
+        value = _field(part, key)
+        if isinstance(value, str) and value:
+            if key == "url" or value.startswith("data:"):
+                return value
+            return f"data:image/png;base64,{value}"
+    return None
+
+
+def image_from_chat_message(message) -> str | None:
+    """The first image a chat completion drew, as a URL or a `data:` URL.
+
+    OpenRouter puts images in `message.images`; other gateways return them as
+    content parts, or inline a data URL or markdown image in the text.
+    """
+    for part in _field(message, "images") or []:
+        url = _image_url_of(part)
+        if url:
+            return url
+    content = _field(message, "content")
+    if isinstance(content, list):
+        for part in content:
+            kind = str(_field(part, "type") or "")
+            if "image" in kind:
+                url = _image_url_of(part)
+                if url:
+                    return url
+            text = _field(part, "text")
+            if isinstance(text, str):
+                content_text_url = image_from_chat_message({"content": text})
+                if content_text_url:
+                    return content_text_url
+    elif isinstance(content, str):
+        match = _DATA_URL_IMAGE.search(content)
+        if match:
+            return match.group(0)
+        match = _MARKDOWN_IMAGE_URL.search(content)
+        if match:
+            return match.group(1)
+    return None
 
 
 def resolve_open_webui_api_base(base_url: str) -> str:
@@ -878,54 +997,119 @@ class ImageGenerationService:
                 "OPENAI_COMPAT_IMAGE_BASE_URL, OPENAI_COMPAT_IMAGE_API_KEY and OPENAI_COMPAT_IMAGE_MODEL must be set."
             )
 
-        from urllib.parse import urlparse
-
-        parsed = urlparse(base_url)
-        origin = f"{parsed.scheme}://{parsed.netloc}"
-
         client = AsyncOpenAI(base_url=base_url, api_key=api_key)
+        transport = get_openai_compat_image_transport()
+        fingerprint = (base_url, model)
 
-        response = await client.images.generate(
-            model=model,
-            prompt=prompt,
-            n=1,
-            size="1024x1024",
-        )
+        if transport == OPENAI_COMPAT_IMAGE_TRANSPORT_CHAT or (
+            transport == OPENAI_COMPAT_IMAGE_TRANSPORT_AUTO
+            and fingerprint in _IMAGES_ENDPOINT_REFUSED
+        ):
+            return await self._generate_openai_compatible_image_via_chat(
+                client, prompt, model, base_url, api_key, output_directory
+            )
+
+        try:
+            response = await client.images.generate(
+                model=model,
+                prompt=prompt,
+                n=1,
+                size="1024x1024",
+            )
+        except APIStatusError as error:
+            if transport != OPENAI_COMPAT_IMAGE_TRANSPORT_AUTO:
+                raise
+            if not _images_endpoint_unsupported(error):
+                raise
+            print(
+                "OpenAI-compatible image endpoint refused "
+                f"{model}; generating through chat completions instead"
+            )
+            _IMAGES_ENDPOINT_REFUSED.add(fingerprint)
+            return await self._generate_openai_compatible_image_via_chat(
+                client, prompt, model, base_url, api_key, output_directory
+            )
 
         item = response.data[0]
-        image_path = os.path.join(output_directory, f"{uuid.uuid4()}.png")
-
         if item.b64_json:
-            with open(image_path, "wb") as f:
-                f.write(base64.b64decode(item.b64_json))
-        elif item.url:
-            image_url = item.url
-            is_relative_url = image_url.startswith("/")
-            if is_relative_url:
-                image_url = origin + image_url
-            image_origin = urlparse(image_url)
-            headers = {}
-            if (
-                is_relative_url
-                or (
-                    image_origin.scheme == parsed.scheme
-                    and image_origin.netloc == parsed.netloc
-                )
-            ):
-                headers["Authorization"] = f"Bearer {api_key}"
-            async with aiohttp.ClientSession(trust_env=True) as session:
-                dl_resp = await session.get(
-                    image_url,
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=120),
-                )
-                if dl_resp.status != 200:
-                    raise Exception(
-                        f"Failed to download image from OpenAI-compatible provider: {dl_resp.status}"
-                    )
-                with open(image_path, "wb") as f:
-                    f.write(await dl_resp.read())
-        else:
-            raise Exception("OpenAI-compatible provider returned no image data")
+            return self._write_openai_compatible_image(
+                base64.b64decode(item.b64_json), output_directory
+            )
+        if item.url:
+            return await self._download_openai_compatible_image(
+                item.url, base_url, api_key, output_directory
+            )
+        raise Exception("OpenAI-compatible provider returned no image data")
 
+    async def _generate_openai_compatible_image_via_chat(
+        self,
+        client: AsyncOpenAI,
+        prompt: str,
+        model: str,
+        base_url: str,
+        api_key: str,
+        output_directory: str,
+    ) -> str:
+        """Draw the image through chat completions with an image modality.
+
+        OpenRouter, and gateways in front of it, only generate images this way.
+        """
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            extra_body={"modalities": ["image", "text"]},
+        )
+        choices = getattr(response, "choices", None) or []
+        image_url = image_from_chat_message(choices[0].message) if choices else None
+        if not image_url:
+            raise Exception(
+                "OpenAI-compatible provider returned no image from chat completions"
+            )
+        if image_url.startswith("data:"):
+            encoded = image_url.split(",", 1)[1] if "," in image_url else ""
+            return self._write_openai_compatible_image(
+                base64.b64decode(encoded), output_directory
+            )
+        return await self._download_openai_compatible_image(
+            image_url, base_url, api_key, output_directory
+        )
+
+    def _write_openai_compatible_image(
+        self, image_bytes: bytes, output_directory: str
+    ) -> str:
+        image_path = os.path.join(output_directory, f"{uuid.uuid4()}.png")
+        with open(image_path, "wb") as f:
+            f.write(image_bytes)
         return image_path
+
+    async def _download_openai_compatible_image(
+        self, image_url: str, base_url: str, api_key: str, output_directory: str
+    ) -> str:
+        parsed = urlparse(base_url)
+        origin = f"{parsed.scheme}://{parsed.netloc}"
+        is_relative_url = image_url.startswith("/")
+        if is_relative_url:
+            image_url = origin + image_url
+        image_origin = urlparse(image_url)
+        headers = {}
+        if (
+            is_relative_url
+            or (
+                image_origin.scheme == parsed.scheme
+                and image_origin.netloc == parsed.netloc
+            )
+        ):
+            headers["Authorization"] = f"Bearer {api_key}"
+        async with aiohttp.ClientSession(trust_env=True) as session:
+            dl_resp = await session.get(
+                image_url,
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=120),
+            )
+            if dl_resp.status != 200:
+                raise Exception(
+                    f"Failed to download image from OpenAI-compatible provider: {dl_resp.status}"
+                )
+            return self._write_openai_compatible_image(
+                await dl_resp.read(), output_directory
+            )

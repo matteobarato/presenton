@@ -12,6 +12,7 @@ import api.v1.ppt.endpoints.presentation as presentation_endpoint
 from api.v1.ppt.endpoints.presentation import PRESENTATION_ROUTER
 from models.sql.async_task import AsyncTaskModel
 from models.sql.presentation import PresentationModel, PresentationVersion
+from models.sql.presentation_video import PresentationVideoModel
 from models.sql.slide import SlideModel
 from models.sql.slide_video import SlideVideoModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
@@ -94,6 +95,7 @@ def _build_client(tmp_path, monkeypatch):
                 SlideModel,
                 SpeakerNoteAudioModel,
                 SlideVideoModel,
+                PresentationVideoModel,
                 AsyncTaskModel,
             ):
                 await connection.run_sync(model.__table__.create)

@@ -53,6 +53,32 @@ def test_browser_asset_paths_are_owner_scoped_and_traversal_safe():
     )
 
 
+def test_video_asset_paths_are_owner_scoped():
+    owner_id = uuid.uuid4()
+    other_id = uuid.uuid4()
+
+    assert is_app_data_path_authorized(
+        f"/app_data/videos/users/{owner_id}/deck.mp4",
+        user_id=owner_id,
+        is_admin=False,
+    )
+    assert not is_app_data_path_authorized(
+        f"/app_data/videos/users/{other_id}/deck.mp4",
+        user_id=owner_id,
+        is_admin=False,
+    )
+    assert not is_app_data_path_authorized(
+        "/app_data/videos/legacy.mp4",
+        user_id=owner_id,
+        is_admin=False,
+    )
+    assert is_app_data_path_authorized(
+        "/app_data/videos/legacy.mp4",
+        user_id=owner_id,
+        is_admin=True,
+    )
+
+
 def test_server_side_file_resolution_rejects_other_users_and_symlink_escape(
     monkeypatch, tmp_path
 ):

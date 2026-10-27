@@ -173,6 +173,23 @@ from services.speaker_note_tts_service import (
     remove_speaker_note_audio_files,
     speaker_note_audio_paths,
 )
+from models.presentation_video_response import (
+    PresentationVideoGenerationResponse,
+    PresentationVideoRequest,
+    PresentationVideoResponse,
+    PresentationVideosResponse,
+)
+from services.presentation_video_service import (
+    PresentationVideoConfigurationError,
+    PresentationVideoRenderError,
+    VideoRenderOptions,
+    delete_presentation_videos,
+    generate_presentation_video,
+    list_presentation_videos,
+    presentation_video_paths,
+    remove_presentation_video_files,
+)
+from utils.ffmpeg_utils import MISSING_FFMPEG_MESSAGE, ffmpeg_available
 from utils.get_env import is_community_enabled
 import uuid
 
@@ -182,6 +199,7 @@ logger = logging.getLogger(__name__)
 PRESENTATION_ROUTER = APIRouter(prefix="/presentation", tags=["Presentation"])
 ASYNC_TASK_TYPE_PRESENTATION_GENERATE = "presentation.generate"
 ASYNC_TASK_TYPE_SPEAKER_NOTES_TTS = "presentation.speaker-notes.tts"
+ASYNC_TASK_TYPE_PRESENTATION_VIDEO = "presentation.video"
 CUSTOM_TEMPLATE_PREFIX = "custom-"
 BLANK_PRESENTATION_LAYOUT_GROUP = "blank"
 BLANK_PRESENTATION_LAYOUT_ID = "__blank_slide__"
@@ -1602,15 +1620,20 @@ async def delete_presentation(
 
     # Audio and video rows go with the deck through the database's cascade, but
     # the files they point at do not, so their paths are read before the rows
-    # disappear and the files are removed once the delete has actually committed.
+    # disappear and the files are removed once the delete has actually
+    # committed.
     audio_paths = await speaker_note_audio_paths(sql_session, presentation_id=id)
-    video_paths = await slide_video_paths(sql_session, presentation_id=id)
+    slide_video_file_paths = await slide_video_paths(sql_session, presentation_id=id)
+    presentation_video_file_paths = await presentation_video_paths(
+        sql_session, presentation_id=id
+    )
 
     await sql_session.delete(presentation)
     await sql_session.commit()
 
     remove_speaker_note_audio_files(id, audio_paths)
-    remove_slide_video_files(id, video_paths)
+    remove_slide_video_files(id, slide_video_file_paths)
+    remove_presentation_video_files(id, presentation_video_file_paths)
 
 
 @PRESENTATION_ROUTER.post("/{id}/duplicate", response_model=PresentationWithSlides)
@@ -2310,6 +2333,359 @@ async def update_presentation_playback_bubble(
     sql_session.add(presentation)
     await sql_session.commit()
     return bubble
+
+
+def _presentation_video_options_from_request(
+    request: PresentationVideoRequest,
+) -> VideoRenderOptions:
+    """Turn a request into render options, passing along only what was set.
+
+    Every field left unset here is left out of the constructor call too, so
+    `VideoRenderOptions`' own defaults apply rather than being duplicated.
+    """
+    kwargs: dict[str, Any] = {
+        "voice": request.voice,
+        "generate_missing_audio": request.generate_missing_audio,
+        "animate": request.animate,
+        "speaker_indicator": request.speaker_indicator,
+    }
+    if request.resolution is not None:
+        kwargs["resolution"] = request.resolution
+    if request.fps is not None:
+        kwargs["fps"] = request.fps
+    if request.subtitles is not None:
+        kwargs["subtitles_mode"] = request.subtitles
+    if request.min_slide_seconds is not None:
+        kwargs["min_slide_seconds"] = request.min_slide_seconds
+    if request.padding_seconds is not None:
+        kwargs["lead_in_seconds"] = request.padding_seconds
+        kwargs["lead_out_seconds"] = request.padding_seconds
+    try:
+        return VideoRenderOptions(**kwargs)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+def _presentation_video_http_error(exc: Exception) -> HTTPException:
+    """Turn a video render failure into the status code that describes it."""
+    if isinstance(exc, UnsupportedTTSLanguageError):
+        return HTTPException(status_code=422, detail=str(exc))
+    if isinstance(
+        exc, (SpeakerNoteTTSConfigurationError, PresentationVideoConfigurationError)
+    ):
+        return HTTPException(status_code=400, detail=str(exc))
+    if isinstance(exc, PresentationVideoRenderError):
+        return HTTPException(status_code=500, detail=str(exc))
+    return HTTPException(
+        status_code=500, detail="Presentation video generation failed"
+    )
+
+
+def _presentation_video_task_data(
+    presentation_id: uuid.UUID,
+    *,
+    language: str,
+    phase: str,
+    completed: float,
+    total: float,
+) -> dict[str, Any]:
+    return {
+        "presentation_id": str(presentation_id),
+        "language": language,
+        "phase": phase,
+        "completed": completed,
+        "total": total,
+    }
+
+
+async def run_generate_presentation_video_task(
+    task_id: str,
+    presentation_id: uuid.UUID,
+    language: str,
+    regenerate: bool,
+    options: VideoRenderOptions,
+    cookie_header: Optional[str],
+    owner_id: Optional[uuid.UUID],
+) -> None:
+    """Render a deck's narrated video in the background, reporting progress on its async task."""
+    owner_token = set_current_owner_id(owner_id)
+    admin_token = set_current_owner_is_admin(False)
+    try:
+        async with async_session_maker() as sql_session:
+            presentation, slides = await _presentation_with_slides_for_speaker_notes(
+                presentation_id, sql_session
+            )
+
+            async def on_progress(progress: dict[str, Any]) -> None:
+                async with async_session_maker() as progress_session:
+                    task = await progress_session.get(AsyncTaskModel, task_id)
+                    if task is None:
+                        return
+                    phase = progress.get("phase", "")
+                    completed = progress.get("completed", 0)
+                    total = progress.get("total", 0)
+                    task.message = (
+                        f"Rendering presentation video ({phase}): "
+                        f"{completed} of {total}"
+                    )
+                    task.data = _presentation_video_task_data(
+                        presentation_id,
+                        language=language,
+                        phase=phase,
+                        completed=completed,
+                        total=total,
+                    )
+                    task.updated_at = datetime.now()
+                    progress_session.add(task)
+                    await progress_session.commit()
+
+            result = await generate_presentation_video(
+                presentation=presentation,
+                slides=slides,
+                language=language,
+                sql_session=sql_session,
+                options=options,
+                regenerate=regenerate,
+                cookie_header=cookie_header,
+                on_progress=on_progress,
+            )
+
+            task = await sql_session.get(AsyncTaskModel, task_id)
+            if task is None:
+                return
+            task.status = AsyncTaskStatus.COMPLETED
+            task.message = "Presentation video generation completed"
+            task.data = {
+                **_presentation_video_task_data(
+                    presentation_id,
+                    language=result.video.language,
+                    phase="complete",
+                    completed=result.video.slide_count,
+                    total=result.video.slide_count,
+                ),
+                "video": PresentationVideoResponse.from_model(
+                    result.video
+                ).model_dump(mode="json"),
+                "reused": result.reused,
+                "skipped": result.skipped,
+                "animation": result.animation,
+            }
+            task.updated_at = datetime.now()
+            sql_session.add(task)
+            await sql_session.commit()
+    except Exception as exc:
+        logger.exception(
+            "[presentation.video.async] generation failed task_id=%s", task_id
+        )
+        async with async_session_maker() as sql_session:
+            task = await sql_session.get(AsyncTaskModel, task_id)
+            if task is not None:
+                http_error = (
+                    exc
+                    if isinstance(exc, HTTPException)
+                    else _presentation_video_http_error(exc)
+                )
+                task.status = AsyncTaskStatus.ERROR
+                task.message = "Presentation video generation failed"
+                task.error = APIErrorModel.from_exception(http_error).model_dump(
+                    mode="json"
+                )
+                task.updated_at = datetime.now()
+                sql_session.add(task)
+                await sql_session.commit()
+    finally:
+        reset_current_owner_is_admin(admin_token)
+        reset_current_owner_id(owner_token)
+
+
+@PRESENTATION_ROUTER.post(
+    "/{id}/video", response_model=PresentationVideoGenerationResponse
+)
+async def generate_presentation_video_endpoint(
+    id: uuid.UUID,
+    request: PresentationVideoRequest,
+    request_http: Request,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Render a narrated video of a presentation, or return a cached one.
+
+    The deck is exported to PDF and rendered to frames through the same
+    Chromium pipeline as `/export`, so it needs the same authenticated cookie
+    that step relies on. Narration is generated for any slide missing it
+    unless `generate_missing_audio` is turned off. A render whose inputs
+    exactly match a previous one is returned as-is; pass `regenerate` to force
+    a fresh render.
+
+    With `animate`, the elements of every Template-v2 slide animate in (an
+    LLM-planned entrance, rendered with HyperFrames) instead of the slide
+    appearing as a still. If that render is not possible the video is made
+    from stills and `animation.reason` says why.
+
+    Narrated slides carry a small animated "speaker is talking" bubble in the
+    top-right corner; `speaker_indicator: false` leaves it out.
+
+    Long decks are better served by the `/async` variant, which returns a task
+    to poll instead of holding the request open for the whole render.
+    """
+    presentation, slides = await _presentation_with_slides_for_speaker_notes(
+        id, sql_session
+    )
+    if not slides:
+        raise HTTPException(
+            status_code=400,
+            detail="This presentation has no slides to render a video for",
+        )
+    options = _presentation_video_options_from_request(request)
+
+    try:
+        result = await generate_presentation_video(
+            presentation=presentation,
+            slides=slides,
+            language=request.language,
+            sql_session=sql_session,
+            options=options,
+            regenerate=request.regenerate,
+            cookie_header=build_export_cookie_header(request_http),
+        )
+    except (
+        UnsupportedTTSLanguageError,
+        SpeakerNoteTTSConfigurationError,
+        PresentationVideoConfigurationError,
+        PresentationVideoRenderError,
+    ) as exc:
+        raise _presentation_video_http_error(exc)
+
+    return PresentationVideoGenerationResponse.from_result(result)
+
+
+@PRESENTATION_ROUTER.post("/{id}/video/async", response_model=AsyncTaskModel)
+async def generate_presentation_video_async(
+    id: uuid.UUID,
+    request: PresentationVideoRequest,
+    request_http: Request,
+    background_tasks: BackgroundTasks,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Queue a presentation video render and return a task that can be polled.
+
+    The request is validated up front - the deck, the language, the render
+    options, ffmpeg's availability and (when narration may need to be
+    generated) the speech provider's configuration - so a caller learns about
+    a bad request here rather than from a failed task later. The authenticated
+    cookie the render needs is captured now, at request time, because the task
+    itself runs after this response has already been sent.
+    """
+    presentation, slides = await _presentation_with_slides_for_speaker_notes(
+        id, sql_session
+    )
+    if not slides:
+        raise HTTPException(
+            status_code=400,
+            detail="This presentation has no slides to render a video for",
+        )
+    options = _presentation_video_options_from_request(request)
+    try:
+        language = resolve_tts_language(request.language)
+        if not ffmpeg_available():
+            raise PresentationVideoConfigurationError(MISSING_FFMPEG_MESSAGE)
+        if options.generate_missing_audio:
+            get_speaker_note_tts_config(request.voice)
+    except (
+        UnsupportedTTSLanguageError,
+        SpeakerNoteTTSConfigurationError,
+        PresentationVideoConfigurationError,
+    ) as exc:
+        raise _presentation_video_http_error(exc)
+
+    task = AsyncTaskModel(
+        type=ASYNC_TASK_TYPE_PRESENTATION_VIDEO,
+        status=AsyncTaskStatus.PENDING,
+        message="Queued for presentation video generation",
+        data=_presentation_video_task_data(
+            id,
+            language=language.code,
+            phase="queued",
+            completed=0,
+            total=len(slides),
+        ),
+    )
+    sql_session.add(task)
+    await sql_session.commit()
+    await sql_session.refresh(task)
+    background_tasks.add_task(
+        run_generate_presentation_video_task,
+        task.id,
+        id,
+        request.language,
+        request.regenerate,
+        options,
+        build_export_cookie_header(request_http),
+        get_current_owner_id(),
+    )
+    return task
+
+
+@PRESENTATION_ROUTER.get("/{id}/video", response_model=PresentationVideosResponse)
+async def get_presentation_videos(
+    id: uuid.UUID,
+    language: Optional[str] = Query(
+        default=None,
+        description="Restrict to one language; omit to return every stored video",
+    ),
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Every rendered video of a deck, or the one in a requested language."""
+    presentation = await sql_session.get(PresentationModel, id)
+    if not presentation:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+    try:
+        videos = await list_presentation_videos(
+            sql_session, presentation_id=id, language=language
+        )
+    except UnsupportedTTSLanguageError as exc:
+        raise _presentation_video_http_error(exc)
+
+    if not videos:
+        raise HTTPException(
+            status_code=404, detail="No video found for this presentation"
+        )
+
+    if language is None:
+        languages = sorted({video.language for video in videos})
+        if len(languages) > 1:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    "This presentation has been rendered in more than one "
+                    "language: pass `language` to choose one ("
+                    + ", ".join(languages)
+                    + ")"
+                ),
+            )
+
+    return PresentationVideosResponse.from_models(presentation_id=id, videos=videos)
+
+
+@PRESENTATION_ROUTER.delete("/{id}/video")
+async def delete_presentation_videos_endpoint(
+    id: uuid.UUID,
+    language: Optional[str] = Query(
+        default=None,
+        description="Restrict to one language; omit to delete every stored video",
+    ),
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Delete stored videos and the files behind them."""
+    presentation = await sql_session.get(PresentationModel, id)
+    if not presentation:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+    try:
+        deleted = await delete_presentation_videos(
+            sql_session, presentation_id=id, language=language
+        )
+    except UnsupportedTTSLanguageError as exc:
+        raise _presentation_video_http_error(exc)
+    return {"deleted": deleted}
 
 
 @PRESENTATION_ROUTER.post("/{id}/export", response_model=PresentationPathAndEditPath)

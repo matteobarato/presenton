@@ -19,6 +19,11 @@ def _get_next_public_url() -> str:
     return (os.getenv("NEXT_PUBLIC_URL") or "").strip() or "http://127.0.0.1"
 
 
+def get_next_app_url() -> str:
+    """Base URL this server reaches the Next.js app on."""
+    return _get_next_public_url()
+
+
 def _get_next_public_fastapi_url() -> str | None:
     value = (os.getenv("NEXT_PUBLIC_FAST_API") or "").strip()
     return value or None

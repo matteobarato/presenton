@@ -65,6 +65,14 @@ COPY scripts/run-presentation-export.mjs /app/scripts/run-presentation-export.mj
 RUN rm -rf /app/presentation-export \
     && node /app/scripts/sync-presentation-export.cjs --force
 
+# HyperFrames renders animated slide videos with the runtime image's Chromium,
+# so Puppeteer's own browser download is skipped.
+COPY video-render-hyperframes/package.json video-render-hyperframes/package-lock.json /app/video-render-hyperframes/
+RUN --mount=type=cache,target=/root/.npm \
+    cd /app/video-render-hyperframes \
+    && PUPPETEER_SKIP_DOWNLOAD=1 npm ci --omit=dev
+COPY video-render-hyperframes/render.mjs /app/video-render-hyperframes/render.mjs
+
 
 FROM python:3.11-slim-trixie AS runtime
 
@@ -84,12 +92,13 @@ ENV APP_DATA_DIRECTORY=/app_data \
     PATH="/opt/venv/bin:${PATH}" \
     NODE_ENV=production \
     START_OLLAMA=false \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    HYPERFRAMES_BROWSER_PATH=/usr/bin/chromium
 
 RUN set -eux; \
     printf 'Acquire::Check-Valid-Until "false";\n' > /etc/apt/apt.conf.d/99snapshot; \
     printf 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/%s trixie-security main\n' "$CHROMIUM_SNAPSHOT" > /etc/apt/sources.list.d/chromium-snapshot.list; \
-    packages="ca-certificates curl nginx fontconfig imagemagick zstd \
+    packages="ca-certificates curl nginx fontconfig imagemagick ffmpeg zstd \
     fonts-liberation fonts-noto-core fonts-noto-extra fonts-noto-mono fonts-noto-ui-core fonts-noto-ui-extra \
     fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji xdg-utils \
     libasound2t64 libatk-bridge2.0-0t64 libatk1.0-0t64 libatspi2.0-0t64 \
@@ -127,6 +136,7 @@ COPY templates /app/templates
 COPY --from=assets-builder /app/package.json /app/package.json
 COPY --from=assets-builder /app/document-extraction-liteparse /app/document-extraction-liteparse
 COPY --from=assets-builder /app/presentation-export /app/presentation-export
+COPY --from=assets-builder /app/video-render-hyperframes /app/video-render-hyperframes
 COPY --from=assets-builder /app/scripts/sync-presentation-export.cjs /app/scripts/sync-presentation-export.cjs
 
 RUN test -f /app/presentation-export/runner.mjs \

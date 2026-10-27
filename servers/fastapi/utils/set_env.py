@@ -379,6 +379,10 @@ def set_openai_compat_image_model_env(value: str):
     os.environ["OPENAI_COMPAT_IMAGE_MODEL"] = value
 
 
+def set_openai_compat_image_transport_env(value: str):
+    os.environ["OPENAI_COMPAT_IMAGE_TRANSPORT"] = value
+
+
 # OpenAI-compatible TTS Provider (speaker note audio)
 def set_openai_compat_tts_base_url_env(value: str):
     os.environ["OPENAI_COMPAT_TTS_BASE_URL"] = value
@@ -394,3 +398,56 @@ def set_openai_compat_tts_model_env(value: str):
 
 def set_openai_compat_tts_voice_env(value: str):
     os.environ["OPENAI_COMPAT_TTS_VOICE"] = value
+
+
+def set_openai_compat_tts_transport_env(value: str):
+    os.environ["OPENAI_COMPAT_TTS_TRANSPORT"] = value
+
+
+def set_openai_compat_tts_instruction_env(value: str):
+    os.environ["OPENAI_COMPAT_TTS_INSTRUCTION"] = value
+
+
+def set_vertex_compat_tts_project_env(value: str):
+    os.environ["VERTEX_COMPAT_TTS_PROJECT"] = value
+
+
+def set_vertex_compat_tts_location_env(value: str):
+    os.environ["VERTEX_COMPAT_TTS_LOCATION"] = value
+
+
+def set_vertex_compat_tts_base_url_env(value: str):
+    os.environ["VERTEX_COMPAT_TTS_BASE_URL"] = value
+
+
+def set_vertex_compat_tts_api_key_env(value: str):
+    os.environ["VERTEX_COMPAT_TTS_API_KEY"] = value
+
+
+def set_vertex_compat_tts_model_env(value: str):
+    os.environ["VERTEX_COMPAT_TTS_MODEL"] = value
+
+
+def set_vertex_compat_tts_voice_env(value: str):
+    os.environ["VERTEX_COMPAT_TTS_VOICE"] = value
+
+
+# OpenRouter TTS Provider (speaker note audio)
+def set_openrouter_tts_base_url_env(value: str):
+    os.environ["OPENROUTER_TTS_BASE_URL"] = value
+
+
+def set_openrouter_tts_api_key_env(value: str):
+    os.environ["OPENROUTER_TTS_API_KEY"] = value
+
+
+def set_openrouter_tts_model_env(value: str):
+    os.environ["OPENROUTER_TTS_MODEL"] = value
+
+
+def set_openrouter_tts_voice_env(value: str):
+    os.environ["OPENROUTER_TTS_VOICE"] = value
+
+
+def set_openrouter_tts_format_env(value: str):
+    os.environ["OPENROUTER_TTS_FORMAT"] = value

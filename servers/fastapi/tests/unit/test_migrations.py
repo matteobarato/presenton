@@ -1,8 +1,10 @@
 import asyncio
 from pathlib import Path
 
+import pytest
 from alembic import command
 from alembic.config import Config
+from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine, text
 
 import migrations
@@ -908,3 +910,65 @@ def test_upgrade_from_template_v2_theme_adds_unified_keys_and_task_payload(tmp_p
         assert "access_tokens" not in tables
     finally:
         engine.dispose()
+
+
+def _table_names(connection) -> set[str]:
+    return {
+        row[0]
+        for row in connection.execute(
+            text("SELECT name FROM sqlite_master WHERE type = 'table'")
+        )
+    }
+
+
+@pytest.mark.parametrize(
+    "start",
+    [migrations.REVISION_SLIDE_VIDEOS, migrations.REVISION_PRESENTATION_VIDEOS],
+)
+def test_database_at_either_video_head_upgrades_to_head(tmp_path, monkeypatch, start):
+    """Each video branch shipped its own head; the merge revision joins them.
+
+    A database that only ever ran one branch must come out of the startup
+    migration at the single head with both video tables in place, and the
+    startup path (which re-stamps and refuses to guess when there are several
+    heads) has to accept it.
+    """
+    database_url = f"sqlite:///{tmp_path / 'video-heads.db'}"
+    monkeypatch.setattr(
+        migrations, "get_database_url_and_connect_args", lambda: (database_url, {})
+    )
+    engine = create_engine(database_url)
+    try:
+        command.upgrade(_alembic_config(database_url), start)
+        with engine.connect() as connection:
+            assert (
+                connection.execute(
+                    text("SELECT version_num FROM alembic_version")
+                ).scalar_one()
+                == start
+            )
+
+        migrations._run_migrations()
+
+        with engine.connect() as connection:
+            version = connection.execute(
+                text("SELECT version_num FROM alembic_version")
+            ).scalar_one()
+            tables = _table_names(connection)
+
+        assert version == migrations.REVISION_HEAD
+        assert migrations.REVISION_HEAD == migrations.REVISION_VIDEOS_MERGE
+        assert {"slide_videos", "presentation_videos"} <= tables
+    finally:
+        engine.dispose()
+
+
+def test_video_merge_revision_is_the_only_head():
+    script = ScriptDirectory.from_config(_alembic_config("sqlite://"))
+
+    assert script.get_heads() == [migrations.REVISION_HEAD]
+    merge = script.get_revision(migrations.REVISION_VIDEOS_MERGE)
+    assert set(merge.down_revision) == {
+        migrations.REVISION_SLIDE_VIDEOS,
+        migrations.REVISION_PRESENTATION_VIDEOS,
+    }
