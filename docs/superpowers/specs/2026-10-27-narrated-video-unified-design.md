@@ -122,9 +122,11 @@ today. `speaker_indicator=false` still removes it.
 For each `video` slide, the avatar file is one more ffmpeg input (video
 stream only). Its picture:
 
-- is fitted to the placeholder box following the element's `fit`: `fill`
-  (default, stretch), `cover` (scale + crop), `contain` (scale, transparent
-  pad). Corner radius is not applied.
+- is fitted to the placeholder box following the element's `fit`, read the
+  way the editor reads it: `fill` (stretch), `cover` (scale + crop),
+  `contain` (scale, transparent pad); a missing or unknown value is
+  `contain`. Placeholders created on upload carry `fill`. Corner radius is
+  not applied.
 - starts playing at `slide_start + lead_in`, the instant the TTS starts, so
   the lips line up; its first frame is held before that and its last frame is
   held to the end of the slide; a longer video is cut at the slide's end.
