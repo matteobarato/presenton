@@ -46,6 +46,20 @@ def absolute_fastapi_asset_url(path: str) -> str:
     return p
 
 
+def app_data_file_url(path: str) -> str:
+    """Browser-facing URL for a file written somewhere under APP_DATA_DIRECTORY."""
+    app_data = get_app_data_directory_env()
+    if not app_data:
+        return path
+    try:
+        relative = os.path.relpath(os.path.realpath(path), os.path.realpath(app_data))
+    except (OSError, ValueError):
+        return path
+    if relative.startswith(".."):
+        return path
+    return absolute_fastapi_asset_url("/app_data/" + relative.replace(os.sep, "/"))
+
+
 def normalize_slide_asset_url(path_or_url: str) -> str:
     """Slide JSON media URLs: keep https/data/blob; make /app_data and /static absolute when FastAPI base is set."""
     if not path_or_url or not isinstance(path_or_url, str):
@@ -222,3 +236,7 @@ def get_uploads_directory():
 
 def get_audio_directory():
     return _owned_directory("audio")
+
+
+def get_videos_directory():
+    return _owned_directory("videos")

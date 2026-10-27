@@ -312,18 +312,27 @@ async def delete_speaker_note_audios(
 
 
 async def speaker_note_audio_paths(
-    sql_session: AsyncSession, *, presentation_id: uuid.UUID
+    sql_session: AsyncSession,
+    *,
+    presentation_id: uuid.UUID,
+    slide_ids: Optional[Sequence[uuid.UUID]] = None,
 ) -> list[str]:
-    """Files holding a deck's narration, for a caller about to delete the deck.
+    """Files holding a deck's narration, for a caller about to delete the deck
+    or, with `slide_ids`, some of its slides.
 
-    Collected before the rows go, because deleting a presentation drops them
-    through the database's cascade and the files on disk would otherwise be
-    left behind with nothing pointing at them.
+    Collected before the rows go, because deleting a presentation or a slide
+    drops them through the database's cascade and the files on disk would
+    otherwise be left behind with nothing pointing at them.
     """
     audios = await _load_existing_audios(
         sql_session, presentation_id=presentation_id
     )
-    return [audio.path for audio in audios if audio.path]
+    wanted = None if slide_ids is None else set(slide_ids)
+    return [
+        audio.path
+        for audio in audios
+        if audio.path and (wanted is None or audio.slide in wanted)
+    ]
 
 
 def remove_speaker_note_audio_files(

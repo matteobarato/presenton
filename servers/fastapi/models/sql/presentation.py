@@ -79,6 +79,9 @@ class PresentationModel(SQLModel, table=True):
     community_design_ids: Optional[List[int]] = Field(
         sa_column=Column(JSON), default=None
     )
+    # Narrated playback settings, e.g. where the voice bubble sits:
+    # {"bubble": {"position": {"x", "y"}, "size": {"width", "height"}}}
+    narration: Optional[dict] = Field(sa_column=Column(JSON), default=None)
 
     def get_new_presentation(self):
         return PresentationModel(
@@ -103,6 +106,7 @@ class PresentationModel(SQLModel, table=True):
             fonts=copy.deepcopy(self.fonts),
             generation_mode=self.generation_mode,
             community_design_ids=copy.deepcopy(self.community_design_ids),
+            narration=copy.deepcopy(self.narration),
         )
 
     def get_presentation_outline(self):
