@@ -1175,7 +1175,7 @@ def test_build_ffmpeg_args_overlays_indicator_under_burned_subtitles(tmp_path):
     graph = args[args.index("-filter_complex") + 1].split(";")
     assert graph[0].endswith("format=yuv420p[vbase]")
     # The bubble is cut to the narrated slide and placed at its start.
-    assert graph[1] == "[4:v]format=rgba,trim=end_frame=90,setpts=N/30/TB+0.000000/TB[actor0]"
+    assert graph[1] == "[4:v]format=rgba,trim=end_frame=90,settb=1/30,setpts=N+0[actor0]"
     assert graph[2].startswith("[vbase][actor0]overlay=")
     assert graph[3] == "[ov0]format=yuv420p[vact]"
     assert graph[4] == "[vact]subtitles='/tmp/subs.vtt'[vout]"
@@ -1301,10 +1301,19 @@ def test_build_ffmpeg_args_with_crossfade_loops_each_slide_and_chains_xfade():
     graph = _filter_graph(args)
 
     assert "concat" not in args
-    assert args.count("-loop") == 2
+    # One frame per slide, held by `tpad`: a looping image input per slide
+    # buffers decoded 1080p frames ahead, which grew memory with deck length.
+    assert "-loop" not in args
+    assert args.count("-framerate") == 2
     # 90 frames + 8 cloned after; 8 cloned before + 60 frames.
-    assert "[0:v]format=yuv420p,fps=fps=30,trim=end_frame=98" in graph
-    assert "[1:v]format=yuv420p,fps=fps=30,trim=end_frame=68" in graph
+    assert (
+        "[0:v]format=yuv420p,trim=end_frame=1,tpad=stop=97:stop_mode=clone,"
+        "trim=end_frame=98,settb=1/30,setpts=N,fps=fps=30[s0]"
+    ) in graph
+    assert (
+        "[1:v]format=yuv420p,trim=end_frame=1,tpad=start=8:start_mode=clone:"
+        "stop=59:stop_mode=clone,trim=end_frame=68,settb=1/30,setpts=N,fps=fps=30[s1]"
+    ) in graph
     assert "xfade=transition=fade:duration=0.533333:offset=2.733333" in graph
 
 
@@ -1403,7 +1412,7 @@ def test_crossfaded_still_video_keeps_the_narration_length_with_real_ffmpeg(tmp_
     )
     asyncio.run(run_ffmpeg(args, total_duration_seconds=5.3))
 
-    assert abs(_probe_frames(output) - round(5.3 * fps)) <= 1
+    assert _probe_frames(output) == round(5.3 * fps)
 
 
 @pytest.mark.skipif(not pvs.ffmpeg_available(), reason="needs a real ffmpeg")
@@ -1667,3 +1676,110 @@ def test_avatar_appears_in_its_box_only_on_its_slide_with_real_ffmpeg(tmp_path):
     # The 1 s avatar ended at 3.4 s; its last frame holds to the slide's end.
     assert is_red(pixel(3.9))
     assert not is_red(pixel(5.5))
+
+
+@pytest.mark.skipif(not pvs.ffmpeg_available(), reason="needs a real ffmpeg")
+def test_avatar_starts_on_its_first_frame_and_lasts_to_the_final_frame_with_real_ffmpeg(
+    tmp_path,
+):
+    """Frame 61 at 30 fps is 2.0333… s: written as a rounded float start it
+    lands a frame early, over the previous slide, and leaves the deck's last
+    frame without its avatar."""
+    import subprocess
+
+    from PIL import Image
+
+    from utils.ffmpeg_utils import get_ffmpeg_binary, run_ffmpeg
+
+    ffmpeg = get_ffmpeg_binary()
+    images = []
+    for index in range(2):
+        image = str(tmp_path / f"slide-{index}.png")
+        subprocess.run(
+            [ffmpeg, "-v", "error", "-y", "-f", "lavfi", "-i", "color=white:size=1280x720",
+             "-frames:v", "1", image],
+            check=True,
+        )
+        images.append(image)
+    avatar = str(tmp_path / "avatar.mp4")
+    subprocess.run(
+        [ffmpeg, "-v", "error", "-y", "-f", "lavfi", "-i", "color=red:s=240x400:r=30:d=1",
+         "-pix_fmt", "yuv420p", avatar],
+        check=True,
+    )
+    timings = [
+        _timing(slide_index=0, audio_path=None, actor="none", start_seconds=0.0,
+                duration_seconds=61 / 30),
+        _avatar_timing(
+            audio_path=None, start_seconds=61 / 30, duration_seconds=2.0,
+            avatar_path=avatar, avatar_box=(1000.0, 300.0, 240.0, 400.0),
+        ),
+    ]
+    output = str(tmp_path / "out.mp4")
+    concat = str(tmp_path / "concat.txt")
+    pvs._write_concat_file([SimpleNamespace(path=image) for image in images], timings, concat)
+    args = build_ffmpeg_args(
+        concat_path=concat,
+        image_paths=images,
+        timings=timings,
+        vtt_path=None,
+        options=VideoRenderOptions(resolution="720p", subtitles_mode="none", crossfade_seconds=0),
+        language_code="en",
+        output_path=output,
+    )
+    asyncio.run(run_ffmpeg(args, total_duration_seconds=121 / 30))
+
+    def is_red_at_frame(number):
+        still = str(tmp_path / f"frame-{number}.png")
+        subprocess.run(
+            [ffmpeg, "-v", "error", "-y", "-i", output, "-vf", f"select=eq(n\\,{number})",
+             "-frames:v", "1", still],
+            check=True,
+        )
+        red, green, blue = Image.open(still).convert("RGB").getpixel((1120, 500))
+        return red > 180 and green < 80 and blue < 80
+
+    assert _probe_frames(output) == 121
+    assert not is_red_at_frame(60)
+    assert is_red_at_frame(61)
+    assert is_red_at_frame(120)
+
+
+@pytest.mark.skipif(not pvs.ffmpeg_available(), reason="needs a real ffmpeg")
+def test_a_one_frame_slide_is_cut_between_crossfades_at_24_fps_with_real_ffmpeg(tmp_path):
+    import subprocess
+
+    from utils.ffmpeg_utils import get_ffmpeg_binary, run_ffmpeg
+
+    fps = 24
+    timings = [
+        _timing(slide_index=0, audio_path=None, start_seconds=0.0, duration_seconds=1.0),
+        _timing(slide_index=1, audio_path=None, start_seconds=1.0, duration_seconds=1 / 24),
+        _timing(slide_index=2, audio_path=None, start_seconds=25 / 24, duration_seconds=7 / 24),
+        _timing(slide_index=3, audio_path=None, start_seconds=32 / 24, duration_seconds=1.0),
+    ]
+    images = []
+    for index, color in enumerate(("red", "green", "blue", "yellow")):
+        image = str(tmp_path / f"slide-{index}.png")
+        subprocess.run(
+            [get_ffmpeg_binary(), "-v", "error", "-y", "-f", "lavfi",
+             "-i", f"color={color}:size=320x180", "-frames:v", "1", image],
+            check=True,
+        )
+        images.append(image)
+    output = str(tmp_path / "out.mp4")
+    args = build_ffmpeg_args(
+        concat_path=str(tmp_path / "concat.txt"),
+        image_paths=images,
+        timings=timings,
+        vtt_path=None,
+        options=VideoRenderOptions(
+            subtitles_mode="none", fps=fps, crossfade_seconds=1.5, min_slide_seconds=0.04
+        ),
+        language_code="en",
+        output_path=output,
+    )
+    assert "concat=n=2:v=1:a=0" in _filter_graph(args)
+    asyncio.run(run_ffmpeg(args, total_duration_seconds=56 / 24))
+
+    assert _probe_frames(output) == 56

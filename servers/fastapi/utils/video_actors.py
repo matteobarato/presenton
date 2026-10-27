@@ -201,7 +201,9 @@ def actor_overlay_filters(
     current = video_label
     for number, segment in enumerate(segments):
         input_index = first_input_index + number
-        shift = f"setpts=N/{fps}/TB+{segment.start_frame / fps:.6f}/TB"
+        # Whole frames in a 1/fps time base: a start written as rounded
+        # seconds can land a frame early (frame 61 at 30 fps is 2.0333…).
+        shift = f"settb=1/{fps},setpts=N+{segment.start_frame}"
         if segment.kind == "bubble":
             if indicator is None:
                 raise ValueError("A bubble overlay needs the bubble's frames")

@@ -48,17 +48,20 @@ def plan_half_fades(
 ) -> list[int]:
     """Half the fade length, in frames, at each boundary between slides.
 
-    A fade is never longer than either slide beside it, so the two fades of
-    one slide can never overlap. Any requested crossfade is at least one frame
-    each side; `0` means hard cuts.
+    Each half is at most half of the slide it eats into, on both sides, so
+    the two fades of one slide can never overlap, however short it is. Any
+    requested crossfade is at least one frame each side where the slides
+    allow it; a one-frame slide is cut. `0` means hard cuts.
     """
     if crossfade_seconds <= 0:
         return [0] * max(0, len(frames) - 1)
     wanted = crossfade_seconds * fps
-    return [
-        max(1, round(min(wanted, frames[index], frames[index + 1]) / 2))
-        for index in range(len(frames) - 1)
-    ]
+    halves: list[int] = []
+    for index in range(len(frames) - 1):
+        before, after = frames[index], frames[index + 1]
+        half = max(1, round(min(wanted, before, after) / 2))
+        halves.append(min(half, before // 2, after // 2))
+    return halves
 
 
 def segment_padding(index: int, half_fades: Sequence[int]) -> tuple[int, int]:
@@ -78,17 +81,27 @@ def xfade_chain(
     """Join padded slide streams `labels` with one centred `xfade` per boundary.
 
     Each `xfade` takes the stream built so far as its first input, so its
-    offset is measured on the deck's own timeline.
+    offset is measured on the deck's own timeline. A boundary with no fade
+    (a slide too short for one) is joined end to end instead.
     """
     parts: list[str] = []
     current = labels[0]
     for index, (boundary, half) in enumerate(zip(boundary_frames, half_fades)):
         is_last = index == len(boundary_frames) - 1
         output = output_label if is_last else f"x{index + 1}"
-        parts.append(
-            f"[{current}][{labels[index + 1]}]xfade=transition=fade:"
-            f"duration={2 * half / fps:.6f}:offset={(boundary - half) / fps:.6f}"
-            f"[{output}]"
-        )
+        if half == 0:
+            # `concat` outputs a microsecond time base, which a later `xfade`
+            # refuses; the joined stream is continuous from 0, so frame
+            # numbers are its exact timestamps.
+            parts.append(
+                f"[{current}][{labels[index + 1]}]concat=n=2:v=1:a=0,"
+                f"settb=1/{fps},setpts=N,fps=fps={fps}[{output}]"
+            )
+        else:
+            parts.append(
+                f"[{current}][{labels[index + 1]}]xfade=transition=fade:"
+                f"duration={2 * half / fps:.6f}:offset={(boundary - half) / fps:.6f}"
+                f"[{output}]"
+            )
         current = output
     return parts

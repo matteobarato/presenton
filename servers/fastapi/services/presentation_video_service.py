@@ -531,8 +531,8 @@ def build_ffmpeg_args(
     if burned_subtitles or crossfade:
         # A crossfade needs every slide as its own stream, padded with copies
         # of its edge frames (see `utils/video_crossfade.py`), so it takes this
-        # per-slide path too.
-        # Burning captions means every output frame is drawn on individually,
+        # per-slide path too, with one frame per slide held in the graph.
+        # Without a crossfade, burning captions means every output frame is drawn on individually,
         # so each one needs its own buffer -- and a still image expanded by
         # the `fps` filter arrives in one unstoppable burst of thousands of
         # frames, which is how this used to exhaust the machine's memory.
@@ -540,13 +540,13 @@ def build_ffmpeg_args(
         # demuxer emit one packet per frame, so the input queue applies back
         # pressure and only a handful of frames are ever in flight.
         args: list[str] = []
-        for index, (image_path, timing) in enumerate(zip(image_paths, timings)):
+        for image_path, timing in zip(image_paths, timings):
             if crossfade:
-                # One frame longer than needed; `trim` then cuts it exact.
-                before, after = segment_padding(index, half_fades)
-                length = f"{(spans[index][1] + before + after + 1) / options.fps:.6f}"
-            else:
-                length = f"{timing.duration_seconds:.3f}"
+                # A single frame, held by `tpad` in the graph. A looping input
+                # per slide would decode frames ahead into its queue until its
+                # slide comes up, so memory grew with every slide in the deck.
+                args.extend(["-framerate", str(options.fps), "-i", image_path])
+                continue
             args.extend(
                 [
                     "-loop",
@@ -554,7 +554,7 @@ def build_ffmpeg_args(
                     "-framerate",
                     str(options.fps),
                     "-t",
-                    length,
+                    f"{timing.duration_seconds:.3f}",
                     "-i",
                     image_path,
                 ]
@@ -598,10 +598,20 @@ def build_ffmpeg_args(
         labels: list[str] = []
         for index, (_, frames) in enumerate(spans):
             before, after = segment_padding(index, half_fades)
+            # Converted once, then every held frame references that buffer;
+            # `trim` pins the exact length, and timestamps are rebuilt only
+            # after `tpad` (see `build_animated_ffmpeg_args`).
+            pads: list[str] = []
+            if before:
+                pads.append(f"start={before}:start_mode=clone")
+            if frames + after - 1:
+                pads.append(f"stop={frames + after - 1}:stop_mode=clone")
+            chain = f"[{index}:v]format=yuv420p,trim=end_frame=1"
+            if pads:
+                chain += ",tpad=" + ":".join(pads)
             filter_parts.append(
-                f"[{index}:v]format=yuv420p,fps=fps={options.fps},"
-                f"trim=end_frame={frames + before + after},"
-                f"setpts=N/{options.fps}/TB,fps=fps={options.fps}[s{index}]"
+                f"{chain},trim=end_frame={frames + before + after},"
+                f"settb=1/{options.fps},setpts=N,fps=fps={options.fps}[s{index}]"
             )
             labels.append(f"s{index}")
         filter_parts.extend(

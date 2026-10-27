@@ -141,8 +141,9 @@ def test_bubble_is_placed_at_its_frames_and_shifted_to_its_start():
         output_label="vout",
     )
 
-    assert parts[0].startswith("[5:v]format=rgba,trim=end_frame=188,setpts=N/30/TB+0.000000/TB")
+    # Whole-frame timestamps: a float start can round down a frame early.
+    assert parts[0].startswith("[5:v]format=rgba,trim=end_frame=188,settb=1/30,setpts=N+0")
     assert "fade=t=in" not in parts[0]
     assert "overlay=x=1720:y=880:eof_action=pass" in ";".join(parts)
     assert parts[2].startswith("[6:v]setpts=PTS-STARTPTS,fps=30,")
-    assert "+5.733333/TB" in parts[2]
+    assert "settb=1/30,setpts=N+172" in parts[2]

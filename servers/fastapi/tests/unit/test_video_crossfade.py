@@ -43,3 +43,24 @@ def test_xfade_offsets_keep_the_timeline():
         "[s0][s1]xfade=transition=fade:duration=0.533333:offset=2.733333[x1]",
         "[x1][s2]xfade=transition=fade:duration=0.533333:offset=6.733333[vcf]",
     ]
+
+
+def test_a_short_slide_never_gets_overlapping_fades_at_24_fps():
+    # A 7-frame slide between two long ones: round(7 / 2) would give each
+    # side 4 frames, 8 in all, more than the slide has.
+    halves = plan_half_fades([24, 7, 24], 1.5, 24)
+
+    assert halves == [3, 3]
+    assert halves[0] + halves[1] <= 7
+
+
+def test_a_one_frame_slide_is_cut_not_faded():
+    assert plan_half_fades([24, 1, 24], 1.5, 24) == [0, 0]
+
+
+def test_a_cut_boundary_joins_with_concat():
+    assert xfade_chain(["s0", "s1", "s2"], [24, 25], [0, 3], 24, "vcf") == [
+        # `concat` hands back a microsecond time base; `xfade` needs 1/fps.
+        "[s0][s1]concat=n=2:v=1:a=0,settb=1/24,setpts=N,fps=fps=24[x1]",
+        "[x1][s2]xfade=transition=fade:duration=0.250000:offset=0.916667[vcf]",
+    ]
