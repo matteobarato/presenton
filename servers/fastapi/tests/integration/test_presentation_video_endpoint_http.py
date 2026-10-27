@@ -171,7 +171,7 @@ def _install_fake_generate(monkeypatch, *, reused=False):
 def test_sync_post_happy_path_returns_video_response(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
 
     with _install_fake_generate(monkeypatch):
         response = client.post(base, json={"language": "it"})
@@ -189,10 +189,25 @@ def test_sync_post_happy_path_returns_video_response(tmp_path, monkeypatch):
     assert isinstance(body["skipped"], list)
 
 
+def test_old_video_route_is_gone(tmp_path, monkeypatch):
+    _configure_video(monkeypatch, tmp_path)
+    client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
+    old = f"/api/v1/ppt/presentation/{presentation_id}/video"
+
+    with _install_fake_generate(monkeypatch):
+        assert client.post(old, json={"language": "it"}).status_code in (404, 405)
+        assert client.post(f"{old}/async", json={"language": "it"}).status_code in (
+            404,
+            405,
+        )
+    assert client.get(old).status_code in (404, 405)
+    assert client.delete(old).status_code in (404, 405)
+
+
 def test_async_post_returns_async_task_model(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
 
     with _install_fake_generate(monkeypatch):
         response = client.post(f"{base}/async", json={"language": "it"})
@@ -205,7 +220,7 @@ def test_async_post_returns_async_task_model(tmp_path, monkeypatch):
 def test_async_post_validates_before_queueing(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
 
     response = client.post(f"{base}/async", json={"language": "Klingon"})
 
@@ -221,7 +236,7 @@ def test_async_post_validates_before_queueing(tmp_path, monkeypatch):
 def test_sync_post_ffmpeg_unavailable_is_a_bad_request(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
 
     async def fake_generate(**_kwargs):
         raise PresentationVideoConfigurationError("ffmpeg is not installed")
@@ -238,7 +253,7 @@ def test_sync_post_ffmpeg_unavailable_is_a_bad_request(tmp_path, monkeypatch):
 def test_async_post_ffmpeg_unavailable_is_a_bad_request(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
     monkeypatch.setattr(presentation_endpoint, "ffmpeg_available", lambda: False)
 
     response = client.post(f"{base}/async", json={"language": "it"})
@@ -251,7 +266,7 @@ def test_deck_with_no_slides_is_a_bad_request(tmp_path, monkeypatch):
     client, presentation_id, _sessions = _build_client(
         tmp_path, monkeypatch, with_slides=False
     )
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
 
     assert client.post(base, json={"language": "it"}).status_code == 400
     assert client.post(f"{base}/async", json={"language": "it"}).status_code == 400
@@ -260,7 +275,7 @@ def test_deck_with_no_slides_is_a_bad_request(tmp_path, monkeypatch):
 def test_unknown_presentation_is_404_on_all_endpoints(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, _presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
-    missing_base = f"/api/v1/ppt/presentation/{uuid.uuid4()}/video"
+    missing_base = f"/api/v1/ppt/presentation/{uuid.uuid4()}/video-export"
 
     assert client.post(missing_base, json={"language": "it"}).status_code == 404
     assert (
@@ -274,7 +289,7 @@ def test_unknown_presentation_is_404_on_all_endpoints(tmp_path, monkeypatch):
 def test_get_with_no_video_is_404(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
 
     assert client.get(base).status_code == 404
 
@@ -296,7 +311,7 @@ def _seed_video_rows(session_maker, presentation_id, languages):
 def test_get_across_two_languages_without_language_is_409(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
     _seed_video_rows(
         sessions, presentation_id, [("it", "Italian"), ("en", "English")]
     )
@@ -311,7 +326,7 @@ def test_get_across_two_languages_without_language_is_409(tmp_path, monkeypatch)
 def test_get_with_language_returns_just_that_one(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
     _seed_video_rows(
         sessions, presentation_id, [("it", "Italian"), ("en", "English")]
     )
@@ -327,7 +342,7 @@ def test_get_with_language_returns_just_that_one(tmp_path, monkeypatch):
 def test_delete_returns_count_and_is_idempotent(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
     _seed_video_rows(
         sessions, presentation_id, [("it", "Italian"), ("en", "English")]
     )
@@ -344,7 +359,7 @@ def test_delete_returns_count_and_is_idempotent(tmp_path, monkeypatch):
 def test_invalid_resolution_fps_subtitles_are_422(tmp_path, monkeypatch):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
 
     assert client.post(
         base, json={"language": "it", "resolution": "4k"}
@@ -360,7 +375,7 @@ def test_generate_missing_audio_with_unconfigured_tts_is_a_bad_request(
 ):
     _configure_video(monkeypatch, tmp_path)
     client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
     monkeypatch.delenv("OPENAI_COMPAT_TTS_API_KEY", raising=False)
 
     async def fake_generate(**_kwargs):
@@ -401,7 +416,7 @@ def test_animate_reaches_the_renderer_and_reports_back(tmp_path, monkeypatch):
         presentation_endpoint, "generate_presentation_video", side_effect=fake_generate
     ):
         response = client.post(
-            f"/api/v1/ppt/presentation/{presentation_id}/video",
+            f"/api/v1/ppt/presentation/{presentation_id}/video-export",
             json={"language": "it", "animate": True},
         )
 
@@ -427,7 +442,7 @@ def test_crossfade_reaches_the_renderer_and_defaults_to_half_a_second(
         await sql_session.refresh(video)
         return PresentationVideoResult(video=video, reused=False)
 
-    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video-export"
     with patch.object(
         presentation_endpoint, "generate_presentation_video", side_effect=fake_generate
     ):
@@ -444,7 +459,7 @@ def test_crossfade_out_of_range_is_422(tmp_path, monkeypatch):
     client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
 
     response = client.post(
-        f"/api/v1/ppt/presentation/{presentation_id}/video",
+        f"/api/v1/ppt/presentation/{presentation_id}/video-export",
         json={"language": "it", "crossfade_seconds": 2},
     )
 
@@ -477,7 +492,7 @@ def test_avatars_flag_reaches_the_renderer_and_the_summary_comes_back(
         presentation_endpoint, "generate_presentation_video", side_effect=fake_generate
     ):
         response = client.post(
-            f"/api/v1/ppt/presentation/{presentation_id}/video",
+            f"/api/v1/ppt/presentation/{presentation_id}/video-export",
             json={"language": "it", "avatars": False},
         )
 

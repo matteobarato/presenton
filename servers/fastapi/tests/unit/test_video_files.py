@@ -1,7 +1,9 @@
 import asyncio
 import io
+import logging
 import os
 import struct
+import uuid
 
 import pytest
 from fastapi import HTTPException, UploadFile
@@ -13,6 +15,8 @@ from utils.video_files import (
     VideoMetadata,
     get_slide_video_max_upload_bytes,
     mp4_metadata,
+    remove_deck_video_files,
+    remove_file,
     store_uploaded_video,
     video_metadata,
 )
@@ -371,3 +375,73 @@ def test_max_upload_bytes_from_env(monkeypatch, value, expected_mb):
     else:
         monkeypatch.setenv("SLIDE_VIDEO_MAX_UPLOAD_MB", value)
     assert get_slide_video_max_upload_bytes() == int(expected_mb * MB)
+
+
+def test_remove_file_ignores_a_missing_path_and_none(tmp_path):
+    remove_file(str(tmp_path / "never-existed.mp4"))
+    remove_file(None)
+    remove_file("")
+
+
+def test_remove_file_deletes_the_file(tmp_path):
+    path = tmp_path / "avatar.mp4"
+    path.write_bytes(b"x")
+
+    remove_file(str(path))
+
+    assert not path.exists()
+
+
+def test_remove_file_logs_other_errors_instead_of_raising(
+    tmp_path, monkeypatch, caplog
+):
+    def refuse(_path):
+        raise PermissionError("read-only volume")
+
+    monkeypatch.setattr(os, "remove", refuse)
+
+    with caplog.at_level(logging.WARNING, logger=video_files.__name__):
+        remove_file(str(tmp_path / "avatar.mp4"))
+
+    assert "avatar.mp4" in caplog.text
+    assert "read-only volume" in caplog.text
+
+
+def test_remove_deck_video_files_removes_the_files_and_the_empty_folder(tmp_path):
+    presentation_id = uuid.uuid4()
+    folder = tmp_path / str(presentation_id)
+    folder.mkdir()
+    avatar, render = folder / "slide.mp4", folder / "deck.mp4"
+    avatar.write_bytes(b"a")
+    render.write_bytes(b"r")
+
+    remove_deck_video_files(presentation_id, [str(avatar), str(render), ""])
+
+    assert not folder.exists()
+    assert tmp_path.exists()
+
+
+def test_remove_deck_video_files_keeps_a_folder_that_still_has_files(tmp_path):
+    presentation_id = uuid.uuid4()
+    folder = tmp_path / str(presentation_id)
+    folder.mkdir()
+    removed, kept = folder / "slide.mp4", folder / "animation-plans.json"
+    removed.write_bytes(b"a")
+    kept.write_bytes(b"{}")
+
+    remove_deck_video_files(presentation_id, [str(removed)])
+
+    assert not removed.exists()
+    assert kept.exists()
+
+
+def test_remove_deck_video_files_never_removes_a_folder_of_another_name(tmp_path):
+    folder = tmp_path / "shared"
+    folder.mkdir()
+    path = folder / "slide.mp4"
+    path.write_bytes(b"a")
+
+    remove_deck_video_files(uuid.uuid4(), [str(path)])
+
+    assert not path.exists()
+    assert folder.is_dir()

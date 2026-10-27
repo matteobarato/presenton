@@ -156,7 +156,6 @@ from services.slide_video_service import (
     build_playback,
     delete_slide_videos,
     list_slide_videos,
-    remove_slide_video_files,
     save_slide_video,
     set_bubble,
     slide_video_paths,
@@ -186,10 +185,10 @@ from services.presentation_video_service import (
     generate_presentation_video,
     list_presentation_videos,
     presentation_video_paths,
-    remove_presentation_video_files,
 )
 from utils.ffmpeg_utils import MISSING_FFMPEG_MESSAGE, ffmpeg_available
 from utils.get_env import is_community_enabled
+from utils.video_files import remove_deck_video_files
 import uuid
 
 logger = logging.getLogger(__name__)
@@ -1631,8 +1630,9 @@ async def delete_presentation(
     await sql_session.commit()
 
     remove_speaker_note_audio_files(id, audio_paths)
-    remove_slide_video_files(id, slide_video_file_paths)
-    remove_presentation_video_files(id, presentation_video_file_paths)
+    remove_deck_video_files(
+        id, [*slide_video_file_paths, *presentation_video_file_paths]
+    )
 
 
 @PRESENTATION_ROUTER.post("/{id}/duplicate", response_model=PresentationWithSlides)
@@ -2515,7 +2515,7 @@ async def run_generate_presentation_video_task(
 
 
 @PRESENTATION_ROUTER.post(
-    "/{id}/video", response_model=PresentationVideoGenerationResponse
+    "/{id}/video-export", response_model=PresentationVideoGenerationResponse
 )
 async def generate_presentation_video_endpoint(
     id: uuid.UUID,
@@ -2574,7 +2574,7 @@ async def generate_presentation_video_endpoint(
     return PresentationVideoGenerationResponse.from_result(result)
 
 
-@PRESENTATION_ROUTER.post("/{id}/video/async", response_model=AsyncTaskModel)
+@PRESENTATION_ROUTER.post("/{id}/video-export/async", response_model=AsyncTaskModel)
 async def generate_presentation_video_async(
     id: uuid.UUID,
     request: PresentationVideoRequest,
@@ -2641,7 +2641,9 @@ async def generate_presentation_video_async(
     return task
 
 
-@PRESENTATION_ROUTER.get("/{id}/video", response_model=PresentationVideosResponse)
+@PRESENTATION_ROUTER.get(
+    "/{id}/video-export", response_model=PresentationVideosResponse
+)
 async def get_presentation_videos(
     id: uuid.UUID,
     language: Optional[str] = Query(
@@ -2682,7 +2684,7 @@ async def get_presentation_videos(
     return PresentationVideosResponse.from_models(presentation_id=id, videos=videos)
 
 
-@PRESENTATION_ROUTER.delete("/{id}/video")
+@PRESENTATION_ROUTER.delete("/{id}/video-export")
 async def delete_presentation_videos_endpoint(
     id: uuid.UUID,
     language: Optional[str] = Query(
@@ -3778,7 +3780,7 @@ async def update_presentation(
 
     if removed_ids:
         remove_speaker_note_audio_files(presentation.id, removed_audio_paths)
-        remove_slide_video_files(presentation.id, removed_video_paths)
+        remove_deck_video_files(presentation.id, removed_video_paths)
 
     response_slides = slides or []
     return PresentationWithSlides(

@@ -16,7 +16,6 @@ a video: uploading adds it, deleting the video removes it.
 from __future__ import annotations
 
 import copy
-import logging
 import os
 import uuid
 from dataclasses import dataclass
@@ -51,11 +50,11 @@ from utils.asset_directory_utils import (
 from utils.datetime_utils import get_current_utc_datetime
 from utils.video_files import (
     get_slide_video_max_upload_bytes,
+    remove_deck_video_files,
+    remove_file,
     store_uploaded_video,
     video_metadata,
 )
-
-LOGGER = logging.getLogger(__name__)
 
 STAGE_WIDTH = 1280
 STAGE_HEIGHT = 720
@@ -277,36 +276,6 @@ def set_bubble(presentation: PresentationModel, box: StageBox) -> PlaybackBubble
     }
     presentation.narration = narration
     return resolve_bubble(presentation)
-
-
-def _remove_video_file(path: Optional[str]) -> None:
-    if not path:
-        return
-    try:
-        os.remove(path)
-    except FileNotFoundError:
-        return
-    except OSError as exc:
-        LOGGER.warning("Could not remove slide video %s: %s", path, exc)
-
-
-def remove_slide_video_files(
-    presentation_id: uuid.UUID, paths: Sequence[str]
-) -> None:
-    """Delete video files, and the deck's video folder once it is empty."""
-    directories: set[str] = set()
-    for path in paths:
-        if not path:
-            continue
-        directories.add(os.path.dirname(path))
-        _remove_video_file(path)
-    for directory in directories:
-        if os.path.basename(directory) != str(presentation_id):
-            continue
-        try:
-            os.rmdir(directory)
-        except OSError:
-            continue
 
 
 async def list_slide_videos(
@@ -607,11 +576,11 @@ async def save_slide_video(
         await sql_session.commit()
         await sql_session.refresh(video)
     except BaseException:
-        _remove_video_file(stored.path)
+        remove_file(stored.path)
         raise
 
     if previous_path and previous_path != stored.path:
-        _remove_video_file(previous_path)
+        remove_file(previous_path)
     return video
 
 
@@ -635,7 +604,7 @@ async def delete_slide_videos(
         await sql_session.delete(video)
     if videos:
         await sql_session.commit()
-    remove_slide_video_files(presentation_id, paths)
+    remove_deck_video_files(presentation_id, paths)
     return len(videos)
 
 

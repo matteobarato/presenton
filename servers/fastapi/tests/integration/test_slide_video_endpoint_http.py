@@ -474,6 +474,56 @@ def test_deleting_the_deck_removes_its_video_files(tmp_path, monkeypatch):
     assert _rows(sessions, SlideVideoModel) == []
 
 
+def test_deleting_a_deck_removes_avatars_and_rendered_videos(tmp_path, monkeypatch):
+    client, presentation_id, _slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _upload(client, presentation_id, 0)
+    avatar = _rows(sessions, SlideVideoModel)[0].path
+
+    # A rendered MP4 and its subtitles live beside the avatars.
+    folder = _video_dir(app_data, presentation_id)
+    render, subtitles = folder / "export.mp4", folder / "export.vtt"
+    render.write_bytes(b"mp4")
+    subtitles.write_text("WEBVTT\n")
+
+    async def add_render(session):
+        session.add(
+            PresentationVideoModel(
+                presentation=presentation_id,
+                language="it",
+                language_name="Italian",
+                preset="1080p-30-soft",
+                path=str(render),
+                url=f"/app_data/videos/{presentation_id}/{render.name}",
+                subtitles_mode="soft",
+                subtitle_path=str(subtitles),
+                subtitle_url=f"/app_data/videos/{presentation_id}/{subtitles.name}",
+                resolution="1080p",
+                width=1920,
+                height=1080,
+                fps=30,
+                slide_count=3,
+                duration_seconds=7.5,
+                size_bytes=3,
+                source_hash="hash",
+            )
+        )
+        await session.commit()
+
+    _run(sessions, add_render)
+    assert os.path.exists(avatar) and render.exists() and subtitles.exists()
+
+    assert client.delete(f"/api/v1/ppt/presentation/{presentation_id}").status_code == 204
+
+    assert not os.path.exists(avatar)
+    assert not render.exists()
+    assert not subtitles.exists()
+    assert not folder.exists()
+    assert _rows(sessions, SlideVideoModel) == []
+    assert _rows(sessions, PresentationVideoModel) == []
+
+
 def test_playback_describes_the_actor_slide_by_slide(tmp_path, monkeypatch):
     client, presentation_id, slide_ids, sessions, app_data = _build_client(
         tmp_path, monkeypatch

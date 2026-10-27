@@ -60,10 +60,7 @@ from services.speaker_note_tts_service import (
     generate_speaker_note_audios,
     list_speaker_note_audios,
 )
-from utils.asset_directory_utils import (
-    absolute_fastapi_asset_url,
-    get_videos_directory,
-)
+from utils.asset_directory_utils import app_data_file_url, get_videos_directory
 from utils.datetime_utils import get_current_utc_datetime
 from utils.export_utils import export_presentation, get_next_app_url
 from utils.ffmpeg_utils import (
@@ -75,7 +72,7 @@ from utils.ffmpeg_utils import (
     probe_media,
     run_ffmpeg,
 )
-from utils.get_env import get_app_data_directory_env, get_temp_directory_env
+from utils.get_env import get_temp_directory_env
 from utils.hyperframes_composition import (
     SLIDE_HEIGHT,
     SLIDE_WIDTH,
@@ -116,6 +113,7 @@ from utils.video_crossfade import (
     xfade_chain,
 )
 from utils.subtitle_utils import Cue, split_into_cues, write_webvtt
+from utils.video_files import remove_deck_video_files, remove_file
 
 LOGGER = logging.getLogger(__name__)
 
@@ -429,7 +427,7 @@ async def delete_presentation_videos(
         await sql_session.delete(video)
     if videos:
         await sql_session.commit()
-    remove_presentation_video_files(presentation_id, paths)
+    remove_deck_video_files(presentation_id, paths)
     return len(videos)
 
 
@@ -450,54 +448,6 @@ async def presentation_video_paths(
     if os.path.isfile(cache_path):
         paths.append(cache_path)
     return paths
-
-
-def _remove_video_file(path: Optional[str]) -> None:
-    if not path:
-        return
-    try:
-        os.remove(path)
-    except FileNotFoundError:
-        return
-    except OSError as exc:
-        LOGGER.warning("Could not remove presentation video file %s: %s", path, exc)
-
-
-def remove_presentation_video_files(
-    presentation_id: uuid.UUID, paths: Sequence[str]
-) -> None:
-    """Delete video/subtitle files, and the deck's video folder once empty."""
-    directories: set[str] = set()
-    for path in paths:
-        if not path:
-            continue
-        directories.add(os.path.dirname(path))
-        _remove_video_file(path)
-    for directory in directories:
-        if os.path.basename(directory) != str(presentation_id):
-            continue
-        try:
-            os.rmdir(directory)
-        except OSError:
-            continue
-
-
-def _video_url_for_path(path: Optional[str]) -> Optional[str]:
-    """Browser-facing URL for a file written under APP_DATA_DIRECTORY/videos."""
-    if not path:
-        return None
-    app_data = get_app_data_directory_env()
-    if not app_data:
-        return path
-    try:
-        relative = os.path.relpath(
-            os.path.realpath(path), os.path.realpath(app_data)
-        )
-    except (OSError, ValueError):
-        return path
-    if relative.startswith(".."):
-        return path
-    return absolute_fastapi_asset_url("/app_data/" + relative.replace(os.sep, "/"))
 
 
 def _escape_filtergraph_path(path: str) -> str:
@@ -1106,7 +1056,7 @@ def _save_animation_cache(path: str, data: dict[str, Any]) -> None:
         os.replace(temporary, path)
     except OSError:
         LOGGER.warning("Could not save slide animation plans to %s", path, exc_info=True)
-        _remove_video_file(temporary)
+        remove_file(temporary)
 
 
 async def _resolve_animation_plans(
@@ -1785,8 +1735,10 @@ async def generate_presentation_video(
     except OSError:
         size_bytes = probe.size_bytes
 
-    url = _video_url_for_path(output_path)
-    subtitle_url = _video_url_for_path(subtitle_output_path)
+    url = app_data_file_url(output_path)
+    subtitle_url = (
+        app_data_file_url(subtitle_output_path) if subtitle_output_path else None
+    )
 
     old_paths: list[str] = []
     if existing is not None:
@@ -1840,7 +1792,7 @@ async def generate_presentation_video(
     # successfully, so a cached URL can never end up pointing at a file that
     # no longer exists, and a failed commit never orphans the fresh render.
     for old_path in old_paths:
-        _remove_video_file(old_path)
+        remove_file(old_path)
 
     log_memory(
         LOGGER,

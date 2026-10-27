@@ -14,15 +14,19 @@ duration as soon as they load it, so it is left unread.
 
 from __future__ import annotations
 
+import logging
 import math
 import os
 import struct
+import uuid
 from dataclasses import dataclass
-from typing import BinaryIO, Iterator, Optional
+from typing import BinaryIO, Iterator, Optional, Sequence
 
 from fastapi import HTTPException, UploadFile
 
 from utils.get_env import get_slide_video_max_upload_mb_env
+
+LOGGER = logging.getLogger(__name__)
 
 ALLOWED_VIDEO_EXTENSIONS: dict[str, tuple[str, str]] = {
     ".mp4": ("mp4", "video/mp4"),
@@ -76,11 +80,48 @@ def _sniff_container(head: bytes) -> Optional[str]:
     return None
 
 
-def _remove_file(path: str) -> None:
+def remove_file(path: Optional[str]) -> None:
+    """Delete one file, tolerating what a cleanup cannot do anything about.
+
+    A path that is already gone (or was never set) is the normal case when a
+    row outlives its file, and any other failure is logged rather than raised:
+    the caller is usually cleaning up after a commit that has already happened,
+    and a stray file must not turn that into an error response.
+    """
+    if not path:
+        return
     try:
         os.remove(path)
     except FileNotFoundError:
-        pass
+        return
+    except OSError as exc:
+        LOGGER.warning("Could not remove video file %s: %s", path, exc)
+
+
+def remove_deck_video_files(
+    presentation_id: uuid.UUID, paths: Sequence[str]
+) -> None:
+    """Delete a deck's avatar and rendered-video files, then its folder.
+
+    Avatars and MP4 renders share ``<videos>/<presentation_id>/``, so the
+    folder goes only once the last file has. It is removed only when it is
+    named after the deck, which keeps a path outside the deck's own folder from
+    ever taking its parent directory with it, and ``rmdir`` (never ``rmtree``)
+    leaves anything that is still in it.
+    """
+    directories: set[str] = set()
+    for path in paths:
+        if not path:
+            continue
+        directories.add(os.path.dirname(path))
+        remove_file(path)
+    for directory in directories:
+        if os.path.basename(directory) != str(presentation_id):
+            continue
+        try:
+            os.rmdir(directory)
+        except OSError:
+            continue
 
 
 async def store_uploaded_video(
@@ -135,7 +176,7 @@ async def store_uploaded_video(
         os.replace(part_path, final_path)
     except BaseException:
         # BaseException, so a request cancelled mid-upload cleans up as well.
-        _remove_file(part_path)
+        remove_file(part_path)
         raise
 
     return StoredVideo(
