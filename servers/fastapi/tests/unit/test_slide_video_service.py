@@ -1,10 +1,17 @@
+import uuid
+from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from models.slide_video_response import StageBox
 from models.sql.presentation import PresentationModel
 from models.sql.slide import SlideModel
+from models.sql.slide_video import SlideVideoModel
+from models.sql.speaker_note_audio import SpeakerNoteAudioModel
+from services.speaker_note_tts_service import note_digest
 from services.slide_video_service import (
     InvalidStageBoxError,
+    avatar_stale_reason,
     default_placeholder_box,
     ensure_video_placeholder,
     find_video_placeholder,
@@ -13,6 +20,7 @@ from services.slide_video_service import (
     remove_video_placeholder,
     resolve_bubble,
     set_bubble,
+    slide_videos_response,
 )
 
 
@@ -166,3 +174,132 @@ def test_bubble_defaults_to_the_corner_until_a_deck_sets_one():
         set_bubble(presentation, StageBox.of(1200, 0, 96, 96))
     # A rejected placement does not overwrite the stored one.
     assert _box(resolve_bubble(presentation)) == (24, 24, 120, 120)
+
+
+_UPLOADED_AT = datetime(2026, 10, 27, 12, 0, tzinfo=timezone.utc)
+
+
+def _slide(note):
+    return SlideModel(
+        id=uuid.uuid4(),
+        presentation=uuid.uuid4(),
+        layout_group="g",
+        layout="l",
+        index=0,
+        content={},
+        speaker_note=note,
+        ui=_ui(),
+    )
+
+
+def _avatar(slide, *, language, note=None):
+    return SlideVideoModel(
+        id=uuid.uuid4(),
+        presentation=slide.presentation,
+        slide=slide.id,
+        source_note_hash=note_digest(slide.speaker_note if note is None else note),
+        path="/tmp/avatar.mp4",
+        url="/app_data/videos/avatar.mp4",
+        format="mp4",
+        mime_type="video/mp4",
+        language=language,
+        created_at=_UPLOADED_AT,
+        updated_at=_UPLOADED_AT,
+    )
+
+
+def _narration(slide, *, language, updated_at):
+    return SpeakerNoteAudioModel(
+        id=uuid.uuid4(),
+        presentation=slide.presentation,
+        slide=slide.id,
+        slide_index=slide.index,
+        language=language,
+        language_name=language,
+        model="tts-test",
+        text="testo",
+        source_note_hash=note_digest(slide.speaker_note),
+        path="/tmp/audio.mp3",
+        url="/app_data/audio/audio.mp3",
+        created_at=updated_at,
+        updated_at=updated_at,
+    )
+
+
+def test_stale_reason_is_note_changed_when_the_note_was_edited():
+    slide = _slide("new")
+    video = _avatar(slide, language="en", note="old")
+
+    assert avatar_stale_reason(video, slide, None) == "note_changed"
+
+
+def test_stale_reason_is_audio_regenerated_when_its_language_audio_is_newer():
+    slide = _slide("same note")
+    video = _avatar(slide, language="en")
+    audio = _narration(
+        slide, language="en", updated_at=_UPLOADED_AT + timedelta(seconds=60)
+    )
+
+    assert avatar_stale_reason(video, slide, audio) == "audio_regenerated"
+
+
+def test_note_changed_wins_over_audio_regenerated():
+    slide = _slide("new")
+    video = _avatar(slide, language="en", note="old")
+    audio = _narration(
+        slide, language="en", updated_at=_UPLOADED_AT + timedelta(seconds=60)
+    )
+
+    assert avatar_stale_reason(video, slide, audio) == "note_changed"
+
+
+def test_audio_older_than_the_avatar_is_not_stale():
+    slide = _slide("same note")
+    video = _avatar(slide, language="en")
+    audio = _narration(
+        slide, language="en", updated_at=_UPLOADED_AT - timedelta(seconds=60)
+    )
+
+    assert avatar_stale_reason(video, slide, audio) is None
+
+
+def test_audio_in_another_language_does_not_make_the_avatar_stale():
+    slide = _slide("same note")
+    video = _avatar(slide, language="en")
+    italian = _narration(
+        slide, language="it", updated_at=_UPLOADED_AT + timedelta(seconds=60)
+    )
+
+    response = slide_videos_response(slide.presentation, [slide], [video], [italian])
+
+    assert response.videos[0].stale is False
+    assert response.videos[0].stale_reason is None
+    assert response.videos[0].language == "en"
+
+
+def test_the_audio_in_the_avatars_language_is_the_one_that_counts():
+    slide = _slide("same note")
+    video = _avatar(slide, language="en")
+    later = _UPLOADED_AT + timedelta(seconds=60)
+    audios = [
+        _narration(slide, language="it", updated_at=_UPLOADED_AT),
+        _narration(slide, language="en", updated_at=later),
+    ]
+
+    response = slide_videos_response(slide.presentation, [slide], [video], audios)
+
+    assert response.videos[0].stale is True
+    assert response.videos[0].stale_reason == "audio_regenerated"
+
+
+def test_avatar_without_language_only_checks_the_note():
+    slide = _slide("same note")
+    video = _avatar(slide, language=None)
+    audio = _narration(
+        slide, language="en", updated_at=_UPLOADED_AT + timedelta(seconds=60)
+    )
+
+    assert avatar_stale_reason(video, slide, audio) is None
+    response = slide_videos_response(slide.presentation, [slide], [video], [audio])
+    assert response.videos[0].stale is False
+    assert response.videos[0].language is None

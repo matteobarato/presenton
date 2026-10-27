@@ -160,7 +160,6 @@ from services.slide_video_service import (
     save_slide_video,
     set_bubble,
     slide_video_paths,
-    slide_video_response,
     slide_videos_response,
 )
 from services.speaker_note_tts_service import (
@@ -2189,6 +2188,7 @@ async def upload_slide_video(
     y: Optional[float] = Form(default=None),
     width: Optional[float] = Form(default=None),
     height: Optional[float] = Form(default=None),
+    language: Optional[str] = Form(default=None),
     sql_session: AsyncSession = Depends(get_async_session),
 ):
     """Attach an avatar video to one slide, replacing any earlier one.
@@ -2197,7 +2197,9 @@ async def upload_slide_video(
     carry its own audio. The slide gets a placeholder element marking where the
     video plays - added in the bottom-right corner if the slide has none - and
     `x`, `y`, `width`, `height` (slide coordinates, 1280×720) move it.
-    Only template slides can hold a video.
+    Only template slides can hold a video. `language` is the narration language
+    the avatar was synced to; unset, it is the deck's only narrated language
+    (or none, meaning any language, when the deck has none or several).
     """
     presentation, slides = await _presentation_with_slides_for_speaker_notes(
         id, sql_session
@@ -2213,10 +2215,14 @@ async def upload_slide_video(
             y=y,
             width=width,
             height=height,
+            language=language,
         )
     except (SlideVideoNotSupportedError, InvalidStageBoxError) as exc:
         raise HTTPException(status_code=422, detail=str(exc))
-    return slide_video_response(video, slide)
+    except UnsupportedTTSLanguageError as exc:
+        raise _speaker_note_audio_http_error(exc)
+    audios = await list_speaker_note_audios(sql_session, presentation_id=id)
+    return slide_videos_response(id, [slide], [video], audios).videos[0]
 
 
 @PRESENTATION_ROUTER.get("/{id}/videos", response_model=SlideVideosResponse)
@@ -2227,7 +2233,8 @@ async def get_slide_videos(
     """Every avatar video of a deck, in slide order."""
     _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
     videos = await list_slide_videos(sql_session, presentation_id=id)
-    return slide_videos_response(id, slides, videos)
+    audios = await list_speaker_note_audios(sql_session, presentation_id=id)
+    return slide_videos_response(id, slides, videos, audios)
 
 
 @PRESENTATION_ROUTER.get(
@@ -2248,7 +2255,8 @@ async def get_slide_video(
         raise HTTPException(
             status_code=404, detail="No video found for this slide"
         )
-    return slide_video_response(videos[0], slide)
+    audios = await list_speaker_note_audios(sql_session, presentation_id=id)
+    return slide_videos_response(id, [slide], videos, audios).videos[0]
 
 
 @PRESENTATION_ROUTER.delete("/{id}/videos/{slide_index}")

@@ -7,7 +7,11 @@ import { cn } from "@/lib/utils";
 import type { RootState } from "@/store/store";
 import { resolveBackendAssetUrl } from "@/utils/api";
 import { hasTemplateV2SlideUi } from "../../_shared/blank-slide";
-import { SLIDE_VIDEO_ACCEPT } from "../../services/api/slide-videos";
+import {
+  SLIDE_VIDEO_ACCEPT,
+  type SlideVideo,
+  type SlideVideoStaleReason,
+} from "../../services/api/slide-videos";
 import { useSlideVideo } from "../hooks/useSlideVideo";
 
 type PanelSlide = { id?: unknown; ui?: unknown; html_content?: unknown };
@@ -27,6 +31,23 @@ function formatDuration(seconds: number | null | undefined) {
 function formatSize(bytes: number | null | undefined) {
   if (bytes == null) return null;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const STALE_WARNING: Record<SlideVideoStaleReason, string> = {
+  note_changed:
+    "The speaker note changed after this video was uploaded, so the avatar may not say what the note says.",
+  audio_regenerated:
+    "The narration audio was regenerated after this video was uploaded, so the lips may not match the voice.",
+};
+
+const STALE_BADGE: Record<SlideVideoStaleReason, string> = {
+  note_changed: "Note changed",
+  audio_regenerated: "Audio changed",
+};
+
+// A server that predates `stale_reason` only ever flagged a changed note.
+function staleReasonOf(video: SlideVideo): SlideVideoStaleReason {
+  return video.stale_reason ?? "note_changed";
 }
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
@@ -141,8 +162,7 @@ export function VideosPanel({
         {video.stale && (
           <p className="flex gap-2 rounded-[8px] border border-[#FEDF89] bg-[#FFFCF5] p-3 text-[11px] leading-4 text-[#93370D]">
             <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden />
-            The speaker note changed after this video was uploaded, so the
-            avatar may not say what the note says.
+            {STALE_WARNING[staleReasonOf(video)]}
           </p>
         )}
         <div className="flex gap-2">
@@ -273,7 +293,7 @@ export function VideosPanel({
                   )}
                   {deckVideo.stale && (
                     <span className="ml-auto rounded-full bg-[#FFFAEB] px-2 py-0.5 text-[10px] font-medium text-[#B54708]">
-                      Note changed
+                      {STALE_BADGE[staleReasonOf(deckVideo)]}
                     </span>
                   )}
                 </button>

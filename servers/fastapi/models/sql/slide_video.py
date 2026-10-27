@@ -45,6 +45,10 @@ class SlideVideoModel(SQLModel, table=True):
     # Digest of the speaker note at upload time. The avatar says what the note
     # said then, so a note edited afterwards marks the video stale.
     source_note_hash: str
+    # The narration language the avatar was lip-synced to, as a TTS language
+    # code. Null means "any language": rows uploaded before the column existed,
+    # and uploads to a deck whose narration language was ambiguous.
+    language: Optional[str] = None
     original_filename: Optional[str] = None
     path: str
     url: str

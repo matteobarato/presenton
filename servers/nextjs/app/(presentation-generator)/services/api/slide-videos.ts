@@ -7,6 +7,10 @@ export type StageBox = {
   size: { width: number; height: number };
 };
 
+// Why an avatar no longer matches its narration: the speaker note was edited,
+// or the narration audio in the avatar's language was regenerated.
+export type SlideVideoStaleReason = "note_changed" | "audio_regenerated";
+
 // One slide's avatar video, as `GET /presentation/{id}/videos` describes it.
 export type SlideVideo = {
   id: string;
@@ -21,8 +25,11 @@ export type SlideVideo = {
   duration_seconds?: number | null;
   width?: number | null;
   height?: number | null;
-  // The speaker note changed after the video was made.
+  // The narration language the avatar was synced to; null means any language.
+  language?: string | null;
+  // The avatar no longer matches its narration; `stale_reason` says why.
   stale: boolean;
+  stale_reason?: SlideVideoStaleReason | null;
   placeholder?: StageBox | null;
   created_at: string;
   updated_at: string;

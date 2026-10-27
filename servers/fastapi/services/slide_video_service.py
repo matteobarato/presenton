@@ -19,7 +19,8 @@ import copy
 import logging
 import os
 import uuid
-from typing import Any, Iterator, Optional, Sequence
+from datetime import datetime, timezone
+from typing import Any, Iterator, Literal, Optional, Sequence
 
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,6 +40,7 @@ from models.speaker_note_audio_response import SpeakerNoteAudioResponse
 from models.sql.presentation import PresentationModel
 from models.sql.slide import SlideModel
 from models.sql.slide_video import SlideVideoModel
+from models.sql.speaker_note_audio import SpeakerNoteAudioModel
 from services.speaker_note_tts_service import list_speaker_note_audios, note_digest
 from utils.asset_directory_utils import (
     absolute_fastapi_asset_url,
@@ -335,9 +337,48 @@ async def slide_video_paths(
     return [video.path for video in videos if video.path]
 
 
+StaleReason = Literal["note_changed", "audio_regenerated"]
+
+
+def _as_utc(moment: datetime) -> datetime:
+    # SQLite hands timestamps back without a zone, Postgres with one; every
+    # stored value is UTC, so a naive one is read as UTC to compare the two.
+    return moment if moment.tzinfo is not None else moment.replace(tzinfo=timezone.utc)
+
+
+def avatar_stale_reason(
+    video: SlideVideoModel,
+    slide: SlideModel,
+    audio: Optional[SpeakerNoteAudioModel],
+) -> Optional[StaleReason]:
+    """Why the avatar no longer matches its narration, or None while it does.
+
+    The avatar was lip-synced to the note's audio at upload time. A note edited
+    since changes what should be said; audio regenerated since, in the avatar's
+    own language, changes how it sounds, so the lips drift from the voice. Audio
+    in another language says nothing about this avatar, and an avatar with no
+    language ("any") has no audio to compare against, so it only checks the
+    note. Staleness is a warning: stale avatars are still played.
+    """
+    if note_digest(slide.speaker_note or "") != video.source_note_hash:
+        return "note_changed"
+    if (
+        video.language is not None
+        and audio is not None
+        and audio.language == video.language
+        and _as_utc(audio.updated_at) > _as_utc(video.updated_at)
+    ):
+        return "audio_regenerated"
+    return None
+
+
 def slide_video_response(
-    video: SlideVideoModel, slide: SlideModel
+    video: SlideVideoModel,
+    slide: SlideModel,
+    audio: Optional[SpeakerNoteAudioModel] = None,
 ) -> SlideVideoResponse:
+    """`audio` is the slide's narration in the avatar's language, if any."""
+    stale_reason = avatar_stale_reason(video, slide, audio)
     return SlideVideoResponse(
         id=video.id,
         presentation_id=video.presentation,
@@ -351,7 +392,9 @@ def slide_video_response(
         duration_seconds=video.duration_seconds,
         width=video.width,
         height=video.height,
-        stale=note_digest(slide.speaker_note or "") != video.source_note_hash,
+        language=video.language,
+        stale=stale_reason is not None,
+        stale_reason=stale_reason,
         placeholder=placeholder_box(find_video_placeholder(slide.ui)),
         created_at=video.created_at,
         updated_at=video.updated_at,
@@ -362,10 +405,18 @@ def slide_videos_response(
     presentation_id: uuid.UUID,
     slides: Sequence[SlideModel],
     videos: Sequence[SlideVideoModel],
+    audios: Sequence[SpeakerNoteAudioModel] = (),
 ) -> SlideVideosResponse:
     by_slide = {video.slide: video for video in videos}
+    audio_by_slide_language = {
+        (audio.slide, audio.language): audio for audio in audios
+    }
     responses = [
-        slide_video_response(by_slide[slide.id], slide)
+        slide_video_response(
+            by_slide[slide.id],
+            slide,
+            audio_by_slide_language.get((slide.id, by_slide[slide.id].language)),
+        )
         for slide in slides
         if slide.id in by_slide
     ]
@@ -385,6 +436,17 @@ def slide_videos_response(
     )
 
 
+async def _default_video_language(
+    sql_session: AsyncSession, presentation_id: uuid.UUID
+) -> Optional[str]:
+    """The deck's only narrated language, or None when it has none or several."""
+    audios = await list_speaker_note_audios(
+        sql_session, presentation_id=presentation_id
+    )
+    languages = {audio.language for audio in audios}
+    return languages.pop() if len(languages) == 1 else None
+
+
 async def save_slide_video(
     *,
     sql_session: AsyncSession,
@@ -395,8 +457,13 @@ async def save_slide_video(
     y: Optional[float] = None,
     width: Optional[float] = None,
     height: Optional[float] = None,
+    language: Optional[str] = None,
 ) -> SlideVideoModel:
     """Store a slide's avatar video, replacing any earlier one.
+
+    `language` is the narration language the avatar was synced to. Left unset
+    it is the deck's only narrated language, or None ("any") when the deck has
+    none or several; a given one must be a supported TTS language.
 
     The file is written under a new name on every upload, because the app
     serves stored media with a long cache lifetime and a replaced file at the
@@ -406,6 +473,11 @@ async def save_slide_video(
         raise SlideVideoNotSupportedError(
             "Avatar videos can only be added to template slides"
         )
+    # Resolved before the file is stored, so a bad code leaves nothing behind.
+    if language is not None and language.strip():
+        video_language: Optional[str] = resolve_tts_language(language).code
+    else:
+        video_language = await _default_video_language(sql_session, presentation.id)
 
     directory = os.path.join(get_videos_directory(), str(presentation.id))
     stored = await store_uploaded_video(
@@ -436,6 +508,7 @@ async def save_slide_video(
         if video is None:
             video = SlideVideoModel(presentation=presentation.id, slide=slide.id)
         video.source_note_hash = note_digest(slide.speaker_note or "")
+        video.language = video_language
         video.original_filename = file.filename
         video.path = stored.path
         video.url = app_data_file_url(stored.path)
@@ -521,7 +594,7 @@ async def build_playback(
     for slide in slides:
         video = video_by_slide.get(slide.id)
         audio = audio_by_slide.get(slide.id)
-        video_response = slide_video_response(video, slide) if video else None
+        video_response = slide_video_response(video, slide, audio) if video else None
         audio_response = SpeakerNoteAudioResponse.from_model(audio) if audio else None
         if video_response is not None:
             actor = "video"

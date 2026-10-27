@@ -957,7 +957,7 @@ def test_database_at_either_video_head_upgrades_to_head(tmp_path, monkeypatch, s
             tables = _table_names(connection)
 
         assert version == migrations.REVISION_HEAD
-        assert migrations.REVISION_HEAD == migrations.REVISION_VIDEOS_MERGE
+        assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_VIDEO_LANGUAGE
         assert {"slide_videos", "presentation_videos"} <= tables
     finally:
         engine.dispose()
@@ -972,3 +972,66 @@ def test_video_merge_revision_is_the_only_head():
         migrations.REVISION_SLIDE_VIDEOS,
         migrations.REVISION_PRESENTATION_VIDEOS,
     }
+
+
+def _slide_video_columns(connection) -> set[str]:
+    return {row[1] for row in connection.execute(text("PRAGMA table_info(slide_videos)"))}
+
+
+def test_slide_video_language_revision_sits_on_the_video_merge():
+    script = ScriptDirectory.from_config(_alembic_config("sqlite://"))
+
+    assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_VIDEO_LANGUAGE
+    assert (
+        script.get_revision(migrations.REVISION_SLIDE_VIDEO_LANGUAGE).down_revision
+        == migrations.REVISION_VIDEOS_MERGE
+    )
+
+
+def test_slide_video_language_is_added_nullable_and_dropped_on_downgrade(tmp_path):
+    database_url = f"sqlite:///{tmp_path / 'video-language.db'}"
+    config = _alembic_config(database_url)
+    engine = create_engine(database_url)
+    try:
+        command.upgrade(config, migrations.REVISION_VIDEOS_MERGE)
+        with engine.connect() as connection:
+            assert "language" not in _slide_video_columns(connection)
+
+        command.upgrade(config, migrations.REVISION_SLIDE_VIDEO_LANGUAGE)
+        with engine.connect() as connection:
+            info = {
+                row[1]: row
+                for row in connection.execute(text("PRAGMA table_info(slide_videos)"))
+            }
+        assert "language" in info
+        assert info["language"][3] == 0  # nullable: rows from before mean "any"
+
+        command.downgrade(config, migrations.REVISION_VIDEOS_MERGE)
+        with engine.connect() as connection:
+            assert "language" not in _slide_video_columns(connection)
+    finally:
+        engine.dispose()
+
+
+def test_slide_video_language_upgrade_skips_an_existing_column(tmp_path):
+    """A database made by `create_all` already has the column when it is stamped."""
+    database_url = f"sqlite:///{tmp_path / 'video-language-existing.db'}"
+    config = _alembic_config(database_url)
+    engine = create_engine(database_url)
+    try:
+        command.upgrade(config, migrations.REVISION_VIDEOS_MERGE)
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE slide_videos ADD COLUMN language VARCHAR"))
+
+        command.upgrade(config, migrations.REVISION_SLIDE_VIDEO_LANGUAGE)
+
+        with engine.connect() as connection:
+            assert "language" in _slide_video_columns(connection)
+            assert (
+                connection.execute(
+                    text("SELECT version_num FROM alembic_version")
+                ).scalar_one()
+                == migrations.REVISION_SLIDE_VIDEO_LANGUAGE
+            )
+    finally:
+        engine.dispose()

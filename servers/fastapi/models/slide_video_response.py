@@ -51,9 +51,14 @@ class SlideVideoResponse(BaseModel):
     duration_seconds: Optional[float] = None
     width: Optional[int] = None
     height: Optional[int] = None
-    # The speaker note changed after the video was made, so the avatar no
-    # longer says what the note says.
+    # The narration language the avatar was synced to; null = any language.
+    language: Optional[str] = None
+    # The avatar no longer matches the narration it was made from: the speaker
+    # note changed after it was made (`note_changed`), or the slide's audio in
+    # its language was regenerated since (`audio_regenerated`). `stale` is
+    # `stale_reason is not None`, kept for clients that only need the flag.
     stale: bool
+    stale_reason: Optional[Literal["note_changed", "audio_regenerated"]] = None
     placeholder: Optional[StageBox] = None
     created_at: datetime
     updated_at: datetime

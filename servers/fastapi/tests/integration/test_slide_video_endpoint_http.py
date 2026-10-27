@@ -272,6 +272,89 @@ def test_upload_stores_the_video_and_adds_a_placeholder(tmp_path, monkeypatch):
     assert _placeholders(_slide_ui(client, presentation_id, 1)) == []
 
 
+def test_upload_records_the_given_language(tmp_path, monkeypatch):
+    client, presentation_id, _slide_ids, sessions, _app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+
+    response = _upload(client, presentation_id, 0, language="en")
+
+    assert response.status_code == 200, response.text
+    assert response.json()["language"] == "en"
+    assert [video.language for video in _rows(sessions, SlideVideoModel)] == ["en"]
+
+
+def test_upload_defaults_to_the_decks_only_narrated_language(tmp_path, monkeypatch):
+    client, presentation_id, slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[1], 1, language="en")
+
+    response = _upload(client, presentation_id, 0)
+
+    assert response.status_code == 200, response.text
+    assert response.json()["language"] == "en"
+
+
+def test_upload_without_narration_leaves_language_unset(tmp_path, monkeypatch):
+    client, presentation_id, _slide_ids, _sessions, _app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+
+    response = _upload(client, presentation_id, 0)
+
+    assert response.status_code == 200, response.text
+    assert response.json()["language"] is None
+
+
+def test_upload_in_a_multilingual_deck_leaves_language_unset(tmp_path, monkeypatch):
+    client, presentation_id, slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[1], 1, language="en")
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[1], 1, language="it")
+
+    response = _upload(client, presentation_id, 0)
+
+    assert response.status_code == 200, response.text
+    assert response.json()["language"] is None
+
+
+def test_upload_rejects_an_unsupported_language(tmp_path, monkeypatch):
+    client, presentation_id, _slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+
+    response = _upload(client, presentation_id, 0, language="xx-nope")
+
+    assert response.status_code == 422
+    assert _rows(sessions, SlideVideoModel) == []
+    assert not _video_dir(app_data, presentation_id).exists()
+
+
+def test_regenerated_narration_marks_the_avatar_stale_in_its_language(
+    tmp_path, monkeypatch
+):
+    client, presentation_id, slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    base = f"/api/v1/ppt/presentation/{presentation_id}"
+    _upload(client, presentation_id, 0, language="en")
+    assert client.get(f"{base}/videos/0").json()["stale_reason"] is None
+
+    # Narration made after the avatar, in another language and then in its own.
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[0], 0, language="it")
+    assert client.get(f"{base}/videos/0").json()["stale"] is False
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[0], 0, language="en")
+
+    single = client.get(f"{base}/videos/0").json()
+    listed = client.get(f"{base}/videos").json()["videos"][0]
+    for body in (single, listed):
+        assert body["stale"] is True
+        assert body["stale_reason"] == "audio_regenerated"
+        assert body["language"] == "en"
+
+
 def test_reupload_replaces_the_file_and_moves_the_placeholder(tmp_path, monkeypatch):
     client, presentation_id, _slide_ids, sessions, app_data = _build_client(
         tmp_path, monkeypatch
