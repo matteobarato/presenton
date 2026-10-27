@@ -508,6 +508,8 @@ These variables match `docker-compose.yml`. **`IMAGE_PROVIDER`** selects the bac
 | **OPENAI_COMPAT_IMAGE_BASE_URL** / **OPENAI_COMPAT_IMAGE_API_KEY** / **OPENAI_COMPAT_IMAGE_MODEL** | Required for `IMAGE_PROVIDER=openai_compatible` | Sends image requests to an OpenAI-compatible `/v1/images/*` endpoint such as LiteLLM, Azure, or a vLLM gateway. |
 | **OPENAI_COMPAT_IMAGE_TRANSPORT** | `auto` (default), `images`, `chat` | How the prompt reaches the model. `auto` calls `/v1/images/generations` and, if the provider answers that it does not serve image generation (Bifrost in front of OpenRouter: `image_generation is not supported by openrouter provider`), draws the image through `/v1/chat/completions` with `modalities: ["image", "text"]` and remembers that choice for the model. `images` and `chat` pin one transport. |
 
+The parallel image generation option applies everywhere images are generated: initial presentation generation, slide editing and regeneration, direct image requests, and assistant image tools.
+
 #### Speaker Note Audio (Text-to-Speech)
 
 | Variable | Values / default | Purpose |
@@ -539,16 +541,16 @@ Speaker note audio is generated per slide through `POST /api/v1/ppt/presentation
 | --- | --- | --- |
 | **SLIDE_VIDEO_MAX_UPLOAD_MB** | `100` (default) | Largest avatar video accepted per slide. The bundled nginx caps `/api/v1/` request bodies at 110 MB, so raise both together. |
 
-Any template slide can carry one avatar video (MP4 or WebM), made outside Presenton and lip-synced to that slide's narration. Upload it with `PUT /api/v1/ppt/presentation/{id}/videos/{slide_index}` (multipart `file`; optional `x`, `y`, `width`, `height` in 1280×720 slide coordinates). The upload adds a placeholder to the slide's `ui`: an image element tagged `"video_placeholder": true`, placed bottom-right if the slide has none. Its poster is transparent, so the placeholder is invisible in PDF/PPTX exports while still marking where the video plays. Deleting the video (`DELETE …/videos/{slide_index}`) removes the placeholder too. A video whose speaker note has been edited since the upload is reported as `stale`.
+Any template slide can carry one avatar video (MP4 or WebM), made outside Presenton and lip-synced to that slide's TTS narration. The avatar is silent: any audio track in the uploaded file is ignored, and the narration comes from the slide's speaker note audio. Upload it with `PUT /api/v1/ppt/presentation/{id}/videos/{slide_index}` (multipart `file`; optional `x`, `y`, `width`, `height` in 1280×720 slide coordinates; optional `language` form field, the narration language the avatar was synced to). When `language` is omitted it defaults to the deck's only narrated language, and when the deck has no narration yet or several languages it is left unset, meaning "any language". The upload adds a placeholder to the slide's `ui`: an image element tagged `"video_placeholder": true`, placed bottom-right if the slide has none. Its poster is transparent, so the placeholder is invisible in PDF/PPTX exports while still marking where the video plays. Deleting the video (`DELETE …/videos/{slide_index}`) removes the placeholder too. A video is reported `stale` with a `stale_reason`: `note_changed` when the speaker note was edited after the upload, or `audio_regenerated` when the narration audio in the avatar's language was regenerated after the upload (for example with a different TTS voice or provider). Stale avatars are still played.
 
 `GET /api/v1/ppt/presentation/{id}/playback?language=it` describes the narration slide by slide for a player. The presenter is one actor across the deck:
-- `actor: "video"` slides play the avatar video, with its own audio, inside `placeholder`.
+- `actor: "video"` slides play the muted avatar video inside `placeholder`, over the slide's narration `audio`.
 - `actor: "voice"` slides play the narration audio behind the voice bubble, whose spot is `bubble` (set it with `PUT …/playback/bubble`).
 - `actor: "none"` slides have no narration.
 
-Transitions follow from consecutive slides: the bubble expands into the placeholder when a video starts and collapses back when it ends. Video slides also carry their `audio`, so a viewer who switches the avatar off still hears the narration.
+An avatar synced to a different language than the one requested is not used; that slide falls back to `voice`.
 
-The parallel image generation option applies everywhere images are generated: initial presentation generation, slide editing and regeneration, direct image requests, and assistant image tools.
+In a player, transitions follow from consecutive slides: the bubble expands into the placeholder when a video starts and collapses back when it ends. Video slides also carry their `audio`, so a viewer who switches the avatar off still hears the narration.
 
 #### Presentation Video Export
 
@@ -560,11 +562,15 @@ The parallel image generation option applies everywhere images are generated: in
 | **PRESENTATION_VIDEO_ANIMATION_WORKERS** | Unset (default) | Number of headless Chrome workers HyperFrames uses for an animated video (`"animate": true`). Unset, HyperFrames sizes the pool from the machine; each worker is a full Chrome, so cap it on small boxes. |
 | **PRESENTATION_VIDEO_ANIMATION_TIMEOUT_SECONDS** | `1800` (default) | How long an animated render may run before it is abandoned and the video is made from still slides instead. |
 
+The export endpoints are `POST /api/v1/ppt/presentation/{id}/video-export` (renders, or reuses an earlier render), `POST …/video-export/async` (a background task with progress), `GET …/video-export` and `DELETE …/video-export`. Request options include `language`, `resolution`, `fps`, `subtitles`, `animate`, `speaker_indicator`, `avatars` (default `true`) and `crossfade_seconds` (default `0.5`, from `0` to `1.5`; `0` gives hard cuts).
+
 Video export renders the deck to PDF, rasterizes each page to a PNG frame, narrates the speaker notes with the same TTS configuration as speaker note audio above, and muxes frames, narration, and subtitles into an `.mp4` with ffmpeg. The Docker image already includes `ffmpeg`; running the FastAPI server from source needs `ffmpeg` and `ffprobe` installed and on `PATH`, or `FFMPEG_BINARY` / `FFPROBE_BINARY` pointed at them.
 
-With `"animate": true` on a video request, the elements of every Template-v2 slide animate in instead of the slide appearing as a still: an LLM plans each slide's entrance (validated against a fixed set of motions, and cached per slide), and [HyperFrames](https://hyperframes.heygen.com) renders the entrances in headless Chrome. Other slides stay still, and if the animated render cannot be made the video falls back to stills and the response's `animation.reason` says why. The Docker image includes the renderer; from source, run `npm ci` in `video-render-hyperframes/`.
+With `"animate": true` on a video request, the elements of every Template-v2 slide animate in instead of the slide appearing as a still: an LLM plans each slide's entrance (validated against a fixed set of motions, and cached per slide), and [HyperFrames](https://hyperframes.heygen.com) renders the entrances in headless Chrome. Other slides stay still, and if the animated render cannot be made the video falls back to stills and the response's `animation.reason` says why. The Docker image includes the renderer; from source, run `npm ci` in `video-render-hyperframes/`. HyperFrames also needs `ffprobe` on `PATH` (or `HYPERFRAMES_FFPROBE_PATH`) and a Chrome/Chromium at `HYPERFRAMES_BROWSER_PATH` (falls back to `PUPPETEER_EXECUTABLE_PATH`).
 
-Every slide that has narration also shows a small round bubble with moving sound-wave bars in the top-right corner, for as long as that slide is on screen. It is drawn over the finished video rather than inside the slides, so it keeps moving while a slide holds still for its narration and stays put across the cut between two narrated slides. Pass `"speaker_indicator": false` to leave it out.
+Every narrated slide without an avatar shows a small round bubble with moving sound-wave bars. It is drawn at the deck's bubble box, the same spot the player uses (bottom-right unless moved with `PUT …/playback/bubble`), and it stays steady across consecutive narrated slides. Pass `"speaker_indicator": false` to leave it out.
+
+Slides with an avatar play it muted in their placeholder, starting exactly when the narration starts and holding its last frame until the slide ends; `"avatars": false` uses the bubble instead. Slides change with a crossfade centred on the change and taken from the silence around the narration, so narration is never covered and the video keeps its length. Where the presenter changes (bubble ↔ avatar), the presenter fades with the slide. The response's `avatars` summary lists the slides that played an avatar and any that were stale, skipped (with a reason) or a different length than their narration.
 
 #### Telemetry
 
