@@ -95,6 +95,13 @@ from utils.speaker_indicator import (
     write_speaker_indicator_frames,
 )
 from utils.runtime_limits import log_memory
+from utils.video_crossfade import (
+    MAX_CROSSFADE_SECONDS,
+    plan_half_fades,
+    segment_padding,
+    slide_frames,
+    xfade_chain,
+)
 from utils.subtitle_utils import Cue, split_into_cues, write_webvtt
 
 LOGGER = logging.getLogger(__name__)
@@ -123,6 +130,7 @@ _MAX_SLIDE_SECONDS = 3600.0
 # for the rest of the narration) is the settled layout, not the last step of
 # an ease.
 _ANIMATION_SETTLE_SECONDS = 0.3
+_DEFAULT_CROSSFADE_SECONDS = 0.5
 _ANIMATION_PLAN_CACHE_FILENAME = "animation-plans.json"
 _COMPOSITION_FETCH_TIMEOUT_SECONDS = 120.0
 
@@ -152,9 +160,13 @@ class VideoRenderOptions:
     # Animate Template-v2 slide elements in with HyperFrames instead of
     # showing every slide as one still frame.
     animate: bool = False
-    # Show the looping "speaker is talking" bubble in the top-right corner
-    # of every narrated slide.
+    # Show the looping "speaker is talking" bubble, at the deck's bubble box,
+    # on every narrated slide.
     speaker_indicator: bool = True
+    # Fade between slides over this long, centred on each slide change and
+    # taken from the silent lead-out/lead-in, so narration is never covered.
+    # 0 cuts.
+    crossfade_seconds: float = _DEFAULT_CROSSFADE_SECONDS
 
     def __post_init__(self) -> None:
         if self.resolution not in _RESOLUTIONS:
@@ -177,6 +189,10 @@ class VideoRenderOptions:
             raise ValueError("lead_in_seconds must not be negative")
         if not (0 <= self.lead_out_seconds <= _MAX_SLIDE_SECONDS):
             raise ValueError("lead_out_seconds must not be negative")
+        if not (0 <= self.crossfade_seconds <= MAX_CROSSFADE_SECONDS):
+            raise ValueError(
+                f"crossfade_seconds must be between 0 and {MAX_CROSSFADE_SECONDS:g}"
+            )
 
     @property
     def width(self) -> int:
@@ -193,6 +209,10 @@ class VideoRenderOptions:
             preset += "-anim"
         if not self.speaker_indicator:
             preset += "-plain"
+        if self.crossfade_seconds == 0:
+            preset += "-cut"
+        elif self.crossfade_seconds != _DEFAULT_CROSSFADE_SECONDS:
+            preset += f"-xf{round(self.crossfade_seconds * 1000)}"
         return preset
 
 
@@ -303,6 +323,7 @@ def compute_video_source_hash(
         lines.append("animate=1")
     if options.speaker_indicator:
         lines.append("speaker_indicator=1")
+    lines.append(f"crossfade_seconds={options.crossfade_seconds!r}")
     hasher.update("\n".join(lines).encode("utf-8"))
     return hasher.hexdigest()
 
@@ -498,8 +519,21 @@ def build_ffmpeg_args(
     resulting argv without ever spawning ffmpeg.
     """
     burned_subtitles = options.subtitles_mode == "burned" and vtt_path is not None
+    crossfade = options.crossfade_seconds > 0 and len(timings) > 1
+    spans = slide_frames(
+        [(timing.start_seconds, timing.duration_seconds) for timing in timings],
+        options.fps,
+    )
+    half_fades = (
+        plan_half_fades([frames for _, frames in spans], options.crossfade_seconds, options.fps)
+        if crossfade
+        else []
+    )
 
-    if burned_subtitles:
+    if burned_subtitles or crossfade:
+        # A crossfade needs every slide as its own stream, padded with copies
+        # of its edge frames (see `utils/video_crossfade.py`), so it takes this
+        # per-slide path too.
         # Burning captions means every output frame is drawn on individually,
         # so each one needs its own buffer -- and a still image expanded by
         # the `fps` filter arrives in one unstoppable burst of thousands of
@@ -508,7 +542,13 @@ def build_ffmpeg_args(
         # demuxer emit one packet per frame, so the input queue applies back
         # pressure and only a handful of frames are ever in flight.
         args: list[str] = []
-        for image_path, timing in zip(image_paths, timings):
+        for index, (image_path, timing) in enumerate(zip(image_paths, timings)):
+            if crossfade:
+                # One frame longer than needed; `trim` then cuts it exact.
+                before, after = segment_padding(index, half_fades)
+                length = f"{(spans[index][1] + before + after + 1) / options.fps:.6f}"
+            else:
+                length = f"{timing.duration_seconds:.3f}"
             args.extend(
                 [
                     "-loop",
@@ -516,7 +556,7 @@ def build_ffmpeg_args(
                     "-framerate",
                     str(options.fps),
                     "-t",
-                    f"{timing.duration_seconds:.3f}",
+                    length,
                     "-i",
                     image_path,
                 ]
@@ -555,7 +595,27 @@ def build_ffmpeg_args(
     # 1080p frames piles up in the graph (verified: ~3 MB per frame, 10 GB
     # resident on a five-slide deck, killed by the OOM killer). Converting
     # once up front means `fps` duplicates references to a single buffer.
-    if burned_subtitles:
+    if crossfade:
+        labels: list[str] = []
+        for index, (_, frames) in enumerate(spans):
+            before, after = segment_padding(index, half_fades)
+            filter_parts.append(
+                f"[{index}:v]format=yuv420p,fps=fps={options.fps},"
+                f"trim=end_frame={frames + before + after},"
+                f"setpts=N/{options.fps}/TB,fps=fps={options.fps}[s{index}]"
+            )
+            labels.append(f"s{index}")
+        filter_parts.extend(
+            xfade_chain(
+                labels,
+                [start for start, _ in spans[1:]],
+                half_fades,
+                options.fps,
+                "vxf",
+            )
+        )
+        video_chain = f"[vxf]fps=fps={options.fps}"
+    elif burned_subtitles:
         slide_labels = "".join(f"[{i}:v]" for i in range(len(timings)))
         video_chain = (
             f"{slide_labels}concat=n={len(timings)}:v=1:a=0,format=yuv420p"
@@ -798,6 +858,11 @@ def build_animated_ffmpeg_args(
     every hold into a cut and leaves the video a fraction of its narration's
     length. Timestamps are rebuilt from the frame count after the concat
     instead, which also pins the output to an exact constant frame rate.
+
+    With a crossfade the same `tpad` also adds the edge copies each fade
+    needs, timestamps are rebuilt per segment right after it, and the
+    segments are joined with centred `xfade`s instead of `concat` (see
+    `utils/video_crossfade.py`).
     """
     args: list[str] = []
     for segment in segments:
@@ -827,17 +892,53 @@ def build_animated_ffmpeg_args(
 
     filter_parts: list[str] = []
     labels: list[str] = []
+    crossfade = options.crossfade_seconds > 0 and len(segments) > 1
+    half_fades = (
+        plan_half_fades(
+            [segment.frames for segment in segments],
+            options.crossfade_seconds,
+            options.fps,
+        )
+        if crossfade
+        else []
+    )
     for index, segment in enumerate(segments):
         chain = f"[{index}:v]trim=end_frame={segment.clip_frames},format=yuv420p"
-        if segment.hold_frames > 0:
+        if crossfade:
+            # The edge copies for the fade ride on the same `tpad` as the
+            # hold, and timestamps are rebuilt only after it.
+            before, after = segment_padding(index, half_fades)
+            pads: list[str] = []
+            if before:
+                pads.append(f"start={before}:start_mode=clone")
+            if segment.hold_frames + after:
+                pads.append(f"stop={segment.hold_frames + after}:stop_mode=clone")
+            if pads:
+                chain += ",tpad=" + ":".join(pads)
+            # `setpts` leaves the stream without a frame rate on ffmpeg 7,
+            # and `xfade` refuses one; `fps` restores it without retiming.
+            chain += f",setpts=N/{options.fps}/TB,fps=fps={options.fps}"
+        elif segment.hold_frames > 0:
             chain += f",tpad=stop_mode=clone:stop={segment.hold_frames}"
         filter_parts.append(f"{chain}[v{index}]")
-        labels.append(f"[v{index}]")
-    video_chain = (
-        "".join(labels)
-        + f"concat=n={len(segments)}:v=1:a=0,"
-        + f"setpts=N/{options.fps}/TB,fps=fps={options.fps}"
-    )
+        labels.append(f"v{index}")
+    if crossfade:
+        filter_parts.extend(
+            xfade_chain(
+                labels,
+                [segment.output_start_frame for segment in segments[1:]],
+                half_fades,
+                options.fps,
+                "vxf",
+            )
+        )
+        video_chain = f"[vxf]fps=fps={options.fps}"
+    else:
+        video_chain = (
+            "".join(f"[{label}]" for label in labels)
+            + f"concat=n={len(segments)}:v=1:a=0,"
+            + f"setpts=N/{options.fps}/TB,fps=fps={options.fps}"
+        )
     filter_parts.extend(
         _video_output_parts(
             video_chain,

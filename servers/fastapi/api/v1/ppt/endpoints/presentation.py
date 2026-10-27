@@ -2372,6 +2372,8 @@ def _presentation_video_options_from_request(
     if request.padding_seconds is not None:
         kwargs["lead_in_seconds"] = request.padding_seconds
         kwargs["lead_out_seconds"] = request.padding_seconds
+    if request.crossfade_seconds is not None:
+        kwargs["crossfade_seconds"] = request.crossfade_seconds
     try:
         return VideoRenderOptions(**kwargs)
     except ValueError as exc:

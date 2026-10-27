@@ -281,7 +281,7 @@ def test_build_ffmpeg_args_has_one_audio_input_per_slide():
         image_paths=["/tmp/s0.png", "/tmp/s1.png"],
         timings=timings,
         vtt_path=None,
-        options=VideoRenderOptions(subtitles_mode="none"),
+        options=VideoRenderOptions(crossfade_seconds=0, subtitles_mode="none"),
         language_code="en",
         output_path="/tmp/out.mp4",
     )
@@ -359,7 +359,7 @@ def test_build_ffmpeg_args_caps_output_at_timeline_duration():
         image_paths=["/tmp/s0.png", "/tmp/s1.png"],
         timings=timings,
         vtt_path=None,
-        options=VideoRenderOptions(subtitles_mode="none"),
+        options=VideoRenderOptions(crossfade_seconds=0, subtitles_mode="none"),
         language_code="en",
         output_path="/tmp/out.mp4",
     )
@@ -382,7 +382,7 @@ def test_build_ffmpeg_args_burned_subtitles_loops_each_slide_image():
         image_paths=["/tmp/s0.png", "/tmp/s1.png"],
         timings=timings,
         vtt_path="/tmp/subs.vtt",
-        options=VideoRenderOptions(subtitles_mode="burned", fps=30),
+        options=VideoRenderOptions(crossfade_seconds=0, subtitles_mode="burned", fps=30),
         language_code="en",
         output_path="/tmp/out.mp4",
     )
@@ -883,7 +883,7 @@ def test_build_animated_ffmpeg_args_reads_each_slide_and_holds_its_last_frame():
         segments=segments,
         timings=timings,
         vtt_path=None,
-        options=VideoRenderOptions(subtitles_mode="none", animate=True),
+        options=VideoRenderOptions(crossfade_seconds=0, subtitles_mode="none", animate=True),
         language_code="en",
         output_path="/tmp/out.mp4",
     )
@@ -1002,7 +1002,7 @@ def _run_animated(deck, *, regenerate=False):
                 slides=slides,
                 language="en",
                 sql_session=session,
-                options=VideoRenderOptions(animate=True),
+                options=VideoRenderOptions(crossfade_seconds=0, animate=True),
                 regenerate=regenerate,
             )
 
@@ -1019,7 +1019,7 @@ def test_animated_pipeline_renders_clip_and_caches_plans(tmp_path, monkeypatch):
     result = _run_animated(deck)
 
     assert result.animation == {"requested": True, "applied": True, "animated_slides": 2}
-    assert result.video.preset.endswith("-anim")
+    assert result.video.preset.endswith("-anim-cut")
     # Every slide is animated, so the PDF export is never needed.
     assert state["exports"] == 0
     assert state["llm_calls"] == 1
@@ -1160,7 +1160,7 @@ def test_build_ffmpeg_args_overlays_indicator_under_burned_subtitles(tmp_path):
         image_paths=["/tmp/s0.png", "/tmp/s1.png"],
         timings=timings,
         vtt_path="/tmp/subs.vtt",
-        options=VideoRenderOptions(subtitles_mode="burned"),
+        options=VideoRenderOptions(crossfade_seconds=0, subtitles_mode="burned"),
         language_code="en",
         output_path="/tmp/out.mp4",
         speaker_indicator=_indicator(tmp_path),
@@ -1247,3 +1247,193 @@ def test_animated_encode_shows_indicator_only_on_narrated_slides_with_real_ffmpe
         # sample just off-centre between bars.
         ring = Image.open(still).convert("RGB").getpixel((centre[0], centre[1] - indicator.size // 3))
         assert (sum(ring) < 300) is narrated, (second, ring, (red, green, blue))
+
+
+def test_crossfade_presets():
+    assert VideoRenderOptions().preset == "1080p-30-soft"
+    assert VideoRenderOptions(crossfade_seconds=0).preset == "1080p-30-soft-cut"
+    assert VideoRenderOptions(crossfade_seconds=1.0).preset == "1080p-30-soft-xf1000"
+
+
+@pytest.mark.parametrize("value", [-0.1, 1.6])
+def test_options_reject_crossfade_out_of_range(value):
+    with pytest.raises(ValueError, match="crossfade_seconds must be between 0 and 1.5"):
+        VideoRenderOptions(crossfade_seconds=value)
+
+
+def test_source_hash_changes_when_crossfade_changes():
+    def source_hash(crossfade):
+        return compute_video_source_hash(
+            timings=[_timing()],
+            language_code="en",
+            options=VideoRenderOptions(crossfade_seconds=crossfade),
+        )
+
+    assert source_hash(0.5) != source_hash(0.75)
+
+
+def _two_slides():
+    return [
+        _timing(slide_index=0, duration_seconds=3.0),
+        _timing(slide_index=1, page_index=1, start_seconds=3.0, duration_seconds=2.0),
+    ]
+
+
+def _filter_graph(args):
+    return args[args.index("-filter_complex") + 1]
+
+
+def test_build_ffmpeg_args_with_crossfade_loops_each_slide_and_chains_xfade():
+    args = build_ffmpeg_args(
+        concat_path="/tmp/concat.txt",
+        image_paths=["/tmp/0.png", "/tmp/1.png"],
+        timings=_two_slides(),
+        vtt_path=None,
+        options=VideoRenderOptions(subtitles_mode="none"),
+        language_code="en",
+        output_path="/tmp/out.mp4",
+    )
+    graph = _filter_graph(args)
+
+    assert "concat" not in args
+    assert args.count("-loop") == 2
+    # 90 frames + 8 cloned after; 8 cloned before + 60 frames.
+    assert "[0:v]format=yuv420p,fps=fps=30,trim=end_frame=98" in graph
+    assert "[1:v]format=yuv420p,fps=fps=30,trim=end_frame=68" in graph
+    assert "xfade=transition=fade:duration=0.533333:offset=2.733333" in graph
+
+
+def test_build_ffmpeg_args_without_crossfade_keeps_the_concat_path():
+    args = build_ffmpeg_args(
+        concat_path="/tmp/concat.txt",
+        image_paths=["/tmp/0.png", "/tmp/1.png"],
+        timings=_two_slides(),
+        vtt_path=None,
+        options=VideoRenderOptions(subtitles_mode="none", crossfade_seconds=0),
+        language_code="en",
+        output_path="/tmp/out.mp4",
+    )
+
+    assert args[:4] == ["-f", "concat", "-safe", "0"]
+    assert "xfade" not in _filter_graph(args)
+
+
+def test_build_animated_ffmpeg_args_pads_segments_for_crossfade():
+    timings = [
+        _timing(slide_index=0, duration_seconds=3.0),
+        _timing(slide_index=1, start_seconds=3.0, duration_seconds=4.0),
+    ]
+    args = build_animated_ffmpeg_args(
+        clip_path="/tmp/clip.mp4",
+        segments=plan_animated_segments(timings, [1.0, None], 30),
+        timings=timings,
+        vtt_path=None,
+        options=VideoRenderOptions(subtitles_mode="none", animate=True),
+        language_code="en",
+        output_path="/tmp/out.mp4",
+    )
+    parts = _filter_graph(args).split(";")
+    slide_parts = [part for part in parts if part.startswith(("[0:v]", "[1:v]"))]
+
+    assert "tpad=start=8:start_mode=clone:stop=119:stop_mode=clone" in slide_parts[1]
+    for part in slide_parts:
+        # ffmpeg 7.x pads nothing when frames are retimed between trim and tpad.
+        assert part.index("trim") < part.index("tpad") < part.index("setpts")
+    assert any("xfade=transition=fade" in part for part in parts)
+
+
+def _probe_frames(path):
+    import subprocess
+
+    from utils.ffmpeg_utils import get_ffprobe_binary
+
+    return int(
+        subprocess.run(
+            [
+                get_ffprobe_binary(), "-v", "error", "-select_streams", "v:0",
+                "-count_frames", "-show_entries", "stream=nb_read_frames",
+                "-of", "csv=p=0", path,
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+    )
+
+
+@pytest.mark.skipif(not pvs.ffmpeg_available(), reason="needs a real ffmpeg")
+def test_crossfaded_still_video_keeps_the_narration_length_with_real_ffmpeg(tmp_path):
+    import subprocess
+
+    from utils.ffmpeg_utils import get_ffmpeg_binary, run_ffmpeg
+
+    fps = 30
+    timings = [
+        _timing(slide_index=0, audio_path=None, start_seconds=0.0, duration_seconds=3.0),
+        _timing(slide_index=1, audio_path=None, start_seconds=3.0, duration_seconds=2.0),
+        _timing(slide_index=2, audio_path=None, start_seconds=5.0, duration_seconds=0.3),
+    ]
+    images = []
+    for index, color in enumerate(("red", "green", "blue")):
+        image = str(tmp_path / f"slide-{index}.png")
+        subprocess.run(
+            [
+                get_ffmpeg_binary(), "-v", "error", "-y", "-f", "lavfi",
+                "-i", f"color={color}:size=320x180", "-frames:v", "1", image,
+            ],
+            check=True,
+        )
+        images.append(image)
+    output = str(tmp_path / "out.mp4")
+    args = build_ffmpeg_args(
+        concat_path=str(tmp_path / "concat.txt"),
+        image_paths=images,
+        timings=timings,
+        vtt_path=None,
+        options=VideoRenderOptions(
+            subtitles_mode="none", crossfade_seconds=1.5, min_slide_seconds=0.3
+        ),
+        language_code="en",
+        output_path=output,
+    )
+    asyncio.run(run_ffmpeg(args, total_duration_seconds=5.3))
+
+    assert abs(_probe_frames(output) - round(5.3 * fps)) <= 1
+
+
+@pytest.mark.skipif(not pvs.ffmpeg_available(), reason="needs a real ffmpeg")
+def test_crossfaded_animated_video_keeps_every_hold_with_real_ffmpeg(tmp_path):
+    import subprocess
+
+    from utils.ffmpeg_utils import get_ffmpeg_binary, run_ffmpeg
+
+    fps = 30
+    timings = [
+        _timing(slide_index=0, audio_path=None, start_seconds=0.0, duration_seconds=4.0),
+        _timing(slide_index=1, audio_path=None, start_seconds=4.0, duration_seconds=4.0),
+        _timing(slide_index=2, audio_path=None, start_seconds=8.0, duration_seconds=2.0),
+    ]
+    segments = plan_animated_segments(timings, [0.8, 1.0, None], fps)
+    clip = str(tmp_path / "clip.mp4")
+    subprocess.run(
+        [
+            get_ffmpeg_binary(), "-v", "error", "-y", "-f", "lavfi",
+            "-i", f"testsrc=size=320x180:rate={fps}",
+            "-frames:v", str(sum(segment.clip_frames for segment in segments)),
+            "-pix_fmt", "yuv420p", clip,
+        ],
+        check=True,
+    )
+    output = str(tmp_path / "out.mp4")
+    args = build_animated_ffmpeg_args(
+        clip_path=clip,
+        segments=segments,
+        timings=timings,
+        vtt_path=None,
+        options=VideoRenderOptions(subtitles_mode="none", animate=True),
+        language_code="en",
+        output_path=output,
+    )
+    asyncio.run(run_ffmpeg(args, total_duration_seconds=10.0))
+
+    assert abs(_probe_frames(output) - 300) <= 1

@@ -99,6 +99,9 @@ class PresentationVideoRequest(BaseModel):
     # The looping "speaker is talking" bubble on narrated slides; on unless
     # turned off.
     speaker_indicator: bool = True
+    # Seconds of crossfade at each slide change, taken from the silence
+    # around the narration (0 cuts); 0.5 when left out.
+    crossfade_seconds: Optional[float] = None
 
 
 class PresentationVideoGenerationResponse(BaseModel):

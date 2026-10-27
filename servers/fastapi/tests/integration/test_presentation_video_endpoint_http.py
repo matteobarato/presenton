@@ -410,3 +410,42 @@ def test_animate_reaches_the_renderer_and_reports_back(tmp_path, monkeypatch):
     body = response.json()
     assert body["video"]["preset"].endswith("-anim")
     assert body["animation"] == {"requested": True, "applied": True, "animated_slides": 2}
+
+
+def test_crossfade_reaches_the_renderer_and_defaults_to_half_a_second(
+    tmp_path, monkeypatch
+):
+    _configure_video(monkeypatch, tmp_path)
+    client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
+    seen = []
+
+    async def fake_generate(*, presentation, sql_session, options=None, **_kwargs):
+        seen.append(options)
+        video = _fake_video_model(presentation.id, preset=options.preset)
+        sql_session.add(video)
+        await sql_session.commit()
+        await sql_session.refresh(video)
+        return PresentationVideoResult(video=video, reused=False)
+
+    base = f"/api/v1/ppt/presentation/{presentation_id}/video"
+    with patch.object(
+        presentation_endpoint, "generate_presentation_video", side_effect=fake_generate
+    ):
+        assert client.post(base, json={"language": "it"}).status_code == 200
+        response = client.post(base, json={"language": "it", "crossfade_seconds": 0})
+
+    assert response.status_code == 200, response.text
+    assert [options.crossfade_seconds for options in seen] == [0.5, 0]
+    assert response.json()["video"]["preset"].endswith("-cut")
+
+
+def test_crossfade_out_of_range_is_422(tmp_path, monkeypatch):
+    _configure_video(monkeypatch, tmp_path)
+    client, presentation_id, _sessions = _build_client(tmp_path, monkeypatch)
+
+    response = client.post(
+        f"/api/v1/ppt/presentation/{presentation_id}/video",
+        json={"language": "it", "crossfade_seconds": 2},
+    )
+
+    assert response.status_code == 422
