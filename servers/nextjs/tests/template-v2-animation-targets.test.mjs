@@ -86,6 +86,39 @@ test("animation targets describe the same elements the fragment annotates", () =
   assert.equal(targets[1].kind, "image");
 });
 
+test("placeholder is rendered but never an animation target", () => {
+  const withPlaceholder = {
+    background: "#FFFFFF",
+    elements: [
+      {
+        type: "text",
+        position: { x: 40, y: 30 },
+        size: { width: 600, height: 80 },
+        text: "Title",
+      },
+      {
+        type: "image",
+        video_placeholder: true,
+        data: "/static/images/video-placeholder.png",
+        position: { x: 900, y: 400 },
+        size: { width: 320, height: 180 },
+      },
+    ],
+  };
+
+  assert.deepEqual(
+    renderer.templateV2AnimationTargets(withPlaceholder).map((t) => t.id),
+    ["e0"],
+  );
+
+  const html = renderer.templateV2UiToHtmlFragment(withPlaceholder, {
+    annotateElements: true,
+  });
+
+  assert.equal((html.match(/data-hf-el=/g) ?? []).length, 1);
+  assert.match(html, /<img/);
+});
+
 test("chart detection and scripts are exposed for the video composition", () => {
   assert.equal(renderer.templateV2UiHasChart(ui), false);
   assert.match(renderer.templateV2ChartScripts(), /__PRESENTON_JSON_CHARTS__/);

@@ -22,6 +22,7 @@ import {
   localFontOptionsFromUnknown,
   renderLocalFontFaceCss,
 } from "@/components/slide-editor/text/local-fonts";
+import { isVideoPlaceholderElement } from "@/components/slide-editor/video/video-placeholder";
 
 type JsonRecord = Record<string, unknown>;
 type RenderMode = "absolute" | "flow";
@@ -201,7 +202,8 @@ export function templateV2UiToHtmlFragment(
 
 /**
  * The elements `annotateElements` wraps, in the same order and with the same
- * ids, described for whoever decides how each one animates in.
+ * ids, described for whoever decides how each one animates in. A video
+ * placeholder is rendered but never listed: the avatar video plays in it.
  */
 export function templateV2AnimationTargets(
   ui: unknown
@@ -211,7 +213,7 @@ export function templateV2AnimationTargets(
 
   const targets: TemplateV2AnimationTarget[] = [];
   payload.items.map(readRecord).forEach((item, index) => {
-    if (!renderItem(item, "absolute")) return;
+    if (isVideoPlaceholderElement(item) || !renderItem(item, "absolute")) return;
     const box = readBox(item);
     targets.push({
       id: animationTargetId(index),
@@ -409,7 +411,7 @@ function renderSlideRoot(
   const content = records
     .map((item, index) => {
       const html = renderItem(item, "absolute");
-      return annotateElements
+      return annotateElements && !isVideoPlaceholderElement(item)
         ? annotateAnimationTarget(html, item, index, width, height)
         : html;
     })
