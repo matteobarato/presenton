@@ -15,6 +15,7 @@ from api.v1.ppt.endpoints.presentation import PRESENTATION_ROUTER
 from models.sql.presentation import PresentationModel, PresentationVersion
 from models.sql.slide import SlideModel
 from models.sql.async_task import AsyncTaskModel
+from models.sql.slide_video import SlideVideoModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
 from models.sql.user import User
 from services.database import get_async_session
@@ -54,6 +55,7 @@ def _build_client(tmp_path, monkeypatch, *, deck_language="Italian"):
             await connection.run_sync(PresentationModel.__table__.create)
             await connection.run_sync(SlideModel.__table__.create)
             await connection.run_sync(SpeakerNoteAudioModel.__table__.create)
+            await connection.run_sync(SlideVideoModel.__table__.create)
             await connection.run_sync(AsyncTaskModel.__table__.create)
         async with session_maker() as session:
             session.add(

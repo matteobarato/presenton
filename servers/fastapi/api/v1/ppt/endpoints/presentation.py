@@ -13,14 +13,17 @@ from fastapi import (
     BackgroundTasks,
     Body,
     Depends,
+    File,
+    Form,
     HTTPException,
     Path,
     Query,
     Request,
+    UploadFile,
 )
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from sqlalchemy import delete
+from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from constants.presentation import MAX_NUMBER_OF_SLIDES
@@ -136,6 +139,29 @@ from models.speaker_note_audio_response import (
     SpeakerNoteAudioResponse,
     SpeakerNoteAudiosResponse,
     SupportedTTSLanguageResponse,
+)
+from models.slide_video_response import (
+    PlaybackBubble,
+    PlaybackBubbleRequest,
+    PresentationPlaybackResponse,
+    SlideVideoResponse,
+    SlideVideosResponse,
+    StageBox,
+)
+from models.sql.speaker_note_audio import SpeakerNoteAudioModel
+from services.slide_video_service import (
+    InvalidStageBoxError,
+    MultipleNarrationLanguagesError,
+    SlideVideoNotSupportedError,
+    build_playback,
+    delete_slide_videos,
+    list_slide_videos,
+    remove_slide_video_files,
+    save_slide_video,
+    set_bubble,
+    slide_video_paths,
+    slide_video_response,
+    slide_videos_response,
 )
 from services.speaker_note_tts_service import (
     SpeakerNoteAudioGenerationResult,
@@ -1574,15 +1600,17 @@ async def delete_presentation(
     if not presentation:
         raise HTTPException(404, "Presentation not found")
 
-    # Audio rows go with the deck through the database's cascade, but the files
-    # they point at do not, so their paths are read before the rows disappear
-    # and the files are removed once the delete has actually committed.
+    # Audio and video rows go with the deck through the database's cascade, but
+    # the files they point at do not, so their paths are read before the rows
+    # disappear and the files are removed once the delete has actually committed.
     audio_paths = await speaker_note_audio_paths(sql_session, presentation_id=id)
+    video_paths = await slide_video_paths(sql_session, presentation_id=id)
 
     await sql_session.delete(presentation)
     await sql_session.commit()
 
     remove_speaker_note_audio_files(id, audio_paths)
+    remove_slide_video_files(id, video_paths)
 
 
 @PRESENTATION_ROUTER.post("/{id}/duplicate", response_model=PresentationWithSlides)
@@ -2115,6 +2143,173 @@ async def delete_presentation_speaker_note_audios(
     except UnsupportedTTSLanguageError as exc:
         raise _speaker_note_audio_http_error(exc)
     return {"deleted": deleted}
+
+
+def _slide_at_index(slides: Sequence[SlideModel], slide_index: int) -> SlideModel:
+    slide = next((slide for slide in slides if slide.index == slide_index), None)
+    if slide is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Slide {slide_index} does not exist in this presentation",
+        )
+    return slide
+
+
+@PRESENTATION_ROUTER.put(
+    "/{id}/videos/{slide_index}", response_model=SlideVideoResponse
+)
+async def upload_slide_video(
+    id: uuid.UUID,
+    slide_index: int,
+    file: UploadFile = File(..., description="MP4 or WebM avatar video"),
+    x: Optional[float] = Form(default=None),
+    y: Optional[float] = Form(default=None),
+    width: Optional[float] = Form(default=None),
+    height: Optional[float] = Form(default=None),
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Attach an avatar video to one slide, replacing any earlier one.
+
+    The video is expected to be lip-synced to the slide's narration and to
+    carry its own audio. The slide gets a placeholder element marking where the
+    video plays - added in the bottom-right corner if the slide has none - and
+    `x`, `y`, `width`, `height` (slide coordinates, 1280×720) move it.
+    Only template slides can hold a video.
+    """
+    presentation, slides = await _presentation_with_slides_for_speaker_notes(
+        id, sql_session
+    )
+    slide = _slide_at_index(slides, slide_index)
+    try:
+        video = await save_slide_video(
+            sql_session=sql_session,
+            presentation=presentation,
+            slide=slide,
+            file=file,
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+        )
+    except (SlideVideoNotSupportedError, InvalidStageBoxError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    return slide_video_response(video, slide)
+
+
+@PRESENTATION_ROUTER.get("/{id}/videos", response_model=SlideVideosResponse)
+async def get_slide_videos(
+    id: uuid.UUID,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Every avatar video of a deck, in slide order."""
+    _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
+    videos = await list_slide_videos(sql_session, presentation_id=id)
+    return slide_videos_response(id, slides, videos)
+
+
+@PRESENTATION_ROUTER.get(
+    "/{id}/videos/{slide_index}", response_model=SlideVideoResponse
+)
+async def get_slide_video(
+    id: uuid.UUID,
+    slide_index: int,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """One slide's avatar video."""
+    _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
+    slide = _slide_at_index(slides, slide_index)
+    videos = await list_slide_videos(
+        sql_session, presentation_id=id, slide_ids=[slide.id]
+    )
+    if not videos:
+        raise HTTPException(
+            status_code=404, detail="No video found for this slide"
+        )
+    return slide_video_response(videos[0], slide)
+
+
+@PRESENTATION_ROUTER.delete("/{id}/videos/{slide_index}")
+async def delete_slide_video(
+    id: uuid.UUID,
+    slide_index: int,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Remove a slide's video, its file and its placeholder."""
+    _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
+    slide = _slide_at_index(slides, slide_index)
+    deleted = await delete_slide_videos(
+        sql_session, presentation_id=id, slides=[slide]
+    )
+    return {"deleted": deleted}
+
+
+@PRESENTATION_ROUTER.delete("/{id}/videos")
+async def delete_all_slide_videos(
+    id: uuid.UUID,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Remove every video of a deck, with their files and placeholders."""
+    _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
+    deleted = await delete_slide_videos(
+        sql_session, presentation_id=id, slides=slides
+    )
+    return {"deleted": deleted}
+
+
+@PRESENTATION_ROUTER.get(
+    "/{id}/playback", response_model=PresentationPlaybackResponse
+)
+async def get_presentation_playback(
+    id: uuid.UUID,
+    language: Optional[str] = Query(
+        default=None,
+        description=(
+            "Language of the narration to play. Optional when the deck has been "
+            "narrated in a single language."
+        ),
+    ),
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """What a player needs to narrate the deck, slide by slide.
+
+    Each slide says whether the presenter appears as the avatar video
+    (`actor: video`, inside `placeholder`), as the voice bubble (`voice`), or
+    not at all (`none`). Video slides also carry their narration audio, for a
+    viewer who switches the avatar off. `bubble` is where the voice bubble sits.
+    """
+    presentation, slides = await _presentation_with_slides_for_speaker_notes(
+        id, sql_session
+    )
+    try:
+        return await build_playback(
+            sql_session, presentation=presentation, slides=slides, language=language
+        )
+    except UnsupportedTTSLanguageError as exc:
+        raise _speaker_note_audio_http_error(exc)
+    except MultipleNarrationLanguagesError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+
+
+@PRESENTATION_ROUTER.put("/{id}/playback/bubble", response_model=PlaybackBubble)
+async def update_presentation_playback_bubble(
+    id: uuid.UUID,
+    request: PlaybackBubbleRequest,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Place the voice bubble, in slide coordinates (1280×720)."""
+    presentation = await sql_session.get(PresentationModel, id)
+    if not presentation:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+    try:
+        bubble = set_bubble(
+            presentation,
+            StageBox.of(request.x, request.y, request.width, request.height),
+        )
+    except InvalidStageBoxError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    sql_session.add(presentation)
+    await sql_session.commit()
+    return bubble
 
 
 @PRESENTATION_ROUTER.post("/{id}/export", response_model=PresentationPathAndEditPath)
@@ -3132,6 +3327,7 @@ async def update_presentation(
 
     if presentation_update_dict:
         presentation.sqlmodel_update(presentation_update_dict)
+    removed_ids: list[uuid.UUID] = []
     if slides:
         if len(slides) > MAX_NUMBER_OF_SLIDES:
             raise HTTPException(
@@ -3140,18 +3336,57 @@ async def update_presentation(
             )
         # Just to make sure id is UUID
         for slide in slides:
-            slide.presentation = uuid.UUID(slide.presentation)
-            slide.id = uuid.UUID(slide.id)
+            slide.presentation = uuid.UUID(str(slide.presentation))
+            slide.id = uuid.UUID(str(slide.id))
 
-        await sql_session.execute(
-            delete(SlideModel).where(
-                SlideModel.presentation == presentation.id,
-                SlideModel.owner_id == get_current_owner_id(),
+        # Slides are updated in place rather than deleted and re-inserted:
+        # narration audio and avatar videos hang off slide rows and would go
+        # with them through the database's cascade on every reorder.
+        stored_slides = {
+            slide.id: slide
+            for slide in await sql_session.scalars(
+                select(SlideModel).where(SlideModel.presentation == presentation.id)
             )
-        )
-        sql_session.add_all(slides)
+        }
+        incoming_ids = {slide.id for slide in slides}
+        removed_ids = [
+            slide_id for slide_id in stored_slides if slide_id not in incoming_ids
+        ]
+        if removed_ids:
+            removed_audio_paths = await speaker_note_audio_paths(
+                sql_session, presentation_id=presentation.id, slide_ids=removed_ids
+            )
+            removed_video_paths = await slide_video_paths(
+                sql_session, presentation_id=presentation.id, slide_ids=removed_ids
+            )
+            await sql_session.execute(
+                delete(SlideModel).where(
+                    SlideModel.id.in_(removed_ids),
+                    SlideModel.owner_id == get_current_owner_id(),
+                )
+            )
+
+        for slide in slides:
+            stored_slide = stored_slides.get(slide.id)
+            if stored_slide is None:
+                sql_session.add(slide)
+                continue
+            if stored_slide.index != slide.index:
+                await sql_session.execute(
+                    update(SpeakerNoteAudioModel)
+                    .where(SpeakerNoteAudioModel.slide == slide.id)
+                    .values(slide_index=slide.index)
+                )
+            stored_slide.sqlmodel_update(
+                slide.model_dump(exclude={"id", "presentation"})
+            )
+            sql_session.add(stored_slide)
 
     await sql_session.commit()
+
+    if removed_ids:
+        remove_speaker_note_audio_files(presentation.id, removed_audio_paths)
+        remove_slide_video_files(presentation.id, removed_video_paths)
 
     response_slides = slides or []
     return PresentationWithSlides(

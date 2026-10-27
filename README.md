@@ -511,6 +511,21 @@ These variables match `docker-compose.yml`. **`IMAGE_PROVIDER`** selects the bac
 
 Speaker note audio is generated per slide through `POST /api/v1/ppt/presentation/{id}/speaker-notes/tts` (or its `/async` variant, which returns a pollable task). The deck is narrated in the language the request asks for: notes written in another language are translated first, because a speech endpoint reads the text it is given and has no language setting of its own. `GET /api/v1/ppt/presentation/speaker-notes/tts/languages` lists the supported languages.
 
+#### Avatar Videos and Narrated Playback
+
+| Variable | Values / default | Purpose |
+| --- | --- | --- |
+| **SLIDE_VIDEO_MAX_UPLOAD_MB** | `100` (default) | Largest avatar video accepted per slide. The bundled nginx caps `/api/v1/` request bodies at 110 MB, so raise both together. |
+
+Any template slide can carry one avatar video (MP4 or WebM), made outside Presenton and lip-synced to that slide's narration. Upload it with `PUT /api/v1/ppt/presentation/{id}/videos/{slide_index}` (multipart `file`; optional `x`, `y`, `width`, `height` in 1280×720 slide coordinates). The upload adds a placeholder to the slide's `ui`: an image element tagged `"video_placeholder": true`, placed bottom-right if the slide has none. Its poster is transparent, so the placeholder is invisible in PDF/PPTX exports while still marking where the video plays. Deleting the video (`DELETE …/videos/{slide_index}`) removes the placeholder too. A video whose speaker note has been edited since the upload is reported as `stale`.
+
+`GET /api/v1/ppt/presentation/{id}/playback?language=it` describes the narration slide by slide for a player. The presenter is one actor across the deck:
+- `actor: "video"` slides play the avatar video, with its own audio, inside `placeholder`.
+- `actor: "voice"` slides play the narration audio behind the voice bubble, whose spot is `bubble` (set it with `PUT …/playback/bubble`).
+- `actor: "none"` slides have no narration.
+
+Transitions follow from consecutive slides: the bubble expands into the placeholder when a video starts and collapses back when it ends. Video slides also carry their `audio`, so a viewer who switches the avatar off still hears the narration.
+
 The parallel image generation option applies everywhere images are generated: initial presentation generation, slide editing and regeneration, direct image requests, and assistant image tools.
 
 #### Telemetry
