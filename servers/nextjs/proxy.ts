@@ -89,7 +89,9 @@ function isApiAuthExempt(pathname: string): boolean {
     pathname === "/api/telemetry-status" ||
     /** Public image transform used as a browser/Konva image source. */
     pathname === "/api/update-svg" ||
-    pathname.startsWith("/api/export-presentation-data/")
+    pathname.startsWith("/api/export-presentation-data/") ||
+    /** Authorizes through the forwarded export cookie, like the route above. */
+    pathname.startsWith("/api/video-composition/")
   );
 }
 

@@ -31,6 +31,27 @@ def _mp3(frames: int = 8) -> bytes:
     return MP3_FRAME * frames
 
 
+def _wav(seconds: float = 1.0, sample_rate: int = 44100) -> bytes:
+    """A 16-bit mono WAVE file of the requested length, silent throughout."""
+    byte_rate = sample_rate * 2
+    data = b"\x00" * int(byte_rate * seconds)
+    return (
+        b"RIFF"
+        + (36 + len(data)).to_bytes(4, "little")
+        + b"WAVEfmt "
+        + (16).to_bytes(4, "little")
+        + (1).to_bytes(2, "little")
+        + (1).to_bytes(2, "little")
+        + sample_rate.to_bytes(4, "little")
+        + byte_rate.to_bytes(4, "little")
+        + (2).to_bytes(2, "little")
+        + (16).to_bytes(2, "little")
+        + b"data"
+        + len(data).to_bytes(4, "little")
+        + data
+    )
+
+
 def _configure_tts(monkeypatch):
     monkeypatch.setenv("OPENAI_COMPAT_TTS_BASE_URL", "https://tts.example/v1")
     monkeypatch.setenv("OPENAI_COMPAT_TTS_API_KEY", "test-key")
@@ -38,6 +59,8 @@ def _configure_tts(monkeypatch):
         "OPENAI_COMPAT_TTS_MODEL", "google/gemini-3.1-flash-tts-preview"
     )
     monkeypatch.delenv("OPENAI_COMPAT_TTS_VOICE", raising=False)
+    monkeypatch.delenv("OPENAI_COMPAT_TTS_TRANSPORT", raising=False)
+    monkeypatch.delenv("OPENAI_COMPAT_TTS_INSTRUCTION", raising=False)
 
 
 class _Deck:
@@ -407,3 +430,26 @@ def test_mp3_duration_skips_an_id3_tag():
 @pytest.mark.parametrize("audio", [b"", b"not audio at all", b"\xff\xff\xff\xff"])
 def test_mp3_duration_gives_up_rather_than_guessing(audio):
     assert mp3_duration_seconds(audio) is None
+
+
+def test_audio_is_stored_under_the_format_the_provider_actually_sent(
+    tmp_path, monkeypatch
+):
+    """A provider that answers WAV must not leave a file named .mp3.
+
+    Reading notes through chat completions can return a container other than
+    the one the request asked for, and the stored name has to match the bytes
+    for a player -- or ffmpeg building the deck's video -- to read them.
+    """
+    wav = _wav(seconds=0.5)
+    with patch.object(tts_service, "synthesize_speech", return_value=wav), \
+         patch.object(tts_service, "translate_speaker_notes") as translate:
+        _deck, result = asyncio.run(
+            _run(tmp_path, monkeypatch, language="it", deck_language="Italiano")
+        )
+
+    translate.assert_not_called()
+    first = result.audios[0]
+    assert first.format == "wav"
+    assert first.path.endswith(".wav")
+    assert first.duration_seconds == pytest.approx(0.5, abs=0.001)

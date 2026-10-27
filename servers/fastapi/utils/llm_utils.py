@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import math
+import random
 import threading
 import time
 from collections.abc import AsyncGenerator, Awaitable, Callable, Sequence
@@ -10,6 +11,7 @@ from typing import Any, Optional
 
 import dirtyjson
 from fastapi import HTTPException
+from llmai.shared.errors import LLMRateLimitError
 from llmai.shared import (
     LLMTool,
     Message,
@@ -20,6 +22,7 @@ from llmai.shared import (
     normalize_content_parts,
 )
 
+from utils.get_env import get_llm_rate_limit_max_attempts_env
 from utils.llm_config import get_extra_body
 from utils.schema_utils import get_schema_validation_errors
 
@@ -27,6 +30,21 @@ LOGGER = logging.getLogger(__name__)
 CLIENT_DISCONNECT_POLL_SECONDS = 0.1
 DisconnectChecker = Callable[[], Awaitable[bool]]
 TextChunkCallback = Callable[[str], Awaitable[None]]
+# Shared upstream pools (OpenRouter behind Bifrost) throttle for seconds at a
+# time and say "retry shortly". Waiting out a few of those is cheaper than
+# failing an outline or a slide over one busy minute.
+# Total calls, the first one included; LLM_RATE_LIMIT_MAX_ATTEMPTS overrides it.
+LLM_RATE_LIMIT_DEFAULT_MAX_ATTEMPTS = 10
+LLM_RATE_LIMIT_INITIAL_DELAY_SECONDS = 2.0
+LLM_RATE_LIMIT_MAX_DELAY_SECONDS = 30.0
+_RATE_LIMIT_CODES = {"429", "rate_limit_exceeded", "rate_limited", "resource_exhausted"}
+_RATE_LIMIT_PHRASES = (
+    "rate-limited",
+    "rate limited",
+    "rate limit",
+    "too many requests",
+    "resource_exhausted",
+)
 
 
 @dataclass(frozen=True)
@@ -455,7 +473,131 @@ def message_content_to_text(content: Sequence[Any] | str | None) -> Optional[str
     return joined or None
 
 
+def _error_chain(error: BaseException):
+    seen: set[int] = set()
+    current: Optional[BaseException] = error
+    while current is not None and id(current) not in seen and len(seen) < 8:
+        seen.add(id(current))
+        yield current
+        cause = getattr(current, "cause", None)
+        current = (
+            cause
+            if isinstance(cause, BaseException)
+            else current.__cause__ or current.__context__
+        )
+
+
+def is_rate_limit_error(error: BaseException) -> bool:
+    """Whether a provider is saying "slow down", however it says it.
+
+    Bifrost relays an upstream OpenRouter 429 as an HTTP 400 whose body carries
+    `code: "429"`, so the status alone is not enough to go on.
+    """
+    for current in _error_chain(error):
+        if isinstance(current, LLMRateLimitError):
+            return True
+        if getattr(current, "status_code", None) == 429:
+            return True
+        body = getattr(current, "body", None)
+        if isinstance(body, dict):
+            nested = body.get("error")
+            fields = nested if isinstance(nested, dict) else body
+            for key in ("code", "status", "type"):
+                value = fields.get(key)
+                if value is not None and str(value).lower() in _RATE_LIMIT_CODES:
+                    return True
+        message = str(getattr(current, "message", "") or current).lower()
+        if any(phrase in message for phrase in _RATE_LIMIT_PHRASES):
+            return True
+    return False
+
+
+def _retry_after_seconds(error: BaseException) -> Optional[float]:
+    for current in _error_chain(error):
+        headers = getattr(getattr(current, "response", None), "headers", None)
+        if not headers:
+            continue
+        try:
+            value = headers.get("retry-after")
+        except Exception:
+            continue
+        try:
+            return max(0.0, float(value)) if value is not None else None
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def get_llm_rate_limit_max_attempts() -> int:
+    try:
+        attempts = int((get_llm_rate_limit_max_attempts_env() or "").strip())
+    except ValueError:
+        return LLM_RATE_LIMIT_DEFAULT_MAX_ATTEMPTS
+    return max(1, attempts)
+
+
+def rate_limit_retry_delay(attempt: int, error: BaseException) -> float:
+    retry_after = _retry_after_seconds(error)
+    if retry_after is not None:
+        return min(retry_after, LLM_RATE_LIMIT_MAX_DELAY_SECONDS)
+    backoff = LLM_RATE_LIMIT_INITIAL_DELAY_SECONDS * (2**attempt)
+    return min(backoff, LLM_RATE_LIMIT_MAX_DELAY_SECONDS) * random.uniform(0.8, 1.2)
+
+
+async def _sleep_unless_disconnected(
+    seconds: float, disconnect_checker: Optional[DisconnectChecker]
+) -> None:
+    deadline = time.monotonic() + seconds
+    while True:
+        await _raise_if_client_disconnected(disconnect_checker)
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return
+        await asyncio.sleep(min(remaining, CLIENT_DISCONNECT_POLL_SECONDS * 5))
+
+
 async def stream_generate_events(
+    client: Any,
+    *,
+    disconnect_checker: Optional[DisconnectChecker] = None,
+    **kwargs,
+) -> AsyncGenerator[Any, None]:
+    """Stream one generation, retrying when the provider is rate limiting.
+
+    Only a request that failed before producing anything is retried: once
+    events have gone out, starting over would hand the caller the answer twice.
+    """
+    max_retries = get_llm_rate_limit_max_attempts() - 1
+    attempt = 0
+    while True:
+        started = False
+        try:
+            async for event in _stream_generate_events_once(
+                client, disconnect_checker=disconnect_checker, **kwargs
+            ):
+                started = True
+                yield event
+            return
+        except Exception as error:
+            if (
+                started
+                or attempt >= max_retries
+                or not is_rate_limit_error(error)
+            ):
+                raise
+            delay = rate_limit_retry_delay(attempt, error)
+            attempt += 1
+            LOGGER.warning(
+                "LLM provider is rate limiting; retry %d/%d in %.1fs: %s",
+                attempt,
+                max_retries,
+                delay,
+                error,
+            )
+            await _sleep_unless_disconnected(delay, disconnect_checker)
+
+
+async def _stream_generate_events_once(
     client: Any,
     *,
     disconnect_checker: Optional[DisconnectChecker] = None,

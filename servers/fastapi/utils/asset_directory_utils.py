@@ -222,3 +222,7 @@ def get_uploads_directory():
 
 def get_audio_directory():
     return _owned_directory("audio")
+
+
+def get_videos_directory():
+    return _owned_directory("videos")

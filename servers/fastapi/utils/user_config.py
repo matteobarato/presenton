@@ -95,10 +95,24 @@ from utils.get_env import (
     get_openai_compat_image_base_url_env,
     get_openai_compat_image_api_key_env,
     get_openai_compat_image_model_env,
+    get_openai_compat_image_transport_env,
     get_openai_compat_tts_base_url_env,
     get_openai_compat_tts_api_key_env,
     get_openai_compat_tts_model_env,
     get_openai_compat_tts_voice_env,
+    get_openai_compat_tts_transport_env,
+    get_openai_compat_tts_instruction_env,
+    get_vertex_compat_tts_project_env,
+    get_vertex_compat_tts_location_env,
+    get_vertex_compat_tts_base_url_env,
+    get_vertex_compat_tts_api_key_env,
+    get_vertex_compat_tts_model_env,
+    get_vertex_compat_tts_voice_env,
+    get_openrouter_tts_base_url_env,
+    get_openrouter_tts_api_key_env,
+    get_openrouter_tts_model_env,
+    get_openrouter_tts_voice_env,
+    get_openrouter_tts_format_env,
 )
 from utils.parsers import parse_bool_or_none
 from utils.user_config_store import read_user_config_file, update_user_config_file
@@ -195,10 +209,24 @@ from utils.set_env import (
     set_openai_compat_image_base_url_env,
     set_openai_compat_image_api_key_env,
     set_openai_compat_image_model_env,
+    set_openai_compat_image_transport_env,
     set_openai_compat_tts_base_url_env,
     set_openai_compat_tts_api_key_env,
     set_openai_compat_tts_model_env,
     set_openai_compat_tts_voice_env,
+    set_openai_compat_tts_transport_env,
+    set_openai_compat_tts_instruction_env,
+    set_vertex_compat_tts_project_env,
+    set_vertex_compat_tts_location_env,
+    set_vertex_compat_tts_base_url_env,
+    set_vertex_compat_tts_api_key_env,
+    set_vertex_compat_tts_model_env,
+    set_vertex_compat_tts_voice_env,
+    set_openrouter_tts_base_url_env,
+    set_openrouter_tts_api_key_env,
+    set_openrouter_tts_model_env,
+    set_openrouter_tts_voice_env,
+    set_openrouter_tts_format_env,
 )
 
 
@@ -380,6 +408,8 @@ def get_user_config():
         or get_openai_compat_image_api_key_env(),
         OPENAI_COMPAT_IMAGE_MODEL=existing_config.OPENAI_COMPAT_IMAGE_MODEL
         or get_openai_compat_image_model_env(),
+        OPENAI_COMPAT_IMAGE_TRANSPORT=existing_config.OPENAI_COMPAT_IMAGE_TRANSPORT
+        or get_openai_compat_image_transport_env(),
         OPENAI_COMPAT_TTS_BASE_URL=existing_config.OPENAI_COMPAT_TTS_BASE_URL
         or get_openai_compat_tts_base_url_env(),
         OPENAI_COMPAT_TTS_API_KEY=existing_config.OPENAI_COMPAT_TTS_API_KEY
@@ -388,6 +418,32 @@ def get_user_config():
         or get_openai_compat_tts_model_env(),
         OPENAI_COMPAT_TTS_VOICE=existing_config.OPENAI_COMPAT_TTS_VOICE
         or get_openai_compat_tts_voice_env(),
+        OPENAI_COMPAT_TTS_TRANSPORT=existing_config.OPENAI_COMPAT_TTS_TRANSPORT
+        or get_openai_compat_tts_transport_env(),
+        OPENAI_COMPAT_TTS_INSTRUCTION=existing_config.OPENAI_COMPAT_TTS_INSTRUCTION
+        or get_openai_compat_tts_instruction_env(),
+        VERTEX_COMPAT_TTS_PROJECT=existing_config.VERTEX_COMPAT_TTS_PROJECT
+        or get_vertex_compat_tts_project_env(),
+        VERTEX_COMPAT_TTS_LOCATION=existing_config.VERTEX_COMPAT_TTS_LOCATION
+        or get_vertex_compat_tts_location_env(),
+        VERTEX_COMPAT_TTS_BASE_URL=existing_config.VERTEX_COMPAT_TTS_BASE_URL
+        or get_vertex_compat_tts_base_url_env(),
+        VERTEX_COMPAT_TTS_API_KEY=existing_config.VERTEX_COMPAT_TTS_API_KEY
+        or get_vertex_compat_tts_api_key_env(),
+        VERTEX_COMPAT_TTS_MODEL=existing_config.VERTEX_COMPAT_TTS_MODEL
+        or get_vertex_compat_tts_model_env(),
+        VERTEX_COMPAT_TTS_VOICE=existing_config.VERTEX_COMPAT_TTS_VOICE
+        or get_vertex_compat_tts_voice_env(),
+        OPENROUTER_TTS_BASE_URL=existing_config.OPENROUTER_TTS_BASE_URL
+        or get_openrouter_tts_base_url_env(),
+        OPENROUTER_TTS_API_KEY=existing_config.OPENROUTER_TTS_API_KEY
+        or get_openrouter_tts_api_key_env(),
+        OPENROUTER_TTS_MODEL=existing_config.OPENROUTER_TTS_MODEL
+        or get_openrouter_tts_model_env(),
+        OPENROUTER_TTS_VOICE=existing_config.OPENROUTER_TTS_VOICE
+        or get_openrouter_tts_voice_env(),
+        OPENROUTER_TTS_FORMAT=existing_config.OPENROUTER_TTS_FORMAT
+        or get_openrouter_tts_format_env(),
     )
 
 
@@ -600,6 +656,8 @@ def update_env_with_user_config():
         set_openai_compat_image_api_key_env(user_config.OPENAI_COMPAT_IMAGE_API_KEY)
     if user_config.OPENAI_COMPAT_IMAGE_MODEL:
         set_openai_compat_image_model_env(user_config.OPENAI_COMPAT_IMAGE_MODEL)
+    if user_config.OPENAI_COMPAT_IMAGE_TRANSPORT:
+        set_openai_compat_image_transport_env(user_config.OPENAI_COMPAT_IMAGE_TRANSPORT)
     if user_config.OPENAI_COMPAT_TTS_BASE_URL:
         set_openai_compat_tts_base_url_env(user_config.OPENAI_COMPAT_TTS_BASE_URL)
     if user_config.OPENAI_COMPAT_TTS_API_KEY:
@@ -608,6 +666,32 @@ def update_env_with_user_config():
         set_openai_compat_tts_model_env(user_config.OPENAI_COMPAT_TTS_MODEL)
     if user_config.OPENAI_COMPAT_TTS_VOICE:
         set_openai_compat_tts_voice_env(user_config.OPENAI_COMPAT_TTS_VOICE)
+    if user_config.OPENAI_COMPAT_TTS_TRANSPORT:
+        set_openai_compat_tts_transport_env(user_config.OPENAI_COMPAT_TTS_TRANSPORT)
+    if user_config.OPENAI_COMPAT_TTS_INSTRUCTION:
+        set_openai_compat_tts_instruction_env(user_config.OPENAI_COMPAT_TTS_INSTRUCTION)
+    if user_config.VERTEX_COMPAT_TTS_PROJECT:
+        set_vertex_compat_tts_project_env(user_config.VERTEX_COMPAT_TTS_PROJECT)
+    if user_config.VERTEX_COMPAT_TTS_LOCATION:
+        set_vertex_compat_tts_location_env(user_config.VERTEX_COMPAT_TTS_LOCATION)
+    if user_config.VERTEX_COMPAT_TTS_BASE_URL:
+        set_vertex_compat_tts_base_url_env(user_config.VERTEX_COMPAT_TTS_BASE_URL)
+    if user_config.VERTEX_COMPAT_TTS_API_KEY:
+        set_vertex_compat_tts_api_key_env(user_config.VERTEX_COMPAT_TTS_API_KEY)
+    if user_config.VERTEX_COMPAT_TTS_MODEL:
+        set_vertex_compat_tts_model_env(user_config.VERTEX_COMPAT_TTS_MODEL)
+    if user_config.VERTEX_COMPAT_TTS_VOICE:
+        set_vertex_compat_tts_voice_env(user_config.VERTEX_COMPAT_TTS_VOICE)
+    if user_config.OPENROUTER_TTS_BASE_URL:
+        set_openrouter_tts_base_url_env(user_config.OPENROUTER_TTS_BASE_URL)
+    if user_config.OPENROUTER_TTS_API_KEY:
+        set_openrouter_tts_api_key_env(user_config.OPENROUTER_TTS_API_KEY)
+    if user_config.OPENROUTER_TTS_MODEL:
+        set_openrouter_tts_model_env(user_config.OPENROUTER_TTS_MODEL)
+    if user_config.OPENROUTER_TTS_VOICE:
+        set_openrouter_tts_voice_env(user_config.OPENROUTER_TTS_VOICE)
+    if user_config.OPENROUTER_TTS_FORMAT:
+        set_openrouter_tts_format_env(user_config.OPENROUTER_TTS_FORMAT)
 
 
 def save_codex_tokens_to_user_config(*, include_model: bool = False) -> None:

@@ -68,6 +68,14 @@ def get_user_config_path_env():
     return os.getenv("USER_CONFIG_PATH")
 
 
+def get_ffmpeg_binary_env():
+    return os.getenv("FFMPEG_BINARY")
+
+
+def get_ffprobe_binary_env():
+    return os.getenv("FFPROBE_BINARY")
+
+
 def get_disable_auth_env():
     return os.getenv("DISABLE_AUTH")
 
@@ -487,6 +495,10 @@ def get_openai_compat_image_model_env():
     return os.getenv("OPENAI_COMPAT_IMAGE_MODEL")
 
 
+def get_openai_compat_image_transport_env():
+    return os.getenv("OPENAI_COMPAT_IMAGE_TRANSPORT")
+
+
 # OpenAI Compatible TTS Provider (speaker note audio)
 def get_openai_compat_tts_base_url_env():
     return os.getenv("OPENAI_COMPAT_TTS_BASE_URL")
@@ -502,3 +514,61 @@ def get_openai_compat_tts_model_env():
 
 def get_openai_compat_tts_voice_env():
     return os.getenv("OPENAI_COMPAT_TTS_VOICE")
+
+
+def get_openai_compat_tts_transport_env():
+    return os.getenv("OPENAI_COMPAT_TTS_TRANSPORT")
+
+
+def get_openai_compat_tts_instruction_env():
+    return os.getenv("OPENAI_COMPAT_TTS_INSTRUCTION")
+
+
+# Vertex AI TTS Provider (speaker note audio, reached without a gateway)
+def get_vertex_compat_tts_project_env():
+    return os.getenv("VERTEX_COMPAT_TTS_PROJECT")
+
+
+def get_vertex_compat_tts_location_env():
+    return os.getenv("VERTEX_COMPAT_TTS_LOCATION")
+
+
+def get_vertex_compat_tts_base_url_env():
+    return os.getenv("VERTEX_COMPAT_TTS_BASE_URL")
+
+
+def get_vertex_compat_tts_api_key_env():
+    return os.getenv("VERTEX_COMPAT_TTS_API_KEY")
+
+
+def get_vertex_compat_tts_model_env():
+    return os.getenv("VERTEX_COMPAT_TTS_MODEL")
+
+
+def get_vertex_compat_tts_voice_env():
+    return os.getenv("VERTEX_COMPAT_TTS_VOICE")
+
+
+def get_llm_rate_limit_max_attempts_env():
+    return os.getenv("LLM_RATE_LIMIT_MAX_ATTEMPTS")
+
+
+# OpenRouter TTS Provider (speaker note audio)
+def get_openrouter_tts_base_url_env():
+    return os.getenv("OPENROUTER_TTS_BASE_URL")
+
+
+def get_openrouter_tts_api_key_env():
+    return os.getenv("OPENROUTER_TTS_API_KEY")
+
+
+def get_openrouter_tts_model_env():
+    return os.getenv("OPENROUTER_TTS_MODEL")
+
+
+def get_openrouter_tts_voice_env():
+    return os.getenv("OPENROUTER_TTS_VOICE")
+
+
+def get_openrouter_tts_format_env():
+    return os.getenv("OPENROUTER_TTS_FORMAT")

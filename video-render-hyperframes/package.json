@@ -1,0 +1,13 @@
+{
+  "name": "presenton-video-render-hyperframes",
+  "private": true,
+  "type": "module",
+  "description": "Renders Presenton's animated video compositions with HyperFrames",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@hyperframes/producer": "0.8.203",
+    "gsap": "3.13.0"
+  }
+}

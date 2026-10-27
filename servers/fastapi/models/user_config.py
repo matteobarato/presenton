@@ -108,12 +108,26 @@ class UserConfig(BaseModel):
     OPENAI_COMPAT_IMAGE_BASE_URL: Optional[str] = None
     OPENAI_COMPAT_IMAGE_API_KEY: Optional[str] = None
     OPENAI_COMPAT_IMAGE_MODEL: Optional[str] = None
+    OPENAI_COMPAT_IMAGE_TRANSPORT: Optional[str] = None
 
     # OpenAI Compatible TTS Provider (speaker note audio)
     OPENAI_COMPAT_TTS_BASE_URL: Optional[str] = None
     OPENAI_COMPAT_TTS_API_KEY: Optional[str] = None
     OPENAI_COMPAT_TTS_MODEL: Optional[str] = None
     OPENAI_COMPAT_TTS_VOICE: Optional[str] = None
+    OPENAI_COMPAT_TTS_TRANSPORT: Optional[str] = None
+    OPENAI_COMPAT_TTS_INSTRUCTION: Optional[str] = None
+    VERTEX_COMPAT_TTS_PROJECT: Optional[str] = None
+    VERTEX_COMPAT_TTS_LOCATION: Optional[str] = None
+    VERTEX_COMPAT_TTS_BASE_URL: Optional[str] = None
+    VERTEX_COMPAT_TTS_API_KEY: Optional[str] = None
+    VERTEX_COMPAT_TTS_MODEL: Optional[str] = None
+    VERTEX_COMPAT_TTS_VOICE: Optional[str] = None
+    OPENROUTER_TTS_BASE_URL: Optional[str] = None
+    OPENROUTER_TTS_API_KEY: Optional[str] = None
+    OPENROUTER_TTS_MODEL: Optional[str] = None
+    OPENROUTER_TTS_VOICE: Optional[str] = None
+    OPENROUTER_TTS_FORMAT: Optional[str] = None
 
     # Dalle 3 Quality
     DALL_E_3_QUALITY: Optional[str] = None
