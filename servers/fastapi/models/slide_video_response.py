@@ -90,9 +90,9 @@ class PlaybackSlide(BaseModel):
 
     `actor` is `video` when the slide has an avatar video, which then expands
     into `placeholder`; `voice` when only narration audio exists, played behind
-    the voice bubble; `none` when the slide has neither. `audio` is filled for
-    video slides too, so a viewer who switches the avatar off still hears the
-    narration.
+    the voice bubble; `none` when the slide has neither. The avatar is silent
+    and lip-synced to `audio`, which is therefore filled for video slides too and
+    is what the player plays; `duration_seconds` follows the audio.
     """
 
     slide_id: uuid.UUID

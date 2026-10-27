@@ -178,7 +178,9 @@ def _rows(session_maker, model):
     return _run(session_maker, read)
 
 
-def _seed_audio(session_maker, app_data, presentation_id, slide_id, index, language="it"):
+def _seed_audio(
+    session_maker, app_data, presentation_id, slide_id, index, language="it", duration=2.5
+):
     directory = app_data / "audio" / str(presentation_id)
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"{slide_id}-{language}.mp3"
@@ -198,7 +200,7 @@ def _seed_audio(session_maker, app_data, presentation_id, slide_id, index, langu
                 source_note_hash="x",
                 path=str(path),
                 url=f"/app_data/audio/{presentation_id}/{path.name}",
-                duration_seconds=2.5,
+                duration_seconds=duration,
             )
         )
         await session.commit()
@@ -494,7 +496,8 @@ def test_playback_describes_the_actor_slide_by_slide(tmp_path, monkeypatch):
     }
     video_slide, voice_slide, silent_slide = body["slides"]
     assert video_slide["actor"] == "video"
-    assert video_slide["duration_seconds"] == 4.0
+    # The narration sets the slide's length, not the avatar's (4.0s).
+    assert video_slide["duration_seconds"] == 2.5
     assert video_slide["placeholder"]["size"] == {"width": 320, "height": 180}
     # Kept for a viewer who switches the avatar off.
     assert video_slide["audio"]["language"] == "it"
@@ -510,9 +513,45 @@ def test_playback_describes_the_actor_slide_by_slide(tmp_path, monkeypatch):
     _seed_audio(sessions, app_data, presentation_id, slide_ids[1], 1, language="en")
     assert client.get(url).status_code == 409
     english = client.get(url, params={"language": "en"}).json()
-    assert [slide["actor"] for slide in english["slides"]] == ["video", "voice", "none"]
+    # The avatar was synced to Italian (the deck's only language when it was
+    # uploaded), so it is not shown over English narration.
+    assert [slide["actor"] for slide in english["slides"]] == ["none", "voice", "none"]
     assert english["slides"][0]["audio"] is None
+    assert english["slides"][0]["video"] is None
+    assert english["slides"][0]["placeholder"] is None
     assert client.get(url, params={"language": "xx"}).status_code == 422
+
+
+def test_playback_video_slide_duration_is_the_audio_duration(tmp_path, monkeypatch):
+    client, presentation_id, slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[0], 0, duration=4.2)
+    _upload(client, presentation_id, 0, data=_mp4(duration_ms=5000))
+
+    body = client.get(f"/api/v1/ppt/presentation/{presentation_id}/playback").json()
+
+    video_slide = body["slides"][0]
+    assert video_slide["actor"] == "video"
+    assert video_slide["video"]["duration_seconds"] == 5.0
+    assert video_slide["audio"]["duration_seconds"] == 4.2
+    assert video_slide["duration_seconds"] == 4.2
+
+
+def test_playback_silent_avatar_slide_falls_back_to_the_video_duration(
+    tmp_path, monkeypatch
+):
+    client, presentation_id, slide_ids, sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _seed_audio(sessions, app_data, presentation_id, slide_ids[1], 1)
+    _upload(client, presentation_id, 0, data=_mp4(duration_ms=5000))
+
+    body = client.get(f"/api/v1/ppt/presentation/{presentation_id}/playback").json()
+
+    assert body["slides"][0]["actor"] == "video"
+    assert body["slides"][0]["audio"] is None
+    assert body["slides"][0]["duration_seconds"] == 5.0
 
 
 def test_bubble_is_validated_and_kept_on_duplicate(tmp_path, monkeypatch):

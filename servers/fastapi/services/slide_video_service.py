@@ -19,8 +19,9 @@ import copy
 import logging
 import os
 import uuid
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Iterator, Literal, Optional, Sequence
+from typing import Any, Iterator, Literal, Mapping, Optional, Sequence
 
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -436,6 +437,80 @@ def slide_videos_response(
     )
 
 
+ActorKind = Literal["video", "voice", "none"]
+
+
+@dataclass(frozen=True)
+class SlideActor:
+    """Who presents one slide, and with what.
+
+    `video` is set only when `actor == "video"`. `audio` is the slide's TTS
+    narration in the language asked for; it is the soundtrack for `video` and
+    `voice` slides alike, since avatars are silent. `avatar_skipped` says why a
+    slide that has an avatar does not show it.
+    """
+
+    slide: SlideModel
+    actor: ActorKind
+    audio: Optional[SpeakerNoteAudioModel]
+    video: Optional[SlideVideoModel]
+    avatar_skipped: Optional[Literal["disabled", "language"]] = None
+
+
+def resolve_slide_actors(
+    slides: Sequence[SlideModel],
+    audio_by_slide: Mapping[uuid.UUID, SpeakerNoteAudioModel],
+    video_by_slide: Mapping[uuid.UUID, SlideVideoModel],
+    *,
+    language: Optional[str],
+    avatars: bool = True,
+) -> list[SlideActor]:
+    """Pick each slide's presenter, in slide order.
+
+    The playback plan and the MP4 export both ask here, so what a viewer sees
+    in the player is what the export renders. An avatar wins when avatars are
+    on and it was synced to `language` (or to no language in particular); an
+    avatar on a slide with no narration still plays, silently. Otherwise the
+    slide gets the voice bubble if it has audio, and nothing if it has none.
+    """
+    actors: list[SlideActor] = []
+    for slide in slides:
+        audio = audio_by_slide.get(slide.id)
+        video = video_by_slide.get(slide.id)
+        skipped: Optional[Literal["disabled", "language"]] = None
+        if video is not None:
+            if not avatars:
+                skipped = "disabled"
+            elif video.language is not None and video.language != language:
+                skipped = "language"
+            else:
+                actors.append(SlideActor(slide, "video", audio, video))
+                continue
+        actors.append(
+            SlideActor(
+                slide, "voice" if audio is not None else "none", audio, None, skipped
+            )
+        )
+    return actors
+
+
+def avatar_box(slide: SlideModel, video: SlideVideoModel) -> StageBox:
+    """Where the avatar plays: the slide's placeholder, or the default corner
+    spot shaped like the video when the placeholder was removed since upload."""
+    return placeholder_box(find_video_placeholder(slide.ui)) or default_placeholder_box(
+        video.width, video.height
+    )
+
+
+def avatar_fit(slide: SlideModel) -> Literal["fill", "cover", "contain"]:
+    """How the avatar sits in its box: the placeholder's `fit`, read the way the
+    editor reads an image's (anything unrecognised is `contain`), so the render
+    matches what the author saw."""
+    element = find_video_placeholder(slide.ui)
+    fit = element.get("fit") if element is not None else None
+    return fit if fit in ("fill", "cover", "contain") else "contain"
+
+
 async def _default_video_language(
     sql_session: AsyncSession, presentation_id: uuid.UUID
 ) -> Optional[str]:
@@ -567,9 +642,15 @@ async def build_playback(
 ) -> PresentationPlaybackResponse:
     """Describe, slide by slide, what the narrator shows and plays.
 
+    The narration audio is the soundtrack on every slide. An avatar video is
+    silent and was lip-synced to that audio, so on a `video` slide the player
+    shows the clip and plays `audio` beside it, and the slide lasts as long as
+    the audio. Who presents each slide is decided by `resolve_slide_actors`,
+    the same rule the MP4 export uses.
+
     Narration audio comes in one language. Without `language`, the deck's only
     narrated language is used; a deck narrated in several needs the caller to
-    pick one.
+    pick one. An avatar synced to another language is not shown.
     """
     resolved = resolve_tts_language(language) if language else None
     audios = await list_speaker_note_audios(
@@ -591,32 +672,37 @@ async def build_playback(
     }
 
     playback_slides: list[PlaybackSlide] = []
-    for slide in slides:
-        video = video_by_slide.get(slide.id)
-        audio = audio_by_slide.get(slide.id)
-        video_response = slide_video_response(video, slide, audio) if video else None
+    for resolved_actor in resolve_slide_actors(
+        slides,
+        audio_by_slide,
+        video_by_slide,
+        language=resolved.code if resolved else None,
+    ):
+        slide, audio, video = (
+            resolved_actor.slide,
+            resolved_actor.audio,
+            resolved_actor.video,
+        )
         audio_response = SpeakerNoteAudioResponse.from_model(audio) if audio else None
-        if video_response is not None:
-            actor = "video"
-            placeholder = video_response.placeholder or default_placeholder_box(
-                video.width, video.height
+        video_response = (
+            slide_video_response(video, slide, audio) if video is not None else None
+        )
+        placeholder = avatar_box(slide, video) if video is not None else None
+        if video is not None:
+            # The narration, not the clip, sets how long the slide lasts; the
+            # clip's own length is only a fallback for a slide with no audio.
+            duration = (
+                audio.duration_seconds
+                if audio is not None and audio.duration_seconds is not None
+                else video.duration_seconds
             )
-            duration = video_response.duration_seconds
-            if duration is None and audio_response is not None:
-                duration = audio_response.duration_seconds
-        elif audio_response is not None:
-            actor = "voice"
-            placeholder = None
-            duration = audio_response.duration_seconds
         else:
-            actor = "none"
-            placeholder = None
-            duration = None
+            duration = audio.duration_seconds if audio is not None else None
         playback_slides.append(
             PlaybackSlide(
                 slide_id=slide.id,
                 slide_index=slide.index,
-                actor=actor,
+                actor=resolved_actor.actor,
                 duration_seconds=duration,
                 placeholder=placeholder,
                 video=video_response,

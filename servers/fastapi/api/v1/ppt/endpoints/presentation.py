@@ -2193,10 +2193,11 @@ async def upload_slide_video(
 ):
     """Attach an avatar video to one slide, replacing any earlier one.
 
-    The video is expected to be lip-synced to the slide's narration and to
-    carry its own audio. The slide gets a placeholder element marking where the
-    video plays - added in the bottom-right corner if the slide has none - and
-    `x`, `y`, `width`, `height` (slide coordinates, 1280×720) move it.
+    The video is expected to be lip-synced to the slide's narration; it is
+    played silent, with the slide's narration audio as its soundtrack. The slide
+    gets a placeholder element marking where the video plays - added in the
+    bottom-right corner if the slide has none - and `x`, `y`, `width`, `height`
+    (slide coordinates, 1280×720) move it.
     Only template slides can hold a video. `language` is the narration language
     the avatar was synced to; unset, it is the deck's only narrated language
     (or none, meaning any language, when the deck has none or several).
@@ -2305,8 +2306,11 @@ async def get_presentation_playback(
 
     Each slide says whether the presenter appears as the avatar video
     (`actor: video`, inside `placeholder`), as the voice bubble (`voice`), or
-    not at all (`none`). Video slides also carry their narration audio, for a
-    viewer who switches the avatar off. `bubble` is where the voice bubble sits.
+    not at all (`none`). Avatars are silent and lip-synced to the slide's
+    narration, so `audio` is the soundtrack on `video` slides as well as `voice`
+    ones, and `duration_seconds` is the audio's length (the avatar's only when
+    the slide has no audio). An avatar synced to another language than the one
+    played is not shown. `bubble` is where the voice bubble sits.
     """
     presentation, slides = await _presentation_with_slides_for_speaker_notes(
         id, sql_session

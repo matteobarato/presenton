@@ -11,6 +11,8 @@ from models.sql.speaker_note_audio import SpeakerNoteAudioModel
 from services.speaker_note_tts_service import note_digest
 from services.slide_video_service import (
     InvalidStageBoxError,
+    avatar_box,
+    avatar_fit,
     avatar_stale_reason,
     default_placeholder_box,
     ensure_video_placeholder,
@@ -19,6 +21,7 @@ from services.slide_video_service import (
     placeholder_box,
     remove_video_placeholder,
     resolve_bubble,
+    resolve_slide_actors,
     set_bubble,
     slide_videos_response,
 )
@@ -303,3 +306,136 @@ def test_avatar_without_language_only_checks_the_note():
     response = slide_videos_response(slide.presentation, [slide], [video], [audio])
     assert response.videos[0].stale is False
     assert response.videos[0].language is None
+
+
+# One presenter per slide: both the playback plan and the MP4 export ask
+# resolve_slide_actors who it is, so they cannot disagree.
+
+
+def _actors(slide, *, video=None, audio=None, language="it", **options):
+    return resolve_slide_actors(
+        [slide],
+        {slide.id: audio} if audio else {},
+        {slide.id: video} if video else {},
+        language=language,
+        **options,
+    )[0]
+
+
+def test_avatar_wins_when_it_matches_the_language():
+    slide = _slide("nota")
+    video = _avatar(slide, language="it")
+    audio = _narration(slide, language="it", updated_at=_UPLOADED_AT)
+
+    resolved = _actors(slide, video=video, audio=audio)
+
+    assert resolved.actor == "video"
+    assert resolved.video is video
+    assert resolved.audio is audio
+    assert resolved.slide is slide
+    assert resolved.avatar_skipped is None
+
+
+def test_voice_when_avatars_are_disabled():
+    slide = _slide("nota")
+    video = _avatar(slide, language="it")
+    audio = _narration(slide, language="it", updated_at=_UPLOADED_AT)
+
+    resolved = _actors(slide, video=video, audio=audio, avatars=False)
+
+    assert resolved.actor == "voice"
+    assert resolved.video is None
+    assert resolved.audio is audio
+    assert resolved.avatar_skipped == "disabled"
+
+
+def test_voice_when_avatar_language_differs():
+    slide = _slide("nota")
+    video = _avatar(slide, language="en")
+    audio = _narration(slide, language="it", updated_at=_UPLOADED_AT)
+
+    resolved = _actors(slide, video=video, audio=audio, language="it")
+
+    assert resolved.actor == "voice"
+    assert resolved.video is None
+    assert resolved.avatar_skipped == "language"
+
+
+def test_avatar_without_language_matches_any_language():
+    slide = _slide("nota")
+    video = _avatar(slide, language=None)
+    audio = _narration(slide, language="it", updated_at=_UPLOADED_AT)
+
+    assert _actors(slide, video=video, audio=audio, language="it").actor == "video"
+    assert _actors(slide, video=video, audio=audio, language=None).actor == "video"
+
+
+def test_silent_avatar_slide_is_still_video():
+    slide = _slide("")
+    video = _avatar(slide, language="it")
+
+    resolved = _actors(slide, video=video)
+
+    assert resolved.actor == "video"
+    assert resolved.audio is None
+    assert resolved.video is video
+
+
+def test_none_without_audio_or_avatar():
+    resolved = _actors(_slide(""))
+
+    assert resolved.actor == "none"
+    assert resolved.audio is None
+    assert resolved.video is None
+    assert resolved.avatar_skipped is None
+
+
+def test_a_skipped_avatar_without_audio_leaves_the_slide_without_presenter():
+    slide = _slide("nota")
+    video = _avatar(slide, language="en")
+
+    resolved = _actors(slide, video=video, language="it")
+
+    assert resolved.actor == "none"
+    assert resolved.avatar_skipped == "language"
+
+
+def test_actors_come_back_in_slide_order_one_per_slide():
+    first, second = _slide("uno"), _slide("due")
+    audio = _narration(second, language="it", updated_at=_UPLOADED_AT)
+
+    resolved = resolve_slide_actors(
+        [first, second], {second.id: audio}, {}, language="it"
+    )
+
+    assert [item.slide for item in resolved] == [first, second]
+    assert [item.actor for item in resolved] == ["none", "voice"]
+
+
+def test_avatar_box_falls_back_to_default_when_placeholder_was_removed():
+    slide = _slide("nota")  # its ui has no placeholder
+    video = _avatar(slide, language="it")
+    video.width, video.height = 720, 1280
+
+    assert _box(avatar_box(slide, video)) == _box(default_placeholder_box(720, 1280))
+
+
+def test_avatar_box_is_the_slides_placeholder_when_it_has_one():
+    slide = _slide("nota")
+    slide.ui = _ui(_placeholder(x=10, y=20, width=300, height=200))
+
+    assert _box(avatar_box(slide, _avatar(slide, language="it"))) == (10, 20, 300, 200)
+
+
+def test_avatar_fit_mirrors_the_editor():
+    def fit_of(**props):
+        slide = _slide("nota")
+        slide.ui = _ui({**_placeholder(), **props})
+        return avatar_fit(slide)
+
+    assert fit_of(fit="fill") == "fill"
+    assert fit_of(fit="cover") == "cover"
+    assert fit_of(fit="contain") == "contain"
+    assert fit_of() == "contain"
+    assert fit_of(fit="stretch") == "contain"
+    assert avatar_fit(_slide("nota")) == "contain"  # no placeholder at all
