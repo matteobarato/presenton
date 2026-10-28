@@ -359,3 +359,38 @@ def test_preview_without_narration_reports_no_audio(tmp_path, monkeypatch):
     assert [(s["slide_index"], s.get("reason")) for s in response.json()["slides"]] == [
         (0, "no_audio")
     ]
+
+
+def test_two_concurrent_generate_requests_create_one_task(tmp_path, monkeypatch):
+    import asyncio
+
+    import httpx
+
+    import api.v1.ppt.endpoints.slide_avatars as slide_avatars
+    from models.sql.async_task import AsyncTaskModel
+
+    async def never_runs(*_args, **_kwargs):
+        return None
+
+    client, presentation_id, _ids, sessions = _generation_client(
+        tmp_path, monkeypatch, run=never_runs
+    )
+    real_plan = slide_avatars._plan_generation
+
+    async def slow_plan(*args, **kwargs):
+        # Widen the gap between the running-task check and the commit.
+        await asyncio.sleep(0.05)
+        return await real_plan(*args, **kwargs)
+
+    monkeypatch.setattr(slide_avatars, "_plan_generation", slow_plan)
+
+    async def both():
+        transport = httpx.ASGITransport(app=client.app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://t") as http:
+            url = f"{BASE}/{presentation_id}/videos/generate"
+            return await asyncio.gather(http.post(url, json={}), http.post(url, json={}))
+
+    responses = asyncio.run(both())
+
+    assert sorted(r.status_code for r in responses) == [200, 409]
+    assert len(_rows(sessions, AsyncTaskModel)) == 1

@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Literal, Optional, Sequence
 
 from fastapi import HTTPException
+from sqlmodel import select
 
 from api.v1.auth.context import (
     reset_current_owner_id,
@@ -46,7 +47,7 @@ from services.slide_video_service import (
     is_template_slide,
     store_slide_video_bytes,
 )
-from services.speaker_note_tts_service import list_speaker_note_audios, note_digest
+from services.speaker_note_tts_service import note_digest
 from utils.asset_directory_utils import get_videos_directory
 from utils.datetime_utils import get_current_utc_datetime
 from utils.ffmpeg_utils import (
@@ -262,7 +263,6 @@ class _AvatarGenerationRun:
         self.resolution = ""
         self.phase = "queued"
         self.slides: list[dict] = []
-        self.audio_by_slide: dict[str, SpeakerNoteAudioModel] = {}
         # (status code, message) once the run can no longer reach ElevenLabs.
         self.configuration_error: Optional[tuple[int, str]] = None
         # Concurrent slides report through one writer, in order.
@@ -317,10 +317,6 @@ class _AvatarGenerationRun:
             self.language = data.get("language", "")
             self.resolution = data.get("resolution", "720p")
             self.slides = [dict(entry) for entry in data.get("slides", [])]
-            audios = await list_speaker_note_audios(
-                session, presentation_id=self.presentation_id, language=self.language
-            )
-        self.audio_by_slide = {str(audio.slide): audio for audio in audios}
         queued = [entry for entry in self.slides if entry["state"] == "queued"]
         self.phase = "generating"
         await self.write()
@@ -365,15 +361,24 @@ class _AvatarGenerationRun:
         queued: list[dict],
     ) -> None:
         client: Optional[ElevenLabsLipsyncClient] = None
+        slides: list[asyncio.Task] = []
         try:
             client = client_factory()
             semaphore = asyncio.Semaphore(lipsync_concurrency())
-            await asyncio.gather(
-                *(self._slide(semaphore, client, portrait, entry) for entry in queued)
-            )
+            slides = [
+                asyncio.ensure_future(self._slide(semaphore, client, portrait, entry))
+                for entry in queued
+            ]
+            await asyncio.gather(*slides)
         except ElevenLabsConfigurationError as exc:
             self.configuration_error = (503, str(exc))
         finally:
+            # A slide that raised leaves its siblings running: stop them all
+            # before the client closes and before the final status is written,
+            # so none of them reports over it.
+            for slide in slides:
+                slide.cancel()
+            await asyncio.gather(*slides, return_exceptions=True)
             if client is not None:
                 await client.aclose()
 
@@ -418,9 +423,7 @@ class _AvatarGenerationRun:
         portrait: tuple[bytes, str],
         entry: dict,
     ) -> str:
-        audio = self.audio_by_slide.get(entry["slide_id"])
-        if audio is None:
-            raise _SlideFailed("audio_error", "The slide's narration audio is gone")
+        audio = await self._current_audio(entry)
         try:
             audio_bytes, audio_mime = await lipsync_audio(audio.path, audio.format)
         except (OSError, FFmpegRuntimeError, FFmpegNotAvailableError) as exc:
@@ -466,6 +469,31 @@ class _AvatarGenerationRun:
         except (ElevenLabsRequestError, ElevenLabsConfigurationError) as exc:
             raise _SlideFailed("invalid_output", str(exc))
         return await self._save(entry, audio, generation_id, data)
+
+    async def _current_audio(self, entry: dict) -> SpeakerNoteAudioModel:
+        """The slide's narration as it is now, checked again before spending credits.
+
+        Slides wait their turn, so the note may have been edited or the audio
+        regenerated since the plan was made.
+        """
+        slide_id = uuid.UUID(entry["slide_id"])
+        async with self.session_maker() as session:
+            slide = await session.get(SlideModel, slide_id)
+            if slide is None:
+                raise _SlideSkipped("placeholder_removed")
+            audio = (
+                await session.scalars(
+                    select(SpeakerNoteAudioModel).where(
+                        SpeakerNoteAudioModel.slide == slide_id,
+                        SpeakerNoteAudioModel.language == self.language,
+                    )
+                )
+            ).first()
+        if audio is None:
+            raise _SlideFailed("audio_error", "The slide's narration audio is gone")
+        if audio.source_note_hash != note_digest(slide.speaker_note or ""):
+            raise _SlideSkipped("audio_stale")
+        return audio
 
     async def _poll(
         self, client: ElevenLabsLipsyncClient, generation_id: str

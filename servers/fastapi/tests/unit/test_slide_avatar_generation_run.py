@@ -76,9 +76,11 @@ class FakeClient:
         self.in_flight = 0
         self.max_in_flight = 0
         self.closed = False
+        self.used_after_close = False
         self.on_completed = None
 
     async def create(self, *, image, image_mime, audio, audio_mime, resolution):
+        self.used_after_close |= self.closed
         if self.create_error is not None:
             raise self.create_error
         generation_id = f"gen-{len(self.created)}"
@@ -94,6 +96,7 @@ class FakeClient:
         return generation_id
 
     async def get(self, generation_id):
+        self.used_after_close |= self.closed
         script = self.polls[generation_id]
         state = script.pop(0) if len(script) > 1 else script[0]
         if state in ("completed", "failed") or isinstance(state, LipsyncStatus):
@@ -483,3 +486,51 @@ def test_run_with_nothing_queued_completes(tmp_path, monkeypatch):
     assert task.status == AsyncTaskStatus.COMPLETED
     assert task.message == "0 generated, 0 failed, 1 skipped"
     assert client.created == []
+
+
+def test_run_skips_a_slide_whose_note_changed_after_planning(tmp_path, monkeypatch):
+    ctx = _deck(tmp_path, monkeypatch, notes=("before",))
+    task_id = _create_task(ctx)
+
+    async def edit_note():
+        async with ctx["sessions"]() as session:
+            slide = await session.get(SlideModel, ctx["slide_ids"][0])
+            slide.speaker_note = "after"
+            session.add(slide)
+            await session.commit()
+
+    asyncio.run(edit_note())
+    client = FakeClient()
+
+    _run(ctx, task_id, client)
+
+    task, videos, *_ = _read(ctx, task_id)
+    [entry] = task.data["slides"]
+    assert (entry["state"], entry["reason"]) == ("skipped", "audio_stale")
+    assert client.created == []
+    assert videos == []
+    assert task.status == AsyncTaskStatus.COMPLETED
+
+
+def test_run_stops_every_slide_before_a_failed_write_ends_it(tmp_path, monkeypatch):
+    ctx = _deck(tmp_path, monkeypatch, notes=("bad", "slow"))
+    monkeypatch.setenv("ELEVENLABS_LIPSYNC_CONCURRENCY", "2")
+    task_id = _create_task(ctx)
+    client = FakeClient({"bad": ["failed"], "slow": ["generating"]})
+    real_update = generation._AvatarGenerationRun.update
+
+    async def update(self, entry, **fields):
+        if fields.get("state") == "failed":
+            raise RuntimeError("database went away")
+        await real_update(self, entry, **fields)
+
+    monkeypatch.setattr(generation._AvatarGenerationRun, "update", update)
+
+    _run(ctx, task_id, client, poll_interval=0.001)
+
+    task, *_ = _read(ctx, task_id)
+    assert task.status == AsyncTaskStatus.ERROR
+    assert task.message == "Avatar generation failed"
+    assert task.error["detail"] == "database went away"
+    assert client.closed
+    assert not client.used_after_close

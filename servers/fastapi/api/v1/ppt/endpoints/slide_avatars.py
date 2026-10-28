@@ -1,4 +1,6 @@
+import asyncio
 import uuid
+import weakref
 from typing import Optional, Sequence
 
 from fastapi import (
@@ -63,6 +65,21 @@ from services.speaker_note_tts_service import list_speaker_note_audios
 from utils.ffmpeg_utils import ffmpeg_available
 
 SLIDE_AVATARS_ROUTER = APIRouter(prefix="/presentation", tags=["Presentation"])
+
+# One generation request per deck at a time, from the running-task check until
+# the new task is committed. The server runs in a single process, so an
+# in-memory lock is enough; a deck's lock goes away once nobody holds it.
+_GENERATION_LOCKS: "weakref.WeakValueDictionary[uuid.UUID, asyncio.Lock]" = (
+    weakref.WeakValueDictionary()
+)
+
+
+def _generation_lock(presentation_id: uuid.UUID) -> asyncio.Lock:
+    lock = _GENERATION_LOCKS.get(presentation_id)
+    if lock is None:
+        lock = asyncio.Lock()
+        _GENERATION_LOCKS[presentation_id] = lock
+    return lock
 
 
 @SLIDE_AVATARS_ROUTER.post(
@@ -262,34 +279,37 @@ async def generate_slide_avatars(
     language = await _generation_language(sql_session, id, body.language)
     for slide_index in body.slide_indices or []:
         _slide_at_index(slides, slide_index)
-    running = await _generation_tasks(sql_session, id, AsyncTaskStatus.PENDING)
-    if running:
-        raise HTTPException(
-            status_code=409,
-            detail={
-                "message": "Avatars are already being generated for this deck",
-                "task_id": running[0].id,
-            },
-        )
 
-    plans = await _plan_generation(
-        sql_session,
-        id,
-        slides,
-        language=language,
-        slide_indices=body.slide_indices,
-        force=body.force,
-    )
-    task = AsyncTaskModel(
-        type=ASYNC_TASK_TYPE_SLIDE_AVATAR_GENERATION,
-        status=AsyncTaskStatus.PENDING,
-        message="Queued for avatar generation",
-        data=initial_task_data(
-            id, language=language, resolution=body.resolution, plans=plans
-        ),
-    )
-    sql_session.add(task)
-    await sql_session.commit()
+    lock = _generation_lock(id)
+    async with lock:
+        running = await _generation_tasks(sql_session, id, AsyncTaskStatus.PENDING)
+        if running:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "message": "Avatars are already being generated for this deck",
+                    "task_id": running[0].id,
+                },
+            )
+
+        plans = await _plan_generation(
+            sql_session,
+            id,
+            slides,
+            language=language,
+            slide_indices=body.slide_indices,
+            force=body.force,
+        )
+        task = AsyncTaskModel(
+            type=ASYNC_TASK_TYPE_SLIDE_AVATAR_GENERATION,
+            status=AsyncTaskStatus.PENDING,
+            message="Queued for avatar generation",
+            data=initial_task_data(
+                id, language=language, resolution=body.resolution, plans=plans
+            ),
+        )
+        sql_session.add(task)
+        await sql_session.commit()
     await sql_session.refresh(task)
     background_tasks.add_task(
         run_avatar_generation_task, task.id, id, get_current_owner_id()
