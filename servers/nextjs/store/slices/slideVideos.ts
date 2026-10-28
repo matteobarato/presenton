@@ -38,11 +38,14 @@ const slideVideosSlice = createSlice({
         generationAvailable?: boolean;
       }>,
     ) => {
+      // Spinners of in-flight uploads survive a reload of the same deck.
+      if (state.presentationId !== action.payload.presentationId) {
+        state.pendingBySlideId = {};
+      }
       state.presentationId = action.payload.presentationId;
       state.bySlideId = Object.fromEntries(
         action.payload.videos.map((video) => [video.slide_id, video]),
       );
-      state.pendingBySlideId = {};
       state.portrait = action.payload.portrait ?? null;
       state.generationAvailable = action.payload.generationAvailable ?? false;
     },

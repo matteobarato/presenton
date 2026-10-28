@@ -227,6 +227,12 @@ export class SlideVideosApi {
         body: JSON.stringify(body),
       },
     );
+    if (response.status === 409) {
+      // One is already running: hand back that task so the caller follows it.
+      const conflict = await response.json().catch(() => null);
+      const taskId = conflict?.detail?.task_id;
+      if (typeof taskId === "string") return await SlideVideosApi.getTask(taskId);
+    }
     return await ApiResponseHandler.handleResponse(
       response,
       "Failed to start avatar generation",

@@ -243,34 +243,55 @@ export const startAvatarGeneration =
 
 const AVATAR_POLL_MS = 3000;
 
+const AVATAR_POLL_MAX_FAILURES = 5;
+
 /**
  * Follow a generation task until it is no longer pending. Each slide that
  * finishes has its video loaded and its placeholder synced as soon as it is
- * seen; resolves with the final task.
+ * seen; resolves with the final task, or null when `signal` aborts. A failed
+ * poll is retried on the next tick, and rejects after five in a row.
  */
 export const pollAvatarGeneration =
-  (presentationId: string, taskId: string) =>
-  async (dispatch: AppDispatch, getState: GetState): Promise<AvatarGenerationTask> => {
+  (presentationId: string, taskId: string, signal?: AbortSignal) =>
+  async (
+    dispatch: AppDispatch,
+    getState: GetState,
+  ): Promise<AvatarGenerationTask | null> => {
     let previous: AvatarGenerationTask["data"]["slides"] | undefined =
       getState().slideVideos.generation?.id === taskId
         ? getState().slideVideos.generation?.data?.slides
         : undefined;
+    let failures = 0;
     for (;;) {
-      const task = await SlideVideosApi.getTask(taskId);
-      dispatch(generationChanged(task));
-      const finished = newlyDone(previous, task.data?.slides);
-      previous = task.data?.slides;
-      if (finished.length > 0) {
-        await dispatch(loadSlideVideos(presentationId));
-        for (const slideId of finished) {
-          try {
-            await syncServerPlaceholder(dispatch, getState, presentationId, slideId);
-          } catch {
-            // The next poll or reload picks the placeholder up.
+      if (signal?.aborted) return null;
+      try {
+        const task = await SlideVideosApi.getTask(taskId);
+        if (signal?.aborted) return null;
+        const finished = newlyDone(previous, task.data?.slides);
+        if (finished.length > 0) {
+          await dispatch(loadSlideVideos(presentationId));
+          for (const slideId of finished) {
+            try {
+              await syncServerPlaceholder(dispatch, getState, presentationId, slideId);
+            } catch (error) {
+              if (error instanceof SlideVideoRefreshError) {
+                // Not worth holding the others back; the next reload fixes it.
+                continue;
+              }
+              throw error;
+            }
           }
         }
+        // Only now are these slides handled; a failure above retries them.
+        previous = task.data?.slides;
+        dispatch(generationChanged(task));
+        failures = 0;
+        if (task.status !== "pending") return task;
+      } catch (error) {
+        failures += 1;
+        if (failures >= AVATAR_POLL_MAX_FAILURES) throw error;
       }
-      if (task.status !== "pending") return task;
+      if (signal?.aborted) return null;
       await wait(AVATAR_POLL_MS);
     }
   };

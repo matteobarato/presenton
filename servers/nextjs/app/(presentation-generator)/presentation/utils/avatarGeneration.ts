@@ -3,6 +3,7 @@ import type { AvatarSlidePlan } from "../../services/api/slide-videos";
 export type AvatarChip =
   | "ready"
   | "no_audio"
+  | "no_placeholder"
   | "audio_stale"
   | "up_to_date"
   | "unsupported_audio"
@@ -21,8 +22,10 @@ export function chipFor(
     if (plan.state === "done") return "done";
     if (plan.state === "failed") return "failed";
   }
-  if (preview?.state === "skipped") {
-    switch (preview.reason) {
+  const skipped =
+    plan?.state === "skipped" ? plan : preview?.state === "skipped" ? preview : undefined;
+  if (skipped) {
+    switch (skipped.reason) {
       case "no_audio":
         return "no_audio";
       case "audio_stale":
@@ -31,6 +34,9 @@ export function chipFor(
         return "up_to_date";
       case "unsupported_audio_format":
         return "unsupported_audio";
+      case "no_placeholder":
+      case "placeholder_removed":
+        return "no_placeholder";
     }
   }
   return "ready";
@@ -52,6 +58,9 @@ export function generateDisabledReason({
   }
   if (!hasPortrait) return "Upload a presenter portrait first.";
   const chip = chipFor(undefined, preview);
+  if (chip === "no_placeholder") {
+    return "Add an avatar placeholder to this slide first.";
+  }
   if (chip === "no_audio") return "Generate this slide's narration audio first.";
   if (chip === "audio_stale") {
     return "The note changed since the audio was made. Regenerate the audio first.";

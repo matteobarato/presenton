@@ -103,3 +103,30 @@ test("failureLabel is readable and falls back to the raw reason", () => {
     assert.notEqual(helpers.failureLabel(r), r);
   }
 });
+
+test("chipFor never calls a slide without a placeholder ready", () => {
+  for (const reason of ["no_placeholder", "placeholder_removed"]) {
+    assert.equal(helpers.chipFor(undefined, plan("skipped", { reason })), "no_placeholder");
+    assert.equal(helpers.chipFor(plan("skipped", { reason })), "no_placeholder");
+  }
+  assert.equal(helpers.chipFor(plan("skipped", { reason: "no_audio" })), "no_audio");
+  assert.equal(helpers.chipFor(plan("skipped", { reason: "audio_stale" })), "audio_stale");
+  assert.equal(helpers.chipFor(plan("skipped", { reason: "up_to_date" })), "up_to_date");
+  assert.equal(
+    helpers.chipFor(plan("skipped", { reason: "unsupported_audio_format" })),
+    "unsupported_audio",
+  );
+});
+
+test("generateDisabledReason asks for a placeholder after the portrait", () => {
+  const base = { generationAvailable: true, hasPortrait: true, running: false };
+  const preview = plan("skipped", { reason: "placeholder_removed" });
+  assert.equal(
+    helpers.generateDisabledReason({ ...base, preview }),
+    "Add an avatar placeholder to this slide first.",
+  );
+  assert.equal(
+    helpers.generateDisabledReason({ ...base, hasPortrait: false, preview }),
+    "Upload a presenter portrait first.",
+  );
+});
