@@ -1,4 +1,5 @@
 import uuid
+from typing import Literal, Optional
 
 from pydantic import BaseModel
 
@@ -20,3 +21,21 @@ class PlaceholderResponse(BaseModel):
     placeholder: StageBox
     # The slide's element tree after the change, so the editor can swap it in.
     ui: dict
+
+
+class SlideAvatarGenerationRequest(BaseModel):
+    # None: every slide that has a placeholder.
+    slide_indices: Optional[list[int]] = None
+    # None: the deck's only narrated language.
+    language: Optional[str] = None
+    # Regenerate avatars that are up to date, uploaded ones included.
+    force: bool = False
+    resolution: Literal["720p", "480p"] = "720p"
+
+
+class AvatarGenerationPreview(BaseModel):
+    """What a generation would do now, slide by slide, without starting one."""
+
+    language: str
+    # As in the task's `data.slides`: slide_index, slide_id, state, reason.
+    slides: list[dict]
