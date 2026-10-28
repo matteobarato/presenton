@@ -79,6 +79,11 @@ test("generateDisabledReason follows the listed priority", () => {
     helpers.generateDisabledReason(stale),
     "The note changed since the audio was made. Regenerate the audio first.",
   );
+  const unsupported = { ...ok, preview: plan("skipped", { reason: "unsupported_audio_format" }) };
+  assert.equal(
+    helpers.generateDisabledReason(unsupported),
+    "This slide's narration audio format can't be sent to ElevenLabs.",
+  );
   assert.equal(
     helpers.generateDisabledReason({ ...ok, running: true }),
     "An avatar generation is already running.",

@@ -41,6 +41,9 @@ const slideVideosSlice = createSlice({
       // Spinners of in-flight uploads survive a reload of the same deck.
       if (state.presentationId !== action.payload.presentationId) {
         state.pendingBySlideId = {};
+        state.generation = null;
+        state.portrait = null;
+        state.generationAvailable = false;
       }
       state.presentationId = action.payload.presentationId;
       state.bySlideId = Object.fromEntries(

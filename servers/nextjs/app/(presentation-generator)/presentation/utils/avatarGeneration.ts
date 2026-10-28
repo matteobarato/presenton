@@ -65,6 +65,9 @@ export function generateDisabledReason({
   if (chip === "audio_stale") {
     return "The note changed since the audio was made. Regenerate the audio first.";
   }
+  if (chip === "unsupported_audio") {
+    return "This slide's narration audio format can't be sent to ElevenLabs.";
+  }
   if (running) return "An avatar generation is already running.";
   return null;
 }

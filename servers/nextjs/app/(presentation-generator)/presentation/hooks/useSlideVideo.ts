@@ -12,6 +12,7 @@ import {
   SlideVideoRefreshError,
   addSlidePlaceholder,
   loadSlideVideos,
+  syncFinishedAvatars,
   pollAvatarGeneration,
   removeSlidePlaceholder,
   removeSlideVideo,
@@ -224,8 +225,21 @@ export function useAvatarGeneration(
     if (!presentationId) return;
     let cancelled = false;
     SlideVideosApi.latestGeneration(presentationId)
-      .then((task) => {
-        if (cancelled || !task) return;
+      .then(async (task) => {
+        if (cancelled) return;
+        if (!task) {
+          dispatch(generationChanged(null));
+          return;
+        }
+        // Slides that finished while the panel was closed never reached the
+        // editor: bring them in before the task becomes the poll's baseline.
+        const done = (task.data?.slides ?? [])
+          .filter((slide) => slide.state === "done")
+          .map((slide) => slide.slide_id);
+        if (done.length > 0) {
+          await dispatch(syncFinishedAvatars(presentationId, done));
+          if (cancelled) return;
+        }
         dispatch(generationChanged(task));
         if (task.status === "pending") void follow(task.id);
       })

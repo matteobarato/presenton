@@ -241,6 +241,24 @@ export const startAvatarGeneration =
     return task;
   };
 
+// Load the videos of slides whose avatar finished and sync their placeholders.
+export const syncFinishedAvatars =
+  (presentationId: string, slideIds: string[]) =>
+  async (dispatch: AppDispatch, getState: GetState): Promise<void> => {
+    await dispatch(loadSlideVideos(presentationId));
+    for (const slideId of slideIds) {
+      try {
+        await syncServerPlaceholder(dispatch, getState, presentationId, slideId);
+      } catch (error) {
+        if (error instanceof SlideVideoRefreshError) {
+          // Not worth holding the others back; the next reload fixes it.
+          continue;
+        }
+        throw error;
+      }
+    }
+  };
+
 const AVATAR_POLL_MS = 3000;
 
 const AVATAR_POLL_MAX_FAILURES = 5;
@@ -269,18 +287,7 @@ export const pollAvatarGeneration =
         if (signal?.aborted) return null;
         const finished = newlyDone(previous, task.data?.slides);
         if (finished.length > 0) {
-          await dispatch(loadSlideVideos(presentationId));
-          for (const slideId of finished) {
-            try {
-              await syncServerPlaceholder(dispatch, getState, presentationId, slideId);
-            } catch (error) {
-              if (error instanceof SlideVideoRefreshError) {
-                // Not worth holding the others back; the next reload fixes it.
-                continue;
-              }
-              throw error;
-            }
-          }
+          await dispatch(syncFinishedAvatars(presentationId, finished));
         }
         // Only now are these slides handled; a failure above retries them.
         previous = task.data?.slides;
