@@ -516,6 +516,19 @@ def get_openai_compat_tts_voice_env():
     return os.getenv("OPENAI_COMPAT_TTS_VOICE")
 
 
+# HeyGen (lip-synced avatar generation)
+def get_heygen_api_key_env():
+    return os.getenv("HEYGEN_API_KEY")
+
+
+def get_heygen_api_base_url_env():
+    return os.getenv("HEYGEN_API_BASE_URL")
+
+
+def get_heygen_lipsync_concurrency_env():
+    return os.getenv("HEYGEN_LIPSYNC_CONCURRENCY")
+
+
 # Avatar videos uploaded per slide
 def get_slide_video_max_upload_mb_env():
     return os.getenv("SLIDE_VIDEO_MAX_UPLOAD_MB")

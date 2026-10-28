@@ -96,6 +96,7 @@ import {
 import {
   findVideoPlaceholder,
   isVideoPlaceholderElement,
+  liftRootVideoPlaceholder,
 } from "@/components/slide-editor/video/video-placeholder";
 import { VideoToolbar } from "@/components/slide-editor/video/VideoToolbar";
 import { useNearViewport } from "@/app/hooks/useNearViewport";
@@ -471,7 +472,7 @@ function TemplateV2KonvaSlideComponent({
     [showAlignmentGuides],
   );
   const [uiDraft, setUiDraft] = useState<RawUi>(() =>
-    normalizeMarkdownTextInUi(cloneJson(layout as RawUi)),
+    liftRootVideoPlaceholder(normalizeMarkdownTextInUi(cloneJson(layout as RawUi))),
   );
   const templateFonts = useMemo(() => templateFontOptionsFromMap(fonts), [
     fonts,
@@ -1008,7 +1009,9 @@ function TemplateV2KonvaSlideComponent({
 
   useEffect(() => {
     if (layout === currentUiRef.current) return;
-    const next = normalizeMarkdownTextInUi(cloneJson(layout as RawUi));
+    const next = liftRootVideoPlaceholder(
+      normalizeMarkdownTextInUi(cloneJson(layout as RawUi)),
+    );
     currentUiRef.current = next;
     setUiDraft(next);
     componentAlignmentDragRef.current = null;
@@ -2456,6 +2459,49 @@ function TemplateV2KonvaSlideComponent({
       ungroupComponentAtIndex,
     ]);
 
+  // The video placeholder, selected through its own component or directly:
+  // it gets the video toolbar in place of the image one.
+  const videoToolbarSelection = useMemo<ElementSelection | null>(() => {
+    if (selection?.kind === "element") {
+      return isVideoPlaceholderSelected ? selection : null;
+    }
+    if (selection?.kind !== "component" || !selectedComponent) return null;
+    const elements = readArray(selectedComponent.elements);
+    return elements.length === 1 && isVideoPlaceholderElement(elements[0])
+      ? {
+          kind: "element",
+          componentIndex: selection.componentIndex,
+          elementPath: [0],
+        }
+      : null;
+  }, [isVideoPlaceholderSelected, selectedComponent, selection]);
+  const videoToolbarElement = videoToolbarSelection
+    ? getElementAtSelection(uiDraft, videoToolbarSelection)
+    : null;
+  const videoToolbarBox = videoToolbarSelection
+    ? absoluteBoxForSelection(uiDraft, videoToolbarSelection)
+    : null;
+  const videoComponentActions = useMemo(() => {
+    const componentIndex = videoToolbarSelection?.componentIndex;
+    if (componentIndex == null || componentIndex < 0) return null;
+    return {
+      canUngroup: false,
+      componentCount: components.length,
+      componentIndex,
+      onDelete: deleteSelection,
+      // A slide has one placeholder.
+      onDuplicate: null,
+      onLayerAction: (action: ComponentLayerAction) =>
+        reorderComponentLayerAtIndex(componentIndex, action),
+      onUngroup: () => undefined,
+    };
+  }, [
+    components.length,
+    deleteSelection,
+    reorderComponentLayerAtIndex,
+    videoToolbarSelection,
+  ]);
+
   const openImageUpload = useCallback(
     (elementSelection: ElementSelection) => {
       const element = getElementAtSelection(currentUiRef.current, elementSelection);
@@ -3174,7 +3220,7 @@ function TemplateV2KonvaSlideComponent({
           ui={uiDraft}
         />
       ) : null}
-      {!infographicCanvasSelection ? <TemplateV2SelectionToolbar
+      {!infographicCanvasSelection && !videoToolbarSelection ? <TemplateV2SelectionToolbar
         anchorBox={floatingToolbarAnchorBox}
         canUngroupComponent={canUngroupSelectedComponent}
         canUngroupLayoutTarget={canUngroupLayoutTargetComponent}
@@ -3299,14 +3345,18 @@ function TemplateV2KonvaSlideComponent({
         />
       ) : null}
       {isEditMode &&
-        selection?.kind === "element" &&
-        isVideoPlaceholderSelected &&
-        selectedBox ? (
+        videoToolbarSelection &&
+        videoToolbarElement &&
+        videoToolbarBox ? (
         <VideoToolbar
-          anchorBox={selectedBox}
-          element={selectedElement}
+          anchorBox={videoToolbarBox}
+          componentActions={videoComponentActions}
+          element={videoToolbarElement}
           onElementChange={(patch) =>
-            updateElement(selection, (current) => ({ ...current, ...patch }))
+            updateElement(videoToolbarSelection, (current) => ({
+              ...current,
+              ...patch,
+            }))
           }
           presentationId={presentationId}
           slideId={slideId}

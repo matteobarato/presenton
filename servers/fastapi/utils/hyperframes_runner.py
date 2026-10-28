@@ -21,7 +21,7 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import Awaitable, Callable, Optional, Union
+from typing import Awaitable, Callable, Literal, Optional, Union
 
 from utils.ffmpeg_utils import FFmpegNotAvailableError, get_ffmpeg_binary
 from utils.runtime_limits import BoundedTextBuffer
@@ -36,6 +36,7 @@ _DEFAULT_TIMEOUT_SECONDS = 1800.0
 _CLIP_CRF = 12
 
 ProgressCallback = Callable[[float, str], Union[None, Awaitable[None]]]
+HyperFramesFormat = Literal["mp4", "mov", "png-sequence"]
 
 
 class HyperFramesUnavailableError(RuntimeError):
@@ -150,8 +151,14 @@ async def render_hyperframes_project(
     *,
     fps: int,
     on_progress: Optional[ProgressCallback] = None,
+    output_format: HyperFramesFormat = "mp4",
 ) -> None:
-    """Render `project_dir/index.html` to a silent mp4 at `output_path`."""
+    """Render `project_dir/index.html` to a silent mp4 at `output_path`.
+
+    `output_format` "mov" keeps the alpha channel (ProRes 4444), for a layer
+    drawn over other video; "png-sequence" writes RGBA `frame_NNNNNN.png`
+    files into the `output_path` directory instead.
+    """
     runner = resolve_runner_path()
     node_binary = (os.getenv("HYPERFRAMES_NODE_BINARY") or "node").strip() or "node"
 
@@ -161,6 +168,7 @@ async def render_hyperframes_project(
         "fps": fps,
         "quality": "high",
         "crf": _CLIP_CRF,
+        "format": output_format,
     }
     workers = _workers()
     if workers is not None:
@@ -232,7 +240,12 @@ async def render_hyperframes_project(
                 f"HyperFrames render exited with code {process.returncode}",
                 stderr_tail=stderr_tail.get(),
             )
-        if not os.path.isfile(output_path):
+        written = (
+            os.path.isdir(output_path)
+            if output_format == "png-sequence"
+            else os.path.isfile(output_path)
+        )
+        if not written:
             raise HyperFramesRenderError(
                 "HyperFrames render finished without writing its output",
                 stderr_tail=stderr_tail.get(),

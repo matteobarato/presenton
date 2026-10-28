@@ -541,7 +541,7 @@ Speaker note audio is generated per slide through `POST /api/v1/ppt/presentation
 | --- | --- | --- |
 | **SLIDE_VIDEO_MAX_UPLOAD_MB** | `100` (default) | Largest avatar video accepted per slide. The bundled nginx caps `/api/v1/` request bodies at 110 MB, so raise both together. |
 
-Any template slide can carry one avatar video (MP4 or WebM), made outside Presenton and lip-synced to that slide's TTS narration. The avatar is silent: any audio track in the uploaded file is ignored, and the narration comes from the slide's speaker note audio. Upload it with `PUT /api/v1/ppt/presentation/{id}/videos/{slide_index}` (multipart `file`; optional `x`, `y`, `width`, `height` in 1280×720 slide coordinates; optional `language` form field, the narration language the avatar was synced to). When `language` is omitted it defaults to the deck's only narrated language, and when the deck has no narration yet or several languages it is left unset, meaning "any language". The upload adds a placeholder to the slide's `ui`: an image element tagged `"video_placeholder": true`, placed bottom-right if the slide has none. Its poster is transparent, so the placeholder is invisible in PDF/PPTX exports while still marking where the video plays. Deleting the video (`DELETE …/videos/{slide_index}`) removes the placeholder too. A video is reported `stale` with a `stale_reason`: `note_changed` when the speaker note was edited after the upload, or `audio_regenerated` when the narration audio in the avatar's language was regenerated after the upload (for example with a different TTS voice or provider). Stale avatars are still played.
+Any template slide can carry one avatar video (MP4 or WebM), made outside Presenton and lip-synced to that slide's TTS narration. The avatar is silent: any audio track in the uploaded file is ignored, and the narration comes from the slide's speaker note audio. Upload it with `PUT /api/v1/ppt/presentation/{id}/videos/{slide_index}` (multipart `file`; optional `x`, `y`, `width`, `height` in 1280×720 slide coordinates; optional `language` form field, the narration language the avatar was synced to). When `language` is omitted it defaults to the deck's only narrated language, and when the deck has no narration yet or several languages it is left unset, meaning "any language". The upload adds a placeholder to the slide's `ui`: an image element tagged `"video_placeholder": true`, in a component of its own (`"id": "video_placeholder"`) on top of the slide, placed bottom-right if the slide has none. Its poster is transparent, so the placeholder is invisible in PDF/PPTX exports while still marking where the video plays. Because it is a component, the placeholder is layered like any other: in the editor select it and use Bring Forward / Send Backward (or Alt+K / Alt+J), and slide content above it is drawn over the avatar. Coordinates are always slide coordinates, wherever the placeholder sits. A placeholder stored in the slide's root `elements` by earlier versions is treated as on top and is moved into its own component the next time the slide is edited or the placeholder changes. Deleting the video (`DELETE …/videos/{slide_index}`) removes the placeholder too. A video is reported `stale` with a `stale_reason`: `note_changed` when the speaker note was edited after the upload, or `audio_regenerated` when the narration audio in the avatar's language was regenerated after the upload (for example with a different TTS voice or provider). Stale avatars are still played.
 
 `GET /api/v1/ppt/presentation/{id}/playback?language=it` describes the narration slide by slide for a player. The presenter is one actor across the deck:
 - `actor: "video"` slides play the muted avatar video inside `placeholder`, over the slide's narration `audio`.
@@ -551,6 +551,48 @@ Any template slide can carry one avatar video (MP4 or WebM), made outside Presen
 An avatar synced to a different language than the one requested is not used; that slide falls back to `voice`.
 
 In a player, transitions follow from consecutive slides: the bubble expands into the placeholder when a video starts and collapses back when it ends. Video slides also carry their `audio`, so a viewer who switches the avatar off still hears the narration.
+
+#### Generated Avatars (HeyGen)
+
+Instead of uploading avatar videos, Presenton can generate them. It uploads the deck's presenter portrait and each slide's narration audio to [HeyGen](https://developers.heygen.com/audio-to-video), asks its audio-to-video API to lip-sync the still image (`type: "image"`, 720p, the portrait's own aspect ratio) and stores the returned video in that slide's placeholder, saved like an upload (`source: "heygen"`). The generated avatar plays muted, lip-synced to the slide's TTS audio.
+
+| Variable | Values / default | Purpose |
+| --- | --- | --- |
+| **HEYGEN_API_KEY** | Empty (default) | Required to generate. |
+| **HEYGEN_API_BASE_URL** | `https://api.heygen.com` (default) | Overrides the API host. |
+| **HEYGEN_LIPSYNC_CONCURRENCY** | `2` (default), clamped to 1–8 | Slides generated at the same time. HeyGen rate-limits requests too; a `429` waits for `Retry-After` and retries. |
+
+To set it up:
+
+1. Set the presenter portrait with `PUT /api/v1/ppt/presentation/{id}/videos/portrait` (multipart `file`, JPEG, PNG or WebP, up to 10 MB; WebP is sent to HeyGen as PNG). The portrait needs a clearly visible face, or HeyGen rejects the slide. `GET` returns its URL and dimensions (404 when there is none) and `DELETE` removes it. A 9:16 portrait matches the default placeholder best.
+2. Mark the slides that should have an avatar with `POST /api/v1/ppt/presentation/{id}/videos/{slide_index}/placeholder`. The optional JSON body `x`, `y`, `width`, `height` places it in 1280×720 slide coordinates. Slides without a placeholder keep the voice bubble. `DELETE …/videos/{slide_index}/placeholder` removes the placeholder and that slide's video, while `DELETE …/videos/{slide_index}` removes only the video and keeps the placeholder.
+3. Generate the speaker note audio first (see above). Avatars are lip-synced to that audio, so slides with missing or stale audio are skipped.
+4. Start generation with `POST …/videos/generate`. The body takes `slide_indices` (an array, or `null` for every slide), `language` (or `null`), and `force` (default `false`). The video takes its size from the portrait. It returns an async task:
+
+```bash
+curl -X POST "http://localhost:5001/api/v1/ppt/presentation/$PRESENTATION_ID/videos/generate" \
+  -H "Content-Type: application/json" \
+  -d '{"slide_indices": [2, 5], "language": "en", "force": false}'
+```
+
+5. Poll the task until its `status` is `completed` or `error`. Its `data` lists what happened to each slide. `GET …/videos/generate` returns the latest task for the deck, and `GET …/videos/generate/preview?language=en` shows a dry run of the plan.
+
+```bash
+curl "http://localhost:5001/api/v1/async-tasks/status/$TASK_ID"
+```
+
+Generation behaves as follows:
+
+- Each slide is generated only if it has a placeholder and up-to-date narration. Fresh avatars are skipped unless `force` is `true`.
+- While a generation runs for a deck, a second request for that deck returns `409`.
+- A generated avatar is tied to the narration language it was synced to, like an upload.
+- A skipped slide is listed with one of these reasons: `no_placeholder`, `no_audio`, `audio_stale`, `unsupported_audio_format`, `up_to_date`, `placeholder_removed`.
+- A failed slide is listed with HeyGen's `failure_code` and `failure_message`, or with one of `timeout`, `invalid_output`, `configuration`, `request_error`, `audio_error`, `internal_error`, `unknown`.
+
+Two things to know before you run it:
+
+- Every generated slide spends HeyGen API credits. A rejected key (`401`/`403`) or a `402` stops the whole run with `configuration`. A single request covers up to 30 minutes of narration, and a slide that is still rendering after 30 minutes fails with `timeout`.
+- A server restart fails a running job. The HeyGen video ids stay in the task data as `generation_id`.
 
 #### Presentation Video Export
 
@@ -570,7 +612,7 @@ With `"animate": true` on a video request, the elements of every Template-v2 sli
 
 Every narrated slide without an avatar shows a small round bubble with moving sound-wave bars. It is centred in the deck's bubble box, the same spot the player uses (bottom-right unless moved with `PUT …/playback/bubble`), at half the box's size, and it stays steady across consecutive narrated slides. Pass `"speaker_indicator": false` to leave it out.
 
-Slides with an avatar play it muted in their placeholder, starting exactly when the narration starts and holding its last frame until the slide ends; `"avatars": false` uses the bubble instead. Slides change with a crossfade centred on the change and taken from the silence around the narration, so narration is never covered and the video keeps its length. Where the presenter changes between bubble and avatar the picture morphs instead of fading, over 0.8 s centred on the slide change (never longer than the narration's silent lead-in and lead-out, so no word is covered; hard cuts skip it): the bubble becomes a small circle of the avatar that opens into its placeholder, and at the end of an avatar slide the avatar rounds into a circle, shrinks and travels to the bubble's spot, staying sharp until it dissolves into the bubble. Any other change of presenter fades with the slide. The narration (TTS) is always the soundtrack on avatar slides; the uploaded file's own audio is never used. The response's `avatars` summary lists the slides that played an avatar and any that were stale, skipped (with a reason), a different length than their narration, or `silent` (no narration audio yet, so no sound).
+Slides with an avatar play it muted in their placeholder, starting exactly when the narration starts and holding its last frame until the slide ends; `"avatars": false` uses the bubble instead. Slides change with a crossfade centred on the change and taken from the silence around the narration, so narration is never covered and the video keeps its length. Where the presenter changes between bubble and avatar the picture morphs instead of fading, over 0.8 s centred on the slide change (never longer than the narration's silent lead-in and lead-out, so no word is covered; hard cuts skip it): the bubble becomes a small circle of the avatar that opens into its placeholder, and at the end of an avatar slide the avatar rounds into a circle, shrinks and travels to the bubble's spot, staying sharp until it dissolves into the bubble. Any other change of presenter fades with the slide. The narration (TTS) is always the soundtrack on avatar slides; the uploaded file's own audio is never used. Where a slide puts content above its placeholder, that content is drawn over the avatar: the slide is rendered in two layers around the placeholder with HyperFrames (a transparent layer for the content above it, animated like the rest of the slide when `animate` is on). This needs the HyperFrames renderer; without it, or if the layers fail to render, the avatar is drawn over the whole slide and the response says why. The response's `avatars` summary lists the slides that played an avatar and any that were stale, skipped (with a reason), a different length than their narration, or `silent` (no narration audio yet, so no sound); `layered_slides` lists the slides drawn with content over their avatar, and `layers_unavailable` gives the reason when that could not be done.
 
 #### Telemetry
 

@@ -147,7 +147,10 @@ import {
   type Selection,
 } from "@/components/slide-editor/model/model";
 import { SlideVideoContext } from "@/components/slide-editor/video/SlideVideoContext";
-import { isVideoPlaceholderElement } from "@/components/slide-editor/video/video-placeholder";
+import {
+  isVideoPlaceholderElement,
+  withAvatarFit,
+} from "@/components/slide-editor/video/video-placeholder";
 import { loadVideoFrame } from "@/components/slide-editor/video/videoFrame";
 
 type ComponentTransformAnchor =
@@ -1363,16 +1366,8 @@ function RawElementNode({
     allowVectorPointEditing &&
     !editing &&
     vectorPointEditing;
-  // The slide's video placeholder lives in the root `elements`, outside any
-  // component, so nothing else would let it be dragged.
-  const isRootVideoPlaceholder =
-    componentIndex === ROOT_ELEMENTS_COMPONENT_INDEX &&
-    isVideoPlaceholderElement(element);
   const vectorDraggable =
-    isEditMode &&
-    !editing &&
-    (isRootVideoPlaceholder ||
-      (isSelected && isVector && !showVectorPointHandles));
+    isEditMode && isSelected && isVector && !editing && !showVectorPointHandles;
   useEffect(() => {
     if (!isSelected || !isVector) setVectorDragPreview(null);
   }, [isSelected, isVector]);
@@ -2792,7 +2787,7 @@ function RawVideoPlaceholderElement({
     <Group listening={interactive}>
       {frame ? (
         <RawImageContent
-          element={element}
+          element={withAvatarFit(element)}
           image={frame}
           width={width}
           height={height}

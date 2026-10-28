@@ -1953,3 +1953,360 @@ def test_avatar_grows_out_of_the_bubble_and_collapses_back_with_real_ffmpeg(tmp_
     # ... and collapses again after it, leaving the corner empty.
     assert not is_red(6.2, *corner)
     assert not is_red(7.0, *centre)
+
+
+def test_source_hash_changes_when_content_is_layered_over_the_avatar():
+    assert _source_hash([_avatar_timing()]) != _source_hash(
+        [_avatar_timing(avatar_layers_above=1)]
+    )
+    assert _source_hash([_avatar_timing(avatar_layers_above=1)]) != _source_hash(
+        [_avatar_timing(avatar_layers_above=2)]
+    )
+
+
+def test_layers_over_the_avatar_come_after_the_presenter_and_before_captions(tmp_path):
+    timings = [
+        _timing(audio_path="/tmp/a0.mp3", actor="voice", duration_seconds=3.0),
+        _avatar_timing(),
+    ]
+    vtt = str(tmp_path / "cues.vtt")
+    args = build_ffmpeg_args(
+        concat_path="/tmp/concat.txt",
+        image_paths=["/tmp/0.png", "/tmp/1-below.png"],
+        timings=timings,
+        vtt_path=vtt,
+        options=VideoRenderOptions(subtitles_mode="burned", crossfade_seconds=0),
+        language_code="en",
+        output_path="/tmp/out.mp4",
+        speaker_indicator=_indicator(tmp_path),
+        over_avatar_paths={1: "/tmp/1-above.png"},
+    )
+    graph = _filter_graph(args)
+
+    assert args[args.index("/tmp/1-above.png") - 3 : args.index("/tmp/1-above.png")] == [
+        "-framerate", "30", "-i",
+    ]
+    assert graph.index("[vbase]") < graph.index("[vact]") < graph.index("[vact][over0]")
+    assert graph.index("[ovl0]format=yuv420p[vlay]") < graph.index("[vlay]subtitles=")
+
+
+def _make_media(tmp_path):
+    import subprocess
+
+    from PIL import Image, ImageDraw
+
+    from utils.ffmpeg_utils import get_ffmpeg_binary
+
+    ffmpeg = get_ffmpeg_binary()
+
+    def make(args, output):
+        subprocess.run([ffmpeg, "-v", "error", "-y", *args, output], check=True)
+        return output
+
+    images = [
+        make(["-f", "lavfi", "-i", "color=white:size=1280x720", "-frames:v", "1"],
+             str(tmp_path / f"slide-{i}.png"))
+        for i in range(3)
+    ]
+    avatar = make(
+        ["-f", "lavfi", "-i", "color=red:s=240x400:r=30:d=4", "-pix_fmt", "yuv420p"],
+        str(tmp_path / "avatar.mp4"),
+    )
+    # A blue card over the avatar's top-left quarter, transparent elsewhere.
+    above = Image.new("RGBA", (1280, 720), (0, 0, 0, 0))
+    ImageDraw.Draw(above).rectangle((900, 250, 1100, 450), fill=(0, 0, 255, 255))
+    above_path = str(tmp_path / "above.png")
+    above.save(above_path)
+    return ffmpeg, images, avatar, above_path
+
+
+def _colour_at(ffmpeg, output, tmp_path, second, point):
+    import subprocess
+
+    from PIL import Image
+
+    still = str(tmp_path / f"at-{second}.png")
+    subprocess.run(
+        [ffmpeg, "-v", "error", "-y", "-ss", str(second), "-i", output, "-frames:v", "1", still],
+        check=True,
+    )
+    red, green, blue = Image.open(still).convert("RGB").getpixel(point)
+    if red > 180 and green < 80 and blue < 80:
+        return "red"
+    if blue > 180 and red < 80 and green < 80:
+        return "blue"
+    if min(red, green, blue) > 200:
+        return "white"
+    return (red, green, blue)
+
+
+@pytest.mark.skipif(not pvs.ffmpeg_available(), reason="needs a real ffmpeg")
+@pytest.mark.parametrize("crossfade", [0.0, 0.5])
+def test_still_slide_content_is_drawn_over_its_avatar_with_real_ffmpeg(tmp_path, crossfade):
+    from utils.ffmpeg_utils import run_ffmpeg
+
+    ffmpeg, images, avatar, above = _make_media(tmp_path)
+    timings = [
+        _timing(slide_index=0, audio_path=None, actor="none", start_seconds=0.0,
+                duration_seconds=3.0),
+        _avatar_timing(
+            slide_index=1, audio_path=None, start_seconds=3.0, duration_seconds=3.0,
+            avatar_path=avatar, avatar_box=(1000.0, 300.0, 240.0, 400.0),
+            avatar_layers_above=1,
+        ),
+        _timing(slide_index=2, audio_path=None, actor="none", start_seconds=6.0,
+                duration_seconds=3.0),
+    ]
+    output = str(tmp_path / "out.mp4")
+    args = build_ffmpeg_args(
+        concat_path=str(tmp_path / "concat.txt"),
+        image_paths=images,
+        timings=timings,
+        vtt_path=None,
+        options=VideoRenderOptions(
+            resolution="720p", subtitles_mode="none", crossfade_seconds=crossfade
+        ),
+        language_code="en",
+        output_path=output,
+        over_avatar_paths={1: above},
+    )
+    if crossfade == 0:
+        pvs._write_concat_file(
+            [type("Page", (), {"path": image}) for image in images], timings,
+            str(tmp_path / "concat.txt"),
+        )
+    asyncio.run(run_ffmpeg(args, total_duration_seconds=9.0))
+
+    covered, uncovered = (1050, 350), (1200, 650)
+    # The card is over the avatar where they overlap, the avatar elsewhere ...
+    assert _colour_at(ffmpeg, output, tmp_path, 4.5, covered) == "blue"
+    assert _colour_at(ffmpeg, output, tmp_path, 4.5, uncovered) == "red"
+    # ... and the card belongs to its slide alone.
+    assert _colour_at(ffmpeg, output, tmp_path, 1.5, covered) == "white"
+    assert _colour_at(ffmpeg, output, tmp_path, 7.5, covered) == "white"
+
+
+@pytest.mark.skipif(not pvs.ffmpeg_available(), reason="needs a real ffmpeg")
+def test_animated_slide_content_is_drawn_over_its_avatar_with_real_ffmpeg(tmp_path):
+    import subprocess
+
+    from utils.ffmpeg_utils import run_ffmpeg
+
+    ffmpeg, _, avatar, above = _make_media(tmp_path)
+    fps = 30
+    timings = [
+        _timing(slide_index=0, audio_path=None, actor="none", start_seconds=0.0,
+                duration_seconds=3.0),
+        _avatar_timing(
+            slide_index=1, audio_path=None, start_seconds=3.0, duration_seconds=3.0,
+            avatar_path=avatar, avatar_box=(1000.0, 300.0, 240.0, 400.0),
+            avatar_layers_above=1,
+        ),
+        _timing(slide_index=2, audio_path=None, actor="none", start_seconds=6.0,
+                duration_seconds=3.0),
+    ]
+    segments = plan_animated_segments(timings, [0.5, 0.5, None], fps)
+    clip = str(tmp_path / "clip.mp4")
+    subprocess.run(
+        [
+            ffmpeg, "-v", "error", "-y", "-f", "lavfi",
+            "-i", f"color=c=white:size=1920x1080:rate={fps}",
+            "-frames:v", str(sum(s.clip_frames for s in segments)), "-pix_fmt", "yuv420p", clip,
+        ],
+        check=True,
+    )
+    over_clip = str(tmp_path / "over.mov")
+    over_frames = segments[1].clip_frames
+    subprocess.run(
+        [
+            ffmpeg, "-v", "error", "-y", "-loop", "1", "-framerate", str(fps), "-i", above,
+            "-vf", "scale=1920:1080", "-frames:v", str(over_frames),
+            "-c:v", "prores_ks", "-profile:v", "4444", "-pix_fmt", "yuva444p10le", over_clip,
+        ],
+        check=True,
+    )
+    output = str(tmp_path / "out.mp4")
+    args = build_animated_ffmpeg_args(
+        clip_path=clip,
+        segments=segments,
+        timings=timings,
+        vtt_path=None,
+        options=VideoRenderOptions(subtitles_mode="none", animate=True),
+        language_code="en",
+        output_path=output,
+        over_avatar_clip=over_clip,
+        over_avatar_slots={1: (0, over_frames)},
+    )
+    asyncio.run(run_ffmpeg(args, total_duration_seconds=9.0))
+
+    covered, uncovered = (1575, 525), (1800, 975)
+    assert _colour_at(ffmpeg, output, tmp_path, 4.5, covered) == "blue"
+    assert _colour_at(ffmpeg, output, tmp_path, 4.5, uncovered) == "red"
+    assert _colour_at(ffmpeg, output, tmp_path, 1.5, covered) == "white"
+    assert _colour_at(ffmpeg, output, tmp_path, 7.5, covered) == "white"
+
+
+_LAYERED_UI = {
+    "elements": [],
+    "components": [
+        {
+            "id": "video_placeholder",
+            "position": {"x": 1000, "y": 300},
+            "elements": [
+                {
+                    "type": "image",
+                    "video_placeholder": True,
+                    "position": {"x": 0, "y": 0},
+                    "size": {"width": 240, "height": 400},
+                }
+            ],
+        },
+        {"id": "card", "elements": [{"type": "text", "text": "Over the avatar"}]},
+    ],
+}
+
+
+def _run_layered(deck, tmp_path, monkeypatch, render_layers):
+    composition_calls = []
+
+    async def fake_composition(presentation_id, cookie_header):
+        composition_calls.append(presentation_id)
+        return {
+            "slides": [
+                {"id": str(deck.slide_ids[0]), "avatar_layers": {"below": "B", "above": "A"}},
+                {"id": str(deck.slide_ids[1]), "avatar_layers": None},
+            ],
+            "chart_scripts": None,
+        }
+
+    monkeypatch.setattr(pvs, "_fetch_video_composition", fake_composition)
+    monkeypatch.setattr(pvs, "_render_avatar_layer_stills", render_layers)
+
+    async def scenario():
+        await deck.seed()
+        await _add_avatars(deck, tmp_path, {0: ("Revenue grew a lot this year.", None, 4.0)})
+        async with deck.session_maker() as session:
+            slide = await session.get(SlideModel, deck.slide_ids[0])
+            slide.ui = _LAYERED_UI
+            session.add(slide)
+            await session.commit()
+        async with deck.session_maker() as session:
+            presentation = await session.get(PresentationModel, deck.presentation_id)
+            slides = [await session.get(SlideModel, sid) for sid in deck.slide_ids]
+            return await generate_presentation_video(
+                presentation=presentation,
+                slides=slides,
+                language="en",
+                sql_session=session,
+                options=VideoRenderOptions(),
+            )
+
+    return asyncio.run(scenario()), composition_calls
+
+
+def test_still_slides_are_split_where_content_is_layered_over_the_avatar(tmp_path, monkeypatch):
+    _make_env(tmp_path, monkeypatch)
+    deck = _Deck(tmp_path)
+    calls, _ = _patched(monkeypatch, tmp_path)
+    below, above = str(tmp_path / "below-0.png"), str(tmp_path / "above-0.png")
+    asked = {}
+
+    async def render_layers(*, layers, pages, chart_scripts, options, tmp_dir):
+        asked["layers"] = layers
+        return {0: (below, above)}
+
+    result, composition_calls = _run_layered(deck, tmp_path, monkeypatch, render_layers)
+
+    assert composition_calls == [deck.presentation_id]
+    assert asked["layers"] == {0: ("B", "A")}
+    args = calls[0]
+    # The slide's picture is the part under the avatar ...
+    assert below in args
+    assert not any(arg.endswith("slide-0.png") for arg in args)
+    # ... and the part over it is overlaid after the avatar.
+    assert args[args.index(above) - 3 : args.index(above)] == ["-framerate", "30", "-i"]
+    assert args.index(above) > args.index(str(tmp_path / "avatar-0.mp4"))
+    assert "[over0]" in _filter_graph(args)
+    assert result.avatars["layered_slides"] == [0]
+    assert "layers_unavailable" not in result.avatars
+    assert not result.video.source_hash.endswith(":unlayered")
+
+
+def test_avatar_is_drawn_on_top_when_the_layers_cannot_be_rendered(tmp_path, monkeypatch):
+    _make_env(tmp_path, monkeypatch)
+    deck = _Deck(tmp_path)
+    calls, _ = _patched(monkeypatch, tmp_path)
+
+    async def render_layers(**kwargs):
+        raise pvs.AvatarLayersUnavailableError("no renderer")
+
+    result, _ = _run_layered(deck, tmp_path, monkeypatch, render_layers)
+
+    args = calls[0]
+    assert any(arg.endswith("slide-0.png") for arg in args)
+    assert "[over0]" not in _filter_graph(args)
+    assert result.avatars["layered_slides"] == []
+    assert result.avatars["layers_unavailable"] == "no renderer"
+    # Not served again as the layered video: the next request retries.
+    assert result.video.source_hash.endswith(":unlayered")
+
+
+def test_animated_slides_are_split_where_content_is_layered_over_the_avatar(tmp_path, monkeypatch):
+    _make_env(tmp_path, monkeypatch)
+    deck = _Deck(tmp_path)
+    calls, _ = _patched(monkeypatch, tmp_path)
+    _patched_animation(monkeypatch, tmp_path, deck)
+    renders = []
+
+    async def fetch(presentation_id, cookie_header):
+        return {
+            "chart_scripts": None,
+            "slides": [
+                {
+                    "id": str(slide_id),
+                    "html": f'<div data-hf-el="e0"><p>WHOLE {index}</p></div>',
+                    "elements": [{"id": "e0", "kind": "text", "box": {"x": 0, "y": 0, "width": 9, "height": 9}, "text": ""}],
+                    "avatar_layers": (
+                        {
+                            "below": '<div data-hf-el="e0"><p>BELOW</p></div>',
+                            "above": '<div data-hf-el="e1"><p>ABOVE</p></div>',
+                        }
+                        if index == 0
+                        else None
+                    ),
+                }
+                for index, slide_id in enumerate(deck.slide_ids)
+            ],
+        }
+
+    async def render(project_dir, output_path, *, fps, on_progress=None, output_format="mp4"):
+        renders.append((output_format, open(os.path.join(project_dir, "index.html")).read()))
+        open(output_path, "wb").write(b"CLIP")
+
+    monkeypatch.setattr(pvs, "_fetch_video_composition", fetch)
+    monkeypatch.setattr(pvs, "render_hyperframes_project", render)
+
+    async def seed():
+        await deck.seed()
+        await _add_avatars(deck, tmp_path, {0: ("Revenue grew a lot this year.", None, 4.0)})
+        async with deck.session_maker() as session:
+            slide = await session.get(SlideModel, deck.slide_ids[0])
+            slide.ui = _LAYERED_UI
+            session.add(slide)
+            await session.commit()
+
+    asyncio.run(seed())
+    result = _run_animated(deck)
+
+    (over_format, over_project), (main_format, main_project) = renders
+    assert over_format == "mov"
+    assert "ABOVE" in over_project and "WHOLE" not in over_project
+    assert "background:transparent" in over_project
+    assert main_format == "mp4"
+    assert "BELOW" in main_project and "WHOLE 0" not in main_project
+    assert "WHOLE 1" in main_project
+    args = calls[0]
+    over_clip = next(arg for arg in args if arg.endswith("animated-over-avatar.mov"))
+    assert args[args.index(over_clip) - 5] == "-ss"
+    assert "[over0]" in _filter_graph(args)
+    assert result.avatars["layered_slides"] == [0]

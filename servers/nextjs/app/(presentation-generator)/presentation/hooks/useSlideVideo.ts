@@ -1,11 +1,22 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { notify } from "@/components/ui/sonner";
 import type { AppDispatch, RootState } from "@/store/store";
+import { generationChanged, portraitChanged } from "@/store/slices/slideVideos";
+import {
+  SlideVideosApi,
+  type AvatarGenerationTask,
+  type AvatarPreview,
+} from "../../services/api/slide-videos";
 import {
   SlideVideoRefreshError,
+  addSlidePlaceholder,
   loadSlideVideos,
+  syncFinishedAvatars,
+  pollAvatarGeneration,
+  removeSlidePlaceholder,
   removeSlideVideo,
+  startAvatarGeneration,
   uploadSlideVideo,
 } from "../utils/slideVideoActions";
 
@@ -85,5 +96,244 @@ export function useSlideVideo(
     }
   }, [dispatch, key, presentationId]);
 
-  return { video, pending, upload, remove };
+  const addPlaceholder = useCallback(async () => {
+    if (!presentationId || !key) return;
+    try {
+      await dispatch(addSlidePlaceholder({ presentationId, slideId: key }));
+    } catch (error) {
+      notify.error(
+        "Could not add the placeholder",
+        errorMessage(error, "Try again in a moment."),
+      );
+    }
+  }, [dispatch, key, presentationId]);
+
+  const removePlaceholder = useCallback(async () => {
+    if (!presentationId || !key) return;
+    if (
+      typeof window !== "undefined" &&
+      hasVideo &&
+      !window.confirm(
+        "Remove the avatar placeholder? This also deletes the slide's video.",
+      )
+    ) {
+      return;
+    }
+    try {
+      await dispatch(removeSlidePlaceholder({ presentationId, slideId: key }));
+    } catch (error) {
+      notify.error(
+        "Could not remove the placeholder",
+        errorMessage(error, "Try again in a moment."),
+      );
+    }
+  }, [dispatch, hasVideo, key, presentationId]);
+
+  return { video, pending, upload, remove, addPlaceholder, removePlaceholder };
+}
+
+// `message` is the server's own explanation of a failure, such as the
+// provider's error text, shown under the short reason label.
+type SummaryItem = { slideIndex: number; reason: string; message?: string };
+
+export type GenerationSummary = {
+  generated: number;
+  failed: SummaryItem[];
+  skipped: SummaryItem[];
+};
+
+function summarize(task: AvatarGenerationTask): GenerationSummary {
+  const slides = task.data?.slides ?? [];
+  const itemOf = (s: (typeof slides)[number]): SummaryItem => ({
+    slideIndex: s.slide_index,
+    reason: s.reason || s.message || "unknown",
+    message: s.reason && s.message ? s.message : undefined,
+  });
+  return {
+    generated: slides.filter((s) => s.state === "done").length,
+    failed: slides.filter((s) => s.state === "failed").map(itemOf),
+    skipped: slides.filter((s) => s.state === "skipped").map(itemOf),
+  };
+}
+
+/**
+ * Deck-level avatar state: the presenter portrait, the preview of what a
+ * generation would do, and the running generation task (resumed on mount).
+ * `refreshKey` changes whenever placeholders, portrait or videos change, and
+ * the preview is fetched again.
+ */
+export function useAvatarGeneration(
+  presentationId: string | null | undefined,
+  refreshKey: string,
+) {
+  const dispatch = useDispatch<AppDispatch>();
+  const portrait = useSelector((state: RootState) => state.slideVideos.portrait);
+  const generationAvailable = useSelector(
+    (state: RootState) => state.slideVideos.generationAvailable,
+  );
+  const generation = useSelector(
+    (state: RootState) => state.slideVideos.generation,
+  );
+  const [preview, setPreview] = useState<AvatarPreview | null>(null);
+  const [language, setLanguage] = useState<string | null>(null);
+  const [summary, setSummary] = useState<GenerationSummary | null>(null);
+  const [portraitPending, setPortraitPending] = useState(false);
+  const controllerRef = useRef<AbortController | null>(null);
+  const running = generation?.status === "pending";
+
+  const previewRequestRef = useRef(0);
+  const refreshPreview = useCallback(async () => {
+    if (!presentationId) return;
+    const request = ++previewRequestRef.current;
+    try {
+      const next = await SlideVideosApi.previewGeneration(presentationId, language);
+      // Only the latest request's answer counts.
+      if (request === previewRequestRef.current) setPreview(next);
+    } catch (error) {
+      console.error("Failed to load the avatar preview:", error);
+    }
+  }, [language, presentationId]);
+
+  useEffect(() => {
+    void refreshPreview();
+  }, [refreshPreview, refreshKey]);
+
+  const follow = useCallback(
+    async (taskId: string) => {
+      if (!presentationId) return;
+      controllerRef.current?.abort();
+      const controller = new AbortController();
+      controllerRef.current = controller;
+      try {
+        const task = await dispatch(
+          pollAvatarGeneration(presentationId, taskId, controller.signal),
+        );
+        if (!task) return;
+        setSummary(summarize(task));
+        void refreshPreview();
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          notify.error(
+            "Lost track of the generation",
+            errorMessage(error, "Reload the editor to see its result."),
+          );
+        }
+      }
+    },
+    [dispatch, presentationId, refreshPreview],
+  );
+
+  // Resume a generation that was started before the panel opened.
+  useEffect(() => {
+    if (!presentationId) return;
+    let cancelled = false;
+    SlideVideosApi.latestGeneration(presentationId)
+      .then(async (task) => {
+        if (cancelled) return;
+        if (!task) {
+          dispatch(generationChanged(null));
+          return;
+        }
+        // Slides that finished while the panel was closed never reached the
+        // editor: bring them in before the task becomes the poll's baseline.
+        const done = (task.data?.slides ?? [])
+          .filter((slide) => slide.state === "done")
+          .map((slide) => slide.slide_id);
+        if (done.length > 0) {
+          await dispatch(syncFinishedAvatars(presentationId, done));
+          if (cancelled) return;
+        }
+        dispatch(generationChanged(task));
+        if (task.status === "pending") void follow(task.id);
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to load avatar generation:", error);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // `follow` changes with the language; the resume must run once per deck.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, presentationId]);
+
+  useEffect(() => () => controllerRef.current?.abort(), []);
+
+  const generate = useCallback(
+    async (slideIds: string[], force: boolean) => {
+      if (!presentationId || slideIds.length === 0) return;
+      setSummary(null);
+      try {
+        const task = await dispatch(
+          startAvatarGeneration({
+            presentationId,
+            slideIds,
+            language: language ?? preview?.language ?? null,
+            force,
+          }),
+        );
+        if (task.status === "pending") void follow(task.id);
+      } catch (error) {
+        notify.error(
+          "Could not start the generation",
+          errorMessage(error, "Try again in a moment."),
+        );
+      }
+    },
+    [dispatch, follow, language, preview, presentationId],
+  );
+
+  const uploadPortrait = useCallback(
+    async (file: File) => {
+      if (!presentationId) return;
+      setPortraitPending(true);
+      try {
+        dispatch(
+          portraitChanged(await SlideVideosApi.uploadPortrait(presentationId, file)),
+        );
+        void refreshPreview();
+      } catch (error) {
+        notify.error(
+          "Portrait upload failed",
+          errorMessage(error, "The image could not be uploaded."),
+        );
+      } finally {
+        setPortraitPending(false);
+      }
+    },
+    [dispatch, presentationId, refreshPreview],
+  );
+
+  const removePortrait = useCallback(async () => {
+    if (!presentationId) return;
+    setPortraitPending(true);
+    try {
+      await SlideVideosApi.deletePortrait(presentationId);
+      dispatch(portraitChanged(null));
+      void refreshPreview();
+    } catch (error) {
+      notify.error(
+        "Could not remove the portrait",
+        errorMessage(error, "Try again in a moment."),
+      );
+    } finally {
+      setPortraitPending(false);
+    }
+  }, [dispatch, presentationId, refreshPreview]);
+
+  return {
+    refreshPreview,
+    portrait,
+    portraitPending,
+    generationAvailable,
+    generation,
+    running,
+    preview,
+    language,
+    setLanguage,
+    summary,
+    dismissSummary: () => setSummary(null),
+    generate,
+    uploadPortrait,
+    removePortrait,
+  };
 }

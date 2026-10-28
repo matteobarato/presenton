@@ -1,28 +1,41 @@
+import asyncio
+import os
+import struct
 import uuid
 from datetime import datetime, timedelta, timezone
 
 import pytest
+from fastapi import HTTPException, UploadFile
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from models.slide_video_response import StageBox
-from models.sql.presentation import PresentationModel
+from models.sql.presentation import PresentationModel, PresentationVersion
 from models.sql.slide import SlideModel
 from models.sql.slide_video import SlideVideoModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
+from services.presentation_video_service import _timing_presenter
 from services.speaker_note_tts_service import note_digest
 from services.slide_video_service import (
     InvalidStageBoxError,
+    SlideActor,
+    AVATAR_FIT,
     avatar_box,
-    avatar_fit,
     avatar_stale_reason,
     default_placeholder_box,
+    delete_slide_videos,
     ensure_video_placeholder,
     find_video_placeholder,
+    find_video_placeholder_box,
     is_template_slide,
-    placeholder_box,
     remove_video_placeholder,
     resolve_bubble,
     resolve_slide_actors,
+    remove_slide_placeholder,
+    save_slide_video,
     set_bubble,
+    set_video_placeholder,
+    slide_video_response,
+    store_slide_video_bytes,
     slide_videos_response,
 )
 
@@ -68,8 +81,8 @@ def test_a_layout_made_only_of_components_is_a_template_slide():
     )
 
     placed = ensure_video_placeholder(ui, video_width=1280, video_height=720)
-    assert placed["components"] == ui["components"]
-    assert placed["elements"][0]["video_placeholder"] is True
+    assert placed["components"][0] == ui["components"][0]
+    assert placed["components"][1]["elements"][0]["video_placeholder"] is True
 
 
 def test_finds_a_placeholder_nested_in_components_but_not_plain_images():
@@ -83,6 +96,24 @@ def test_finds_a_placeholder_nested_in_components_but_not_plain_images():
     assert find_video_placeholder(ui) is nested
     assert find_video_placeholder(_ui(image)) is None
     assert find_video_placeholder(None) is None
+
+
+def test_the_stage_box_adds_up_the_positions_the_placeholder_is_placed_in():
+    nested = _placeholder(x=5, y=6, width=300, height=200)
+    ui = _ui(
+        components=[
+            {
+                "id": "c",
+                "position": {"x": 100, "y": 50},
+                "elements": [
+                    {"type": "group", "position": {"x": 10, "y": 20}, "children": [nested]}
+                ],
+            }
+        ],
+    )
+
+    assert _box(find_video_placeholder_box(ui)) == (115, 76, 300, 200)
+    assert find_video_placeholder_box(_ui()) is None
 
 
 def test_default_placeholder_follows_the_video_shape_within_limits():
@@ -102,22 +133,63 @@ def test_ensure_adds_a_placeholder_once_and_returns_a_new_dict():
 
     assert first is not ui
     assert ui["elements"] == [{"type": "text", "runs": []}]
-    assert len(first["elements"]) == 2
-    assert first["elements"][-1]["video_placeholder"] is True
-    assert first["elements"][-1]["data"].endswith("/static/images/video-placeholder.png")
+    assert first["elements"] == ui["elements"]
+    # On top of the slide, in a component of its own placed at the box.
+    component = first["components"][-1]
+    assert component["id"] == "video_placeholder"
+    assert component["position"] == {"x": 936, "y": 516}
+    [placeholder] = component["elements"]
+    assert placeholder["video_placeholder"] is True
+    assert placeholder["position"] == {"x": 0, "y": 0}
+    assert placeholder["data"].endswith("/static/images/video-placeholder.png")
+    assert placeholder["fit"] == "cover"
+    assert _box(find_video_placeholder_box(first)) == (936, 516, 320, 180)
     assert second == first
     assert second is not first
 
 
 def test_ensure_keeps_an_existing_placeholder_and_applies_given_coordinates():
-    ui = _ui(_placeholder(x=10, y=20, width=300, height=200))
+    ui = _ui({**_placeholder(x=10, y=20, width=300, height=200), "fit": "fill"})
 
     kept = ensure_video_placeholder(ui, video_width=1920, video_height=1080)
     moved = ensure_video_placeholder(ui, x=100, height=150)
 
-    assert _box(placeholder_box(find_video_placeholder(kept))) == (10, 20, 300, 200)
-    assert _box(placeholder_box(find_video_placeholder(moved))) == (100, 20, 300, 150)
-    assert len(moved["elements"]) == 1
+    assert _box(find_video_placeholder_box(kept)) == (10, 20, 300, 200)
+    # Placeholders made before avatars always covered stored `fill`.
+    assert find_video_placeholder(kept)["fit"] == "cover"
+    assert _box(find_video_placeholder_box(moved)) == (100, 20, 300, 150)
+    assert len(moved["components"]) == 1
+
+
+def test_ensure_lifts_a_root_placeholder_into_a_component_on_top():
+    text = {"type": "text", "runs": []}
+    below = {"id": "c", "elements": []}
+    ui = _ui(text, _placeholder(x=10, y=20, width=300, height=200), components=[below])
+
+    lifted = ensure_video_placeholder(ui)
+
+    assert lifted["elements"] == [text]
+    assert lifted["components"][0] == below
+    assert lifted["components"][1]["id"] == "video_placeholder"
+    assert lifted["components"][1]["position"] == {"x": 10, "y": 20}
+    assert _box(find_video_placeholder_box(lifted)) == (10, 20, 300, 200)
+
+
+def test_ensure_moves_a_placeholder_in_stage_pixels_and_keeps_its_layer():
+    above = {"id": "above", "elements": []}
+    placeholder = _placeholder(x=0, y=0, width=300, height=200)
+    ui = _ui(
+        components=[
+            {"id": "video_placeholder", "position": {"x": 40, "y": 30}, "elements": [placeholder]},
+            above,
+        ]
+    )
+
+    moved = ensure_video_placeholder(ui, x=100, y=50)
+
+    assert _box(find_video_placeholder_box(moved)) == (100, 50, 300, 200)
+    assert moved["components"][0]["position"] == {"x": 40, "y": 30}
+    assert moved["components"][1] == above
 
 
 @pytest.mark.parametrize(
@@ -150,8 +222,9 @@ def test_remove_takes_out_every_placeholder_and_leaves_the_rest():
 
     assert find_video_placeholder(cleaned) is None
     assert cleaned["elements"] == [text]
-    assert cleaned["components"][0]["elements"] == []
-    assert cleaned["components"][1]["child"] is None
+    # The placeholder's own component goes with it.
+    assert [component["id"] for component in cleaned["components"]] == ["d"]
+    assert cleaned["components"][0]["child"] is None
     # The original is left alone.
     assert find_video_placeholder(ui) is not None
 
@@ -437,15 +510,260 @@ def test_avatar_box_is_the_slides_placeholder_when_it_has_one():
     assert _box(avatar_box(slide, _avatar(slide, language="it"))) == (10, 20, 300, 200)
 
 
-def test_avatar_fit_mirrors_the_editor():
-    def fit_of(**props):
-        slide = _slide("nota")
-        slide.ui = _ui({**_placeholder(), **props})
-        return avatar_fit(slide)
+def test_avatars_cover_their_placeholder_whatever_fit_it_stored(tmp_path):
+    # No control sets a placeholder's fit, and placeholders made before avatars
+    # always covered stored `fill`, which stretched the face in the export.
+    slide = _slide("nota")
+    slide.ui = _ui({**_placeholder(width=240, height=400), "fit": "fill"})
+    video = _avatar(slide, language="it")
+    video.path = str(tmp_path / "avatar.mp4")
+    open(video.path, "wb").close()
 
-    assert fit_of(fit="fill") == "fill"
-    assert fit_of(fit="cover") == "cover"
-    assert fit_of(fit="contain") == "contain"
-    assert fit_of() == "contain"
-    assert fit_of(fit="stretch") == "contain"
-    assert avatar_fit(_slide("nota")) == "contain"  # no placeholder at all
+    presenter = _timing_presenter(
+        slide, SlideActor(slide, "video", None, video), "/tmp/a.mp3", True
+    )
+
+    assert AVATAR_FIT == "cover"
+    assert presenter["avatar_fit"] == "cover"
+
+
+# --- source column and byte storage ---
+
+
+def _mp4_bytes() -> bytes:
+    ftyp = b"isom\x00\x00\x02\x00isomiso2mp41"
+    return struct.pack(">I", 8 + len(ftyp)) + b"ftyp" + ftyp + b"\x00" * 32
+
+
+def _run_with_deck(tmp_path, monkeypatch, scenario):
+    """Run `scenario(session, presentation, slide)` against a throwaway database."""
+    monkeypatch.setenv("APP_DATA_DIRECTORY", str(tmp_path / "app_data"))
+    monkeypatch.delenv("NEXT_PUBLIC_FAST_API", raising=False)
+    monkeypatch.delenv("SLIDE_VIDEO_MAX_UPLOAD_MB", raising=False)
+
+    async def run():
+        engine = create_async_engine(f"sqlite+aiosqlite:///{tmp_path / 'svc.db'}")
+        try:
+            async with engine.begin() as connection:
+                for model in (
+                    PresentationModel,
+                    SlideModel,
+                    SpeakerNoteAudioModel,
+                    SlideVideoModel,
+                ):
+                    await connection.run_sync(model.__table__.create)
+            presentation = PresentationModel(
+                id=uuid.uuid4(),
+                version=PresentationVersion.V2_STANDARD,
+                content="Deck",
+                n_slides=1,
+                language="Italian",
+                title="Deck",
+            )
+            slide = SlideModel(
+                id=uuid.uuid4(),
+                presentation=presentation.id,
+                layout_group="general",
+                layout="title",
+                index=0,
+                content={},
+                speaker_note="Ciao a tutti.",
+                ui=_ui(),
+            )
+            async with async_sessionmaker(engine, expire_on_commit=False)() as session:
+                session.add(presentation)
+                session.add(slide)
+                await session.commit()
+                return await scenario(session, presentation, slide)
+        finally:
+            await engine.dispose()
+
+    return asyncio.run(run())
+
+
+def test_store_slide_video_bytes_sets_source_and_hash(tmp_path, monkeypatch):
+    from utils.asset_directory_utils import get_videos_directory
+    from utils.video_files import store_video_bytes
+
+    async def scenario(session, presentation, slide):
+        stored = store_video_bytes(
+            _mp4_bytes(),
+            directory=os.path.join(get_videos_directory(), str(presentation.id)),
+            stem="gen",
+            max_bytes=1024 * 1024,
+        )
+        video = await store_slide_video_bytes(
+            sql_session=session,
+            presentation=presentation,
+            slide=slide,
+            stored=stored,
+            original_filename=None,
+            language="it",
+            source_note_hash="abc123",
+            source="heygen",
+        )
+        return video, slide
+
+    video, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
+
+    assert video.source == "heygen"
+    assert video.source_note_hash == "abc123"
+    assert video.language == "it"
+    assert find_video_placeholder(slide.ui) is not None
+    assert os.path.exists(video.path)
+
+
+def test_upload_sets_source_upload(tmp_path, monkeypatch):
+    import io
+
+    async def scenario(session, presentation, slide):
+        file = UploadFile(file=io.BytesIO(_mp4_bytes()), filename="avatar.mp4")
+        return await save_slide_video(
+            sql_session=session, presentation=presentation, slide=slide, file=file
+        )
+
+    video = _run_with_deck(tmp_path, monkeypatch, scenario)
+
+    assert video.source == "upload"
+    assert video.source_note_hash == note_digest("Ciao a tutti.")
+
+
+def test_response_source_defaults_to_upload_for_null():
+    slide = _slide("nota")
+    video = _avatar(slide, language=None)
+    assert video.source is None
+
+    assert slide_video_response(video, slide).source == "upload"
+    video.source = "heygen"
+    assert slide_video_response(video, slide).source == "heygen"
+
+
+def test_store_video_bytes_rejects_non_video(tmp_path):
+    from utils.video_files import store_video_bytes
+
+    with pytest.raises(HTTPException) as caught:
+        store_video_bytes(
+            b"not a video at all", directory=str(tmp_path), stem="x", max_bytes=1024
+        )
+
+    assert caught.value.status_code == 400
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_store_video_bytes_rejects_empty_and_oversize(tmp_path):
+    from utils.video_files import store_video_bytes
+
+    with pytest.raises(HTTPException) as empty:
+        store_video_bytes(b"", directory=str(tmp_path), stem="x", max_bytes=1024)
+    assert empty.value.status_code == 400
+    assert empty.value.detail == "Uploaded video file is empty"
+
+    with pytest.raises(HTTPException) as big:
+        store_video_bytes(
+            _mp4_bytes(), directory=str(tmp_path), stem="x", max_bytes=8
+        )
+    assert big.value.status_code == 413
+    assert "upload limit" in big.value.detail
+    assert list(tmp_path.iterdir()) == []
+
+
+# --- placeholders that outlive their video ---
+
+
+async def _add_video(session, presentation, slide):
+    from utils.asset_directory_utils import get_videos_directory
+    from utils.video_files import store_video_bytes
+
+    stored = store_video_bytes(
+        _mp4_bytes(),
+        directory=os.path.join(get_videos_directory(), str(presentation.id)),
+        stem="gen",
+        max_bytes=1024 * 1024,
+    )
+    return await store_slide_video_bytes(
+        sql_session=session,
+        presentation=presentation,
+        slide=slide,
+        stored=stored,
+        original_filename=None,
+        language="it",
+        source_note_hash="abc",
+        source="upload",
+    )
+
+
+def test_delete_video_keeps_placeholder(tmp_path, monkeypatch):
+    async def scenario(session, presentation, slide):
+        video = await _add_video(session, presentation, slide)
+        deleted = await delete_slide_videos(
+            session, presentation_id=presentation.id, slides=[slide]
+        )
+        return deleted, video.path, slide
+
+    deleted, path, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
+
+    assert deleted == 1
+    assert not os.path.exists(path)
+    assert find_video_placeholder(slide.ui) is not None
+
+
+def test_set_placeholder_adds_default_box(tmp_path, monkeypatch):
+    async def scenario(session, presentation, slide):
+        box = await set_video_placeholder(session, slide)
+        return box, slide
+
+    box, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
+
+    assert _box(box) == _box(default_placeholder_box(None, None))
+    assert _box(find_video_placeholder_box(slide.ui)) == _box(box)
+
+
+def test_set_placeholder_moves_existing(tmp_path, monkeypatch):
+    async def scenario(session, presentation, slide):
+        await set_video_placeholder(session, slide)
+        box = await set_video_placeholder(session, slide, x=100, y=50)
+        return box, slide
+
+    box, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
+
+    default = default_placeholder_box(None, None)
+    assert _box(box) == (100, 50, default.size.width, default.size.height)
+    assert sum(
+        1
+        for component in slide.ui["components"]
+        if component.get("id") == "video_placeholder"
+    ) == 1
+
+
+def test_remove_placeholder_deletes_video_and_file(tmp_path, monkeypatch):
+    async def scenario(session, presentation, slide):
+        video = await _add_video(session, presentation, slide)
+        removed = await remove_slide_placeholder(
+            session, presentation_id=presentation.id, slide=slide
+        )
+        again = await remove_slide_placeholder(
+            session, presentation_id=presentation.id, slide=slide
+        )
+        remaining = await session.get(SlideVideoModel, video.id)
+        return removed, again, video.path, remaining, slide
+
+    removed, again, path, remaining, slide = _run_with_deck(
+        tmp_path, monkeypatch, scenario
+    )
+
+    assert removed is True
+    assert again is False
+    assert remaining is None
+    assert not os.path.exists(path)
+    assert find_video_placeholder(slide.ui) is None
+
+
+def test_empty_placeholder_resolves_voice():
+    slide = _slide("Ciao.")
+    slide.ui = _ui(_placeholder())
+    audio = _narration(slide, language="it", updated_at=_UPLOADED_AT)
+
+    actor = _actors(slide, audio=audio)
+
+    assert actor.actor == "voice"
+    assert actor.video is None

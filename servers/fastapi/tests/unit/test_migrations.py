@@ -957,7 +957,7 @@ def test_database_at_either_video_head_upgrades_to_head(tmp_path, monkeypatch, s
             tables = _table_names(connection)
 
         assert version == migrations.REVISION_HEAD
-        assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_VIDEO_LANGUAGE
+        assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_VIDEO_SOURCE
         assert {"slide_videos", "presentation_videos"} <= tables
     finally:
         engine.dispose()
@@ -981,7 +981,6 @@ def _slide_video_columns(connection) -> set[str]:
 def test_slide_video_language_revision_sits_on_the_video_merge():
     script = ScriptDirectory.from_config(_alembic_config("sqlite://"))
 
-    assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_VIDEO_LANGUAGE
     assert (
         script.get_revision(migrations.REVISION_SLIDE_VIDEO_LANGUAGE).down_revision
         == migrations.REVISION_VIDEOS_MERGE
@@ -1037,6 +1036,41 @@ def test_slide_video_language_upgrade_skips_an_existing_column(tmp_path):
         engine.dispose()
 
 
+def test_slide_video_source_revision_sits_on_the_language_revision():
+    script = ScriptDirectory.from_config(_alembic_config("sqlite://"))
+
+    assert migrations.REVISION_SLIDE_VIDEO_SOURCE == "f6a8b0c2d4e6"
+    assert migrations.REVISION_HEAD == "f6a8b0c2d4e6"
+    assert (
+        script.get_revision(migrations.REVISION_SLIDE_VIDEO_SOURCE).down_revision
+        == migrations.REVISION_SLIDE_VIDEO_LANGUAGE
+    )
+
+
+def test_slide_video_source_is_added_nullable_and_dropped_on_downgrade(tmp_path):
+    database_url = f"sqlite:///{tmp_path / 'video-source.db'}"
+    config = _alembic_config(database_url)
+    engine = create_engine(database_url)
+    try:
+        command.upgrade(config, migrations.REVISION_SLIDE_VIDEO_LANGUAGE)
+        with engine.connect() as connection:
+            assert "source" not in _slide_video_columns(connection)
+
+        command.upgrade(config, migrations.REVISION_SLIDE_VIDEO_SOURCE)
+        with engine.connect() as connection:
+            info = {
+                row[1]: row
+                for row in connection.execute(text("PRAGMA table_info(slide_videos)"))
+            }
+        assert info["source"][3] == 0  # nullable: earlier rows are uploads
+
+        command.downgrade(config, migrations.REVISION_SLIDE_VIDEO_LANGUAGE)
+        with engine.connect() as connection:
+            assert "source" not in _slide_video_columns(connection)
+    finally:
+        engine.dispose()
+
+
 def _version(engine):
     with engine.connect() as connection:
         return connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
@@ -1056,6 +1090,7 @@ def _set_version(engine, revision):
         migrations.REVISION_PRESENTATION_VIDEOS,
         migrations.REVISION_VIDEOS_MERGE,
         migrations.REVISION_SLIDE_VIDEO_LANGUAGE,
+        migrations.REVISION_SLIDE_VIDEO_SOURCE,
     ],
 )
 def test_an_unknown_revision_is_restamped_where_the_schema_really_is(

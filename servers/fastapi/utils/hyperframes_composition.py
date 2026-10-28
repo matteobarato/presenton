@@ -228,8 +228,15 @@ def build_composition_html(
     width: int,
     height: int,
     chart_scripts: Optional[str] = None,
+    transparent: bool = False,
 ) -> str:
+    """The composition page. `transparent` leaves everything the slides do not
+    paint see-through, for a layer rendered with alpha; HyperFrames would not
+    clear the page's own backgrounds itself."""
     total_seconds = sum(slide.duration_seconds for slide in slides)
+    page_background, root_background = (
+        ("transparent", "transparent") if transparent else ("#000", "#fff")
+    )
     scale = width / SLIDE_WIDTH
     sections = "".join(
         f'<section id="s{slide.slide_index}" class="clip" '
@@ -245,10 +252,11 @@ def build_composition_html(
         f'<meta name="viewport" content="width={width}, height={height}">'
         '<script src="vendor/gsap.min.js"></script>'
         "<style>"
-        "html,body{margin:0;background:#000}"
+        f"html,body{{margin:0;background:{page_background}}}"
         "body{font-family:Arial,Helvetica,sans-serif}"
         "*,*::before,*::after{box-sizing:border-box}"
-        f"#root{{position:relative;width:{width}px;height:{height}px;overflow:hidden;background:#fff}}"
+        f"#root{{position:relative;width:{width}px;height:{height}px;overflow:hidden;"
+        f"background:{root_background}}}"
         "#root>.clip{position:absolute;inset:0;overflow:hidden}"
         f".hf-slide{{position:absolute;left:0;top:0;width:{SLIDE_WIDTH}px;height:{SLIDE_HEIGHT}px;"
         f"transform-origin:0 0;transform:scale({scale:g})}}"
@@ -271,12 +279,17 @@ def write_hyperframes_project(
     gsap_path: str,
     chart_scripts: Optional[str] = None,
     resolver: AssetResolver = resolve_local_asset,
+    transparent: bool = False,
 ) -> str:
     """Write `index.html`, GSAP and every local asset into `project_dir`."""
     os.makedirs(os.path.join(project_dir, "vendor"), exist_ok=True)
     shutil.copyfile(gsap_path, os.path.join(project_dir, "vendor", "gsap.min.js"))
     markup = build_composition_html(
-        slides, width=width, height=height, chart_scripts=chart_scripts
+        slides,
+        width=width,
+        height=height,
+        chart_scripts=chart_scripts,
+        transparent=transparent,
     )
     markup = localize_assets(markup, os.path.join(project_dir, "assets"), resolver)
     index_path = os.path.join(project_dir, "index.html")

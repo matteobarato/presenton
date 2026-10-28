@@ -1,8 +1,13 @@
-// Render one HyperFrames project directory to a silent MP4.
+// Render one HyperFrames project directory to a silent MP4, or, with a
+// `format` that keeps alpha, to a layer drawn over other video.
 //
 // Usage: node render.mjs <task.json>
 //
-// task.json: { "projectDir", "outputPath", "fps", "quality", "workers"?, "crf"? }
+// task.json: { "projectDir", "outputPath", "fps", "quality", "workers"?, "crf"?,
+//              "format"? }
+//
+// `format` is "mp4" (the default), "mov" (ProRes 4444 with alpha) or
+// "png-sequence" (RGBA `frame_NNNNNN.png` files in the `outputPath` directory).
 //
 // Progress goes to stdout as `PROGRESS <percent> <message>` lines, which the
 // FastAPI video service parses; everything else the producer logs is left on
@@ -13,6 +18,7 @@ import { readFile } from "node:fs/promises";
 import { createRenderJob, executeRenderJob } from "@hyperframes/producer";
 
 const QUALITIES = new Set(["draft", "standard", "high"]);
+const FORMATS = new Set(["mp4", "mov", "png-sequence"]);
 
 async function main() {
   const taskPath = process.argv[2];
@@ -26,7 +32,9 @@ async function main() {
   const fps = Number(task.fps) || 30;
   const quality = QUALITIES.has(task.quality) ? task.quality : "standard";
 
-  const config = { fps, quality, format: "mp4" };
+  const format = FORMATS.has(task.format) ? task.format : "mp4";
+
+  const config = { fps, quality, format };
   // Each worker is its own Chrome; left unset the producer sizes the pool
   // from the machine, which a shared server may want to cap.
   if (Number.isInteger(task.workers) && task.workers > 0) config.workers = task.workers;

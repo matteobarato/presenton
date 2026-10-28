@@ -53,6 +53,8 @@ class SlideVideoResponse(BaseModel):
     height: Optional[int] = None
     # The narration language the avatar was synced to; null = any language.
     language: Optional[str] = None
+    # Who made the video; videos saved before the column existed are uploads.
+    source: Literal["upload", "heygen"] = "upload"
     # The avatar no longer matches the narration it was made from: the speaker
     # note changed after it was made (`note_changed`), or the slide's audio in
     # its language was regenerated since (`audio_regenerated`). `stale` is
@@ -64,11 +66,26 @@ class SlideVideoResponse(BaseModel):
     updated_at: datetime
 
 
+class PortraitResponse(BaseModel):
+    """The deck's presenter portrait, the picture avatars are lip-synced from."""
+
+    url: str
+    mime_type: str
+    width: int
+    height: int
+    size_bytes: int
+    updated_at: datetime
+
+
 class SlideVideosResponse(BaseModel):
     """A deck's avatar videos in slide order."""
 
     presentation_id: uuid.UUID
     total_duration_seconds: Optional[float] = None
+    # The deck's presenter portrait, null until one is uploaded.
+    portrait: Optional[PortraitResponse] = None
+    # Whether the server can generate avatars (a HeyGen key is set).
+    generation_available: bool = False
     videos: List[SlideVideoResponse]
 
 

@@ -1,3 +1,5 @@
+import { withoutVideoPlaceholder } from "@/components/slide-editor/video/video-placeholder";
+
 export type TemplateV2ClipboardRecord = Record<string, unknown>;
 
 export type TemplateV2ClipboardBox = {
@@ -74,7 +76,12 @@ export function pasteTemplateV2ClipboardPayload<
   const componentIndexes: number[] = [];
 
   items.forEach((item) => {
-    const component = cloneJson(item.data);
+    // A slide has one video placeholder, so a copy leaves it behind, and a
+    // component that held nothing else is not pasted at all.
+    const [component] = readArray(
+      withoutVideoPlaceholder({ components: [cloneJson(item.data)] }).components,
+    );
+    if (!isRecord(component)) return;
     const box = item.absoluteBox;
     const componentIndex = components.length;
     componentIndexes.push(componentIndex);
@@ -83,6 +90,8 @@ export function pasteTemplateV2ClipboardPayload<
       position: { x: box.x + offset, y: box.y + offset },
     });
   });
+
+  if (componentIndexes.length === 0) return null;
 
   return {
     ui: { ...sourceUi, components } as TUi,

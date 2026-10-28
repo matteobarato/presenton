@@ -49,6 +49,7 @@ class SlideVideoModel(SQLModel, table=True):
     # code. Null means "any language": rows uploaded before the column existed,
     # and uploads to a deck whose narration language was ambiguous.
     language: Optional[str] = None
+    source: Optional[str] = None
     original_filename: Optional[str] = None
     path: str
     url: str
