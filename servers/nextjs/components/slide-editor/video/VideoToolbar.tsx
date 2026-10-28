@@ -1,11 +1,15 @@
 "use client";
 
-import { useRef } from "react";
-import { Loader2, Replace, Trash2, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2, Replace, Scan, Trash2, Upload } from "lucide-react";
 import {
   FloatingToolbar,
   type FloatingToolbarBox,
 } from "@/components/slide-editor/toolbar/FloatingToolbar";
+import {
+  averageBorderRadius,
+  uniformBorderRadius,
+} from "@/components/slide-editor/model/element-model";
 import { SLIDE_VIDEO_ACCEPT } from "@/app/(presentation-generator)/services/api/slide-videos";
 import { useSlideVideo } from "@/app/(presentation-generator)/presentation/hooks/useSlideVideo";
 
@@ -13,10 +17,14 @@ import { useSlideVideo } from "@/app/(presentation-generator)/presentation/hooks
 // video placeholder: its poster is not meant to be swapped or cropped.
 export function VideoToolbar({
   anchorBox,
+  element,
+  onElementChange,
   presentationId,
   slideId,
 }: {
   anchorBox: FloatingToolbarBox;
+  element: { size?: { width?: number; height?: number } | null; border_radius?: unknown };
+  onElementChange: (patch: { border_radius: ReturnType<typeof uniformBorderRadius> }) => void;
   presentationId?: string;
   slideId?: string | number | null;
 }) {
@@ -26,6 +34,22 @@ export function VideoToolbar({
     slideId,
   );
   const busy = pending !== null;
+  const [radiusOpen, setRadiusOpen] = useState(false);
+  const maxRadius = Math.max(
+    0.01,
+    Math.min(element.size?.width ?? 1, element.size?.height ?? 1) / 2,
+  );
+  const radius = Math.min(
+    maxRadius,
+    averageBorderRadius(element.border_radius as never),
+  );
+  const [radiusDraft, setRadiusDraft] = useState(radius);
+  useEffect(() => setRadiusDraft(radius), [radius]);
+  const commitRadius = (value: number) => {
+    const next = Math.min(maxRadius, Math.max(0, value));
+    setRadiusDraft(next);
+    onElementChange({ border_radius: uniformBorderRadius(next) });
+  };
 
   return (
     <FloatingToolbar
@@ -77,6 +101,49 @@ export function VideoToolbar({
               </button>
             </>
           ) : null}
+          <span aria-hidden="true" className="h-5 w-px bg-[#EDEEEF]" />
+          <div className="relative">
+            <button
+              type="button"
+              title="Video border radius"
+              aria-label="Video border radius"
+              aria-pressed={radiusOpen}
+              onClick={() => setRadiusOpen((open) => !open)}
+              className={`flex h-8 items-center rounded-[6px] px-2 hover:bg-[#F6F6F9] ${radiusOpen ? "bg-[#F4F1FF] text-[#7C3AED]" : ""}`}
+            >
+              <Scan size={16} strokeWidth={1.7} aria-hidden="true" />
+            </button>
+            {radiusOpen ? (
+              <div className="absolute left-1/2 top-[calc(100%+8px)] z-10 box-border w-[220px] -translate-x-1/2 rounded-lg bg-white p-3 shadow-[0_0_4px_rgba(0,0,0,0.16)]">
+                <label className="block text-[12px] font-medium text-[#4B5563]">
+                  <span className="mb-2 flex items-center justify-between">
+                    <span>Border radius</span>
+                    <span className="font-medium text-[#191919]">
+                      {Number(radiusDraft.toFixed(1))}
+                    </span>
+                  </span>
+                  <input
+                    aria-label="Video border radius"
+                    type="range"
+                    min={0}
+                    max={maxRadius}
+                    step={Math.max(0.01, maxRadius / 100)}
+                    value={radiusDraft}
+                    onChange={(event) =>
+                      setRadiusDraft(Number(event.currentTarget.value))
+                    }
+                    onKeyUp={(event) =>
+                      commitRadius(Number(event.currentTarget.value))
+                    }
+                    onPointerUp={(event) =>
+                      commitRadius(Number(event.currentTarget.value))
+                    }
+                    className="w-full cursor-pointer accent-[#7A5AF8]"
+                  />
+                </label>
+              </div>
+            ) : null}
+          </div>
         </>
       )}
     </FloatingToolbar>

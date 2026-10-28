@@ -478,6 +478,7 @@ def test_avatars_flag_reaches_the_renderer_and_the_summary_comes_back(
         "stale": [],
         "skipped": [{"slide_index": 0, "reason": "disabled"}],
         "duration_mismatch": [],
+        "silent": [],
     }
 
     async def fake_generate(*, presentation, sql_session, options=None, **_kwargs):

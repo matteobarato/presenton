@@ -1,8 +1,8 @@
 """The "speaker is talking" bubble drawn at the deck's bubble box on a video.
 
-The bubble sits in the deck's bubble box (bottom-right unless the author moved
-it), the same box the player shows it in, so the MP4 and the web playback put
-it in the same place. It is a small round bubble with sound-wave bars that
+The bubble is centred in the deck's bubble box (bottom-right unless the author
+moved it), the same spot the player shows it in, but drawn at half the box's
+size: on a video the bubble is a discreet cue, not a second presenter. It is a small round bubble with sound-wave bars that
 move in a seamless loop. It is not part of any slide: ffmpeg overlays it on
 the finished picture, so it keeps moving while a slide is held still for its
 narration (the slide frames themselves are a single repeated image then).
@@ -29,6 +29,8 @@ FRAME_PATTERN = "indicator-%03d.png"
 # to keep this module a drawing helper that depends on Pillow alone.
 _STAGE_WIDTH = 1280
 _STAGE_HEIGHT = 720
+# The bubble's diameter as a fraction of the bubble box's shorter side.
+BUBBLE_SCALE = 0.5
 _SHADOW_RATIO = 0.14
 _LOOP_SECONDS = 1.2
 _SUPERSAMPLE = 4
@@ -53,6 +55,12 @@ class SpeakerIndicatorFrames:
     size: int
     x: int
     y: int
+    # Just the round bubble, without the room for its shadow.
+    diameter: int = 0
+
+    @property
+    def centre(self) -> tuple[float, float]:
+        return self.x + self.size / 2, self.y + self.size / 2
 
 
 def _even(value: float) -> int:
@@ -114,13 +122,15 @@ def write_speaker_indicator_frames(
 ) -> SpeakerIndicatorFrames:
     """Draw one seamless loop of the bubble into `directory`.
 
-    `box` is `(x, y, w, h)` in stage pixels. The bubble's diameter is the box's
-    shorter side and it is centred in the box, so a non-square box never
-    stretches the circle.
+    `box` is `(x, y, w, h)` in stage pixels. The bubble's diameter is
+    `BUBBLE_SCALE` of the box's shorter side and it is centred in the box, so a
+    non-square box never stretches the circle.
     """
     box_x, box_y, box_width, box_height = box
     os.makedirs(directory, exist_ok=True)
-    diameter = _even(min(box_width, box_height) * height / _STAGE_HEIGHT)
+    diameter = _even(
+        min(box_width, box_height) * BUBBLE_SCALE * height / _STAGE_HEIGHT
+    )
     padding = _even(diameter * _SHADOW_RATIO)
     centre_x = (box_x + box_width / 2) * width / _STAGE_WIDTH
     centre_y = (box_y + box_height / 2) * height / _STAGE_HEIGHT
@@ -136,4 +146,5 @@ def write_speaker_indicator_frames(
         size=size,
         x=int(round(centre_x - size / 2)),
         y=int(round(centre_y - size / 2)),
+        diameter=diameter,
     )

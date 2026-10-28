@@ -1035,3 +1035,68 @@ def test_slide_video_language_upgrade_skips_an_existing_column(tmp_path):
             )
     finally:
         engine.dispose()
+
+
+def _version(engine):
+    with engine.connect() as connection:
+        return connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
+
+
+def _set_version(engine, revision):
+    with engine.begin() as connection:
+        connection.execute(text("UPDATE alembic_version SET version_num = :r"), {"r": revision})
+
+
+@pytest.mark.parametrize(
+    "schema_at",
+    [
+        migrations.REVISION_UNIFIED_API_KEYS,
+        migrations.REVISION_SPEAKER_NOTE_AUDIOS,
+        migrations.REVISION_SLIDE_VIDEOS,
+        migrations.REVISION_PRESENTATION_VIDEOS,
+        migrations.REVISION_VIDEOS_MERGE,
+        migrations.REVISION_SLIDE_VIDEO_LANGUAGE,
+    ],
+)
+def test_an_unknown_revision_is_restamped_where_the_schema_really_is(
+    tmp_path, monkeypatch, schema_at
+):
+    """An image that does not know the database's revision (an older build, or
+    another branch's) re-stamps it from the live schema. Inferring anything
+    older than the schema makes the upgrade re-create tables that exist, and
+    the bad stamp then breaks every later start too."""
+    database_url = f"sqlite:///{tmp_path / 'orphan.db'}"
+    monkeypatch.setattr(
+        migrations, "get_database_url_and_connect_args", lambda: (database_url, {})
+    )
+    engine = create_engine(database_url)
+    try:
+        command.upgrade(_alembic_config(database_url), schema_at)
+        _set_version(engine, "0123456789ab")
+
+        migrations._run_migrations()
+
+        assert _version(engine) == migrations.REVISION_HEAD
+    finally:
+        engine.dispose()
+
+
+def test_a_database_stamped_below_its_schema_still_upgrades(tmp_path, monkeypatch):
+    """Databases already re-stamped too low by the old inference (schema at
+    head, version at the template-v2 theme revision) must start again."""
+    database_url = f"sqlite:///{tmp_path / 'too-low.db'}"
+    monkeypatch.setattr(
+        migrations, "get_database_url_and_connect_args", lambda: (database_url, {})
+    )
+    engine = create_engine(database_url)
+    try:
+        command.upgrade(_alembic_config(database_url), "head")
+        _set_version(engine, migrations.REVISION_TEMPLATE_V2_THEME)
+
+        migrations._run_migrations()
+
+        assert _version(engine) == migrations.REVISION_HEAD
+        with engine.connect() as connection:
+            assert {"api_keys", "speaker_note_audios", "slide_videos"} <= _table_names(connection)
+    finally:
+        engine.dispose()

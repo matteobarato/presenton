@@ -1589,6 +1589,7 @@ def test_response_reports_stale_skipped_and_mismatched_avatars(tmp_path, monkeyp
         "duration_mismatch": [
             {"slide_index": 0, "video_seconds": 5.0, "audio_seconds": 4.0}
         ],
+        "silent": [],
     }
     args = calls[0]
     assert args[args.index(str(tmp_path / "avatar-0.mp4")) - 2] == "-an"
@@ -1783,3 +1784,172 @@ def test_a_one_frame_slide_is_cut_between_crossfades_at_24_fps_with_real_ffmpeg(
     asyncio.run(run_ffmpeg(args, total_duration_seconds=56 / 24))
 
     assert _probe_frames(output) == 56
+
+
+@pytest.mark.skipif(not pvs.ffmpeg_available(), reason="needs a real ffmpeg")
+def test_avatar_slide_plays_the_tts_never_the_avatars_own_audio_with_real_ffmpeg(tmp_path):
+    import subprocess
+
+    import numpy as np
+
+    from utils.ffmpeg_utils import get_ffmpeg_binary, run_ffmpeg
+
+    ffmpeg = get_ffmpeg_binary()
+
+    def make(args, output):
+        subprocess.run([ffmpeg, "-v", "error", "-y", *args, output], check=True)
+        return output
+
+    images = [
+        make(["-f", "lavfi", "-i", "color=white:size=1280x720", "-frames:v", "1"],
+             str(tmp_path / f"slide-{i}.png"))
+        for i in range(2)
+    ]
+    tts = [
+        make(["-f", "lavfi", "-i", f"sine=f={freq}:d=2"], str(tmp_path / f"tts-{i}.mp3"))
+        for i, freq in enumerate((440, 660))
+    ]
+    # The uploaded avatar carries its own, loud, 1500 Hz audio track.
+    avatar = make(
+        ["-f", "lavfi", "-i", "color=red:s=240x400:r=30:d=3",
+         "-f", "lavfi", "-i", "sine=f=1500:d=3", "-shortest", "-pix_fmt", "yuv420p",
+         "-c:a", "aac"],
+        str(tmp_path / "avatar.mp4"),
+    )
+    timings = [
+        _timing(slide_index=0, audio_path=tts[0], actor="voice", start_seconds=0.0,
+                duration_seconds=2.8),
+        _avatar_timing(
+            audio_path=tts[1], start_seconds=2.8, duration_seconds=2.8, avatar_path=avatar,
+            avatar_box=(1000.0, 300.0, 240.0, 400.0),
+        ),
+    ]
+    output = str(tmp_path / "out.mp4")
+    args = build_ffmpeg_args(
+        concat_path=str(tmp_path / "concat.txt"),
+        image_paths=images,
+        timings=timings,
+        vtt_path=None,
+        options=VideoRenderOptions(resolution="720p", subtitles_mode="none"),
+        language_code="en",
+        output_path=output,
+        speaker_indicator=_indicator(tmp_path),
+    )
+    asyncio.run(run_ffmpeg(args, total_duration_seconds=5.6))
+
+    raw = subprocess.run(
+        [ffmpeg, "-v", "error", "-i", output, "-map", "0:a", "-ac", "1", "-ar", "8000",
+         "-f", "s16le", "-"],
+        check=True, capture_output=True,
+    ).stdout
+    samples = np.frombuffer(raw, dtype=np.int16).astype(float)
+
+    def loudest(second):
+        window = samples[int(second * 8000):int((second + 0.5) * 8000)]
+        spectrum = np.abs(np.fft.rfft(window))
+        return np.fft.rfftfreq(len(window), 1 / 8000)[spectrum.argmax()], np.sqrt((window**2).mean())
+
+    # Mid-narration of each slide: slide 0's TTS, then the avatar slide's TTS.
+    assert loudest(1.0)[0] == pytest.approx(440, abs=10)
+    frequency, level = loudest(4.0)
+    assert frequency == pytest.approx(660, abs=10)
+    assert level > 500
+    # Nothing at the avatar's own pitch anywhere in the soundtrack.
+    spectrum = np.abs(np.fft.rfft(samples))
+    pitches = np.fft.rfftfreq(len(samples), 1 / 8000)
+    assert spectrum[np.abs(pitches - 1500) < 20].max() < 0.02 * spectrum.max()
+
+
+def test_avatar_summary_lists_avatar_slides_that_have_no_tts():
+    from services.speaker_note_tts_service import note_digest
+
+    def actor(index, audio):
+        slide = SimpleNamespace(index=index, speaker_note="note")
+        video = SimpleNamespace(
+            duration_seconds=2.0,
+            source_note_hash=note_digest("note"),
+            language=None,
+        )
+        return SimpleNamespace(slide=slide, actor="video", video=video, audio=audio,
+                               avatar_skipped=None)
+
+    timings = [
+        _avatar_timing(slide_index=0, audio_path="/tmp/a.mp3", audio_seconds=2.0),
+        _avatar_timing(slide_index=1, audio_path=None, audio_seconds=0.0),
+    ]
+    summary = pvs._avatar_summary(
+        [actor(0, object()), actor(1, None)], timings, VideoRenderOptions()
+    )
+
+    assert summary["applied_slides"] == [0, 1]
+    assert summary["silent"] == [1]
+
+
+@pytest.mark.skipif(not pvs.ffmpeg_available(), reason="needs a real ffmpeg")
+def test_avatar_grows_out_of_the_bubble_and_collapses_back_with_real_ffmpeg(tmp_path):
+    import subprocess
+
+    from PIL import Image
+
+    from utils.ffmpeg_utils import get_ffmpeg_binary, run_ffmpeg
+
+    ffmpeg = get_ffmpeg_binary()
+
+    def make(args, output):
+        subprocess.run([ffmpeg, "-v", "error", "-y", *args, output], check=True)
+        return output
+
+    images = [
+        make(["-f", "lavfi", "-i", "color=white:size=1280x720", "-frames:v", "1"],
+             str(tmp_path / f"slide-{i}.png"))
+        for i in range(3)
+    ]
+    avatar = make(
+        ["-f", "lavfi", "-i", "color=red:s=240x400:r=30:d=3", "-pix_fmt", "yuv420p"],
+        str(tmp_path / "avatar.mp4"),
+    )
+    timings = [
+        _timing(slide_index=0, audio_path=None, actor="voice", start_seconds=0.0,
+                duration_seconds=3.0),
+        _avatar_timing(
+            slide_index=1, audio_path=None, start_seconds=3.0, duration_seconds=3.0,
+            avatar_path=avatar, avatar_box=(1000.0, 300.0, 240.0, 400.0),
+        ),
+        _timing(slide_index=2, audio_path=None, actor="voice", start_seconds=6.0,
+                duration_seconds=3.0),
+    ]
+    output = str(tmp_path / "out.mp4")
+    options = VideoRenderOptions(resolution="720p", subtitles_mode="none")
+    args = build_ffmpeg_args(
+        concat_path=str(tmp_path / "concat.txt"),
+        image_paths=images,
+        timings=timings,
+        vtt_path=None,
+        options=options,
+        language_code="en",
+        output_path=output,
+        speaker_indicator=_indicator(tmp_path),
+    )
+    asyncio.run(run_ffmpeg(args, total_duration_seconds=9.0))
+
+    def is_red(second, x, y):
+        still = str(tmp_path / f"at-{second}.png")
+        subprocess.run(
+            [ffmpeg, "-v", "error", "-y", "-ss", str(second), "-i", output,
+             "-frames:v", "1", still],
+            check=True,
+        )
+        red, green, blue = Image.open(still).convert("RGB").getpixel((x, y))
+        return red > 180 and green < 80 and blue < 80
+
+    corner, centre = (1004, 304), (1120, 500)
+    # Still the bubble just before the morph reaches the avatar's spot ...
+    assert not is_red(2.5, *centre)
+    # ... partway through it the picture is a circle, not the placeholder
+    # rectangle, so its corner is still empty ...
+    assert not is_red(2.8, *corner)
+    # ... then it plays in the whole placeholder ...
+    assert is_red(4.5, *corner) and is_red(4.5, *centre)
+    # ... and collapses again after it, leaving the corner empty.
+    assert not is_red(6.2, *corner)
+    assert not is_red(7.0, *centre)

@@ -1363,8 +1363,16 @@ function RawElementNode({
     allowVectorPointEditing &&
     !editing &&
     vectorPointEditing;
+  // The slide's video placeholder lives in the root `elements`, outside any
+  // component, so nothing else would let it be dragged.
+  const isRootVideoPlaceholder =
+    componentIndex === ROOT_ELEMENTS_COMPONENT_INDEX &&
+    isVideoPlaceholderElement(element);
   const vectorDraggable =
-    isEditMode && isSelected && isVector && !editing && !showVectorPointHandles;
+    isEditMode &&
+    !editing &&
+    (isRootVideoPlaceholder ||
+      (isSelected && isVector && !showVectorPointHandles));
   useEffect(() => {
     if (!isSelected || !isVector) setVectorDragPreview(null);
   }, [isSelected, isVector]);
@@ -1427,7 +1435,9 @@ function RawElementNode({
         y: centerOrigin ? nextPosition.y + box.height / 2 : nextPosition.y,
       });
       onElementChange(selection, (current) => ({
-        ...translateVectorElement(current, delta),
+        ...(isVector
+          ? translateVectorElement(current, delta)
+          : { ...current, position: nextPosition }),
         ...(layoutManaged || isManualPositioned(current)
           ? { __presenton_manual_position: true }
           : {}),
@@ -1436,6 +1446,7 @@ function RawElementNode({
     [
       box,
       centerOrigin,
+      isVector,
       layoutManaged,
       onElementChange,
       onElementDragComplete,
@@ -2799,6 +2810,7 @@ function RawVideoPlaceholderElement({
       <Rect
         width={width}
         height={height}
+        cornerRadius={imageCornerRadii(element, width, height)}
         stroke={VIDEO_PLACEHOLDER_ACCENT}
         strokeWidth={2}
         dash={[10, 6]}

@@ -28,15 +28,19 @@ def test_frames_sit_centred_in_the_bubble_box(tmp_path):
     frames = write_speaker_indicator_frames(
         str(tmp_path), box=(1160, 600, 96, 96), width=1920, height=1080, fps=30
     )
-    assert (frames.x, frames.y, frames.size, frames.frame_count) == (1720, 880, 184, 36)
+    # Half of the 144px box: a 72px bubble plus 10px of shadow room each side,
+    # centred on (1812, 972).
+    assert (frames.x, frames.y, frames.size, frames.frame_count) == (1766, 926, 92, 36)
+    assert frames.diameter == 72
+    assert frames.centre == (1812, 972)
 
 
 def test_non_square_box_uses_its_shorter_side(tmp_path):
     frames = write_speaker_indicator_frames(
         str(tmp_path), box=(100, 100, 200, 80), width=1280, height=720, fps=30
     )
-    # diameter 80 -> padding 12 -> size 104, centred on (200, 140)
-    assert (frames.size, frames.x, frames.y) == (104, 148, 88)
+    # diameter 40 -> padding 6 -> size 52, centred on (200, 140)
+    assert (frames.size, frames.x, frames.y) == (52, 174, 114)
 
 
 def test_frames_scale_with_resolution(tmp_path):

@@ -3304,6 +3304,10 @@ function TemplateV2KonvaSlideComponent({
         selectedBox ? (
         <VideoToolbar
           anchorBox={selectedBox}
+          element={selectedElement}
+          onElementChange={(patch) =>
+            updateElement(selection, (current) => ({ ...current, ...patch }))
+          }
           presentationId={presentationId}
           slideId={slideId}
         />

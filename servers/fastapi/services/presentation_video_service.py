@@ -49,6 +49,7 @@ from models.sql.slide import SlideModel
 from services.slide_video_service import (
     SlideActor,
     avatar_box,
+    avatar_border_radius,
     avatar_fit,
     avatar_stale_reason,
     list_slide_videos,
@@ -93,6 +94,7 @@ from utils.llm_calls.generate_slide_animations import (
 )
 from utils.pdf_to_images import PdfRenderError, render_pdf_to_pngs_async
 from utils.speaker_indicator import (
+    BUBBLE_SCALE,
     SpeakerIndicatorFrames,
     write_speaker_indicator_frames,
 )
@@ -103,6 +105,7 @@ from utils.video_actors import (
     actor_overlay_filters,
     plan_actor_segments,
     scale_box,
+    scale_radius,
 )
 from utils.runtime_limits import log_memory
 from utils.video_crossfade import (
@@ -142,6 +145,9 @@ _MAX_SLIDE_SECONDS = 3600.0
 # an ease.
 _ANIMATION_SETTLE_SECONDS = 0.3
 _DEFAULT_CROSSFADE_SECONDS = 0.5
+# How long the avatar and the bubble take to morph into each other, centred on
+# the slide change (see `utils/video_actors.py`).
+_PRESENTER_MORPH_SECONDS = 0.8
 # An avatar is lip-synced to its narration, so lengths further apart than
 # this suggest it was made from a different take.
 _AVATAR_DURATION_TOLERANCE_SECONDS = 0.5
@@ -260,6 +266,8 @@ class SlideTiming:
     # The placeholder in stage pixels: (x, y, width, height).
     avatar_box: Optional[tuple[float, float, float, float]] = None
     avatar_fit: str = "fill"
+    # The placeholder's corner radius in stage pixels.
+    avatar_radius: float = 0.0
 
 
 @dataclass
@@ -352,11 +360,15 @@ def compute_video_source_hash(
                         else "",
                         repr(timing.avatar_box),
                         timing.avatar_fit,
+                        repr(timing.avatar_radius),
                     )
                 )
             )
     if bubble_box is not None:
-        lines.append(f"bubble={bubble_box!r}")
+        # The scale and the morph are part of the key: a render made before
+        # the bubble was halved, or before the avatar morphed into it, must
+        # be redone.
+        lines.append(f"bubble={bubble_box!r}@{BUBBLE_SCALE}+morph")
     lines.append(f"language={language_code}")
     lines.append(f"preset={options.preset}")
     lines.append(f"resolution={options.resolution}")
@@ -686,25 +698,37 @@ def _actor_segments(
     for timing, (start, count) in zip(timings, frames):
         actor = _slide_actor(timing)
         if actor == "video" and timing.avatar_path and timing.avatar_box:
+            box = scale_box(timing.avatar_box, options.width, options.height)
             spans.append(
                 ActorSpan(
                     "video",
                     start,
                     count,
                     avatar_path=timing.avatar_path,
-                    box=scale_box(timing.avatar_box, options.width, options.height),
+                    box=box,
                     fit=timing.avatar_fit,
                     lead_in_frames=lead_in_frames,
+                    radius=scale_radius(timing.avatar_radius, box, options.width),
                 )
             )
         elif actor == "voice" and speaker_indicator is not None:
             spans.append(ActorSpan("voice", start, count))
         else:
             spans.append(ActorSpan("none", start, count))
-    half_fades = plan_half_fades(
-        [count for _, count in frames], options.crossfade_seconds, options.fps
+    slide_counts = [count for _, count in frames]
+    half_fades = plan_half_fades(slide_counts, options.crossfade_seconds, options.fps)
+    # The avatar/bubble morph reaches into the narration's silent lead-out and
+    # lead-in only, so no spoken word is covered by it.
+    morph_half = min(
+        round(_PRESENTER_MORPH_SECONDS * options.fps / 2),
+        lead_in_frames,
+        round(options.lead_out_seconds * options.fps),
     )
-    return plan_actor_segments(spans, half_fades)
+    morph_halves = [
+        max(0, min(morph_half, before // 2, after // 2))
+        for before, after in zip(slide_counts, slide_counts[1:])
+    ]
+    return plan_actor_segments(spans, half_fades, speaker_indicator, morph_halves)
 
 
 def _add_actor_inputs(
@@ -1366,6 +1390,7 @@ def _timing_presenter(
                 float(box.size.height),
             ),
             "avatar_fit": avatar_fit(slide),
+            "avatar_radius": avatar_border_radius(slide),
         }
     return {"actor": "voice" if audio_path else "none"}
 
@@ -1380,6 +1405,7 @@ def _avatar_summary(
     stale: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
     mismatched: list[dict[str, Any]] = []
+    silent: list[int] = []
     for actor, timing in zip(actors, timings):
         index = actor.slide.index
         if actor.avatar_skipped is not None:
@@ -1391,6 +1417,10 @@ def _avatar_summary(
             skipped.append({"slide_index": index, "reason": "file_missing"})
             continue
         applied.append(index)
+        if not timing.audio_path:
+            # The avatar is a lip-sync of the slide's TTS, which is always the
+            # soundtrack: without it the slide has no sound at all.
+            silent.append(index)
         reason = avatar_stale_reason(actor.video, actor.slide, actor.audio)
         if reason is not None:
             stale.append({"slide_index": index, "reason": reason})
@@ -1414,6 +1444,7 @@ def _avatar_summary(
         "stale": stale,
         "skipped": skipped,
         "duration_mismatch": mismatched,
+        "silent": silent,
     }
 
 

@@ -100,6 +100,8 @@ class PlaybackSlide(BaseModel):
     actor: Literal["video", "voice", "none"]
     duration_seconds: Optional[float] = None
     placeholder: Optional[StageBox] = None
+    # The placeholder's corner radius in stage pixels; clip the avatar to it.
+    placeholder_border_radius: Optional[float] = None
     video: Optional[SlideVideoResponse] = None
     audio: Optional[SpeakerNoteAudioResponse] = None
 

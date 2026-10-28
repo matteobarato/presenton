@@ -143,6 +143,8 @@ def _infer_revision_from_schema(
         for table in owned_tables
     )
     if "provider_settings" in tables and "user" in tables and ownership_ready:
+        if "api_keys" in tables:
+            return _revision_past_unified_api_keys(inspector, tables)
         if "template_v2" in tables and _has_column(
             inspector, "template_v2", "theme"
         ):
@@ -222,6 +224,30 @@ def _infer_revision_from_schema(
         if "theme" in cols:
             return REVISION_BEFORE_TEMPLATE_CREATE_INFO
     return LEGACY_BASELINE_REVISION
+
+
+def _revision_past_unified_api_keys(inspector, tables: set[str]) -> str:
+    """The newest revision from the unified API keys onward that the schema has.
+
+    Stopping short of the schema is not safe: the upgrade would then re-create
+    tables that exist, and the stamp left behind breaks every later start. The
+    two video revisions branch from the speaker note audios one and meet again
+    in a merge revision, so a schema with only one video table is at that
+    branch's own head.
+    """
+    if "speaker_note_audios" not in tables:
+        return REVISION_UNIFIED_API_KEYS
+    slide_videos = "slide_videos" in tables
+    presentation_videos = "presentation_videos" in tables
+    if slide_videos and presentation_videos:
+        if _has_column(inspector, "slide_videos", "language"):
+            return REVISION_SLIDE_VIDEO_LANGUAGE
+        return REVISION_VIDEOS_MERGE
+    if slide_videos:
+        return REVISION_SLIDE_VIDEOS
+    if presentation_videos:
+        return REVISION_PRESENTATION_VIDEOS
+    return REVISION_SPEAKER_NOTE_AUDIOS
 
 
 def _has_presentation_version_column(inspector, tables: set[str]) -> bool:

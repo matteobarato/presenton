@@ -486,6 +486,17 @@ def avatar_fit(slide: SlideModel) -> Literal["fill", "cover", "contain"]:
     return fit if fit in ("fill", "cover", "contain") else "contain"
 
 
+def avatar_border_radius(slide: SlideModel) -> float:
+    """The placeholder's corner radius in stage pixels, as the editor sets it on
+    an image (per corner, or one number); the corners' average, 0 when unset."""
+    element = find_video_placeholder(slide.ui)
+    radius = element.get("border_radius") if element is not None else None
+    if isinstance(radius, dict):
+        corners = [_number(radius.get(key)) or 0.0 for key in ("tl", "tr", "bl", "br")]
+        return max(0.0, sum(corners) / 4)
+    return max(0.0, _number(radius) or 0.0)
+
+
 async def _default_video_language(
     sql_session: AsyncSession, presentation_id: uuid.UUID
 ) -> Optional[str]:
@@ -680,6 +691,9 @@ async def build_playback(
                 actor=resolved_actor.actor,
                 duration_seconds=duration,
                 placeholder=placeholder,
+                placeholder_border_radius=(
+                    avatar_border_radius(slide) if placeholder is not None else None
+                ),
                 video=video_response,
                 audio=audio_response,
             )

@@ -31,7 +31,7 @@ both `/playback` and the MP4 export read.
 | D2 | The MP4 crossfades between slides (default 0.5 s, `0` = hard cuts). No other transition types. | user |
 | D3 | MP4 export stays API-only; no editor UI for it. | user |
 | D4 | MP4 export routes are renamed `/{id}/video` → `/{id}/video-export`. | user |
-| D5 | At a slide change the actor fades with the slide (bubble ↔ avatar crossfade in the same window); bubble → bubble stays steady. No geometric morph. | default (option A), confirm in review |
+| D5 | At a slide change the actor fades with the slide (bubble ↔ avatar crossfade in the same window); bubble → bubble stays steady. Exception (user, later 2026-10-27): avatar and bubble morph into each other (avatar rounds into a circle, travels and scales to the bubble, dissolving into it at the end; the reverse when the avatar starts); the bubble is drawn at half the bubble box's size. | default (option A) + user |
 | D6 | An avatar is tied to the narration language it was synced to, and is stale when its note changed **or** that language's TTS audio was regenerated after the upload. | follows from D1, confirm in review |
 | D7 | Everything else in `1432328c` (Vertex/OpenRouter TTS, LLM rate-limit retry, image transport, Docker/ffmpeg/HyperFrames, `docker-compose.yml`) comes along unchanged, except the committed `servers/fastapi/utils/__init__.pyc`, which is dropped. | default |
 
@@ -113,7 +113,8 @@ placed exactly as today. Everything below is picture-only.
 
 `utils/speaker_indicator.py` draws the bubble at a given stage box (1280×720
 coordinates from `resolve_bubble`, scaled to the output resolution) instead of
-the fixed top-right corner; diameter = the box's shorter side. It shows on
+the fixed top-right corner; diameter = half the box's shorter side, centred in
+the box. It shows on
 `voice` slides only; consecutive `voice` slides stay one steady interval as
 today. `speaker_indicator=false` still removes it.
 
@@ -163,7 +164,17 @@ offset=(f_b−h)/fps` joins them.
 Actor overlays are drawn after the slide crossfade, on top of it.
 
 - `voice → voice`: one bubble interval, no change.
-- Actor changes (`voice ↔ video`, `video → video` with different avatars,
+- `voice ↔ video` morphs, over its own window of 0.8 s centred on the change
+  (half of it capped by the lead-in, the lead-out and half of each slide, so
+  narration is never covered; skipped with hard cuts or no bubble). The avatar
+  stream is split into the morph in, the plain playback and the morph out. In
+  a morph a `geq` mask rounds a centred rectangle from the placeholder to its
+  largest circle (smootherstep, anti-aliased from the signed distance), the
+  canvas is scaled with `scale … eval=frame` until that circle is the bubble's
+  diameter and `overlay` x/y expressions move its centre to the bubble's. The
+  avatar stays opaque and sharp; the bubble and the avatar only cross-dissolve
+  over the last (collapse) or first (expand) fifth of the window.
+- Other actor changes (`video → video` with different avatars,
   anything ↔ `none`): the outgoing actor fades out and the incoming actor
   fades in over the same `[f_b − h, f_b + h]` window as the slide.
 - Implementation: each bubble interval and each avatar is its own input
@@ -187,7 +198,10 @@ names and are simply re-rendered on the next request.
 `PresentationVideoGenerationResponse` gains an `avatars` summary next to
 `animation`: `{requested, applied_slides, stale: [{slide_index, reason}],
 skipped: [{slide_index, reason}], duration_mismatch: [{slide_index,
-video_seconds, audio_seconds}]}`.
+video_seconds, audio_seconds}], silent: [slide_index]}`. `silent` lists avatar
+slides with no TTS audio: the avatar is a lip-sync of that audio, which is
+always the soundtrack, so such a slide has no sound and needs its audio
+generated.
 
 ## 5. Animated slides (Next.js)
 
@@ -241,7 +255,7 @@ own audio"), avatar `language`, the renamed export routes and the new
 ## Out of scope
 
 Editor UI for MP4 export; transition types other than crossfade; a
-bubble-to-placeholder morph; avatar corner radius; the external playback
+avatar corner radius; the external playback
 player; copying avatars when a deck is duplicated.
 
 ## Risks
