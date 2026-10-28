@@ -564,7 +564,7 @@ Instead of uploading avatar videos, Presenton can generate them. It sends the de
 
 To set it up:
 
-1. Set the presenter portrait with `PUT /api/v1/ppt/presentation/{id}/videos/portrait` (multipart `file`, JPEG, PNG or WebP, up to 10 MB). `GET` returns it and `DELETE` removes it. A 9:16 portrait matches the default placeholder best.
+1. Set the presenter portrait with `PUT /api/v1/ppt/presentation/{id}/videos/portrait` (multipart `file`, JPEG, PNG or WebP, up to 10 MB). `GET` returns its URL and dimensions (404 when there is none) and `DELETE` removes it. A 9:16 portrait matches the default placeholder best.
 2. Mark the slides that should have an avatar with `POST /api/v1/ppt/presentation/{id}/videos/{slide_index}/placeholder`. The optional JSON body `x`, `y`, `width`, `height` places it in 1280×720 slide coordinates. Slides without a placeholder keep the voice bubble. `DELETE …/videos/{slide_index}/placeholder` removes the placeholder and that slide's video, while `DELETE …/videos/{slide_index}` removes only the video and keeps the placeholder.
 3. Generate the speaker note audio first (see above). Avatars are lip-synced to that audio, so slides with missing or stale audio are skipped.
 4. Start generation with `POST …/videos/generate`. The body takes `slide_indices` (an array, or `null` for every slide), `language` (or `null`), `force` (default `false`) and `resolution` (`720p` or `480p`). It returns an async task:

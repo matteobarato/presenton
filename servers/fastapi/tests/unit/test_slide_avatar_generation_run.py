@@ -387,6 +387,29 @@ def test_run_placeholder_removed_mid_run(tmp_path, monkeypatch):
     assert _video_files(tmp_path, ctx) == []
 
 
+def test_run_placeholder_removed_after_planning_never_creates(tmp_path, monkeypatch):
+    ctx = _deck(tmp_path, monkeypatch, notes=("a",))
+    task_id = _create_task(ctx)
+
+    async def remove_placeholder():
+        async with ctx["sessions"]() as session:
+            slide = await session.get(SlideModel, ctx["slide_ids"][0])
+            slide.ui = _ui(placeholder=False)
+            session.add(slide)
+            await session.commit()
+
+    asyncio.run(remove_placeholder())
+    client = FakeClient()
+
+    _run(ctx, task_id, client)
+
+    task, videos, *_ = _read(ctx, task_id)
+    [entry] = task.data["slides"]
+    assert (entry["state"], entry["reason"]) == ("skipped", "placeholder_removed")
+    assert client.created == []
+    assert videos == []
+
+
 def test_run_slide_deleted_mid_run_is_skipped(tmp_path, monkeypatch):
     ctx = _deck(tmp_path, monkeypatch, notes=("a",))
     task_id = _create_task(ctx)
@@ -453,6 +476,19 @@ def test_run_invalid_output_leaves_no_file(tmp_path, monkeypatch):
     task_id = _create_task(ctx)
 
     _run(ctx, task_id, FakeClient(video=b"definitely not a video"))
+
+    task, videos, *_ = _read(ctx, task_id)
+    [entry] = task.data["slides"]
+    assert (entry["state"], entry["reason"]) == ("failed", "invalid_output")
+    assert videos == []
+    assert _video_files(tmp_path, ctx) == []
+
+
+def test_run_video_without_readable_duration_fails(tmp_path, monkeypatch):
+    ctx = _deck(tmp_path, monkeypatch, notes=("a",))
+    task_id = _create_task(ctx)
+
+    _run(ctx, task_id, FakeClient(video=_box(b"ftyp", b"isom\x00\x00\x02\x00isom")))
 
     task, videos, *_ = _read(ctx, task_id)
     [entry] = task.data["slides"]

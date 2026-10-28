@@ -112,3 +112,30 @@ def test_generation_available_follows_the_api_key(monkeypatch):
     assert generation_available() is False
     monkeypatch.setenv("ELEVENLABS_API_KEY", "k")
     assert generation_available() is True
+
+
+def test_mpo_image_is_accepted_as_jpeg(monkeypatch):
+    from services import slide_avatar_portrait as module
+
+    jpeg = _image("JPEG")
+    real_open = Image.open
+
+    def fake_open(fp, *args, **kwargs):
+        image = real_open(fp, *args, **kwargs)
+        image.format = "MPO"
+        return image
+
+    monkeypatch.setattr(module.Image, "open", fake_open)
+    assert module._decode(jpeg) == ("jpg", "image/jpeg", 40, 30)
+
+
+@pytest.mark.parametrize("error", [ValueError("bad"), SyntaxError("bad")])
+def test_malformed_image_errors_map_to_invalid_portrait(monkeypatch, error):
+    from services import slide_avatar_portrait as module
+
+    def fake_open(fp, *args, **kwargs):
+        raise error
+
+    monkeypatch.setattr(module.Image, "open", fake_open)
+    with pytest.raises(InvalidPortraitError):
+        module._decode(b"not empty")

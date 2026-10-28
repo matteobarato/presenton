@@ -55,7 +55,12 @@ from utils.ffmpeg_utils import (
     FFmpegRuntimeError,
     get_ffmpeg_binary,
 )
-from utils.video_files import get_slide_video_max_upload_bytes, store_video_bytes
+from utils.video_files import (
+    get_slide_video_max_upload_bytes,
+    remove_file,
+    store_video_bytes,
+    video_metadata,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -481,6 +486,8 @@ class _AvatarGenerationRun:
             slide = await session.get(SlideModel, slide_id)
             if slide is None:
                 raise _SlideSkipped("placeholder_removed")
+            if not _has_placeholder(slide):
+                raise _SlideSkipped("placeholder_removed")
             audio = (
                 await session.scalars(
                     select(SpeakerNoteAudioModel).where(
@@ -530,6 +537,13 @@ class _AvatarGenerationRun:
                 )
             except HTTPException as exc:
                 raise _SlideFailed("invalid_output", str(exc.detail))
+            # A clip that passes the container check but cannot be read is not
+            # a usable avatar.
+            if video_metadata(stored.path, stored.format).duration_seconds is None:
+                remove_file(stored.path)
+                raise _SlideFailed(
+                    "invalid_output", "ElevenLabs returned a video with no readable duration"
+                )
             video = await store_slide_video_bytes(
                 sql_session=session,
                 presentation=presentation,

@@ -156,13 +156,28 @@ def test_create_transport_error_retried_then_raises():
 
     def handler(request):
         calls.append(1)
-        raise httpx.ReadTimeout("slow")
+        raise httpx.ConnectError("down")
 
     with pytest.raises(ElevenLabsRequestError) as exc:
         asyncio.run(_create(_client(handler, sleeps)))
     assert exc.value.status_code is None
     assert len(calls) == 4
     assert sleeps == [1, 2, 4]
+
+
+def test_create_read_timeout_not_retried():
+    calls = []
+    sleeps = []
+
+    def handler(request):
+        calls.append(1)
+        raise httpx.ReadTimeout("slow")
+
+    with pytest.raises(ElevenLabsRequestError) as exc:
+        asyncio.run(_create(_client(handler, sleeps)))
+    assert "may still" in str(exc.value)
+    assert len(calls) == 1
+    assert sleeps == []
 
 
 def test_create_transport_error_then_success():

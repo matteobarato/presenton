@@ -113,6 +113,13 @@ class ElevenLabsLipsyncClient:
                     "/v1/flows/video", json=body, headers={"xi-api-key": self._api_key}
                 )
             except httpx.TransportError as exc:
+                if not isinstance(
+                    exc, (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout)
+                ):
+                    raise ElevenLabsRequestError(
+                        f"ElevenLabs request failed: {exc}. A generation may still "
+                        "have been created on ElevenLabs."
+                    ) from exc
                 if attempt == MAX_RETRIES:
                     raise ElevenLabsRequestError(
                         f"ElevenLabs request failed: {exc}"

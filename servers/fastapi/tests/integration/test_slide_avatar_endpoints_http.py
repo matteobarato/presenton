@@ -28,6 +28,14 @@ def test_post_placeholder_adds_one_and_the_slide_shows_it(tmp_path, monkeypatch)
     assert len(_placeholders(_slide_ui(client, presentation_id, 0))) == 1
 
 
+def test_post_placeholder_without_a_body_is_200(tmp_path, monkeypatch):
+    client, presentation_id, _ids, _sessions, _app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    response = client.post(f"{BASE}/{presentation_id}/videos/0/placeholder")
+    assert response.status_code == 200, response.text
+
+
 def test_post_placeholder_on_a_non_template_slide_is_422(tmp_path, monkeypatch):
     client, presentation_id, *_ = _build_client(tmp_path, monkeypatch)
 
@@ -85,8 +93,9 @@ def test_portrait_put_get_and_delete(tmp_path, monkeypatch):
 
     got = client.get(f"{BASE}/{presentation_id}/videos/portrait")
     assert got.status_code == 200
-    assert got.headers["content-type"] == "image/png"
-    assert got.content == _png()
+    assert got.json()["mime_type"] == "image/png"
+    assert (got.json()["width"], got.json()["height"]) == (40, 30)
+    assert got.json()["url"].endswith(".png")
 
     assert client.delete(f"{BASE}/{presentation_id}/videos/portrait").status_code == 200
     assert client.get(f"{BASE}/{presentation_id}/videos/portrait").status_code == 404

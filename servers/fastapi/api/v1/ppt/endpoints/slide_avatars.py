@@ -12,7 +12,6 @@ from fastapi import (
     Query,
     UploadFile,
 )
-from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -50,7 +49,6 @@ from services.slide_avatar_portrait import (
     delete_portrait,
     generation_available,
     portrait_response,
-    read_portrait,
     save_portrait,
 )
 from services.slide_video_service import (
@@ -88,7 +86,7 @@ def _generation_lock(presentation_id: uuid.UUID) -> asyncio.Lock:
 async def put_slide_placeholder(
     id: uuid.UUID,
     slide_index: int,
-    body: PlaceholderRequest,
+    body: Optional[PlaceholderRequest] = None,
     sql_session: AsyncSession = Depends(get_async_session),
 ):
     """Mark a slide as one that gets an avatar, before it has any video.
@@ -96,6 +94,7 @@ async def put_slide_placeholder(
     Adds the placeholder in the bottom-right corner, or moves the one the slide
     has when coordinates are given. Only template slides can hold one.
     """
+    body = body or PlaceholderRequest()
     _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
     slide = _slide_at_index(slides, slide_index)
     try:
@@ -147,18 +146,17 @@ async def put_portrait(
         raise HTTPException(status_code=422, detail=str(exc))
 
 
-@SLIDE_AVATARS_ROUTER.get("/{id}/videos/portrait")
+@SLIDE_AVATARS_ROUTER.get("/{id}/videos/portrait", response_model=PortraitResponse)
 async def get_portrait(
     id: uuid.UUID,
     sql_session: AsyncSession = Depends(get_async_session),
 ):
-    """The portrait image itself."""
+    """The deck's portrait: its URL and dimensions."""
     presentation, _ = await _presentation_with_slides_for_speaker_notes(id, sql_session)
-    stored = read_portrait(presentation)
-    if stored is None:
+    portrait = portrait_response(presentation)
+    if portrait is None:
         raise HTTPException(status_code=404, detail="This deck has no portrait")
-    data, mime_type = stored
-    return Response(content=data, media_type=mime_type)
+    return portrait
 
 
 @SLIDE_AVATARS_ROUTER.delete("/{id}/videos/portrait")
@@ -260,8 +258,8 @@ async def _generation_tasks(
 @SLIDE_AVATARS_ROUTER.post("/{id}/videos/generate", response_model=AsyncTaskModel)
 async def generate_slide_avatars(
     id: uuid.UUID,
-    body: SlideAvatarGenerationRequest,
     background_tasks: BackgroundTasks,
+    body: Optional[SlideAvatarGenerationRequest] = None,
     sql_session: AsyncSession = Depends(get_async_session),
 ):
     """Generate lip-synced avatars with ElevenLabs, as a task to poll.
@@ -272,6 +270,7 @@ async def generate_slide_avatars(
     `data.slides` says what happens to each slide and why. Generating spends
     ElevenLabs credits for every slide that is not skipped.
     """
+    body = body or SlideAvatarGenerationRequest()
     presentation, slides = await _presentation_with_slides_for_speaker_notes(
         id, sql_session
     )

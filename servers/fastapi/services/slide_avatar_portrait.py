@@ -26,6 +26,8 @@ from utils.video_files import remove_file
 MAX_PORTRAIT_BYTES = 10 * 1024 * 1024
 _FORMATS = {
     "JPEG": ("jpg", "image/jpeg"),
+    # Multi-picture JPEGs (many phone cameras) are reported as MPO by Pillow.
+    "MPO": ("jpg", "image/jpeg"),
     "PNG": ("png", "image/png"),
     "WEBP": ("webp", "image/webp"),
 }
@@ -93,7 +95,13 @@ def _decode(data: bytes) -> tuple[str, str, int, int]:
         with Image.open(io.BytesIO(data)) as image:
             image.load()
             image_format, (width, height) = image.format, image.size
-    except (UnidentifiedImageError, OSError, Image.DecompressionBombError):
+    except (
+        UnidentifiedImageError,
+        OSError,
+        SyntaxError,
+        ValueError,
+        Image.DecompressionBombError,
+    ):
         raise InvalidPortraitError("Portrait is not a valid JPEG, PNG or WebP image")
     if image_format not in _FORMATS:
         raise InvalidPortraitError("Portrait must be a JPEG, PNG or WebP image")
