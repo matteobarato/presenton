@@ -77,6 +77,8 @@ export type AvatarGenerationTask = {
 
 export type AvatarPreview = {
   language: string | null;
+  // Sorted codes of the languages the deck is narrated in.
+  languages?: string[];
   slides: AvatarSlidePlan[];
 };
 

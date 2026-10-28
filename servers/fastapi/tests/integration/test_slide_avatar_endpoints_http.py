@@ -349,6 +349,24 @@ def test_preview_lists_chips_for_a_mixed_deck(tmp_path, monkeypatch):
     assert client.get(f"{BASE}/{presentation_id}/videos/generate").status_code == 404
 
 
+def test_preview_with_two_languages_uses_the_first_and_lists_both(tmp_path, monkeypatch):
+    client, presentation_id, slide_ids, sessions = _generation_client(
+        tmp_path, monkeypatch
+    )
+    _narrate(sessions, slide_ids, tmp_path, "en", [0])
+
+    response = client.get(f"{BASE}/{presentation_id}/videos/generate/preview")
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["languages"] == ["en", "it"]
+    assert body["language"] == "en"
+    chosen = client.get(
+        f"{BASE}/{presentation_id}/videos/generate/preview?language=it"
+    ).json()
+    assert chosen["language"] == "it"
+
+
 def test_preview_without_narration_reports_no_audio(tmp_path, monkeypatch):
     client, presentation_id, *_ = _build_client(tmp_path, monkeypatch)
     client.post(f"{BASE}/{presentation_id}/videos/0/placeholder", json={})

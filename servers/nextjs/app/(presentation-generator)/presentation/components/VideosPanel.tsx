@@ -140,19 +140,7 @@ export function VideosPanel({
     preview: slideId ? previewById.get(slideId) : undefined,
     running: avatars.running,
   });
-  const languages = useMemo(() => {
-    const codes = new Set<string>();
-    for (const v of Object.values(videosBySlideId)) {
-      if (v.language) codes.add(v.language);
-    }
-    if (avatars.preview?.language) codes.add(avatars.preview.language);
-    return [...codes];
-  }, [videosBySlideId, avatars.preview]);
-  const slideTitle = (index: number) => {
-    const content = (slides[index] as { content?: { title?: unknown } } | undefined)
-      ?.content;
-    return typeof content?.title === "string" ? content.title : null;
-  };
+  const languages = avatars.preview?.languages ?? [];
   const deckRows = slides.flatMap((deckSlide, index) => {
     if (typeof deckSlide.id !== "string") return [];
     const deckVideo = videosBySlideId[deckSlide.id];
@@ -185,6 +173,13 @@ export function VideosPanel({
     });
   };
 
+  const generatingNote = (
+    <p className="flex items-center gap-2 rounded-[8px] border border-[#E9D7FE] bg-[#FAF8FF] p-4 text-[11px] leading-4 text-[#5925DC]">
+      <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+      Generating… this takes a few minutes
+    </p>
+  );
+
   let slideSection: React.ReactNode;
   if (!slide || !slideId) {
     slideSection = <Note>Select a slide to give it an avatar video.</Note>;
@@ -192,6 +187,8 @@ export function VideosPanel({
     slideSection = (
       <Note>Avatar videos can be added to template slides only.</Note>
     );
+  } else if (generating) {
+    slideSection = generatingNote;
   } else if (video) {
     const details = [
       formatDuration(video.duration_seconds),
@@ -285,13 +282,6 @@ export function VideosPanel({
           video plays.
         </p>
       </div>
-    );
-  } else if (generating) {
-    slideSection = (
-      <p className="flex items-center gap-2 rounded-[8px] border border-[#E9D7FE] bg-[#FAF8FF] p-4 text-[11px] leading-4 text-[#5925DC]">
-        <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
-        Generating… this takes a few minutes
-      </p>
     );
   } else {
     slideSection = (
@@ -437,7 +427,7 @@ export function VideosPanel({
         onClose={() => setDialogOpen(false)}
         preview={avatars.preview}
         videosBySlideId={videosBySlideId}
-        slideTitle={slideTitle}
+        onOpen={() => void avatars.refreshPreview()}
         languages={languages}
         language={avatars.language}
         onLanguageChange={avatars.setLanguage}

@@ -177,8 +177,12 @@ async def _generation_language(
     language: Optional[str],
     *,
     fallback: Optional[str] = None,
+    first_of_many: bool = False,
 ) -> str:
     """The language code to generate in, resolved as `/playback` resolves it.
+
+    With `first_of_many`, a deck narrated in several languages and no explicit
+    `language` resolves to the first sorted code instead of failing.
 
     A deck with no narration at all has nothing to lip-sync to; `fallback`
     stands in for its language when the caller only wants a preview.
@@ -195,6 +199,8 @@ async def _generation_language(
     try:
         if language:
             return resolve_tts_language(language).code
+        if len(languages) > 1 and first_of_many:
+            return resolve_tts_language(sorted(languages)[0]).code
         if len(languages) > 1:
             raise MultipleNarrationLanguagesError(languages)
         return resolve_tts_language(languages.pop()).code if languages else fallback
@@ -354,6 +360,15 @@ async def preview_slide_avatar_generation(
         id,
         language,
         fallback=deck_language.code if deck_language else "en",
+        first_of_many=True,
+    )
+    narrated = sorted(
+        {
+            audio.language
+            for audio in await list_speaker_note_audios(
+                sql_session, presentation_id=id
+            )
+        }
     )
     plans = await _plan_generation(
         sql_session,
@@ -364,5 +379,7 @@ async def preview_slide_avatar_generation(
         force=False,
     )
     return AvatarGenerationPreview(
-        language=language_code, slides=[plan.to_dict() for plan in plans]
+        language=language_code,
+        languages=narrated,
+        slides=[plan.to_dict() for plan in plans],
     )

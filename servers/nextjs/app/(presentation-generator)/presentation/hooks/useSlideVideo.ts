@@ -177,10 +177,14 @@ export function useAvatarGeneration(
   const controllerRef = useRef<AbortController | null>(null);
   const running = generation?.status === "pending";
 
+  const previewRequestRef = useRef(0);
   const refreshPreview = useCallback(async () => {
     if (!presentationId) return;
+    const request = ++previewRequestRef.current;
     try {
-      setPreview(await SlideVideosApi.previewGeneration(presentationId, language));
+      const next = await SlideVideosApi.previewGeneration(presentationId, language);
+      // Only the latest request's answer counts.
+      if (request === previewRequestRef.current) setPreview(next);
     } catch (error) {
       console.error("Failed to load the avatar preview:", error);
     }
@@ -264,6 +268,7 @@ export function useAvatarGeneration(
         dispatch(
           portraitChanged(await SlideVideosApi.uploadPortrait(presentationId, file)),
         );
+        void refreshPreview();
       } catch (error) {
         notify.error(
           "Portrait upload failed",
@@ -273,7 +278,7 @@ export function useAvatarGeneration(
         setPortraitPending(false);
       }
     },
-    [dispatch, presentationId],
+    [dispatch, presentationId, refreshPreview],
   );
 
   const removePortrait = useCallback(async () => {
@@ -282,6 +287,7 @@ export function useAvatarGeneration(
     try {
       await SlideVideosApi.deletePortrait(presentationId);
       dispatch(portraitChanged(null));
+      void refreshPreview();
     } catch (error) {
       notify.error(
         "Could not remove the portrait",
@@ -290,9 +296,10 @@ export function useAvatarGeneration(
     } finally {
       setPortraitPending(false);
     }
-  }, [dispatch, presentationId]);
+  }, [dispatch, presentationId, refreshPreview]);
 
   return {
+    refreshPreview,
     portrait,
     portraitPending,
     generationAvailable,

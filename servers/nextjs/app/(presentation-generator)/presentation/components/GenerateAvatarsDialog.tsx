@@ -11,24 +11,25 @@ export function GenerateAvatarsDialog({
   onClose,
   preview,
   videosBySlideId,
-  slideTitle,
   languages,
   language,
   onLanguageChange,
   blockedReason,
   onGenerate,
+  onOpen,
 }: {
   isOpen: boolean;
   onClose: () => void;
   preview: AvatarPreview | null;
   videosBySlideId: Record<string, SlideVideo>;
-  slideTitle: (slideIndex: number) => string | null;
   languages: string[];
   language: string | null;
   onLanguageChange: (language: string | null) => void;
   // Why nothing can be generated at all (no key, no portrait, job running).
   blockedReason: string | null;
   onGenerate: (slideIds: string[], force: boolean) => void;
+  // Called when the dialog opens, to refetch the preview.
+  onOpen: () => void;
 }) {
   const rows = useMemo(
     () =>
@@ -38,6 +39,11 @@ export function GenerateAvatarsDialog({
       })),
     [preview],
   );
+  useEffect(() => {
+    if (isOpen) onOpen();
+    // Refetch on open only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   // Pre-tick the ready rows each time the dialog opens or the preview changes.
@@ -91,7 +97,6 @@ export function GenerateAvatarsDialog({
         ) : (
           <ul className="max-h-[50vh] space-y-1.5 overflow-y-auto">
             {rows.map(({ slide, chip }) => {
-              const title = slideTitle(slide.slide_index);
               const source = videosBySlideId[slide.slide_id]?.source;
               const reason = CHIP_REASON[chip];
               return (
@@ -110,7 +115,6 @@ export function GenerateAvatarsDialog({
                       <span className="font-medium">
                         Slide {slide.slide_index + 1}
                       </span>
-                      {title ? ` · ${title}` : ""}
                     </span>
                     {chip === "up_to_date" && source && (
                       <span className="text-[10px] text-[#667085]">

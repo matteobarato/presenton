@@ -37,5 +37,7 @@ class AvatarGenerationPreview(BaseModel):
     """What a generation would do now, slide by slide, without starting one."""
 
     language: str
+    # Sorted codes of the languages the deck is narrated in.
+    languages: list[str] = []
     # As in the task's `data.slides`: slide_index, slide_id, state, reason.
     slides: list[dict]
