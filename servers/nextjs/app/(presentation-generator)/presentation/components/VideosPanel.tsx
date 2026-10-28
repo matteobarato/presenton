@@ -2,17 +2,33 @@
 
 import React, { useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { AlertTriangle, Loader2, Replace, Trash2, Upload } from "lucide-react";
+import {
+  AlertTriangle,
+  Loader2,
+  Replace,
+  Sparkles,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { RootState } from "@/store/store";
 import { resolveBackendAssetUrl } from "@/utils/api";
 import { hasTemplateV2SlideUi } from "../../_shared/blank-slide";
+import { findVideoPlaceholder } from "@/components/slide-editor/video/video-placeholder";
 import {
   SLIDE_VIDEO_ACCEPT,
   type SlideVideo,
   type SlideVideoStaleReason,
 } from "../../services/api/slide-videos";
-import { useSlideVideo } from "../hooks/useSlideVideo";
+import { useAvatarGeneration, useSlideVideo } from "../hooks/useSlideVideo";
+import {
+  chipFor,
+  generateDisabledReason,
+} from "../utils/avatarGeneration";
+import { AvatarChipBadge } from "./AvatarChipBadge";
+import { GenerationSummaryCard } from "./GenerationSummaryCard";
+import { GenerateAvatarsDialog } from "./GenerateAvatarsDialog";
+import { PortraitBlock } from "./PortraitBlock";
 
 type PanelSlide = { id?: unknown; ui?: unknown; html_content?: unknown };
 
@@ -86,24 +102,69 @@ export function VideosPanel({
     Boolean(slide) &&
     hasTemplateV2SlideUi(slide) &&
     !(typeof slide?.html_content === "string" && slide.html_content.trim());
-  const { video, pending, upload, remove } = useSlideVideo(
-    presentationId,
-    slideId,
-  );
+  const { video, pending, upload, remove, addPlaceholder, removePlaceholder } =
+    useSlideVideo(presentationId, slideId);
   const videosBySlideId = useSelector(
     (state: RootState) => state.slideVideos.bySlideId,
   );
-  const deckVideos = useMemo(
-    () =>
-      slides.flatMap((deckSlide, index) => {
-        const deckVideo =
-          typeof deckSlide.id === "string"
-            ? videosBySlideId[deckSlide.id]
-            : undefined;
-        return deckVideo ? [{ index, video: deckVideo }] : [];
-      }),
-    [slides, videosBySlideId],
+  const hasPlaceholder = Boolean(slide && findVideoPlaceholder(slide.ui));
+  const placeholderKey = slides
+    .map((s) => (findVideoPlaceholder(s.ui) ? "1" : "0"))
+    .join("");
+  const videosKey = Object.values(videosBySlideId)
+    .map((v) => `${v.id}:${v.updated_at}`)
+    .join(",");
+  const avatars = useAvatarGeneration(
+    presentationId,
+    `${placeholderKey}|${videosKey}`,
   );
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const previewById = useMemo(
+    () => new Map((avatars.preview?.slides ?? []).map((p) => [p.slide_id, p])),
+    [avatars.preview],
+  );
+  const planById = useMemo(
+    () =>
+      new Map(
+        (avatars.generation?.data?.slides ?? []).map((p) => [p.slide_id, p]),
+      ),
+    [avatars.generation],
+  );
+  const slideChip = slideId
+    ? chipFor(avatars.running ? planById.get(slideId) : undefined, previewById.get(slideId))
+    : "ready";
+  const generating = avatars.running && slideChip === "generating";
+  const generateBlocked = generateDisabledReason({
+    generationAvailable: avatars.generationAvailable,
+    hasPortrait: Boolean(avatars.portrait),
+    preview: slideId ? previewById.get(slideId) : undefined,
+    running: avatars.running,
+  });
+  const languages = useMemo(() => {
+    const codes = new Set<string>();
+    for (const v of Object.values(videosBySlideId)) {
+      if (v.language) codes.add(v.language);
+    }
+    if (avatars.preview?.language) codes.add(avatars.preview.language);
+    return [...codes];
+  }, [videosBySlideId, avatars.preview]);
+  const slideTitle = (index: number) => {
+    const content = (slides[index] as { content?: { title?: unknown } } | undefined)
+      ?.content;
+    return typeof content?.title === "string" ? content.title : null;
+  };
+  const deckRows = slides.flatMap((deckSlide, index) => {
+    if (typeof deckSlide.id !== "string") return [];
+    const deckVideo = videosBySlideId[deckSlide.id];
+    const preview = previewById.get(deckSlide.id);
+    if (!deckVideo && !preview) return [];
+    const plan = planById.get(deckSlide.id);
+    const chip = chipFor(
+      avatars.running || plan?.state === "failed" ? plan : undefined,
+      preview,
+    );
+    return [{ index, slideId: deckSlide.id, video: deckVideo, chip }];
+  });
   const busy = disabled || pending !== null;
 
   const chooseFile = () => {
@@ -152,6 +213,9 @@ export function VideosPanel({
             title={video.original_filename ?? undefined}
           >
             {video.original_filename || "Avatar video"}
+            <span className="ml-2 rounded-full bg-[#F2F4F7] px-2 py-0.5 align-middle text-[10px] font-medium text-[#475467]">
+              {video.source === "elevenlabs" ? "Generated" : "Uploaded"}
+            </span>
           </p>
           {details.length > 0 && (
             <p className="mt-0.5 text-[11px] leading-4 text-[#667085]">
@@ -196,11 +260,38 @@ export function VideosPanel({
             {pending === "removing" ? "Removing..." : "Remove"}
           </button>
         </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={busy || generateBlocked !== null}
+            title={generateBlocked ?? undefined}
+            onClick={() => void avatars.generate([slideId], true)}
+            className={secondaryButtonClass}
+          >
+            <Sparkles className="h-4 w-4" strokeWidth={1.7} aria-hidden />
+            Regenerate
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void removePlaceholder()}
+            className={secondaryButtonClass}
+          >
+            Remove placeholder
+          </button>
+        </div>
         <p className="text-[11px] leading-4 text-[#667085]">
           Move or resize the outlined box on the slide to choose where the
           video plays.
         </p>
       </div>
+    );
+  } else if (generating) {
+    slideSection = (
+      <p className="flex items-center gap-2 rounded-[8px] border border-[#E9D7FE] bg-[#FAF8FF] p-4 text-[11px] leading-4 text-[#5925DC]">
+        <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+        Generating… this takes a few minutes
+      </p>
     );
   } else {
     slideSection = (
@@ -235,6 +326,48 @@ export function VideosPanel({
         </span>
       </button>
     );
+    slideSection = (
+      <div className="space-y-3">
+        {slideSection}
+        {hasPlaceholder ? (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={busy || generateBlocked !== null}
+              title={generateBlocked ?? undefined}
+              onClick={() => void avatars.generate([slideId], false)}
+              className={secondaryButtonClass}
+            >
+              <Sparkles className="h-4 w-4" strokeWidth={1.7} aria-hidden />
+              Generate
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void removePlaceholder()}
+              className={secondaryButtonClass}
+            >
+              Remove placeholder
+            </button>
+          </div>
+        ) : (
+          <>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void addPlaceholder()}
+              className={secondaryButtonClass.replace("flex-1", "w-full")}
+            >
+              Add avatar placeholder
+            </button>
+            <p className="text-[11px] leading-4 text-[#667085]">
+              Without a placeholder, this slide is narrated by the voice
+              bubble.
+            </p>
+          </>
+        )}
+      </div>
+    );
   }
 
   return (
@@ -258,6 +391,17 @@ export function VideosPanel({
         }}
       />
 
+      <section className="mb-7">
+        <SectionLabel>Presenter portrait</SectionLabel>
+        <PortraitBlock
+          portrait={avatars.portrait}
+          pending={avatars.portraitPending}
+          disabled={disabled}
+          onUpload={(file) => void avatars.uploadPortrait(file)}
+          onRemove={() => void avatars.removePortrait()}
+        />
+      </section>
+
       <section>
         <SectionLabel>
           {typeof currentSlide === "number" && slide
@@ -267,12 +411,50 @@ export function VideosPanel({
         {slideSection}
       </section>
 
-      {deckVideos.length > 0 && (
+      {avatars.summary && (
+        <GenerationSummaryCard
+          summary={avatars.summary}
+          onDismiss={avatars.dismissSummary}
+        />
+      )}
+
+      <section className="mt-7">
+        <button
+          type="button"
+          disabled={disabled || avatars.running}
+          title={
+            avatars.running ? "An avatar generation is already running." : undefined
+          }
+          onClick={() => setDialogOpen(true)}
+          className={cn(secondaryButtonClass, "w-full flex-none")}
+        >
+          <Sparkles className="h-4 w-4" strokeWidth={1.7} aria-hidden />
+          Generate avatars…
+        </button>
+      </section>
+      <GenerateAvatarsDialog
+        isOpen={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        preview={avatars.preview}
+        videosBySlideId={videosBySlideId}
+        slideTitle={slideTitle}
+        languages={languages}
+        language={avatars.language}
+        onLanguageChange={avatars.setLanguage}
+        blockedReason={generateDisabledReason({
+          generationAvailable: avatars.generationAvailable,
+          hasPortrait: Boolean(avatars.portrait),
+          running: avatars.running,
+        })}
+        onGenerate={(ids, force) => void avatars.generate(ids, force)}
+      />
+
+      {deckRows.length > 0 && (
         <section className="mt-7">
           <SectionLabel>In this deck</SectionLabel>
           <ul className="space-y-1.5">
-            {deckVideos.map(({ index, video: deckVideo }) => (
-              <li key={deckVideo.id}>
+            {deckRows.map(({ index, slideId: rowId, video: deckVideo, chip }) => (
+              <li key={rowId}>
                 <button
                   type="button"
                   onClick={() => scrollToSlide(index)}
@@ -286,16 +468,19 @@ export function VideosPanel({
                   <span className="font-medium text-[#101323]">
                     Slide {index + 1}
                   </span>
-                  {formatDuration(deckVideo.duration_seconds) && (
+                  {deckVideo && formatDuration(deckVideo.duration_seconds) && (
                     <span className="text-[#667085]">
                       {formatDuration(deckVideo.duration_seconds)}
                     </span>
                   )}
-                  {deckVideo.stale && (
-                    <span className="ml-auto rounded-full bg-[#FFFAEB] px-2 py-0.5 text-[10px] font-medium text-[#B54708]">
-                      {STALE_BADGE[staleReasonOf(deckVideo)]}
-                    </span>
-                  )}
+                  <span className="ml-auto flex items-center gap-1.5">
+                    {chip !== "up_to_date" && <AvatarChipBadge chip={chip} />}
+                    {deckVideo?.stale && (
+                      <span className="rounded-full bg-[#FFFAEB] px-2 py-0.5 text-[10px] font-medium text-[#B54708]">
+                        {STALE_BADGE[staleReasonOf(deckVideo)]}
+                      </span>
+                    )}
+                  </span>
                 </button>
               </li>
             ))}
