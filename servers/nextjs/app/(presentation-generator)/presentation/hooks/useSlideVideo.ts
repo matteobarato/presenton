@@ -132,24 +132,27 @@ export function useSlideVideo(
   return { video, pending, upload, remove, addPlaceholder, removePlaceholder };
 }
 
+// `message` is the server's own explanation of a failure, such as the
+// provider's error text, shown under the short reason label.
+type SummaryItem = { slideIndex: number; reason: string; message?: string };
+
 export type GenerationSummary = {
   generated: number;
-  failed: { slideIndex: number; reason: string }[];
-  skipped: { slideIndex: number; reason: string }[];
+  failed: SummaryItem[];
+  skipped: SummaryItem[];
 };
 
 function summarize(task: AvatarGenerationTask): GenerationSummary {
   const slides = task.data?.slides ?? [];
-  const reasonOf = (s: (typeof slides)[number]) =>
-    s.reason || s.message || "unknown";
+  const itemOf = (s: (typeof slides)[number]): SummaryItem => ({
+    slideIndex: s.slide_index,
+    reason: s.reason || s.message || "unknown",
+    message: s.reason && s.message ? s.message : undefined,
+  });
   return {
     generated: slides.filter((s) => s.state === "done").length,
-    failed: slides
-      .filter((s) => s.state === "failed")
-      .map((s) => ({ slideIndex: s.slide_index, reason: reasonOf(s) })),
-    skipped: slides
-      .filter((s) => s.state === "skipped")
-      .map((s) => ({ slideIndex: s.slide_index, reason: reasonOf(s) })),
+    failed: slides.filter((s) => s.state === "failed").map(itemOf),
+    skipped: slides.filter((s) => s.state === "skipped").map(itemOf),
   };
 }
 

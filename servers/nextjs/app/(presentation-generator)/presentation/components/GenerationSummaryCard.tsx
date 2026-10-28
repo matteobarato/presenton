@@ -31,6 +31,11 @@ export function GenerationSummaryCard({
           {problems.map((item) => (
             <li key={`${item.slideIndex}-${item.reason}`}>
               Slide {item.slideIndex + 1}: {failureLabel(item.reason)}
+              {item.message && (
+                <span className="block break-words text-[#667085]">
+                  {item.message}
+                </span>
+              )}
             </li>
           ))}
         </ul>
