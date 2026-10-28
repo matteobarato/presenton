@@ -119,6 +119,96 @@ test("placeholder is rendered but never an animation target", () => {
   assert.match(html, /<img/);
 });
 
+const placeholderComponent = {
+  id: "video_placeholder",
+  position: { x: 900, y: 400 },
+  elements: [
+    {
+      type: "image",
+      video_placeholder: true,
+      data: "/static/images/video-placeholder.png",
+      position: { x: 0, y: 0 },
+      size: { width: 320, height: 180 },
+    },
+  ],
+};
+
+const card = (id, text) => ({
+  id,
+  position: { x: 880, y: 380 },
+  elements: [
+    {
+      type: "text",
+      position: { x: 0, y: 0 },
+      size: { width: 200, height: 40 },
+      text,
+    },
+  ],
+});
+
+test("a placeholder's own component is never an animation target", () => {
+  const layered = {
+    background: "#FFFFFF",
+    components: [card("below", "Below"), placeholderComponent],
+  };
+
+  assert.deepEqual(
+    renderer.templateV2AnimationTargets(layered).map((t) => t.id),
+    ["e0"],
+  );
+});
+
+test("a slide is split at its placeholder into the layers around the avatar", () => {
+  const layered = {
+    background: "#123456",
+    elements: [
+      {
+        type: "text",
+        position: { x: 40, y: 30 },
+        size: { width: 600, height: 80 },
+        text: "Title",
+      },
+    ],
+    components: [card("below", "Below"), placeholderComponent, card("above", "Above")],
+  };
+
+  const layers = renderer.templateV2AvatarLayersHtmlFragments(layered, {
+    annotateElements: true,
+  });
+
+  assert.match(layers.below, /background:#123456/);
+  assert.match(layers.below, /Title/);
+  assert.match(layers.below, /Below/);
+  assert.match(layers.below, /video-placeholder\.png/);
+  assert.doesNotMatch(layers.below, /Above/);
+  assert.match(layers.above, /background:transparent/);
+  assert.match(layers.above, /Above/);
+  assert.doesNotMatch(layers.above, /Title|Below|video-placeholder/);
+  // Ids are the whole slide's, so the slide's animation plan drives both.
+  assert.match(layers.below, /data-hf-el="e1"/);
+  assert.match(layers.above, /data-hf-el="e3"/);
+  assert.doesNotMatch(layers.above, /data-hf-el="e[012]"/);
+});
+
+test("no layers when nothing is drawn over the placeholder", () => {
+  assert.equal(
+    renderer.templateV2AvatarLayersHtmlFragments({
+      components: [card("below", "Below"), placeholderComponent],
+    }),
+    null,
+  );
+  assert.equal(renderer.templateV2AvatarLayersHtmlFragments(ui), null);
+});
+
+test("a placeholder in the root elements is on top, as exports always drew it", () => {
+  const legacy = {
+    elements: [placeholderComponent.elements[0]],
+    components: [card("above", "Above")],
+  };
+
+  assert.equal(renderer.templateV2AvatarLayersHtmlFragments(legacy), null);
+});
+
 test("chart detection and scripts are exposed for the video composition", () => {
   assert.equal(renderer.templateV2UiHasChart(ui), false);
   assert.match(renderer.templateV2ChartScripts(), /__PRESENTON_JSON_CHARTS__/);

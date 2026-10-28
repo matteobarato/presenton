@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   hasTemplateV2RenderableUi,
   templateV2AnimationTargets,
+  templateV2AvatarLayersHtmlFragments,
   templateV2ChartScripts,
   templateV2UiHasChart,
   templateV2UiToHtmlFragment,
@@ -19,6 +20,10 @@ import {
  *
  * Slides without a renderable `ui` come back with `html: null`; the video
  * service renders those as still frames instead.
+ *
+ * A slide with content layered over its video placeholder also comes with
+ * `avatar_layers`: the slide split at the placeholder, so the avatar can play
+ * between the two halves. Null for every other slide.
  */
 
 function getFastApiBaseUrl(): string {
@@ -91,18 +96,16 @@ export async function GET(
   let hasChart = false;
   const renderedSlides = slides.map((slide) => {
     const ui = slide.ui;
-    const html = hasTemplateV2RenderableUi(ui)
-      ? templateV2UiToHtmlFragment(ui, {
-          fonts: presentation.fonts,
-          annotateElements: true,
-        })
-      : null;
+    const renderable = hasTemplateV2RenderableUi(ui);
+    const options = { fonts: presentation.fonts, annotateElements: true };
+    const html = renderable ? templateV2UiToHtmlFragment(ui, options) : null;
     if (html && templateV2UiHasChart(ui)) hasChart = true;
     return {
       id: slide.id ?? null,
       index: slide.index ?? null,
       html,
       elements: html ? templateV2AnimationTargets(ui) : [],
+      avatar_layers: html ? templateV2AvatarLayersHtmlFragments(ui, options) : null,
     };
   });
 

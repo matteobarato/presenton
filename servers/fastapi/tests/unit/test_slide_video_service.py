@@ -13,18 +13,20 @@ from models.sql.presentation import PresentationModel, PresentationVersion
 from models.sql.slide import SlideModel
 from models.sql.slide_video import SlideVideoModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
+from services.presentation_video_service import _timing_presenter
 from services.speaker_note_tts_service import note_digest
 from services.slide_video_service import (
     InvalidStageBoxError,
+    SlideActor,
+    AVATAR_FIT,
     avatar_box,
-    avatar_fit,
     avatar_stale_reason,
     default_placeholder_box,
     delete_slide_videos,
     ensure_video_placeholder,
     find_video_placeholder,
+    find_video_placeholder_box,
     is_template_slide,
-    placeholder_box,
     remove_video_placeholder,
     resolve_bubble,
     resolve_slide_actors,
@@ -79,8 +81,8 @@ def test_a_layout_made_only_of_components_is_a_template_slide():
     )
 
     placed = ensure_video_placeholder(ui, video_width=1280, video_height=720)
-    assert placed["components"] == ui["components"]
-    assert placed["elements"][0]["video_placeholder"] is True
+    assert placed["components"][0] == ui["components"][0]
+    assert placed["components"][1]["elements"][0]["video_placeholder"] is True
 
 
 def test_finds_a_placeholder_nested_in_components_but_not_plain_images():
@@ -94,6 +96,24 @@ def test_finds_a_placeholder_nested_in_components_but_not_plain_images():
     assert find_video_placeholder(ui) is nested
     assert find_video_placeholder(_ui(image)) is None
     assert find_video_placeholder(None) is None
+
+
+def test_the_stage_box_adds_up_the_positions_the_placeholder_is_placed_in():
+    nested = _placeholder(x=5, y=6, width=300, height=200)
+    ui = _ui(
+        components=[
+            {
+                "id": "c",
+                "position": {"x": 100, "y": 50},
+                "elements": [
+                    {"type": "group", "position": {"x": 10, "y": 20}, "children": [nested]}
+                ],
+            }
+        ],
+    )
+
+    assert _box(find_video_placeholder_box(ui)) == (115, 76, 300, 200)
+    assert find_video_placeholder_box(_ui()) is None
 
 
 def test_default_placeholder_follows_the_video_shape_within_limits():
@@ -113,22 +133,63 @@ def test_ensure_adds_a_placeholder_once_and_returns_a_new_dict():
 
     assert first is not ui
     assert ui["elements"] == [{"type": "text", "runs": []}]
-    assert len(first["elements"]) == 2
-    assert first["elements"][-1]["video_placeholder"] is True
-    assert first["elements"][-1]["data"].endswith("/static/images/video-placeholder.png")
+    assert first["elements"] == ui["elements"]
+    # On top of the slide, in a component of its own placed at the box.
+    component = first["components"][-1]
+    assert component["id"] == "video_placeholder"
+    assert component["position"] == {"x": 936, "y": 516}
+    [placeholder] = component["elements"]
+    assert placeholder["video_placeholder"] is True
+    assert placeholder["position"] == {"x": 0, "y": 0}
+    assert placeholder["data"].endswith("/static/images/video-placeholder.png")
+    assert placeholder["fit"] == "cover"
+    assert _box(find_video_placeholder_box(first)) == (936, 516, 320, 180)
     assert second == first
     assert second is not first
 
 
 def test_ensure_keeps_an_existing_placeholder_and_applies_given_coordinates():
-    ui = _ui(_placeholder(x=10, y=20, width=300, height=200))
+    ui = _ui({**_placeholder(x=10, y=20, width=300, height=200), "fit": "fill"})
 
     kept = ensure_video_placeholder(ui, video_width=1920, video_height=1080)
     moved = ensure_video_placeholder(ui, x=100, height=150)
 
-    assert _box(placeholder_box(find_video_placeholder(kept))) == (10, 20, 300, 200)
-    assert _box(placeholder_box(find_video_placeholder(moved))) == (100, 20, 300, 150)
-    assert len(moved["elements"]) == 1
+    assert _box(find_video_placeholder_box(kept)) == (10, 20, 300, 200)
+    # Placeholders made before avatars always covered stored `fill`.
+    assert find_video_placeholder(kept)["fit"] == "cover"
+    assert _box(find_video_placeholder_box(moved)) == (100, 20, 300, 150)
+    assert len(moved["components"]) == 1
+
+
+def test_ensure_lifts_a_root_placeholder_into_a_component_on_top():
+    text = {"type": "text", "runs": []}
+    below = {"id": "c", "elements": []}
+    ui = _ui(text, _placeholder(x=10, y=20, width=300, height=200), components=[below])
+
+    lifted = ensure_video_placeholder(ui)
+
+    assert lifted["elements"] == [text]
+    assert lifted["components"][0] == below
+    assert lifted["components"][1]["id"] == "video_placeholder"
+    assert lifted["components"][1]["position"] == {"x": 10, "y": 20}
+    assert _box(find_video_placeholder_box(lifted)) == (10, 20, 300, 200)
+
+
+def test_ensure_moves_a_placeholder_in_stage_pixels_and_keeps_its_layer():
+    above = {"id": "above", "elements": []}
+    placeholder = _placeholder(x=0, y=0, width=300, height=200)
+    ui = _ui(
+        components=[
+            {"id": "video_placeholder", "position": {"x": 40, "y": 30}, "elements": [placeholder]},
+            above,
+        ]
+    )
+
+    moved = ensure_video_placeholder(ui, x=100, y=50)
+
+    assert _box(find_video_placeholder_box(moved)) == (100, 50, 300, 200)
+    assert moved["components"][0]["position"] == {"x": 40, "y": 30}
+    assert moved["components"][1] == above
 
 
 @pytest.mark.parametrize(
@@ -161,8 +222,9 @@ def test_remove_takes_out_every_placeholder_and_leaves_the_rest():
 
     assert find_video_placeholder(cleaned) is None
     assert cleaned["elements"] == [text]
-    assert cleaned["components"][0]["elements"] == []
-    assert cleaned["components"][1]["child"] is None
+    # The placeholder's own component goes with it.
+    assert [component["id"] for component in cleaned["components"]] == ["d"]
+    assert cleaned["components"][0]["child"] is None
     # The original is left alone.
     assert find_video_placeholder(ui) is not None
 
@@ -448,18 +510,21 @@ def test_avatar_box_is_the_slides_placeholder_when_it_has_one():
     assert _box(avatar_box(slide, _avatar(slide, language="it"))) == (10, 20, 300, 200)
 
 
-def test_avatar_fit_mirrors_the_editor():
-    def fit_of(**props):
-        slide = _slide("nota")
-        slide.ui = _ui({**_placeholder(), **props})
-        return avatar_fit(slide)
+def test_avatars_cover_their_placeholder_whatever_fit_it_stored(tmp_path):
+    # No control sets a placeholder's fit, and placeholders made before avatars
+    # always covered stored `fill`, which stretched the face in the export.
+    slide = _slide("nota")
+    slide.ui = _ui({**_placeholder(width=240, height=400), "fit": "fill"})
+    video = _avatar(slide, language="it")
+    video.path = str(tmp_path / "avatar.mp4")
+    open(video.path, "wb").close()
 
-    assert fit_of(fit="fill") == "fill"
-    assert fit_of(fit="cover") == "cover"
-    assert fit_of(fit="contain") == "contain"
-    assert fit_of() == "contain"
-    assert fit_of(fit="stretch") == "contain"
-    assert avatar_fit(_slide("nota")) == "contain"  # no placeholder at all
+    presenter = _timing_presenter(
+        slide, SlideActor(slide, "video", None, video), "/tmp/a.mp3", True
+    )
+
+    assert AVATAR_FIT == "cover"
+    assert presenter["avatar_fit"] == "cover"
 
 
 # --- source column and byte storage ---
@@ -650,7 +715,7 @@ def test_set_placeholder_adds_default_box(tmp_path, monkeypatch):
     box, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
 
     assert _box(box) == _box(default_placeholder_box(None, None))
-    assert _box(placeholder_box(find_video_placeholder(slide.ui))) == _box(box)
+    assert _box(find_video_placeholder_box(slide.ui)) == _box(box)
 
 
 def test_set_placeholder_moves_existing(tmp_path, monkeypatch):
@@ -663,7 +728,11 @@ def test_set_placeholder_moves_existing(tmp_path, monkeypatch):
 
     default = default_placeholder_box(None, None)
     assert _box(box) == (100, 50, default.size.width, default.size.height)
-    assert len(slide.ui["elements"]) == 1
+    assert sum(
+        1
+        for component in slide.ui["components"]
+        if component.get("id") == "video_placeholder"
+    ) == 1
 
 
 def test_remove_placeholder_deletes_video_and_file(tmp_path, monkeypatch):

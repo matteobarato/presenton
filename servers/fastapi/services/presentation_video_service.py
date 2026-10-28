@@ -34,11 +34,12 @@ import os
 import shutil
 import tempfile
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime
 from typing import Any, Awaitable, Callable, Optional, Sequence, Union
 
 import httpx
+from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -47,11 +48,12 @@ from models.sql.presentation import PresentationModel
 from models.sql.presentation_video import PresentationVideoModel
 from models.sql.slide import SlideModel
 from services.slide_video_service import (
+    AVATAR_FIT,
     SlideActor,
     avatar_box,
     avatar_border_radius,
-    avatar_fit,
     avatar_stale_reason,
+    items_above_video_placeholder,
     list_slide_videos,
     resolve_bubble,
     resolve_slide_actors,
@@ -108,6 +110,12 @@ from utils.video_actors import (
     scale_radius,
 )
 from utils.runtime_limits import log_memory
+from utils.video_avatar_layers import (
+    OverAvatarLayer,
+    over_avatar_filters,
+    over_avatar_input_args,
+    plan_over_avatar_layers,
+)
 from utils.video_crossfade import (
     MAX_CROSSFADE_SECONDS,
     plan_half_fades,
@@ -161,6 +169,11 @@ class PresentationVideoConfigurationError(RuntimeError):
 
 class PresentationVideoRenderError(RuntimeError):
     """Raised when rendering frames or encoding the video fails."""
+
+
+class AvatarLayersUnavailableError(RuntimeError):
+    """Raised when the slide content over an avatar cannot be rendered apart;
+    the avatar is then drawn over the whole slide."""
 
 
 class AnimatedVideoUnavailableError(RuntimeError):
@@ -268,6 +281,8 @@ class SlideTiming:
     avatar_fit: str = "fill"
     # The placeholder's corner radius in stage pixels.
     avatar_radius: float = 0.0
+    # How many of the slide's top-level items are layered over the avatar.
+    avatar_layers_above: int = 0
 
 
 @dataclass
@@ -362,6 +377,13 @@ def compute_video_source_hash(
                         timing.avatar_fit,
                         repr(timing.avatar_radius),
                     )
+                )
+                # Only when something is drawn over the avatar, so a render
+                # made before avatars could be layered stays valid.
+                + (
+                    f"|above={timing.avatar_layers_above}"
+                    if timing.avatar_layers_above
+                    else ""
                 )
             )
     if bubble_box is not None:
@@ -521,8 +543,13 @@ def build_ffmpeg_args(
     language_code: str,
     output_path: str,
     speaker_indicator: Optional[SpeakerIndicatorFrames] = None,
+    over_avatar_paths: Optional[dict[int, str]] = None,
 ) -> list[str]:
     """Build the single ffmpeg invocation that assembles the whole video.
+
+    `over_avatar_paths` maps a slide's position to the transparent PNG of the
+    content layered over its avatar; that slide's `image_paths` entry is then
+    the picture under the avatar.
 
     Pure and side-effect free (aside from reading `timings`/`options`, which
     are already in memory) so it can be unit tested by inspecting the
@@ -588,6 +615,8 @@ def build_ffmpeg_args(
     actor_input_index = _add_actor_inputs(
         args, actor_segments, speaker_indicator, options
     )
+    over_layers = plan_over_avatar_layers(spans, half_fades, over_avatar_paths or {})
+    over_input_index = _add_over_avatar_inputs(args, over_layers, options.fps)
 
     filter_parts: list[str] = []
     # The concat demuxer's still-image frames carry timestamps derived from
@@ -651,6 +680,8 @@ def build_ffmpeg_args(
             actor_input_index=actor_input_index,
             speaker_indicator=speaker_indicator,
             fps=options.fps,
+            over_layers=over_layers,
+            over_input_index=over_input_index,
         )
     )
     video_map = "[vout]"
@@ -753,29 +784,63 @@ def _video_output_parts(
     actor_input_index: Optional[int],
     speaker_indicator: Optional[SpeakerIndicatorFrames],
     fps: int,
+    over_layers: Sequence[OverAvatarLayer] = (),
+    over_input_index: Optional[int] = None,
 ) -> list[str]:
-    """Finish the picture as `[vout]`: the presenter first, burned captions on top."""
+    """Finish the picture as `[vout]`: the presenter first, then the slide
+    content layered over avatars, burned captions on top."""
     subtitles = (
         f"subtitles='{_escape_filtergraph_path(subtitles_vtt)}'"
         if subtitles_vtt is not None
         else None
     )
-    if not actor_segments or actor_input_index is None:
+    has_actors = bool(actor_segments) and actor_input_index is not None
+    has_layers = bool(over_layers) and over_input_index is not None
+    if not has_actors and not has_layers:
         return [video_chain + (f",{subtitles}" if subtitles else "") + "[vout]"]
     parts = [video_chain + "[vbase]"]
-    parts.extend(
-        actor_overlay_filters(
-            actor_segments,
-            first_input_index=actor_input_index,
-            indicator=speaker_indicator,
-            fps=fps,
-            video_label="vbase",
-            output_label="vact" if subtitles else "vout",
+    current = "vbase"
+    if has_actors:
+        assert actor_input_index is not None
+        output = "vact" if subtitles or has_layers else "vout"
+        parts.extend(
+            actor_overlay_filters(
+                actor_segments,
+                first_input_index=actor_input_index,
+                indicator=speaker_indicator,
+                fps=fps,
+                video_label=current,
+                output_label=output,
+            )
         )
-    )
+        current = output
+    if has_layers:
+        assert over_input_index is not None
+        output = "vlay" if subtitles else "vout"
+        parts.extend(
+            over_avatar_filters(
+                over_layers,
+                first_input_index=over_input_index,
+                fps=fps,
+                video_label=current,
+                output_label=output,
+            )
+        )
+        current = output
     if subtitles:
-        parts.append(f"[vact]{subtitles}[vout]")
+        parts.append(f"[{current}]{subtitles}[vout]")
     return parts
+
+
+def _add_over_avatar_inputs(
+    args: list[str], layers: Sequence[OverAvatarLayer], fps: int
+) -> Optional[int]:
+    """Append one input per layer over an avatar; the first one's index, if any."""
+    if not layers:
+        return None
+    index = sum(1 for arg in args if arg == "-i")
+    args.extend(over_avatar_input_args(layers, fps))
+    return index
 
 
 def _audio_filter_parts(
@@ -907,8 +972,15 @@ def build_animated_ffmpeg_args(
     language_code: str,
     output_path: str,
     speaker_indicator: Optional[SpeakerIndicatorFrames] = None,
+    over_avatar_clip: Optional[str] = None,
+    over_avatar_slots: Optional[dict[int, tuple[int, int]]] = None,
 ) -> list[str]:
     """Build the ffmpeg invocation that turns the entrance clip into the video.
+
+    `over_avatar_clip` is the alpha clip of the content layered over avatars,
+    and `over_avatar_slots` maps a slide's position to its `(clip_start_frame,
+    clip_frames)` in it; that slide's stretch of `clip_path` is then the
+    picture under the avatar.
 
     The clip holds every slide's entrance back to back. Each slide reads its
     own stretch of it as a separate input, seeked half a frame before its
@@ -971,6 +1043,14 @@ def build_animated_ffmpeg_args(
         if crossfade
         else []
     )
+    slots = over_avatar_slots if over_avatar_clip else None
+    over_layers = plan_over_avatar_layers(
+        [(segment.output_start_frame, segment.frames) for segment in segments],
+        half_fades,
+        {position: over_avatar_clip for position in slots or {}},
+        clip_slots=slots,
+    )
+    over_input_index = _add_over_avatar_inputs(args, over_layers, options.fps)
     for index, segment in enumerate(segments):
         chain = f"[{index}:v]trim=end_frame={segment.clip_frames},format=yuv420p"
         if crossfade:
@@ -1018,6 +1098,8 @@ def build_animated_ffmpeg_args(
             actor_input_index=actor_input_index,
             speaker_indicator=speaker_indicator,
             fps=options.fps,
+            over_layers=over_layers,
+            over_input_index=over_input_index,
         )
     )
     filter_parts.extend(_audio_filter_parts(timings, options, audio_input_start))
@@ -1213,6 +1295,170 @@ class AnimatedRender:
     clip_path: str
     segments: list[AnimatedSegment]
     animated_slides: int
+    # The alpha clip of the content over avatars, and each layered slide's
+    # `(clip_start_frame, clip_frames)` in it.
+    over_avatar_clip: Optional[str] = None
+    over_avatar_slots: dict[int, tuple[int, int]] = field(default_factory=dict)
+    # Why slides that should have been layered were not.
+    over_avatar_failure: Optional[str] = None
+
+
+def _layered_positions(timings: Sequence[SlideTiming]) -> list[int]:
+    """Slides whose avatar has slide content layered over it."""
+    return [
+        position
+        for position, timing in enumerate(timings)
+        if _slide_actor(timing) == "video" and timing.avatar_layers_above > 0
+    ]
+
+
+def _check_composition(
+    composed: Sequence[Any], ordered_slides: Sequence[SlideModel]
+) -> None:
+    if len(composed) != len(ordered_slides):
+        raise AnimatedVideoUnavailableError(
+            f"Slide HTML covers {len(composed)} slides but the presentation "
+            f"has {len(ordered_slides)}"
+        )
+    for slide, entry in zip(ordered_slides, composed):
+        if str(entry.get("id")) != str(slide.id):
+            raise AnimatedVideoUnavailableError(
+                "Slide HTML is out of step with the presentation's slides"
+            )
+
+
+def _composition_avatar_layers(
+    composed: Sequence[Any], positions: Sequence[int]
+) -> dict[int, tuple[str, str]]:
+    """`(below, above)` HTML per slide in `positions` the composition split."""
+    layers: dict[int, tuple[str, str]] = {}
+    for position in positions:
+        value = composed[position].get("avatar_layers")
+        if (
+            isinstance(value, dict)
+            and isinstance(value.get("below"), str)
+            and isinstance(value.get("above"), str)
+        ):
+            layers[position] = (value["below"], value["above"])
+    return layers
+
+
+def _one_frame_segments(count: int) -> list[AnimatedSegment]:
+    return [
+        AnimatedSegment(
+            slide_index=index,
+            output_start_frame=index,
+            frames=1,
+            clip_start_frame=index,
+            clip_frames=1,
+        )
+        for index in range(count)
+    ]
+
+
+async def _render_avatar_layer_stills(
+    *,
+    layers: dict[int, tuple[str, str]],
+    pages: Sequence[Any],
+    chart_scripts: Optional[str],
+    options: VideoRenderOptions,
+    tmp_dir: str,
+) -> dict[int, tuple[str, str]]:
+    """The picture under and the transparent layer over each slide's avatar,
+    as PNGs shaped like that slide's page.
+
+    Both come from one HyperFrames render, one frame each, with alpha. The
+    picture under the avatar paints the slide background, so it is opaque; it
+    is flattened to the pages' RGB so every slide image decodes alike.
+    """
+    if not hyperframes_available():
+        raise AvatarLayersUnavailableError(
+            "The HyperFrames renderer is not installed on this server"
+        )
+    positions = sorted(layers)
+    html = [part for position in positions for part in layers[position]]
+    project_dir = os.path.join(tmp_dir, "avatar-layers")
+    write_hyperframes_project(
+        project_dir,
+        build_composition_slides(
+            _one_frame_segments(len(html)), html, [[] for _ in html], options.fps
+        ),
+        width=options.width,
+        height=options.height,
+        gsap_path=str(gsap_script_path()),
+        chart_scripts=chart_scripts,
+        transparent=True,
+    )
+    frames_dir = os.path.join(tmp_dir, "avatar-layer-frames")
+    try:
+        await render_hyperframes_project(
+            project_dir, frames_dir, fps=options.fps, output_format="png-sequence"
+        )
+    except (HyperFramesRenderError, HyperFramesUnavailableError) as exc:
+        raise AvatarLayersUnavailableError(str(exc)) from exc
+    frames = sorted(name for name in os.listdir(frames_dir) if name.endswith(".png"))
+    if len(frames) < len(html):
+        raise AvatarLayersUnavailableError(
+            f"The avatar layer render produced {len(frames)} frames, not {len(html)}"
+        )
+    rendered: dict[int, tuple[str, str]] = {}
+    for number, position in enumerate(positions):
+        below_path = os.path.join(frames_dir, frames[2 * number])
+        above_path = os.path.join(frames_dir, frames[2 * number + 1])
+        page = pages[position]
+        with Image.open(below_path) as image:
+            below = image.convert("RGB")
+        if below.size != (page.width, page.height):
+            below = below.resize((page.width, page.height), Image.Resampling.LANCZOS)
+        flattened = os.path.join(frames_dir, f"below-{position}.png")
+        below.save(flattened, format="PNG")
+        rendered[position] = (flattened, above_path)
+    return rendered
+
+
+async def _render_over_avatar_clip(
+    *,
+    over_html: dict[int, str],
+    segments: Sequence[AnimatedSegment],
+    tweens: Sequence[Sequence[SlideTween]],
+    options: VideoRenderOptions,
+    chart_scripts: Optional[str],
+    tmp_dir: str,
+) -> tuple[str, dict[int, tuple[int, int]]]:
+    """The content over avatars as one alpha clip, with the same entrances as
+    the slides they belong to, back to back; and each slide's slot in it."""
+    positions = sorted(over_html)
+    slots: dict[int, tuple[int, int]] = {}
+    over_segments: list[AnimatedSegment] = []
+    clip_start = 0
+    for position in positions:
+        segment = segments[position]
+        slots[position] = (clip_start, segment.clip_frames)
+        over_segments.append(replace(segment, clip_start_frame=clip_start))
+        clip_start += segment.clip_frames
+    project_dir = os.path.join(tmp_dir, "hyperframes-over-avatar")
+    write_hyperframes_project(
+        project_dir,
+        build_composition_slides(
+            over_segments,
+            [over_html[position] for position in positions],
+            [tweens[position] for position in positions],
+            options.fps,
+        ),
+        width=options.width,
+        height=options.height,
+        gsap_path=str(gsap_script_path()),
+        chart_scripts=chart_scripts,
+        transparent=True,
+    )
+    clip_path = os.path.join(tmp_dir, "animated-over-avatar.mov")
+    try:
+        await render_hyperframes_project(
+            project_dir, clip_path, fps=options.fps, output_format="mov"
+        )
+    except (HyperFramesRenderError, HyperFramesUnavailableError) as exc:
+        raise AvatarLayersUnavailableError(str(exc)) from exc
+    return clip_path, slots
 
 
 async def _render_animated_clip(
@@ -1229,7 +1475,9 @@ async def _render_animated_clip(
 
     Template-v2 slides get their planned entrance; any other slide is placed
     in the clip as its still PDF frame for a single frame, so the encode
-    treats every slide the same way.
+    treats every slide the same way. A slide with content layered over its
+    avatar is split: the clip holds the slide under the avatar, and a second,
+    alpha clip what is over it.
     """
     if not hyperframes_available():
         raise AnimatedVideoUnavailableError(
@@ -1239,16 +1487,7 @@ async def _render_animated_clip(
 
     composition = await _fetch_video_composition(presentation.id, cookie_header)
     composed = composition["slides"]
-    if len(composed) != len(ordered_slides):
-        raise AnimatedVideoUnavailableError(
-            f"Slide HTML covers {len(composed)} slides but the presentation "
-            f"has {len(ordered_slides)}"
-        )
-    for slide, entry in zip(ordered_slides, composed):
-        if str(entry.get("id")) != str(slide.id):
-            raise AnimatedVideoUnavailableError(
-                "Slide HTML is out of step with the presentation's slides"
-            )
+    _check_composition(composed, ordered_slides)
 
     animated = [
         (position, slide.id, entry["html"], entry.get("elements") or [])
@@ -1300,13 +1539,46 @@ async def _render_animated_clip(
         tweens.append([])
 
     segments = plan_animated_segments(timings, entrance, options.fps)
+    chart_scripts = composition.get("chart_scripts") or None
+
+    layers = {
+        position: parts
+        for position, parts in _composition_avatar_layers(
+            composed, _layered_positions(timings)
+        ).items()
+        if position in html_by_position
+    }
+    over_clip: Optional[str] = None
+    over_slots: dict[int, tuple[int, int]] = {}
+    over_failure: Optional[str] = None
+    if layers:
+        try:
+            over_clip, over_slots = await _render_over_avatar_clip(
+                over_html={position: above for position, (_, above) in layers.items()},
+                segments=segments,
+                tweens=tweens,
+                options=options,
+                chart_scripts=chart_scripts,
+                tmp_dir=tmp_dir,
+            )
+        except AvatarLayersUnavailableError as exc:
+            LOGGER.warning(
+                "Avatar layers unavailable for %s, drawing avatars on top: %s",
+                presentation.id,
+                exc,
+            )
+            over_failure = str(exc)
+        else:
+            for position, (below, _) in layers.items():
+                slide_html[position] = below
+
     write_hyperframes_project(
         project_dir,
         build_composition_slides(segments, slide_html, tweens, options.fps),
         width=options.width,
         height=options.height,
         gsap_path=gsap_path,
-        chart_scripts=composition.get("chart_scripts") or None,
+        chart_scripts=chart_scripts,
     )
 
     clip_path = os.path.join(tmp_dir, "animated.mp4")
@@ -1325,7 +1597,12 @@ async def _render_animated_clip(
         raise AnimatedVideoUnavailableError(str(exc)) from exc
 
     return AnimatedRender(
-        clip_path=clip_path, segments=segments, animated_slides=len(animated)
+        clip_path=clip_path,
+        segments=segments,
+        animated_slides=len(animated),
+        over_avatar_clip=over_clip,
+        over_avatar_slots=over_slots,
+        over_avatar_failure=over_failure,
     )
 
 
@@ -1389,8 +1666,9 @@ def _timing_presenter(
                 float(box.size.width),
                 float(box.size.height),
             ),
-            "avatar_fit": avatar_fit(slide),
+            "avatar_fit": AVATAR_FIT,
             "avatar_radius": avatar_border_radius(slide),
+            "avatar_layers_above": items_above_video_placeholder(slide.ui),
         }
     return {"actor": "voice" if audio_path else "none"}
 
@@ -1691,6 +1969,9 @@ async def generate_presentation_video(
 
             pages: list[Any] = []
             concat_path = os.path.join(tmp_dir, "concat.txt")
+            over_avatar_paths: dict[int, str] = {}
+            layered = _layered_positions(timings)
+            layer_failure: Optional[str] = None
             if animated_render is None:
                 pages = await _render_slide_pages(
                     presentation=presentation,
@@ -1700,7 +1981,58 @@ async def generate_presentation_video(
                     slide_count=len(timings),
                     on_progress=on_progress,
                 )
+                if layered:
+                    try:
+                        composition = await _fetch_video_composition(
+                            presentation.id, cookie_header
+                        )
+                        composed = composition["slides"]
+                        _check_composition(composed, ordered_slides)
+                        layers = _composition_avatar_layers(composed, layered)
+                        rendered = (
+                            await _render_avatar_layer_stills(
+                                layers=layers,
+                                pages=pages,
+                                chart_scripts=composition.get("chart_scripts") or None,
+                                options=opts,
+                                tmp_dir=tmp_dir,
+                            )
+                            if layers
+                            else {}
+                        )
+                    except (
+                        AvatarLayersUnavailableError,
+                        AnimatedVideoUnavailableError,
+                        httpx.HTTPError,
+                    ) as exc:
+                        LOGGER.warning(
+                            "Avatar layers unavailable for %s, drawing avatars on top: %s",
+                            presentation.id,
+                            exc,
+                        )
+                        layer_failure = str(exc)
+                    else:
+                        for position, (below, above) in rendered.items():
+                            pages[position] = replace(pages[position], path=below)
+                            over_avatar_paths[position] = above
                 _write_concat_file(pages, timings, concat_path)
+            else:
+                layer_failure = animated_render.over_avatar_failure
+                over_clip = animated_render.over_avatar_clip
+                if over_clip is not None:
+                    over_avatar_paths = {
+                        position: over_clip
+                        for position in animated_render.over_avatar_slots
+                    }
+            if layered:
+                avatars["layered_slides"] = [
+                    timings[position].slide_index for position in sorted(over_avatar_paths)
+                ]
+            if layer_failure is not None:
+                avatars["layers_unavailable"] = layer_failure
+                # Like a stills fallback, kept from matching so the next
+                # request tries the layers again.
+                stored_source_hash = f"{stored_source_hash}:unlayered"
 
             speaker_indicator: Optional[SpeakerIndicatorFrames] = None
             if opts.speaker_indicator and any(
@@ -1735,6 +2067,8 @@ async def generate_presentation_video(
                     language_code=target_language.code,
                     output_path=output_path,
                     speaker_indicator=speaker_indicator,
+                    over_avatar_clip=animated_render.over_avatar_clip,
+                    over_avatar_slots=animated_render.over_avatar_slots,
                 )
             else:
                 ffmpeg_args = build_ffmpeg_args(
@@ -1746,6 +2080,7 @@ async def generate_presentation_video(
                     language_code=target_language.code,
                     output_path=output_path,
                     speaker_indicator=speaker_indicator,
+                    over_avatar_paths=over_avatar_paths,
                 )
 
             async def _encode_progress(progress: FFmpegProgress) -> None:

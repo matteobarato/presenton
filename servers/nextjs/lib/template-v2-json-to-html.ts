@@ -22,7 +22,11 @@ import {
   localFontOptionsFromUnknown,
   renderLocalFontFaceCss,
 } from "@/components/slide-editor/text/local-fonts";
-import { isVideoPlaceholderElement } from "@/components/slide-editor/video/video-placeholder";
+import {
+  findVideoPlaceholder,
+  isVideoPlaceholderLayer,
+  liftRootVideoPlaceholder,
+} from "@/components/slide-editor/video/video-placeholder";
 
 type JsonRecord = Record<string, unknown>;
 type RenderMode = "absolute" | "flow";
@@ -200,6 +204,54 @@ export function templateV2UiToHtmlFragment(
   );
 }
 
+export interface TemplateV2AvatarLayers {
+  below: string;
+  above: string;
+}
+
+/**
+ * The slide split at its video placeholder, for a video render that plays the
+ * avatar between the two: `below` is every top-level item up to and including
+ * the placeholder's, on the slide background, and `above` is every one layered
+ * over it, on a transparent background. Annotated items keep the ids the
+ * whole fragment gives them, so one animation plan drives both. Null when the
+ * slide has no placeholder or nothing is drawn over it.
+ */
+export function templateV2AvatarLayersHtmlFragments(
+  ui: unknown,
+  options: TemplateV2HtmlOptions = {}
+): TemplateV2AvatarLayers | null {
+  const payload = templateV2RenderPayload(ui, options);
+  if (!payload) return null;
+  const records = payload.items.map(readRecord);
+  const layer = records.findIndex((item) => findVideoPlaceholder(item) !== null);
+  if (layer < 0) return null;
+  if (!records.some((item, index) => index > layer && renderItem(item, "absolute"))) {
+    return null;
+  }
+  const annotate = options.annotateElements === true;
+  return {
+    below: jsonToHtmlFragment(
+      records,
+      payload.width,
+      payload.height,
+      payload.fonts,
+      payload.background,
+      annotate,
+      (index) => index <= layer
+    ),
+    above: jsonToHtmlFragment(
+      records,
+      payload.width,
+      payload.height,
+      payload.fonts,
+      "transparent",
+      annotate,
+      (index) => index > layer
+    ),
+  };
+}
+
 /**
  * The elements `annotateElements` wraps, in the same order and with the same
  * ids, described for whoever decides how each one animates in. A video
@@ -213,7 +265,7 @@ export function templateV2AnimationTargets(
 
   const targets: TemplateV2AnimationTarget[] = [];
   payload.items.map(readRecord).forEach((item, index) => {
-    if (isVideoPlaceholderElement(item) || !renderItem(item, "absolute")) return;
+    if (isVideoPlaceholderLayer(item) || !renderItem(item, "absolute")) return;
     const box = readBox(item);
     targets.push({
       id: animationTargetId(index),
@@ -305,7 +357,9 @@ function templateV2RenderPayload(
   ui: unknown,
   options: TemplateV2HtmlOptions
 ): TemplateV2RenderPayload | null {
-  const record = readRecord(ui);
+  // A placeholder still in the root elements is drawn on top, where exports
+  // have always put the avatar.
+  const record = liftRootVideoPlaceholder(readRecord(ui));
   const rootElements = readArray(record.elements);
   const components = readArray(record.components);
   const items = [...rootElements, ...components].map((item) =>
@@ -387,7 +441,8 @@ function jsonToHtmlFragment(
   height: number,
   fonts: unknown = {},
   background = "#FFFFFF",
-  annotateElements = false
+  annotateElements = false,
+  include?: (index: number) => boolean
 ): string {
   const records = items.map(readRecord);
   const bg = escapeCssColor(background);
@@ -397,7 +452,8 @@ function jsonToHtmlFragment(
     width,
     height,
     bg,
-    annotateElements
+    annotateElements,
+    include
   )}`;
 }
 
@@ -406,12 +462,16 @@ function renderSlideRoot(
   width: number,
   height: number,
   background: string,
-  annotateElements = false
+  annotateElements = false,
+  // Only the top-level items whose index passes are drawn; indexes, and so
+  // annotation ids, stay those of the whole slide.
+  include: (index: number) => boolean = () => true
 ): string {
   const content = records
     .map((item, index) => {
+      if (!include(index)) return "";
       const html = renderItem(item, "absolute");
-      return annotateElements && !isVideoPlaceholderElement(item)
+      return annotateElements && !isVideoPlaceholderLayer(item)
         ? annotateAnimationTarget(html, item, index, width, height)
         : html;
     })

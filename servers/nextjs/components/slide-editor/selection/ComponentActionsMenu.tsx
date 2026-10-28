@@ -20,7 +20,8 @@ export type ComponentActionsMenuActions = {
   componentIndex: number;
   componentCount: number;
   onDelete: () => void;
-  onDuplicate: () => void;
+  // Null for a component that cannot be copied, such as the video placeholder.
+  onDuplicate: (() => void) | null;
   onLayerAction: (action: ComponentLayerAction) => void;
   onUngroup: () => void;
 };
@@ -95,12 +96,14 @@ export function ComponentActionsMenu({
         onPointerDown={(event) => event.stopPropagation()}
         className="z-[10001] box-border w-[244px] rounded-[12px] border border-[#EDEEEF] bg-white py-2 font-syne text-[14px] font-normal leading-normal tracking-[0.14px] text-[#191919] shadow-[0_6px_18px_rgba(16,24,40,0.08)]"
       >
-        <ComponentActionsMenuItem
-          strong
-          icon={Copy}
-          label="Duplicate"
-          onClick={actions.onDuplicate}
-        />
+        {actions.onDuplicate ? (
+          <ComponentActionsMenuItem
+            strong
+            icon={Copy}
+            label="Duplicate"
+            onClick={actions.onDuplicate}
+          />
+        ) : null}
         {COMPONENT_LAYER_ACTIONS.map(({ action, label, shortcut }) => {
           const disabled = !canApplyComponentLayerAction(
             actions.componentIndex,

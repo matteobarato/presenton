@@ -197,8 +197,9 @@ def _slide_ui(client, presentation_id, index):
 
 
 def _placeholders(ui):
-    return [
-        element
-        for element in ui["elements"]
-        if element.get("video_placeholder") is True
-    ]
+    # A placeholder sits in a component of its own; one in the root
+    # `elements` is the older shape, lifted on the next write.
+    elements = list(ui.get("elements") or [])
+    for component in ui.get("components") or []:
+        elements.extend(component.get("elements") or [])
+    return [element for element in elements if element.get("video_placeholder") is True]

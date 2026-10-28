@@ -6,7 +6,8 @@ avatar video (made offline, lip-synced to that narration) it expands into a
 placeholder the slide's layout reserves for it. The placeholder is an ordinary
 image element tagged `video_placeholder`, so every existing editor and export
 path handles it as an image; its poster is transparent, which keeps it out of
-sight in static exports.
+sight in static exports. It sits in a component of its own, so it is layered
+like any other component: slide content above it is drawn over the avatar.
 
 Videos only exist on template slides, whose `ui` element tree has somewhere to
 put the placeholder. A placeholder is how a slide opts in to an avatar, so it
@@ -67,9 +68,18 @@ STAGE_MARGIN = 24
 VIDEO_PLACEHOLDER_FLAG = "video_placeholder"
 VIDEO_PLACEHOLDER_NAME = "avatar_video"
 VIDEO_PLACEHOLDER_POSTER = "/static/images/video-placeholder.png"
+# An avatar always fills its placeholder, cropping the overflow, so the face
+# keeps its proportions whatever box the author drew. Nothing lets the author
+# pick another fit, and placeholders made before this stored `fill`, so the
+# stored `fit` is overwritten rather than read.
+AVATAR_FIT: Literal["cover"] = "cover"
 DEFAULT_PLACEHOLDER_WIDTH = 320
 MAX_DEFAULT_PLACEHOLDER_HEIGHT = 360
 DEFAULT_VIDEO_ASPECT = 9 / 16
+# A placeholder gets a component of its own, like an image inserted in the
+# editor, so its place in `components` is its layer.
+VIDEO_PLACEHOLDER_COMPONENT_ID = "video_placeholder"
+VIDEO_PLACEHOLDER_COMPONENT_DESCRIPTION = "Avatar video placeholder"
 
 DEFAULT_BUBBLE_SIZE = 96
 
@@ -110,19 +120,41 @@ def _is_video_placeholder(value: Any) -> bool:
     )
 
 
-def _walk(value: Any) -> Iterator[dict[str, Any]]:
+def _position(value: dict[str, Any]) -> tuple[float, float]:
+    position = value.get("position") if isinstance(value.get("position"), dict) else {}
+    return _number(position.get("x")) or 0.0, _number(position.get("y")) or 0.0
+
+
+def _walk(
+    value: Any, offset: tuple[float, float] = (0.0, 0.0)
+) -> Iterator[tuple[dict[str, Any], tuple[float, float]]]:
+    """Every dict in the tree, with the stage offset its own `position` is
+    relative to: a component's elements, and a group's children, are placed
+    from their parent's position, as the editor draws them."""
     if isinstance(value, dict):
-        yield value
+        yield value, offset
+        x, y = _position(value)
+        child_offset = (offset[0] + x, offset[1] + y)
         for child in value.values():
-            yield from _walk(child)
+            yield from _walk(child, child_offset)
     elif isinstance(value, list):
         for child in value:
-            yield from _walk(child)
+            yield from _walk(child, offset)
+
+
+def _locate_video_placeholder(
+    ui: Any,
+) -> Optional[tuple[dict[str, Any], tuple[float, float]]]:
+    return next(
+        ((node, offset) for node, offset in _walk(ui) if _is_video_placeholder(node)),
+        None,
+    )
 
 
 def find_video_placeholder(ui: Any) -> Optional[dict[str, Any]]:
     """The slide's placeholder element, wherever it sits in the element tree."""
-    return next((node for node in _walk(ui) if _is_video_placeholder(node)), None)
+    located = _locate_video_placeholder(ui)
+    return located[0] if located else None
 
 
 def _number(value: Any) -> Optional[float]:
@@ -132,6 +164,7 @@ def _number(value: Any) -> Optional[float]:
 
 
 def placeholder_box(element: Optional[dict[str, Any]]) -> Optional[StageBox]:
+    """`element`'s own box, relative to whatever it is placed in."""
     if element is None:
         return None
     position = element.get("position") if isinstance(element.get("position"), dict) else {}
@@ -141,6 +174,23 @@ def placeholder_box(element: Optional[dict[str, Any]]) -> Optional[StageBox]:
     if None in (x, y, width, height):
         return None
     return StageBox.of(x, y, width, height)
+
+
+def find_video_placeholder_box(ui: Any) -> Optional[StageBox]:
+    """The slide's placeholder on the stage, in stage pixels."""
+    located = _locate_video_placeholder(ui)
+    if located is None:
+        return None
+    element, (offset_x, offset_y) = located
+    box = placeholder_box(element)
+    if box is None:
+        return None
+    return StageBox.of(
+        offset_x + box.position.x,
+        offset_y + box.position.y,
+        box.size.width,
+        box.size.height,
+    )
 
 
 def default_placeholder_box(
@@ -195,11 +245,59 @@ def _new_placeholder_element(box: StageBox) -> dict[str, Any]:
         VIDEO_PLACEHOLDER_FLAG: True,
         "decorative": True,
         "is_icon": False,
-        "fit": "fill",
+        "fit": AVATAR_FIT,
         "data": absolute_fastapi_asset_url(VIDEO_PLACEHOLDER_POSTER),
         "position": {"x": box.position.x, "y": box.position.y},
         "size": {"width": box.size.width, "height": box.size.height},
     }
+
+
+def _placeholder_component(element: dict[str, Any]) -> dict[str, Any]:
+    """`element`, stage-placed, wrapped in a component of its own at the same
+    spot, the way the editor wraps an inserted image."""
+    x, y = _position(element)
+    return {
+        "id": VIDEO_PLACEHOLDER_COMPONENT_ID,
+        "description": VIDEO_PLACEHOLDER_COMPONENT_DESCRIPTION,
+        "position": {"x": x, "y": y},
+        "elements": [{**element, "position": {"x": 0, "y": 0}}],
+    }
+
+
+def _components(ui: dict[str, Any]) -> list[Any]:
+    if not isinstance(ui.get("components"), list):
+        ui["components"] = []
+    return ui["components"]
+
+
+def lift_root_video_placeholder(ui: dict[str, Any]) -> None:
+    """Move a placeholder kept in the slide's root `elements`, as placeholders
+    were before they could be layered, into a component on top of the slide:
+    where every export drew the avatar then. Changes `ui` in place."""
+    elements = ui.get("elements")
+    if not isinstance(elements, list):
+        return
+    lifted = [item for item in elements if _is_video_placeholder(item)]
+    if not lifted:
+        return
+    ui["elements"] = [item for item in elements if not _is_video_placeholder(item)]
+    _components(ui).extend(_placeholder_component(item) for item in lifted)
+
+
+def items_above_video_placeholder(ui: Any) -> int:
+    """How many of the slide's top-level items are layered over its
+    placeholder: root elements first, then components, in drawing order. A
+    placeholder still in the root elements counts as on top."""
+    if not isinstance(ui, dict):
+        return 0
+    lifted = copy.deepcopy(ui)
+    lift_root_video_placeholder(lifted)
+    elements = lifted.get("elements") if isinstance(lifted.get("elements"), list) else []
+    items = [*elements, *_components(lifted)]
+    for index, item in enumerate(items):
+        if find_video_placeholder(item) is not None:
+            return len(items) - index - 1
+    return 0
 
 
 def ensure_video_placeholder(
@@ -214,19 +312,27 @@ def ensure_video_placeholder(
 ) -> dict[str, Any]:
     """Return a copy of `ui` holding a placeholder, moved by any given coordinates.
 
-    A placeholder the slide already has keeps its place unless coordinates are
-    given; a missing one is added on top of the slide. Always a new dict, since
-    the slide's JSON column only notices a change when it is reassigned.
+    Coordinates are stage pixels, wherever the placeholder sits in the tree. A
+    placeholder the slide already has keeps its place, and its layer, unless
+    coordinates are given; a missing one is added in a component of its own on
+    top of the slide. Always a new dict, since the slide's JSON column only
+    notices a change when it is reassigned.
     """
     next_ui = copy.deepcopy(ui)
-    element = find_video_placeholder(next_ui)
-    if element is None:
-        element = _new_placeholder_element(
-            default_placeholder_box(video_width, video_height)
+    lift_root_video_placeholder(next_ui)
+    if _locate_video_placeholder(next_ui) is None:
+        _components(next_ui).append(
+            _placeholder_component(
+                _new_placeholder_element(
+                    default_placeholder_box(video_width, video_height)
+                )
+            )
         )
-        next_ui.setdefault("elements", []).append(element)
+    located = _locate_video_placeholder(next_ui)
+    assert located is not None
+    element, (offset_x, offset_y) = located
 
-    current = placeholder_box(element) or default_placeholder_box(
+    current = find_video_placeholder_box(next_ui) or default_placeholder_box(
         video_width, video_height
     )
     box = validate_stage_box(
@@ -237,13 +343,18 @@ def ensure_video_placeholder(
             current.size.height if height is None else height,
         )
     )
-    element["position"] = {"x": box.position.x, "y": box.position.y}
+    element["position"] = {
+        "x": box.position.x - offset_x,
+        "y": box.position.y - offset_y,
+    }
     element["size"] = {"width": box.size.width, "height": box.size.height}
+    element["fit"] = AVATAR_FIT
     return next_ui
 
 
 def remove_video_placeholder(ui: Any) -> Any:
-    """Return a copy of `ui` with every placeholder element taken out."""
+    """Return a copy of `ui` with every placeholder element taken out, and any
+    component that held nothing else."""
 
     def strip(value: Any) -> Any:
         if isinstance(value, list):
@@ -255,7 +366,22 @@ def remove_video_placeholder(ui: Any) -> Any:
             }
         return value
 
-    return strip(copy.deepcopy(ui))
+    def holds_only_placeholders(component: Any) -> bool:
+        elements = component.get("elements") if isinstance(component, dict) else None
+        return (
+            isinstance(elements, list)
+            and len(elements) > 0
+            and all(_is_video_placeholder(item) for item in elements)
+        )
+
+    stripped = strip(copy.deepcopy(ui))
+    if isinstance(ui, dict) and isinstance(ui.get("components"), list):
+        stripped["components"] = [
+            strip(component)
+            for component in ui["components"]
+            if not holds_only_placeholders(component)
+        ]
+    return stripped
 
 
 def resolve_bubble(presentation: PresentationModel) -> PlaybackBubble:
@@ -370,7 +496,7 @@ def slide_video_response(
         source="heygen" if video.source == "heygen" else "upload",
         stale=stale_reason is not None,
         stale_reason=stale_reason,
-        placeholder=placeholder_box(find_video_placeholder(slide.ui)),
+        placeholder=find_video_placeholder_box(slide.ui),
         created_at=video.created_at,
         updated_at=video.updated_at,
     )
@@ -477,18 +603,9 @@ def resolve_slide_actors(
 def avatar_box(slide: SlideModel, video: SlideVideoModel) -> StageBox:
     """Where the avatar plays: the slide's placeholder, or the default corner
     spot shaped like the video when the placeholder was removed since upload."""
-    return placeholder_box(find_video_placeholder(slide.ui)) or default_placeholder_box(
+    return find_video_placeholder_box(slide.ui) or default_placeholder_box(
         video.width, video.height
     )
-
-
-def avatar_fit(slide: SlideModel) -> Literal["fill", "cover", "contain"]:
-    """How the avatar sits in its box: the placeholder's `fit`, read the way the
-    editor reads an image's (anything unrecognised is `contain`), so the render
-    matches what the author saw."""
-    element = find_video_placeholder(slide.ui)
-    fit = element.get("fit") if element is not None else None
-    return fit if fit in ("fill", "cover", "contain") else "contain"
 
 
 def avatar_border_radius(slide: SlideModel) -> float:
@@ -682,7 +799,7 @@ async def set_video_placeholder(
     sql_session.add(slide)
     await sql_session.commit()
     # A just-added or moved placeholder is always readable from the new `ui`.
-    box = placeholder_box(find_video_placeholder(slide.ui))
+    box = find_video_placeholder_box(slide.ui)
     assert box is not None
     return box
 

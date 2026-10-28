@@ -10,19 +10,26 @@ import {
   averageBorderRadius,
   uniformBorderRadius,
 } from "@/components/slide-editor/model/element-model";
+import {
+  ComponentActionsMenu,
+  type ComponentActionsMenuActions,
+} from "@/components/slide-editor/selection/ComponentActionsMenu";
 import { SLIDE_VIDEO_ACCEPT } from "@/app/(presentation-generator)/services/api/slide-videos";
 import { useSlideVideo } from "@/app/(presentation-generator)/presentation/hooks/useSlideVideo";
 
 // Shown in place of the image toolbar when the selected element is the slide's
-// video placeholder: its poster is not meant to be swapped or cropped.
+// video placeholder: its poster is not meant to be swapped or cropped. Its
+// component is layered like any other, through the same actions menu.
 export function VideoToolbar({
   anchorBox,
+  componentActions,
   element,
   onElementChange,
   presentationId,
   slideId,
 }: {
   anchorBox: FloatingToolbarBox;
+  componentActions?: ComponentActionsMenuActions | null;
   element: { size?: { width?: number; height?: number } | null; border_radius?: unknown };
   onElementChange: (patch: { border_radius: ReturnType<typeof uniformBorderRadius> }) => void;
   presentationId?: string;
@@ -146,6 +153,12 @@ export function VideoToolbar({
           </div>
         </>
       )}
+      {componentActions ? (
+        <>
+          <span aria-hidden="true" className="h-5 w-px bg-[#EDEEEF]" />
+          <ComponentActionsMenu actions={componentActions} />
+        </>
+      ) : null}
     </FloatingToolbar>
   );
 }

@@ -109,10 +109,9 @@ async function syncServerPlaceholder(
       "Reload the editor before changing this slide, or its video placeholder may be lost.",
     );
   }
-  const placeholder = findVideoPlaceholder(serverSlide?.ui);
-  if (placeholder) {
+  if (findVideoPlaceholder(serverSlide?.ui)) {
     updateLocalSlideUi(dispatch, getState, slideId, (ui) =>
-      withVideoPlaceholder(ui, placeholder),
+      withVideoPlaceholder(ui, serverSlide?.ui),
     );
   }
 }

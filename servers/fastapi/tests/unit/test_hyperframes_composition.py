@@ -55,6 +55,17 @@ def test_composition_html_follows_the_hyperframes_contract():
     assert '<script src="vendor/gsap.min.js"></script>' in html
 
 
+def test_a_transparent_composition_paints_no_background_of_its_own():
+    opaque = build_composition_html([_slide()], width=1280, height=720)
+    transparent = build_composition_html([_slide()], width=1280, height=720, transparent=True)
+
+    assert "html,body{margin:0;background:#000}" in opaque
+    assert "overflow:hidden;background:#fff}" in opaque
+    assert "html,body{margin:0;background:transparent}" in transparent
+    assert "overflow:hidden;background:transparent}" in transparent
+    assert "#fff" not in transparent
+
+
 def test_timeline_script_cannot_be_closed_by_entry_data():
     tween = SlideTween("e0</script><script>alert(1)", {"opacity": 0.0}, 0.5, 0.0, "power2.out")
     html = build_composition_html([_slide(tweens=[tween])], width=1280, height=720)
