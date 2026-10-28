@@ -118,7 +118,7 @@ export function GenerateAvatarsDialog({
                     </span>
                     {chip === "up_to_date" && source && (
                       <span className="text-[10px] text-[#667085]">
-                        {source === "elevenlabs" ? "Generated" : "Uploaded"}
+                        {source === "heygen" ? "Generated" : "Uploaded"}
                       </span>
                     )}
                     <AvatarChipBadge chip={chip} />

@@ -65,7 +65,7 @@ test("generateDisabledReason follows the listed priority", () => {
   const ok = { generationAvailable: true, hasPortrait: true, preview: plan("queued"), running: false };
   assert.equal(helpers.generateDisabledReason(ok), null);
   const all = { generationAvailable: false, hasPortrait: false, preview: plan("skipped", { reason: "no_audio" }), running: true };
-  assert.equal(helpers.generateDisabledReason(all), "Set ELEVENLABS_API_KEY on the server to generate avatars.");
+  assert.equal(helpers.generateDisabledReason(all), "Set HEYGEN_API_KEY on the server to generate avatars.");
   assert.equal(
     helpers.generateDisabledReason({ ...all, generationAvailable: true }),
     "Upload a presenter portrait first.",
@@ -82,7 +82,7 @@ test("generateDisabledReason follows the listed priority", () => {
   const unsupported = { ...ok, preview: plan("skipped", { reason: "unsupported_audio_format" }) };
   assert.equal(
     helpers.generateDisabledReason(unsupported),
-    "This slide's narration audio format can't be sent to ElevenLabs.",
+    "This slide's narration audio format can't be sent to HeyGen.",
   );
   assert.equal(
     helpers.generateDisabledReason({ ...ok, running: true }),
@@ -102,9 +102,9 @@ test("newlyDone lists slides that turned done", () => {
 });
 
 test("failureLabel is readable and falls back to the raw reason", () => {
-  assert.equal(helpers.failureLabel("moderated"), "Rejected by moderation");
+  assert.equal(helpers.failureLabel("timeout"), "Timed out");
   assert.equal(helpers.failureLabel("something_new"), "something_new");
-  for (const r of ["timeout","model_error","invalid_parameters","dependency_failed","charging_failed","internal_error","invalid_output","configuration","request_error","audio_error","unknown","no_placeholder","no_audio","audio_stale","unsupported_audio_format","up_to_date","placeholder_removed"]) {
+  for (const r of ["timeout","internal_error","invalid_output","configuration","request_error","audio_error","unknown","no_placeholder","no_audio","audio_stale","unsupported_audio_format","up_to_date","placeholder_removed"]) {
     assert.notEqual(helpers.failureLabel(r), r);
   }
 });

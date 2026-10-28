@@ -17,8 +17,8 @@ from models.sql.slide import SlideModel
 from models.sql.slide_video import SlideVideoModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
 from models.sql.user import User
-from services.elevenlabs_lipsync import (
-    ElevenLabsConfigurationError,
+from services.heygen_lipsync import (
+    HeyGenConfigurationError,
     LipsyncStatus,
 )
 from services.slide_avatar_generation import (
@@ -64,7 +64,7 @@ def _ui(placeholder=True):
 
 
 class FakeClient:
-    """Scripted ElevenLabs: each slide's create returns an id whose polls follow a script."""
+    """Scripted HeyGen: each slide's create returns an id whose polls follow a script."""
 
     def __init__(self, scripts=None, *, default=None, create_error=None, video=None):
         self.scripts = scripts or {}
@@ -79,14 +79,14 @@ class FakeClient:
         self.used_after_close = False
         self.on_completed = None
 
-    async def create(self, *, image, image_mime, audio, audio_mime, resolution):
+    async def create(self, *, image, image_mime, audio, audio_mime):
         self.used_after_close |= self.closed
         if self.create_error is not None:
             raise self.create_error
         generation_id = f"gen-{len(self.created)}"
         self.created.append(
             {"id": generation_id, "audio": audio, "image_mime": image_mime,
-             "audio_mime": audio_mime, "resolution": resolution}
+             "audio_mime": audio_mime}
         )
         self.polls[generation_id] = list(
             self.scripts.get(audio.decode(), self.default)
@@ -107,7 +107,7 @@ class FakeClient:
         if state == "completed":
             if self.on_completed is not None:
                 await self.on_completed(generation_id)
-            return LipsyncStatus("completed", content_url=f"https://cdn/{generation_id}.mp4")
+            return LipsyncStatus("completed", output_url=f"https://cdn/{generation_id}.mp4")
         if state == "failed":
             return LipsyncStatus("failed", failure_reason="moderated", error_message="Flagged")
         return LipsyncStatus(state)
@@ -124,7 +124,7 @@ def _deck(tmp_path, monkeypatch, *, notes=("one", "two"), placeholders=None):
     monkeypatch.setenv("APP_DATA_DIRECTORY", str(tmp_path / "app_data"))
     monkeypatch.delenv("NEXT_PUBLIC_FAST_API", raising=False)
     monkeypatch.delenv("SLIDE_VIDEO_MAX_UPLOAD_MB", raising=False)
-    monkeypatch.delenv("ELEVENLABS_LIPSYNC_CONCURRENCY", raising=False)
+    monkeypatch.delenv("HEYGEN_LIPSYNC_CONCURRENCY", raising=False)
     placeholders = placeholders or [True] * len(notes)
     ctx = {"engine": create_async_engine(f"sqlite+aiosqlite:///{tmp_path / 'run.db'}")}
     ctx["sessions"] = async_sessionmaker(ctx["engine"], expire_on_commit=False)
@@ -187,7 +187,7 @@ def _create_task(ctx, *, slide_indices=None, force=False):
                 type=ASYNC_TASK_TYPE_SLIDE_AVATAR_GENERATION,
                 status=AsyncTaskStatus.PENDING,
                 data=initial_task_data(
-                    ctx["presentation_id"], language="en", resolution="720p", plans=plans
+                    ctx["presentation_id"], language="en", plans=plans
                 ),
             )
             session.add(task)
@@ -233,7 +233,7 @@ def test_initial_task_data_counts_the_plan(tmp_path, monkeypatch):
     assert data["phase"] == "queued"
     assert (data["total"], data["queued"], data["skipped"]) == (2, 1, 1)
     assert (data["completed"], data["failed"]) == (0, 0)
-    assert data["resolution"] == "720p" and data["language"] == "en"
+    assert data["language"] == "en"
     assert data["presentation_id"] == str(ctx["presentation_id"])
 
 
@@ -253,16 +253,15 @@ def test_run_happy_path(tmp_path, monkeypatch):
     assert entry["state"] == "done"
     assert entry["generation_id"] == "gen-0"
     assert entry["video_id"] == str(video.id)
-    assert video.source == "elevenlabs"
+    assert video.source == "heygen"
     assert video.language == "en"
     audio = audios[video.slide]
     assert video.source_note_hash == audio.source_note_hash
-    assert video.original_filename == "elevenlabs-gen-0.mp4"
+    assert video.original_filename == "heygen-gen-0.mp4"
     assert avatar_stale_reason(video, slides[video.slide], audio) is None
     assert os.path.exists(video.path)
     assert client.created[0]["image_mime"] == "image/png"
     assert client.created[0]["audio_mime"] == "audio/mpeg"
-    assert client.created[0]["resolution"] == "720p"
     assert client.closed
 
 
@@ -314,9 +313,9 @@ def test_run_timeout(tmp_path, monkeypatch):
 
 def test_run_configuration_error_marks_rest(tmp_path, monkeypatch):
     ctx = _deck(tmp_path, monkeypatch, notes=("a", "b", "c"))
-    monkeypatch.setenv("ELEVENLABS_LIPSYNC_CONCURRENCY", "1")
+    monkeypatch.setenv("HEYGEN_LIPSYNC_CONCURRENCY", "1")
     task_id = _create_task(ctx)
-    client = FakeClient(create_error=ElevenLabsConfigurationError("bad key"))
+    client = FakeClient(create_error=HeyGenConfigurationError("bad key"))
 
     _run(ctx, task_id, client)
 
@@ -333,7 +332,7 @@ def test_run_client_factory_configuration_error(tmp_path, monkeypatch):
     task_id = _create_task(ctx)
 
     def factory():
-        raise ElevenLabsConfigurationError("ELEVENLABS_API_KEY is not set")
+        raise HeyGenConfigurationError("HEYGEN_API_KEY is not set")
 
     asyncio.run(
         run_avatar_generation_task(
@@ -350,7 +349,7 @@ def test_run_client_factory_configuration_error(tmp_path, monkeypatch):
 
 def test_run_respects_concurrency(tmp_path, monkeypatch):
     ctx = _deck(tmp_path, monkeypatch, notes=("a", "b", "c", "d", "e"))
-    monkeypatch.setenv("ELEVENLABS_LIPSYNC_CONCURRENCY", "2")
+    monkeypatch.setenv("HEYGEN_LIPSYNC_CONCURRENCY", "2")
     task_id = _create_task(ctx)
     client = FakeClient(default=["generating", "generating", "generating", "completed"])
 
@@ -550,7 +549,7 @@ def test_run_skips_a_slide_whose_note_changed_after_planning(tmp_path, monkeypat
 
 def test_run_stops_every_slide_before_a_failed_write_ends_it(tmp_path, monkeypatch):
     ctx = _deck(tmp_path, monkeypatch, notes=("bad", "slow"))
-    monkeypatch.setenv("ELEVENLABS_LIPSYNC_CONCURRENCY", "2")
+    monkeypatch.setenv("HEYGEN_LIPSYNC_CONCURRENCY", "2")
     task_id = _create_task(ctx)
     client = FakeClient({"bad": ["failed"], "slow": ["generating"]})
     real_update = generation._AvatarGenerationRun.update

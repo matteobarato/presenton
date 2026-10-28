@@ -1,5 +1,5 @@
 import uuid
-from typing import Literal, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -30,7 +30,6 @@ class SlideAvatarGenerationRequest(BaseModel):
     language: Optional[str] = None
     # Regenerate avatars that are up to date, uploaded ones included.
     force: bool = False
-    resolution: Literal["720p", "480p"] = "720p"
 
 
 class AvatarGenerationPreview(BaseModel):

@@ -11,7 +11,7 @@ export type StageBox = {
 // or the narration audio in the avatar's language was regenerated.
 export type SlideVideoStaleReason = "note_changed" | "audio_regenerated";
 
-export type SlideVideoSource = "upload" | "elevenlabs";
+export type SlideVideoSource = "upload" | "heygen";
 
 // One slide's avatar video, as `GET /presentation/{id}/videos` describes it.
 export type SlideVideo = {
@@ -70,7 +70,6 @@ export type AvatarGenerationTask = {
     failed: number;
     skipped: number;
     language: string | null;
-    resolution?: string;
     slides: AvatarSlidePlan[];
   };
 };
@@ -86,7 +85,6 @@ export type GenerateAvatarsBody = {
   slide_indices?: number[];
   language?: string | null;
   force: boolean;
-  resolution?: string;
 };
 
 export type SlideVideosResponse = {

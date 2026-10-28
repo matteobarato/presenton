@@ -2,7 +2,7 @@
 
 Planning decides, per slide, whether a generation is queued or skipped (and
 why). The run then sends each queued slide's narration and the deck's portrait
-to ElevenLabs, waits for the clip and stores it as the slide's avatar video,
+to HeyGen, waits for the clip and stores it as the slide's avatar video,
 reporting every step on its async task.
 """
 
@@ -32,11 +32,11 @@ from models.sql.slide import SlideModel
 from models.sql.slide_video import SlideVideoModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
 from services.database import async_session_maker
-from services.elevenlabs_lipsync import (
-    ElevenLabsConfigurationError,
-    ElevenLabsLipsyncClient,
-    ElevenLabsRequestError,
+from services.heygen_lipsync import (
     LipsyncStatus,
+    HeyGenConfigurationError,
+    HeyGenLipsyncClient,
+    HeyGenRequestError,
     lipsync_client_from_env,
     lipsync_concurrency,
 )
@@ -160,7 +160,7 @@ def plan_avatar_generation(
 
 
 async def lipsync_audio(path: str, audio_format: str) -> tuple[bytes, str]:
-    """Narration bytes and MIME type in a format ElevenLabs accepts.
+    """Narration bytes and MIME type in a format HeyGen accepts.
 
     mp3 and wav go as stored; anything else is transcoded to mp3 in memory.
     """
@@ -191,7 +191,6 @@ def _task_data(
     presentation_id: uuid.UUID | str,
     *,
     language: str,
-    resolution: str,
     phase: str,
     slides: list[dict],
 ) -> dict[str, Any]:
@@ -199,7 +198,6 @@ def _task_data(
     return {
         "presentation_id": str(presentation_id),
         "language": language,
-        "resolution": resolution,
         "phase": phase,
         "total": len(states),
         # Not finished yet: waiting for a slot or being generated.
@@ -215,13 +213,11 @@ def initial_task_data(
     presentation_id: uuid.UUID,
     *,
     language: str,
-    resolution: str,
     plans: Sequence[SlidePlan],
 ) -> dict[str, Any]:
     return _task_data(
         presentation_id,
         language=language,
-        resolution=resolution,
         phase="queued",
         slides=[plan.to_dict() for plan in plans],
     )
@@ -265,10 +261,9 @@ class _AvatarGenerationRun:
         self.slide_timeout = slide_timeout
         self.session_maker = session_maker
         self.language = ""
-        self.resolution = ""
         self.phase = "queued"
         self.slides: list[dict] = []
-        # (status code, message) once the run can no longer reach ElevenLabs.
+        # (status code, message) once the run can no longer reach HeyGen.
         self.configuration_error: Optional[tuple[int, str]] = None
         # Concurrent slides report through one writer, in order.
         self._write_lock = asyncio.Lock()
@@ -277,7 +272,6 @@ class _AvatarGenerationRun:
         return _task_data(
             self.presentation_id,
             language=self.language,
-            resolution=self.resolution,
             phase=self.phase,
             slides=[dict(entry) for entry in self.slides],
         )
@@ -310,7 +304,7 @@ class _AvatarGenerationRun:
         entry.update(fields)
         await self.write()
 
-    async def run(self, client_factory: Callable[[], ElevenLabsLipsyncClient]) -> None:
+    async def run(self, client_factory: Callable[[], HeyGenLipsyncClient]) -> None:
         async with self.session_maker() as session:
             task = await session.get(AsyncTaskModel, self.task_id)
             if task is None:
@@ -320,7 +314,6 @@ class _AvatarGenerationRun:
                 raise HTTPException(status_code=404, detail="Presentation not found")
             data = task.data or {}
             self.language = data.get("language", "")
-            self.resolution = data.get("resolution", "720p")
             self.slides = [dict(entry) for entry in data.get("slides", [])]
         queued = [entry for entry in self.slides if entry["state"] == "queued"]
         self.phase = "generating"
@@ -361,11 +354,11 @@ class _AvatarGenerationRun:
 
     async def _generate_all(
         self,
-        client_factory: Callable[[], ElevenLabsLipsyncClient],
+        client_factory: Callable[[], HeyGenLipsyncClient],
         portrait: tuple[bytes, str],
         queued: list[dict],
     ) -> None:
-        client: Optional[ElevenLabsLipsyncClient] = None
+        client: Optional[HeyGenLipsyncClient] = None
         slides: list[asyncio.Task] = []
         try:
             client = client_factory()
@@ -375,7 +368,7 @@ class _AvatarGenerationRun:
                 for entry in queued
             ]
             await asyncio.gather(*slides)
-        except ElevenLabsConfigurationError as exc:
+        except HeyGenConfigurationError as exc:
             self.configuration_error = (503, str(exc))
         finally:
             # A slide that raised leaves its siblings running: stop them all
@@ -390,7 +383,7 @@ class _AvatarGenerationRun:
     async def _slide(
         self,
         semaphore: asyncio.Semaphore,
-        client: ElevenLabsLipsyncClient,
+        client: HeyGenLipsyncClient,
         portrait: tuple[bytes, str],
         entry: dict,
     ) -> None:
@@ -406,7 +399,7 @@ class _AvatarGenerationRun:
                 await self.update(
                     entry, state="failed", reason=exc.reason, message=exc.message
                 )
-            except ElevenLabsConfigurationError as exc:
+            except HeyGenConfigurationError as exc:
                 self.configuration_error = (503, str(exc))
                 await self.update(
                     entry, state="failed", reason="configuration", message=str(exc)
@@ -424,7 +417,7 @@ class _AvatarGenerationRun:
 
     async def _generate(
         self,
-        client: ElevenLabsLipsyncClient,
+        client: HeyGenLipsyncClient,
         portrait: tuple[bytes, str],
         entry: dict,
     ) -> str:
@@ -441,9 +434,8 @@ class _AvatarGenerationRun:
                 image_mime=image_mime,
                 audio=audio_bytes,
                 audio_mime=audio_mime,
-                resolution=self.resolution,
             )
-        except ElevenLabsRequestError as exc:
+        except HeyGenRequestError as exc:
             raise _SlideFailed("request_error", str(exc))
         await self.update(entry, state="generating", generation_id=generation_id)
 
@@ -454,24 +446,24 @@ class _AvatarGenerationRun:
         except asyncio.TimeoutError:
             raise _SlideFailed(
                 "timeout",
-                f"ElevenLabs did not finish within {self.slide_timeout:g} seconds",
+                f"HeyGen did not finish within {self.slide_timeout:g} seconds",
             )
-        except ElevenLabsRequestError as exc:
+        except HeyGenRequestError as exc:
             raise _SlideFailed("request_error", str(exc))
         if status.state == "failed":
             raise _SlideFailed(
                 status.failure_reason or "unknown",
-                status.error_message or "ElevenLabs could not generate the video",
+                status.error_message or "HeyGen could not generate the video",
             )
 
-        if not status.content_url:
-            raise _SlideFailed("invalid_output", "ElevenLabs returned no video")
+        if not status.output_url:
+            raise _SlideFailed("invalid_output", "HeyGen returned no video")
         try:
             data = await client.download(
-                status.content_url, max_bytes=get_slide_video_max_upload_bytes()
+                status.output_url, max_bytes=get_slide_video_max_upload_bytes()
             )
         # A refused signed URL means the link expired, not that the key is wrong.
-        except (ElevenLabsRequestError, ElevenLabsConfigurationError) as exc:
+        except (HeyGenRequestError, HeyGenConfigurationError) as exc:
             raise _SlideFailed("invalid_output", str(exc))
         return await self._save(entry, audio, generation_id, data)
 
@@ -503,7 +495,7 @@ class _AvatarGenerationRun:
         return audio
 
     async def _poll(
-        self, client: ElevenLabsLipsyncClient, generation_id: str
+        self, client: HeyGenLipsyncClient, generation_id: str
     ) -> LipsyncStatus:
         while True:
             await asyncio.sleep(self.poll_interval)
@@ -542,18 +534,18 @@ class _AvatarGenerationRun:
             if video_metadata(stored.path, stored.format).duration_seconds is None:
                 remove_file(stored.path)
                 raise _SlideFailed(
-                    "invalid_output", "ElevenLabs returned a video with no readable duration"
+                    "invalid_output", "HeyGen returned a video with no readable duration"
                 )
             video = await store_slide_video_bytes(
                 sql_session=session,
                 presentation=presentation,
                 slide=slide,
                 stored=stored,
-                original_filename=f"elevenlabs-{generation_id}.{stored.format}",
+                original_filename=f"heygen-{generation_id}.{stored.format}",
                 # What the avatar actually says, so it reads as fresh.
                 language=audio.language,
                 source_note_hash=audio.source_note_hash,
-                source="elevenlabs",
+                source="heygen",
             )
             return str(video.id)
 
@@ -577,16 +569,16 @@ async def run_avatar_generation_task(
     presentation_id: uuid.UUID,
     owner_id: Optional[uuid.UUID],
     *,
-    client_factory: Callable[[], ElevenLabsLipsyncClient] = lipsync_client_from_env,
-    poll_interval: float = 5.0,
-    slide_timeout: float = 900.0,
+    client_factory: Callable[[], HeyGenLipsyncClient] = lipsync_client_from_env,
+    poll_interval: float = 10.0,
+    slide_timeout: float = 1800.0,
     session_maker=async_session_maker,
 ) -> None:
     """Generate the avatars planned in the task's data, reporting on the task.
 
     Up to `lipsync_concurrency()` slides are generated at once. A slide that
     fails is reported and the others carry on; the task ends in error only
-    when ElevenLabs cannot be used at all or every queued slide failed.
+    when HeyGen cannot be used at all or every queued slide failed.
     """
     owner_token = set_current_owner_id(owner_id)
     admin_token = set_current_owner_is_admin(False)

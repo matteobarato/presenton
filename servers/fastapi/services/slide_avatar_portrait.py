@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.sql.presentation import PresentationModel
 from models.slide_video_response import PortraitResponse
 from utils.asset_directory_utils import app_data_file_url, get_videos_directory
-from utils.get_env import get_elevenlabs_api_key_env
+from utils.get_env import get_heygen_api_key_env
 from utils.video_files import remove_file
 
 MAX_PORTRAIT_BYTES = 10 * 1024 * 1024
@@ -38,7 +38,7 @@ class InvalidPortraitError(ValueError):
 
 
 def generation_available() -> bool:
-    return bool((get_elevenlabs_api_key_env() or "").strip())
+    return bool((get_heygen_api_key_env() or "").strip())
 
 
 def _directory(presentation: PresentationModel) -> str:

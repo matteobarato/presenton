@@ -1,6 +1,6 @@
 """add slide video source
 
-Records whether a slide video was uploaded or generated with ElevenLabs. Null
+Records whether a slide video was uploaded or generated with HeyGen. Null
 means an upload, which is what every video saved before this revision is.
 
 Revision ID: f6a8b0c2d4e6

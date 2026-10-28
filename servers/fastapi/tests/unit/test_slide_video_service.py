@@ -535,13 +535,13 @@ def test_store_slide_video_bytes_sets_source_and_hash(tmp_path, monkeypatch):
             original_filename=None,
             language="it",
             source_note_hash="abc123",
-            source="elevenlabs",
+            source="heygen",
         )
         return video, slide
 
     video, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
 
-    assert video.source == "elevenlabs"
+    assert video.source == "heygen"
     assert video.source_note_hash == "abc123"
     assert video.language == "it"
     assert find_video_placeholder(slide.ui) is not None
@@ -569,8 +569,8 @@ def test_response_source_defaults_to_upload_for_null():
     assert video.source is None
 
     assert slide_video_response(video, slide).source == "upload"
-    video.source = "elevenlabs"
-    assert slide_video_response(video, slide).source == "elevenlabs"
+    video.source = "heygen"
+    assert slide_video_response(video, slide).source == "heygen"
 
 
 def test_store_video_bytes_rejects_non_video(tmp_path):

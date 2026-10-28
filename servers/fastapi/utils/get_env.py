@@ -516,17 +516,17 @@ def get_openai_compat_tts_voice_env():
     return os.getenv("OPENAI_COMPAT_TTS_VOICE")
 
 
-# ElevenLabs (lip-synced avatar generation)
-def get_elevenlabs_api_key_env():
-    return os.getenv("ELEVENLABS_API_KEY")
+# HeyGen (lip-synced avatar generation)
+def get_heygen_api_key_env():
+    return os.getenv("HEYGEN_API_KEY")
 
 
-def get_elevenlabs_api_base_url_env():
-    return os.getenv("ELEVENLABS_API_BASE_URL")
+def get_heygen_api_base_url_env():
+    return os.getenv("HEYGEN_API_BASE_URL")
 
 
-def get_elevenlabs_lipsync_concurrency_env():
-    return os.getenv("ELEVENLABS_LIPSYNC_CONCURRENCY")
+def get_heygen_lipsync_concurrency_env():
+    return os.getenv("HEYGEN_LIPSYNC_CONCURRENCY")
 
 
 # Avatar videos uploaded per slide

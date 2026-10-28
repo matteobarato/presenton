@@ -54,7 +54,7 @@ export function generateDisabledReason({
   running: boolean;
 }): string | null {
   if (!generationAvailable) {
-    return "Set ELEVENLABS_API_KEY on the server to generate avatars.";
+    return "Set HEYGEN_API_KEY on the server to generate avatars.";
   }
   if (!hasPortrait) return "Upload a presenter portrait first.";
   const chip = chipFor(undefined, preview);
@@ -66,7 +66,7 @@ export function generateDisabledReason({
     return "The note changed since the audio was made. Regenerate the audio first.";
   }
   if (chip === "unsupported_audio") {
-    return "This slide's narration audio format can't be sent to ElevenLabs.";
+    return "This slide's narration audio format can't be sent to HeyGen.";
   }
   if (running) return "An avatar generation is already running.";
   return null;
@@ -87,14 +87,9 @@ export function newlyDone(
 
 const FAILURE_LABELS: Record<string, string> = {
   timeout: "Timed out",
-  model_error: "Model error",
-  moderated: "Rejected by moderation",
-  invalid_parameters: "Invalid parameters",
-  dependency_failed: "A dependency failed",
-  charging_failed: "Charging failed",
   internal_error: "Internal error",
   invalid_output: "Invalid video returned",
-  configuration: "ElevenLabs is not configured",
+  configuration: "HeyGen is not configured",
   request_error: "Request failed",
   audio_error: "Narration audio could not be read",
   unknown: "Unknown error",

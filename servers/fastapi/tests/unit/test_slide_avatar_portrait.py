@@ -108,9 +108,9 @@ def test_delete_removes_file_and_key(tmp_path, monkeypatch):
 
 
 def test_generation_available_follows_the_api_key(monkeypatch):
-    monkeypatch.delenv("ELEVENLABS_API_KEY", raising=False)
+    monkeypatch.delenv("HEYGEN_API_KEY", raising=False)
     assert generation_available() is False
-    monkeypatch.setenv("ELEVENLABS_API_KEY", "k")
+    monkeypatch.setenv("HEYGEN_API_KEY", "k")
     assert generation_available() is True
 
 

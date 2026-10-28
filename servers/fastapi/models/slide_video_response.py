@@ -54,7 +54,7 @@ class SlideVideoResponse(BaseModel):
     # The narration language the avatar was synced to; null = any language.
     language: Optional[str] = None
     # Who made the video; videos saved before the column existed are uploads.
-    source: Literal["upload", "elevenlabs"] = "upload"
+    source: Literal["upload", "heygen"] = "upload"
     # The avatar no longer matches the narration it was made from: the speaker
     # note changed after it was made (`note_changed`), or the slide's audio in
     # its language was regenerated since (`audio_regenerated`). `stale` is
@@ -84,7 +84,7 @@ class SlideVideosResponse(BaseModel):
     total_duration_seconds: Optional[float] = None
     # The deck's presenter portrait, null until one is uploaded.
     portrait: Optional[PortraitResponse] = None
-    # Whether the server can generate avatars (an ElevenLabs key is set).
+    # Whether the server can generate avatars (a HeyGen key is set).
     generation_available: bool = False
     videos: List[SlideVideoResponse]
 

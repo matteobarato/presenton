@@ -552,19 +552,19 @@ An avatar synced to a different language than the one requested is not used; tha
 
 In a player, transitions follow from consecutive slides: the bubble expands into the placeholder when a video starts and collapses back when it ends. Video slides also carry their `audio`, so a viewer who switches the avatar off still hears the narration.
 
-#### Generated Avatars (ElevenLabs)
+#### Generated Avatars (HeyGen)
 
-Instead of uploading avatar videos, Presenton can generate them. It sends the deck's presenter portrait and each slide's narration audio to ElevenLabs (Creatify Aurora) and stores the returned video in that slide's placeholder, saved like an upload (`source: "elevenlabs"`). The generated avatar is silent and lip-synced to the slide's TTS audio.
+Instead of uploading avatar videos, Presenton can generate them. It uploads the deck's presenter portrait and each slide's narration audio to [HeyGen](https://developers.heygen.com/audio-to-video), asks its audio-to-video API to lip-sync the still image (`type: "image"`, 720p, the portrait's own aspect ratio) and stores the returned video in that slide's placeholder, saved like an upload (`source: "heygen"`). The generated avatar plays muted, lip-synced to the slide's TTS audio.
 
 | Variable | Values / default | Purpose |
 | --- | --- | --- |
-| **ELEVENLABS_API_KEY** | Empty (default) | Required to generate. |
-| **ELEVENLABS_API_BASE_URL** | `https://api.elevenlabs.io` (default) | Overrides the API host. Use a regional host such as `https://api.us.elevenlabs.io` if your account lives there. |
-| **ELEVENLABS_LIPSYNC_CONCURRENCY** | `2` (default), clamped to 1–8 | Slides generated at the same time. |
+| **HEYGEN_API_KEY** | Empty (default) | Required to generate. |
+| **HEYGEN_API_BASE_URL** | `https://api.heygen.com` (default) | Overrides the API host. |
+| **HEYGEN_LIPSYNC_CONCURRENCY** | `2` (default), clamped to 1–8 | Slides generated at the same time. HeyGen rate-limits requests too; a `429` waits for `Retry-After` and retries. |
 
 To set it up:
 
-1. Set the presenter portrait with `PUT /api/v1/ppt/presentation/{id}/videos/portrait` (multipart `file`, JPEG, PNG or WebP, up to 10 MB). `GET` returns its URL and dimensions (404 when there is none) and `DELETE` removes it. A 9:16 portrait matches the default placeholder best.
+1. Set the presenter portrait with `PUT /api/v1/ppt/presentation/{id}/videos/portrait` (multipart `file`, JPEG, PNG or WebP, up to 10 MB; WebP is sent to HeyGen as PNG). The portrait needs a clearly visible face, or HeyGen rejects the slide. `GET` returns its URL and dimensions (404 when there is none) and `DELETE` removes it. A 9:16 portrait matches the default placeholder best.
 2. Mark the slides that should have an avatar with `POST /api/v1/ppt/presentation/{id}/videos/{slide_index}/placeholder`. The optional JSON body `x`, `y`, `width`, `height` places it in 1280×720 slide coordinates. Slides without a placeholder keep the voice bubble. `DELETE …/videos/{slide_index}/placeholder` removes the placeholder and that slide's video, while `DELETE …/videos/{slide_index}` removes only the video and keeps the placeholder.
 3. Generate the speaker note audio first (see above). Avatars are lip-synced to that audio, so slides with missing or stale audio are skipped.
 4. Start generation with `POST …/videos/generate`. The body takes `slide_indices` (an array, or `null` for every slide), `language` (or `null`), `force` (default `false`) and `resolution` (`720p` or `480p`). It returns an async task:
@@ -587,12 +587,12 @@ Generation behaves as follows:
 - While a generation runs for a deck, a second request for that deck returns `409`.
 - A generated avatar is tied to the narration language it was synced to, like an upload.
 - A skipped slide is listed with one of these reasons: `no_placeholder`, `no_audio`, `audio_stale`, `unsupported_audio_format`, `up_to_date`, `placeholder_removed`.
-- A failed slide is listed with ElevenLabs' `failure_reason` (for example `moderated` or `timeout`), or with one of `invalid_output`, `configuration`, `request_error`, `audio_error`, `internal_error`, `unknown`.
+- A failed slide is listed with HeyGen's `failure_code` and `failure_message`, or with one of `timeout`, `invalid_output`, `configuration`, `request_error`, `audio_error`, `internal_error`, `unknown`.
 
 Two things to know before you run it:
 
-- Every generated slide spends ElevenLabs credits. Failed generations are not charged.
-- A server restart fails a running job. The ElevenLabs generation ids stay in the task data.
+- Every generated slide spends HeyGen API credits. A rejected key (`401`/`403`) or a `402` stops the whole run with `configuration`. A single request covers up to 30 minutes of narration, and a slide that is still rendering after 30 minutes fails with `timeout`.
+- A server restart fails a running job. The HeyGen video ids stay in the task data as `generation_id`.
 
 #### Presentation Video Export
 

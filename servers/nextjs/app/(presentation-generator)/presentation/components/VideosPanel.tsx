@@ -211,7 +211,7 @@ export function VideosPanel({
           >
             {video.original_filename || "Avatar video"}
             <span className="ml-2 rounded-full bg-[#F2F4F7] px-2 py-0.5 align-middle text-[10px] font-medium text-[#475467]">
-              {video.source === "elevenlabs" ? "Generated" : "Uploaded"}
+              {video.source === "heygen" ? "Generated" : "Uploaded"}
             </span>
           </p>
           {details.length > 0 && (
