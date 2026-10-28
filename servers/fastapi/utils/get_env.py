@@ -516,6 +516,19 @@ def get_openai_compat_tts_voice_env():
     return os.getenv("OPENAI_COMPAT_TTS_VOICE")
 
 
+# ElevenLabs (lip-synced avatar generation)
+def get_elevenlabs_api_key_env():
+    return os.getenv("ELEVENLABS_API_KEY")
+
+
+def get_elevenlabs_api_base_url_env():
+    return os.getenv("ELEVENLABS_API_BASE_URL")
+
+
+def get_elevenlabs_lipsync_concurrency_env():
+    return os.getenv("ELEVENLABS_LIPSYNC_CONCURRENCY")
+
+
 # Avatar videos uploaded per slide
 def get_slide_video_max_upload_mb_env():
     return os.getenv("SLIDE_VIDEO_MAX_UPLOAD_MB")

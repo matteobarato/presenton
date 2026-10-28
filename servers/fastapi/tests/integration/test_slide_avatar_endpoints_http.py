@@ -1,6 +1,5 @@
-from _video_http_helpers import _build_client
+from _video_http_helpers import _build_client, _placeholders, _rows, _slide_ui, _upload
 from models.sql.slide_video import SlideVideoModel
-from test_slide_video_endpoint_http import _placeholders, _rows, _slide_ui, _upload
 
 BASE = "/api/v1/ppt/presentation"
 
@@ -54,3 +53,76 @@ def test_delete_placeholder_after_upload_removes_video_and_placeholder(
     assert _rows(sessions, SlideVideoModel) == []
     again = client.delete(f"{BASE}/{presentation_id}/videos/0/placeholder")
     assert again.json() == {"removed": False}
+
+
+def _png(size=(40, 30)) -> bytes:
+    import io
+
+    from PIL import Image
+
+    buffer = io.BytesIO()
+    Image.new("RGB", size, "blue").save(buffer, "PNG")
+    return buffer.getvalue()
+
+
+def _put_portrait(client, presentation_id, data=None, filename="me.png"):
+    return client.put(
+        f"{BASE}/{presentation_id}/videos/portrait",
+        files={"file": (filename, data if data is not None else _png(), "image/png")},
+    )
+
+
+def test_portrait_put_get_and_delete(tmp_path, monkeypatch):
+    client, presentation_id, _ids, _sessions, _app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    # A literal segment, not swallowed by /{slide_index}.
+    assert client.get(f"{BASE}/{presentation_id}/videos/portrait").status_code == 404
+
+    put = _put_portrait(client, presentation_id)
+    assert put.status_code == 200, put.text
+    assert (put.json()["width"], put.json()["height"]) == (40, 30)
+
+    got = client.get(f"{BASE}/{presentation_id}/videos/portrait")
+    assert got.status_code == 200
+    assert got.headers["content-type"] == "image/png"
+    assert got.content == _png()
+
+    assert client.delete(f"{BASE}/{presentation_id}/videos/portrait").status_code == 200
+    assert client.get(f"{BASE}/{presentation_id}/videos/portrait").status_code == 404
+
+
+def test_portrait_rejects_a_non_image(tmp_path, monkeypatch):
+    client, presentation_id, _ids, _sessions, _app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    response = _put_portrait(client, presentation_id, data=b"nope", filename="x.png")
+    assert response.status_code == 422
+
+
+def test_videos_listing_carries_portrait_and_generation_flag(tmp_path, monkeypatch):
+    client, presentation_id, _ids, _sessions, _app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    monkeypatch.delenv("ELEVENLABS_API_KEY", raising=False)
+    body = client.get(f"{BASE}/{presentation_id}/videos").json()
+    assert body["portrait"] is None
+    assert body["generation_available"] is False
+
+    _put_portrait(client, presentation_id)
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "k")
+    body = client.get(f"{BASE}/{presentation_id}/videos").json()
+    assert body["portrait"]["mime_type"] == "image/png"
+    assert body["generation_available"] is True
+
+
+def test_deleting_the_deck_removes_the_portrait_file(tmp_path, monkeypatch):
+    client, presentation_id, _ids, _sessions, app_data = _build_client(
+        tmp_path, monkeypatch
+    )
+    _put_portrait(client, presentation_id)
+    folder = app_data / "videos" / str(presentation_id)
+    assert list(folder.glob("portrait-*"))
+
+    assert client.delete(f"{BASE}/{presentation_id}").status_code == 204
+    assert not folder.exists()

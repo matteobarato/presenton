@@ -6,7 +6,7 @@ import uuid
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from sqlalchemy import event
+from sqlalchemy import event, select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 import api.v1.ppt.endpoints.presentation as presentation_endpoint
@@ -163,3 +163,42 @@ def _build_client(tmp_path, monkeypatch):
     app.include_router(PRESENTATION_ROUTER, prefix="/api/v1/ppt")
     app.dependency_overrides[get_async_session] = override_session
     return TestClient(app), presentation_id, slide_ids, session_maker, app_data
+
+
+def _run(session_maker, work):
+    async def go():
+        async with session_maker() as session:
+            result = await work(session)
+        await session_maker.kw["bind"].dispose()
+        return result
+
+    return asyncio.run(go())
+
+
+def _rows(session_maker, model):
+    async def read(session):
+        return list(await session.scalars(select(model)))
+
+    return _run(session_maker, read)
+
+
+
+def _upload(client, presentation_id, index, data=None, filename="avatar.mp4", **form):
+    return client.put(
+        f"/api/v1/ppt/presentation/{presentation_id}/videos/{index}",
+        files={"file": (filename, data if data is not None else _mp4(), "video/mp4")},
+        data={key: str(value) for key, value in form.items()},
+    )
+
+
+def _slide_ui(client, presentation_id, index):
+    deck = client.get(f"/api/v1/ppt/presentation/{presentation_id}").json()
+    return next(slide for slide in deck["slides"] if slide["index"] == index)["ui"]
+
+
+def _placeholders(ui):
+    return [
+        element
+        for element in ui["elements"]
+        if element.get("video_placeholder") is True
+    ]

@@ -2,7 +2,7 @@ import uuid
 
 from pydantic import BaseModel
 
-from models.slide_video_response import StageBox
+from models.slide_video_response import PortraitResponse, StageBox  # noqa: F401  (re-exported)
 
 
 class PlaceholderRequest(BaseModel):

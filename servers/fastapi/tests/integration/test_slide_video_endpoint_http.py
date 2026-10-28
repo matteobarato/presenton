@@ -1,31 +1,20 @@
-import asyncio
 import os
 import uuid
 
-from sqlalchemy import select
-
-from _video_http_helpers import _build_client, _mp4, _template_ui
+from _video_http_helpers import (
+    _build_client,
+    _mp4,
+    _placeholders,
+    _rows,
+    _run,
+    _slide_ui,
+    _template_ui,
+    _upload,
+)
 from models.sql.presentation_video import PresentationVideoModel
 from models.sql.slide_video import SlideVideoModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
 from services.speaker_note_tts_service import note_digest
-
-
-def _run(session_maker, work):
-    async def go():
-        async with session_maker() as session:
-            result = await work(session)
-        await session_maker.kw["bind"].dispose()
-        return result
-
-    return asyncio.run(go())
-
-
-def _rows(session_maker, model):
-    async def read(session):
-        return list(await session.scalars(select(model)))
-
-    return _run(session_maker, read)
 
 
 def _seed_audio(
@@ -57,27 +46,6 @@ def _seed_audio(
 
     _run(session_maker, add)
     return path
-
-
-def _upload(client, presentation_id, index, data=None, filename="avatar.mp4", **form):
-    return client.put(
-        f"/api/v1/ppt/presentation/{presentation_id}/videos/{index}",
-        files={"file": (filename, data if data is not None else _mp4(), "video/mp4")},
-        data={key: str(value) for key, value in form.items()},
-    )
-
-
-def _slide_ui(client, presentation_id, index):
-    deck = client.get(f"/api/v1/ppt/presentation/{presentation_id}").json()
-    return next(slide for slide in deck["slides"] if slide["index"] == index)["ui"]
-
-
-def _placeholders(ui):
-    return [
-        element
-        for element in ui["elements"]
-        if element.get("video_placeholder") is True
-    ]
 
 
 def _video_dir(app_data, presentation_id):

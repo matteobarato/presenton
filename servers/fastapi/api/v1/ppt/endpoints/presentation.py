@@ -188,6 +188,11 @@ from services.presentation_video_service import (
 )
 from utils.ffmpeg_utils import MISSING_FFMPEG_MESSAGE, ffmpeg_available
 from utils.get_env import is_community_enabled
+from services.slide_avatar_portrait import (
+    generation_available,
+    portrait_path,
+    portrait_response,
+)
 from utils.video_files import remove_deck_video_files
 import uuid
 
@@ -1626,12 +1631,19 @@ async def delete_presentation(
         sql_session, presentation_id=id
     )
 
+    portrait_file_path = portrait_path(presentation)
+
     await sql_session.delete(presentation)
     await sql_session.commit()
 
     remove_speaker_note_audio_files(id, audio_paths)
     remove_deck_video_files(
-        id, [*slide_video_file_paths, *presentation_video_file_paths]
+        id,
+        [
+            *slide_video_file_paths,
+            *presentation_video_file_paths,
+            *([portrait_file_path] if portrait_file_path else []),
+        ],
     )
 
 
@@ -2232,10 +2244,15 @@ async def get_slide_videos(
     sql_session: AsyncSession = Depends(get_async_session),
 ):
     """Every avatar video of a deck, in slide order."""
-    _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
+    presentation, slides = await _presentation_with_slides_for_speaker_notes(
+        id, sql_session
+    )
     videos = await list_slide_videos(sql_session, presentation_id=id)
     audios = await list_speaker_note_audios(sql_session, presentation_id=id)
-    return slide_videos_response(id, slides, videos, audios)
+    response = slide_videos_response(id, slides, videos, audios)
+    response.portrait = portrait_response(presentation)
+    response.generation_available = generation_available()
+    return response
 
 
 @PRESENTATION_ROUTER.get(

@@ -66,11 +66,26 @@ class SlideVideoResponse(BaseModel):
     updated_at: datetime
 
 
+class PortraitResponse(BaseModel):
+    """The deck's presenter portrait, the picture avatars are lip-synced from."""
+
+    url: str
+    mime_type: str
+    width: int
+    height: int
+    size_bytes: int
+    updated_at: datetime
+
+
 class SlideVideosResponse(BaseModel):
     """A deck's avatar videos in slide order."""
 
     presentation_id: uuid.UUID
     total_duration_seconds: Optional[float] = None
+    # The deck's presenter portrait, null until one is uploaded.
+    portrait: Optional[PortraitResponse] = None
+    # Whether the server can generate avatars (an ElevenLabs key is set).
+    generation_available: bool = False
     videos: List[SlideVideoResponse]
 
 
