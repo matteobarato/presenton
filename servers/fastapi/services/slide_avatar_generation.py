@@ -53,6 +53,7 @@ def _plan_slide(
     audio: Optional[SpeakerNoteAudioModel],
     force: bool,
     can_transcode: bool,
+    language: str,
 ) -> SlidePlan:
     def result(state, reason=None):
         return SlidePlan(slide.index, slide.id, state, reason)
@@ -68,6 +69,8 @@ def _plan_slide(
     if (
         video is not None
         and not force
+        # A slide holds one avatar; another language's is replaced.
+        and (video.language is None or video.language == language)
         and avatar_stale_reason(video, slide, audio) is None
     ):
         return result("skipped", "up_to_date")
@@ -107,6 +110,7 @@ def plan_avatar_generation(
                 audio_by_slide.get(slide.id),
                 force,
                 can_transcode,
+                language,
             )
         )
     return plans

@@ -112,7 +112,25 @@ def test_plan_explicit_indices_reported_in_slide_order():
 
 
 def test_plan_rule_order():
-    assert _one(_slide(template=False)).reason == "no_placeholder"
+    s = _slide(template=False)
+    assert _one(s, audios=[_audio(s, note="x")]).reason == "no_placeholder"
+    s = _slide()
+    assert _one(s, videos=[_video(s)]).reason == "no_audio"
+    assert _one(s, audios=[_audio(s, fmt="ogg", note="x")]).reason == "audio_stale"
+
+
+def test_plan_other_language_avatar_is_queued():
+    s = _slide()
+    v = _video(s)
+    v.language = "de"
+    assert _one(s, audios=[_audio(s)], videos=[v]).state == "queued"
+
+
+def test_plan_null_language_avatar_is_up_to_date():
+    s = _slide()
+    v = _video(s)
+    v.language = None
+    assert _one(s, audios=[_audio(s)], videos=[v]).reason == "up_to_date"
 
 
 def test_plan_to_dict():
@@ -130,3 +148,41 @@ def test_lipsync_audio_passthrough_mp3(tmp_path):
     path.write_bytes(b"ID3data")
     data, mime = asyncio.run(lipsync_audio(str(path), "mp3"))
     assert (data, mime) == (b"ID3data", "audio/mpeg")
+
+
+class _FakeProc:
+    def __init__(self, code, out=b"MP3", err=b"boom"):
+        self.returncode, self._o, self._e = code, out, err
+
+    async def communicate(self):
+        return self._o, self._e
+
+
+def _patch_exec(monkeypatch, code):
+    calls = []
+
+    async def fake(*argv, **kw):
+        calls.append(argv)
+        return _FakeProc(code)
+
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", fake)
+    monkeypatch.setattr(
+        "services.slide_avatar_generation.get_ffmpeg_binary", lambda: "ffmpeg"
+    )
+    return calls
+
+
+def test_lipsync_audio_transcodes_ogg(monkeypatch):
+    calls = _patch_exec(monkeypatch, 0)
+    assert asyncio.run(lipsync_audio("/tmp/a.ogg", "ogg")) == (b"MP3", "audio/mpeg")
+    argv = calls[0]
+    assert "/tmp/a.ogg" in argv and "-f" in argv and argv[argv.index("-f") + 1] == "mp3"
+
+
+def test_lipsync_audio_ffmpeg_failure_raises(monkeypatch):
+    import pytest
+    from utils.ffmpeg_utils import FFmpegRuntimeError
+
+    _patch_exec(monkeypatch, 1)
+    with pytest.raises(FFmpegRuntimeError):
+        asyncio.run(lipsync_audio("/tmp/a.ogg", "ogg"))
