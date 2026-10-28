@@ -150,6 +150,77 @@ def test_429_exhausted_raises_request_error():
     assert sleeps == [1, 2, 4]
 
 
+def test_create_transport_error_retried_then_raises():
+    calls = []
+    sleeps = []
+
+    def handler(request):
+        calls.append(1)
+        raise httpx.ReadTimeout("slow")
+
+    with pytest.raises(ElevenLabsRequestError) as exc:
+        asyncio.run(_create(_client(handler, sleeps)))
+    assert exc.value.status_code is None
+    assert len(calls) == 4
+    assert sleeps == [1, 2, 4]
+
+
+def test_create_transport_error_then_success():
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        if len(calls) == 1:
+            raise httpx.ConnectError("reset")
+        return httpx.Response(200, json={"id": "g", "status": "pending"})
+
+    assert asyncio.run(_create(_client(handler))) == "g"
+
+
+def test_create_and_get_do_not_follow_redirects():
+    hosts = []
+
+    def handler(request):
+        hosts.append(request.url.host)
+        return httpx.Response(302, headers={"Location": "https://evil.example/x"})
+
+    client = _client(handler)
+    with pytest.raises(ElevenLabsRequestError):
+        asyncio.run(_create(client))
+    with pytest.raises(ElevenLabsRequestError):
+        asyncio.run(client.get("x"))
+    assert set(hosts) == {"api.elevenlabs.io"}
+
+
+def test_download_follows_redirects():
+    def handler(request):
+        if request.url.host == "cdn":
+            return httpx.Response(302, headers={"Location": "https://cdn2/y"})
+        return httpx.Response(200, content=b"ok")
+
+    assert asyncio.run(_client(handler).download("https://cdn/x", max_bytes=10)) == b"ok"
+
+
+def test_get_unknown_status_returns_none():
+    client = _client(lambda r: httpx.Response(200, json={"status": "weird"}))
+    assert asyncio.run(client.get("x")) is None
+
+
+@pytest.mark.parametrize("value,expected", [("inf", 1), ("nan", 1), ("100000", 60)])
+def test_retry_after_sanitised(value, expected):
+    calls = []
+    sleeps = []
+
+    def handler(request):
+        calls.append(1)
+        if len(calls) == 1:
+            return httpx.Response(429, headers={"Retry-After": value})
+        return httpx.Response(200, json={"id": "g", "status": "pending"})
+
+    asyncio.run(_create(_client(handler, sleeps)))
+    assert sleeps == [expected]
+
+
 def test_get_5xx_returns_none():
     client = _client(lambda r: httpx.Response(503))
     assert asyncio.run(client.get("x")) is None

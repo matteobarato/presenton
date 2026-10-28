@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import math
 from dataclasses import dataclass
 from typing import Awaitable, Callable, Literal, Optional
 
@@ -16,6 +17,7 @@ DEFAULT_BASE_URL = "https://api.elevenlabs.io"
 DEFAULT_CONCURRENCY = 2
 MAX_RETRIES = 3
 REQUEST_TIMEOUT_SECONDS = 120.0
+MAX_RETRY_AFTER_SECONDS = 60.0
 
 
 class ElevenLabsConfigurationError(RuntimeError):
@@ -56,7 +58,7 @@ def _raise_for_status(response: httpx.Response) -> None:
         raise ElevenLabsConfigurationError(
             "ElevenLabs rejected the API key; check ELEVENLABS_API_KEY"
         )
-    if response.status_code >= 400:
+    if response.status_code >= 300:
         raise ElevenLabsRequestError(_error_message(response), response.status_code)
 
 
@@ -76,7 +78,6 @@ class ElevenLabsLipsyncClient:
             base_url=base_url.rstrip("/"),
             transport=transport,
             timeout=REQUEST_TIMEOUT_SECONDS,
-            follow_redirects=True,
         )
 
     async def aclose(self) -> None:
@@ -107,9 +108,17 @@ class ElevenLabsLipsyncClient:
         }
         response: Optional[httpx.Response] = None
         for attempt in range(MAX_RETRIES + 1):
-            response = await self._http.post(
-                "/v1/flows/video", json=body, headers={"xi-api-key": self._api_key}
-            )
+            try:
+                response = await self._http.post(
+                    "/v1/flows/video", json=body, headers={"xi-api-key": self._api_key}
+                )
+            except httpx.TransportError as exc:
+                if attempt == MAX_RETRIES:
+                    raise ElevenLabsRequestError(
+                        f"ElevenLabs request failed: {exc}"
+                    ) from exc
+                await self._sleep(float(2**attempt))
+                continue
             if response.status_code != 429 and response.status_code < 500:
                 break
             if attempt == MAX_RETRIES:
@@ -130,7 +139,9 @@ class ElevenLabsLipsyncClient:
         retry_after = response.headers.get("Retry-After")
         if retry_after:
             try:
-                return max(0.0, float(retry_after))
+                delay = float(retry_after)
+                if math.isfinite(delay):
+                    return min(max(0.0, delay), MAX_RETRY_AFTER_SECONDS)
             except ValueError:
                 pass
         return float(2**attempt)
@@ -150,9 +161,7 @@ class ElevenLabsLipsyncClient:
         payload = response.json()
         state = payload.get("status")
         if state not in ("pending", "generating", "completed", "failed"):
-            raise ElevenLabsRequestError(
-                f"ElevenLabs returned unknown status {state!r}", response.status_code
-            )
+            return None
         return LipsyncStatus(
             state=state,
             content_url=payload.get("content_url"),
@@ -163,7 +172,7 @@ class ElevenLabsLipsyncClient:
 
     async def download(self, url: str, *, max_bytes: int) -> bytes:
         try:
-            async with self._http.stream("GET", url) as response:
+            async with self._http.stream("GET", url, follow_redirects=True) as response:
                 _raise_for_status(response)
                 declared = response.headers.get("Content-Length")
                 if declared and declared.isdigit() and int(declared) > max_bytes:
