@@ -16,7 +16,6 @@ import type { AppDispatch, RootState } from "@/store/store";
 import {
   findVideoPlaceholder,
   withVideoPlaceholder,
-  withoutVideoPlaceholder,
 } from "@/components/slide-editor/video/video-placeholder";
 
 type GetState = () => RootState;
@@ -153,12 +152,13 @@ export const uploadSlideVideo =
     });
   };
 
+// Deleting a video leaves the slide's placeholder in place, empty: the
+// placeholder is what marks the slide as one that gets an avatar.
 export const removeSlideVideo =
   ({ presentationId, slideId }: { presentationId: string; slideId: string }) =>
-  (dispatch: AppDispatch, getState: GetState): Promise<void> =>
+  (dispatch: AppDispatch): Promise<void> =>
     withPending(dispatch, slideId, "removing", async () => {
       const slide = await savedSlide(presentationId, slideId);
       await SlideVideosApi.deleteVideo(presentationId, slide.index);
       dispatch(slideVideoRemoved(slideId));
-      updateLocalSlideUi(dispatch, getState, slideId, withoutVideoPlaceholder);
     });

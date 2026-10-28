@@ -2266,7 +2266,7 @@ async def delete_slide_video(
     slide_index: int,
     sql_session: AsyncSession = Depends(get_async_session),
 ):
-    """Remove a slide's video, its file and its placeholder."""
+    """Remove a slide's video and its file; the placeholder stays, empty."""
     _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
     slide = _slide_at_index(slides, slide_index)
     deleted = await delete_slide_videos(
@@ -2280,7 +2280,7 @@ async def delete_all_slide_videos(
     id: uuid.UUID,
     sql_session: AsyncSession = Depends(get_async_session),
 ):
-    """Remove every video of a deck, with their files and placeholders."""
+    """Remove every video of a deck, with their files; placeholders stay."""
     _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
     deleted = await delete_slide_videos(
         sql_session, presentation_id=id, slides=slides

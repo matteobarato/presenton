@@ -20,6 +20,7 @@ from services.slide_video_service import (
     avatar_fit,
     avatar_stale_reason,
     default_placeholder_box,
+    delete_slide_videos,
     ensure_video_placeholder,
     find_video_placeholder,
     is_template_slide,
@@ -27,8 +28,10 @@ from services.slide_video_service import (
     remove_video_placeholder,
     resolve_bubble,
     resolve_slide_actors,
+    remove_slide_placeholder,
     save_slide_video,
     set_bubble,
+    set_video_placeholder,
     slide_video_response,
     store_slide_video_bytes,
     slide_videos_response,
@@ -597,3 +600,101 @@ def test_store_video_bytes_rejects_empty_and_oversize(tmp_path):
     assert big.value.status_code == 413
     assert "upload limit" in big.value.detail
     assert list(tmp_path.iterdir()) == []
+
+
+# --- placeholders that outlive their video ---
+
+
+async def _add_video(session, presentation, slide):
+    from utils.asset_directory_utils import get_videos_directory
+    from utils.video_files import store_video_bytes
+
+    stored = store_video_bytes(
+        _mp4_bytes(),
+        directory=os.path.join(get_videos_directory(), str(presentation.id)),
+        stem="gen",
+        max_bytes=1024 * 1024,
+    )
+    return await store_slide_video_bytes(
+        sql_session=session,
+        presentation=presentation,
+        slide=slide,
+        stored=stored,
+        original_filename=None,
+        language="it",
+        source_note_hash="abc",
+        source="upload",
+    )
+
+
+def test_delete_video_keeps_placeholder(tmp_path, monkeypatch):
+    async def scenario(session, presentation, slide):
+        video = await _add_video(session, presentation, slide)
+        deleted = await delete_slide_videos(
+            session, presentation_id=presentation.id, slides=[slide]
+        )
+        return deleted, video.path, slide
+
+    deleted, path, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
+
+    assert deleted == 1
+    assert not os.path.exists(path)
+    assert find_video_placeholder(slide.ui) is not None
+
+
+def test_set_placeholder_adds_default_box(tmp_path, monkeypatch):
+    async def scenario(session, presentation, slide):
+        box = await set_video_placeholder(session, slide)
+        return box, slide
+
+    box, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
+
+    assert _box(box) == _box(default_placeholder_box(None, None))
+    assert _box(placeholder_box(find_video_placeholder(slide.ui))) == _box(box)
+
+
+def test_set_placeholder_moves_existing(tmp_path, monkeypatch):
+    async def scenario(session, presentation, slide):
+        await set_video_placeholder(session, slide)
+        box = await set_video_placeholder(session, slide, x=100, y=50)
+        return box, slide
+
+    box, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
+
+    default = default_placeholder_box(None, None)
+    assert _box(box) == (100, 50, default.size.width, default.size.height)
+    assert len(slide.ui["elements"]) == 1
+
+
+def test_remove_placeholder_deletes_video_and_file(tmp_path, monkeypatch):
+    async def scenario(session, presentation, slide):
+        video = await _add_video(session, presentation, slide)
+        removed = await remove_slide_placeholder(
+            session, presentation_id=presentation.id, slide=slide
+        )
+        again = await remove_slide_placeholder(
+            session, presentation_id=presentation.id, slide=slide
+        )
+        remaining = await session.get(SlideVideoModel, video.id)
+        return removed, again, video.path, remaining, slide
+
+    removed, again, path, remaining, slide = _run_with_deck(
+        tmp_path, monkeypatch, scenario
+    )
+
+    assert removed is True
+    assert again is False
+    assert remaining is None
+    assert not os.path.exists(path)
+    assert find_video_placeholder(slide.ui) is None
+
+
+def test_empty_placeholder_resolves_voice():
+    slide = _slide("Ciao.")
+    slide.ui = _ui(_placeholder())
+    audio = _narration(slide, language="it", updated_at=_UPLOADED_AT)
+
+    actor = _actors(slide, audio=audio)
+
+    assert actor.actor == "voice"
+    assert actor.video is None

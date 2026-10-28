@@ -9,8 +9,11 @@ path handles it as an image; its poster is transparent, which keeps it out of
 sight in static exports.
 
 Videos only exist on template slides, whose `ui` element tree has somewhere to
-put the placeholder. The placeholder lives on a slide only while the slide has
-a video: uploading adds it, deleting the video removes it.
+put the placeholder. A placeholder is how a slide opts in to an avatar, so it
+can exist before any video does: the editor adds one, uploading or generating
+a video fills it (adding it if missing), and deleting the video leaves it
+empty - the slide keeps the voice bubble until a video arrives. Only removing
+the placeholder itself takes it off the slide.
 """
 
 from __future__ import annotations
@@ -639,22 +642,76 @@ async def delete_slide_videos(
     presentation_id: uuid.UUID,
     slides: Sequence[SlideModel],
 ) -> int:
-    """Delete the videos of the given slides, their files and their placeholders."""
+    """Delete the videos of the given slides and their files.
+
+    Placeholders stay, empty, so the slide can be given a new avatar.
+    """
     slides_by_id = {slide.id: slide for slide in slides}
     videos = await list_slide_videos(
         sql_session, presentation_id=presentation_id, slide_ids=list(slides_by_id)
     )
     paths = [video.path for video in videos]
     for video in videos:
-        slide = slides_by_id[video.slide]
-        if is_template_slide(slide):
-            slide.ui = remove_video_placeholder(slide.ui)
-            sql_session.add(slide)
         await sql_session.delete(video)
     if videos:
         await sql_session.commit()
     remove_deck_video_files(presentation_id, paths)
     return len(videos)
+
+
+async def set_video_placeholder(
+    sql_session: AsyncSession,
+    slide: SlideModel,
+    *,
+    x: Optional[float] = None,
+    y: Optional[float] = None,
+    width: Optional[float] = None,
+    height: Optional[float] = None,
+) -> StageBox:
+    """Give a slide a video placeholder, or move the one it has.
+
+    The placeholder needs no video: it marks the slide as one that gets an avatar.
+    """
+    if not is_template_slide(slide):
+        raise SlideVideoNotSupportedError(
+            "Avatar placeholders can only be added to template slides"
+        )
+    slide.ui = ensure_video_placeholder(
+        slide.ui, x=x, y=y, width=width, height=height
+    )
+    sql_session.add(slide)
+    await sql_session.commit()
+    # A just-added or moved placeholder is always readable from the new `ui`.
+    box = placeholder_box(find_video_placeholder(slide.ui))
+    assert box is not None
+    return box
+
+
+async def remove_slide_placeholder(
+    sql_session: AsyncSession,
+    *,
+    presentation_id: uuid.UUID,
+    slide: SlideModel,
+) -> bool:
+    """Take a slide's placeholder off it, with any video and file it had.
+
+    Returns whether the slide had a placeholder.
+    """
+    videos = await list_slide_videos(
+        sql_session, presentation_id=presentation_id, slide_ids=[slide.id]
+    )
+    had_placeholder = is_template_slide(slide) and (
+        find_video_placeholder(slide.ui) is not None
+    )
+    if had_placeholder:
+        slide.ui = remove_video_placeholder(slide.ui)
+        sql_session.add(slide)
+    for video in videos:
+        await sql_session.delete(video)
+    if had_placeholder or videos:
+        await sql_session.commit()
+    remove_deck_video_files(presentation_id, [video.path for video in videos])
+    return had_placeholder
 
 
 async def build_playback(
