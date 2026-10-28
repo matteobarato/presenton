@@ -570,7 +570,7 @@ To set it up:
 4. Start generation with `POST …/videos/generate`. The body takes `slide_indices` (an array, or `null` for every slide), `language` (or `null`), `force` (default `false`) and `resolution` (`720p` or `480p`). It returns an async task:
 
 ```bash
-curl -X POST "http://localhost:5000/api/v1/ppt/presentation/$PRESENTATION_ID/videos/generate" \
+curl -X POST "http://localhost:5001/api/v1/ppt/presentation/$PRESENTATION_ID/videos/generate" \
   -H "Content-Type: application/json" \
   -d '{"slide_indices": [2, 5], "language": "en", "force": false, "resolution": "720p"}'
 ```
@@ -578,7 +578,7 @@ curl -X POST "http://localhost:5000/api/v1/ppt/presentation/$PRESENTATION_ID/vid
 5. Poll the task until its `status` is `completed` or `error`. Its `data` lists what happened to each slide. `GET …/videos/generate` returns the latest task for the deck, and `GET …/videos/generate/preview?language=en` shows a dry run of the plan.
 
 ```bash
-curl "http://localhost:5000/api/v1/async-tasks/status/$TASK_ID"
+curl "http://localhost:5001/api/v1/async-tasks/status/$TASK_ID"
 ```
 
 Generation behaves as follows:
