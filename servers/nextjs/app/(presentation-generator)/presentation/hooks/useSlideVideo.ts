@@ -247,7 +247,12 @@ export function useAvatarGeneration(
       setSummary(null);
       try {
         const task = await dispatch(
-          startAvatarGeneration({ presentationId, slideIds, language, force }),
+          startAvatarGeneration({
+            presentationId,
+            slideIds,
+            language: language ?? preview?.language ?? null,
+            force,
+          }),
         );
         if (task.status === "pending") void follow(task.id);
       } catch (error) {
@@ -257,7 +262,7 @@ export function useAvatarGeneration(
         );
       }
     },
-    [dispatch, follow, language, presentationId],
+    [dispatch, follow, language, preview, presentationId],
   );
 
   const uploadPortrait = useCallback(
