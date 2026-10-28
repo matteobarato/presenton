@@ -580,3 +580,20 @@ def test_store_video_bytes_rejects_non_video(tmp_path):
 
     assert caught.value.status_code == 400
     assert list(tmp_path.iterdir()) == []
+
+
+def test_store_video_bytes_rejects_empty_and_oversize(tmp_path):
+    from utils.video_files import store_video_bytes
+
+    with pytest.raises(HTTPException) as empty:
+        store_video_bytes(b"", directory=str(tmp_path), stem="x", max_bytes=1024)
+    assert empty.value.status_code == 400
+    assert empty.value.detail == "Uploaded video file is empty"
+
+    with pytest.raises(HTTPException) as big:
+        store_video_bytes(
+            _mp4_bytes(), directory=str(tmp_path), stem="x", max_bytes=8
+        )
+    assert big.value.status_code == 413
+    assert "upload limit" in big.value.detail
+    assert list(tmp_path.iterdir()) == []

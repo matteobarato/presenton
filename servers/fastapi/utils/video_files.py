@@ -80,12 +80,30 @@ def _sniff_container(head: bytes) -> Optional[str]:
     return None
 
 
+def _check_not_empty(size: int) -> None:
+    if not size:
+        raise HTTPException(status_code=400, detail="Uploaded video file is empty")
+
+
+def _check_within_limit(size: int, max_bytes: int) -> None:
+    if size > max_bytes:
+        max_mb = max_bytes / _BYTES_PER_MB
+        raise HTTPException(
+            status_code=413,
+            detail=f"Video is larger than the {max_mb:g} MB upload limit",
+        )
+
+
+def _reject_non_video() -> HTTPException:
+    return HTTPException(
+        status_code=400,
+        detail="Uploaded file is not a valid MP4 or WebM video",
+    )
+
+
 def _check_container(head: bytes, video_format: str) -> None:
     if _sniff_container(head) != video_format:
-        raise HTTPException(
-            status_code=400,
-            detail="Uploaded file is not a valid MP4 or WebM video",
-        )
+        raise _reject_non_video()
 
 
 def remove_file(path: Optional[str]) -> None:
@@ -164,18 +182,12 @@ async def store_uploaded_video(
                 if not chunk:
                     break
                 size += len(chunk)
-                if size > max_bytes:
-                    max_mb = max_bytes / _BYTES_PER_MB
-                    raise HTTPException(
-                        status_code=413,
-                        detail=f"Video is larger than the {max_mb:g} MB upload limit",
-                    )
+                _check_within_limit(size, max_bytes)
                 if len(head) < _SNIFF_BYTES:
                     head += chunk[: _SNIFF_BYTES - len(head)]
                 output.write(chunk)
 
-        if not size:
-            raise HTTPException(status_code=400, detail="Uploaded video file is empty")
+        _check_not_empty(size)
         _check_container(head, video_format)
         os.replace(part_path, final_path)
     except BaseException:
@@ -199,20 +211,11 @@ def store_video_bytes(
     Same checks and errors as ``store_uploaded_video``, except that the format
     comes from the bytes themselves, as there is no filename to read it from.
     """
-    if not data:
-        raise HTTPException(status_code=400, detail="Uploaded video file is empty")
-    if len(data) > max_bytes:
-        max_mb = max_bytes / _BYTES_PER_MB
-        raise HTTPException(
-            status_code=413,
-            detail=f"Video is larger than the {max_mb:g} MB upload limit",
-        )
+    _check_not_empty(len(data))
+    _check_within_limit(len(data), max_bytes)
     video_format = _sniff_container(data[:_SNIFF_BYTES])
     if video_format is None:
-        raise HTTPException(
-            status_code=400,
-            detail="Uploaded file is not a valid MP4 or WebM video",
-        )
+        raise _reject_non_video()
     mime_type = "video/mp4" if video_format == "mp4" else "video/webm"
 
     os.makedirs(directory, exist_ok=True)
