@@ -53,6 +53,8 @@ class SlideVideoResponse(BaseModel):
     height: Optional[int] = None
     # The narration language the avatar was synced to; null = any language.
     language: Optional[str] = None
+    # Who made the video; videos saved before the column existed are uploads.
+    source: Literal["upload", "elevenlabs"] = "upload"
     # The avatar no longer matches the narration it was made from: the speaker
     # note changed after it was made (`note_changed`), or the slide's audio in
     # its language was regenerated since (`audio_regenerated`). `stale` is

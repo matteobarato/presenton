@@ -80,6 +80,14 @@ def _sniff_container(head: bytes) -> Optional[str]:
     return None
 
 
+def _check_container(head: bytes, video_format: str) -> None:
+    if _sniff_container(head) != video_format:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded file is not a valid MP4 or WebM video",
+        )
+
+
 def remove_file(path: Optional[str]) -> None:
     """Delete one file, tolerating what a cleanup cannot do anything about.
 
@@ -168,11 +176,7 @@ async def store_uploaded_video(
 
         if not size:
             raise HTTPException(status_code=400, detail="Uploaded video file is empty")
-        if _sniff_container(head) != video_format:
-            raise HTTPException(
-                status_code=400,
-                detail="Uploaded file is not a valid MP4 or WebM video",
-            )
+        _check_container(head, video_format)
         os.replace(part_path, final_path)
     except BaseException:
         # BaseException, so a request cancelled mid-upload cleans up as well.
@@ -184,6 +188,48 @@ async def store_uploaded_video(
         format=video_format,
         mime_type=mime_type,
         size_bytes=size,
+    )
+
+
+def store_video_bytes(
+    data: bytes, *, directory: str, stem: str, max_bytes: int
+) -> StoredVideo:
+    """Write an in-memory video to ``directory/stem.<format>``.
+
+    Same checks and errors as ``store_uploaded_video``, except that the format
+    comes from the bytes themselves, as there is no filename to read it from.
+    """
+    if not data:
+        raise HTTPException(status_code=400, detail="Uploaded video file is empty")
+    if len(data) > max_bytes:
+        max_mb = max_bytes / _BYTES_PER_MB
+        raise HTTPException(
+            status_code=413,
+            detail=f"Video is larger than the {max_mb:g} MB upload limit",
+        )
+    video_format = _sniff_container(data[:_SNIFF_BYTES])
+    if video_format is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded file is not a valid MP4 or WebM video",
+        )
+    mime_type = "video/mp4" if video_format == "mp4" else "video/webm"
+
+    os.makedirs(directory, exist_ok=True)
+    final_path = os.path.abspath(os.path.join(directory, f"{stem}.{video_format}"))
+    part_path = f"{final_path}.part"
+    try:
+        with open(part_path, "wb") as output:
+            output.write(data)
+        os.replace(part_path, final_path)
+    except BaseException:
+        remove_file(part_path)
+        raise
+    return StoredVideo(
+        path=final_path,
+        format=video_format,
+        mime_type=mime_type,
+        size_bytes=len(data),
     )
 
 

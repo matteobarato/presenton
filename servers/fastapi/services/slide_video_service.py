@@ -52,6 +52,7 @@ from utils.video_files import (
     get_slide_video_max_upload_bytes,
     remove_deck_video_files,
     remove_file,
+    StoredVideo,
     store_uploaded_video,
     video_metadata,
 )
@@ -69,14 +70,11 @@ DEFAULT_VIDEO_ASPECT = 9 / 16
 
 DEFAULT_BUBBLE_SIZE = 96
 
-
 class SlideVideoNotSupportedError(ValueError):
     """Raised for a slide with no template layout to place a video in."""
 
-
 class InvalidStageBoxError(ValueError):
     """Raised for a rectangle that does not fit on the slide stage."""
-
 
 class MultipleNarrationLanguagesError(ValueError):
     """Raised when a deck has narration in several languages and none was chosen."""
@@ -88,7 +86,6 @@ class MultipleNarrationLanguagesError(ValueError):
             "pass `language` to choose one (" + ", ".join(self.languages) + ")"
         )
 
-
 def is_template_slide(slide: SlideModel) -> bool:
     # A layout can be made of components alone; the placeholder then starts
     # the root `elements` list.
@@ -97,14 +94,12 @@ def is_template_slide(slide: SlideModel) -> bool:
         isinstance(ui.get("elements"), list) or isinstance(ui.get("components"), list)
     )
 
-
 def _is_video_placeholder(value: Any) -> bool:
     return (
         isinstance(value, dict)
         and value.get("type") == "image"
         and value.get(VIDEO_PLACEHOLDER_FLAG) is True
     )
-
 
 def _walk(value: Any) -> Iterator[dict[str, Any]]:
     if isinstance(value, dict):
@@ -115,17 +110,14 @@ def _walk(value: Any) -> Iterator[dict[str, Any]]:
         for child in value:
             yield from _walk(child)
 
-
 def find_video_placeholder(ui: Any) -> Optional[dict[str, Any]]:
     """The slide's placeholder element, wherever it sits in the element tree."""
     return next((node for node in _walk(ui) if _is_video_placeholder(node)), None)
-
 
 def _number(value: Any) -> Optional[float]:
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         return float(value)
     return None
-
 
 def placeholder_box(element: Optional[dict[str, Any]]) -> Optional[StageBox]:
     if element is None:
@@ -137,7 +129,6 @@ def placeholder_box(element: Optional[dict[str, Any]]) -> Optional[StageBox]:
     if None in (x, y, width, height):
         return None
     return StageBox.of(x, y, width, height)
-
 
 def default_placeholder_box(
     video_width: Optional[int] = None, video_height: Optional[int] = None
@@ -160,7 +151,6 @@ def default_placeholder_box(
         height,
     )
 
-
 def default_bubble_box() -> StageBox:
     """The voice bubble's spot when a deck has not set one: the same corner the
     default video placeholder uses, so the presenter shrinks in place."""
@@ -170,7 +160,6 @@ def default_bubble_box() -> StageBox:
         DEFAULT_BUBBLE_SIZE,
         DEFAULT_BUBBLE_SIZE,
     )
-
 
 def validate_stage_box(box: StageBox) -> StageBox:
     x, y = box.position.x, box.position.y
@@ -182,7 +171,6 @@ def validate_stage_box(box: StageBox) -> StageBox:
             f"The box must fit inside the {STAGE_WIDTH}x{STAGE_HEIGHT} slide"
         )
     return box
-
 
 def _new_placeholder_element(box: StageBox) -> dict[str, Any]:
     return {
@@ -196,7 +184,6 @@ def _new_placeholder_element(box: StageBox) -> dict[str, Any]:
         "position": {"x": box.position.x, "y": box.position.y},
         "size": {"width": box.size.width, "height": box.size.height},
     }
-
 
 def ensure_video_placeholder(
     ui: dict[str, Any],
@@ -237,7 +224,6 @@ def ensure_video_placeholder(
     element["size"] = {"width": box.size.width, "height": box.size.height}
     return next_ui
 
-
 def remove_video_placeholder(ui: Any) -> Any:
     """Return a copy of `ui` with every placeholder element taken out."""
 
@@ -253,7 +239,6 @@ def remove_video_placeholder(ui: Any) -> Any:
 
     return strip(copy.deepcopy(ui))
 
-
 def resolve_bubble(presentation: PresentationModel) -> PlaybackBubble:
     narration = presentation.narration if isinstance(presentation.narration, dict) else {}
     stored = placeholder_box(narration.get("bubble")) if isinstance(
@@ -263,7 +248,6 @@ def resolve_bubble(presentation: PresentationModel) -> PlaybackBubble:
     return PlaybackBubble(
         position=box.position, size=box.size, is_default=stored is None
     )
-
 
 def set_bubble(presentation: PresentationModel, box: StageBox) -> PlaybackBubble:
     validate_stage_box(box)
@@ -277,7 +261,6 @@ def set_bubble(presentation: PresentationModel, box: StageBox) -> PlaybackBubble
     presentation.narration = narration
     return resolve_bubble(presentation)
 
-
 async def list_slide_videos(
     sql_session: AsyncSession,
     *,
@@ -290,7 +273,6 @@ async def list_slide_videos(
     if slide_ids is not None:
         statement = statement.where(SlideVideoModel.slide.in_(list(slide_ids)))
     return list(await sql_session.scalars(statement))
-
 
 async def slide_video_paths(
     sql_session: AsyncSession,
@@ -306,15 +288,12 @@ async def slide_video_paths(
     )
     return [video.path for video in videos if video.path]
 
-
 StaleReason = Literal["note_changed", "audio_regenerated"]
-
 
 def _as_utc(moment: datetime) -> datetime:
     # SQLite hands timestamps back without a zone, Postgres with one; every
     # stored value is UTC, so a naive one is read as UTC to compare the two.
     return moment if moment.tzinfo is not None else moment.replace(tzinfo=timezone.utc)
-
 
 def avatar_stale_reason(
     video: SlideVideoModel,
@@ -341,7 +320,6 @@ def avatar_stale_reason(
         return "audio_regenerated"
     return None
 
-
 def slide_video_response(
     video: SlideVideoModel,
     slide: SlideModel,
@@ -363,13 +341,13 @@ def slide_video_response(
         width=video.width,
         height=video.height,
         language=video.language,
+        source="elevenlabs" if video.source == "elevenlabs" else "upload",
         stale=stale_reason is not None,
         stale_reason=stale_reason,
         placeholder=placeholder_box(find_video_placeholder(slide.ui)),
         created_at=video.created_at,
         updated_at=video.updated_at,
     )
-
 
 def slide_videos_response(
     presentation_id: uuid.UUID,
@@ -405,9 +383,7 @@ def slide_videos_response(
         videos=responses,
     )
 
-
 ActorKind = Literal["video", "voice", "none"]
-
 
 @dataclass(frozen=True)
 class SlideActor:
@@ -424,7 +400,6 @@ class SlideActor:
     audio: Optional[SpeakerNoteAudioModel]
     video: Optional[SlideVideoModel]
     avatar_skipped: Optional[Literal["disabled", "language"]] = None
-
 
 def resolve_slide_actors(
     slides: Sequence[SlideModel],
@@ -468,14 +443,12 @@ def resolve_slide_actors(
         )
     return actors
 
-
 def avatar_box(slide: SlideModel, video: SlideVideoModel) -> StageBox:
     """Where the avatar plays: the slide's placeholder, or the default corner
     spot shaped like the video when the placeholder was removed since upload."""
     return placeholder_box(find_video_placeholder(slide.ui)) or default_placeholder_box(
         video.width, video.height
     )
-
 
 def avatar_fit(slide: SlideModel) -> Literal["fill", "cover", "contain"]:
     """How the avatar sits in its box: the placeholder's `fit`, read the way the
@@ -484,7 +457,6 @@ def avatar_fit(slide: SlideModel) -> Literal["fill", "cover", "contain"]:
     element = find_video_placeholder(slide.ui)
     fit = element.get("fit") if element is not None else None
     return fit if fit in ("fill", "cover", "contain") else "contain"
-
 
 def avatar_border_radius(slide: SlideModel) -> float:
     """The placeholder's corner radius in stage pixels, as the editor sets it on
@@ -496,7 +468,6 @@ def avatar_border_radius(slide: SlideModel) -> float:
         return max(0.0, sum(corners) / 4)
     return max(0.0, _number(radius) or 0.0)
 
-
 async def _default_video_language(
     sql_session: AsyncSession, presentation_id: uuid.UUID
 ) -> Optional[str]:
@@ -506,7 +477,6 @@ async def _default_video_language(
     )
     languages = {audio.language for audio in audios}
     return languages.pop() if len(languages) == 1 else None
-
 
 async def save_slide_video(
     *,
@@ -547,6 +517,40 @@ async def save_slide_video(
         stem=f"{slide.id}-{uuid.uuid4().hex[:8]}",
         max_bytes=get_slide_video_max_upload_bytes(),
     )
+    return await store_slide_video_bytes(
+        sql_session=sql_session,
+        presentation=presentation,
+        slide=slide,
+        stored=stored,
+        original_filename=file.filename,
+        language=video_language,
+        source_note_hash=note_digest(slide.speaker_note or ""),
+        source="upload",
+        x=x,
+        y=y,
+        width=width,
+        height=height,
+    )
+
+async def store_slide_video_bytes(
+    *,
+    sql_session: AsyncSession,
+    presentation: PresentationModel,
+    slide: SlideModel,
+    stored: StoredVideo,
+    original_filename: Optional[str],
+    language: Optional[str],
+    source_note_hash: str,
+    source: Literal["upload", "elevenlabs"],
+    x: Optional[float] = None,
+    y: Optional[float] = None,
+    width: Optional[float] = None,
+    height: Optional[float] = None,
+) -> SlideVideoModel:
+    """Record an already stored video as the slide's, replacing any earlier one.
+
+    Owns `stored`: the file is removed again if the row cannot be saved.
+    """
     try:
         metadata = video_metadata(stored.path, stored.format)
         next_ui = ensure_video_placeholder(
@@ -568,9 +572,10 @@ async def save_slide_video(
         previous_path = video.path if video is not None else None
         if video is None:
             video = SlideVideoModel(presentation=presentation.id, slide=slide.id)
-        video.source_note_hash = note_digest(slide.speaker_note or "")
-        video.language = video_language
-        video.original_filename = file.filename
+        video.source_note_hash = source_note_hash
+        video.language = language
+        video.source = source
+        video.original_filename = original_filename
         video.path = stored.path
         video.url = app_data_file_url(stored.path)
         video.format = stored.format
@@ -594,7 +599,6 @@ async def save_slide_video(
         remove_file(previous_path)
     return video
 
-
 async def delete_slide_videos(
     sql_session: AsyncSession,
     *,
@@ -617,7 +621,6 @@ async def delete_slide_videos(
         await sql_session.commit()
     remove_deck_video_files(presentation_id, paths)
     return len(videos)
-
 
 async def build_playback(
     sql_session: AsyncSession,

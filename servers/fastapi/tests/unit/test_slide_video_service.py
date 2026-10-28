@@ -1,10 +1,15 @@
+import asyncio
+import os
+import struct
 import uuid
 from datetime import datetime, timedelta, timezone
 
 import pytest
+from fastapi import HTTPException, UploadFile
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from models.slide_video_response import StageBox
-from models.sql.presentation import PresentationModel
+from models.sql.presentation import PresentationModel, PresentationVersion
 from models.sql.slide import SlideModel
 from models.sql.slide_video import SlideVideoModel
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
@@ -22,7 +27,10 @@ from services.slide_video_service import (
     remove_video_placeholder,
     resolve_bubble,
     resolve_slide_actors,
+    save_slide_video,
     set_bubble,
+    slide_video_response,
+    store_slide_video_bytes,
     slide_videos_response,
 )
 
@@ -449,3 +457,126 @@ def test_avatar_fit_mirrors_the_editor():
     assert fit_of() == "contain"
     assert fit_of(fit="stretch") == "contain"
     assert avatar_fit(_slide("nota")) == "contain"  # no placeholder at all
+
+
+# --- source column and byte storage ---
+
+
+def _mp4_bytes() -> bytes:
+    ftyp = b"isom\x00\x00\x02\x00isomiso2mp41"
+    return struct.pack(">I", 8 + len(ftyp)) + b"ftyp" + ftyp + b"\x00" * 32
+
+
+def _run_with_deck(tmp_path, monkeypatch, scenario):
+    """Run `scenario(session, presentation, slide)` against a throwaway database."""
+    monkeypatch.setenv("APP_DATA_DIRECTORY", str(tmp_path / "app_data"))
+    monkeypatch.delenv("NEXT_PUBLIC_FAST_API", raising=False)
+    monkeypatch.delenv("SLIDE_VIDEO_MAX_UPLOAD_MB", raising=False)
+
+    async def run():
+        engine = create_async_engine(f"sqlite+aiosqlite:///{tmp_path / 'svc.db'}")
+        try:
+            async with engine.begin() as connection:
+                for model in (
+                    PresentationModel,
+                    SlideModel,
+                    SpeakerNoteAudioModel,
+                    SlideVideoModel,
+                ):
+                    await connection.run_sync(model.__table__.create)
+            presentation = PresentationModel(
+                id=uuid.uuid4(),
+                version=PresentationVersion.V2_STANDARD,
+                content="Deck",
+                n_slides=1,
+                language="Italian",
+                title="Deck",
+            )
+            slide = SlideModel(
+                id=uuid.uuid4(),
+                presentation=presentation.id,
+                layout_group="general",
+                layout="title",
+                index=0,
+                content={},
+                speaker_note="Ciao a tutti.",
+                ui=_ui(),
+            )
+            async with async_sessionmaker(engine, expire_on_commit=False)() as session:
+                session.add(presentation)
+                session.add(slide)
+                await session.commit()
+                return await scenario(session, presentation, slide)
+        finally:
+            await engine.dispose()
+
+    return asyncio.run(run())
+
+
+def test_store_slide_video_bytes_sets_source_and_hash(tmp_path, monkeypatch):
+    from utils.asset_directory_utils import get_videos_directory
+    from utils.video_files import store_video_bytes
+
+    async def scenario(session, presentation, slide):
+        stored = store_video_bytes(
+            _mp4_bytes(),
+            directory=os.path.join(get_videos_directory(), str(presentation.id)),
+            stem="gen",
+            max_bytes=1024 * 1024,
+        )
+        video = await store_slide_video_bytes(
+            sql_session=session,
+            presentation=presentation,
+            slide=slide,
+            stored=stored,
+            original_filename=None,
+            language="it",
+            source_note_hash="abc123",
+            source="elevenlabs",
+        )
+        return video, slide
+
+    video, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
+
+    assert video.source == "elevenlabs"
+    assert video.source_note_hash == "abc123"
+    assert video.language == "it"
+    assert find_video_placeholder(slide.ui) is not None
+    assert os.path.exists(video.path)
+
+
+def test_upload_sets_source_upload(tmp_path, monkeypatch):
+    import io
+
+    async def scenario(session, presentation, slide):
+        file = UploadFile(file=io.BytesIO(_mp4_bytes()), filename="avatar.mp4")
+        return await save_slide_video(
+            sql_session=session, presentation=presentation, slide=slide, file=file
+        )
+
+    video = _run_with_deck(tmp_path, monkeypatch, scenario)
+
+    assert video.source == "upload"
+    assert video.source_note_hash == note_digest("Ciao a tutti.")
+
+
+def test_response_source_defaults_to_upload_for_null():
+    slide = _slide("nota")
+    video = _avatar(slide, language=None)
+    assert video.source is None
+
+    assert slide_video_response(video, slide).source == "upload"
+    video.source = "elevenlabs"
+    assert slide_video_response(video, slide).source == "elevenlabs"
+
+
+def test_store_video_bytes_rejects_non_video(tmp_path):
+    from utils.video_files import store_video_bytes
+
+    with pytest.raises(HTTPException) as caught:
+        store_video_bytes(
+            b"not a video at all", directory=str(tmp_path), stem="x", max_bytes=1024
+        )
+
+    assert caught.value.status_code == 400
+    assert list(tmp_path.iterdir()) == []
