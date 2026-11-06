@@ -12,6 +12,8 @@
 
 ## Global Constraints
 
+- **Template-based generation only** (user decision, see `CLAUDE.md`): no Smart mode and no `slide/edit-html`. Existing smart slides render via SlideView but get no new features.
+
 - Modify nothing outside `frontend/`, `docker-compose.frontend.yml` and `docs/superpowers/`. `servers/`, `docker-compose.yml`, `nginx.conf` and `aera-frontend/` are read-only references.
 - UI product name: **Presenton**. Visual system from `aera-frontend/` (tokens, DM Sans + Manrope, glass, motion grammar).
 - Node 22; Vue ^3.5; TypeScript ^5.7; Vite ^6; Tailwind ^4 via `@tailwindcss/vite`; reka-ui ^2.
@@ -282,7 +284,7 @@ Spec §2 "Create". Old reference: `servers/nextjs/app/(presentation-generator)/u
   - Options are prefilled from `getGenerationDefaults`.
   - Submit with files: `uploadFiles` → `decomposeFiles(docs, language)` → `createPresentation` receives the decomposed paths as `file_paths`. Without files, neither is called.
   - Submit in Template mode: `createPresentation({…, generation_mode:'template'})` → routes to `/new/:id/outline`.
-  - Submit in Smart mode: `createPresentation({…, generation_mode:'smart'})` → routes to `/p/:id?stream=1`.
+  - (Superseded by the template-only decision: no Smart mode, no mode switch.)
   - The submit button shows a pending state and stays disabled until navigation, and an upload/decompose/create failure shows the server message inline.
   - An empty prompt with no files → the submit button is disabled.
   - The slide count is clamped to 1–50 (match the old `NumberOfSlide.tsx` limits from `utils/presentationLimits.ts`).
@@ -360,10 +362,10 @@ Spec §2 "Center canvas".
 **Interfaces:**
 - Consumes: `slideKind`, `presentationKeys`, `useEditorStore().askOpen`.
 - Consumes: `generateSpeakerNotes`, `updateSpeakerNotes` (Task 2).
-- Produces: `slides.ts`: `editSlide(id, prompt)`, `editSlideHtml(id, prompt, html?)`.
+- Produces: `slides.ts`: `editSlide(id, prompt)` (template slides only; smart slides show Ask disabled with a tooltip).
 
 - [ ] **Step 1: Write the failing tests.**
-  - `AskOverlay`: when open, the input has focus and the slide layout box size is unchanged (overlay is absolutely positioned); Escape closes it and returns focus to the Ask button; a template slide calls `editSlide`; a smart slide calls `editSlideHtml` with the current `html_content`; while pending one thinking indicator shows and submit is disabled; success updates the `['presentation', id]` cache with the returned slide and emits `edited`; failure keeps the prompt text and shows the error inline. The three suggestion chips fill the input.
+  - `AskOverlay`: when open, the input has focus and the slide layout box size is unchanged (overlay is absolutely positioned); Escape closes it and returns focus to the Ask button; a template slide calls `editSlide`; a smart slide shows the Ask button disabled with a tooltip ("AI edit is available for template slides") and never calls an endpoint; while pending one thinking indicator shows and submit is disabled; success updates the `['presentation', id]` cache with the returned slide and emits `edited`; failure keeps the prompt text and shows the error inline. The three suggestion chips fill the input.
   - `NotesStrip`: collapsed by default (`editor.notesOpen`); typing saves after a 800 ms debounce via `updateSpeakerNotes` for only that slide index; "Generate" calls `generateSpeakerNotes` for that slide and replaces the text; switching slides flushes the pending save.
 - [ ] **Step 2: Run them.** Expected: FAIL.
 - [ ] **Step 3: Implement.** Use Aera glass overlay styling.
