@@ -1,7 +1,6 @@
 import type { CreateBody } from '@/api/generation'
 
 export const MAX_SLIDES = 50
-export type CreateMode = 'template' | 'smart'
 
 export interface CreateOptions {
   slides: string
