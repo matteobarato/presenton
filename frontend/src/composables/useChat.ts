@@ -45,9 +45,7 @@ export function withSlideContext(text: string, slideIndex?: number | null): stri
 
 /** History stores the wire text; show only what the user typed. */
 function stripSlideContext(raw: string): string {
-  if (!raw.startsWith('UI context:')) return raw
-  const i = raw.indexOf('\n\n')
-  return i === -1 ? raw : raw.slice(i + 2)
+  return raw.replace(/^UI context: the currently selected slide is slide \d+ \(zero-based index \d+\)\.\n\n/, '')
 }
 
 let counter = 0

@@ -177,4 +177,14 @@ describe('useChat', () => {
     expect(spy).toHaveBeenCalledWith({ queryKey: ['presentation', 'p1'] })
     spy.mockRestore()
   })
+
+  it('leaves typed text that merely starts with "UI context:" unchanged in history', async () => {
+    mocks.listConversations.mockResolvedValue([{ conversation_id: 'c', updated_at: '2026-01-01T00:00:00Z' }])
+    mocks.getHistory.mockResolvedValue({
+      messages: [{ role: 'user', content: 'UI context: my notes\n\nplease shorten' }],
+    })
+    const chat = setup()
+    await chat.loadHistory()
+    expect(chat.messages.value[0].content).toBe('UI context: my notes\n\nplease shorten')
+  })
 })

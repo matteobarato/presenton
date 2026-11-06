@@ -88,4 +88,17 @@ describe('ChatTab', () => {
     expect(w.text()).not.toContain('earlier')
     w.unmount()
   })
+
+  it('sends the active slide index as context', async () => {
+    const presentation = { slides: [{ id: 'a' }, { id: 'b' }] } as never
+    const w = mount(ChatTab, { props: { ...props, presentation, activeSlide: { id: 'b' } as never }, attachTo: document.body })
+    await flushPromises()
+    await w.find('textarea').setValue('go')
+    await w.find('textarea').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+    expect(mocks.streamMessage.mock.calls[0][0].message).toBe(
+      'UI context: the currently selected slide is slide 2 (zero-based index 1).\n\ngo',
+    )
+    w.unmount()
+  })
 })
