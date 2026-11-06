@@ -62,6 +62,9 @@ drawers below 1050px / 760px.
   structured per-slide content replacements (`[{index, content}]`) plus an
   export format — automation APIs with no prompt. Their UI belongs with
   Phase 2 content editing.
+- `POST v2/ppt/presentation/generate/smart[/async]`: a blocking
+  generate-and-export automation API. The UI uses the streaming smart path
+  instead, so slides appear live.
 - Production Dockerfile/nginx changes; Electron.
 - Any change to `servers/`, `docker-compose.yml`, `nginx.conf`,
   `aera-frontend/`.
@@ -225,8 +228,9 @@ menu. Router guard enforces it and preserves `?next=`.
 
 ### Create — `/new`, `/new/:id/outline`
 
-- **Inputs:** prompt; supporting files (`files/upload` → `files/decompose`,
-  chips with remove); slide count; language; advanced (tone, verbosity,
+- **Inputs:** prompt; supporting files (`files/upload` →
+  `files/decompose(documents, language)` → extracted paths sent as
+  `file_paths`, chips with remove); slide count; language; advanced (tone, verbosity,
   instructions, include title/table-of-contents slide, web grounding, image
   options) prefilled from `POST generation/defaults`.
 - **Mode switch:** Template | Smart, filtered by `PRESENTATION_GENERATION_MODE`
@@ -238,8 +242,9 @@ menu. Router guard enforces it and preserves `?next=`.
   `<SlideView>`); Generate → `POST presentation/prepare` → navigate to editor,
   which consumes `GET presentation/stream/{id}` and shows slides as they
   arrive with generation metrics.
-- **Smart mode:** `POST v2/ppt/presentation/generate/smart/async` → task
-  progress screen (`useAsyncTask`) → editor on completion.
+- **Smart mode:** `POST presentation/create` with `generation_mode:
+  'smart'` → editor, which consumes `GET presentation/stream/{id}` and shows
+  each `slide_html` slide as it arrives (same as the old app).
 
 ### Editor — `/p/:id`
 
@@ -313,7 +318,7 @@ reorder, delete slide, title, notes.
 `useAsyncTask(taskId)` polls `GET async-tasks/status/{id}` (1s → 5s
 backoff), stops on a terminal status, exposes `status`, `progress`, `error`,
 `result`. Active task ids are stored in `sessionStorage` per deck and kind
-(`tts`, `avatars`, `mp4`, `smart`), so polling resumes after reload; avatar
+(`tts`, `avatars`, `mp4`), so polling resumes after reload; avatar
 generation additionally resumes from `GET videos/generate`.
 
 ### Streams
