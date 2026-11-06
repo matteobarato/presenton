@@ -85,6 +85,12 @@ describe('narrationState', () => {
     expect(narrationState({ speaker_note: 'a c' }, { text: 'a b' })).toBe('stale')
     expect(narrationState({ speaker_note: null }, { text: '' })).toBe('ready')
   })
+
+  it('is translated whenever the entry is translated, whatever the note says', () => {
+    expect(narrationState({ speaker_note: 'a' }, { text: 'a', translated: true })).toBe('translated')
+    expect(narrationState({ speaker_note: 'changed' }, { text: 'ciao', translated: true })).toBe('translated')
+    expect(narrationState({ speaker_note: 'a b' }, { text: 'a b', translated: false })).toBe('ready')
+  })
 })
 
 describe('NarrationTab', () => {
@@ -139,6 +145,25 @@ describe('NarrationTab', () => {
     await button(wrapper, 'Regenerate selected').trigger('click')
     await flushPromises()
     expect(mocks.generateTtsAsync).toHaveBeenCalledWith('p1', { language: 'en-US', slide_indexes: [1], regenerate: true })
+  })
+
+  it('shows a Translated badge for translated audio, still playable and selectable', async () => {
+    mocks.getTtsStatus.mockResolvedValue({
+      presentation_id: 'p1',
+      language: 'en-US',
+      audios: [{ ...audio(0, 'Ciao mondo'), translated: true }],
+    })
+    const { wrapper } = await mountTab()
+    const row = wrapper.findAll('li[data-state]')[0]
+    expect(row.attributes('data-state')).toBe('translated')
+    expect(row.text()).toContain('Translated')
+    expect(row.text()).not.toContain('Ready')
+    expect(row.html()).toContain("Regenerate this slide if you changed its note.")
+    expect(row.find('audio').attributes('src')).toBe('/app_data/audio/0.mp3')
+    await row.find('input[type="checkbox"]').setValue(true)
+    await button(wrapper, 'Regenerate selected').trigger('click')
+    await flushPromises()
+    expect(mocks.generateTtsAsync).toHaveBeenCalledWith('p1', { language: 'en-US', slide_indexes: [0], regenerate: true })
   })
 
   it('asks for confirmation before deleting narration', async () => {
