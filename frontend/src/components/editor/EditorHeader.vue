@@ -37,7 +37,7 @@ import { useEditorStore, type InspectorTabId } from '@/stores/editor'
 
 const props = defineProps<{ presentation: Presentation }>()
 
-const router = useRouter()
+const router = useRouter() 
 const queryClient = useQueryClient()
 const editor = useEditorStore()
 const { history, undo, redo } = useUndoRedo()

@@ -5,7 +5,6 @@ import { usePresentation } from '@/api/presentations'
 import type { Slide } from '@/api/types'
 import SlideView from '@/render/SlideView.vue'
 import { useEditorStore } from '@/stores/editor'
-import AskOverlay from './AskOverlay.vue'
 import FloatingToolbar from './FloatingToolbar.vue'
 
 const props = defineProps<{ presentationId: string; slide: Slide | null }>()
@@ -33,6 +32,5 @@ const { data: presentation } = usePresentation(toRef(props, 'presentationId'), u
       </div>
       <p v-else class="m-auto text-[13px] text-muted">No slides yet.</p>
     </div>
-    <AskOverlay v-if="slide" v-model:open="editor.askOpen" :slide="slide" />
   </section>
 </template>
