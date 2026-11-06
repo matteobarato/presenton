@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { Presentation, Slide } from '@/api/types'
+import { ApiError } from '@/api/errors'
 import { presentationKeys } from '@/api/presentations'
 import { useTts } from '@/api/tts'
 import {
@@ -127,11 +128,14 @@ const disabledReason = computed<string | null>(() => {
   return null
 })
 
+// Selection is keyed by slide index; ignore indices of slides that have since been removed.
+const chosenIndices = computed(() => slides.value.filter((s) => selected.value.has(s.index)).map((s) => s.index))
+
 const confirming = ref(false)
 const generate = useMutation({
   mutationFn: (force: boolean) =>
     startAvatarGeneration(props.presentationId, {
-      slide_indices: [...selected.value].sort((a, b) => a - b),
+      slide_indices: chosenIndices.value,
       language: language.value || undefined,
       force,
     }),
@@ -142,6 +146,11 @@ const generate = useMutation({
   },
   onError: (e) => {
     confirming.value = false
+    // Another run is already going (409): follow it instead of just reporting.
+    const body = e instanceof ApiError && e.status === 409 ? (e.body as { detail?: unknown } | null) : null
+    const detail = (body?.detail ?? body) as { task_id?: unknown } | null
+    if (typeof detail?.task_id === 'string') start(detail.task_id)
+    else if (body) void qc.invalidateQueries({ queryKey: videoKeys.generation(props.presentationId) })
     fail(e)
   },
 })
@@ -216,7 +225,7 @@ const removeVideo = (s: Slide) =>
       <p class="text-[11px] text-muted">Where the narrator sits on slides without an avatar. Applies to the whole deck.</p>
       <div class="relative overflow-hidden rounded-control border border-white/[0.06]">
         <SlideView :slide="activeSlide" :theme="presentation.theme" :fonts="presentation.fonts" fit="width" class="pointer-events-none" />
-        <BubblePlacer :presentation-id="presentationId" :slide="activeSlide" />
+        <BubblePlacer :presentation-id="presentationId" :slide="activeSlide" :language="language" />
       </div>
     </div>
 
@@ -241,7 +250,7 @@ const removeVideo = (s: Slide) =>
 
     <GenerateAvatarsDialog
       v-model:open="confirming"
-      :count="selected.size"
+      :count="chosenIndices.length"
       :language="language"
       :pending="generate.isPending.value"
       @confirm="generate.mutate($event)"

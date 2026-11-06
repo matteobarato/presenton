@@ -5,7 +5,7 @@ export type Playback = components['schemas']['PresentationPlaybackResponse']
 export type BubbleBox = { x: number; y: number; width: number; height: number }
 
 export const playbackKeys = {
-  one: (id: string) => ['playback', id] as const,
+  one: (id: string, language?: string) => (language ? (['playback', id, language] as const) : (['playback', id] as const)),
 }
 
 export function getPlayback(id: string, language?: string): Promise<Playback> {

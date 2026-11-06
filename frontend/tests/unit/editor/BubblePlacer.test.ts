@@ -11,13 +11,13 @@ vi.mock('@/api/playback', async (orig) => ({
   updateBubble: m.updateBubble,
 }))
 
-async function mountPlacer(bubble = { x: 100, y: 100, width: 200, height: 200 }) {
+async function mountPlacer(bubble = { x: 100, y: 100, width: 200, height: 200 }, language?: string) {
   m.getPlayback.mockResolvedValue({
     bubble: { position: { x: bubble.x, y: bubble.y }, size: { width: bubble.width, height: bubble.height }, is_default: false },
     slides: [],
   })
   const wrapper = mount(BubblePlacer, {
-    props: { presentationId: 'p1', slide: { id: 's0', index: 0 } as never },
+    props: { presentationId: 'p1', slide: { id: 's0', index: 0 } as never, language },
     global: { plugins: [[VueQueryPlugin, { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false } } }) }]] },
     attachTo: document.body,
   })
@@ -44,6 +44,22 @@ afterEach(() => {
 })
 
 describe('BubblePlacer', () => {
+  it('requests playback in the narration language', async () => {
+    await mountPlacer(undefined, 'it-IT')
+    expect(m.getPlayback).toHaveBeenCalledWith('p1', 'it-IT')
+  })
+
+  it('shows an inline error when playback cannot load', async () => {
+    m.getPlayback.mockRejectedValue(new Error('409'))
+    const w = mount(BubblePlacer, {
+      props: { presentationId: 'p1', slide: { id: 's0', index: 0 } as never, language: 'en-US' },
+      global: { plugins: [[VueQueryPlugin, { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false } } }) }]] },
+    })
+    await flushPromises()
+    expect(w.get('[role="alert"]').text()).toBe("Couldn't load the voice bubble")
+    expect(w.find('[data-testid="bubble"]').exists()).toBe(false)
+  })
+
   it('saves a drag in slide units, debounced by 500 ms', async () => {
     const w = await mountPlacer()
     const bubble = w.get('[data-testid="bubble"]')

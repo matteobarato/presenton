@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import type { Ref } from 'vue'
 import { createPinia } from 'pinia'
 import { QueryClient, useQuery, VueQueryPlugin } from '@tanstack/vue-query'
+import { ApiError } from '@/api/errors'
 import VideoTab from '@/components/editor/inspector/VideoTab.vue'
 import SlideStatusDots from '@/components/editor/SlideStatusDots.vue'
 
@@ -219,6 +220,20 @@ describe('VideoTab generation', () => {
     await flushPromises()
     expect(m.startAvatarGeneration).toHaveBeenCalledWith('p1', { slide_indices: [0], language: 'en-US', force: false })
     expect(sessionStorage.getItem('presenton.task.avatars.p1')).toBe('g1')
+  })
+
+  it('follows the running task when the backend answers 409', async () => {
+    m.startAvatarGeneration.mockRejectedValue(
+      new ApiError('Avatars are already being generated for this deck', 409, { detail: { message: 'x', task_id: 'g7' } }),
+    )
+    const { wrapper } = await mountTab()
+    await wrapper.find('input[aria-label="Select slide 2 for avatar generation"]').setValue(false)
+    await generateButton(wrapper).trigger('click')
+    await flushPromises()
+    Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Generate')!.click()
+    await flushPromises()
+    expect(sessionStorage.getItem('presenton.task.avatars.p1')).toBe('g7')
+    expect(m.getTask).toHaveBeenCalledWith('g7')
   })
 
   it('resumes polling on mount while the latest run is still running', async () => {

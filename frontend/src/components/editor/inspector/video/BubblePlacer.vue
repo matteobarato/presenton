@@ -10,7 +10,8 @@ import { toast } from '@/components/ui/sonner'
  * slide units (1280x720); pointer deltas are divided by the overlay's on-screen scale.
  * `slide` is the slide shown underneath (the bubble itself is deck-wide).
  */
-const props = defineProps<{ presentationId: string; slide: Slide }>()
+/** `language` is the narration language: a deck narrated in several languages needs it to resolve playback. */
+const props = defineProps<{ presentationId: string; slide: Slide; language?: string }>()
 
 const STAGE_W = 1280
 const STAGE_H = 720
@@ -20,9 +21,9 @@ const SAVE_DELAY = 500
 
 const qc = useQueryClient()
 const idRef = computed(() => props.presentationId)
-const { data: playback } = useQuery({
-  queryKey: () => playbackKeys.one(idRef.value),
-  queryFn: () => getPlayback(idRef.value),
+const { data: playback, isError } = useQuery({
+  queryKey: () => playbackKeys.one(idRef.value, props.language || undefined),
+  queryFn: () => getPlayback(idRef.value, props.language || undefined),
   enabled: () => Boolean(idRef.value),
   retry: false,
 })
@@ -54,7 +55,7 @@ function fit(b: BubbleBox): BubbleBox {
 // Debounced save
 const save = useMutation({
   mutationFn: (b: BubbleBox) => updateBubble(props.presentationId, b),
-  onSuccess: () => qc.invalidateQueries({ queryKey: playbackKeys.one(props.presentationId) }),
+  onSuccess: () => qc.invalidateQueries({ queryKey: ['playback', props.presentationId] }),
   onError: (e) => toast.error(e instanceof Error ? e.message : "Couldn't save the voice bubble position"),
   onSettled: () => {
     if (!timer) dirty = false
@@ -119,6 +120,13 @@ const style = computed(() => {
 
 <template>
   <div ref="root" class="absolute inset-0" data-testid="bubble-overlay">
+    <p
+      v-if="isError && !box"
+      role="alert"
+      class="absolute inset-x-2 bottom-2 rounded-control bg-black/60 px-2 py-1 text-[11px] text-danger-text"
+    >
+      Couldn't load the voice bubble
+    </p>
     <div
       v-if="box"
       class="absolute cursor-move touch-none rounded-full border-2 border-accent bg-accent/25 outline-offset-2 focus-visible:outline-2 focus-visible:outline-white"
