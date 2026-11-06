@@ -51,8 +51,8 @@ function confirmDelete() {
       data-testid="delete-conversation"
       @click="confirmId = currentId"
     >
-<Trash2 class="size-3.5" />
-</Button>
+      <Trash2 class="size-3.5" />
+    </Button>
 
     <Dialog :open="confirmId !== null" @update:open="(o: boolean) => !o && (confirmId = null)">
       <DialogContent>

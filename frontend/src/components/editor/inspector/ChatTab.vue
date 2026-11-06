@@ -31,7 +31,8 @@ function submit() {
   const text = draft.value.trim()
   if (!text || chat.sending.value) return
   draft.value = ''
-  void chat.send(text)
+  const index = props.activeSlide ? props.presentation.slides?.findIndex((s) => s.id === props.activeSlide!.id) : -1
+  void chat.send(text, { slideIndex: index !== undefined && index >= 0 ? index : null })
 }
 
 function onKeydown(e: KeyboardEvent) {

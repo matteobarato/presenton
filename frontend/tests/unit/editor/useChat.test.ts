@@ -135,4 +135,46 @@ describe('useChat', () => {
     expect(chat.messages.value.map((m) => m.content)).toEqual(['q', 'a'])
     expect(chat.conversationId.value).toBe('new')
   })
+
+  it('prefixes the request with slide context but shows only the typed text', async () => {
+    mocks.streamMessage.mockImplementation(async function* () {})
+    const chat = setup()
+    await chat.send('make it shorter', { slideIndex: 2 })
+    const body = mocks.streamMessage.mock.calls[0][0]
+    expect(body.message).toBe(
+      'UI context: the currently selected slide is slide 3 (zero-based index 2).\n\nmake it shorter',
+    )
+    expect(chat.messages.value[0]).toMatchObject({ role: 'user', content: 'make it shorter' })
+  })
+
+  it('trims user text, not the context, to the 8000 character cap', async () => {
+    mocks.streamMessage.mockImplementation(async function* () {})
+    const chat = setup()
+    await chat.send('x'.repeat(9000), { slideIndex: 0 })
+    const msg = mocks.streamMessage.mock.calls[0][0].message as string
+    expect(msg.length).toBe(8000)
+    expect(msg.startsWith('UI context: the currently selected slide is slide 1')).toBe(true)
+  })
+
+  it('strips the context prefix from loaded history', async () => {
+    mocks.listConversations.mockResolvedValue([{ conversation_id: 'c', updated_at: '2026-01-01T00:00:00Z' }])
+    mocks.getHistory.mockResolvedValue({
+      messages: [{ role: 'user', content: 'UI context: the currently selected slide is slide 1 (zero-based index 0).\n\nhi' }],
+    })
+    const chat = setup()
+    await chat.loadHistory()
+    expect(chat.messages.value[0].content).toBe('hi')
+  })
+
+  it('invalidates after an error when a mutating tool already succeeded', async () => {
+    const spy = vi.spyOn(queryClient, 'invalidateQueries').mockResolvedValue()
+    mocks.streamMessage.mockImplementation(async function* () {
+      yield { type: 'trace', trace: { tool: 'updateSlide', status: 'success' } } as StreamEvent
+      yield { type: 'error', detail: 'boom' } as StreamEvent
+    })
+    const chat = setup()
+    await chat.send('edit')
+    expect(spy).toHaveBeenCalledWith({ queryKey: ['presentation', 'p1'] })
+    spy.mockRestore()
+  })
 })

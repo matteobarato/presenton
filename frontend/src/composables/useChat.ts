@@ -34,6 +34,22 @@ export const MUTATING_TOOLS = new Set([
 
 const errorMessage = (e: unknown) => (e instanceof Error ? e.message : String(e))
 
+const MAX_MESSAGE_LENGTH = 8000 // ChatMessageRequest.message max_length
+
+/** Prefix the request with the selected-slide context (old wording); user text is trimmed, never the context. */
+export function withSlideContext(text: string, slideIndex?: number | null): string {
+  if (typeof slideIndex !== 'number' || slideIndex < 0) return text.slice(0, MAX_MESSAGE_LENGTH)
+  const context = `UI context: the currently selected slide is slide ${slideIndex + 1} (zero-based index ${slideIndex}).\n\n`
+  return context + text.slice(0, Math.max(0, MAX_MESSAGE_LENGTH - context.length))
+}
+
+/** History stores the wire text; show only what the user typed. */
+function stripSlideContext(raw: string): string {
+  if (!raw.startsWith('UI context:')) return raw
+  const i = raw.indexOf('\n\n')
+  return i === -1 ? raw : raw.slice(i + 2)
+}
+
 let counter = 0
 const nextId = () => `chat-${Date.now()}-${counter++}`
 
@@ -109,7 +125,7 @@ export function useChat(presentationId: Ref<string>) {
       activity.value = []
       messages.value = history.messages
         .filter((m) => m.role === 'user' || m.role === 'assistant')
-        .map((m) => ({ id: nextId(), role: m.role as 'user' | 'assistant', content: m.content }))
+        .map((m) => ({ id: nextId(), role: m.role as 'user' | 'assistant', content: m.role === 'user' ? stripSlideContext(m.content) : m.content }))
     } catch (e) {
       if (mine === epoch) messages.value = [{ id: nextId(), role: 'error', content: errorMessage(e) }]
     } finally {
@@ -162,10 +178,12 @@ export function useChat(presentationId: Ref<string>) {
     activity.value.push({ id: nextId(), ...row })
   }
 
-  async function send(text: string) {
+  async function send(text: string, options: { slideIndex?: number | null } = {}) {
     const message = text.trim()
     if (!message || sending.value) return
     messages.value.push({ id: nextId(), role: 'user', content: message })
+    const wire = withSlideContext(message, options.slideIndex)
+    let mutated = false
     activity.value = []
     status.value = ''
     sending.value = true
@@ -182,7 +200,7 @@ export function useChat(presentationId: Ref<string>) {
     }
     try {
       for await (const event of streamMessage(
-        { presentation_id: presentationId.value, message, conversation_id: conversationId.value },
+        { presentation_id: presentationId.value, message: wire, conversation_id: conversationId.value },
         signal,
       )) {
         if (mine !== epoch) return
@@ -191,6 +209,8 @@ export function useChat(presentationId: Ref<string>) {
         } else if (event.type === 'status' && typeof event.status === 'string') {
           status.value = event.status
         } else if (event.type === 'trace') {
+          const t = event.trace as { tool?: unknown; status?: unknown } | null
+          if (t && typeof t.tool === 'string' && t.status === 'success' && MUTATING_TOOLS.has(t.tool)) mutated = true
           const row = traceToActivity(event.trace)
           if (row) pushActivity(row)
         } else if (event.type === 'error') {
@@ -200,9 +220,7 @@ export function useChat(presentationId: Ref<string>) {
           const turn = (event.chat ?? {}) as { conversation_id?: string; response?: string; tool_calls?: string[] }
           if (turn.conversation_id) conversationId.value = turn.conversation_id
           if (turn.response) ensureAssistant().content = turn.response
-          if (turn.tool_calls?.some((tool) => MUTATING_TOOLS.has(tool))) {
-            void queryClient.invalidateQueries({ queryKey: presentationKeys.one(presentationId.value) })
-          }
+          if (turn.tool_calls?.some((tool) => MUTATING_TOOLS.has(tool))) mutated = true
           void refreshConversations()
         }
       }
@@ -213,6 +231,8 @@ export function useChat(presentationId: Ref<string>) {
         messages.value.push({ id: nextId(), role: 'error', content: errorMessage(e) })
       }
     } finally {
+      // Also after a stop or error: a mutating tool may already have changed the deck.
+      if (mutated) void queryClient.invalidateQueries({ queryKey: presentationKeys.one(presentationId.value) })
       if (signal.aborted && assistant) (assistant as ChatMsg).stopped = true
       if (controller?.signal === signal) {
         controller = null
