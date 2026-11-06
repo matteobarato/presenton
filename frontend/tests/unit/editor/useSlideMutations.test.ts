@@ -11,9 +11,11 @@ vi.mock('@tanstack/vue-query', async (importActual) => ({
   useQueryClient: () => state.client,
 }))
 const update = vi.hoisted(() => vi.fn())
+const get = vi.hoisted(() => vi.fn())
 vi.mock('@/api/presentations', async (importActual) => ({
   ...(await importActual<typeof import('@/api/presentations')>()),
   updatePresentation: update,
+  getPresentation: get,
 }))
 const toastError = vi.hoisted(() => vi.fn())
 const toastInfo = vi.hoisted(() => vi.fn())
@@ -34,6 +36,8 @@ beforeEach(() => {
   qc.setQueryData(presentationKeys.one('p1'), deck())
   update.mockReset()
   update.mockResolvedValue({})
+  get.mockReset()
+  get.mockImplementation(async () => deck())
   toastError.mockReset()
   toastInfo.mockReset()
 })
@@ -42,7 +46,7 @@ afterEach(() => vi.restoreAllMocks())
 const cached = () => qc.getQueryData<Presentation>(presentationKeys.one('p1'))!
 
 describe('useSlideMutations', () => {
-  it('reorder sends slides with updated index values and the theme', async () => {
+  it('reorder applies at once and sends slides with updated index values and the theme', async () => {
     const m = useSlideMutations(ref('p1'))
     await m.reorder(0, 2)
     const body = update.mock.calls[0]![0]
@@ -55,13 +59,80 @@ describe('useSlideMutations', () => {
     expect(cached().slides.map((s) => s.id)).toEqual(['b', 'c', 'a'])
   })
 
-  it('restores the cache and toasts when reorder fails', async () => {
-    update.mockRejectedValueOnce(new Error('boom'))
+  it('shows the optimistic change immediately while an earlier PATCH is pending', async () => {
+    let release!: () => void
+    update.mockImplementationOnce(() => new Promise<void>((r) => (release = r)))
     const m = useSlideMutations(ref('p1'))
-    await m.reorder(0, 2)
-    expect(cached().slides.map((s) => s.id)).toEqual(['a', 'b', 'c'])
+    const first = m.reorder(0, 2)
+    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
+    const second = m.removeSlide('b')
+    await vi.waitFor(() => expect(cached().slides.map((s) => s.id)).toEqual(['c', 'a']))
+    expect(update).toHaveBeenCalledTimes(1)
+    release()
+    await Promise.all([first, second])
+    expect(update).toHaveBeenCalledTimes(2)
+    expect(update.mock.calls[1]![0].slides.map((s: { id: string }) => s.id)).toEqual(['c', 'a'])
+  })
+
+  it('a reorder made while a save is in flight moves the right slide by id', async () => {
+    let release!: () => void
+    update.mockImplementationOnce(() => new Promise<void>((r) => (release = r)))
+    const m = useSlideMutations(ref('p1'))
+    const first = m.reorder(0, 2) // b c a
+    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
+    const second = m.reorder(1, 0) // slide at index 1 now is c
+    await vi.waitFor(() => expect(cached().slides.map((s) => s.id)).toEqual(['c', 'b', 'a']))
+    release()
+    await Promise.all([first, second])
+  })
+
+  it('on a failed save refetches the deck before the next save and does not resend the failed order', async () => {
+    const order: string[] = []
+    get.mockImplementation(async () => {
+      order.push('get')
+      return deck()
+    })
+    update.mockRejectedValueOnce(new Error('boom'))
+    update.mockImplementation(async () => void order.push('patch'))
+    const m = useSlideMutations(ref('p1'))
+    await Promise.all([m.reorder(0, 2), m.removeSlide('b')])
     expect(toastError).toHaveBeenCalled()
-    expect(useHistoryStore().canUndo).toBe(false)
+    expect(order).toEqual(['get', 'patch'])
+    const body = update.mock.calls[1]![0]
+    // server truth after the refetch, not the failed [b, c, a]
+    expect(body.slides.map((s: { id: string }) => s.id)).toEqual(['a', 'b', 'c'])
+  })
+
+  it('refuses a second delete on a 2-slide deck and never sends empty slides', async () => {
+    const m = useSlideMutations(ref('p1'))
+    await m.removeSlide('c')
+    await Promise.all([m.removeSlide('a'), m.removeSlide('b')])
+    expect(cached().slides).toHaveLength(1)
+    for (const [body] of update.mock.calls) expect(body.slides.length).toBeGreaterThan(0)
+  })
+
+  it('double-clicking delete makes one history entry; undo re-inserts once', async () => {
+    const m = useSlideMutations(ref('p1'))
+    await Promise.all([m.removeSlide('b'), m.removeSlide('b')])
+    const h = useHistoryStore()
+    expect(cached().slides.map((s) => s.id)).toEqual(['a', 'c'])
+    await h.undo()
+    expect(cached().slides.map((s) => s.id)).toEqual(['a', 'b', 'c'])
+    expect(h.canUndo).toBe(false)
+  })
+
+  it('selects the neighbour before the save settles', async () => {
+    const { useEditorStore } = await import('@/stores/editor')
+    const editor = useEditorStore()
+    editor.select('b')
+    let release!: () => void
+    update.mockImplementationOnce(() => new Promise<void>((r) => (release = r)))
+    const m = useSlideMutations(ref('p1'))
+    const p = m.removeSlide('b')
+    await vi.waitFor(() => expect(update).toHaveBeenCalled())
+    expect(editor.activeSlideId).toBe('c')
+    release()
+    await p
   })
 
   it('undo of reorder moves the slide back', async () => {
@@ -73,14 +144,6 @@ describe('useSlideMutations', () => {
       ['b', 1],
       ['c', 2],
     ])
-  })
-
-  it('removes a slide, never the last one, and undo re-inserts it', async () => {
-    const m = useSlideMutations(ref('p1'))
-    await m.removeSlide('b')
-    expect(cached().slides.map((s) => s.id)).toEqual(['a', 'c'])
-    await useHistoryStore().undo()
-    expect(cached().slides.map((s) => s.id)).toEqual(['a', 'b', 'c'])
   })
 
   it('duplicates with a fresh id right after the source', async () => {
@@ -100,10 +163,10 @@ describe('useSlideMutations', () => {
     expect(added.id).toMatch(/[0-9a-f-]{36}/)
   })
 
-  it('rename sends only the title and the theme', async () => {
+  it('rename saves the title with the theme', async () => {
     const m = useSlideMutations(ref('p1'))
     await m.rename('  New  ')
-    expect(update).toHaveBeenCalledWith({ id: 'p1', title: 'New', theme: { color: 'red' } })
+    expect(update.mock.calls[0]![0]).toMatchObject({ id: 'p1', title: 'New', theme: { color: 'red' } })
     expect(cached().title).toBe('New')
   })
 
@@ -111,29 +174,6 @@ describe('useSlideMutations', () => {
     const m = useSlideMutations(ref('p1'))
     await m.removeSlide('b')
     expect(toastInfo).toHaveBeenCalledWith('Slide deleted', { description: DELETE_NOTICE })
-  })
-
-  it('a delete queued behind a failing reorder is not erased', async () => {
-    update.mockRejectedValueOnce(new Error('boom'))
-    const invalidate = vi.spyOn(qc, 'invalidateQueries')
-    const m = useSlideMutations(ref('p1'))
-    await Promise.all([m.reorder(0, 2), m.removeSlide('b')])
-    expect(cached().slides.map((s) => s.id)).not.toContain('b')
-    expect(invalidate).toHaveBeenCalled()
-    expect(update).toHaveBeenCalledTimes(2)
-  })
-
-  it('saves one at a time', async () => {
-    let release!: () => void
-    update.mockImplementationOnce(() => new Promise<void>((r) => (release = r)))
-    const m = useSlideMutations(ref('p1'))
-    const first = m.reorder(0, 2)
-    const second = m.removeSlide('b')
-    await new Promise((r) => setTimeout(r, 10))
-    expect(update).toHaveBeenCalledTimes(1)
-    release()
-    await Promise.all([first, second])
-    expect(update).toHaveBeenCalledTimes(2)
   })
 
   it('an in-flight refetch resolving later does not revert an optimistic reorder', async () => {

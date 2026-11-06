@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { toRef } from 'vue'
 import { usePresentation } from '@/api/presentations'
 import type { Slide } from '@/api/types'
@@ -9,7 +10,7 @@ import FloatingToolbar from './FloatingToolbar.vue'
 const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 
 const editor = useEditorStore()
-const { data: presentation } = usePresentation(toRef(props, 'presentationId'))
+const { data: presentation } = usePresentation(toRef(props, 'presentationId'), useEditorFetchGate())
 </script>
 
 <template>

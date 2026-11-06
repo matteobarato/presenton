@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { computed, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -26,7 +27,7 @@ const editor = useEditorStore()
 const history = useHistoryStore()
 
 const id = computed(() => String(route.params.id ?? ''))
-const { data: presentation, error, isError, refetch } = usePresentation(id)
+const { data: presentation, error, isError, refetch } = usePresentation(id, useEditorFetchGate())
 const slides = computed(() => presentation.value?.slides ?? [])
 
 // `?stream=1` is set by the outline step: this deck is still being generated.

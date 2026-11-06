@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { Plus } from 'lucide-vue-next'
-import { extractLayouts, getTemplate, templateDetailKey } from '@/api/outlines'
+import { getTemplate, templateDetailKey } from '@/api/outlines'
 import type { Slide } from '@/api/types'
 import type { NewSlideLayout } from '@/composables/useSlideMutations'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -26,7 +26,7 @@ const query = useQuery({
 })
 
 const options = computed(() =>
-  (extractLayouts(query.data.value?.layouts)).map((ui, i) => {
+  ((query.data.value?.layouts ?? []) as Record<string, unknown>[]).map((ui, i) => {
     const id = typeof ui.id === 'string' && ui.id.trim() ? ui.id : `layout_${i + 1}`
     const description = typeof ui.description === 'string' && ui.description.trim() ? ui.description : id
     const preview = {

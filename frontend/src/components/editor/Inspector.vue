@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePresentation } from '@/api/presentations'
@@ -9,7 +10,7 @@ import { inspectorTabs } from './inspector/tabs'
 const route = useRoute()
 const editor = useEditorStore()
 const id = computed(() => String(route.params.id ?? ''))
-const { data: presentation } = usePresentation(id)
+const { data: presentation } = usePresentation(id, useEditorFetchGate())
 
 const activeSlide = computed(() => {
   const slides = presentation.value?.slides ?? []

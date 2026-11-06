@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { nextTick, ref, toRef, watch } from 'vue'
 import Draggable from 'vuedraggable'
 import { Copy, GripVertical, Plus, Trash2 } from 'lucide-vue-next'
@@ -14,7 +15,7 @@ const props = defineProps<{ presentationId: string; slides: Slide[] }>()
 
 const editor = useEditorStore()
 const id = toRef(props, 'presentationId')
-const { data: presentation } = usePresentation(id)
+const { data: presentation } = usePresentation(id, useEditorFetchGate())
 const mutations = useSlideMutations(id)
 
 // Local copy so the drag can reorder the DOM before the save settles; it is

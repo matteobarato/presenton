@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { Ref } from 'vue'
+import { toValue, type MaybeRefOrGetter, type Ref } from 'vue'
 import { api, unwrap } from './client'
 import type { Presentation, Slide } from './types'
 
@@ -41,8 +41,15 @@ export function updatePresentation(body: {
   )
 }
 
-export function usePresentation(id: Ref<string>) {
+export interface UsePresentationOptions {
+  refetchOnWindowFocus?: MaybeRefOrGetter<boolean>
+  refetchOnReconnect?: MaybeRefOrGetter<boolean>
+}
+
+export function usePresentation(id: Ref<string>, opts: UsePresentationOptions = {}) {
   return useQuery({
+    ...(opts.refetchOnWindowFocus !== undefined && { refetchOnWindowFocus: () => toValue(opts.refetchOnWindowFocus!) }),
+    ...(opts.refetchOnReconnect !== undefined && { refetchOnReconnect: () => toValue(opts.refetchOnReconnect!) }),
     queryKey: () => presentationKeys.one(id.value),
     queryFn: () => getPresentation(id.value),
     enabled: () => Boolean(id.value),

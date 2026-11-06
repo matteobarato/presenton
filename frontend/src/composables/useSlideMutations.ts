@@ -1,9 +1,9 @@
 import type { Ref } from 'vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import { toast } from '@/components/ui/sonner'
-import { presentationKeys, updatePresentation } from '@/api/presentations'
+import { getPresentation, presentationKeys, updatePresentation } from '@/api/presentations'
 import type { Presentation, Slide } from '@/api/types'
-import { useEditorStore } from '@/stores/editor'
+import { slideKey, useEditorStore } from '@/stores/editor'
 import { useHistoryStore } from '@/stores/history'
 
 export const MAX_SLIDES = 50
@@ -33,7 +33,8 @@ const BLANK_LAYOUT = {
 export const DELETE_NOTICE =
   'Undo restores the slide content but not its narration audio or avatar video.'
 
-const queues = new Map<string, { tail: Promise<unknown>; pending: number }>()
+/** Per-deck tail of the save queue: only the network PATCH is serialized. */
+const queues = new Map<string, Promise<void>>()
 
 /** A layout chosen in the picker. `null` to `addSlide` means a blank slide. */
 export interface NewSlideLayout {
@@ -64,12 +65,15 @@ export function deckTemplateId(slides: Slide[]): string {
 }
 
 /**
- * Structural slide edits. Each one applies optimistically to the
- * `['presentation', id]` cache, saves the full re-indexed `slides` array
- * (PATCH /update replaces by slide id and deletes omitted ones), registers an
- * undo command and rolls back with a toast on failure.
+ * Structural slide edits. Each edit lands in the `['presentation', id]` cache
+ * the moment it is called (computed from the cache as it is then), a history
+ * command is recorded, and only the PATCH is queued per deck. A queued save
+ * sends the cache as it is when its turn comes. When a save fails the deck is
+ * refetched inside the queue, so server truth replaces the failed change.
  *
- * `theme` is always resent: the endpoint resets it to null when omitted.
+ * Edits are id-based and idempotent: a repeated delete, or an undo that finds
+ * the slide already back, does nothing. `theme` is always resent: the endpoint
+ * resets it to null when omitted.
  */
 export function useSlideMutations(presentationId: Ref<string>) {
   const queryClient = useQueryClient()
@@ -78,156 +82,193 @@ export function useSlideMutations(presentationId: Ref<string>) {
 
   const key = () => presentationKeys.one(presentationId.value)
   const current = () => queryClient.getQueryData<Presentation>(key())
-  const slides = () => current()?.slides ?? []
 
-  /**
-   * Saves run one at a time per deck (the PATCH carries the whole array), and
-   * each one derives its slides from the cache as it is when it starts.
-   */
-  function enqueue<T>(fn: () => Promise<T>): Promise<T> {
-    const q = queues.get(presentationId.value) ?? { tail: Promise.resolve(), pending: 0 }
-    queues.set(presentationId.value, q)
-    q.pending++
-    const run = q.tail.then(fn)
-    q.tail = run
-      .catch(() => {})
-      .then(() => {
-        q.pending--
-      })
-    return run
-  }
-
-  /** Apply `edit` to the current slides, optimistically, then save. */
-  function persist(edit: (slides: Slide[]) => Slide[]): Promise<void> {
-    return enqueue(async () => {
-      // An in-flight refetch must not land on top of the optimistic write.
-      await queryClient.cancelQueries({ queryKey: key() })
-      const before = current()
-      if (!before) throw new Error('Presentation is not loaded')
-      const next = reindex(edit(before.slides))
-      queryClient.setQueryData<Presentation>(key(), { ...before, slides: next })
+  function schedule(label: string): Promise<void> {
+    const deckId = presentationId.value
+    const job = async () => {
+      const snapshot = queryClient.getQueryData<Presentation>(presentationKeys.one(deckId))
+      if (!snapshot) return
       try {
-        await updatePresentation({ id: presentationId.value, slides: next, theme: before.theme ?? undefined })
+        await updatePresentation({
+          id: deckId,
+          slides: reindex(snapshot.slides),
+          title: snapshot.title || undefined,
+          theme: snapshot.theme ?? undefined,
+        })
       } catch (error) {
-        // Only the last queued save may restore its snapshot; with others waiting it would be stale.
-        if ((queues.get(presentationId.value)?.pending ?? 0) > 1) {
-          void queryClient.invalidateQueries({ queryKey: key() })
-        } else {
-          queryClient.setQueryData<Presentation>(key(), before)
+        toast.error(`Could not ${label.toLowerCase()}`, { description: error instanceof Error ? error.message : undefined })
+        try {
+          await queryClient.fetchQuery({ queryKey: presentationKeys.one(deckId), queryFn: () => getPresentation(deckId), staleTime: 0 })
+        } catch {
+          // Offline: the banner explains; the next successful save resyncs.
         }
-        throw error
       }
-    })
+    }
+    const next = (queues.get(deckId) ?? Promise.resolve()).then(job)
+    queues.set(deckId, next)
+    return next
   }
 
-  /** Run `redo` once, record it with `undo`, and surface failures as a toast. */
-  async function commit(label: string, redo: () => Promise<void>, undo: () => Promise<void>): Promise<boolean> {
-    if (editor.generating) return false
-    try {
-      await redo()
-    } catch (error) {
-      toast.error(`Could not ${label.toLowerCase()}`, { description: error instanceof Error ? error.message : undefined })
-      return false
+  /** Apply `edit` to the current cache now (null = nothing to do) and queue the save. */
+  async function applyEdit(label: string, edit: (p: Presentation) => Presentation | null) {
+    // An in-flight refetch must not land on top of the optimistic write.
+    await queryClient.cancelQueries({ queryKey: key() })
+    const before = current()
+    const after = before && edit(before)
+    if (!after) return { applied: false, saved: Promise.resolve() }
+    queryClient.setQueryData<Presentation>(key(), { ...after, slides: reindex(after.slides) })
+    return { applied: true, saved: schedule(label) }
+  }
+
+  const onSlides =
+    (fn: (slides: Slide[]) => Slide[] | null) =>
+    (p: Presentation): Presentation | null => {
+      const next = fn(p.slides)
+      return next && { ...p, slides: next }
     }
-    history.push({ label, do: redo, undo })
+
+  /** A history body: apply, then wait for the save so undo/redo stay one at a time. */
+  const body = (label: string, edit: (p: Presentation) => Presentation | null) => async () => {
+    const r = await applyEdit(label, edit)
+    await r.saved
+  }
+
+  /** Apply the primary edit; on success record it and wait for the save. */
+  async function commit(
+    label: string,
+    edit: (p: Presentation) => Presentation | null,
+    undo: () => Promise<void>,
+    after?: () => void,
+  ): Promise<boolean> {
+    if (editor.generating) return false
+    const r = await applyEdit(label, edit)
+    if (!r.applied) return false
+    after?.()
+    history.push({ label, do: body(label, edit), undo })
+    await r.saved
     return true
   }
 
+  const indexOfId = (list: Slide[], id: string | undefined) => (id ? list.findIndex((s) => s.id === id) : -1)
+
   async function reorder(from: number, to: number) {
-    const list = slides()
-    if (from === to || from < 0 || to < 0 || from >= list.length || to >= list.length) return
+    // Resolve the slide by id now; later moves of other slides cannot misdirect this one.
+    const id = current()?.slides[from]?.id
+    if (!id || from === to) return
+    let origin = from
     await commit(
       'Reorder slides',
-      () => persist((l) => move(l, from, to)),
-      () => persist((l) => move(l, to, from)),
+      onSlides((l) => {
+        const i = indexOfId(l, id)
+        if (i < 0 || to < 0 || to >= l.length) return null
+        origin = i
+        return i === to ? null : move(l, i, to)
+      }),
+      body(
+        'Reorder slides',
+        onSlides((l) => {
+          const i = indexOfId(l, id)
+          return i < 0 || i === origin ? null : move(l, i, Math.min(origin, l.length - 1))
+        }),
+      ),
     )
   }
 
   async function removeSlide(id: string) {
-    const list = slides()
-    const index = list.findIndex((s) => s.id === id)
-    if (index < 0 || list.length <= 1) return
-    const removed = list[index]!
-    const neighbour = list[index + 1] ?? list[index - 1]!
+    let removed: Slide | undefined
+    let index = 0
+    let neighbour: Slide | undefined
     const ok = await commit(
       'Delete slide',
-      () => persist((l) => l.filter((s) => s.id !== id)),
-      () =>
-        persist((l) => {
+      onSlides((l) => {
+        const i = indexOfId(l, id)
+        if (i < 0 || l.length <= 1) return null
+        removed = l[i]
+        index = i
+        neighbour = l[i + 1] ?? l[i - 1]
+        return l.filter((s) => s.id !== id)
+      }),
+      body(
+        'Delete slide',
+        onSlides((l) => {
+          if (!removed || indexOfId(l, id) >= 0) return null
           const at = Math.min(index, l.length)
           return [...l.slice(0, at), removed, ...l.slice(at)]
         }),
+      ),
+      // Move the selection off the doomed slide before the save, so a second Delete hits the neighbour.
+      () => {
+        if (editor.activeSlideId === id) editor.select(neighbour ? slideKey(neighbour) : null)
+      },
     )
     if (ok) toast.info('Slide deleted', { description: DELETE_NOTICE })
-    if (ok && editor.activeSlideId === id) editor.select(neighbour.id ?? null)
   }
 
-  async function insert(label: string, at: number, make: () => Slide) {
-    if (editor.generating) return
-    if (slides().length >= MAX_SLIDES) {
-      toast.warning('Slide limit reached', { description: `You can have up to ${MAX_SLIDES} slides.` })
-      return
-    }
-    const created = make()
-    const ok = await commit(
+  /** Insert `make()` at `at` (clamped); `make` runs on first apply, so redo reinserts the same slide. */
+  async function insert(label: string, at: () => number, make: (l: Slide[]) => Slide | null) {
+    let created: Slide | null = null
+    await commit(
       label,
-      () => persist((l) => [...l.slice(0, at), created, ...l.slice(at)]),
-      () => persist((l) => l.filter((s) => s.id !== created.id)),
+      onSlides((l) => {
+        if (created && indexOfId(l, created.id) >= 0) return null
+        if (l.length >= MAX_SLIDES) {
+          toast.warning('Slide limit reached', { description: `You can have up to ${MAX_SLIDES} slides.` })
+          return null
+        }
+        created ??= make(l)
+        if (!created) return null
+        const i = Math.min(Math.max(at(), 0), l.length)
+        return [...l.slice(0, i), created, ...l.slice(i)]
+      }),
+      body(
+        label,
+        onSlides((l) => (created && indexOfId(l, created.id) >= 0 ? l.filter((s) => s.id !== created!.id) : null)),
+      ),
+      () => created && editor.select(slideKey(created)),
     )
-    if (ok) editor.select(created.id ?? null)
   }
 
   async function duplicateSlide(id: string) {
-    const index = slides().findIndex((s) => s.id === id)
-    if (index < 0) return
-    const source = slides()[index]!
-    await insert('Duplicate slide', index + 1, () => ({
-      ...JSON.parse(JSON.stringify(source)),
-      id: crypto.randomUUID(),
-      index: index + 1,
-    }))
+    let index = -1
+    await insert(
+      'Duplicate slide',
+      () => index + 1,
+      (l) => {
+        index = indexOfId(l, id)
+        if (index < 0) return null
+        return { ...JSON.parse(JSON.stringify(l[index])), id: crypto.randomUUID() }
+      },
+    )
   }
 
   /** Insert a slide after `afterIndex` (-1 for the very start). `null` adds a blank slide. */
   async function addSlide(afterIndex: number, layout: NewSlideLayout | null) {
-    const list = slides()
-    const at = Math.min(Math.max(afterIndex + 1, 0), list.length)
-    await insert('Add slide', at, () => ({
-      id: crypto.randomUUID(),
-      presentation: presentationId.value,
-      index: at,
-      content: {},
-      ui: JSON.parse(JSON.stringify(layout?.ui ?? BLANK_LAYOUT)) as Record<string, unknown>,
-      layout_group: layout?.group ?? deckTemplateId(list),
-      layout: layout?.id ?? BLANK_SLIDE_LAYOUT_ID,
-      properties: null,
-    }))
+    await insert(
+      'Add slide',
+      () => afterIndex + 1,
+      (l) => ({
+        id: crypto.randomUUID(),
+        presentation: presentationId.value,
+        index: 0,
+        content: {},
+        ui: JSON.parse(JSON.stringify(layout?.ui ?? BLANK_LAYOUT)) as Record<string, unknown>,
+        layout_group: layout?.group ?? deckTemplateId(l),
+        layout: layout?.id ?? BLANK_SLIDE_LAYOUT_ID,
+        properties: null,
+      }),
+    )
   }
 
   async function rename(title: string) {
     const next = title.trim()
-    const before = current()
-    if (!before || !next || next === before.title) return
-    const previous = before.title ?? ''
-    const save = (value: string) =>
-      enqueue(async () => {
-        await queryClient.cancelQueries({ queryKey: key() })
-        const base = current()
-        if (!base) throw new Error('Presentation is not loaded')
-        queryClient.setQueryData<Presentation>(key(), { ...base, title: value })
-        try {
-          await updatePresentation({ id: presentationId.value, title: value, theme: base.theme ?? undefined })
-        } catch (error) {
-          if ((queues.get(presentationId.value)?.pending ?? 0) > 1) void queryClient.invalidateQueries({ queryKey: key() })
-          else queryClient.setQueryData<Presentation>(key(), base)
-          throw error
-        }
-      })
+    const previous = current()?.title ?? ''
+    if (!next) return
+    const setTitle = (value: string) => (p: Presentation) => (p.title === value ? null : { ...p, title: value })
     await commit(
       'Rename presentation',
-      () => save(next),
+      setTitle(next),
       // The endpoint ignores empty titles, so an untitled deck keeps the new name.
-      () => (previous ? save(previous) : Promise.resolve()),
+      previous ? body('Rename presentation', setTitle(previous)) : async () => {},
     )
   }
 

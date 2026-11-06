@@ -1,7 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { focusManager, QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { Presentation } from '@/api/types'
 
@@ -25,6 +25,9 @@ const slide = (id: string, index: number) => ({
 })
 const deck = () => ({ id: 'p1', title: 'Deck', theme: null, slides: [slide('a', 0), slide('b', 1), slide('c', 2)] }) as unknown as Presentation
 
+const mounted: { unmount: () => void }[] = []
+afterEach(() => mounted.splice(0).forEach((w) => w.unmount()))
+
 async function mountAt(path: string) {
   setActivePinia(createPinia())
   const router = createRouter({
@@ -42,6 +45,7 @@ async function mountAt(path: string) {
       stubs: { SlideView: true },
     },
   })
+  mounted.push(wrapper)
   await flushPromises()
   return wrapper
 }
@@ -112,5 +116,27 @@ describe('EditorView', () => {
     await flushPromises()
     expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length).toBe(calls)
     expect(w.get('input[aria-label="Presentation title"]').attributes('disabled')).toBeDefined()
+  })
+
+  it('refetches on window focus normally, but not while generating', async () => {
+    const first = await mountAt('/p/p1')
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>
+    let before = fetchMock.mock.calls.length
+    focusManager.setFocused(false)
+    focusManager.setFocused(true)
+    await flushPromises()
+    expect(fetchMock.mock.calls.length).toBeGreaterThan(before)
+    first.unmount()
+
+    api.stream.mockImplementation(async function* () {
+      await new Promise<void>(() => {})
+    })
+    await mountAt('/p/p1?stream=1')
+    await new Promise((r) => setTimeout(r, 50)) // let the stream's own initial load settle
+    before = fetchMock.mock.calls.length
+    focusManager.setFocused(false)
+    focusManager.setFocused(true)
+    await flushPromises()
+    expect(fetchMock.mock.calls.length).toBe(before)
   })
 })

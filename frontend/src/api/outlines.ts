@@ -62,4 +62,4 @@ export async function getTemplate(id: string): Promise<TemplateDetail> {
   }
 }
 
-export const templateDetailKey = (id: string) => ['template-detail', id] as const
+export const templateDetailKey = (id: string) => ['template-detail', id.trim().replace(/^template-v2-/, '')] as const
