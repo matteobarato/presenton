@@ -21,7 +21,7 @@ const askTitle = computed(() =>
 )
 
 const btn =
-  'grid size-8 place-items-center rounded-control text-muted transition-colors duration-200 hover:bg-white/[0.06] hover:text-white'
+  'inline-flex size-8 items-center justify-center rounded-control text-muted transition-colors duration-200 hover:bg-white/[0.06] hover:text-white'
 </script>
 
 <template>

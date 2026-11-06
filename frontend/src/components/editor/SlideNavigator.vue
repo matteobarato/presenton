@@ -64,7 +64,7 @@ watch(
   <div ref="root" class="flex min-h-0 flex-1 flex-col" @keydown="onKeydown">
     <div class="flex h-12 flex-none items-center justify-between px-4 text-[12px] font-semibold">
       Slides
-      <span class="grid h-4 min-w-4 place-items-center rounded-[5px] bg-[#2c3033] px-1 text-[9px] font-medium text-[#a4adb2]">
+      <span class="grid h-5 min-w-5 place-items-center rounded-[6px] bg-[#2c3033] px-1.5 text-[10px] font-medium text-[#a4adb2] tabular-nums">
         {{ slides.length }}
       </span>
     </div>
@@ -76,22 +76,22 @@ watch(
       handle=".drag-handle"
       :disabled="editor.locked"
       ghost-class="opacity-40"
-      class="min-h-0 flex-1 list-none overflow-y-auto p-0 pr-3 pl-2"
+      class="min-h-0 flex-1 list-none overflow-y-auto px-3 pt-1 pb-3"
       :animation="150"
       @end="onDragEnd"
     >
       <template #item="{ element, index }">
-        <li class="group mb-3 flex gap-1.5" :class="slideKey(element) === editor.activeSlideId && 'is-selected'">
+        <li class="group mb-4 flex gap-2" :class="slideKey(element) === editor.activeSlideId && 'is-selected'">
           <div
-            class="flex w-4 flex-none flex-col items-center gap-2 pt-1.5 text-[9px] text-[#899296] tabular-nums group-[.is-selected]:text-accent"
+            class="flex w-5 flex-none flex-col items-center gap-2 pt-1.5 text-[11px] font-medium text-[#899296] tabular-nums group-[.is-selected]:text-accent"
           >
             {{ index + 1 }}
-            <GripVertical v-if="!editor.locked" class="drag-handle size-3 cursor-grab opacity-0 group-hover:opacity-100" aria-hidden="true" />
+            <GripVertical v-if="!editor.locked" class="drag-handle size-3.5 cursor-grab opacity-0 group-hover:opacity-100" aria-hidden="true" />
           </div>
           <div class="relative min-w-0 flex-1">
             <button
               type="button"
-              class="block w-full rounded-[7px] border-2 border-transparent p-0.5 text-left transition-colors duration-200 hover:border-[#7f9fab] group-[.is-selected]:border-accent"
+              class="block w-full rounded-[9px] border-2 border-transparent p-0.5 text-left transition-colors duration-200 hover:border-[#7f9fab] group-[.is-selected]:border-accent"
               :data-slide-key="slideKey(element)"
               :aria-current="slideKey(element) === editor.activeSlideId ? 'true' : undefined"
               :aria-label="`Slide ${index + 1}`"
@@ -103,30 +103,30 @@ watch(
                 :fonts="presentation?.fonts"
                 fit="width"
                 lazy
-                class="pointer-events-none rounded-[3px]"
+                class="pointer-events-none rounded-[5px]"
               />
             </button>
             <SlideStatusDots :presentation-id="presentationId" :slide-index="index" />
             <div
               v-if="element.id && !editor.locked"
-              class="absolute top-1.5 right-1.5 flex gap-0.5 opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100"
+              class="absolute top-2 right-2 flex gap-1 opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100"
             >
               <button
                 type="button"
-                class="glass-tools grid size-5 place-items-center rounded-[5px] text-muted hover:text-white"
+                class="glass-tools grid size-6 place-items-center rounded-[6px] text-muted hover:text-white"
                 :aria-label="`Duplicate slide ${index + 1}`"
                 @click="mutations.duplicateSlide(element.id)"
               >
-                <Copy class="size-3" aria-hidden="true" />
+                <Copy class="size-3.5" aria-hidden="true" />
               </button>
               <button
                 type="button"
-                class="glass-tools grid size-5 place-items-center rounded-[5px] text-muted hover:text-danger-text disabled:opacity-35"
+                class="glass-tools grid size-6 place-items-center rounded-[6px] text-muted hover:text-danger-text disabled:opacity-35"
                 :disabled="slides.length <= 1"
                 :aria-label="`Delete slide ${index + 1}`"
                 @click="mutations.removeSlide(element.id)"
               >
-                <Trash2 class="size-3" aria-hidden="true" />
+                <Trash2 class="size-3.5" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -138,7 +138,7 @@ watch(
       <button
         type="button"
         :disabled="editor.locked"
-        class="flex h-[34px] w-full items-center gap-2 rounded-button border border-dashed border-white/[0.13] px-2.5 text-[11px] font-semibold text-muted transition-colors duration-200 hover:border-white/25 hover:text-text"
+        class="flex h-9 w-full items-center justify-center gap-2 rounded-button border border-dashed border-white/[0.13] px-2.5 text-[12px] font-semibold text-muted transition-colors duration-200 hover:border-white/25 hover:text-text"
         @click="pickerOpen = true"
       >
         <Plus class="size-3.5" aria-hidden="true" />Add slide

@@ -34,12 +34,12 @@ onMounted(() => {
       <aside
         v-if="!narrowNavigator"
         aria-label="Slides"
-        class="ml-3 flex w-[180px] flex-none flex-col overflow-hidden rounded-panel bg-storyboard max-[1279px]:w-[160px]"
+        class="ml-3 flex w-[248px] flex-none flex-col overflow-hidden rounded-panel bg-storyboard max-[1279px]:w-[212px]"
       >
         <slot name="navigator" />
       </aside>
       <Sheet v-else v-model:open="navigatorDrawer">
-        <SheetContent side="left" class="w-[200px] bg-storyboard">
+        <SheetContent side="left" class="w-[min(260px,calc(100vw-48px))] bg-storyboard">
           <SheetTitle class="sr-only">Slides</SheetTitle>
           <SheetDescription class="sr-only">Slide navigator</SheetDescription>
           <slot name="navigator" />
@@ -51,14 +51,14 @@ onMounted(() => {
       <aside
         v-if="!narrowInspector && editor.inspectorOpen"
         aria-label="Inspector"
-        class="flex w-[300px] flex-none flex-col overflow-hidden rounded-panel bg-inspector max-[1279px]:w-[260px]"
+        class="flex w-[320px] flex-none flex-col overflow-hidden rounded-panel bg-inspector max-[1279px]:w-[288px]"
       >
         <slot name="inspector" />
       </aside>
       <Sheet v-else-if="narrowInspector" v-model:open="inspectorDrawer">
         <SheetContent side="right" class="w-[min(340px,calc(100vw-24px))]">
           <SheetTitle class="sr-only">Inspector</SheetTitle>
-          <SheetDescription class="sr-only">Design, chat, narration, video and export tools</SheetDescription>
+          <SheetDescription class="sr-only">Design, chat, narration and export tools</SheetDescription>
           <slot name="inspector" />
         </SheetContent>
       </Sheet>

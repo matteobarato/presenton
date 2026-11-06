@@ -28,6 +28,9 @@ async function mockApi(page: Page, overrides: Record<string, Handler> = {}) {
     [`GET /api/v1/ppt/presentation/${DECK_ID}/speaker-notes/tts`]: json(fixture('tts')),
     [`GET /api/v1/ppt/presentation/${DECK_ID}/playback`]: json(fixture('playback')),
     [`GET /api/v1/ppt/presentation/${DECK_ID}/videos`]: json(fixture('videos')),
+    // No avatar run yet.
+    [`GET /api/v1/ppt/presentation/${DECK_ID}/videos/generate`]: json({ detail: 'Not found' }, 404),
+    [`GET /api/v1/ppt/presentation/${DECK_ID}/videos/generate/preview`]: json({ language: 'en', languages: ['en'], slides: [] }),
     'GET /api/v1/ppt/chat/conversations': json([]),
     ...overrides,
   }
@@ -76,10 +79,13 @@ test.describe('mocked backend', () => {
     await expect(thumbnails.nth(1)).toHaveAttribute('aria-current', 'true')
 
     await page.getByRole('tab', { name: 'Narration' }).click()
-    const rows = page.getByRole('list', { name: 'Slide narration' }).getByRole('listitem')
-    await expect(rows).toHaveCount(3)
-    await expect(rows.first()).toHaveAttribute('data-state', 'ready')
-    await expect(rows.nth(2)).toHaveAttribute('data-state', 'missing')
+    // The Narration tab follows the active slide.
+    await expect(page.getByTestId('narration-slide')).toHaveText('Slide 2 of 3')
+    const voice = page.getByTestId('slide-voice')
+    await thumbnails.first().click()
+    await expect(voice).toHaveAttribute('data-state', 'ready')
+    await thumbnails.nth(2).click()
+    await expect(voice).toHaveAttribute('data-state', 'missing')
 
     await page.locator('header').getByRole('link', { name: 'Present' }).click()
     await expect(page).toHaveURL(`/p/${DECK_ID}/present`)
