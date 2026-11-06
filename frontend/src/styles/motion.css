@@ -26,9 +26,12 @@
 .slide-change-leave-active { transition: opacity 100ms }
 .slide-change-enter-from { opacity: 0; transform: translateY(5px); filter: blur(2px) }
 .slide-change-leave-to { opacity: 0 }
-.present-change-enter-active { transition: opacity 350ms, transform 400ms var(--ease), filter 400ms var(--ease) }
-.present-change-leave-active { transition: opacity 180ms }
-.present-change-enter-from { opacity: 0; transform: translateY(12px); filter: blur(4px) }
+.present-change-enter-active { transition: opacity 250ms, filter 250ms var(--ease) }
+.present-change-leave-active { transition: opacity 150ms }
+.present-change-enter-from { opacity: 0; filter: blur(4px) }
+.present-fade-enter-active { transition: opacity 150ms }
+.present-fade-leave-active { transition: opacity 100ms }
+.present-fade-enter-from, .present-fade-leave-to { opacity: 0 }
 .present-change-leave-to { opacity: 0 }
 .toast-enter-active, .toast-leave-active { transition: opacity 200ms, translate 250ms var(--ease) }
 .toast-enter-from, .toast-leave-to { opacity: 0; translate: 0 8px }
