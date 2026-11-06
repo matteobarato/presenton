@@ -530,7 +530,7 @@ def _fake_render(page_count, prefix="slide"):
 
 
 def _fake_run_ffmpeg(calls, duration_holder):
-    async def fake(args, *, total_duration_seconds=None, on_progress=None, timeout_seconds=900):
+    async def fake(args, *, total_duration_seconds=None, on_progress=None, timeout_seconds=3600):
         calls.append(args)
         duration_holder["value"] = total_duration_seconds
         if on_progress is not None:

@@ -1685,6 +1685,9 @@ async def generate_presentation_speaker_notes(
     id: uuid.UUID,
     slide_indexes: Annotated[Optional[List[int]], Body()] = None,
     regenerate: Annotated[bool, Body()] = False,
+    verbosity: Annotated[
+        Literal["low", "medium", "high", "very-high"], Body()
+    ] = "high",
     sql_session: AsyncSession = Depends(get_async_session),
 ):
     """Write speaker notes for a presentation that already exists.
@@ -1696,6 +1699,8 @@ async def generate_presentation_speaker_notes(
     By default only slides without a note are filled, which backfills decks
     generated before notes existed. Pass `regenerate` to rewrite notes that are
     already there, and `slide_indexes` to limit the work to specific slides.
+    Speaker-note `verbosity` defaults to `high` (about 45–70 seconds per slide)
+    and is independent of the presentation's slide-text verbosity.
     """
     presentation = await sql_session.get(PresentationModel, id)
     if not presentation:
@@ -1743,6 +1748,7 @@ async def generate_presentation_speaker_notes(
         deck_title=presentation.title or "",
         indexes=positions,
         regenerate=regenerate,
+        verbosity=verbosity,
     )
     if updated_slides:
         sql_session.add_all(updated_slides)
@@ -3045,6 +3051,7 @@ async def _apply_speaker_notes(
     deck_title: str,
     indexes: Optional[Sequence[int]] = None,
     regenerate: bool = False,
+    verbosity: str = "high",
 ) -> list[SlideModel]:
     """Write speaker notes for a finished deck and return the changed slides.
 
@@ -3068,7 +3075,7 @@ async def _apply_speaker_notes(
         deck_title=deck_title,
         language=presentation.language,
         tone=presentation.tone,
-        verbosity=presentation.verbosity,
+        verbosity=verbosity,
         instructions=presentation.instructions,
         indexes=pending,
         known_notes={

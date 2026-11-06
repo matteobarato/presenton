@@ -510,6 +510,23 @@ These variables match `docker-compose.yml`. **`IMAGE_PROVIDER`** selects the bac
 
 The parallel image generation option applies everywhere images are generated: initial presentation generation, slide editing and regeneration, direct image requests, and assistant image tools.
 
+#### Speaker Notes for Narration
+
+Speaker notes are written after the finished deck is saved, for both Smart and template presentations. They are plain-text TTS scripts, not presenter instructions: direct explanations, natural sentence breaks, speakable references, and no mandatory recap or transition on every slide. Speaker-note verbosity defaults to `high`, independently of slide-text verbosity. There is no minimum length that would force padding. Template image prompts and icon queries are excluded from the source text.
+
+Drafts are generated in parallel batches, with context from every slide and recent completed notes. For multi-slide decks, one final LLM editorial pass reads the entire narration in order to reduce repeated introductions and explanations, align terminology, and repair misleading handovers. This adds one deck-level generation step using the configured text model; the existing schema-retry behavior also applies. If review fails or returns an incomplete or invalid set of notes, the complete drafts are retained rather than partially applying the edits or cutting sentences to length.
+
+`POST /api/v1/ppt/presentation/{id}/speaker-notes` fills missing notes. Send JSON with `Content-Type: application/json`, for example `{"regenerate": true, "verbosity": "high}`, to rewrite existing notes, optionally with `slide_indexes` to limit the changes. Invalid verbosity values return HTTP 422. Omitting verbosity uses `high`, also for notes written during initial deck generation. The selected length guides both drafting and the final editorial pass:
+
+| `verbosity` | Approximate seconds per slide | Target words | Hard character limit |
+| --- | --- | --- | --- |
+| `low` | 15–25 | 35–55 | 1,000 |
+| `medium` | 25–45 | 55–100 | 1,800 |
+| `high` (default) | 45–70 | 100–155 | 2,600 |
+| `very-high` | 70–110 | 155–250 | 4,500 |
+
+Duration targets assume roughly 135 words per minute; actual timing varies with language, voice, and pauses. Sparse slides may receive shorter notes rather than invented detail or padding. Notes outside the selected set remain read-only context during the editorial pass, including notes after the selected slides. Existing presentations and their audio are not rewritten automatically; regenerate their notes and then their narration audio to use the new length.
+
 #### Speaker Note Audio (Text-to-Speech)
 
 | Variable | Values / default | Purpose |
@@ -607,6 +624,8 @@ Two things to know before you run it:
 The export endpoints are `POST /api/v1/ppt/presentation/{id}/video-export` (renders, or reuses an earlier render), `POST …/video-export/async` (a background task with progress), `GET …/video-export` and `DELETE …/video-export`. Request options include `language`, `resolution`, `fps`, `subtitles`, `animate`, `speaker_indicator`, `avatars` (default `true`) and `crossfade_seconds` (default `0.5`, from `0` to `1.5`; `0` gives hard cuts).
 
 Video export renders the deck to PDF, rasterizes each page to a PNG frame, narrates the speaker notes with the same TTS configuration as speaker note audio above, and muxes frames, narration, and subtitles into an `.mp4` with ffmpeg. The Docker image already includes `ffmpeg`; running the FastAPI server from source needs `ffmpeg` and `ffprobe` installed and on `PATH`, or `FFMPEG_BINARY` / `FFPROBE_BINARY` pointed at them.
+
+The ffmpeg encoding step has a timeout of 3600 seconds (one hour).
 
 With `"animate": true` on a video request, the elements of every Template-v2 slide animate in instead of the slide appearing as a still: an LLM plans each slide's entrance (validated against a fixed set of motions, and cached per slide), and [HyperFrames](https://hyperframes.heygen.com) renders the entrances in headless Chrome. Other slides stay still, and if the animated render cannot be made the video falls back to stills and the response's `animation.reason` says why. The Docker image includes the renderer; from source, run `npm ci` in `video-render-hyperframes/`. HyperFrames also needs `ffprobe` on `PATH` (or `HYPERFRAMES_FFPROBE_PATH`) and a Chrome/Chromium at `HYPERFRAMES_BROWSER_PATH` (falls back to `PUPPETEER_EXECUTABLE_PATH`).
 

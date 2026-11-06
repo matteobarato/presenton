@@ -1,6 +1,8 @@
 import asyncio
 from types import SimpleNamespace
 
+import pytest
+
 from api.v1.ppt.endpoints.presentation import _apply_speaker_notes
 from models.sql.presentation import PresentationModel
 from models.sql.slide import SlideModel
@@ -8,10 +10,9 @@ from utils.llm_calls.generate_speaker_notes import (
     SPEAKER_NOTE_MAX_CHARACTERS,
     extract_slide_content_text,
     SPEAKER_NOTE_MAX_CONTEXT_CHARACTERS,
-    _normalize_note,
+    _deck_context,
     generate_speaker_note,
     generate_speaker_notes,
-    get_speaker_note_messages,
 )
 
 
@@ -54,122 +55,81 @@ def _patch_client(monkeypatch, generate):
     )
 
 
-def test_speaker_note_prompt_carries_the_whole_deck_and_marks_the_slide():
-    messages = get_speaker_note_messages(
-        slides=_outline(),
-        index=1,
-        deck_title="Annual Review",
-        language="English",
-        tone="confident",
-        instructions="Focus on the Americas",
-    )
-
-    prompt = messages[1].content
-    assert "Annual Review" in prompt
-    assert "Slide 1 (type=title): Cover" in prompt
-    # Every other slide contributes its rendered copy, not just its title.
-    assert "Cover keynote framing" in prompt
-    assert "Slide 2 (type=content): Growth <- the slide you are writing for" in prompt
-    assert "Position: 2 of 2" in prompt
-    assert "Revenue grew 12%" in prompt
-    assert "Focus on the Americas" in prompt
-    assert "confident" in prompt
-    # The note is written from the rendered copy, never the markup.
-    assert "<section" not in prompt
-    assert "h-[720px]" not in prompt
-
-
-def test_speaker_note_prompt_includes_recent_preceding_notes():
-    slides = [
-        {"title": f"Slide {index}", "slide_type": "content", "html": _smart_slide_html()}
-        for index in range(6)
-    ]
-    messages = get_speaker_note_messages(
-        slides=slides,
-        index=5,
-        deck_title="Annual Review",
-        language="English",
-        preceding_notes={
-            0: "First note",
-            2: "Third note",
-            3: "Fourth note",
-            4: "Fifth note",
-            5: "Own note",
-        },
-    )
-
-    prompt = messages[1].content
-    assert "# Notes Already Spoken: START" in prompt
-    # Only the three most recent earlier notes, never the slide's own note.
-    assert "First note" not in prompt
-    assert "Third note" in prompt
-    assert "Fifth note" in prompt
-    assert "Own note" not in prompt
-
-
-def test_speaker_note_prompt_without_earlier_notes_omits_the_section():
-    prompt = get_speaker_note_messages(
-        slides=_outline(),
-        index=0,
-        deck_title="Annual Review",
-        language="English",
-        preceding_notes={1: "Later note"},
-    )[1].content
-    assert "Notes Already Spoken" not in prompt
-
-
 def test_deck_context_stays_within_its_character_budget():
     slides = [
         {
-            "title": f"Slide {index}",
+            "title": f"Topic-{index:02d}",
             "slide_type": "content",
             "html": _smart_slide_html(body="detail " * 400),
         }
         for index in range(40)
     ]
-    prompt = get_speaker_note_messages(
-        slides=slides,
-        index=0,
-        deck_title="Annual Review",
-        language="English",
-    )[1].content
-    deck_context = prompt.split("# Full Deck: START\n")[1].split(
-        "\n# Full Deck: END"
-    )[0]
-    assert len(deck_context) <= SPEAKER_NOTE_MAX_CONTEXT_CHARACTERS * 1.2
+    context = _deck_context(slides, current_index=38)
+    assert len(context) <= SPEAKER_NOTE_MAX_CONTEXT_CHARACTERS
+    # Late slides must not disappear when early slides exhaust the budget.
+    for index in range(40):
+        assert f"Topic-{index:02d}" in context
 
 
-def test_speaker_note_is_clamped_to_the_schema_maximum():
-    note = _normalize_note("sentence. " * 200)
-    assert len(note) <= SPEAKER_NOTE_MAX_CHARACTERS
-    assert note.endswith(".")
-    assert _normalize_note("  spaced \n note  ") == "spaced note"
-    assert _normalize_note(None) == ""
-
-
-def test_generate_speaker_note_returns_model_text(monkeypatch):
+@pytest.mark.parametrize(
+    "value", [None, 42, {"text": "Not narration"}, " \n ", "x" * (SPEAKER_NOTE_MAX_CHARACTERS + 1)]
+)
+def test_invalid_model_output_is_not_spoken_or_truncated(monkeypatch, value):
     async def fake_generate(_client, _model, **_kwargs):
-        return {"speaker_note": "  Open with the revenue trend.  "}
+        return {"speaker_note": value}
 
     _patch_client(monkeypatch, fake_generate)
-
     note = asyncio.run(
         generate_speaker_note(
-            slides=_outline(),
-            index=1,
-            deck_title="Annual Review",
-            language="English",
+            slides=_outline(), index=0, deck_title="Review", language="English"
         )
     )
-    assert note == "Open with the revenue trend."
+    assert note == ""
 
+
+@pytest.mark.parametrize("note", ["A short complete thought.", "a" * 499 + "."])
+def test_complete_notes_need_no_padding_and_allow_the_length_boundary(monkeypatch, note):
+    async def fake_generate(_client, _model, **_kwargs):
+        return {"speaker_note": f"  {note}\n"}
+
+    _patch_client(monkeypatch, fake_generate)
+    result = asyncio.run(
+        generate_speaker_note(
+            slides=_outline(), index=0, deck_title="Review", language="English"
+        )
+    )
+    assert result == note
+    assert len(result) <= SPEAKER_NOTE_MAX_CHARACTERS
+
+
+@pytest.mark.parametrize(
+    "verbosity,maximum", [("low", 1000), ("medium", 1800), ("high", 2600), ("very-high", 4500)]
+)
+def test_note_length_limits_preserve_complete_output_without_truncation(
+    monkeypatch, verbosity, maximum
+):
+    async def generate(value):
+        async def fake_generate(_client, _model, **_kwargs):
+            return {"speaker_note": value}
+
+        _patch_client(monkeypatch, fake_generate)
+        return await generate_speaker_note(
+            slides=_outline(), index=0, deck_title="Review",
+            language="English", verbosity=verbosity,
+        )
+
+    complete = "a" * (maximum - 1) + "."
+    assert asyncio.run(generate(complete)) == complete
+    assert asyncio.run(generate(complete + "x")) == ""
 
 def test_generate_speaker_notes_skips_slides_that_fail(monkeypatch):
-    requested = []
+    reviews = []
 
     async def fake_generate(_client, _model, **kwargs):
+        if "notes" in kwargs["json_schema"]["properties"]:
+            reviews.append(kwargs["json_schema"]["properties"]["notes"]["required"])
+            return {"notes": {"1": "Growth comes from stronger repeat purchases."}}
         prompt = kwargs["messages"][1].content
-        requested.append(prompt)
         if "Position: 1 of 2" in prompt:
             raise RuntimeError("model unavailable")
         return {"speaker_note": "Walk through the growth drivers."}
@@ -184,71 +144,77 @@ def test_generate_speaker_notes_skips_slides_that_fail(monkeypatch):
         )
     )
 
-    assert len(requested) == 2
-    assert notes == {1: "Walk through the growth drivers."}
+    assert reviews == [["1"]]
+    assert notes == {1: "Growth comes from stronger repeat purchases."}
 
 
-def test_generate_speaker_notes_feeds_each_batch_the_earlier_notes(monkeypatch):
-    slides = [
-        {
-            "title": f"Slide {index + 1}",
-            "slide_type": "content",
-            "html": _smart_slide_html(),
-        }
-        for index in range(4)
-    ]
-    prompts = {}
-
+@pytest.mark.parametrize(
+    "review",
+    [
+        {},
+        {"notes": {"0": "Only half the deck."}},
+        {"notes": {"0": "Changed.", "1": "Changed.", "2": "Unauthorized change."}},
+        {"notes": {"0": "Changed.", "1": "   "}},
+        {"notes": {"0": "Changed.", "1": 123}},
+        {"notes": {"0": "Changed.", "1": "x" * (SPEAKER_NOTE_MAX_CHARACTERS + 1)}},
+        RuntimeError("editor unavailable"),
+    ],
+)
+def test_invalid_editorial_result_keeps_all_complete_drafts(monkeypatch, review):
     async def fake_generate(_client, _model, **kwargs):
-        prompt = kwargs["messages"][1].content
-        position = int(prompt.split("Position: ")[1].split(" of ")[0])
-        prompts[position] = prompt
-        return {"speaker_note": f"Note for slide {position}."}
+        if "notes" in kwargs["json_schema"]["properties"]:
+            if isinstance(review, Exception):
+                raise review
+            return review
+        return {"speaker_note": "A complete draft that must not be lost."}
 
     _patch_client(monkeypatch, fake_generate)
-
     notes = asyncio.run(
         generate_speaker_notes(
-            slides=slides,
-            deck_title="Annual Review",
-            language="English",
-            known_notes={0: "Pre-existing opener.", 3: "   "},
-            concurrency=2,
+            slides=_outline(), deck_title="Review", language="English"
         )
     )
-
     assert notes == {
-        0: "Note for slide 1.",
-        1: "Note for slide 2.",
-        2: "Note for slide 3.",
-        3: "Note for slide 4.",
+        0: "A complete draft that must not be lost.",
+        1: "A complete draft that must not be lost.",
     }
-    # First batch only knows the note the deck already had.
-    assert "Pre-existing opener." in prompts[2]
-    assert "Note for slide 1." not in prompts[2]
-    # Later batches see what the earlier batch produced, and a slide never sees
-    # a note being written concurrently with it.
-    assert "Note for slide 2." in prompts[3]
-    assert "Note for slide 3." not in prompts[3]
-    assert "Note for slide 2." in prompts[4]
-    assert "Note for slide 3." not in prompts[4]
 
 
-def test_generate_speaker_notes_only_targets_requested_slides(monkeypatch):
-    async def fake_generate(_client, _model, **_kwargs):
-        return {"speaker_note": "Note"}
+def test_editor_cannot_overwrite_unselected_notes(monkeypatch):
+    known_notes = {0: "Hand-written opening."}
+
+    async def fake_generate(_client, _model, **kwargs):
+        if "notes" in kwargs["json_schema"]["properties"]:
+            return {"notes": {"0": "Unwanted rewrite.", "1": "Edited closing."}}
+        return {"speaker_note": "Complete closing draft."}
 
     _patch_client(monkeypatch, fake_generate)
-
     notes = asyncio.run(
         generate_speaker_notes(
             slides=_outline(),
-            deck_title="Annual Review",
+            deck_title="Review",
             language="English",
-            indexes=[1, 5, -1],
+            indexes=[1, 1, -1, 5],
+            known_notes=known_notes,
         )
     )
-    assert notes == {1: "Note"}
+    assert notes == {1: "Complete closing draft."}
+    assert known_notes == {0: "Hand-written opening."}
+
+
+def test_cancellation_during_review_propagates(monkeypatch):
+    async def fake_generate(_client, _model, **kwargs):
+        if "notes" in kwargs["json_schema"]["properties"]:
+            raise asyncio.CancelledError
+        return {"speaker_note": "Complete narration."}
+
+    _patch_client(monkeypatch, fake_generate)
+    with pytest.raises(asyncio.CancelledError):
+        asyncio.run(
+            generate_speaker_notes(
+                slides=_outline(), deck_title="Review", language="English"
+            )
+        )
 
 
 def test_generate_speaker_notes_without_targets_makes_no_calls(monkeypatch):
@@ -367,6 +333,14 @@ def test_extract_slide_content_text_reads_template_copy_only():
             "__icon_url__": "/static/icons/team.svg",
             "__image_prompt__": "a team working",
             "__speaker_note__": "a stale note",
+            "hero": {
+                "image_url": "/app_data/images/hero.png",
+                "image_prompt": "English art direction, not visible slide copy",
+            },
+            "card_icon": {
+                "icon_url": "/static/icons/team.svg",
+                "icon_query": "team collaboration",
+            },
             "is_dark": True,
             "subtitle": None,
         }
@@ -375,27 +349,3 @@ def test_extract_slide_content_text_reads_template_copy_only():
     assert text == "Hiring plan Engineering 8 roles Sales 3 roles 11"
 
 
-def test_template_slides_use_their_structured_content_for_the_prompt():
-    slides = [
-        {
-            "title": "Hiring plan",
-            "slide_type": "bulleted-list",
-            "content": {"title": "Hiring plan", "items": [{"body": "8 roles"}]},
-        },
-        {
-            "title": "Budget",
-            "slide_type": "chart",
-            "content": {"title": "Budget", "total": "2.4M"},
-        },
-    ]
-    prompt = get_speaker_note_messages(
-        slides=slides,
-        index=0,
-        deck_title="Plan",
-        language="English",
-    )[1].content
-
-    assert "Slide 1 (type=bulleted-list): Hiring plan <- the slide you are writing for" in prompt
-    assert "Slide 2 (type=chart): Budget" in prompt
-    assert "2.4M" in prompt
-    assert "8 roles" in prompt

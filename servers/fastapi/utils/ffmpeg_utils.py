@@ -325,7 +325,7 @@ async def run_ffmpeg(
     *,
     total_duration_seconds: Optional[float] = None,
     on_progress: Optional[ProgressCallback] = None,
-    timeout_seconds: float = 900,
+    timeout_seconds: float = 3600,
 ) -> FFmpegResult:
     """Run ffmpeg with the given middle-of-command-line args.
 
