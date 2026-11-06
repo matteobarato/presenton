@@ -1,0 +1,61 @@
+/* Design tokens ported from the Aera mockup (aera-frontend/src/style.css, DESIGN.md). */
+@theme {
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+
+  /* Studio surfaces, from the outermost rail inward */
+  --color-rail: #101213;
+  --color-shell: #151819;
+  --color-canvas: #181c1e;
+  --color-storyboard: #1b1e20;
+  --color-inspector: #1d2123;
+  --color-dialog: #22292d;
+  --color-field: #272d30;
+
+  /* Primary action, focus and selection */
+  --color-accent: #bee3f3;
+  --color-accent-ink: #1b333e;
+  --color-accent-hover: #d4eef9;
+
+  --color-text: #e9ebec;
+  --color-muted: #989fa5;
+  --color-faint: #7f898f;
+  --color-secondary: #2c3236;
+  --color-secondary-text: #e5eaec;
+  --color-secondary-hover: #363e43;
+  --color-danger: #5a2929;
+  --color-danger-text: #f4c0bc;
+  --color-line: rgb(255 255 255 / 0.075);
+
+  /* shadcn-vue semantic aliases */
+  --color-background: #121415;
+  --color-foreground: var(--color-text);
+  --color-card: var(--color-inspector);
+  --color-card-foreground: var(--color-text);
+  --color-popover: var(--color-dialog);
+  --color-popover-foreground: #dce8ee;
+  --color-primary: var(--color-accent);
+  --color-primary-foreground: var(--color-accent-ink);
+  --color-secondary-foreground: var(--color-secondary-text);
+  --color-muted-foreground: var(--color-muted);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-danger-text);
+  --color-border: var(--color-line);
+  --color-input: var(--color-field);
+  --color-ring: var(--color-accent);
+
+  --radius-control: 7px;
+  --radius-button: 9px;
+  --radius-card: 12px;
+  --radius-toolbar: 13px;
+  --radius-prompt: 14px;
+  --radius-panel: 16px;
+  --radius-dialog: 20px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --ease: var(--ease-out-expo);
+  color-scheme: dark;
+}

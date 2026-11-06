@@ -1,0 +1,47 @@
+/* Motion grammar (aera-frontend DIRECTION.md): state changes 150-250ms; slide selection
+   is a short fade plus a 5px rise; presentation transitions add a restrained blur.
+   prefers-reduced-motion removes translation, scale and blur. */
+@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes dialog-in { from { opacity: 0; translate: 0 12px; filter: blur(3px) } to { opacity: 1; translate: 0 0; filter: blur(0) } }
+@keyframes sheet-in-right { from { opacity: 0; translate: 24px 0 } to { opacity: 1; translate: 0 0 } }
+@keyframes sheet-in-left { from { opacity: 0; translate: -24px 0 } to { opacity: 1; translate: 0 0 } }
+@keyframes pop-in { from { opacity: 0; scale: 0.97; translate: 0 4px } to { opacity: 1; scale: 1; translate: 0 0 } }
+@keyframes thinking { from { opacity: 0.35; transform: translateY(0) } to { opacity: 1; transform: translateY(-3px) } }
+@keyframes working { from { border-color: #bedff02e } to { border-color: #bedff09c } }
+@keyframes shimmer { from { background-position: 200% 0 } to { background-position: -200% 0 } }
+
+.anim-fade-in { animation: fade-in 200ms ease-out }
+.anim-dialog-in { animation: dialog-in 300ms var(--ease) }
+.anim-pop-in { animation: pop-in 180ms var(--ease) }
+.anim-sheet-right { animation: sheet-in-right 250ms var(--ease) }
+.anim-sheet-left { animation: sheet-in-left 250ms var(--ease) }
+.anim-working { animation: working 1.2s ease-in-out infinite alternate }
+.thinking-dots { display: flex; align-items: center; gap: 4px }
+.thinking-dots > span { width: 4px; height: 4px; border-radius: 50%; background: #aacdde; animation: thinking 0.9s ease-in-out infinite alternate }
+.thinking-dots > span:nth-child(2) { animation-delay: 0.15s }
+.thinking-dots > span:nth-child(3) { animation-delay: 0.3s }
+.skeleton-shimmer { background: linear-gradient(90deg, #ffffff08 25%, #ffffff12 50%, #ffffff08 75%); background-size: 200% 100%; animation: shimmer 1.6s linear infinite }
+
+.slide-change-enter-active { transition: opacity 180ms, transform 240ms var(--ease), filter 200ms }
+.slide-change-leave-active { transition: opacity 100ms }
+.slide-change-enter-from { opacity: 0; transform: translateY(5px); filter: blur(2px) }
+.slide-change-leave-to { opacity: 0 }
+.present-change-enter-active { transition: opacity 250ms, filter 250ms var(--ease) }
+.present-change-leave-active { transition: opacity 150ms }
+.present-change-enter-from { opacity: 0; filter: blur(4px) }
+.present-fade-enter-active { transition: opacity 150ms }
+.present-fade-leave-active { transition: opacity 100ms }
+.present-fade-enter-from, .present-fade-leave-to { opacity: 0 }
+.present-change-leave-to { opacity: 0 }
+.toast-enter-active, .toast-leave-active { transition: opacity 200ms, translate 250ms var(--ease) }
+.toast-enter-from, .toast-leave-to { opacity: 0; translate: 0 8px }
+@keyframes thinking-fade { from { opacity: 0.35 } to { opacity: 1 } }
+
+/* Reduced motion keeps opacity feedback and drops translation, scale and blur. */
+@media (prefers-reduced-motion: reduce) {
+  .anim-dialog-in, .anim-pop-in, .anim-sheet-right, .anim-sheet-left { animation: fade-in 150ms ease-out }
+  .thinking-dots > span { animation-name: thinking-fade }
+  .slide-change-enter-from, .present-change-enter-from, .toast-enter-from, .toast-leave-to { transform: none; translate: none; filter: none }
+  .slide-change-enter-active, .present-change-enter-active, .toast-enter-active, .toast-leave-active { transition-property: opacity }
+}
+

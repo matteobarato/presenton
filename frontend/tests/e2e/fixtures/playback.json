@@ -1,0 +1,82 @@
+{
+ "presentation_id": "11111111-1111-4111-8111-111111111111",
+ "language": "en",
+ "language_name": "English",
+ "stage": {
+  "width": 1280,
+  "height": 720
+ },
+ "bubble": {
+  "position": {
+   "x": 1040,
+   "y": 480
+  },
+  "size": {
+   "width": 200,
+   "height": 200
+  },
+  "is_default": true
+ },
+ "total_duration_seconds": 6.0,
+ "slides": [
+  {
+   "slide_id": "aaaaaaaa-0000-4000-8000-000000000000",
+   "slide_index": 0,
+   "actor": "voice",
+   "duration_seconds": 3.0,
+   "audio": {
+    "id": "cccccccc-0000-4000-8000-000000000000",
+    "presentation_id": "11111111-1111-4111-8111-111111111111",
+    "slide_id": "aaaaaaaa-0000-4000-8000-000000000000",
+    "slide_index": 0,
+    "language": "en",
+    "language_name": "English",
+    "model": "mock",
+    "voice": null,
+    "text": "Welcome everyone to the quarterly review.",
+    "translated": false,
+    "url": "/app_data/audio/0.mp3",
+    "format": "mp3",
+    "size_bytes": 10,
+    "duration_seconds": 3.0,
+    "created_at": "2026-11-05T10:00:00Z"
+   },
+   "video": null,
+   "placeholder": null
+  },
+  {
+   "slide_id": "aaaaaaaa-0000-4000-8000-000000000001",
+   "slide_index": 1,
+   "actor": "voice",
+   "duration_seconds": 3.0,
+   "audio": {
+    "id": "cccccccc-0000-4000-8000-000000000001",
+    "presentation_id": "11111111-1111-4111-8111-111111111111",
+    "slide_id": "aaaaaaaa-0000-4000-8000-000000000001",
+    "slide_index": 1,
+    "language": "en",
+    "language_name": "English",
+    "model": "mock",
+    "voice": null,
+    "text": "Here are the headline numbers.",
+    "translated": false,
+    "url": "/app_data/audio/1.mp3",
+    "format": "mp3",
+    "size_bytes": 10,
+    "duration_seconds": 3.0,
+    "created_at": "2026-11-05T10:00:00Z"
+   },
+   "video": null,
+   "placeholder": null
+  },
+  {
+   "slide_id": "aaaaaaaa-0000-4000-8000-000000000002",
+   "slide_index": 2,
+   "actor": "none",
+   "duration_seconds": null,
+   "audio": null,
+   "video": null,
+   "placeholder": null
+  }
+ ]
+}

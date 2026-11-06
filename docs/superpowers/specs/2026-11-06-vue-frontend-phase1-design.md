@@ -30,13 +30,18 @@ must expose the backend features the old one never surfaced.
   narrated player (bubble ↔ avatar morphs, HyperFrames animations) stays
   outside this repo, and the MP4 export remains the full-fidelity output.
 - Dev compose talks to the running stack through its HTTP port (approach A).
+- **Template-based generation only** (user decision 2026-11-06, recorded in
+  `CLAUDE.md`): the new frontend supports template-based generation. Smart
+  presentations are ignored: no Smart mode in Create, no `slide/edit-html`.
+  Future work is template-only. Existing smart slides still render through
+  `<SlideView>` (already built) but get no smart-specific features.
 
 **Success criteria:**
 
 1. `docker compose -f docker-compose.frontend.yml up` serves the new frontend
    with HMR on `:5173`, talking to a backend started from the main compose.
-2. A user can sign in, browse the library, create a deck in Template or Smart
-   mode with live streaming, open it, see slides rendered identically to the
+2. A user can sign in, browse the library, create a deck from a template
+   with live streaming, open it, see slides rendered identically to the
    old app, reorganize slides, AI-edit a slide, chat with the deck, manage
    themes, speaker notes, TTS, avatars and the voice bubble, export
    PPTX/PDF/MP4, and present it (with narrated preview).
@@ -62,9 +67,8 @@ drawers below 1050px / 760px.
   structured per-slide content replacements (`[{index, content}]`) plus an
   export format — automation APIs with no prompt. Their UI belongs with
   Phase 2 content editing.
-- `POST v2/ppt/presentation/generate/smart[/async]`: a blocking
-  generate-and-export automation API. The UI uses the streaming smart path
-  instead, so slides appear live.
+- Smart presentations entirely (user decision): Smart mode in Create,
+  `POST v2/ppt/presentation/generate/smart[/async]`, `POST slide/edit-html`.
 - Production Dockerfile/nginx changes; Electron.
 - Any change to `servers/`, `docker-compose.yml`, `nginx.conf`,
   `aera-frontend/`.
@@ -233,18 +237,14 @@ menu. Router guard enforces it and preserves `?next=`.
   `file_paths`, chips with remove); slide count; language; advanced (tone, verbosity,
   instructions, include title/table-of-contents slide, web grounding, image
   options) prefilled from `POST generation/defaults`.
-- **Mode switch:** Template | Smart, filtered by `PRESENTATION_GENERATION_MODE`
-  from `/api/runtime-config`.
-- **Template mode:** `POST presentation/create` → `/new/:id/outline`: outline
+- **Template generation** (the only mode): `POST presentation/create` with
+  `generation_mode: 'standard'` → `/new/:id/outline`: outline
   streams in (`GET outlines/stream/{id}`), items editable, reorderable,
   addable, deletable (saved with `PUT outlines/{id}`); template picker
   (`GET template/all` + built-in templates via `/api/templates`, previews via
   `<SlideView>`); Generate → `POST presentation/prepare` → navigate to editor,
   which consumes `GET presentation/stream/{id}` and shows slides as they
   arrive with generation metrics.
-- **Smart mode:** `POST presentation/create` with `generation_mode:
-  'smart'` → editor, which consumes `GET presentation/stream/{id}` and shows
-  each `slide_html` slide as it arrives (same as the old app).
 
 ### Editor — `/p/:id`
 
@@ -259,7 +259,7 @@ Aera three-column composition.
 - **Center canvas:** `<SlideView>` of the active slide; floating inset
   toolbar (prev/next, Ask, Present). **Ask** opens a glass overlay over the
   slide (Escape/close restore focus) with three suggestions; submits to
-  `POST slide/edit` (template) or `POST slide/edit-html` (smart), shows the
+  `POST slide/edit` (template slides; smart slides show Ask disabled), shows the
   single "thinking" indicator, then updates the slide. Bottom row: slide
   info + zoom. Collapsible **speaker notes** strip: edit
   (`PUT speaker-notes`, debounced) or generate for this slide.
