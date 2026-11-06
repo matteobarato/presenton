@@ -4,6 +4,7 @@ import { Send, Square } from 'lucide-vue-next'
 import { toast } from '@/components/ui/sonner'
 import type { Presentation, Slide } from '@/api/types'
 import { useChat } from '@/composables/useChat'
+import { useEditorStore } from '@/stores/editor'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import ChatMessage from './chat/ChatMessage.vue'
@@ -12,6 +13,7 @@ import ConversationMenu from './chat/ConversationMenu.vue'
 
 const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
 
+const editor = useEditorStore()
 const chat = useChat(toRef(props, 'presentationId'))
 const draft = ref('')
 const list = ref<HTMLElement | null>(null)
@@ -29,7 +31,7 @@ watch(
 
 function submit() {
   const text = draft.value.trim()
-  if (!text || chat.sending.value) return
+  if (!text || chat.sending.value || editor.generating) return
   draft.value = ''
   const index = props.activeSlide ? props.presentation.slides?.findIndex((s) => s.id === props.activeSlide!.id) : -1
   void chat.send(text, { slideIndex: index !== undefined && index >= 0 ? index : null })
@@ -87,7 +89,7 @@ async function removeConversation(id: string) {
       <Button v-if="chat.sending.value" type="button" variant="secondary" size="icon" aria-label="Stop" @click="chat.stop()">
         <Square class="size-3.5" />
       </Button>
-      <Button v-else type="submit" size="icon" aria-label="Send" :disabled="!draft.trim()"><Send class="size-3.5" /></Button>
+      <Button v-else type="submit" size="icon" aria-label="Send" :disabled="!draft.trim() || editor.generating"><Send class="size-3.5" /></Button>
     </form>
   </section>
 </template>

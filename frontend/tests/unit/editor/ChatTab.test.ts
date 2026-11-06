@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import type { StreamEvent } from '@/api/sse'
 import ChatTab from '@/components/editor/inspector/ChatTab.vue'
+import { createPinia, setActivePinia } from 'pinia'
 
 const mocks = vi.hoisted(() => ({
   streamMessage: vi.fn(),
@@ -21,6 +22,7 @@ async function mountTab() {
 }
 
 beforeEach(() => {
+  setActivePinia(createPinia())
   document.body.innerHTML = ''
   Object.values(mocks).forEach((m) => m.mockReset())
   mocks.listConversations.mockResolvedValue([])

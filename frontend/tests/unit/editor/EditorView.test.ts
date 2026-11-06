@@ -25,6 +25,7 @@ const slide = (id: string, index: number) => ({
 })
 const deck = () => ({ id: 'p1', title: 'Deck', theme: null, slides: [slide('a', 0), slide('b', 1), slide('c', 2)] }) as unknown as Presentation
 
+let lastClient: QueryClient
 const mounted: { unmount: () => void }[] = []
 afterEach(() => mounted.splice(0).forEach((w) => w.unmount()))
 
@@ -39,9 +40,10 @@ async function mountAt(path: string) {
     ],
   })
   await router.push(path)
+  lastClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const wrapper = mount(EditorView, {
     global: {
-      plugins: [router, [VueQueryPlugin, { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false } } }) }]],
+      plugins: [router, [VueQueryPlugin, { queryClient: lastClient }]],
       stubs: { SlideView: true },
     },
   })
@@ -80,6 +82,32 @@ describe('EditorView', () => {
     expect(canvas).toHaveLength(1)
     expect(canvas[0]!.props('slide').id).toBe('a')
     expect(w.get('[data-testid="slide-position"]').text()).toBe('Slide 1 of 3')
+  })
+
+  it('keeps the selection at the same position when the active slide is re-ided by a refetch', async () => {
+    await mountAt('/p/p1')
+    const editor = useEditorStore()
+    editor.select('b')
+    await flushPromises()
+    const edited = deck()
+    edited.slides[1] = { ...edited.slides[1]!, id: 'b2' }
+    api.getPresentation.mockResolvedValue(edited)
+    await lastClient.invalidateQueries({ queryKey: ['presentation', 'p1'] })
+    await flushPromises()
+    expect(editor.activeSlideId).toBe('b2')
+  })
+
+  it('falls back to the last slide when the active one vanishes from the end', async () => {
+    await mountAt('/p/p1')
+    const editor = useEditorStore()
+    editor.select('c')
+    await flushPromises()
+    const shorter = deck()
+    shorter.slides = shorter.slides.slice(0, 2)
+    api.getPresentation.mockResolvedValue(shorter)
+    await lastClient.invalidateQueries({ queryKey: ['presentation', 'p1'] })
+    await flushPromises()
+    expect(editor.activeSlideId).toBe('b')
   })
 
   it('ArrowDown selects the next slide', async () => {

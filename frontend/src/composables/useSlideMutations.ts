@@ -83,7 +83,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
   const key = () => presentationKeys.one(presentationId.value)
   const current = () => queryClient.getQueryData<Presentation>(key())
 
-  function schedule(label: string): Promise<void> {
+  function schedule(label: string, withSlides: boolean): Promise<void> {
     const deckId = presentationId.value
     const job = async () => {
       const snapshot = queryClient.getQueryData<Presentation>(presentationKeys.one(deckId))
@@ -91,7 +91,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
       try {
         await updatePresentation({
           id: deckId,
-          slides: reindex(snapshot.slides),
+          ...(withSlides && { slides: reindex(snapshot.slides) }),
           title: snapshot.title || undefined,
           theme: snapshot.theme ?? undefined,
         })
@@ -110,14 +110,26 @@ export function useSlideMutations(presentationId: Ref<string>) {
   }
 
   /** Apply `edit` to the current cache now (null = nothing to do) and queue the save. */
-  async function applyEdit(label: string, edit: (p: Presentation) => Presentation | null) {
-    // An in-flight refetch must not land on top of the optimistic write.
-    await queryClient.cancelQueries({ queryKey: key() })
+  async function applyEdit(label: string, edit: (p: Presentation) => Presentation | null, withSlides = true) {
+    // A fetch in flight (or an invalidated entry) may carry server-side changes, e.g. an AI edit that
+    // re-ids a slide. Edit on top of it rather than cancelling it, or the PATCH would write the old slide back.
+    const state = queryClient.getQueryState(key())
+    if (state?.fetchStatus === 'fetching' || state?.isInvalidated) {
+      const id = presentationId.value
+      try {
+        await queryClient.fetchQuery({ queryKey: key(), queryFn: () => getPresentation(id), staleTime: 0 })
+      } catch {
+        // Offline: edit the cache as it is.
+      }
+    } else {
+      // Nothing in flight: make sure nothing lands on top of the optimistic write.
+      await queryClient.cancelQueries({ queryKey: key() })
+    }
     const before = current()
     const after = before && edit(before)
     if (!after) return { applied: false, saved: Promise.resolve() }
     queryClient.setQueryData<Presentation>(key(), { ...after, slides: reindex(after.slides) })
-    return { applied: true, saved: schedule(label) }
+    return { applied: true, saved: schedule(label, withSlides) }
   }
 
   const onSlides =
@@ -128,8 +140,9 @@ export function useSlideMutations(presentationId: Ref<string>) {
     }
 
   /** A history body: apply, then wait for the save so undo/redo stay one at a time. */
-  const body = (label: string, edit: (p: Presentation) => Presentation | null) => async () => {
-    const r = await applyEdit(label, edit)
+  const body = (label: string, edit: (p: Presentation) => Presentation | null, withSlides = true) => async () => {
+    if (editor.locked) throw new Error('The deck is busy.')
+    const r = await applyEdit(label, edit, withSlides)
     await r.saved
   }
 
@@ -139,12 +152,13 @@ export function useSlideMutations(presentationId: Ref<string>) {
     edit: (p: Presentation) => Presentation | null,
     undo: () => Promise<void>,
     after?: () => void,
+    withSlides = true,
   ): Promise<boolean> {
-    if (editor.generating) return false
-    const r = await applyEdit(label, edit)
+    if (editor.locked) return false
+    const r = await applyEdit(label, edit, withSlides)
     if (!r.applied) return false
     after?.()
-    history.push({ label, do: body(label, edit), undo })
+    history.push({ label, do: body(label, edit, withSlides), undo })
     await r.saved
     return true
   }
@@ -268,7 +282,9 @@ export function useSlideMutations(presentationId: Ref<string>) {
       'Rename presentation',
       setTitle(next),
       // The endpoint ignores empty titles, so an untitled deck keeps the new name.
-      previous ? body('Rename presentation', setTitle(previous)) : async () => {},
+      previous ? body('Rename presentation', setTitle(previous), false) : async () => {},
+      undefined,
+      false, // title and theme only: `slides` would replace the whole set
     )
   }
 

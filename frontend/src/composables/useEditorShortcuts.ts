@@ -43,7 +43,7 @@ export function useEditorShortcuts() {
     }
     if (isEditable(e.target)) return
     if (mod && key === 'z') {
-      if (editor.generating) return
+      if (editor.locked) return
       e.preventDefault()
       void (e.shiftKey ? redo() : undo())
       return

@@ -4,6 +4,8 @@ import { flushPromises } from '@vue/test-utils'
 import type { StreamEvent } from '@/api/sse'
 import { queryClient } from '@/api/query'
 import { useChat } from '@/composables/useChat'
+import { useEditorStore } from '@/stores/editor'
+import { createPinia, setActivePinia } from 'pinia'
 
 const mocks = vi.hoisted(() => ({
   streamMessage: vi.fn(),
@@ -48,6 +50,7 @@ function setup() {
 }
 
 beforeEach(() => {
+  setActivePinia(createPinia())
   Object.values(mocks).forEach((m) => m.mockReset())
   mocks.listConversations.mockResolvedValue([])
 })
@@ -120,6 +123,28 @@ describe('useChat', () => {
     })
     await chat.send('look')
     expect(spy).not.toHaveBeenCalled()
+    spy.mockRestore()
+  })
+
+  it('holds the deck busy for the whole turn and releases it after the refetch lands', async () => {
+    const editor = useEditorStore()
+    let release!: () => void
+    const refetch = new Promise<void>((r) => (release = r))
+    const spy = vi.spyOn(queryClient, 'invalidateQueries').mockReturnValue(refetch)
+    const c = controlled()
+    mocks.streamMessage.mockImplementation((_req: unknown, signal?: AbortSignal) => c.gen(signal))
+    const chat = setup()
+    const sending = chat.send('Hi')
+    await flushPromises()
+    expect(editor.deckBusy).toBe(1)
+    c.push({ type: 'complete', chat: { conversation_id: 'c1', response: 'ok', tool_calls: ['updateSlide'] } } as StreamEvent)
+    c.end()
+    await flushPromises()
+    expect(spy).toHaveBeenCalled()
+    expect(editor.deckBusy).toBe(1)
+    release()
+    await sending
+    expect(editor.deckBusy).toBe(0)
     spy.mockRestore()
   })
 

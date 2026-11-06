@@ -35,12 +35,14 @@ watch(
   },
   { immediate: true, flush: 'post' },
 )
-// A different slide starts clean.
+// Navigating to another slide starts clean. A re-id at the same position (the AI's own edit) must not
+// wipe the reply that explains it.
 watch(
-  () => props.slide.id,
+  () => props.slide.index,
   () => {
     reply.value = ''
     error.value = ''
+    prompt.value = ''
   },
 )
 

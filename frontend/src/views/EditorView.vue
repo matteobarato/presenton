@@ -55,9 +55,13 @@ watch(
 
 watch(
   slides,
-  (list) => {
+  (list, previous) => {
     editor.slideIds = list.map(slideKey)
-    if (!list.some((s) => slideKey(s) === editor.activeSlideId)) editor.select(list[0] ? slideKey(list[0]) : null)
+    if (list.some((s) => slideKey(s) === editor.activeSlideId)) return
+    // The active slide vanished. An AI edit re-ids a slide in place, so stay at its position instead of jumping to the first.
+    const lastIndex = Math.max(0, previous?.findIndex((s) => slideKey(s) === editor.activeSlideId) ?? 0)
+    const target = list[Math.min(lastIndex, list.length - 1)]
+    editor.select(target ? slideKey(target) : null)
   },
   { immediate: true },
 )

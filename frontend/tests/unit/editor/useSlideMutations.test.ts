@@ -186,10 +186,62 @@ describe('useSlideMutations', () => {
       })
       .catch(() => {})
     const m = useSlideMutations(ref('p1'))
-    await m.reorder(0, 2)
+    // The edit waits for the fetch and is computed from what it returns, instead of cancelling it.
+    const done = m.reorder(0, 2)
     resolveFetch(deck())
     await fetching
+    await done
     expect(cached().slides.map((s) => s.id)).toEqual(['b', 'c', 'a'])
+  })
+
+  it('refuses a reorder while a chat turn holds the deck busy', async () => {
+    const { useEditorStore } = await import('@/stores/editor')
+    useEditorStore().deckBusy = 1
+    const m = useSlideMutations(ref('p1'))
+    await m.reorder(0, 2)
+    await m.removeSlide('b')
+    expect(update).not.toHaveBeenCalled()
+    expect(cached().slides.map((s) => s.id)).toEqual(['a', 'b', 'c'])
+    expect(useHistoryStore().canUndo).toBe(false)
+  })
+
+  it('a reorder right after a mutating turn keeps the AI-edited slide under its new id', async () => {
+    // The chat tool re-ided b as b2; the invalidated cache still has the old b.
+    const edited = deck()
+    edited.slides[1] = { ...edited.slides[1]!, id: 'b2' }
+    get.mockImplementation(async () => edited)
+    await qc.invalidateQueries({ queryKey: presentationKeys.one('p1'), refetchType: 'none' })
+    const m = useSlideMutations(ref('p1'))
+    await m.reorder(0, 2)
+    const ids = update.mock.calls[0]![0].slides.map((s: { id: string }) => s.id)
+    expect(ids).toEqual(['b2', 'c', 'a'])
+  })
+
+  it('a reorder during an in-flight refetch is computed from the refetched deck', async () => {
+    const edited = deck()
+    edited.slides[1] = { ...edited.slides[1]!, id: 'b2' }
+    let resolveFetch!: (d: Presentation) => void
+    const fetching = qc
+      .fetchQuery({
+        queryKey: presentationKeys.one('p1'),
+        queryFn: () => new Promise<Presentation>((r) => (resolveFetch = r)),
+        staleTime: 0,
+      })
+      .catch(() => {})
+    const m = useSlideMutations(ref('p1'))
+    const done = m.reorder(0, 2)
+    resolveFetch(edited)
+    await fetching
+    await done
+    expect(update.mock.calls[0]![0].slides.map((s: { id: string }) => s.id)).toEqual(['b2', 'c', 'a'])
+  })
+
+  it('rename sends id, title and theme only, never slides', async () => {
+    const m = useSlideMutations(ref('p1'))
+    await m.rename('New name')
+    const body = update.mock.calls[0]![0]
+    expect(body).toEqual({ id: 'p1', title: 'New name', theme: { color: 'red' } })
+    expect('slides' in body).toBe(false)
   })
 
   it('does nothing while a generation is running', async () => {

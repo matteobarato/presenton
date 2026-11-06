@@ -8,6 +8,7 @@ import {
 } from '@/api/chat'
 import { presentationKeys } from '@/api/presentations'
 import { queryClient } from '@/api/query'
+import { useEditorStore } from '@/stores/editor'
 
 export interface ChatMsg {
   id: string
@@ -89,6 +90,7 @@ export function traceToActivity(trace: unknown): Omit<ChatActivity, 'id'> | null
 }
 
 export function useChat(presentationId: Ref<string>) {
+  const editor = useEditorStore()
   const messages = ref<ChatMsg[]>([])
   const activity = ref<ChatActivity[]>([])
   const status = ref('')
@@ -185,6 +187,8 @@ export function useChat(presentationId: Ref<string>) {
     activity.value = []
     status.value = ''
     sending.value = true
+    // Held for the whole turn and the refetch it triggers: the AI may re-id slides, which a structural edit would revert.
+    editor.deckBusy++
     controller = new AbortController()
     const { signal } = controller
     const mine = epoch
@@ -230,7 +234,13 @@ export function useChat(presentationId: Ref<string>) {
       }
     } finally {
       // Also after a stop or error: a mutating tool may already have changed the deck.
-      if (mutated) void queryClient.invalidateQueries({ queryKey: presentationKeys.one(presentationId.value) })
+      try {
+        if (mutated) await queryClient.invalidateQueries({ queryKey: presentationKeys.one(presentationId.value) })
+      } catch {
+        // A failed refetch is surfaced by the editor's own query.
+      } finally {
+        editor.deckBusy = Math.max(0, editor.deckBusy - 1)
+      }
       if (signal.aborted && assistant) (assistant as ChatMsg).stopped = true
       if (controller?.signal === signal) {
         controller = null

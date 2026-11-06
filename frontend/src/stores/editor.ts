@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export type InspectorTabId = 'design' | 'chat' | 'narration' | 'video' | 'export'
@@ -19,6 +19,10 @@ export const useEditorStore = defineStore('editor', () => {
   const slideIds = ref<string[]>([])
   // True while the deck is being generated: structural edits are off.
   const generating = ref(false)
+  // Raised for a whole chat/Ask turn (and its refetch): the AI may rewrite slides, so structural edits wait.
+  const deckBusy = ref(0)
+  /** Structural edits (and anything that PATCHes the deck's slides) are off. */
+  const locked = computed(() => generating.value || deckBusy.value > 0)
   const navigatorOpen = ref(false) // the drawer, below 760px
   const inspectorOpen = ref(true)
   const inspectorTab = ref<InspectorTabId>('design')
@@ -49,12 +53,15 @@ export const useEditorStore = defineStore('editor', () => {
     slideIds.value = []
     zoom.value = 1
     askOpen.value = false
+    deckBusy.value = 0
   }
 
   return {
     activeSlideId,
     slideIds,
     generating,
+    deckBusy,
+    locked,
     navigatorOpen,
     inspectorOpen,
     inspectorTab,

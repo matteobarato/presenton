@@ -108,6 +108,20 @@ describe('AskOverlay', () => {
     w.unmount()
   })
 
+  it('keeps the reply when the slide is re-ided at the same position, and clears it on navigation', async () => {
+    mocks.streamMessage.mockImplementation(done('Shortened it'))
+    const w = mountOverlay()
+    await w.find('textarea').setValue('Shorter')
+    await w.find('form').trigger('submit')
+    await flushPromises()
+    expect(w.find('[data-testid=ask-reply]').exists()).toBe(true)
+    await w.setProps({ slide: { ...template, id: 's1-new' } as never })
+    expect(w.find('[data-testid=ask-reply]').text()).toContain('Shortened it')
+    await w.setProps({ slide: { ...template, id: 's9', index: 3 } as never })
+    expect(w.find('[data-testid=ask-reply]').exists()).toBe(false)
+    w.unmount()
+  })
+
   it('shows one thinking indicator and the status line, with a readonly input, while pending', async () => {
     let release!: () => void
     const gate = new Promise<void>((r) => (release = r))
