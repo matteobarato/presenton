@@ -68,6 +68,16 @@ describe('DesignTab', () => {
     expect(item(w, 'Default').find('[aria-label^="Delete"]').exists()).toBe(false)
   })
 
+  it('ignores a malformed theme list (non-array or null entries) instead of crashing', async () => {
+    themesApi.listThemes.mockResolvedValue({ id: 'p1', theme: null })
+    const bad = await mountTab()
+    expect(bad.findAll('[data-testid="theme-item"]').map((i) => i.text())).toEqual(['Default'])
+    bad.unmount()
+    themesApi.listThemes.mockResolvedValue([null, SYSTEM])
+    const partial = await mountTab()
+    expect(partial.findAll('[data-testid="theme-item"]').map((i) => i.text())).toEqual(['Default', 'Aurora'])
+  })
+
   it('marks the applied theme with aria-pressed', async () => {
     const w = await mountTab(CUSTOM)
     const pressed = (n: string) => item(w, n).get('button').attributes('aria-pressed')

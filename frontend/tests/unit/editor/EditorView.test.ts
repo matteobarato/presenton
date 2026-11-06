@@ -50,10 +50,20 @@ async function mountAt(path: string) {
   return wrapper
 }
 
+// openapi-fetch calls fetch(Request), so read the URL from either form.
+const requestUrl = (input: unknown) => (input instanceof Request ? input.url : String(input))
+const isPresentationUrl =(url: string) => /\/api\/v1\/ppt\/presentation\/p1(\?|$)/.test(url)
+const presentationFetches = () =>
+  (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter((c) => isPresentationUrl(requestUrl(c[0]))).length
+
 beforeEach(() => {
   vi.stubGlobal(
     'fetch',
-    vi.fn(async () => new Response(JSON.stringify(await api.getPresentation()), { headers: { 'content-type': 'application/json' } })),
+    vi.fn(async (input: RequestInfo | URL) => {
+      // Only the presentation endpoint returns the deck; other tabs' requests (themes…) get an empty list.
+      const body = isPresentationUrl(requestUrl(input)) ? await api.getPresentation() : []
+      return new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json' } })
+    }),
   )
   api.getPresentation.mockReset()
   api.getPresentation.mockResolvedValue(deck())
@@ -111,21 +121,20 @@ describe('EditorView', () => {
     const add = w.findAll('button').find((b) => b.text().includes('Add slide'))!
     expect(add.attributes('disabled')).toBeDefined()
     expect(w.find('button[aria-label="Delete slide 1"]').exists()).toBe(false)
-    const calls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length
+    const calls = presentationFetches()
     await w.get('[data-slide-key="a"]').trigger('keydown', { key: 'Delete' })
     await flushPromises()
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length).toBe(calls)
+    expect(presentationFetches()).toBe(calls)
     expect(w.get('input[aria-label="Presentation title"]').attributes('disabled')).toBeDefined()
   })
 
   it('refetches on window focus normally, but not while generating', async () => {
     const first = await mountAt('/p/p1')
-    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>
-    let before = fetchMock.mock.calls.length
+    let before = presentationFetches()
     focusManager.setFocused(false)
     focusManager.setFocused(true)
     await flushPromises()
-    expect(fetchMock.mock.calls.length).toBeGreaterThan(before)
+    expect(presentationFetches()).toBeGreaterThan(before)
     first.unmount()
 
     api.stream.mockImplementation(async function* () {
@@ -133,10 +142,10 @@ describe('EditorView', () => {
     })
     await mountAt('/p/p1?stream=1')
     await new Promise((r) => setTimeout(r, 50)) // let the stream's own initial load settle
-    before = fetchMock.mock.calls.length
+    before = presentationFetches()
     focusManager.setFocused(false)
     focusManager.setFocused(true)
     await flushPromises()
-    expect(fetchMock.mock.calls.length).toBe(before)
+    expect(presentationFetches()).toBe(before)
   })
 })
