@@ -3,7 +3,9 @@
 @import './tokens.css';
 @import './motion.css';
 
-/* Resets and global element behaviour, ported from aera-frontend/src/style.css */
+/* Resets and global element behaviour, ported from aera-frontend/src/style.css.
+   They live in @layer base so Tailwind utilities (layer utilities) always win. */
+@layer base {
 :root {
   font-family: var(--font-sans);
   color: var(--color-text);
@@ -31,6 +33,7 @@ input::placeholder, textarea::placeholder { color: var(--color-muted); }
 button svg { flex-shrink: 0; }
 img { display: block; max-width: 100%; }
 ::selection { background: #9cd4ec; color: #14242c; }
+}
 
 /* Glass materials: floating tool groups, prompts and overlays sit on blur. */
 @utility glass-tools {
