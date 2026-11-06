@@ -26,6 +26,11 @@ const props = defineProps<{ presentationId: string; presentation: Presentation; 
 
 const queryClient = useQueryClient()
 const themes = useQuery({ queryKey: themeKeys.all, queryFn: listThemes })
+// Tolerate a malformed list (non-array, null entries) instead of crashing the tab.
+const themeList = computed<ThemeRecord[]>(() => {
+  const data: unknown = themes.data.value
+  return Array.isArray(data) ? data.filter((t): t is ThemeRecord => !!t && typeof t === 'object') : []
+})
 
 function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof ApiError) return extractApiErrorMessage(error.body, fallback, error.status)
@@ -135,7 +140,7 @@ const generate = useMutation({
         @select="apply.mutate(null)"
       />
       <ThemeSwatch
-        v-for="t in themes.data.value ?? []"
+        v-for="t in themeList"
         :key="t.id"
         :name="t.name"
         :theme="t"
