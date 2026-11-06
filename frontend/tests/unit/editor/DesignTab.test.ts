@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { createPinia, setActivePinia } from 'pinia'
+import { useEditorStore } from '@/stores/editor'
 import type { Presentation } from '@/api/types'
 import DesignTab from '@/components/editor/inspector/DesignTab.vue'
 
@@ -52,6 +54,7 @@ const item = (w: Awaited<ReturnType<typeof mountTab>>, name: string) =>
   w.findAll('[data-testid="theme-item"]').find((i) => i.text().includes(name))!
 
 beforeEach(() => {
+  setActivePinia(createPinia())
   document.body.innerHTML = ''
   Object.values({ ...pres, ...themesApi, ...toast }).forEach((f) => f.mockReset())
   themesApi.listThemes.mockResolvedValue([SYSTEM, CUSTOM])
@@ -105,6 +108,26 @@ describe('DesignTab', () => {
     await flushPromises()
     expect(cached()?.id).toBe('sys')
     expect(toast.error).toHaveBeenCalled()
+  })
+
+  it('rolls back only the theme, keeping slides changed meanwhile', async () => {
+    let reject!: (e: Error) => void
+    pres.updatePresentation.mockReturnValue(new Promise((_, r) => (reject = r)))
+    const w = await mountTab(SYSTEM)
+    await item(w, 'Mine').get('button').trigger('click')
+    await flushPromises()
+    queryClient.setQueryData(['presentation', 'p1'], (old: Presentation) => ({ ...old, slides: [{ id: 'new' }] }))
+    reject(new Error('boom'))
+    await flushPromises()
+    const deck = queryClient.getQueryData<{ theme: { id?: string }; slides: { id: string }[] }>(['presentation', 'p1'])!
+    expect(deck.theme.id).toBe('sys')
+    expect(deck.slides.map((s) => s.id)).toEqual(['new'])
+  })
+
+  it('disables theme swatches while the deck is generating', async () => {
+    useEditorStore().generating = true
+    const w = await mountTab()
+    expect(item(w, 'Mine').get('button').attributes('disabled')).toBeDefined()
   })
 
   it('generates a theme from seed colours, showing pending, then lists it', async () => {

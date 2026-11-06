@@ -48,6 +48,7 @@ describe('AppShell', () => {
     const text = wrapper.get('[role="alert"]').text()
     expect(text).toContain("Can't reach the Presenton backend")
     expect(text).toContain('/api proxy')
+    expect(text).toContain('http://backend.test:5001')
   })
 
   it('retries the auth status on window focus and clears the banner', async () => {

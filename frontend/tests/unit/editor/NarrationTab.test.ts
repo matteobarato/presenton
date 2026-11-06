@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import type { Ref } from 'vue'
+import { createPinia, setActivePinia } from 'pinia'
 import { QueryClient, useQuery, VueQueryPlugin } from '@tanstack/vue-query'
 import NarrationTab from '@/components/editor/inspector/NarrationTab.vue'
 import { narrationState } from '@/components/editor/inspector/narration/narration-state'
@@ -60,6 +61,7 @@ async function mountTab() {
 const button = (w: ReturnType<typeof mount>, text: string) => w.findAll('button').find((b) => b.text().includes(text))!
 
 beforeEach(() => {
+  setActivePinia(createPinia())
   vi.clearAllMocks()
   localStorage.clear()
   sessionStorage.clear()
@@ -102,12 +104,59 @@ describe('NarrationTab', () => {
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['presentation', 'p1'] })
   })
 
+  it('autosaves the active slide note, flushing when the slide changes', async () => {
+    const { wrapper } = await mountTab()
+    const box = () => wrapper.find('textarea[aria-label="Speaker note for slide 1"]')
+    await box().setValue('Hello again')
+    await flushPromises()
+    expect(mocks.updateSpeakerNotes).not.toHaveBeenCalled()
+    await wrapper.setProps({ activeSlide: presentation.slides[1] as never })
+    await flushPromises()
+    expect(mocks.updateSpeakerNotes).toHaveBeenCalledTimes(1)
+    expect(mocks.updateSpeakerNotes).toHaveBeenCalledWith('p1', [{ slide_index: 0, speaker_note: 'Hello again' }])
+    expect((wrapper.find('textarea[aria-label="Speaker note for slide 2"]').element as HTMLTextAreaElement).value).toBe('Edited note')
+  })
+
+  it('autosaves after 800 ms and flushes on unmount', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const { wrapper } = await mountTab()
+    await wrapper.find('textarea').setValue('first')
+    await flushPromises()
+    await vi.advanceTimersByTimeAsync(799)
+    expect(mocks.updateSpeakerNotes).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(1)
+    expect(mocks.updateSpeakerNotes).toHaveBeenCalledWith('p1', [{ slide_index: 0, speaker_note: 'first' }])
+    await wrapper.find('textarea').setValue('second')
+    await flushPromises()
+    wrapper.unmount()
+    await flushPromises()
+    expect(mocks.updateSpeakerNotes).toHaveBeenLastCalledWith('p1', [{ slide_index: 0, speaker_note: 'second' }])
+    vi.useRealTimers()
+  })
+
+  it('a refetch does not overwrite a dirty draft', async () => {
+    const { wrapper } = await mountTab()
+    await wrapper.find('textarea').setValue('my typing')
+    await flushPromises()
+    await wrapper.setProps({ activeSlide: { ...presentation.slides[0]!, speaker_note: 'from the server' } as never })
+    expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('my typing')
+  })
+
+  it('makes the note read-only while the deck is generating', async () => {
+    const { useEditorStore } = await import('@/stores/editor')
+    useEditorStore().generating = true
+    const { wrapper } = await mountTab()
+    expect(wrapper.find('textarea').attributes('readonly')).toBeDefined()
+    expect(button(wrapper, 'Generate notes for all slides').attributes('disabled')).toBeDefined()
+  })
+
   it('fills the language select and persists the choice', async () => {
     const { wrapper } = await mountTab()
     const select = wrapper.find('[data-testid="tts-language"]')
     expect(select.findAll('option').map((o) => o.text())).toEqual(['English', 'Italian'])
     await select.setValue('it-IT')
     expect(localStorage.getItem('presenton.tts.lang')).toBe('it-IT')
+    expect(localStorage.getItem('presenton.tts.lang.p1')).toBe('it-IT')
     await flushPromises()
     expect(mocks.getTtsStatus).toHaveBeenCalledWith('p1', 'it-IT')
   })
@@ -127,6 +176,7 @@ describe('NarrationTab', () => {
     await vi.advanceTimersByTimeAsync(1100)
     await flushPromises()
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['tts', 'p1', 'en-US'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['playback', 'p1'] })
     expect(sessionStorage.getItem('presenton.task.tts.p1')).toBeNull()
     vi.useRealTimers()
   })

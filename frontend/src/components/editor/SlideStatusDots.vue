@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { usePresentation } from '@/api/presentations'
 import { useTts } from '@/api/tts'
 import { getVideos, videoKeys } from '@/api/videos'
+import { useTtsLanguage } from '@/composables/useTtsLanguage'
 import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { audioForSlide, narrationState } from '@/components/editor/inspector/narration/narration-state'
 
@@ -11,8 +12,8 @@ const props = defineProps<{ presentationId: string; slideIndex: number }>()
 
 const idRef = computed(() => props.presentationId)
 const { data: presentation } = usePresentation(idRef, useEditorFetchGate())
-// The Narration tab owns the language; it is re-read whenever the deck changes.
-const language = computed(() => (presentation.value, localStorage.getItem('presenton.tts.lang') ?? ''))
+// The Narration tab sets the language; the shared helper makes this react to it.
+const { language } = useTtsLanguage(idRef, presentation)
 const { data: tts } = useTts(idRef, language)
 const { data: videos } = useQuery({ queryKey: () => videoKeys.all(idRef.value), queryFn: () => getVideos(idRef.value) })
 

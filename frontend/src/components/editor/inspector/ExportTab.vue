@@ -23,7 +23,7 @@ const anyRunning = computed(() => running.pptx || running.pdf)
     <Card>
       <CardHeader><CardTitle>Video (MP4)</CardTitle></CardHeader>
       <CardContent>
-        <VideoExportCard :presentation-id="presentationId" :default-language="presentation.language" />
+        <VideoExportCard :presentation-id="presentationId" :presentation="presentation" />
       </CardContent>
     </Card>
   </section>

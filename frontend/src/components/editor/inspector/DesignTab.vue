@@ -19,12 +19,14 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/sonner'
+import { useEditorStore } from '@/stores/editor'
 import ThemeEditorDialog from './ThemeEditorDialog.vue'
 import ThemeSwatch from './ThemeSwatch.vue'
 
 const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
 
 const queryClient = useQueryClient()
+const editor = useEditorStore()
 const themes = useQuery({ queryKey: themeKeys.all, queryFn: listThemes })
 // Tolerate a malformed list (non-array, null entries) instead of crashing the tab.
 const themeList = computed<ThemeRecord[]>(() => {
@@ -52,12 +54,17 @@ const apply = useMutation({
   onMutate: async (theme) => {
     const key = presentationKeys.one(props.presentationId)
     await queryClient.cancelQueries({ queryKey: key })
-    const previous = queryClient.getQueryData<Presentation>(key)
+    const previous = queryClient.getQueryData<Presentation>(key)?.theme ?? null
     queryClient.setQueryData<Presentation>(key, (old) => (old ? ({ ...old, theme } as Presentation) : old))
     return { previous }
   },
   onError: (error, _theme, ctx) => {
-    if (ctx?.previous) queryClient.setQueryData(presentationKeys.one(props.presentationId), ctx.previous)
+    // Restore only the theme: a snapshot of the whole deck would undo structural edits made meanwhile.
+    if (ctx) {
+      queryClient.setQueryData<Presentation>(presentationKeys.one(props.presentationId), (old) =>
+        old ? ({ ...old, theme: ctx.previous } as Presentation) : old,
+      )
+    }
     toast.error(errorMessage(error, 'Could not apply the theme'))
   },
 })
@@ -137,6 +144,7 @@ const generate = useMutation({
         :theme="null"
         :selected="appliedId === null"
         :custom="false"
+        :disabled="editor.generating"
         @select="apply.mutate(null)"
       />
       <ThemeSwatch
@@ -146,6 +154,7 @@ const generate = useMutation({
         :theme="t"
         :selected="appliedId === t.id"
         :custom="isCustom(t)"
+        :disabled="editor.generating"
         @select="apply.mutate(t)"
         @edit="openEditor(t)"
         @remove="askDelete(t)"

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, toRef, watch } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { Presentation, Slide } from '@/api/types'
 import { ApiError } from '@/api/errors'
+import { playbackKeys } from '@/api/playback'
 import { presentationKeys } from '@/api/presentations'
 import { useTts } from '@/api/tts'
 import {
@@ -21,6 +22,7 @@ import {
   type AvatarSlidePlan,
 } from '@/api/videos'
 import { useAsyncTask } from '@/composables/useAsyncTask'
+import { useTtsLanguage } from '@/composables/useTtsLanguage'
 import SlideView from '@/render/SlideView.vue'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -34,7 +36,6 @@ import { hasVideoPlaceholder, slideBlocker } from './video/avatar-state'
 
 const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
 
-const LANG_KEY = 'presenton.tts.lang'
 const qc = useQueryClient()
 const idRef = computed(() => props.presentationId)
 const fail = (e: unknown) => toast.error(e instanceof Error ? e.message : 'Something went wrong')
@@ -46,13 +47,12 @@ const { data: generation } = useQuery({
 })
 
 // Avatars are lip-synced to the narration, so they follow the narration language.
-const storedLanguage = ref(localStorage.getItem(LANG_KEY) ?? '')
+const { language } = useTtsLanguage(idRef, toRef(props, 'presentation'))
 const { data: preview } = useQuery({
-  queryKey: () => videoKeys.preview(idRef.value, storedLanguage.value),
-  queryFn: () => getAvatarPreview(idRef.value, storedLanguage.value || undefined),
+  queryKey: () => videoKeys.preview(idRef.value, language.value),
+  queryFn: () => getAvatarPreview(idRef.value, language.value || undefined),
   retry: false,
 })
-const language = computed(() => storedLanguage.value || preview.value?.language || '')
 const { data: tts } = useTts(idRef, language)
 
 const slides = computed(() => [...props.presentation.slides].sort((a, b) => a.index - b.index))
@@ -100,6 +100,8 @@ watch(taskStatus, (now, before) => {
   if (before === 'pending' && now !== 'pending') {
     void refreshVideos()
     void refreshPresentation()
+    // Present reads playback; it must not play the avatars it had before.
+    void qc.invalidateQueries({ queryKey: playbackKeys.one(props.presentationId) })
   }
 })
 const plans = computed<AvatarSlidePlan[]>(() => (task.value?.data ? slidePlans(task.value) : slidePlans(generation.value)))

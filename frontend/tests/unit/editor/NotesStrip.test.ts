@@ -38,6 +38,21 @@ describe('NotesStrip', () => {
     expect(cached.slides.map((x) => x.speaker_note)).toEqual(['one', 'two!'])
   })
 
+  it('writes the note into the cache at input time, before the save resolves', async () => {
+    mocks.updateSpeakerNotes.mockReturnValue(new Promise(() => {}))
+    const w = mountStrip(s('b', 1, 'two'))
+    await w.find('textarea').setValue('two!')
+    const cached = qc.getQueryData<{ slides: { speaker_note: string }[] }>(presentationKeys.one('p1'))!
+    expect(cached.slides.map((x) => x.speaker_note)).toEqual(['one', 'two!'])
+    expect(mocks.updateSpeakerNotes).not.toHaveBeenCalled()
+  })
+
+  it('makes the textarea read-only while the deck is generating', () => {
+    useEditorStore().generating = true
+    const w = mountStrip()
+    expect(w.find('textarea').attributes('readonly')).toBeDefined()
+  })
+
   it('Generate asks for that slide only and replaces the text', async () => {
     mocks.generateSpeakerNotes.mockResolvedValue({ slides: [s('a', 0, 'fresh note')] })
     const w = mountStrip()

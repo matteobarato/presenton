@@ -10,6 +10,13 @@ vi.mock('@/api/playback', async (orig) => ({ ...(await orig<typeof import('@/api
 vi.mock('@/api/presentations', () => ({
   usePresentation: (id: Ref<string>) => useQuery({ queryKey: () => ['presentation', id.value], queryFn: () => m.getPresentation(id.value) }),
 }))
+vi.mock('@/api/tts', async (orig) => ({
+  ...(await orig<typeof import('@/api/tts')>()),
+  listTtsLanguages: async () => [
+    { code: 'it-IT', name: 'Italian' },
+    { code: 'en-US', name: 'English' },
+  ],
+}))
 vi.mock('@/render/SlideView.vue', () => ({
   default: { props: ['slide', 'scale'], template: '<div data-testid="slide-view" :data-slide="slide.id" :data-scale="scale" />' },
 }))

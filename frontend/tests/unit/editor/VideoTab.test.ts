@@ -144,6 +144,21 @@ describe('VideoTab rows', () => {
     expect(m.removePlaceholder).toHaveBeenCalledWith('p1', 0)
   })
 
+  it('keeps the placeholder toggle busy until the presentation refetch lands', async () => {
+    const { wrapper, invalidate } = await mountTab()
+    let land!: () => void
+    invalidate.mockImplementation(((filters: { queryKey: unknown[] }) =>
+      filters.queryKey[0] === 'presentation' ? new Promise<void>((r) => (land = r)) : Promise.resolve()) as never)
+    const toggle = wrapper.findAll('[role="switch"]')[2]!
+    await toggle.trigger('click')
+    await flushPromises()
+    expect(m.addPlaceholder).toHaveBeenCalledWith('p1', 2)
+    expect(wrapper.findAll('[role="switch"]')[2]!.attributes('disabled')).toBeDefined()
+    land()
+    await flushPromises()
+    expect(wrapper.findAll('[role="switch"]')[2]!.attributes('disabled')).toBeUndefined()
+  })
+
   it('uploads a slide video and removes an existing one', async () => {
     m.getVideos.mockResolvedValue({
       presentation_id: 'p1',

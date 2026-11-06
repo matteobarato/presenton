@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref, toRef, watch } from 'vue'
 import { Download, Film, Loader2, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { extractApiErrorMessage } from '@/api/errors'
@@ -15,13 +15,20 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Progress } from '@/components/ui/progress'
+import type { Presentation } from '@/api/types'
 import { useAsyncTask } from '@/composables/useAsyncTask'
+import { useTtsLanguage } from '@/composables/useTtsLanguage'
 import VideoExportOptions from './VideoExportOptions.vue'
 
-const props = defineProps<{ presentationId: string; defaultLanguage?: string }>()
+const props = defineProps<{ presentationId: string; presentation: Presentation }>()
+
+const { language: ttsLanguage } = useTtsLanguage(
+  toRef(() => props.presentationId),
+  toRef(() => props.presentation),
+)
 
 const form = reactive<VideoRequest>({
-  language: localStorage.getItem('presenton.tts.lang') || props.defaultLanguage || 'en',
+  language: ttsLanguage.value || 'en',
   regenerate: false,
   voice: '',
   resolution: '1080p',
@@ -86,6 +93,10 @@ async function remove() {
   }
 }
 
+// Follow the narration language (it may settle after the list loads, or change in the Narration tab).
+watch(ttsLanguage, (code) => {
+  if (code) form.language = code
+})
 watch(() => form.language, () => void refetch())
 
 onMounted(async () => {

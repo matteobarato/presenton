@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, toRef } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { Presentation, Slide } from '@/api/types'
 import { presentationKeys } from '@/api/presentations'
-import { generateSpeakerNotes, updateSpeakerNotes } from '@/api/speakerNotes'
+import { generateSpeakerNotes } from '@/api/speakerNotes'
+import { playbackKeys } from '@/api/playback'
 import { deleteTts, generateTtsAsync, listTtsLanguages, ttsKeys, useTts } from '@/api/tts'
 import { useAsyncTask } from '@/composables/useAsyncTask'
+import { useNoteDraft } from '@/composables/useNoteDraft'
+import { useTtsLanguage } from '@/composables/useTtsLanguage'
+import { useEditorStore } from '@/stores/editor'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Textarea } from '@/components/ui/textarea'
@@ -17,24 +21,14 @@ import { audioForSlide } from './narration/narration-state'
 
 const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
 
-const LANG_KEY = 'presenton.tts.lang'
+const editor = useEditorStore()
 const qc = useQueryClient()
 const idRef = computed(() => props.presentationId)
 const fail = (e: unknown) => toast.error(e instanceof Error ? e.message : 'Something went wrong')
 
 // Language
 const { data: languages } = useQuery({ queryKey: ['tts-languages'], queryFn: listTtsLanguages, staleTime: Infinity })
-const language = ref(localStorage.getItem(LANG_KEY) ?? '')
-watch(
-  languages,
-  (list) => {
-    if (list?.length && !list.some((l) => l.code === language.value)) language.value = list[0].code
-  },
-  { immediate: true },
-)
-watch(language, (code) => {
-  if (code) localStorage.setItem(LANG_KEY, code)
-})
+const { language, setLanguage } = useTtsLanguage(idRef, toRef(props, 'presentation'))
 
 // Audio status
 const { data: tts } = useTts(idRef, language)
@@ -54,17 +48,8 @@ const generateNotes = useMutation({
   onSuccess: refreshPresentation,
   onError: fail,
 })
-const draft = ref('')
-watch(
-  () => [props.activeSlide?.id, props.activeSlide?.speaker_note] as const,
-  () => (draft.value = props.activeSlide?.speaker_note ?? ''),
-  { immediate: true },
-)
-const saveNote = useMutation({
-  mutationFn: () => updateSpeakerNotes(props.presentationId, [{ slide_index: props.activeSlide!.index, speaker_note: draft.value }]),
-  onSuccess: refreshPresentation,
-  onError: fail,
-})
+// The active slide's note: autosaved like the notes strip, so typing is never silently dropped.
+const { draft, onInput, failureFor } = useNoteDraft(idRef, toRef(() => props.activeSlide))
 
 // TTS task (resumes after reload from sessionStorage)
 const taskId = ref<string | null>(null)
@@ -79,6 +64,8 @@ const {
   storageKey: `presenton.task.tts.${props.presentationId}`,
   onDone: () => {
     void refreshTts()
+    // Present reads playback; it must not play the audio it had before.
+    void qc.invalidateQueries({ queryKey: playbackKeys.one(props.presentationId) })
     toast.success('Narration is ready')
     clear()
   },
@@ -114,25 +101,29 @@ const removeTts = useMutation({
   <section class="flex flex-col gap-4 p-3" aria-label="Narration">
     <div class="flex flex-col gap-2">
       <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Speaker notes</h3>
-      <Button size="sm" variant="secondary" :disabled="generateNotes.isPending.value" @click="generateNotes.mutate()">
+      <Button
+        size="sm"
+        variant="secondary"
+        :disabled="generateNotes.isPending.value || editor.generating"
+        @click="generateNotes.mutate()"
+      >
         Generate notes for all slides
       </Button>
       <template v-if="activeSlide">
-        <Textarea v-model="draft" rows="4" :aria-label="`Speaker note for slide ${activeSlide.index + 1}`" />
-        <Button
-          size="sm"
-          variant="outline"
-          :disabled="saveNote.isPending.value || draft === (activeSlide.speaker_note ?? '')"
-          @click="saveNote.mutate()"
-        >
-          Save note
-        </Button>
+        <Textarea
+          :model-value="draft"
+          rows="4"
+          :aria-label="`Speaker note for slide ${activeSlide.index + 1}`"
+          :readonly="editor.generating"
+          @update:model-value="onInput(String($event))"
+        />
+        <p v-if="failureFor(activeSlide)" role="alert" class="text-[11px] text-danger-text">{{ failureFor(activeSlide) }}</p>
       </template>
     </div>
 
     <div class="flex flex-col gap-2">
       <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Narration</h3>
-      <TtsLanguageSelect v-model="language" :languages="languages ?? []" :disabled="running" />
+      <TtsLanguageSelect :model-value="language" :languages="languages ?? []" :disabled="running" @update:model-value="setLanguage" />
       <div class="flex flex-wrap gap-2">
         <Button size="sm" :disabled="running || !language || startTts.isPending.value" @click="startTts.mutate({})">
           Generate narration

@@ -9,6 +9,7 @@ const props = defineProps<{
   theme: unknown
   selected: boolean
   custom: boolean
+  disabled?: boolean
 }>()
 defineEmits<{ select: []; edit: []; remove: [] }>()
 
@@ -23,7 +24,8 @@ const colors = computed(() => {
     <button
       type="button"
       :aria-pressed="selected"
-      class="flex w-full flex-col gap-2 rounded-button border bg-field p-2 text-left transition-colors duration-200 hover:border-white/20 focus-visible:border-accent focus-visible:outline-none"
+      :disabled="disabled"
+      class="flex w-full flex-col disabled:opacity-50 gap-2 rounded-button border bg-field p-2 text-left transition-colors duration-200 hover:border-white/20 focus-visible:border-accent focus-visible:outline-none"
       :class="selected ? 'border-accent' : 'border-transparent'"
       @click="$emit('select')"
     >

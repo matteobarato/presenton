@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import type { StreamEvent } from '@/api/sse'
 import ChatTab from '@/components/editor/inspector/ChatTab.vue'
 import { createPinia, setActivePinia } from 'pinia'
+import { useEditorStore } from '@/stores/editor'
 
 const mocks = vi.hoisted(() => ({
   streamMessage: vi.fn(),
@@ -58,6 +59,17 @@ describe('ChatTab', () => {
     expect(mocks.streamMessage.mock.calls[0][0]).toMatchObject({ presentation_id: 'p1', message: 'hello' })
     expect(w.text()).toContain('ok')
     expect((ta.element as HTMLTextAreaElement).value).toBe('')
+    w.unmount()
+  })
+
+  it('does not send while the deck is generating', async () => {
+    useEditorStore().generating = true
+    const w = await mountTab()
+    await w.find('textarea').setValue('go')
+    expect(w.find('button[aria-label="Send"]').attributes('disabled')).toBeDefined()
+    await w.find('textarea').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+    expect(mocks.streamMessage).not.toHaveBeenCalled()
     w.unmount()
   })
 

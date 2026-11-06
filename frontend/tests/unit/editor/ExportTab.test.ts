@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { ApiError } from '@/api/errors'
 import type { Presentation } from '@/api/types'
 import ExportTab from '@/components/editor/inspector/ExportTab.vue'
@@ -29,6 +30,7 @@ const video = { id: 'v1', language: 'it', url: '/app_data/exports/v.mp4' }
 function mountTab() {
   return mount(ExportTab, {
     props: { presentationId: ID, presentation, activeSlide: null },
+    global: { plugins: [[VueQueryPlugin, { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false } } }) }]] },
     attachTo: document.body,
   })
 }

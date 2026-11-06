@@ -3,8 +3,8 @@ import { computed, onBeforeUnmount, ref, watch, type Ref } from 'vue'
 import { getPlayback, playbackKeys, type Playback } from '@/api/playback'
 import { usePresentation } from '@/api/presentations'
 import { audioSrc } from '@/api/tts'
+import { useTtsLanguage } from '@/composables/useTtsLanguage'
 
-const LANG_KEY = 'presenton.tts.lang'
 /** How long a slide without narration stays up before the preview moves on. */
 export const SILENT_SLIDE_MS = 1500
 
@@ -24,11 +24,11 @@ export interface AvatarRect {
 export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<number>, enabled: Ref<boolean>) {
   const { data: presentation } = usePresentation(presentationId)
   // The endpoint 409s on multi-language decks without a language, so always send one.
-  const language = computed(() => localStorage.getItem(LANG_KEY) || presentation.value?.language || '')
+  const { language } = useTtsLanguage(presentationId, presentation)
   const { data: playback, isError } = useQuery({
     queryKey: () => playbackKeys.one(presentationId.value, language.value),
     queryFn: () => getPlayback(presentationId.value, language.value || undefined),
-    enabled: () => Boolean(presentationId.value && presentation.value),
+    enabled: () => Boolean(presentationId.value && presentation.value && language.value),
     retry: false,
   })
 

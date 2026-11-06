@@ -6,6 +6,13 @@ import { useNarratedPlayback } from '@/composables/useNarratedPlayback'
 
 const m = vi.hoisted(() => ({ getPlayback: vi.fn() }))
 vi.mock('@/api/playback', async (orig) => ({ ...(await orig<typeof import('@/api/playback')>()), getPlayback: m.getPlayback }))
+vi.mock('@/api/tts', async (orig) => ({
+  ...(await orig<typeof import('@/api/tts')>()),
+  listTtsLanguages: async () => [
+    { code: 'it-IT', name: 'Italian' },
+    { code: 'en-US', name: 'English' },
+  ],
+}))
 vi.mock('@/api/presentations', () => ({
   usePresentation: (id: Ref<string>) => useQuery({ queryKey: () => ['presentation', id.value], queryFn: async () => ({ id: id.value, language: 'en-US' }) }),
 }))
@@ -64,8 +71,8 @@ afterEach(() => {
 })
 
 describe('useNarratedPlayback', () => {
-  it('asks for the stored narration language, falling back to the deck language', async () => {
-    localStorage.setItem('presenton.tts.lang', 'it-IT')
+  it('asks for the deck narration language, falling back to the deck language', async () => {
+    localStorage.setItem('presenton.tts.lang.p1', 'it-IT')
     setup()
     await flushPromises()
     expect(m.getPlayback).toHaveBeenCalledWith('p1', 'it-IT')
