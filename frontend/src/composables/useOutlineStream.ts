@@ -60,7 +60,18 @@ export function useOutlineStream(id: Ref<string>) {
     status.value = DEFAULT_STATUS
     streaming.value = true
 
-    const existing = await getOutline(presentationId).catch(() => [] as OutlineItem[])
+    // Only an OK response with no slides means "generate". A failed load must not stream: the stream
+    // regenerates and stores a new outline over whatever the user already edited.
+    let existing: OutlineItem[]
+    try {
+      existing = await getOutline(presentationId)
+    } catch (e) {
+      if (ctrl.signal.aborted) return
+      error.value = e instanceof Error && e.message ? e.message : 'Could not load the outline.'
+      status.value = 'Could not load the outline'
+      streaming.value = false
+      return
+    }
     if (ctrl.signal.aborted) return
     if (existing.length) {
       items.value = existing.slice(0, MAX_OUTLINE_SLIDES)
@@ -141,5 +152,8 @@ export function useOutlineStream(id: Ref<string>) {
   watch(id, (v) => (v ? void run(v) : abort()), { immediate: true })
   onScopeDispose(abort)
 
-  return { items, status, streaming, error, abort }
+  /** Run the whole load again (the outline GET first, then the stream if it is empty). */
+  const retry = () => (id.value ? run(id.value) : Promise.resolve())
+
+  return { items, status, streaming, error, abort, retry }
 }

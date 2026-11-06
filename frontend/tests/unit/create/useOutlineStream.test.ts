@@ -50,6 +50,22 @@ beforeEach(() => {
 })
 
 describe('useOutlineStream', () => {
+  it('does not open the stream when the outline cannot be loaded, and retries the GET', async () => {
+    mocks.getOutline.mockRejectedValueOnce(new Error('Bad gateway'))
+    const api = setup()
+    await flushPromises()
+    expect(mocks.streamEvents).not.toHaveBeenCalled()
+    expect(api.error.value).toBe('Bad gateway')
+    expect(api.streaming.value).toBe(false)
+
+    mocks.getOutline.mockResolvedValueOnce([{ content: 'Kept' }])
+    await api.retry()
+    expect(mocks.getOutline).toHaveBeenCalledTimes(2)
+    expect(api.error.value).toBeNull()
+    expect(api.items.value).toEqual([{ content: 'Kept' }])
+    expect(mocks.streamEvents).not.toHaveBeenCalled()
+  })
+
   it('grows items as chunks arrive and finishes on complete', async () => {
     const src = controlled()
     mocks.streamEvents.mockReturnValue(src.gen())

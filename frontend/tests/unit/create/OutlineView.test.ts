@@ -76,6 +76,7 @@ beforeEach(() => {
     streaming: ref(false),
     error: ref(null),
     abort: vi.fn(),
+    retry: vi.fn(),
   }
 })
 afterEach(() => {
@@ -94,6 +95,23 @@ describe('OutlineView', () => {
     await vi.advanceTimersByTimeAsync(150)
     expect(mocks.saveOutline).toHaveBeenCalledTimes(1)
     expect(mocks.saveOutline).toHaveBeenCalledWith('p1', [{ content: 'A12' }, { content: 'B' }, { content: 'C' }])
+  })
+
+  it('flushes the pending save on unmount instead of dropping it', async () => {
+    const { wrapper } = await mountView()
+    await wrapper.findAll('textarea')[0]!.setValue('A!')
+    expect(mocks.saveOutline).not.toHaveBeenCalled()
+    wrapper.unmount()
+    expect(mocks.saveOutline).toHaveBeenCalledTimes(1)
+    expect(mocks.saveOutline).toHaveBeenCalledWith('p1', [{ content: 'A!' }, { content: 'B' }, { content: 'C' }])
+  })
+
+  it('shows a Retry button for a load error', async () => {
+    ;(mocks.stream as { error: { value: string | null } }).error.value = 'Bad gateway'
+    const { wrapper } = await mountView()
+    const retry = wrapper.findAll('button').find((b) => b.text() === 'Retry')!
+    await retry.trigger('click')
+    expect((mocks.stream as { retry: ReturnType<typeof vi.fn> }).retry).toHaveBeenCalledTimes(1)
   })
 
   it('does not save when nothing was edited', async () => {

@@ -17,7 +17,7 @@ const route = useRoute()
 const router = useRouter()
 const id = computed(() => String(route.params.id ?? ''))
 
-const { items, status, streaming, error } = useOutlineStream(id)
+const { items, status, streaming, error, retry } = useOutlineStream(id)
 const templates = useQuery({ queryKey: ['templates'], queryFn: listTemplates })
 const selectedTemplate = ref<string | null>(null)
 const generating = ref(false)
@@ -28,6 +28,8 @@ const saveError = ref<string | null>(null)
 // changes made after streaming finished differ from the baseline.
 let baseline = ''
 let saveTimer: ReturnType<typeof setTimeout> | null = null
+// The route param is already gone when a leaving view flushes, so remember the deck the edit belongs to.
+let pendingId = ''
 const snapshot = () => JSON.stringify(items.value)
 
 // Sync flush: items are assigned just before streaming flips, so the baseline
@@ -45,24 +47,29 @@ watch(
   () => {
     if (streaming.value || snapshot() === baseline) return
     if (saveTimer) clearTimeout(saveTimer)
-    saveTimer = setTimeout(async () => {
-      saveTimer = null
-      const body = items.value.map((i) => ({ content: i.content }))
-      const sent = snapshot()
-      try {
-        await saveOutline(id.value, body)
-        baseline = sent
-        saveError.value = null
-      } catch (e) {
-        saveError.value = e instanceof Error ? e.message : 'Could not save your outline.'
-      }
-    }, SAVE_DEBOUNCE_MS)
+    pendingId = id.value
+    saveTimer = setTimeout(() => void saveNow(), SAVE_DEBOUNCE_MS)
   },
   { deep: true },
 )
 
-onBeforeUnmount(() => {
+async function saveNow() {
   if (saveTimer) clearTimeout(saveTimer)
+  saveTimer = null
+  const body = items.value.map((i) => ({ content: i.content }))
+  const sent = snapshot()
+  try {
+    await saveOutline(pendingId || id.value, body)
+    baseline = sent
+    saveError.value = null
+  } catch (e) {
+    saveError.value = e instanceof Error ? e.message : 'Could not save your outline.'
+  }
+}
+
+// Leaving inside the debounce window must not drop the user's last edit.
+onBeforeUnmount(() => {
+  if (saveTimer) void saveNow()
 })
 
 const canGenerate = computed(
@@ -109,7 +116,10 @@ async function generate() {
       </p>
     </header>
 
-    <Alert v-if="error" variant="destructive" class="py-2 text-[12px]">{{ error }}</Alert>
+    <Alert v-if="error" variant="destructive" class="flex items-center justify-between gap-3 py-2 text-[12px]">
+      <span>{{ error }}</span>
+      <Button type="button" size="sm" variant="secondary" @click="retry()">Retry</Button>
+    </Alert>
     <Alert v-if="saveError" variant="destructive" class="py-2 text-[12px]">{{ saveError }}</Alert>
 
     <OutlineList v-model="items" :disabled="streaming" />
