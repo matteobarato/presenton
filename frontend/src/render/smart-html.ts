@@ -24,8 +24,9 @@ function fontCss(fonts: unknown, theme: unknown): string {
 }
 
 /**
- * Only scripts that drive Chart.js are re-run (the old useSmartChartInjection
- * behaviour); every other author script is dropped.
+ * The old hook re-ran every script. Here only scripts that mention Chart are
+ * re-run; the backend's normalize_smart_slide_html already strips non-chart
+ * scripts, so this is a defensive narrowing.
  */
 function chartScripts(html: string): string[] {
   const doc = new DOMParser().parseFromString(html, 'text/html')
@@ -92,7 +93,7 @@ function embedJson(value: unknown): string {
 export function buildSmartSrcdoc(html: string, opts: { fonts?: unknown; theme?: unknown } = {}): string {
   const body = DOMPurify.sanitize(html, SANITIZE_CONFIG) as string
   const vars = cssVarDeclarations(themeCssVars(opts.theme))
-  const runner = CHART_RUNNER.replace('__SOURCES__', embedJson(chartScripts(html)))
+  const runner = CHART_RUNNER.replace('__SOURCES__', () => embedJson(chartScripts(html)))
   return `<!doctype html>
 <html>
 <head>

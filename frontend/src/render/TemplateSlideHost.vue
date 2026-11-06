@@ -10,6 +10,7 @@ import {
   templateV2UiHasChart,
   templateV2UiToHtmlFragment,
 } from '@/render/legacy/lib/template-v2-json-to-html'
+import { registerDocumentFonts } from '@/render/font-registry'
 import { hydrateTemplateCharts } from '@/render/template-charts'
 import { cssVarDeclarations, themeCssVars, themeFontFaceCss } from '@/render/theme'
 
@@ -22,17 +23,12 @@ const emit = defineEmits<{ rendered: []; error: [message: string] }>()
 const host = ref<HTMLElement | null>(null)
 let shadow: ShadowRoot | null = null
 let disposeCharts: (() => void) | null = null
+let generation = 0
 
-// @font-face rules are ignored inside shadow roots by some engines, so the
-// faces are also registered once on the document.
-const registeredFontCss = new Set<string>()
-function registerDocumentFonts(css: string) {
-  if (!css || registeredFontCss.has(css) || typeof document === 'undefined') return
-  registeredFontCss.add(css)
-  const style = document.createElement('style')
-  style.dataset.slideFontFaces = 'true'
-  style.textContent = css
-  document.head.appendChild(style)
+function backgroundOnly(ui: unknown): string {
+  const raw = (ui as { background?: unknown } | null)?.background
+  const color = typeof raw === 'string' && /^[#\w(),.%\s-]+$/.test(raw) ? raw : '#FFFFFF'
+  return `<div style="width:${TEMPLATE_V2_HTML_WIDTH}px;height:${TEMPLATE_V2_HTML_HEIGHT}px;background:${color}"></div>`
 }
 
 function fail(error: unknown) {
@@ -44,13 +40,13 @@ function render() {
   if (!el) return
   disposeCharts?.()
   disposeCharts = null
+  const current = ++generation
   try {
     shadow ??= el.shadowRoot ?? el.attachShadow({ mode: 'open' })
     const fragment = templateV2UiToHtmlFragment(props.ui, {
       fonts: props.fonts,
       annotateElements: props.annotate,
     })
-    if (fragment == null) throw new Error('Slide has no renderable content')
 
     const fontCss =
       localFontOptionsFromUnknown(props.fonts).map(renderLocalFontFaceCss).join('') + themeFontFaceCss(props.theme)
@@ -60,12 +56,19 @@ function render() {
     shadow.innerHTML =
       `<style>${fontCss.replaceAll('</style', '<\\/style')}` +
       `:host{display:block;width:${TEMPLATE_V2_HTML_WIDTH}px;height:${TEMPLATE_V2_HTML_HEIGHT}px;overflow:hidden;${vars}}</style>` +
-      fragment
+      (fragment ?? backgroundOnly(props.ui))
 
     if (templateV2UiHasChart(props.ui)) {
       const charts = hydrateTemplateCharts(shadow)
       disposeCharts = charts.dispose
-      charts.done.then(() => emit('rendered'), fail)
+      charts.done.then(
+        () => {
+          if (current === generation) emit('rendered')
+        },
+        (error) => {
+          if (current === generation) fail(error)
+        },
+      )
     } else {
       emit('rendered')
     }
@@ -76,7 +79,10 @@ function render() {
 
 onMounted(render)
 watch(() => [props.ui, props.theme, props.fonts, props.annotate], render)
-onBeforeUnmount(() => disposeCharts?.())
+onBeforeUnmount(() => {
+  generation++
+  disposeCharts?.()
+})
 </script>
 
 <template>

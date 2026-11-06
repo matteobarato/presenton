@@ -92,6 +92,32 @@ describe('SlideView', () => {
     expect(wrapper.find('[data-slide-stage]').exists()).toBe(true)
   })
 
+  it('emits rendered for blank and empty slides', () => {
+    const blank = mount(SlideView, { props: { slide: { id: 'b', layout: 'blank' } as unknown as Slide } })
+    const empty = mount(SlideView, { props: { slide: { id: 'e' } as unknown as Slide } })
+    expect(blank.emitted('rendered')).toHaveLength(1)
+    expect(empty.emitted('rendered')).toHaveLength(1)
+  })
+
+  it('renders a background-only ui', async () => {
+    const slide = { id: 'bg', ui: { background: '#112233', components: [], elements: [] } } as unknown as Slide
+    const wrapper = mount(SlideView, { props: { slide }, attachTo: document.body })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).not.toContain("Can't render this slide")
+    expect(wrapper.find('[data-template-host]').element.shadowRoot!.innerHTML).toContain('#112233')
+    wrapper.unmount()
+  })
+
+  it('registers shared font css once', async () => {
+    const theme = { primary: '#112233', fonts: { textFont: { name: 'Fixture Sans', url: 'https://example.test/f.woff2' } } }
+    const a = mount(SlideView, { props: { slide: templateSlide, theme }, attachTo: document.body })
+    const b = mount(SlideView, { props: { slide: { ...templateSlide, id: 't9' }, theme }, attachTo: document.body })
+    await a.vm.$nextTick()
+    expect(document.head.querySelectorAll('style[data-slide-font-faces]')).toHaveLength(1)
+    a.unmount()
+    b.unmount()
+  })
+
   it('lazy waits for IntersectionObserver', async () => {
     let fire: IntersectionObserverCallback = () => {}
     vi.stubGlobal(

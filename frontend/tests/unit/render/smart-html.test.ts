@@ -14,6 +14,11 @@ describe('buildSmartSrcdoc', () => {
     const doc = buildSmartSrcdoc('<canvas id="c"></canvas><script>new Chart(document.getElementById("c"),{})</script>', {})
     expect(doc).toContain('getElementById')
   })
+  it('keeps $ sequences in chart scripts verbatim', () => {
+    const code = "new Chart(c,{f:function(v){return '$' + v + \"$&\" + \"$'\"}})"
+    const doc = buildSmartSrcdoc(`<canvas></canvas><script>${code}</script>`, {})
+    expect(doc).toContain(JSON.stringify([code]).replace(/</g, '\\u003c'))
+  })
   it('puts theme variables on :root', () => {
     const doc = buildSmartSrcdoc('<p>x</p>', { theme: { primary: '#112233' } })
     expect(doc).toContain('--primary-color:#112233')

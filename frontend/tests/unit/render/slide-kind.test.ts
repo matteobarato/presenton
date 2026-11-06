@@ -22,7 +22,15 @@ describe('slideKind', () => {
   })
   it('detects blank slides', () => {
     expect(slideKind(asSlide({ layout: 'blank', layout_group: 'blank' }))).toBe('blank')
-    expect(slideKind(asSlide({ layout: 'g:__blank_slide__', ui: template.layouts[0] }))).toBe('blank')
+  })
+  it('treats a blank-layout slide with ui as template', () => {
+    expect(slideKind(asSlide({ layout: 'g:__blank_slide__', ui: template.layouts[0] }))).toBe('template')
+  })
+  it('prefers smart when html_content and ui both exist', () => {
+    expect(slideKind(asSlide({ html_content: '<p>x</p>', ui: template.layouts[0] }))).toBe('smart')
+  })
+  it('accepts a ui with only a background and empty arrays', () => {
+    expect(slideKind(asSlide({ ui: { background: '#FFFFFF', components: [], elements: [] } }))).toBe('template')
   })
   it('reports empty slides', () => {
     expect(slideKind(asSlide({}))).toBe('empty')

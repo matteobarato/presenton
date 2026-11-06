@@ -44,6 +44,9 @@ const rootStyle = computed(() =>
     : {},
 )
 const stageStyle = computed(() => {
+  // With a ResizeObserver, stay hidden until the first measurement so the
+  // unscaled stage never flashes.
+  const awaitingMeasure = props.scale == null && box.value == null && typeof ResizeObserver !== 'undefined'
   const s = stageScale.value
   const offsetX = box.value && props.scale == null ? Math.max(0, (box.value.width - STAGE_W * s) / 2) : 0
   return {
@@ -51,6 +54,7 @@ const stageStyle = computed(() => {
     height: `${STAGE_H}px`,
     left: `${offsetX}px`,
     transform: `scale(${s})`,
+    opacity: awaitingMeasure ? 0 : 1,
   }
 })
 
@@ -66,6 +70,16 @@ onErrorCaptured((error) => {
   onFailed(error instanceof Error ? error.message : String(error))
   return false
 })
+
+// Blank and empty slides have nothing to load: they are rendered as soon as
+// they are visible.
+watch(
+  [visible, kind],
+  ([isVisible, k]) => {
+    if (isVisible && (k === 'blank' || k === 'empty')) emit('rendered')
+  },
+  { immediate: true },
+)
 
 watch(
   () => [props.slide, props.theme, props.fonts],
