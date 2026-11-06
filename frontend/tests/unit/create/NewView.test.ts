@@ -52,13 +52,6 @@ beforeEach(() => {
 })
 
 describe('NewView', () => {
-  it('shows the mode switch only when both modes are allowed', async () => {
-    const both = await mountView('both')
-    expect(both.wrapper.findAll('[role="radio"]').map((b) => b.text())).toEqual(['Template', 'Smart'])
-    const one = await mountView('template')
-    expect(one.wrapper.find('[role="radiogroup"]').exists()).toBe(false)
-  })
-
   it('prefills web search from the runtime config', async () => {
     const { wrapper } = await mountView('both', { WEB_GROUNDING: true })
     await flushPromises()
@@ -81,9 +74,11 @@ describe('NewView', () => {
     expect((input.element as HTMLInputElement).value).toBe('')
   })
 
-  it('template mode creates then routes to the outline, without file calls', async () => {
+  it('renders no mode switch, creates a standard presentation and routes to the outline, without file calls', async () => {
     m.createPresentation.mockResolvedValue({ id: 'abc' })
     const { wrapper, router } = await mountView()
+    expect(wrapper.find('[role="radiogroup"]').exists()).toBe(false)
+    expect(wrapper.find('[role="radio"]').exists()).toBe(false)
     await wrapper.get('#create-prompt').setValue('Quarterly review')
     await wrapper.get('#opt-slides').setValue('8')
     await wrapper.get('form').trigger('submit')
@@ -94,17 +89,6 @@ describe('NewView', () => {
       expect.objectContaining({ content: 'Quarterly review', n_slides: 8, file_paths: [], generation_mode: 'standard', tone: 'default', verbosity: 'standard' }),
     )
     expect(router.currentRoute.value.fullPath).toBe('/new/abc/outline')
-  })
-
-  it('smart mode routes to the editor with stream=1', async () => {
-    m.createPresentation.mockResolvedValue({ id: 'xyz' })
-    const { wrapper, router } = await mountView()
-    await wrapper.findAll('[role="radio"]')[1].trigger('click')
-    await wrapper.get('#create-prompt').setValue('Pitch')
-    await wrapper.get('form').trigger('submit')
-    await flushPromises()
-    expect(m.createPresentation).toHaveBeenCalledWith(expect.objectContaining({ generation_mode: 'smart' }))
-    expect(router.currentRoute.value.fullPath).toBe('/p/xyz?stream=1')
   })
 
   it('uploads, decomposes and sends the extracted paths', async () => {
@@ -150,11 +134,11 @@ describe('NewView', () => {
     expect(second.wrapper.get('[role="alert"]').text()).toBe('Unsupported file')
     expect(submitBtn(second.wrapper).attributes('disabled')).toBeUndefined()
 
-    m.createPresentation.mockRejectedValue(new ApiError('Smart mode is disabled', 400))
+    m.createPresentation.mockRejectedValue(new ApiError('Generation is disabled', 400))
     const third = await mountView()
     await third.wrapper.get('#create-prompt').setValue('Topic')
     await third.wrapper.get('form').trigger('submit')
     await flushPromises()
-    expect(third.wrapper.get('[role="alert"]').text()).toBe('Smart mode is disabled')
+    expect(third.wrapper.get('[role="alert"]').text()).toBe('Generation is disabled')
   })
 })

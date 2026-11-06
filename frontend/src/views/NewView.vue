@@ -9,22 +9,12 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import FileDropzone from '@/components/create/FileDropzone.vue'
 import GenerationOptions from '@/components/create/GenerationOptions.vue'
-import ModeSwitch from '@/components/create/ModeSwitch.vue'
 import PromptField from '@/components/create/PromptField.vue'
-import { type CreateMode, type CreateOptions } from '@/components/create/options'
+import { type CreateOptions } from '@/components/create/options'
 import { AUTO_LANGUAGE } from '@/lib/languages'
 
 const router = useRouter()
 const session = useSessionStore()
-
-const modes = computed<CreateMode[]>(() => {
-  const m = session.runtime?.generationMode ?? 'both'
-  return m === 'both' ? ['template', 'smart'] : [m]
-})
-const mode = ref<CreateMode>(modes.value[0])
-watch(modes, (list) => {
-  if (!list.includes(mode.value)) mode.value = list[0]
-})
 
 const prompt = ref('')
 const files = ref<File[]>([])
@@ -72,7 +62,7 @@ async function submit() {
       const documents = await uploadFiles(files.value)
       filePaths = documents.length > 0 ? await decomposeFiles(documents, o.language) : []
     }
-    stage.value = mode.value === 'smart' ? 'Starting Smart presentation…' : 'Preparing outline…'
+    stage.value = 'Preparing outline…'
     const slides = Number(o.slides)
     const created = await createPresentation({
       content: prompt.value,
@@ -85,13 +75,11 @@ async function submit() {
       include_table_of_contents: o.includeTableOfContents,
       include_title_slide: o.includeTitleSlide,
       web_search: o.webSearch,
-      // The backend still calls Template mode "standard".
-      generation_mode: mode.value === 'smart' ? 'smart' : 'standard',
+      // The backend calls template-based generation "standard".
+      generation_mode: 'standard',
     })
     // Stay pending until the navigation settles.
-    await (mode.value === 'smart'
-      ? router.push({ name: 'editor', params: { id: created.id }, query: { stream: '1' } })
-      : router.push({ name: 'outline', params: { id: created.id } }))
+    await router.push({ name: 'outline', params: { id: created.id } })
   } catch (e) {
     error.value = e instanceof ApiError ? e.message : e instanceof Error && e.message ? e.message : 'Something went wrong while starting your presentation.'
     pending.value = false
@@ -101,9 +89,8 @@ async function submit() {
 
 <template>
   <main class="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
-    <header class="flex flex-wrap items-center justify-between gap-3">
+    <header>
       <h1 class="font-display text-[26px] font-medium tracking-[-0.03em]">New presentation</h1>
-      <ModeSwitch v-model="mode" :modes="modes" :disabled="pending" />
     </header>
     <form class="flex flex-col gap-5" @submit.prevent="submit">
       <PromptField v-model="prompt" :disabled="pending" />
