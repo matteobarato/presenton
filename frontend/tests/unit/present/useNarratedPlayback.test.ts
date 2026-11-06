@@ -130,6 +130,26 @@ describe('useNarratedPlayback', () => {
     expect(FakeAudio.last.play).not.toHaveBeenCalled()
   })
 
+  it('ignores a stale play() rejection after navigating to another slide', async () => {
+    const { api, enabled, index } = setup()
+    await flushPromises()
+    let rejectFirst!: (e: Error) => void
+    const first = new Promise<void>((_, reject) => {
+      rejectFirst = reject
+    })
+    FakeAudio.last.play.mockReturnValueOnce(first)
+    enabled.value = true
+    await flushPromises()
+    index.value = 1
+    await flushPromises()
+    expect(api.playing.value).toBe(true)
+    const abort = new Error('interrupted')
+    abort.name = 'AbortError'
+    rejectFirst(abort)
+    await flushPromises()
+    expect(api.playing.value).toBe(true)
+  })
+
   it('pauses when narration is turned off', async () => {
     const { api, enabled } = setup()
     enabled.value = true

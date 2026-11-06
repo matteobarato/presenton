@@ -38,6 +38,7 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
   let silentTimer: ReturnType<typeof setTimeout> | undefined
   let resumeOnVisible = false
   let loadedUrl = ''
+  let playToken = 0
 
   const current = computed<PlaybackSlide | undefined>(() => playback.value?.slides.find((s) => s.slide_index === index.value))
   const currentAudioUrl = computed(() => current.value?.audio?.url ?? '')
@@ -71,7 +72,10 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
       loadedUrl = url
       audio.src = audioSrc({ url })
     }
-    void Promise.resolve(audio.play()).catch(() => {
+    const mine = ++playToken
+    void Promise.resolve(audio.play()).catch((error: unknown) => {
+      // A newer play() or a pause() aborts this one; only a current, real failure (autoplay block) counts.
+      if (mine !== playToken || (error instanceof Error && error.name === 'AbortError')) return
       playing.value = false
     })
   }
@@ -80,10 +84,11 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
     else play()
   }
 
-  audio.addEventListener('ended', () => {
+  function onEnded() {
     playing.value = false
     advance()
-  })
+  }
+  audio.addEventListener('ended', onEnded)
 
   // Start (or restart) whenever narration is on and the slide, or the data it depends on, changes.
   watch(
@@ -110,6 +115,10 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
   onBeforeUnmount(() => {
     document.removeEventListener('visibilitychange', onVisibility)
     pause()
+    audio.removeEventListener('ended', onEnded)
+    audio.removeAttribute?.('src')
+    audio.load?.()
+    advanceHandler = null
   })
 
   return {
