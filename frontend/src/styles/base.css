@@ -1,0 +1,64 @@
+@import 'tailwindcss';
+@import './fonts.css';
+@import './tokens.css';
+@import './motion.css';
+
+/* Resets and global element behaviour, ported from aera-frontend/src/style.css */
+:root {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-rail);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--color-rail); }
+h1, h2, h3, p { margin: 0; }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; color: inherit; }
+button:disabled { cursor: not-allowed; opacity: 0.35; }
+button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+button, input, textarea, select { outline: none; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible,
+select:focus-visible, [contenteditable]:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+input, textarea { caret-color: var(--color-accent); }
+input::placeholder, textarea::placeholder { color: var(--color-muted); }
+button svg { flex-shrink: 0; }
+img { display: block; max-width: 100%; }
+::selection { background: #9cd4ec; color: #14242c; }
+
+/* Glass materials: floating tool groups, prompts and overlays sit on blur. */
+@utility glass-tools {
+  background: #282f32e8;
+  backdrop-filter: blur(18px);
+  border-radius: var(--radius-toolbar);
+  box-shadow: 0 6px 18px #0003;
+}
+@utility glass-prompt {
+  background: linear-gradient(125deg, #2c3439c4, #23292ddb);
+  backdrop-filter: blur(18px);
+  border: 1px solid #8ca7b42e;
+  border-radius: var(--radius-prompt);
+  box-shadow: 0 8px 22px #0002;
+  transition: border-color 200ms, box-shadow 200ms;
+}
+@utility glass-overlay {
+  background: #080e12b3;
+  backdrop-filter: blur(9px);
+}
+@utility glass-popover {
+  background: #22292df2;
+  backdrop-filter: blur(18px);
+  border: 1px solid #a3c7db20;
+  border-radius: var(--radius-card);
+  box-shadow: 0 18px 50px #0006;
+}
+@utility dotted-canvas {
+  background-image: radial-gradient(#6e7c8217 0.65px, transparent 0.65px);
+  background-size: 17px 17px;
+}
