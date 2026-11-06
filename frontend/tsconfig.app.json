@@ -19,5 +19,5 @@
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src/**/*.ts", "src/**/*.vue", "tests/**/*.ts"],
-  "exclude": ["tests/golden/**"]
+  "exclude": ["tests/golden/**", "tests/e2e/**"]
 }
