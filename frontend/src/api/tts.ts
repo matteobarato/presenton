@@ -50,8 +50,12 @@ export async function deleteTts(id: string, language?: string): Promise<void> {
   )
 }
 
-/** Same-origin path of the per-slide narration endpoint (metadata incl. the file `url`). */
-export function slideAudioUrl(id: string, index: number, language: string): string {
+/**
+ * Same-origin path of the per-slide narration METADATA endpoint (JSON, not audio).
+ * Do not use as `<audio src>`: play `audioSrc(audio)` instead, built from the
+ * audio entry's `url`.
+ */
+export function slideAudioMetaUrl(id: string, index: number, language: string): string {
   return `/api/v1/ppt/presentation/${encodeURIComponent(id)}/speaker-notes/tts/${index}?language=${encodeURIComponent(language)}`
 }
 

@@ -25,7 +25,9 @@ export async function guardedFetch(input: RequestInfo | URL, init?: RequestInit)
     }
     throw e
   }
-  backendStatus.value = 'ok'
+  // 502/503/504 come from the gateway when FastAPI is down: still unreachable.
+  // The response is returned so callers raise an ApiError carrying any body.
+  backendStatus.value = [502, 503, 504].includes(response.status) ? 'unreachable' : 'ok'
   if (response.status === 401) onUnauthorized()
   return response
 }

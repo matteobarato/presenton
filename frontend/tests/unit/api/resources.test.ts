@@ -9,7 +9,7 @@ import {
 } from '@/api/presentations'
 import { generateSpeakerNotes, updateSpeakerNotes } from '@/api/speakerNotes'
 import { listTemplates } from '@/api/templates'
-import { deleteTts, generateTtsAsync, getTtsStatus, slideAudioUrl, ttsKeys } from '@/api/tts'
+import { audioSrc, deleteTts, generateTtsAsync, getTtsStatus, slideAudioMetaUrl, ttsKeys } from '@/api/tts'
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
@@ -115,12 +115,16 @@ describe('templates', () => {
 })
 
 describe('tts', () => {
-  it('slideAudioUrl returns a same-origin path', () => {
-    const u = slideAudioUrl('p', 3, 'en')
+  it('slideAudioMetaUrl returns a same-origin path', () => {
+    const u = slideAudioMetaUrl('p', 3, 'en')
     expect(u.startsWith('/')).toBe(true)
     expect(u).toContain('/p/')
     expect(u).toContain('/3')
     expect(u).toContain('language=en')
+  })
+  it('audioSrc yields a same-origin path', () => {
+    expect(audioSrc({ url: 'http://backend:8000/app_data/audio/a.mp3' })).toBe('/app_data/audio/a.mp3')
+    expect(audioSrc({ url: '/app_data/audio/b.mp3' })).toBe('/app_data/audio/b.mp3')
   })
   it('keys', () => expect(ttsKeys.status('p', 'en')).toEqual(['tts', 'p', 'en']))
   it('getTtsStatus passes the language', async () => {

@@ -43,6 +43,15 @@ describe('api client', () => {
     expect(backendStatus.value).toBe('ok')
   })
 
+  it('502 flips backendStatus to unreachable and a 200 restores it', async () => {
+    fetchMock.mockResolvedValueOnce(new Response('Bad Gateway', { status: 502 }))
+    await expect(unwrap(api.GET('/api/v1/ppt/presentation/all'))).rejects.toMatchObject({ status: 502 })
+    expect(backendStatus.value).toBe('unreachable')
+    fetchMock.mockResolvedValueOnce(json([]))
+    await unwrap(api.GET('/api/v1/ppt/presentation/all'))
+    expect(backendStatus.value).toBe('ok')
+  })
+
   it('unwrap returns data', async () => {
     fetchMock.mockResolvedValue(json([{ id: 'a' }]))
     const data = await unwrap(api.GET('/api/v1/ppt/presentation/all'))
