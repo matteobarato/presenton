@@ -2,11 +2,9 @@
 import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { computed, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { useQueryClient } from '@tanstack/vue-query'
-import { presentationKeys, usePresentation } from '@/api/presentations'
+import { usePresentation } from '@/api/presentations'
 import { ApiError } from '@/api/errors'
 import { Skeleton } from '@/components/ui/skeleton'
-import AskOverlay from '@/components/editor/AskOverlay.vue'
 import EditorCanvas from '@/components/editor/EditorCanvas.vue'
 import EditorHeader from '@/components/editor/EditorHeader.vue'
 import EditorLayout from '@/components/editor/EditorLayout.vue'
@@ -22,7 +20,6 @@ import { useHistoryStore } from '@/stores/history'
 
 const route = useRoute()
 const router = useRouter()
-const queryClient = useQueryClient()
 const editor = useEditorStore()
 const history = useHistoryStore()
 
@@ -69,7 +66,6 @@ const activeIndex = computed(() => Math.max(0, slides.value.findIndex((s) => sli
 const activeSlide = computed(() => slides.value[activeIndex.value] ?? null)
 const notFound = computed(() => error.value instanceof ApiError && error.value.status === 404)
 
-const reloadSlides = () => queryClient.invalidateQueries({ queryKey: presentationKeys.one(id.value) })
 </script>
 
 <template>
@@ -107,7 +103,6 @@ const reloadSlides = () => queryClient.invalidateQueries({ queryKey: presentatio
 
         <template #inspector><Inspector /></template>
       </EditorLayout>
-      <AskOverlay v-if="activeSlide" v-model:open="editor.askOpen" :slide="activeSlide" @edited="reloadSlides" />
     </template>
   </div>
 </template>

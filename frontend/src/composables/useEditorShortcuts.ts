@@ -1,4 +1,9 @@
 import { useEventListener } from '@vueuse/core'
+import { useRoute } from 'vue-router'
+import { presentationKeys } from '@/api/presentations'
+import { queryClient } from '@/api/query'
+import type { Presentation } from '@/api/types'
+import { slideKind } from '@/render/slide-kind'
 import { useEditorStore } from '@/stores/editor'
 import { useUndoRedo } from './useUndoRedo'
 
@@ -15,6 +20,15 @@ const isEditable = (el: EventTarget | null) => {
 export function useEditorShortcuts() {
   const editor = useEditorStore()
   const { undo, redo } = useUndoRedo()
+  const route = useRoute()
+
+  /** Mirrors the toolbar: Ask is off for smart slides and while the deck is generating. */
+  function askBlocked() {
+    if (editor.generating) return true
+    const deck = queryClient.getQueryData<Presentation>(presentationKeys.one(String(route.params.id ?? '')))
+    const slide = deck?.slides.find((x) => x.id === editor.activeSlideId)
+    return slide ? slideKind(slide) === 'smart' : false
+  }
 
   useEventListener(window, 'keydown', (e: KeyboardEvent) => {
     if (e.defaultPrevented) return
@@ -23,6 +37,7 @@ export function useEditorShortcuts() {
 
     if (mod && key === 'k') {
       e.preventDefault()
+      if (!editor.askOpen && askBlocked()) return
       editor.askOpen = !editor.askOpen
       return
     }

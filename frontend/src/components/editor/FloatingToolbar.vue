@@ -2,11 +2,23 @@
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { ChevronLeft, ChevronRight, Play, Sparkles } from 'lucide-vue-next'
+import { usePresentation } from '@/api/presentations'
+import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
+import { slideKind } from '@/render/slide-kind'
 import { useEditorStore } from '@/stores/editor'
 
 const editor = useEditorStore()
 const route = useRoute()
 const id = computed(() => String(route.params.id ?? ''))
+const { data: presentation } = usePresentation(id, useEditorFetchGate())
+const smart = computed(() => {
+  const slide = presentation.value?.slides.find((s) => s.id === editor.activeSlideId)
+  return slide ? slideKind(slide) === 'smart' : false
+})
+const askDisabled = computed(() => smart.value || editor.generating)
+const askTitle = computed(() =>
+  smart.value ? 'AI edit is available for template slides' : 'Ask AI to edit this slide (Ctrl+K)',
+)
 
 const btn =
   'grid size-8 place-items-center rounded-control text-muted transition-colors duration-200 hover:bg-white/[0.06] hover:text-white'
@@ -23,9 +35,11 @@ const btn =
     <span class="mx-1 h-4 w-px bg-line" aria-hidden="true" />
     <button
       type="button"
-      :class="[btn, 'w-auto gap-1.5 px-2.5 text-[11px] font-semibold', editor.askOpen && 'bg-white/[0.08] text-accent']"
+      :class="[btn, 'w-auto gap-1.5 px-2.5 text-[11px] font-semibold', editor.askOpen && 'bg-white/[0.08] text-accent', askDisabled && 'cursor-not-allowed opacity-35']"
+      data-ask-button
       :aria-pressed="editor.askOpen"
-      title="Ask AI to edit this slide (Ctrl+K)"
+      :disabled="askDisabled"
+      :title="askTitle"
       @click="editor.askOpen = !editor.askOpen"
     >
       <Sparkles class="size-3.5" aria-hidden="true" />Ask
