@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'node_modules', 'public/vendor', 'src/api/schema.d.ts', 'test-results', 'playwright-report'],
+    ignores: ['dist', 'node_modules', 'public/vendor', 'src/api/schema.d.ts', 'test-results', 'playwright-report', 'src/render/legacy/**'],
   },
   ...tseslint.configs.recommended,
   ...pluginVue.configs['flat/recommended'],
