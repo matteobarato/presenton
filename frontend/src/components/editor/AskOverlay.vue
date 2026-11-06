@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { computed, nextTick, ref, toRef, watch } from 'vue'
 import { ArrowUp, Sparkles } from 'lucide-vue-next'
-import { presentationKeys } from '@/api/presentations'
-import { editSlide } from '@/api/slides'
-import type { Presentation, Slide } from '@/api/types'
+import type { Slide } from '@/api/types'
+import { useChat } from '@/composables/useChat'
+import { renderMarkdown } from '@/lib/mini-markdown'
 import { slideKind } from '@/render/slide-kind'
 import { useEditorStore } from '@/stores/editor'
 
@@ -14,23 +13,20 @@ const emit = defineEmits<{ 'update:open': [value: boolean]; edited: [] }>()
 const SUGGESTIONS = ['Make it more concise', 'Use a friendlier tone', 'Add a supporting data point']
 
 const editor = useEditorStore()
-const queryClient = useQueryClient()
+// A dedicated chat instance: the prompt goes through chat, whose tools rebuild the slide ui.
+const chat = useChat(toRef(() => props.slide.presentation as string))
 const prompt = ref('')
 const input = ref<HTMLTextAreaElement | null>(null)
 const error = ref('')
+const reply = ref('')
 
 const supported = computed(() => {
   const kind = slideKind(props.slide)
   return kind === 'template' || kind === 'blank'
 })
-
-const mutation = useMutation({
-  mutationFn: (text: string) => editSlide(props.slide.id!, text),
-})
-const pending = computed(() => mutation.isPending.value)
-const canSubmit = computed(
-  () => supported.value && !pending.value && !editor.generating && Boolean(props.slide.id) && prompt.value.trim() !== '',
-)
+const pending = computed(() => chat.sending.value)
+const canSubmit = computed(() => supported.value && !pending.value && !editor.generating && prompt.value.trim() !== '')
+const replyHtml = computed(() => (reply.value ? renderMarkdown(reply.value) : ''))
 
 watch(
   () => props.open,
@@ -38,6 +34,14 @@ watch(
     if (open) void nextTick(() => input.value?.focus())
   },
   { immediate: true, flush: 'post' },
+)
+// A different slide starts clean.
+watch(
+  () => props.slide.id,
+  () => {
+    reply.value = ''
+    error.value = ''
+  },
 )
 
 function close() {
@@ -53,21 +57,20 @@ function pick(text: string) {
 
 async function submit() {
   if (!canSubmit.value) return
-  const oldId = props.slide.id!
   error.value = ''
-  try {
-    const updated = await mutation.mutateAsync(prompt.value.trim())
-    const key = presentationKeys.one(props.slide.presentation as string)
-    queryClient.setQueryData<Presentation>(key, (deck) =>
-      deck ? { ...deck, slides: deck.slides.map((s) => (s.id === oldId ? updated : s)) } : deck,
-    )
-    // The backend re-ids the slide; keep it selected.
-    if (editor.activeSlideId === oldId && updated.id) editor.select(updated.id)
-    prompt.value = ''
-    emit('edited')
-  } catch (e) {
-    error.value = e instanceof Error && e.message ? e.message : 'Could not edit this slide.'
+  reply.value = ''
+  const before = chat.messages.value.length
+  await chat.send(prompt.value, { slideIndex: props.slide.index })
+  const turn = chat.messages.value.slice(before)
+  const failed = turn.find((m) => m.role === 'error')
+  if (failed) {
+    error.value = failed.content
+    void nextTick(() => input.value?.focus())
+    return
   }
+  reply.value = turn.filter((m) => m.role === 'assistant').at(-1)?.content ?? ''
+  prompt.value = ''
+  emit('edited')
 }
 </script>
 
@@ -77,7 +80,7 @@ async function submit() {
       v-if="open"
       role="dialog"
       aria-label="Ask AI to edit this slide"
-      class="glass-prompt fixed bottom-16 left-1/2 z-30 w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 p-3"
+      class="glass-prompt absolute bottom-4 left-1/2 z-20 w-[min(560px,calc(100%-2rem))] -translate-x-1/2 p-3"
       @keydown.esc.stop="close"
     >
       <form class="flex flex-col gap-2" @submit.prevent="submit">
@@ -88,8 +91,8 @@ async function submit() {
             rows="2"
             aria-label="Describe the change"
             placeholder="What should change on this slide?"
-            :disabled="pending"
-            class="min-h-12 flex-1 resize-none bg-transparent text-[13px] leading-[1.5] text-[#dce6ec] placeholder:text-muted focus-visible:outline-none disabled:opacity-60"
+            :readonly="pending"
+            class="min-h-12 flex-1 resize-none bg-transparent text-[13px] leading-[1.5] text-[#dce6ec] placeholder:text-muted read-only:opacity-60 focus-visible:outline-none"
             @keydown.enter.exact.prevent="submit"
           />
           <button
@@ -102,9 +105,12 @@ async function submit() {
           </button>
         </div>
         <div class="flex min-h-6 flex-wrap items-center gap-1.5">
-          <div v-if="pending" class="thinking-dots" role="status" aria-label="Editing the slide" data-testid="thinking">
-            <span /><span /><span />
-          </div>
+          <template v-if="pending">
+            <div class="thinking-dots" role="status" aria-label="Editing the slide" data-testid="thinking">
+              <span /><span /><span />
+            </div>
+            <span v-if="chat.status.value" class="text-[11px] text-muted" data-testid="ask-status">{{ chat.status.value }}</span>
+          </template>
           <template v-else>
             <Sparkles class="size-3.5 text-muted" aria-hidden="true" />
             <button
@@ -118,6 +124,8 @@ async function submit() {
             </button>
           </template>
         </div>
+        <!-- eslint-disable-next-line vue/no-v-html -- sanitised by renderMarkdown (DOMPurify) -->
+        <div v-if="replyHtml && !pending" class="text-[12px] leading-[1.6] text-[#dce6ec]" data-testid="ask-reply" v-html="replyHtml" />
         <p v-if="!supported" class="text-[12px] text-muted">AI edit is available for template slides</p>
         <p v-if="error" role="alert" class="text-[12px] text-danger-text">{{ error }}</p>
       </form>

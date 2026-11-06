@@ -4,12 +4,22 @@ import { createPinia, setActivePinia } from 'pinia'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import AskOverlay from '@/components/editor/AskOverlay.vue'
+import EditorCanvas from '@/components/editor/EditorCanvas.vue'
 import FloatingToolbar from '@/components/editor/FloatingToolbar.vue'
 import { presentationKeys } from '@/api/presentations'
 import { useEditorStore } from '@/stores/editor'
 
-const mocks = vi.hoisted(() => ({ editSlide: vi.fn() }))
-vi.mock('@/api/slides', () => ({ editSlide: mocks.editSlide }))
+const mocks = vi.hoisted(() => ({
+  streamMessage: vi.fn(),
+  listConversations: vi.fn(),
+  getHistory: vi.fn(),
+  deleteConversation: vi.fn(),
+}))
+vi.mock('@/api/chat', () => mocks)
+const done = (response: string, tool_calls: string[] = ['updateSlide']) =>
+  async function* () {
+    yield { type: 'complete', chat: { conversation_id: 'c1', response, tool_calls } }
+  }
 
 const template = { id: 's1', index: 0, presentation: 'p1', layout: 'template-v2:a', layout_group: 'template-v2-x', ui: { components: [] } }
 const smart = { id: 's2', index: 1, presentation: 'p1', layout: 'x', html_content: '<div>hi</div>' }
@@ -20,7 +30,8 @@ beforeEach(() => {
   setActivePinia(createPinia())
   qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   qc.setQueryData(presentationKeys.one('p1'), deck())
-  mocks.editSlide.mockReset()
+  Object.values(mocks).forEach((m) => m.mockReset())
+  mocks.listConversations.mockResolvedValue([])
 })
 
 function mountOverlay(slide: object = template, open = true) {
@@ -32,11 +43,29 @@ function mountOverlay(slide: object = template, open = true) {
 }
 
 describe('AskOverlay', () => {
-  it('focuses the input when open and is out of flow (fixed) so the slide box is untouched', async () => {
+  it('renders inside the canvas, absolutely positioned, leaving the canvas box alone', async () => {
+    const canvas = mount(EditorCanvas, {
+      props: { presentationId: 'p1', slide: template as never },
+      global: { plugins: [createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: { template: '<i/>' } }] }), [VueQueryPlugin, { queryClient: qc }]], stubs: { SlideView: true, FloatingToolbar: true } },
+      attachTo: document.body,
+    })
+    const section = canvas.find('section[aria-label="Slide canvas"]')
+    expect(canvas.find('[role=dialog]').exists()).toBe(false)
+    useEditorStore().askOpen = true
+    await flushPromises()
+    const dialog = canvas.find('[role=dialog]')
+    expect(section.element.contains(dialog.element)).toBe(true)
+    expect(dialog.classes()).toContain('absolute')
+    expect(dialog.classes()).not.toContain('fixed')
+    expect(document.activeElement).toBe(dialog.find('textarea').element)
+    expect(section.element.firstElementChild!.className).toContain('absolute')
+    canvas.unmount()
+  })
+
+  it('focuses the input when open', async () => {
     const w = mountOverlay()
     await flushPromises()
     expect(document.activeElement).toBe(w.find('textarea').element)
-    expect(w.find('section').classes()).toContain('fixed')
     w.unmount()
   })
 
@@ -62,40 +91,50 @@ describe('AskOverlay', () => {
     w.unmount()
   })
 
-  it('edits a template slide, swaps the returned slide into the cache and emits edited', async () => {
-    const edited = { ...template, id: 's1b', ui: { components: [1] } }
-    mocks.editSlide.mockResolvedValue(edited)
-    const editor = useEditorStore()
-    editor.select('s1')
+  it('sends the prompt through chat with the slide context, shows the sanitized reply and emits edited', async () => {
+    mocks.streamMessage.mockImplementation(done('Made it **shorter** <img src=x onerror=alert(1)>'))
     const w = mountOverlay()
     await w.find('textarea').setValue('Shorter')
     await w.find('form').trigger('submit')
     await flushPromises()
-    expect(mocks.editSlide).toHaveBeenCalledWith('s1', 'Shorter')
-    const cached = qc.getQueryData<{ slides: { id: string }[] }>(presentationKeys.one('p1'))!
-    expect(cached.slides.map((s) => s.id)).toEqual(['s1b', 's2'])
-    expect(editor.activeSlideId).toBe('s1b')
+    const req = mocks.streamMessage.mock.calls[0]![0]
+    expect(req.presentation_id).toBe('p1')
+    expect(req.message).toContain('zero-based index 0')
+    expect(req.message).toContain('Shorter')
+    expect(w.find('[data-testid=ask-reply] strong').text()).toBe('shorter')
+    expect(w.find('[data-testid=ask-reply] img').exists()).toBe(false)
     expect(w.emitted('edited')).toHaveLength(1)
+    expect((w.find('textarea').element as HTMLTextAreaElement).value).toBe('')
     w.unmount()
   })
 
-  it('shows one thinking indicator and disables submit while pending', async () => {
-    let resolve!: (v: unknown) => void
-    mocks.editSlide.mockReturnValue(new Promise((r) => (resolve = r)))
+  it('shows one thinking indicator and the status line, with a readonly input, while pending', async () => {
+    let release!: () => void
+    const gate = new Promise<void>((r) => (release = r))
+    mocks.streamMessage.mockImplementation(async function* () {
+      yield { type: 'status', status: 'Rewriting the slide' }
+      await gate
+      yield { type: 'complete', chat: { conversation_id: 'c1', response: 'ok', tool_calls: [] } }
+    })
     const w = mountOverlay()
     await w.find('textarea').setValue('Go')
     await w.find('form').trigger('submit')
     await flushPromises()
     expect(w.findAll('[data-testid=thinking]')).toHaveLength(1)
+    expect(w.find('[data-testid=ask-status]').text()).toBe('Rewriting the slide')
+    expect(w.find('textarea').attributes('readonly')).toBeDefined()
+    expect(w.find('textarea').attributes('disabled')).toBeUndefined()
     expect(w.find('button[type=submit]').attributes('disabled')).toBeDefined()
-    resolve(template)
+    release()
     await flushPromises()
     expect(w.findAll('[data-testid=thinking]')).toHaveLength(0)
     w.unmount()
   })
 
-  it('keeps the prompt and shows the error inline on failure', async () => {
-    mocks.editSlide.mockRejectedValue(new Error('Model unavailable'))
+  it('keeps the prompt, shows the error inline and refocuses the input on failure', async () => {
+    mocks.streamMessage.mockImplementation(async function* () {
+      yield { type: 'error', detail: 'Model unavailable' }
+    })
     const w = mountOverlay()
     await w.find('textarea').setValue('Shorter')
     await w.find('form').trigger('submit')
@@ -103,6 +142,15 @@ describe('AskOverlay', () => {
     expect((w.find('textarea').element as HTMLTextAreaElement).value).toBe('Shorter')
     expect(w.find('[role=alert]').text()).toBe('Model unavailable')
     expect(w.emitted('edited')).toBeUndefined()
+    expect(document.activeElement).toBe(w.find('textarea').element)
+    w.unmount()
+  })
+
+  it('allows blank slides', async () => {
+    mocks.streamMessage.mockImplementation(done('ok', []))
+    const w = mountOverlay({ id: 's3', index: 2, presentation: 'p1', layout: 'blank' })
+    await w.find('textarea').setValue('Add a title')
+    expect(w.find('button[type=submit]').attributes('disabled')).toBeUndefined()
     w.unmount()
   })
 
@@ -111,7 +159,7 @@ describe('AskOverlay', () => {
     await w.find('textarea').setValue('Shorter')
     expect(w.find('button[type=submit]').attributes('disabled')).toBeDefined()
     await w.find('form').trigger('submit')
-    expect(mocks.editSlide).not.toHaveBeenCalled()
+    expect(mocks.streamMessage).not.toHaveBeenCalled()
     w.unmount()
   })
 

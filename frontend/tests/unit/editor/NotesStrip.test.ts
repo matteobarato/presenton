@@ -73,4 +73,35 @@ describe('NotesStrip', () => {
     await w.setProps({ slide: s('a', 0, 'server again') as never })
     expect((w.find('textarea').element as HTMLTextAreaElement).value).toBe('typing')
   })
+
+  it('flushes the pending save on unmount', async () => {
+    const w = mountStrip()
+    await w.find('textarea').setValue('late')
+    w.unmount()
+    await flushPromises()
+    expect(mocks.updateSpeakerNotes).toHaveBeenCalledWith('p1', [{ slide_index: 0, speaker_note: 'late' }])
+  })
+
+  it('resolves the slide index at save time, so a reorder in the debounce window saves to the right slide', async () => {
+    const w = mountStrip(s('a', 0, 'one'))
+    await w.find('textarea').setValue('one!')
+    qc.setQueryData(presentationKeys.one('p1'), { id: 'p1', slides: [s('b', 0, 'two'), s('a', 1, 'one')] })
+    vi.advanceTimersByTime(800)
+    await flushPromises()
+    expect(mocks.updateSpeakerNotes).toHaveBeenCalledWith('p1', [{ slide_index: 1, speaker_note: 'one!' }])
+  })
+
+  it('keeps a failed save pending, shows the error on its slide, and retries on flush', async () => {
+    mocks.updateSpeakerNotes.mockRejectedValueOnce(new Error('offline'))
+    const w = mountStrip()
+    await w.find('textarea').setValue('keep me')
+    vi.advanceTimersByTime(800)
+    await flushPromises()
+    expect(w.find('[role=alert]').text()).toBe('offline')
+    await w.setProps({ slide: s('b', 1, 'two') as never })
+    await flushPromises()
+    expect(w.find('[role=alert]').exists()).toBe(false)
+    expect(mocks.updateSpeakerNotes).toHaveBeenLastCalledWith('p1', [{ slide_index: 0, speaker_note: 'keep me' }])
+    expect(mocks.updateSpeakerNotes).toHaveBeenCalledTimes(2)
+  })
 })
