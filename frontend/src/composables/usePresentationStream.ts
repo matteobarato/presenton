@@ -4,6 +4,7 @@ import { toast } from '@/components/ui/sonner'
 import { getPresentation, presentationKeys } from '@/api/presentations'
 import { streamEvents, type StreamEvent } from '@/api/sse'
 import type { Presentation } from '@/api/types'
+import { useEditorStore } from '@/stores/editor'
 import { applyStreamEvent, type GenerationMetrics, type StreamAccumulator } from '@/editor/streamMerge'
 
 export type StreamStatus = 'idle' | 'streaming' | 'done' | 'error'
@@ -24,6 +25,8 @@ const sleep = (ms: number, signal: AbortSignal) =>
  */
 export function usePresentationStream(id: Ref<string>, enabled: Ref<boolean>) {
   const queryClient = useQueryClient()
+  const editor = useEditorStore()
+  const shownWarnings = new Set<string>()
   const status = ref<StreamStatus>('idle')
   const metrics = ref<GenerationMetrics | null>(null)
   let controller: AbortController | null = null
@@ -51,7 +54,14 @@ export function usePresentationStream(id: Ref<string>, enabled: Ref<boolean>) {
             if (e.retryable === false) throw Object.assign(new Error(detail), { fatal: true, event: e })
             throw new Error(detail)
           }
+          // A refetch resolving mid-stream would overwrite the streamed slides.
+          await queryClient.cancelQueries({ queryKey: key })
           queryClient.setQueryData<Presentation | undefined>(key, (prev) => applyStreamEvent(prev, ev, acc))
+          for (const detail of acc.warnings ?? []) {
+            if (shownWarnings.has(detail)) continue
+            shownWarnings.add(detail)
+            toast.warning('Some images could not be generated', { description: detail, duration: 12_000 })
+          }
           metrics.value = acc.metrics ?? null
           if (ev.type === 'complete' || ev.type === 'closing') {
             status.value = 'done'
@@ -100,7 +110,16 @@ export function usePresentationStream(id: Ref<string>, enabled: Ref<boolean>) {
     { immediate: true },
   )
 
-  onScopeDispose(stop)
+  watch(
+    () => status.value === 'streaming',
+    (streaming) => (editor.generating = streaming),
+    { immediate: true },
+  )
+
+  onScopeDispose(() => {
+    stop()
+    editor.generating = false
+  })
 
   return { status, metrics, stop }
 }

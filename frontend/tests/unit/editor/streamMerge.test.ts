@@ -55,4 +55,13 @@ describe('applyStreamEvent', () => {
     expect(next.theme).toEqual({ a: 1 })
     expect((next.slides[0]!.content as { image: string }).image).toContain('real.png')
   })
+
+  it('collects each distinct slide_assets warning once', () => {
+    const a = acc() as { chunks: string; warnings?: string[] }
+    const ev = (detail: string) => ({ type: 'slide_assets', warnings: [{ detail }, { detail: 'dup' }, { nope: 1 }] })
+    applyStreamEvent(deck(), ev('one'), a)
+    applyStreamEvent(deck(), ev('two'), a)
+    applyStreamEvent(deck(), { type: 'slide_assets', warnings: [{ detail: 'one' }] }, a)
+    expect(a.warnings).toEqual(['one', 'dup', 'two'])
+  })
 })

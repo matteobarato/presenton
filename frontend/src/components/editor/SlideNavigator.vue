@@ -34,7 +34,8 @@ function onDragEnd(e: { oldIndex?: number; newIndex?: number }) {
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key !== 'Delete') return
+  if ((e.key !== 'Delete' && e.key !== 'Backspace') || editor.generating) return
+  if (e.target instanceof HTMLElement && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return
   const active = props.slides[activeIndex()]
   if (active?.id) {
     e.preventDefault()
@@ -72,6 +73,7 @@ watch(
       tag="ol"
       :item-key="slideKey"
       handle=".drag-handle"
+      :disabled="editor.generating"
       ghost-class="opacity-40"
       class="min-h-0 flex-1 list-none overflow-y-auto p-0 pr-3 pl-2"
       :animation="150"
@@ -83,7 +85,7 @@ watch(
             class="flex w-4 flex-none flex-col items-center gap-2 pt-1.5 text-[9px] text-[#899296] tabular-nums group-[.is-selected]:text-accent"
           >
             {{ index + 1 }}
-            <GripVertical class="drag-handle size-3 cursor-grab opacity-0 group-hover:opacity-100" aria-hidden="true" />
+            <GripVertical v-if="!editor.generating" class="drag-handle size-3 cursor-grab opacity-0 group-hover:opacity-100" aria-hidden="true" />
           </div>
           <div class="relative min-w-0 flex-1">
             <button
@@ -105,7 +107,7 @@ watch(
             </button>
             <SlideStatusDots :presentation-id="presentationId" :slide-index="index" />
             <div
-              v-if="element.id"
+              v-if="element.id && !editor.generating"
               class="absolute top-1.5 right-1.5 flex gap-0.5 opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100"
             >
               <button
@@ -134,6 +136,7 @@ watch(
     <div class="flex-none border-t border-line p-3">
       <button
         type="button"
+        :disabled="editor.generating"
         class="flex h-[34px] w-full items-center gap-2 rounded-button border border-dashed border-white/[0.13] px-2.5 text-[11px] font-semibold text-muted transition-colors duration-200 hover:border-white/25 hover:text-text"
         @click="pickerOpen = true"
       >

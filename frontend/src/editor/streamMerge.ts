@@ -24,6 +24,8 @@ export interface GenerationMetrics {
 export interface StreamAccumulator {
   chunks: string
   metrics?: GenerationMetrics | null
+  /** Distinct `slide_assets` warning details seen so far, in order. */
+  warnings?: string[]
 }
 
 // Stream payloads are untyped JSON; every access below is checked at runtime.
@@ -154,6 +156,13 @@ export function applyStreamEvent(
     }
 
     case 'slide_assets': {
+      if (Array.isArray(data.warnings)) {
+        const seen = (acc.warnings ??= [])
+        for (const w of data.warnings) {
+          const detail = w && typeof w === 'object' && typeof w.detail === 'string' ? w.detail : null
+          if (detail && !seen.includes(detail)) seen.push(detail)
+        }
+      }
       if (!data.slide || typeof data.slide !== 'object') return prev
       return withSlides(prev, mergeSingleSlidePreservingResolvedAssets(prev?.slides, normalizeBackendAssetUrls(data.slide)))
     }

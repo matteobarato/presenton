@@ -97,4 +97,20 @@ describe('EditorView', () => {
     expect(metrics.text()).toContain('42 output tokens')
     release()
   })
+
+  it('disables structural edits while generating', async () => {
+    api.stream.mockImplementation(async function* () {
+      yield { type: 'generation_metrics', model: 'm' }
+      await new Promise<void>(() => {})
+    })
+    const w = await mountAt('/p/p1?stream=1')
+    const add = w.findAll('button').find((b) => b.text().includes('Add slide'))!
+    expect(add.attributes('disabled')).toBeDefined()
+    expect(w.find('button[aria-label="Delete slide 1"]').exists()).toBe(false)
+    const calls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length
+    await w.get('[data-slide-key="a"]').trigger('keydown', { key: 'Delete' })
+    await flushPromises()
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length).toBe(calls)
+    expect(w.get('input[aria-label="Presentation title"]').attributes('disabled')).toBeDefined()
+  })
 })

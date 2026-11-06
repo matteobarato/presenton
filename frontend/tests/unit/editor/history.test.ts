@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useHistoryStore } from '@/stores/history'
 
@@ -58,5 +58,19 @@ describe('history store', () => {
     h.clear()
     expect(h.canUndo).toBe(false)
     expect(h.canRedo).toBe(false)
+  })
+
+  it('ignores a second undo while the first is in flight', async () => {
+    const h = useHistoryStore()
+    let release!: () => void
+    const undo = vi.fn(() => new Promise<void>((r) => (release = r)))
+    h.push({ label: 'x', do: async () => {}, undo })
+    const first = h.undo()
+    expect(h.canUndo).toBe(false)
+    await h.undo()
+    release()
+    await first
+    expect(undo).toHaveBeenCalledTimes(1)
+    expect(h.canRedo).toBe(true)
   })
 })

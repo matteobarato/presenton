@@ -30,6 +30,11 @@ const BLANK_LAYOUT = {
   ],
 }
 
+export const DELETE_NOTICE =
+  'Undo restores the slide content but not its narration audio or avatar video.'
+
+const queues = new Map<string, { tail: Promise<unknown>; pending: number }>()
+
 /** A layout chosen in the picker. `null` to `addSlide` means a blank slide. */
 export interface NewSlideLayout {
   id: string
@@ -73,29 +78,51 @@ export function useSlideMutations(presentationId: Ref<string>) {
 
   const key = () => presentationKeys.one(presentationId.value)
   const current = () => queryClient.getQueryData<Presentation>(key())
+  const slides = () => current()?.slides ?? []
 
-  /** Optimistically write `slides`; restore the cache and rethrow if saving fails. */
-  async function persist(slides: Slide[]): Promise<void> {
-    const before = current()
-    if (!before) throw new Error('Presentation is not loaded')
-    const next = reindex(slides)
-    queryClient.setQueryData<Presentation>(key(), { ...before, slides: next })
-    try {
-      await updatePresentation({
-        id: presentationId.value,
-        slides: next,
-        theme: before.theme ?? undefined,
+  /**
+   * Saves run one at a time per deck (the PATCH carries the whole array), and
+   * each one derives its slides from the cache as it is when it starts.
+   */
+  function enqueue<T>(fn: () => Promise<T>): Promise<T> {
+    const q = queues.get(presentationId.value) ?? { tail: Promise.resolve(), pending: 0 }
+    queues.set(presentationId.value, q)
+    q.pending++
+    const run = q.tail.then(fn)
+    q.tail = run
+      .catch(() => {})
+      .then(() => {
+        q.pending--
       })
-    } catch (error) {
-      queryClient.setQueryData<Presentation>(key(), before)
-      throw error
-    }
+    return run
   }
 
-  const slides = () => current()?.slides ?? []
+  /** Apply `edit` to the current slides, optimistically, then save. */
+  function persist(edit: (slides: Slide[]) => Slide[]): Promise<void> {
+    return enqueue(async () => {
+      // An in-flight refetch must not land on top of the optimistic write.
+      await queryClient.cancelQueries({ queryKey: key() })
+      const before = current()
+      if (!before) throw new Error('Presentation is not loaded')
+      const next = reindex(edit(before.slides))
+      queryClient.setQueryData<Presentation>(key(), { ...before, slides: next })
+      try {
+        await updatePresentation({ id: presentationId.value, slides: next, theme: before.theme ?? undefined })
+      } catch (error) {
+        // Only the last queued save may restore its snapshot; with others waiting it would be stale.
+        if ((queues.get(presentationId.value)?.pending ?? 0) > 1) {
+          void queryClient.invalidateQueries({ queryKey: key() })
+        } else {
+          queryClient.setQueryData<Presentation>(key(), before)
+        }
+        throw error
+      }
+    })
+  }
 
   /** Run `redo` once, record it with `undo`, and surface failures as a toast. */
   async function commit(label: string, redo: () => Promise<void>, undo: () => Promise<void>): Promise<boolean> {
+    if (editor.generating) return false
     try {
       await redo()
     } catch (error) {
@@ -111,8 +138,8 @@ export function useSlideMutations(presentationId: Ref<string>) {
     if (from === to || from < 0 || to < 0 || from >= list.length || to >= list.length) return
     await commit(
       'Reorder slides',
-      () => persist(move(slides(), from, to)),
-      () => persist(move(slides(), to, from)),
+      () => persist((l) => move(l, from, to)),
+      () => persist((l) => move(l, to, from)),
     )
   }
 
@@ -124,16 +151,19 @@ export function useSlideMutations(presentationId: Ref<string>) {
     const neighbour = list[index + 1] ?? list[index - 1]!
     const ok = await commit(
       'Delete slide',
-      () => persist(slides().filter((s) => s.id !== id)),
-      () => {
-        const at = Math.min(index, slides().length)
-        return persist([...slides().slice(0, at), removed, ...slides().slice(at)])
-      },
+      () => persist((l) => l.filter((s) => s.id !== id)),
+      () =>
+        persist((l) => {
+          const at = Math.min(index, l.length)
+          return [...l.slice(0, at), removed, ...l.slice(at)]
+        }),
     )
+    if (ok) toast.info('Slide deleted', { description: DELETE_NOTICE })
     if (ok && editor.activeSlideId === id) editor.select(neighbour.id ?? null)
   }
 
   async function insert(label: string, at: number, make: () => Slide) {
+    if (editor.generating) return
     if (slides().length >= MAX_SLIDES) {
       toast.warning('Slide limit reached', { description: `You can have up to ${MAX_SLIDES} slides.` })
       return
@@ -141,8 +171,8 @@ export function useSlideMutations(presentationId: Ref<string>) {
     const created = make()
     const ok = await commit(
       label,
-      () => persist([...slides().slice(0, at), created, ...slides().slice(at)]),
-      () => persist(slides().filter((s) => s.id !== created.id)),
+      () => persist((l) => [...l.slice(0, at), created, ...l.slice(at)]),
+      () => persist((l) => l.filter((s) => s.id !== created.id)),
     )
     if (ok) editor.select(created.id ?? null)
   }
@@ -167,7 +197,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
       presentation: presentationId.value,
       index: at,
       content: {},
-      ui: (layout?.ui ?? JSON.parse(JSON.stringify(BLANK_LAYOUT))) as Record<string, unknown>,
+      ui: JSON.parse(JSON.stringify(layout?.ui ?? BLANK_LAYOUT)) as Record<string, unknown>,
       layout_group: layout?.group ?? deckTemplateId(list),
       layout: layout?.id ?? BLANK_SLIDE_LAYOUT_ID,
       properties: null,
@@ -179,17 +209,20 @@ export function useSlideMutations(presentationId: Ref<string>) {
     const before = current()
     if (!before || !next || next === before.title) return
     const previous = before.title ?? ''
-    const save = async (value: string) => {
-      const base = current()
-      if (!base) throw new Error('Presentation is not loaded')
-      queryClient.setQueryData<Presentation>(key(), { ...base, title: value })
-      try {
-        await updatePresentation({ id: presentationId.value, title: value, theme: base.theme ?? undefined })
-      } catch (error) {
-        queryClient.setQueryData<Presentation>(key(), base)
-        throw error
-      }
-    }
+    const save = (value: string) =>
+      enqueue(async () => {
+        await queryClient.cancelQueries({ queryKey: key() })
+        const base = current()
+        if (!base) throw new Error('Presentation is not loaded')
+        queryClient.setQueryData<Presentation>(key(), { ...base, title: value })
+        try {
+          await updatePresentation({ id: presentationId.value, title: value, theme: base.theme ?? undefined })
+        } catch (error) {
+          if ((queues.get(presentationId.value)?.pending ?? 0) > 1) void queryClient.invalidateQueries({ queryKey: key() })
+          else queryClient.setQueryData<Presentation>(key(), base)
+          throw error
+        }
+      })
     await commit(
       'Rename presentation',
       () => save(next),

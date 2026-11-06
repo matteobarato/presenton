@@ -16,9 +16,10 @@ vi.mock('@/api/presentations', async (importActual) => ({
   updatePresentation: update,
 }))
 const toastError = vi.hoisted(() => vi.fn())
-vi.mock('@/components/ui/sonner', () => ({ toast: { error: toastError, warning: vi.fn() } }))
+const toastInfo = vi.hoisted(() => vi.fn())
+vi.mock('@/components/ui/sonner', () => ({ toast: { error: toastError, warning: vi.fn(), info: toastInfo } }))
 
-import { useSlideMutations } from '@/composables/useSlideMutations'
+import { DELETE_NOTICE, useSlideMutations } from '@/composables/useSlideMutations'
 import { useHistoryStore } from '@/stores/history'
 
 const slide = (id: string, index: number) => ({ id, index, presentation: 'p1', layout: 'modern:a', layout_group: 'modern', content: {}, properties: null })
@@ -34,6 +35,7 @@ beforeEach(() => {
   update.mockReset()
   update.mockResolvedValue({})
   toastError.mockReset()
+  toastInfo.mockReset()
 })
 afterEach(() => vi.restoreAllMocks())
 
@@ -103,5 +105,59 @@ describe('useSlideMutations', () => {
     await m.rename('  New  ')
     expect(update).toHaveBeenCalledWith({ id: 'p1', title: 'New', theme: { color: 'red' } })
     expect(cached().title).toBe('New')
+  })
+
+  it('warns that undoing a delete does not restore narration or video', async () => {
+    const m = useSlideMutations(ref('p1'))
+    await m.removeSlide('b')
+    expect(toastInfo).toHaveBeenCalledWith('Slide deleted', { description: DELETE_NOTICE })
+  })
+
+  it('a delete queued behind a failing reorder is not erased', async () => {
+    update.mockRejectedValueOnce(new Error('boom'))
+    const invalidate = vi.spyOn(qc, 'invalidateQueries')
+    const m = useSlideMutations(ref('p1'))
+    await Promise.all([m.reorder(0, 2), m.removeSlide('b')])
+    expect(cached().slides.map((s) => s.id)).not.toContain('b')
+    expect(invalidate).toHaveBeenCalled()
+    expect(update).toHaveBeenCalledTimes(2)
+  })
+
+  it('saves one at a time', async () => {
+    let release!: () => void
+    update.mockImplementationOnce(() => new Promise<void>((r) => (release = r)))
+    const m = useSlideMutations(ref('p1'))
+    const first = m.reorder(0, 2)
+    const second = m.removeSlide('b')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(update).toHaveBeenCalledTimes(1)
+    release()
+    await Promise.all([first, second])
+    expect(update).toHaveBeenCalledTimes(2)
+  })
+
+  it('an in-flight refetch resolving later does not revert an optimistic reorder', async () => {
+    let resolveFetch!: (d: Presentation) => void
+    const fetching = qc
+      .fetchQuery({
+        queryKey: presentationKeys.one('p1'),
+        queryFn: () => new Promise<Presentation>((r) => (resolveFetch = r)),
+        staleTime: 0,
+      })
+      .catch(() => {})
+    const m = useSlideMutations(ref('p1'))
+    await m.reorder(0, 2)
+    resolveFetch(deck())
+    await fetching
+    expect(cached().slides.map((s) => s.id)).toEqual(['b', 'c', 'a'])
+  })
+
+  it('does nothing while a generation is running', async () => {
+    const { useEditorStore } = await import('@/stores/editor')
+    useEditorStore().generating = true
+    const m = useSlideMutations(ref('p1'))
+    await m.removeSlide('b')
+    await m.addSlide(0, null)
+    expect(update).not.toHaveBeenCalled()
   })
 })

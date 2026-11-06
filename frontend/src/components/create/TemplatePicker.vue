@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
-import { getTemplate, type TemplateDetail } from '@/api/outlines'
+import { getTemplate, templateDetailKey, type TemplateDetail } from '@/api/outlines'
+import { queryClient } from '@/api/query'
 import type { TemplateSummary } from '@/api/templates'
 import type { Slide } from '@/api/types'
 import SlideView from '@/render/SlideView.vue'
@@ -26,7 +27,11 @@ watch(
       if (hasRealLayouts(t) || t.layouts.length === 0 || requested.has(t.id)) continue
       requested.add(t.id)
       getTemplate(t.id).then(
-        (d) => (details[t.id] = d),
+        (d) => {
+          details[t.id] = d
+          // Share the result with the editor's layout picker (same key).
+          queryClient.setQueryData(templateDetailKey(t.id), d)
+        },
         () => (details[t.id] = 'failed'),
       )
     }

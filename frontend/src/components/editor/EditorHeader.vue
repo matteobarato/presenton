@@ -64,6 +64,7 @@ const iconBtn =
         v-model="draft"
         type="text"
         aria-label="Presentation title"
+        :disabled="editor.generating"
         maxlength="200"
         class="h-8 w-[min(320px,40vw)] min-w-0 truncate rounded-control border border-transparent bg-transparent px-2 text-[13px] font-semibold text-text hover:border-line focus:border-accent focus:bg-field"
         @blur="commitTitle"
@@ -76,7 +77,7 @@ const iconBtn =
       <button
         type="button"
         :class="iconBtn"
-        :disabled="!history.canUndo"
+        :disabled="!history.canUndo || editor.generating"
         :aria-label="history.undoLabel ? `Undo ${history.undoLabel.toLowerCase()}` : 'Undo'"
         title="Undo (Ctrl+Z)"
         @click="undo"
@@ -86,7 +87,7 @@ const iconBtn =
       <button
         type="button"
         :class="iconBtn"
-        :disabled="!history.canRedo"
+        :disabled="!history.canRedo || editor.generating"
         :aria-label="history.redoLabel ? `Redo ${history.redoLabel.toLowerCase()}` : 'Redo'"
         title="Redo (Shift+Ctrl+Z)"
         @click="redo"

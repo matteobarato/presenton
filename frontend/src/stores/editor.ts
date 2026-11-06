@@ -17,6 +17,8 @@ export const ZOOM_MAX = 2
 export const useEditorStore = defineStore('editor', () => {
   const activeSlideId = ref<string | null>(null)
   const slideIds = ref<string[]>([])
+  // True while the deck is being generated: structural edits are off.
+  const generating = ref(false)
   const navigatorOpen = ref(false) // the drawer, below 760px
   const inspectorOpen = ref(true)
   const inspectorTab = ref<InspectorTabId>('design')
@@ -52,6 +54,7 @@ export const useEditorStore = defineStore('editor', () => {
   return {
     activeSlideId,
     slideIds,
+    generating,
     navigatorOpen,
     inspectorOpen,
     inspectorTab,

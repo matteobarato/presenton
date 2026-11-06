@@ -28,11 +28,14 @@ export function useEditorShortcuts() {
     }
     if (isEditable(e.target)) return
     if (mod && key === 'z') {
+      if (editor.generating) return
       e.preventDefault()
       void (e.shiftKey ? redo() : undo())
       return
     }
     if (mod || e.altKey) return
+    // Arrows belong to an open dialog or drawer.
+    if (document.querySelector('[role="dialog"]')) return
     if (e.key === 'ArrowDown' || e.key === 'PageDown') {
       e.preventDefault()
       editor.next()
