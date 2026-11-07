@@ -15,6 +15,7 @@ export function useElementTabAutoSwitch(ctx: Pick<SlideEditing, 'selection'> & P
   let deferred = false
 
   function reveal() {
+    if (editor.inspectorTab === 'insert') return
     editor.inspectorTab = 'element'
     if (!drawer.value && !editor.inspectorOpen) editor.inspectorOpen = true
   }

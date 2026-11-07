@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export type InspectorTabId = 'element' | 'design' | 'narration'
+export type InspectorTabId = 'element' | 'insert' | 'design' | 'narration'
 
 /** Stable key of a slide; slides mid-stream may not have an id yet. */
 export const slideKey = (s: { id?: string | null; index: number }) => s.id ?? `index-${s.index}`
@@ -39,6 +39,10 @@ export const useEditorStore = defineStore('editor', () => {
   /** Ask AI has its own panel, docked right of the inspector (a drawer on narrow screens). */
   function openAsk() {
     chatOpen.value = true
+  }
+  function openInsert() {
+    inspectorTab.value = 'insert'
+    inspectorOpen.value = true
   }
   function toggleAsk() {
     chatOpen.value = !chatOpen.value
@@ -88,6 +92,7 @@ export const useEditorStore = defineStore('editor', () => {
     slideSelectionActive,
     openAsk,
     toggleAsk,
+    openInsert,
     chatOpen,
     select,
     next,

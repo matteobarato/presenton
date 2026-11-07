@@ -41,6 +41,14 @@ describe('useElementTabAutoSwitch', () => {
     expect(editor.inspectorOpen).toBe(true)
   })
 
+  it('stays on the Insert tab when a selection appears', async () => {
+    const { selection, editor } = setup()
+    editor.inspectorTab = 'insert'
+    selection.value = sel
+    await nextTick()
+    expect(editor.inspectorTab).toBe('insert')
+  })
+
   it('leaves a closed inspector closed when narrow', async () => {
     narrow = true
     const { selection, editor } = setup()

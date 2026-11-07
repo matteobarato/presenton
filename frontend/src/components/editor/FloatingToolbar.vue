@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMediaQuery } from '@vueuse/core'
-import { ChevronDown, ChevronUp, LayoutPanelLeft, PanelRight, Redo2, Sparkles, Undo2 } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, LayoutPanelLeft, PanelRight, Plus, Redo2, Sparkles, Undo2 } from 'lucide-vue-next'
 import { usePresentation } from '@/api/presentations'
 import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { useUndoRedo } from '@/composables/useUndoRedo'
@@ -25,6 +25,16 @@ const askDisabled = computed(() => smart.value || editor.generating)
 const askOpen = computed(() => editor.chatOpen)
 const askTitle = computed(() =>
   smart.value ? 'AI edit is available for template slides' : 'Ask AI to edit this slide (Ctrl+K)',
+)
+
+const insertDisabled = computed(() => smart.value || editor.locked)
+const insertActive = computed(() => editor.inspectorOpen && editor.inspectorTab === 'insert')
+const insertTitle = computed(() =>
+  smart.value
+    ? 'Insert is available for template slides'
+    : editor.locked
+      ? 'Insert is unavailable while the deck is busy'
+      : 'Insert (blocks, text, images, shapes)',
 )
 
 const slidesVisible = computed(() => (narrow.value ? editor.navigatorOpen : editor.navigatorVisible))
@@ -88,6 +98,16 @@ function toggleSlides() {
     </button>
     <span :class="divider" aria-hidden="true" />
 
+    <button
+      type="button"
+      :class="[tool, insertActive && active]"
+      :disabled="insertDisabled"
+      aria-label="Insert"
+      :title="insertTitle"
+      @click="editor.openInsert()"
+    >
+      <Plus class="size-[17px]" aria-hidden="true" />
+    </button>
     <button
       type="button"
       class="flex h-[31px] items-center justify-center gap-[7px] rounded-[8px] bg-[#3c4c552e] px-2.5 text-[10px] font-medium whitespace-nowrap text-[#c9e5f2] hover:bg-[#475e6c80] hover:text-[#e3f5fe] max-[760px]:px-[9px] max-[450px]:gap-[5px] max-[450px]:px-[7px] max-[450px]:text-[9px] max-[380px]:px-[5px]"
