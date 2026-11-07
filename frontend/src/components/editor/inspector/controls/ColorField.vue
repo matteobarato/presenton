@@ -18,6 +18,9 @@ const open = ref(false)
 const draft = ref<string | null>(props.modelValue)
 const hexText = ref(props.modelValue ?? '')
 let committed = false
+// The value the popover opened on; the selection may change while it is open.
+let openedWith: string | null = null
+const norm = (v: string | null) => (v ? v.toLowerCase() : null)
 
 const current = computed(() => (props.modelValue && HEX.test(props.modelValue) ? props.modelValue.toLowerCase() : null))
 
@@ -29,11 +32,12 @@ function setDraft(value: string | null) {
 watch(open, (isOpen) => {
   if (isOpen) {
     committed = false
+    openedWith = props.modelValue
     setDraft(props.modelValue)
     emit('open')
     return
   }
-  if (!committed && (draft.value ?? null) !== (props.modelValue ?? null)) done(draft.value)
+  if (!committed && norm(draft.value) !== norm(openedWith)) done(draft.value)
 })
 
 function done(value: string | null) {

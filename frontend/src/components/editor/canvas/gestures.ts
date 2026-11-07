@@ -212,9 +212,9 @@ const ownRotation = (item: unknown): number => {
  * (an ancestor's rotation turns the displacement and the target alike and cancels out).
  * Known limitation: under an odd ancestor flip the delta would also need mirroring.
  */
-function withShiftedPosition<T extends Record<string, unknown>>(item: T, shift: Point): T {
+export function withShiftedPosition<T extends Record<string, unknown>>(item: T, shift: Point): T {
   const p = readPoint(item.position)
-  return { ...item, position: { x: p.x + shift.x, y: p.y + shift.y } }
+  return { ...item, position: { ...asRecord(item.position), x: p.x + shift.x, y: p.y + shift.y } }
 }
 
 /**

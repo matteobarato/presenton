@@ -495,7 +495,7 @@ test.describe('visual element editing (mocked)', () => {
   }
   const SHAPE: [number, number] = [200, 160]
 
-  test('rotating with the handle persists across reload; Ctrl+Z restores', async ({ page }) => {
+  test('rotating with the handle persists across reload; Ctrl+Z restores and Ctrl+Shift+Z redoes', async ({ page }) => {
     const { patches, unexpected } = await open(page, SHAPE)
     await expect(page.locator('[data-rotate-handle]')).toBeVisible()
     await rotateQuarter(page)
@@ -506,8 +506,9 @@ test.describe('visual element editing (mocked)', () => {
     await page.keyboard.press('Control+z')
     await expect.poll(() => rotationOf(patches, 'shape')).toBe(0)
 
-    await rotateQuarter(page)
+    await page.keyboard.press('Control+Shift+z')
     await expect.poll(() => rotationOf(patches, 'shape')).toBeGreaterThan(80)
+    expect(rotationOf(patches, 'shape')).toBeCloseTo(90, -1)
     await page.reload()
     await expect(page.getByTestId('selection-overlay')).toBeVisible()
     expect(rotationOf(patches, 'shape')).toBeCloseTo(90, -1)
@@ -572,7 +573,8 @@ test.describe('visual element editing (mocked)', () => {
     const { patches, unexpected } = await open(page, SHAPE)
     const fill = page.getByRole('switch', { name: 'Fill' })
     await fill.click()
-    await expect.poll(() => elementOf(patches, 'shape')?.fill ?? null).toBeNull()
+    // Only a saved PATCH counts: before one exists there is nothing to read.
+    await expect.poll(() => (patches.length ? (elementOf(patches, 'shape')?.fill ?? null) : 'no patch yet')).toBeNull()
     await fill.click()
     await expect.poll(() => elementOf(patches, 'shape')?.fill?.color).toBe('#3366FF')
 

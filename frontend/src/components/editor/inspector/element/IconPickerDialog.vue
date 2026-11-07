@@ -72,6 +72,11 @@ watch(
     if (open) {
       weight.value = props.weight
       selected.value = null
+      // A close mid-search leaves the old query without results: search for it again.
+      if (query.value.trim() && !searched.value) {
+        clearTimeout(timer)
+        void run()
+      }
     } else stop()
   },
 )

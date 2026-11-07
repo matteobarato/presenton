@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { applyResize, planMove } from '@/components/editor/canvas/gestures'
+import { applyResize, planMove, withShiftedPosition } from '@/components/editor/canvas/gestures'
 import type { ElementSelection, RawUi } from '@/slide-editor/model'
 import { rotatePoint, selectionFrame, type Frame, type Handle } from '@/slide-editor/rotation'
 import { uiWithText } from '../../slide-editor/fixtures'
@@ -45,6 +45,11 @@ describe('applyResize with rotation', () => {
     const next = applyResize(uiWithText(), comp, 'se', { x: 50, y: 0 }, false)
     const frame = selectionFrame(next, comp)!
     expect(frame.box).toMatchObject({ x: 100, y: 80, width: 450 })
+  })
+
+  it('keeps unknown keys of the position when it shifts', () => {
+    const shifted = withShiftedPosition({ position: { x: 1, y: 2, extra: 'keep' } }, { x: 10, y: 20 })
+    expect(shifted.position).toEqual({ x: 11, y: 22, extra: 'keep' })
   })
 
   it('keeps the opposite corner of a rotated element inside an unrotated component', () => {

@@ -117,7 +117,7 @@ describe('IconSection', () => {
 
   it('a search resolving after the dialog closed changes nothing and commits nothing', async () => {
     const d = deferred<string[]>()
-    searchIcons.mockReturnValue(d.promise)
+    searchIcons.mockReturnValueOnce(d.promise).mockResolvedValue([])
     const { ctx } = mountSection()
     await openPicker()
     await search('star')
@@ -131,6 +131,20 @@ describe('IconSection', () => {
     expect(results()).toBe(0)
     expect(ctx.commit).not.toHaveBeenCalled()
     expect(toastError).not.toHaveBeenCalled()
+  })
+
+  it('reopening after a mid-search close searches the remembered query again', async () => {
+    searchIcons.mockReturnValueOnce(deferred<string[]>().promise).mockResolvedValue(['/static/icons/bold/a-bold.png'])
+    mountSection()
+    await openPicker()
+    await search('star')
+    body().querySelector<HTMLElement>('button[aria-label="Close dialog"]')!.click()
+    await flushPromises()
+    await openPicker()
+    await flushPromises()
+    expect(input().value).toBe('star')
+    expect(searchIcons).toHaveBeenCalledTimes(2)
+    expect(results()).toBe(1)
   })
 
   it('picking after the element was deleted shows the toast and does not commit', async () => {

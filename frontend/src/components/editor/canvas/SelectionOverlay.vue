@@ -9,12 +9,14 @@ import {
   type Point,
   type RawUi,
   type Selection,
+  ROOT_ELEMENTS_COMPONENT_INDEX,
 } from '@/slide-editor/model'
 import { normalizeRotation } from '@/slide-editor/elementStyle'
 import { canRotate, rotateSelection } from '@/slide-editor/ops'
 import { appearanceTargets, readRotation } from '@/slide-editor/appearanceTarget'
 import { pointInFrame, selectionFrame, type Frame } from '@/slide-editor/rotation'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import type { TemplateV2ItemSource } from '@/render/legacy/lib/template-v2-json-to-html'
 import { useEditableCanvas } from './canvas-context'
 import {
   applyMove,
@@ -114,9 +116,18 @@ const showHandles = computed(
     selected.value.length === 1 &&
     selection.value?.kind !== 'multi-component',
 )
+// The layer a rotate handle turns: a component, or a root element (nested elements get no handle).
+function rotateLayerSource(sel: Selection): TemplateV2ItemSource | null {
+  if (sel?.kind === 'component') return { kind: 'component', index: sel.componentIndex }
+  if (sel?.kind === 'element' && sel.componentIndex === ROOT_ELEMENTS_COMPONENT_INDEX && sel.elementPath.length === 1) {
+    return { kind: 'element', index: sel.elementPath[0]! }
+  }
+  return null
+}
 const showRotate = computed(() => {
   const u = ui.value
-  return !!u && !dragging.value && selected.value.length === 1 && selection.value?.kind === 'component' && canRotate(u, selection.value)
+  const sel = selection.value
+  return !!u && !dragging.value && selected.value.length === 1 && rotateLayerSource(sel) != null && canRotate(u, sel)
 })
 const hoverBox = computed<Frame | null>(() => {
   const u = ui.value
@@ -290,11 +301,12 @@ function onRotateDown(e: PointerEvent) {
   const sel = selection.value
   const targets = u ? appearanceTargets(u, sel) : null
   const frame = u && sel && sel.kind !== 'multi-component' ? selectionFrame(u, sel) : null
-  if (!u || sel?.kind !== 'component' || !targets || !frame) return
+  const source = rotateLayerSource(sel)
+  if (!u || !source || !targets || !frame) return
   const { rect } = measure()
   const center = { x: frame.box.x + frame.box.width / 2, y: frame.box.y + frame.box.height / 2 }
   const startRotation = normalizeRotation(readRotation(u, targets.rotation))
-  const layer = canvas.layerFor({ kind: 'component', index: sel.componentIndex })
+  const layer = canvas.layerFor(source)
   setGesture({
     type: 'rotate',
     slideId: editing.slideId.value,

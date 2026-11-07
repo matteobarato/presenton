@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { numericInputMode, preventInvalidNumberInput, sanitizeNumericInput } from '@/slide-editor/model/numericInput'
 import { field } from './styles'
 
@@ -22,6 +22,8 @@ function commit(raw: number) {
   const next = clamp(raw)
   text.value = String(next)
   if (next !== props.modelValue) emit('commit', next)
+  // The parent may normalise the value (or ignore it): show what it holds once it has settled.
+  void nextTick(() => (text.value = String(props.modelValue)))
 }
 
 function commitText() {

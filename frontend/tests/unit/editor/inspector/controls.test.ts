@@ -44,6 +44,18 @@ describe('ColorField', () => {
     expect(wrapper!.emitted('commit')).toEqual([['#abcdef']])
   })
 
+  it('commits to the element it opened on after the selection changes to one with that colour', async () => {
+    await openColor('#112233')
+    await wrapper!.setProps({ modelValue: '#abcdef' })
+    const hex = body().querySelector('input[aria-label="Fill hex"]') as HTMLInputElement
+    hex.value = '#ABCDEF'
+    hex.dispatchEvent(new Event('input'))
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    await nextTick()
+    expect(wrapper!.emitted('commit')).toEqual([['#abcdef']])
+  })
+
   it('emits nothing when closed unchanged', async () => {
     await openColor()
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
@@ -76,6 +88,21 @@ describe('NumberField', () => {
     await w.setProps({ modelValue: 20 })
     await w.get('input').trigger('blur')
     expect(w.emitted('commit')).toHaveLength(1)
+  })
+  it('shows the stored value when the parent normalises the commit to it', async () => {
+    const w = mk({ modelValue: -90, min: -180, max: 360 })
+    await w.get('input').setValue('270')
+    await w.get('input').trigger('keydown', { key: 'Enter' })
+    expect(w.emitted('commit')).toEqual([[270]])
+    await nextTick()
+    expect((w.get('input').element as HTMLInputElement).value).toBe('-90')
+  })
+  it('shows the stored value after a clamp the parent ignores', async () => {
+    const w = mk()
+    await w.get('input').setValue('99')
+    await w.get('input').trigger('blur')
+    await nextTick()
+    expect((w.get('input').element as HTMLInputElement).value).toBe('5')
   })
   it('emits focus', async () => {
     const w = mk()

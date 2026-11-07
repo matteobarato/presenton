@@ -150,6 +150,37 @@ describe('SelectionOverlay', () => {
       expect(overlay().find('[data-rotate-handle]').exists()).toBe(false)
     })
 
+    it('rotates a root element: handle shown, commits element.rotation; nested element has none', async () => {
+      const ui = {
+        ...(uiWithText() as object),
+        elements: [{ type: 'text', text: 'root', position: { x: 100, y: 80 }, size: { width: 400, height: 120 } }],
+      } as unknown as RawUi
+      await select(ui, { kind: 'element', componentIndex: -1, elementPath: [0] })
+      expect(overlay().find('[data-rotate-handle]').exists()).toBe(true)
+      await rotateTo(90, [120, 150, 180])
+      expect(editSlideUi).toHaveBeenCalledTimes(1)
+      expect(editSlideUi.mock.calls[0]![2]).toBe('Rotate')
+      const next = editSlideUi.mock.calls[0]![1] as { elements: { rotation: number }[]; components: { rotation?: number }[] }
+      expect(next.elements[0]!.rotation).toBeCloseTo(90)
+      expect(next.components[0]!.rotation).toBeUndefined()
+    })
+
+    it('has no rotate handle for a nested element of a root container', async () => {
+      const ui = {
+        ...(uiWithText() as object),
+        elements: [
+          {
+            type: 'container',
+            position: { x: 100, y: 80 },
+            size: { width: 400, height: 120 },
+            elements: [{ type: 'text', text: 'n', position: { x: 0, y: 0 }, size: { width: 100, height: 40 } }],
+          },
+        ],
+      } as unknown as RawUi
+      await select(ui, { kind: 'element', componentIndex: -1, elementPath: [0, 0] })
+      expect(overlay().find('[data-rotate-handle]').exists()).toBe(false)
+    })
+
     it('has no rotate handle for a layout-managed element or a video placeholder', async () => {
       const ui = {
         background: { color: 'FFFFFF' },
