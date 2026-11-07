@@ -5,19 +5,22 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import { ApiError } from '@/api/errors'
 import { useSessionStore } from '@/stores/session'
 import type { GenerationMode } from '@/api/next-routes'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import NewView from '@/views/NewView.vue'
 
 const m = vi.hoisted(() => ({
   uploadFiles: vi.fn(),
   decomposeFiles: vi.fn(),
   createPresentation: vi.fn(),
+  listTemplates: vi.fn(),
 }))
+vi.mock('@/api/templates', async (orig) => ({ ...(await orig<typeof import('@/api/templates')>()), listTemplates: m.listTemplates }))
 vi.mock('@/api/files', async (orig) => ({ ...(await orig<typeof import('@/api/files')>()), uploadFiles: m.uploadFiles, decomposeFiles: m.decomposeFiles }))
 vi.mock('@/api/generation', () => ({ createPresentation: m.createPresentation, getGenerationDefaults: vi.fn() }))
 
 const view = { template: '<div />' }
 
-async function mountView(generationMode: GenerationMode = 'both', config: Record<string, unknown> = {}) {
+async function mountView(generationMode: GenerationMode = 'both', config: Record<string, unknown> = {}, startPath = '/new') {
   const pinia = createPinia()
   setActivePinia(pinia)
   useSessionStore().runtime = { configured: true, config, generationMode }
@@ -29,9 +32,9 @@ async function mountView(generationMode: GenerationMode = 'both', config: Record
       { path: '/p/:id', name: 'editor', component: view },
     ],
   })
-  await router.push('/new')
+  await router.push(startPath)
   await router.isReady()
-  const wrapper = mount(NewView, { global: { plugins: [pinia, router] }, attachTo: document.body })
+  const wrapper = mount(NewView, { global: { plugins: [pinia, router, [VueQueryPlugin, { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false } } }) }]] }, attachTo: document.body })
   return { wrapper, router }
 }
 
@@ -48,6 +51,7 @@ async function attach(w: W, name = 'brief.pdf') {
 
 beforeEach(() => {
   Object.values(m).forEach((f) => f.mockReset())
+  m.listTemplates.mockResolvedValue([{ id: 'c1', name: 'Pitch', kind: 'custom', layouts: [{}] }])
   document.body.innerHTML = ''
 })
 
@@ -140,5 +144,43 @@ describe('NewView', () => {
     await third.wrapper.get('form').trigger('submit')
     await flushPromises()
     expect(third.wrapper.get('[role="alert"]').text()).toBe('Generation is disabled')
+  })
+
+  describe('template chip', () => {
+    it('shows the template chip from ?template', async () => {
+      const { wrapper } = await mountView('both', {}, '/new?template=c1')
+      await flushPromises()
+      expect(wrapper.text()).toContain('Using Pitch')
+    })
+
+    it('clearing the chip removes the param', async () => {
+      const { wrapper, router } = await mountView('both', {}, '/new?template=c1')
+      await flushPromises()
+      await wrapper.get('button[aria-label="Don’t use Pitch"]').trigger('click')
+      await flushPromises()
+      expect(router.currentRoute.value.query.template).toBeUndefined()
+      expect(wrapper.text()).not.toContain('Using Pitch')
+    })
+
+    it('drops an unknown template id', async () => {
+      const { wrapper, router } = await mountView('both', {}, '/new?template=zzz')
+      await flushPromises()
+      expect(wrapper.text()).not.toContain('Using')
+      expect(router.currentRoute.value.query.template).toBeUndefined()
+    })
+
+    it('forwards the template to the outline step', async () => {
+      m.createPresentation.mockResolvedValue({ id: 'abc' })
+      const { wrapper, router } = await mountView('both', {}, '/new?template=c1')
+      await flushPromises()
+      await wrapper.get('#create-prompt').setValue('Topic')
+      await wrapper.get('form').trigger('submit')
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe('outline')
+      expect(router.currentRoute.value.query.template).toBe('c1')
+      const payload = m.createPresentation.mock.calls[0][0]
+      expect(payload).not.toHaveProperty('template')
+      expect(payload).not.toHaveProperty('layout')
+    })
   })
 })

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ArrowRight, Sparkles } from 'lucide-vue-next'
+import { ArrowRight, Sparkles, X } from 'lucide-vue-next'
 import PageHeader from '@/components/shell/PageHeader.vue'
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useQuery } from '@tanstack/vue-query'
+import { useRoute, useRouter } from 'vue-router'
+import { listTemplates, templatesKey } from '@/api/templates'
 import { ApiError } from '@/api/errors'
 import { decomposeFiles, uploadFiles } from '@/api/files'
 import { createPresentation } from '@/api/generation'
@@ -16,6 +18,25 @@ import { type CreateOptions } from '@/components/create/options'
 import { AUTO_LANGUAGE } from '@/lib/languages'
 
 const router = useRouter()
+const route = useRoute()
+
+const templateId = computed(() => (typeof route.query.template === 'string' ? route.query.template : ''))
+const templates = useQuery({ queryKey: templatesKey, queryFn: listTemplates, enabled: computed(() => !!templateId.value) })
+const chosen = computed(() => templates.data.value?.find((t) => t.id === templateId.value))
+
+function clearTemplate() {
+  const rest = { ...route.query }
+  delete rest.template
+  void router.replace({ query: rest })
+}
+// A deleted or garbage id must not linger in the URL.
+watch(
+  () => [templates.isSuccess.value, templates.data.value, templateId.value] as const,
+  ([ok, list, id]) => {
+    if (ok && id && !list?.some((t) => t.id === id)) clearTemplate()
+  },
+  { immediate: true },
+)
 const session = useSessionStore()
 
 const prompt = ref('')
@@ -81,7 +102,7 @@ async function submit() {
       generation_mode: 'standard',
     })
     // Stay pending until the navigation settles.
-    await router.push({ name: 'outline', params: { id: created.id } })
+    await router.push({ name: 'outline', params: { id: created.id }, query: chosen.value ? { template: chosen.value.id } : {} })
   } catch (e) {
     error.value = e instanceof ApiError ? e.message : e instanceof Error && e.message ? e.message : 'Something went wrong while starting your presentation.'
     pending.value = false
@@ -102,6 +123,19 @@ async function submit() {
         </p>
       </header>
       <form class="flex flex-col gap-6" @submit.prevent="submit">
+        <span v-if="chosen" class="inline-flex w-fit items-center gap-2 rounded-full border border-[#ffffff14] bg-[#ffffff0a] py-1 pr-1 pl-3 text-[12px] text-[#e4ecf0]">
+          <span class="size-[7px] rounded-full bg-accent" aria-hidden="true" />
+          <span>Using <span class="font-semibold">{{ chosen.name }}</span></span>
+          <button
+            type="button"
+            :aria-label="`Don’t use ${chosen.name}`"
+            class="grid size-5 place-items-center rounded-full text-[#9aabb4] transition-colors duration-200 hover:bg-[#ffffff14] hover:text-[#e4ecf0]"
+            :disabled="pending"
+            @click="clearTemplate"
+          >
+            <X class="size-3" aria-hidden="true" />
+          </button>
+        </span>
         <PromptField v-model="prompt" :disabled="pending" />
         <FileDropzone v-model="files" :disabled="pending" />
         <GenerationOptions v-model="options" :disabled="pending" />
