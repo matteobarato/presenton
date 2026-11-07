@@ -19,12 +19,13 @@ export function useInsert(ctx: SlideEditing, theme: ComputedRef<TemplateTheme>) 
   /**
    * Commits an open inline edit and captures the active slide with its ui, both synchronously:
    * the commit puts the edited ui in the draft before its first await, so the capture includes it.
+   * The edit's save is not awaited (saves are serialized per deck), and its failure is its own to report.
    */
-  function capture(): { target: InsertTarget | null; closing: Promise<boolean> } {
-    const closing = ctx.inlineEdit.value ? ctx.closeInlineEdit(true) : Promise.resolve(true)
+  function capture(): { target: InsertTarget | null } {
+    if (ctx.inlineEdit.value) ctx.closeInlineEdit(true).catch(() => {})
     const slideId = ctx.slideId.value
     const ui = ctx.ui.value
-    return { target: slideId && ui ? { slideId, ui } : null, closing }
+    return { target: slideId && ui ? { slideId, ui } : null }
   }
 
   /** Inserts into the slide active now, or into `from` (captured earlier, e.g. when the image picker opened). */
@@ -32,12 +33,8 @@ export function useInsert(ctx: SlideEditing, theme: ComputedRef<TemplateTheme>) 
     let target = from ?? null
     // A target captured earlier on the slide still active builds on its current ui (it may have changed since).
     if (target && target.slideId === ctx.slideId.value && ctx.ui.value) target = { slideId: target.slideId, ui: ctx.ui.value }
-    if (!target) {
-      const started = capture()
-      target = started.target
-      // The text edit's save may take a while; the insert still goes to the slide clicked on.
-      await started.closing
-    }
+    // Committed right away, so a second insert during the edit's save builds on this one.
+    if (!target) target = capture().target
     if (!target) return false
     const next = insertContent(target.ui, req)
     if (!next) return false

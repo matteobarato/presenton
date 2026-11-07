@@ -72,7 +72,7 @@ function mountTab(opts: MountOpts = {}) {
     await button(l).trigger('click')
     await flushPromises()
   }
-  return { wrapper, ctx, button, click }
+  return { wrapper, ctx, button, click, uiRef }
 }
 
 beforeEach(() => {
@@ -108,7 +108,7 @@ describe('InsertTab', () => {
     expect(ctx.commitTo.mock.calls[0]![2]).toBe('Insert Rectangle')
   })
 
-  it('an insert goes to the clicked slide even if the slide changes while the inline edit saves', async () => {
+  it('an insert commits to the clicked slide right away, without waiting for the inline edit to save', async () => {
     const { ctx, click } = mountTab({ inlineEdit: true })
     let finish: (ok: boolean) => void = () => {}
     const sync = ctx.closeInlineEdit.getMockImplementation()!
@@ -117,14 +117,51 @@ describe('InsertTab', () => {
       return new Promise<boolean>((r) => (finish = r))
     })
     await click('Insert Title')
-    expect(ctx.commitTo).not.toHaveBeenCalled()
+    expect(ctx.commitTo).toHaveBeenCalledTimes(1)
+    expect(ctx.commitTo.mock.calls[0]![0]).toBe('s1')
+    expect(JSON.stringify(ctx.commitTo.mock.calls[0]![1])).toContain('Edited')
     ;(ctx as { slideId: ComputedRef<string | null> }).slideId = computed(() => 's2')
     finish(true)
     await flushPromises()
     expect(ctx.commitTo).toHaveBeenCalledTimes(1)
-    expect(ctx.commitTo.mock.calls[0]![0]).toBe('s1')
-    expect(JSON.stringify(ctx.commitTo.mock.calls[0]![1])).toContain('Edited')
-    expect(ctx.select).not.toHaveBeenCalled()
+  })
+
+  it('two inserts while the inline edit saves both land (the second builds on the first)', async () => {
+    const { ctx, click, uiRef } = mountTab({ inlineEdit: true })
+    // commitTo puts the committed ui in the draft synchronously, as the real one does.
+    ctx.commitTo.mockImplementation(async (_id: string, ui: RawUi) => {
+      uiRef.value = ui
+      return true
+    })
+    const sync = ctx.closeInlineEdit.getMockImplementation()!
+    let finish: (ok: boolean) => void = () => {}
+    ctx.closeInlineEdit.mockImplementation(() => {
+      void sync()
+      return new Promise<boolean>((r) => (finish = r))
+    })
+    await click('Insert Title')
+    await click('Insert Rectangle')
+    finish(true)
+    await flushPromises()
+    const last = ctx.commitTo.mock.calls.at(-1)![1] as { components: unknown[] }
+    expect(last.components).toHaveLength(4)
+    expect(uiRef.value).toBe(last)
+    expect(JSON.stringify(last)).toContain('Edited')
+  })
+
+  it('a failed inline-edit save is not an unhandled rejection', async () => {
+    const { ctx, click } = mountTab({ inlineEdit: true })
+    const sync = ctx.closeInlineEdit.getMockImplementation()!
+    ctx.closeInlineEdit.mockImplementation(async () => {
+      await sync()
+      throw new Error('save failed')
+    })
+    await click('Insert Title')
+    expect(ctx.commitTo).toHaveBeenCalledTimes(1)
+    // The image tile captures (and commits the edit) when it opens the picker.
+    ctx.inlineEdit.value = { slideId: 's1' }
+    await click('Insert Image')
+    expect(ctx.closeInlineEdit).toHaveBeenCalledTimes(2)
   })
 
   it('image insert commits an open inline edit at click time and keeps its text on a stale pick', async () => {
