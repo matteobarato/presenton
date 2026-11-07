@@ -27,6 +27,23 @@ describe('insertContent', () => {
     expect((a as any).elements[0].text).toBe('A')
   })
 
+  it('drops a block\'s variants and size, keeping the rest', () => {
+    const block = {
+      id: 'metric_cards',
+      name: 'Metric Cards',
+      position: { x: 40, y: 40 },
+      size: { width: 600, height: 200 },
+      variants: [{ id: 'metric_cards_1' }, { id: 'metric_cards_2' }],
+      elements: [{ type: 'text', position: { x: 0, y: 0 }, size: { width: 100, height: 40 }, text: 'A' }],
+    }
+    const r = insertContent(uiTwoComponents() as RawUi, { block, label: 'Metric Cards' })!
+    const added = readArray(r.ui.components)[2] as Record<string, unknown>
+    expect(added).not.toHaveProperty('variants')
+    expect(added).not.toHaveProperty('size')
+    expect(added.name).toBe('Metric Cards')
+    expect((added as any).elements[0].text).toBe('A')
+  })
+
   it('does not shift when the spot is free', () => {
     const r = insertContent({ components: [] } as RawUi, {
       content: { elements: createElementInsertElements('vector-rectangle') },

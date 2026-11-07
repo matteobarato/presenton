@@ -223,11 +223,19 @@ export type InsertRequest =
 const CASCADE_NEAR = 2
 const CASCADE_MAX_STEPS = 20
 
+/** A template block as a slide component: without its sibling variants or the group's size. */
+function insertableBlock(block: Record<string, unknown>): Record<string, unknown> {
+  const rest = { ...block }
+  delete rest.variants
+  delete rest.size
+  return rest
+}
+
 export function insertContent(ui: RawUi, req: InsertRequest): OpResult {
   const before = readArray(ui.components)
   const appended =
     'block' in req
-      ? appendInsertedContent(ui, [], [req.block], req.label, true)
+      ? appendInsertedContent(ui, [], [insertableBlock(req.block)], req.label, true)
       : appendInsertedContent(ui, req.content.elements ?? [], req.content.components ?? [], req.label, false)
   const components = [...readArray(appended.components)]
   if (components.length <= before.length) return null
