@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "id": "c1",
+      "name": "Pitch",
+      "description": null,
+      "is_default": false,
+      "layout_count": 2
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "page_size": 100
+}

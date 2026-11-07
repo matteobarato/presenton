@@ -132,4 +132,32 @@ test.describe('mocked backend', () => {
     await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible()
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
+
+  test('templates: gallery → detail → lightbox → use', async ({ page }) => {
+    const unexpected = await mockApi(page, {
+      'GET /api/templates': json([]),
+      'GET /api/v1/ppt/template/all': json(fixture('templates')),
+      'GET /api/v1/ppt/template/c1': json(fixture('template')),
+    })
+
+    await page.goto('/templates')
+    await expect(page.getByTestId('template-card')).toHaveCount(1)
+    await page.getByRole('link', { name: 'View Pitch' }).click()
+    await expect(page.getByRole('heading', { name: 'Pitch' })).toBeVisible()
+    await expect(page.getByTestId('layout-card')).toHaveCount(2)
+
+    await page.getByRole('button', { name: 'Preview layout 01' }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByText('1 / 2')).toBeVisible()
+    // No click inside the dialog first: arrow keys must work from the initial focus.
+    await page.keyboard.press('ArrowRight')
+    await expect(dialog.getByText('2 / 2')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(dialog).toHaveCount(0)
+
+    await page.getByRole('button', { name: 'Use this template' }).click()
+    await expect(page).toHaveURL(/\/new\?template=c1$/)
+    await expect(page.getByText('Using Pitch')).toBeVisible()
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
 })
