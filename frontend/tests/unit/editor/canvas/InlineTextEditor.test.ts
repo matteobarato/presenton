@@ -278,6 +278,80 @@ describe('InlineTextEditor', () => {
     expect(items.map(itemText)).toEqual(['One', 'Two', 'Three'])
   })
 
+  describe('own commits landing late', () => {
+    // editSlideUi that writes the slide only when the test lands it, like a save behind a refetch.
+    function deferCommits() {
+      const pending: { id: string; next: RawUi; resolve: (ok: boolean) => void }[] = []
+      editSlideUi.mockImplementation(
+        (id: string, next: RawUi) => new Promise<boolean>((resolve) => pending.push({ id, next, resolve })),
+      )
+      const land = async (i: number) => {
+        const c = pending[i]!
+        current!.slide.value = tpl(c.id, c.next)
+        await nextTick()
+        c.resolve(true)
+        await flushPromises()
+      }
+      return { pending, land }
+    }
+
+    it('a pending text commit landing does not drop a reopened edit', async () => {
+      const { api } = setup()
+      const { pending, land } = deferCommits()
+      await doubleClickText()
+      type('A')
+      press(prose()!, 'Escape')
+      await flushPromises()
+      expect(pending).toHaveLength(1)
+      api().requestInlineEdit(textSel)
+      await nextTick()
+      await settleFocus()
+      expect(prose()?.textContent).toBe('HelloA')
+      type('B')
+      await land(0)
+      expect(editorRoot()).not.toBeNull()
+      expect(prose()?.textContent).toBe('HelloAB')
+      expect(api().inlineEdit.value).not.toBeNull()
+      press(prose()!, 'Escape')
+      await flushPromises()
+      expect(pending).toHaveLength(2)
+      expect(committedText(1)).toBe('HelloAB')
+    })
+
+    it('a pending Move landing does not drop an edit opened after it', async () => {
+      const { api } = setup()
+      const { pending, land } = deferCommits()
+      const moved = uiWithText() as Record<string, unknown>
+      ;(moved.components as { position: { x: number } }[])[0]!.position.x = 300
+      void api().commit(moved as RawUi, 'Move')
+      api().requestInlineEdit(textSel)
+      await nextTick()
+      await settleFocus()
+      type('!')
+      await land(0)
+      expect(editorRoot()).not.toBeNull()
+      press(prose()!, 'Escape')
+      await flushPromises()
+      expect(pending).toHaveLength(2)
+      const next = pending[1]!.next
+      expect(getElementAtSelection(next, textSel)!.text).toBe('Hello!')
+      expect((next.components as { position: { x: number } }[])[0]!.position.x).toBe(300)
+    })
+
+    it('an external change while an own commit is pending still drops the edit', async () => {
+      const { api, slide } = setup()
+      deferCommits()
+      void api().commit(uiTwoComponents(), 'Move')
+      api().requestInlineEdit(textSel)
+      await nextTick()
+      type('!')
+      slide.value = tpl('a', uiWithText())
+      await flushPromises()
+      expect(editorRoot()).toBeNull()
+      expect(editSlideUi).toHaveBeenCalledTimes(1)
+    })
+  })
+
   it('Enter on a selected text element opens the editor', async () => {
     const { api } = setup()
     api().select(textSel)

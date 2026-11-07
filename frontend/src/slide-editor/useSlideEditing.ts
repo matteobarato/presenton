@@ -119,9 +119,26 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
       const unchanged = JSON.stringify(slide.value?.ui ?? null) === JSON.stringify(next)
       draftUi.value = unchanged ? null : next
     }
-    const ok = await editSlideUi(id, next, label)
-    if (current && !ok && draftUi.value === next) cancelDraft()
-    return ok
+    const entry = { slideId: id, ui: next }
+    pending.push(entry)
+    try {
+      const ok = await editSlideUi(id, next, label)
+      if (current && !ok && draftUi.value === next) cancelDraft()
+      return ok
+    } finally {
+      pending.splice(pending.indexOf(entry), 1)
+    }
+  }
+
+  // Uis this context committed whose save is still in flight. The cache write can land well after the
+  // commit (applyEdit may wait for a refetch), and its arrival is not an external change.
+  const pending: { slideId: string; ui: RawUi }[] = []
+  function pendingIndex(id: string | undefined, committed: unknown): number {
+    if (!id || pending.length === 0) return -1
+    const byRef = pending.findIndex((p) => p.slideId === id && p.ui === committed)
+    if (byRef >= 0) return byRef
+    const json = JSON.stringify(committed ?? null)
+    return pending.findIndex((p) => p.slideId === id && JSON.stringify(p.ui) === json)
   }
 
   function dropInlineEdit() {
@@ -170,8 +187,17 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   watch(
     () => slide.value?.ui,
     (committed) => {
-      dropInlineEdit()
-      draftUi.value = null
+      const own = pendingIndex(slide.value?.id, committed)
+      if (own >= 0) {
+        // Our own commit landed: the open edit and any newer draft still stand. The draft goes only
+        // when it is this ui (or an older one), never when a later commit is still on its way.
+        const draft = draftUi.value
+        const draftIndex = draft ? pending.findIndex((p) => p.ui === draft) : -1
+        if (draftIndex <= own) draftUi.value = null
+      } else {
+        dropInlineEdit()
+        draftUi.value = null
+      }
       if (!selectionValid((committed as RawUi | null | undefined) ?? null, selection.value)) selection.value = null
     },
   )
