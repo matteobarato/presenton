@@ -8,11 +8,14 @@ import { Skeleton } from '@/components/ui/skeleton'
 import EditorCanvas from '@/components/editor/EditorCanvas.vue'
 import EditorHeader from '@/components/editor/EditorHeader.vue'
 import EditorLayout from '@/components/editor/EditorLayout.vue'
+import ChatPanel from '@/components/editor/chat/ChatPanel.vue'
 import EditorStatusBar from '@/components/editor/EditorStatusBar.vue'
+import ExportDialog from '@/components/editor/ExportDialog.vue'
 import GenerationMetrics from '@/components/editor/GenerationMetrics.vue'
 import Inspector from '@/components/editor/Inspector.vue'
-import NotesStrip from '@/components/editor/NotesStrip.vue'
 import SlideNavigator from '@/components/editor/SlideNavigator.vue'
+import SpeakerNotes from '@/components/editor/SpeakerNotes.vue'
+import { slideLabel } from '@/lib/slide-label'
 import { useEditorShortcuts } from '@/composables/useEditorShortcuts'
 import { usePresentationStream } from '@/composables/usePresentationStream'
 import { slideKey, useEditorStore } from '@/stores/editor'
@@ -85,9 +88,13 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
       </div>
     </div>
 
-    <div v-else-if="!presentation" class="flex h-full gap-3 p-3" aria-busy="true" aria-label="Loading presentation">
-      <Skeleton class="h-full w-[180px] rounded-panel" />
-      <Skeleton class="h-full flex-1 rounded-panel" />
+    <div v-else-if="!presentation" class="flex h-full flex-col" aria-busy="true" aria-label="Loading presentation">
+      <div class="h-[83px] flex-none" />
+      <div class="flex min-h-0 flex-1 gap-3 pr-4 pl-3">
+        <Skeleton class="h-full w-[180px] rounded-panel max-[760px]:hidden" />
+        <Skeleton class="h-full flex-1 rounded-panel" />
+        <Skeleton class="h-full w-[280px] rounded-panel max-[1050px]:hidden" />
+      </div>
     </div>
 
     <template v-else>
@@ -101,12 +108,20 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
           :status="stream.status.value"
           :slide-count="slides.length"
         />
-        <EditorCanvas :presentation-id="id" :slide="activeSlide" />
-        <EditorStatusBar :position="activeIndex + 1" :total="slides.length" />
-        <NotesStrip v-if="editor.notesOpen && activeSlide" :presentation-id="id" :slide="activeSlide" />
+        <!-- Aera canvas card: floating tools, slide stage and status row, then the speaker-notes footer. -->
+        <div class="flex min-h-0 flex-1 flex-col rounded-panel bg-canvas max-[760px]:rounded-[13px]">
+          <EditorCanvas :presentation-id="id" :slide="activeSlide">
+            <template #status>
+              <EditorStatusBar :position="activeIndex + 1" :total="slides.length" :label="slideLabel(activeSlide)" />
+            </template>
+          </EditorCanvas>
+          <SpeakerNotes :presentation-id="id" :slide="activeSlide" />
+        </div>
 
         <template #inspector><Inspector /></template>
+        <template #chat><ChatPanel :presentation-id="id" :presentation="presentation" :active-slide="activeSlide" /></template>
       </EditorLayout>
+      <ExportDialog :presentation="presentation" />
     </template>
   </div>
 </template>

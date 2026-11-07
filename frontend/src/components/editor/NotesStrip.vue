@@ -30,28 +30,27 @@ const generating = computed(() => generate.isPending.value)
 </script>
 
 <template>
-  <section aria-label="Speaker notes" class="shrink-0 rounded-panel bg-storyboard p-3">
-    <div class="mb-2 flex items-center justify-between">
-      <h2 class="text-[11px] font-semibold tracking-wide text-muted uppercase">Speaker notes</h2>
+  <section aria-label="Speaker notes" class="flex flex-col gap-1.5">
+    <textarea
+      v-model="draft"
+      rows="2"
+      aria-label="Speaker notes"
+      placeholder="Give your story a little direction. Add speaker notes…"
+      :disabled="generating"
+      :readonly="editor.generating"
+      class="max-h-[150px] min-h-9 w-full resize-y bg-transparent px-0.5 text-[11px] leading-[1.7] text-[#a8b3b9] placeholder:text-[#7f8d95] focus:text-[#d2dbe0] focus-visible:outline-none disabled:opacity-60"
+      @input="onInput"
+    />
+    <div class="flex items-center justify-between gap-2">
+      <p v-if="failureFor(slide)" role="alert" class="text-[11px] text-danger-text">{{ failureFor(slide) }}</p>
       <button
         type="button"
         :disabled="generating || editor.generating"
-        class="inline-flex h-7 items-center gap-1.5 rounded-button px-2.5 text-[11px] font-semibold text-muted transition-colors duration-200 hover:bg-white/[0.06] hover:text-white disabled:pointer-events-none disabled:opacity-35"
+        class="ml-auto inline-flex h-7 items-center gap-1.5 rounded-control px-2 text-[10px] font-medium text-[#c9e5f2] hover:bg-[#475e6c80] hover:text-[#e3f5fe] disabled:pointer-events-none disabled:opacity-35"
         @click="onGenerate"
       >
-        <Sparkles class="size-3.5" aria-hidden="true" />{{ generating ? 'Generating…' : 'Generate' }}
+        <Sparkles class="size-3.5" aria-hidden="true" />{{ generating ? 'Writing notes…' : 'Write notes with AI' }}
       </button>
     </div>
-    <textarea
-      v-model="draft"
-      rows="3"
-      aria-label="Speaker notes"
-      placeholder="What will you say on this slide?"
-      :disabled="generating"
-      :readonly="editor.generating"
-      class="w-full resize-y rounded-button bg-field px-3 py-2 text-[12px] leading-[1.6] text-[#dce6ec] placeholder:text-muted focus-visible:outline-none disabled:opacity-60"
-      @input="onInput"
-    />
-    <p v-if="failureFor(slide)" role="alert" class="mt-1 text-[12px] text-danger-text">{{ failureFor(slide) }}</p>
   </section>
 </template>

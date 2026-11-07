@@ -45,3 +45,49 @@
   .slide-change-enter-active, .present-change-enter-active, .toast-enter-active, .toast-leave-active { transition-property: opacity }
 }
 
+
+/* Editor columns. Docked side panels collapse by animating width and gap, so the canvas, and the
+   slide that scales from it, resizes in step instead of jumping. The panel inside keeps its full
+   width and is clipped, so its content never reflows mid-animation. */
+.editor-columns {
+  --col-gap: 12px; --nav-w: 180px; --insp-w: 260px; --chat-w: 300px;
+}
+@media (max-width: 1279px) { .editor-columns { --col-gap: 10px; --nav-w: 160px; --insp-w: 240px; } }
+@media (max-width: 1050px) { .editor-columns { --nav-w: 166px; } }
+@media (min-width: 1600px) { .editor-columns { --col-gap: 16px; --nav-w: 210px; --insp-w: 280px; --chat-w: 340px; } }
+
+.panel-collapse {
+  flex: none; min-height: 0; overflow: hidden;
+  transition: width 340ms var(--ease), margin 340ms var(--ease);
+}
+.panel-collapse-inner { transition: opacity 220ms ease-out, translate 340ms var(--ease); }
+.panel-collapse[data-state=closed] .panel-collapse-inner { opacity: 0; }
+/* Each panel drifts a few pixels toward its own edge as it folds away. */
+.panel-collapse:first-child[data-state=closed] .panel-collapse-inner { translate: -12px 0; }
+.panel-collapse:not(:first-child)[data-state=closed] .panel-collapse-inner { translate: 12px 0; }
+
+/* Narrow screens: Ask AI is a fixed drawer that slides in from the right (Aera drawer grammar). */
+.chat-drawer {
+  position: fixed; top: 88px; right: 15px; bottom: 45px; z-index: 55;
+  width: min(340px, calc(100vw - 30px));
+  box-shadow: 0 20px 50px #0005;
+  transition: transform 280ms var(--ease), visibility 280ms;
+}
+.chat-drawer[data-state=closed] { transform: translateX(calc(100% + 30px)); visibility: hidden; }
+@media (max-width: 760px) { .chat-drawer { top: 80px; right: 10px; bottom: 42px; } }
+
+.backdrop-enter-active, .backdrop-leave-active { transition: opacity 220ms ease-out }
+.backdrop-enter-from, .backdrop-leave-to { opacity: 0 }
+
+/* Disclosure that animates its height: grid rows 0fr → 1fr. */
+.disclosure { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms var(--ease), opacity 220ms ease-out; opacity: 0; }
+.disclosure[data-state=open] { grid-template-rows: 1fr; opacity: 1; }
+.disclosure > * { min-height: 0; overflow: hidden; }
+
+/* Zoom eases between steps; only while zooming, so the slide tracks panel animations frame by frame. */
+.zoom-easing { transition: width 260ms var(--ease); }
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-collapse, .panel-collapse-inner, .chat-drawer, .disclosure, .zoom-easing { transition-duration: 0ms; }
+  .panel-collapse[data-state=closed] .panel-collapse-inner { translate: none; }
+}

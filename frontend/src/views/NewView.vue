@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ArrowRight, Sparkles } from 'lucide-vue-next'
+import PageHeader from '@/components/shell/PageHeader.vue'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ApiError } from '@/api/errors'
@@ -88,19 +90,31 @@ async function submit() {
 </script>
 
 <template>
-  <main class="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
-    <header>
-      <h1 class="font-display text-[26px] font-medium tracking-[-0.03em]">New presentation</h1>
-    </header>
-    <form class="flex flex-col gap-5" @submit.prevent="submit">
-      <PromptField v-model="prompt" :disabled="pending" />
-      <FileDropzone v-model="files" :disabled="pending" />
-      <GenerationOptions v-model="options" :disabled="pending" />
-      <Alert v-if="error" variant="destructive" role="alert" class="py-2 text-[12px]">{{ error }}</Alert>
-      <div class="flex items-center justify-end gap-3">
-        <span v-if="pending" role="status" class="text-[12px] text-muted">{{ stage }}</span>
-        <Button type="submit" :disabled="!canSubmit">{{ pending ? 'Working…' : 'Generate' }}</Button>
-      </div>
-    </form>
-  </main>
+  <PageHeader title="New presentation" />
+  <section class="workspace-card">
+    <div class="mx-auto flex w-full max-w-[720px] flex-col">
+      <header class="mb-9">
+        <h1 class="text-[34px] leading-[1.22] font-medium tracking-[-0.04em] text-[#e4ecf0] max-[1050px]:text-[30px] max-[760px]:text-[27px]">
+          Every great story starts somewhere.
+        </h1>
+        <p class="mt-[13px] text-[12px] text-[#9aabb4] max-[760px]:text-[11px] max-[760px]:leading-[1.7]">
+          Tell us what’s on your mind. You’ll shape an outline and pick a template before any slides are made.
+        </p>
+      </header>
+      <form class="flex flex-col gap-6" @submit.prevent="submit">
+        <PromptField v-model="prompt" :disabled="pending" />
+        <FileDropzone v-model="files" :disabled="pending" />
+        <GenerationOptions v-model="options" :disabled="pending" />
+        <Alert v-if="error" variant="destructive" role="alert" class="py-2 text-[12px]">{{ error }}</Alert>
+        <div class="flex flex-col gap-3">
+          <Button type="submit" class="h-[43px] w-full text-[12px]" :disabled="!canSubmit">
+            <Sparkles class="mr-auto size-[17px]" aria-hidden="true" />
+            {{ pending ? 'Working…' : 'Create my outline' }}
+            <ArrowRight class="ml-auto size-[17px]" aria-hidden="true" />
+          </Button>
+          <span v-if="pending" role="status" class="text-center text-[11px] text-[#a2b7c5]">{{ stage }}</span>
+        </div>
+      </form>
+    </div>
+  </section>
 </template>

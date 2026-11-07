@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PageHeader from '@/components/shell/PageHeader.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
@@ -108,10 +109,14 @@ async function generate() {
 </script>
 
 <template>
-  <section class="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-8">
-    <header class="flex flex-col gap-1">
-      <h1 class="font-display text-[24px] font-medium tracking-[-0.03em]">Outline</h1>
-      <p class="text-[12px] text-muted" role="status" aria-live="polite">
+  <PageHeader title="Outline" :parent="{ label: 'New presentation', to: '/new' }" />
+  <section class="workspace-card">
+   <div class="mx-auto flex w-full max-w-[960px] flex-col gap-8">
+    <header>
+      <h1 class="text-[34px] leading-[1.22] font-medium tracking-[-0.04em] text-[#e4ecf0] max-[1050px]:text-[30px] max-[760px]:text-[27px]">
+        Shape the story.
+      </h1>
+      <p class="mt-[13px] text-[12px] text-[#9aabb4]" role="status" aria-live="polite">
         {{ status }}
       </p>
     </header>
@@ -125,7 +130,7 @@ async function generate() {
     <OutlineList v-model="items" :disabled="streaming" />
 
     <div class="flex flex-col gap-3">
-      <h2 class="text-[13px] font-semibold">Template</h2>
+      <h2 class="text-[16px] font-medium">Choose a template</h2>
       <Skeleton v-if="templates.isPending.value" class="h-32 w-full" />
       <Alert v-else-if="templates.isError.value" variant="destructive" class="py-2 text-[12px]">
         Templates could not be loaded.
@@ -135,9 +140,10 @@ async function generate() {
 
     <Alert v-if="actionError" variant="destructive" class="py-2 text-[12px]">{{ actionError }}</Alert>
     <div class="flex justify-end">
-      <Button type="button" :disabled="!canGenerate" @click="generate">
+      <Button type="button" class="h-[43px] min-w-[240px] text-[12px] max-[760px]:w-full" :disabled="!canGenerate" @click="generate">
         {{ generating ? 'Preparing…' : generateLabel }}
       </Button>
     </div>
+   </div>
   </section>
 </template>

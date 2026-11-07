@@ -1,46 +1,49 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { useQueryClient } from '@tanstack/vue-query'
+import { useIsMutating, useQueryClient } from '@tanstack/vue-query'
 import {
   AudioLines,
+  ChevronDown,
   ChevronRight,
+  CloudCheck,
   Copy,
   Download,
-  Ellipsis,
   Loader2,
-  NotebookPen,
   PanelLeft,
-  PanelRight,
   PencilLine,
   Play,
-  Redo2,
+  SkipBack,
   Trash2,
-  Undo2,
 } from 'lucide-vue-next'
 import { toast } from '@/components/ui/sonner'
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import DeleteDeckDialog from '@/components/library/DeleteDeckDialog.vue'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { deletePresentation, duplicatePresentation, presentationKeys } from '@/api/presentations'
 import type { Presentation } from '@/api/types'
 import { useSlideMutations } from '@/composables/useSlideMutations'
-import { useUndoRedo } from '@/composables/useUndoRedo'
 import { cn } from '@/lib/utils'
-import { useEditorStore, type InspectorTabId } from '@/stores/editor'
+import { slideKey, useEditorStore, type InspectorTabId } from '@/stores/editor'
 
 const props = defineProps<{ presentation: Presentation }>()
 
 const router = useRouter() 
 const queryClient = useQueryClient()
 const editor = useEditorStore()
-const { history, undo, redo } = useUndoRedo()
+// Every write to the deck goes through a vue-query mutation, so this is the honest save state.
+const pendingWrites = useIsMutating()
+const saving = computed(() => pendingWrites.value > 0)
+const activeIndex = computed(() => Math.max(0, props.presentation.slides.findIndex((s) => slideKey(s) === editor.activeSlideId)))
+function present(from: number) {
+  void router.push({ name: 'present', params: { id: id.value }, query: from > 0 ? { from: String(from) } : {} })
+}
 const id = computed(() => props.presentation.id)
 const { rename } = useSlideMutations(id)
 
@@ -100,83 +103,48 @@ const iconBtn =
 </script>
 
 <template>
-  <header class="flex h-[60px] flex-none items-center gap-3 px-4 max-[760px]:h-14 max-[760px]:gap-1.5 max-[760px]:px-2.5">
-    <button
-      type="button"
-      :class="cn(iconBtn, 'hidden max-[760px]:inline-flex')"
-      aria-label="Show slides"
-      @click="editor.navigatorOpen = true"
-    >
-      <PanelLeft class="size-4" aria-hidden="true" />
-    </button>
+  <header
+    class="flex h-[83px] flex-none items-center justify-between gap-5 px-[27px] max-[1279px]:px-5 max-[760px]:h-[75px] max-[760px]:gap-3 max-[760px]:px-4 max-[450px]:px-[11px] [@media(max-height:780px)_and_(min-width:1051px)]:h-[69px]"
+  >
+    <div class="flex min-w-0 items-center gap-[13px] max-[760px]:gap-[7px]">
+      <button
+        type="button"
+        :class="cn(iconBtn, 'hidden max-[760px]:inline-flex')"
+        aria-label="Show slides"
+        @click="editor.navigatorOpen = true"
+      >
+        <PanelLeft class="size-4" aria-hidden="true" />
+      </button>
 
-    <nav aria-label="Breadcrumb" class="flex min-w-0 flex-1 items-center gap-2 text-[12px] text-muted">
-      <RouterLink :to="{ name: 'library' }" class="max-[760px]:hidden hover:text-white">Library</RouterLink>
-      <ChevronRight class="size-3 flex-none max-[760px]:hidden" aria-hidden="true" />
-      <input
-        ref="titleInput"
-        v-model="draft"
-        type="text"
-        aria-label="Presentation title"
-        :disabled="editor.locked"
-        maxlength="200"
-        class="h-8 w-[min(420px,100%)] min-w-0 truncate rounded-control border border-transparent bg-transparent px-2 text-[13px] font-semibold text-text hover:border-line focus:border-accent focus:bg-field"
-        @blur="commitTitle"
-        @keydown.enter.prevent="($event.target as HTMLInputElement).blur()"
-        @keydown.esc.prevent="((draft = presentation.title ?? ''), ($event.target as HTMLInputElement).blur())"
-      />
-    </nav>
-
-    <div class="flex flex-none items-center gap-1">
-      <div class="flex items-center gap-0.5" role="group" aria-label="History">
-        <button
-          type="button"
-          :class="iconBtn"
-          :disabled="!history.canUndo || editor.locked"
-          :aria-label="history.undoLabel ? `Undo ${history.undoLabel.toLowerCase()}` : 'Undo'"
-          title="Undo (Ctrl+Z)"
-          @click="undo"
-        >
-          <Undo2 class="size-4" aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          :class="iconBtn"
-          :disabled="!history.canRedo || editor.locked"
-          :aria-label="history.redoLabel ? `Redo ${history.redoLabel.toLowerCase()}` : 'Redo'"
-          title="Redo (Shift+Ctrl+Z)"
-          @click="redo"
-        >
-          <Redo2 class="size-4" aria-hidden="true" />
-        </button>
-      </div>
-
-      <span class="mx-1.5 h-4 w-px bg-line max-[760px]:hidden" aria-hidden="true" />
+      <nav aria-label="Breadcrumb" class="flex min-w-0 items-center gap-[13px]">
+        <RouterLink :to="{ name: 'library' }" class="text-[11px] whitespace-nowrap text-[#929b9f] hover:text-accent max-[760px]:hidden">Library</RouterLink>
+        <ChevronRight class="size-[13px] flex-none text-[#667179] max-[760px]:hidden" aria-hidden="true" />
+        <input
+          ref="titleInput"
+          v-model="draft"
+          type="text"
+          aria-label="Presentation title"
+          :disabled="editor.locked"
+          maxlength="200"
+          :size="Math.max(8, Math.min(draft.length, 40))"
+          class="h-8 max-w-[min(360px,40vw)] min-w-0 [field-sizing:content] truncate rounded-control border border-transparent bg-transparent px-1.5 text-[12px] font-semibold text-[#e4e8ea] hover:border-line focus:border-accent focus:bg-field max-[450px]:text-[11px]"
+          @blur="commitTitle"
+          @keydown.enter.prevent="($event.target as HTMLInputElement).blur()"
+          @keydown.esc.prevent="((draft = presentation.title ?? ''), ($event.target as HTMLInputElement).blur())"
+        />
+      </nav>
 
       <DropdownMenu>
-        <DropdownMenuTrigger :class="iconBtn" aria-label="More actions" title="More actions">
-          <Loader2 v-if="duplicating" class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-          <Ellipsis v-else class="size-4" aria-hidden="true" />
+        <DropdownMenuTrigger :class="cn(iconBtn, '-ml-2.5 size-7 text-[#879298]')" aria-label="Presentation actions" title="Presentation actions">
+          <Loader2 v-if="duplicating" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+          <ChevronDown v-else class="size-[13px]" aria-hidden="true" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" class="min-w-52">
+        <DropdownMenuContent align="start" class="min-w-52">
           <DropdownMenuItem :disabled="editor.locked" @select="focusTitle">
             <PencilLine class="size-3.5" aria-hidden="true" />Rename
           </DropdownMenuItem>
           <DropdownMenuItem :disabled="duplicating" @select="duplicateDeck">
             <Copy class="size-3.5" aria-hidden="true" />Duplicate presentation
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuCheckboxItem
-            :model-value="editor.notesOpen"
-            class="pr-7 pl-2.5 [&>span:first-child]:right-2 [&>span:first-child]:left-auto"
-            @update:model-value="editor.notesOpen = Boolean($event)">
-            <NotebookPen class="size-3.5" aria-hidden="true" />Notes under the slide
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuItem @select="openInspector('narration')">
-            <AudioLines class="size-3.5" aria-hidden="true" />Narration and avatars
-          </DropdownMenuItem>
-          <DropdownMenuItem @select="openInspector('export')">
-            <Download class="size-3.5" aria-hidden="true" />Export…
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -189,22 +157,58 @@ const iconBtn =
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <button
-        type="button"
-        :class="cn(iconBtn, editor.inspectorOpen && 'text-white')"
-        :aria-pressed="editor.inspectorOpen"
-        aria-label="Toggle inspector"
-        title="Toggle inspector"
-        @click="editor.inspectorOpen = !editor.inspectorOpen"
+      <span
+        class="ml-3 flex items-center gap-[7px] text-[10px] whitespace-nowrap text-[#899397] transition-opacity duration-200 max-[1279px]:ml-[3px] max-[760px]:ml-0 max-[450px]:hidden"
+        :class="saving && 'opacity-60'"
+        role="status"
       >
-        <PanelRight class="size-4" aria-hidden="true" />
-      </button>
-      <RouterLink
-        :to="{ name: 'present', params: { id } }"
-        class="ml-1.5 inline-flex h-[34px] items-center gap-1.5 rounded-button bg-accent px-3.5 text-[12px] font-semibold text-accent-ink transition-colors duration-200 hover:bg-accent-hover max-[760px]:px-2.5"
+        <Loader2 v-if="saving" class="size-[15px] animate-spin text-[#98b7a8] motion-reduce:animate-none" aria-hidden="true" />
+        <CloudCheck v-else class="size-[15px] text-[#98b7a8]" aria-hidden="true" />
+        <span class="max-[1279px]:sr-only">{{ saving ? 'Saving changes…' : 'All changes saved' }}</span>
+      </span>
+    </div>
+
+    <div class="flex flex-none items-center gap-[9px] max-[760px]:gap-[7px] max-[450px]:gap-[5px]">
+      <Button
+        variant="outline"
+        class="max-[760px]:w-[33px] max-[760px]:px-0"
+        aria-label="Export"
+        @click="editor.exportOpen = true"
       >
-        <Play class="size-3.5" aria-hidden="true" /><span class="max-[420px]:sr-only">Present</span>
-      </RouterLink>
+        <Download class="size-3.5" aria-hidden="true" /><span class="max-[760px]:hidden">Export</span>
+      </Button>
+      <div class="inline-flex flex-none">
+        <RouterLink
+          :to="{ name: 'present', params: { id }, query: activeIndex > 0 ? { from: String(activeIndex) } : {} }"
+          :class="cn(buttonVariants(), 'gap-[9px] rounded-r-none max-[760px]:h-[33px] max-[760px]:px-[11px] max-[760px]:text-[10px] max-[450px]:h-[31px] max-[450px]:px-[9px]')"
+        >
+          <Play class="size-3.5 fill-current" aria-hidden="true" /><span class="max-[420px]:sr-only">Present</span>
+        </RouterLink>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            :class="cn(buttonVariants(), 'w-[34px] rounded-l-none border-l-[#1b333e38] px-0 data-[state=open]:bg-accent-hover max-[760px]:h-[33px] max-[760px]:w-8 max-[450px]:h-[31px] max-[450px]:w-7')"
+            aria-label="Presentation and export options"
+            title="Presentation and export options"
+          >
+            <ChevronDown class="size-3.5" aria-hidden="true" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" class="w-[min(230px,calc(100vw-24px))]">
+            <DropdownMenuItem @select="present(activeIndex)">
+              <Play class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Present from current slide
+            </DropdownMenuItem>
+            <DropdownMenuItem @select="present(0)">
+              <SkipBack class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Present from beginning
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem @select="openInspector('narration')">
+              <AudioLines class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Narration and avatars
+            </DropdownMenuItem>
+            <DropdownMenuItem @select="editor.exportOpen = true">
+              <Download class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Export PPTX, PDF or video…
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
 
     <DeleteDeckDialog v-model:open="deleteOpen" :title="presentation.title || 'Untitled presentation'" @confirm="deleteDeck" />

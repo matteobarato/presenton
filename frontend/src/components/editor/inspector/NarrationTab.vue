@@ -26,7 +26,7 @@ const { confirming, pendingIndices, generate } = avatars
 </script>
 
 <template>
-  <section class="flex flex-col gap-5 p-3 pt-1" aria-label="Narration">
+  <section class="flex flex-col gap-5 px-5 pt-5 pb-[18px] max-[1279px]:px-4" aria-label="Narration">
     <template v-if="activeSlide">
       <p class="text-[11px] font-semibold tracking-wide text-muted uppercase tabular-nums" data-testid="narration-slide">
         Slide {{ activeSlide.index + 1 }} <span class="font-normal normal-case">of {{ presentation.slides.length }}</span>

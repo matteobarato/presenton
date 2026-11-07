@@ -91,7 +91,7 @@ function deleteNarration() {
         <p v-if="tts" class="text-[11px] text-muted tabular-nums" data-testid="narration-counts">
           {{ counts.ready + counts.translated }} up to date · {{ counts.stale }} out of date · {{ counts.missing }} without audio
         </p>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-wrap gap-2 [&>*]:min-w-[110px] [&>*]:flex-1">
           <Button size="sm" variant="secondary" :disabled="generateNotes.isPending.value || editor.generating" @click="generateNotes.mutate()">
             Generate all notes
           </Button>

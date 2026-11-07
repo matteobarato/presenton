@@ -14,7 +14,8 @@ const isEditable = (el: EventTarget | null) => {
 
 /**
  * Editor keyboard map: Up/Down or PgUp/PgDn select slides, Cmd/Ctrl+Z undo,
- * Shift+Cmd/Ctrl+Z redo, Cmd/Ctrl+K toggles Ask. Delete-in-navigator lives in
+ * Shift+Cmd/Ctrl+Z redo, Cmd/Ctrl+K toggles the Ask AI panel,
+ * Cmd/Ctrl+Enter opens the add-slide picker. Delete-in-navigator lives in
  * SlideNavigator. Navigation and undo yield to text fields.
  */
 export function useEditorShortcuts() {
@@ -37,11 +38,17 @@ export function useEditorShortcuts() {
 
     if (mod && key === 'k') {
       e.preventDefault()
-      if (!editor.askOpen && askBlocked()) return
-      editor.askOpen = !editor.askOpen
+      if (!editor.chatOpen && askBlocked()) return
+      editor.toggleAsk()
       return
     }
     if (isEditable(e.target)) return
+    if (mod && e.key === 'Enter') {
+      if (editor.locked) return
+      e.preventDefault()
+      editor.addSlideRequested++
+      return
+    }
     if (mod && key === 'z') {
       if (editor.locked) return
       e.preventDefault()

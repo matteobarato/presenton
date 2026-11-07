@@ -87,10 +87,11 @@ test.describe('mocked backend', () => {
     await thumbnails.nth(2).click()
     await expect(voice).toHaveAttribute('data-state', 'missing')
 
+    // Present starts from the selected slide (the third).
     await page.locator('header').getByRole('link', { name: 'Present' }).click()
-    await expect(page).toHaveURL(`/p/${DECK_ID}/present`)
-    await expect(page.getByTestId('counter')).toHaveText('1 / 3')
-    await page.keyboard.press('ArrowRight')
+    await expect(page).toHaveURL(`/p/${DECK_ID}/present?from=2`)
+    await expect(page.getByTestId('counter')).toHaveText('3 / 3')
+    await page.keyboard.press('ArrowLeft')
     await expect(page.getByTestId('counter')).toHaveText('2 / 3')
     await page.keyboard.press('Escape')
     await expect(page).toHaveURL(`/p/${DECK_ID}`)

@@ -125,6 +125,21 @@ describe('EditorView', () => {
     expect(tabs.map((t) => t.attributes('title'))).toEqual(inspectorTabs.map((t) => t.label))
   })
 
+  it('Ask AI opens its own panel beside the inspector, and Ctrl+K toggles it', async () => {
+    const w = await mountAt('/p/p1')
+    expect(w.get('#ask-ai-panel').attributes('data-state')).toBe('closed')
+    expect(w.findAll('[role="tab"]').map((t) => t.attributes('title'))).not.toContain('Chat')
+    await w.get('[data-ask-button]').trigger('click')
+    await flushPromises()
+    const panel = w.get('#ask-ai-panel')
+    expect(panel.attributes('data-state')).toBe('open')
+    expect(w.get('aside[aria-label="Inspector"]').element.contains(panel.element)).toBe(false)
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))
+    await flushPromises()
+    expect(useEditorStore().chatOpen).toBe(false)
+    expect(w.get('#ask-ai-panel').attributes('data-state')).toBe('closed')
+  })
+
   it('?stream=1 starts the stream and shows the generation metrics', async () => {
     api.getPresentation.mockResolvedValue({ ...deck(), slides: [] })
     let release!: () => void

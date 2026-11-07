@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export type InspectorTabId = 'design' | 'chat' | 'narration' | 'export'
+export type InspectorTabId = 'design' | 'narration'
 
 /** Stable key of a slide; slides mid-stream may not have an id yet. */
 export const slideKey = (s: { id?: string | null; index: number }) => s.id ?? `index-${s.index}`
@@ -24,11 +24,23 @@ export const useEditorStore = defineStore('editor', () => {
   /** Structural edits (and anything that PATCHes the deck's slides) are off. */
   const locked = computed(() => generating.value || deckBusy.value > 0)
   const navigatorOpen = ref(false) // the drawer, below 760px
+  const navigatorVisible = ref(true) // the docked storyboard, above 760px
   const inspectorOpen = ref(true)
+  const chatOpen = ref(false)
   const inspectorTab = ref<InspectorTabId>('design')
   const zoom = ref(1)
   const notesOpen = ref(false)
-  const askOpen = ref(false)
+  const exportOpen = ref(false)
+  // Bumped by Cmd/Ctrl+Enter; the navigator opens its layout picker.
+  const addSlideRequested = ref(0)
+
+  /** Ask AI has its own panel, docked right of the inspector (a drawer on narrow screens). */
+  function openAsk() {
+    chatOpen.value = true
+  }
+  function toggleAsk() {
+    chatOpen.value = !chatOpen.value
+  }
 
   function select(id: string | null) {
     activeSlideId.value = id
@@ -52,7 +64,7 @@ export const useEditorStore = defineStore('editor', () => {
     activeSlideId.value = null
     slideIds.value = []
     zoom.value = 1
-    askOpen.value = false
+    exportOpen.value = false
     deckBusy.value = 0
   }
 
@@ -67,7 +79,12 @@ export const useEditorStore = defineStore('editor', () => {
     inspectorTab,
     zoom,
     notesOpen,
-    askOpen,
+    navigatorVisible,
+    exportOpen,
+    addSlideRequested,
+    openAsk,
+    toggleAsk,
+    chatOpen,
     select,
     next,
     prev,

@@ -15,7 +15,8 @@ const { data: presentation, isError } = usePresentation(id)
 
 const slides = computed(() => [...(presentation.value?.slides ?? [])].sort((a, b) => a.index - b.index))
 const total = computed(() => slides.value.length)
-const index = ref(0)
+// `?from=N` starts at slide N ("Present from current slide"); the total watcher clamps it.
+const index = ref(Math.max(0, Math.floor(Number(route.query.from)) || 0))
 const slide = computed(() => slides.value[index.value])
 
 const narrating = ref(false)

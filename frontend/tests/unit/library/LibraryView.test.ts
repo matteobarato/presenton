@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { defineComponent, h } from 'vue'
 import type { PresentationSummary } from '@/api/presentations'
@@ -74,6 +75,7 @@ async function mountView() {
 const titles = (w: Awaited<ReturnType<typeof mountView>>) => w.findAll('[data-testid="deck"] h3').map((h) => h.text())
 
 beforeEach(() => {
+  setActivePinia(createPinia())
   localStorage.clear()
   document.body.innerHTML = ''
   Object.values(api).forEach((f) => f.mockReset())

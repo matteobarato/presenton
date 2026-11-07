@@ -3,7 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { ApiError } from '@/api/errors'
 import type { Presentation } from '@/api/types'
-import ExportTab from '@/components/editor/inspector/ExportTab.vue'
+import ExportOptions from '@/components/editor/export/ExportOptions.vue'
 
 const m = vi.hoisted(() => ({
   exportPresentation: vi.fn(),
@@ -28,8 +28,8 @@ const presentation = { id: ID, language: 'English', slides: [] } as unknown as P
 const video = { id: 'v1', language: 'it', url: '/app_data/exports/v.mp4' }
 
 function mountTab() {
-  return mount(ExportTab, {
-    props: { presentationId: ID, presentation, activeSlide: null },
+  return mount(ExportOptions, {
+    props: { presentationId: ID, presentation },
     global: { plugins: [[VueQueryPlugin, { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false } } }) }]] },
     attachTo: document.body,
   })
@@ -44,7 +44,7 @@ beforeEach(() => {
   document.body.innerHTML = ''
 })
 
-describe('ExportTab files', () => {
+describe('ExportOptions files', () => {
   it('exports and shows a download link, disabling both buttons meanwhile', async () => {
     let resolve!: (v: { path: string }) => void
     m.exportPresentation.mockReturnValue(new Promise((r) => (resolve = r)))
@@ -71,7 +71,7 @@ describe('ExportTab files', () => {
   })
 })
 
-describe('ExportTab video', () => {
+describe('ExportOptions video', () => {
   it('shows basic options, hides advanced ones until expanded', async () => {
     localStorage.setItem('presenton.tts.lang', 'it')
     const w = mountTab()
@@ -139,5 +139,20 @@ describe('ExportTab video', () => {
     await w.get('[data-testid="mp4-start"]').trigger('click')
     await flushPromises()
     expect(w.get('[data-testid="mp4-start-error"]').text()).toContain('Unsupported language')
+  })
+})
+
+describe('ExportOptions formats', () => {
+  it('starts on PowerPoint and switches the visible panel by format', async () => {
+    const w = mountTab()
+    await flushPromises()
+    const visible = (id: string) => (w.get(`[data-testid="${id}"]`).element.parentElement as HTMLElement).style.display !== 'none'
+    expect(w.get('[data-testid="format-pptx"]').attributes('aria-checked')).toBe('true')
+    expect(visible('export-pptx')).toBe(true)
+    expect(visible('export-mp4')).toBe(false)
+    await w.get('[data-testid="format-mp4"]').trigger('click')
+    expect(w.get('[data-testid="format-mp4"]').attributes('aria-checked')).toBe('true')
+    expect(visible('export-mp4')).toBe(true)
+    expect(visible('export-pptx')).toBe(false)
   })
 })

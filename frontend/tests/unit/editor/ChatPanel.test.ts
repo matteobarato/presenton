@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import type { StreamEvent } from '@/api/sse'
-import ChatTab from '@/components/editor/inspector/ChatTab.vue'
+import ChatPanel from '@/components/editor/chat/ChatPanel.vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { useEditorStore } from '@/stores/editor'
 
@@ -17,7 +17,7 @@ const props = { presentationId: 'p1', presentation: {} as never, activeSlide: nu
 const existing = [{ conversation_id: 'c1', updated_at: '2026-01-01T00:00:00Z' }]
 
 async function mountTab() {
-  const w = mount(ChatTab, { props, attachTo: document.body })
+  const w = mount(ChatPanel, { props, attachTo: document.body })
   await flushPromises()
   return w
 }
@@ -32,7 +32,7 @@ beforeEach(() => {
   })
 })
 
-describe('ChatTab', () => {
+describe('ChatPanel', () => {
   it('loads history on mount and renders assistant markdown', async () => {
     mocks.listConversations.mockResolvedValue(existing)
     mocks.getHistory.mockResolvedValue({
@@ -105,7 +105,7 @@ describe('ChatTab', () => {
 
   it('sends the active slide index as context', async () => {
     const presentation = { slides: [{ id: 'a' }, { id: 'b' }] } as never
-    const w = mount(ChatTab, { props: { ...props, presentation, activeSlide: { id: 'b' } as never }, attachTo: document.body })
+    const w = mount(ChatPanel, { props: { ...props, presentation, activeSlide: { id: 'b' } as never }, attachTo: document.body })
     await flushPromises()
     await w.find('textarea').setValue('go')
     await w.find('textarea').trigger('keydown', { key: 'Enter' })

@@ -17,7 +17,6 @@ import {
 } from '@/api/themes'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/sonner'
 import { useEditorStore } from '@/stores/editor'
 import ThemeEditorDialog from './ThemeEditorDialog.vue'
@@ -130,47 +129,71 @@ const generate = useMutation({
 </script>
 
 <template>
-  <section class="flex flex-col gap-4 p-3" aria-label="Design">
-    <div class="flex items-center justify-between">
-      <h3 class="text-[12px] font-medium text-[#dce6ec]">Themes</h3>
-      <Button size="sm" variant="ghost" @click="openEditor(null)"><Plus class="size-3" /> New theme</Button>
+  <section class="flex flex-1 flex-col px-5 pb-[18px] max-[1279px]:px-4 min-[1600px]:px-[23px]" aria-label="Design">
+    <div class="pt-6 pb-[22px] min-[1600px]:pt-7 min-[1600px]:pb-[26px] [@media(max-height:780px)_and_(min-width:1051px)]:pt-[17px] [@media(max-height:780px)_and_(min-width:1051px)]:pb-4">
+      <h2 class="text-[19px] font-medium tracking-[-0.04em] text-[#f0f2f3] max-[1279px]:text-[18px] min-[1600px]:text-[22px]">Make it yours.</h2>
+      <p class="mt-[5px] text-[10px] leading-[1.6] text-[#a0abb1]">One theme recolours every slide in the deck.</p>
     </div>
 
-    <p v-if="themes.isError.value" class="text-[12px] text-muted" role="alert">Could not load themes.</p>
+    <div class="pb-[19px]">
+      <div class="mb-3 flex items-center justify-between text-[10px] font-medium text-[#d0d7dc] min-[1600px]:text-[11px]">
+        <h3>Theme</h3>
+        <button
+          type="button"
+          class="-mr-1.5 inline-flex h-6 items-center gap-1 rounded-control px-1.5 text-[9px] font-normal text-[#9aa9b0] hover:bg-white/[0.04] hover:text-white"
+          @click="openEditor(null)"
+        >
+          <Plus class="size-3" aria-hidden="true" />New theme
+        </button>
+      </div>
 
-    <div class="grid grid-cols-2 gap-2">
-      <ThemeSwatch
-        name="Default"
-        :theme="null"
-        :selected="appliedId === null"
-        :custom="false"
-        :disabled="editor.generating"
-        @select="apply.mutate(null)"
-      />
-      <ThemeSwatch
-        v-for="t in themeList"
-        :key="t.id"
-        :name="t.name"
-        :theme="t"
-        :selected="appliedId === t.id"
-        :custom="isCustom(t)"
-        :disabled="editor.generating"
-        @select="apply.mutate(t)"
-        @edit="openEditor(t)"
-        @remove="askDelete(t)"
-      />
+      <p v-if="themes.isError.value" class="mb-3 text-[11px] text-muted" role="alert">Could not load themes.</p>
+
+      <div class="grid grid-cols-2 gap-x-3 gap-y-[13px] max-[1279px]:gap-x-2.5 max-[1279px]:gap-y-[11px] min-[1600px]:gap-x-[15px] min-[1600px]:gap-y-[17px]">
+        <ThemeSwatch
+          name="Default"
+          :theme="null"
+          :selected="appliedId === null"
+          :custom="false"
+          :disabled="editor.generating"
+          @select="apply.mutate(null)"
+        />
+        <ThemeSwatch
+          v-for="t in themeList"
+          :key="t.id"
+          :name="t.name"
+          :theme="t"
+          :selected="appliedId === t.id"
+          :custom="isCustom(t)"
+          :disabled="editor.generating"
+          @select="apply.mutate(t)"
+          @edit="openEditor(t)"
+          @remove="askDelete(t)"
+        />
+      </div>
     </div>
 
-    <form class="flex flex-col gap-2 border-t border-white/10 pt-3" @submit.prevent="generate.mutate()">
-      <Label>Generate from colours</Label>
-      <div class="flex items-center gap-2">
-        <input v-model="seedPrimary" type="color" class="size-8 cursor-pointer rounded-[6px] border border-white/10 bg-transparent" aria-label="Seed primary colour" />
-        <input v-model="seedBackground" type="color" class="size-8 cursor-pointer rounded-[6px] border border-white/10 bg-transparent" aria-label="Seed background colour" />
-        <Button type="submit" size="sm" :disabled="generate.isPending.value">
+    <form class="border-t border-line py-[18px] min-[1600px]:py-[22px]" @submit.prevent="generate.mutate()">
+      <div class="mb-3 flex items-center justify-between text-[10px] font-medium text-[#d0d7dc] min-[1600px]:text-[11px]">
+        <h3>Generate from colours</h3>
+        <span class="text-[9px] font-normal text-[#9aa9b0]">Primary · background</span>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <label class="grid size-[34px] cursor-pointer place-items-center rounded-control border border-white/[0.06] bg-field hover:bg-[#303a3f]">
+          <span class="size-[22px] rounded-full border border-white/[0.12]" :style="{ background: seedPrimary }" aria-hidden="true" />
+          <input v-model="seedPrimary" type="color" class="sr-only" aria-label="Seed primary colour" />
+        </label>
+        <label class="grid size-[34px] cursor-pointer place-items-center rounded-control border border-white/[0.06] bg-field hover:bg-[#303a3f]">
+          <span class="size-[22px] rounded-full border border-white/[0.12]" :style="{ background: seedBackground }" aria-hidden="true" />
+          <input v-model="seedBackground" type="color" class="sr-only" aria-label="Seed background colour" />
+        </label>
+        <Button type="submit" variant="secondary" class="h-[34px] flex-1 text-[11px] font-medium" :disabled="generate.isPending.value">
           {{ generate.isPending.value ? 'Generating…' : 'Generate theme' }}
         </Button>
       </div>
     </form>
+
+    <p class="mt-auto pt-5 text-center text-[9px] text-[#99a9b2]">Good design is in the details.</p>
 
     <ThemeEditorDialog v-model:open="editorOpen" :theme="editing" :saving="save.isPending.value" @save="save.mutate($event)" />
 

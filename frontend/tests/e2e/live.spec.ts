@@ -14,7 +14,7 @@ test('sign in, open the first deck, render every slide, present and exit', async
   await page.getByLabel('Password').fill(password!)
   await page.getByRole('button', { name: 'Sign in' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Library' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'What will you create today?' })).toBeVisible()
   const cards = page.getByTestId('deck')
   await expect(cards.first()).toBeVisible()
   await cards.first().getByRole('link').first().click()

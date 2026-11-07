@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { buttonVariants } from '@/components/ui/button/index'
+import { Plus, Search } from 'lucide-vue-next'
+import { Button, buttonVariants } from '@/components/ui/button'
 
-defineProps<{ searching?: boolean }>()
+defineProps<{ searching?: boolean; query?: string }>()
+defineEmits<{ clear: [] }>()
 </script>
 
 <template>
-  <div class="grid place-items-center gap-4 rounded-[16px] border border-dashed border-white/[0.1] px-6 py-20 text-center">
-    <p v-if="searching" class="text-[14px] font-semibold text-[#f6f8f9]">No presentations match your search</p>
+  <div class="flex flex-col items-center px-6 py-[55px] text-center text-[#acc3d2]">
+    <template v-if="searching">
+      <Search class="size-7" aria-hidden="true" />
+      <h2 class="mt-[17px] mb-[7px] text-[20px] font-medium">No presentations match “{{ query }}”</h2>
+      <p class="mb-5 text-[12px] text-[#97aebc]">Try a different title, or start a new presentation.</p>
+      <Button variant="secondary" @click="$emit('clear')">Clear search</Button>
+    </template>
     <template v-else>
-      <div>
-        <p class="text-[14px] font-semibold text-[#f6f8f9]">No presentations yet</p>
-        <p class="mt-1 text-[12px] text-[#9aa3a8]">Create your first deck from a prompt or a document.</p>
-      </div>
+      <Plus class="size-7" aria-hidden="true" />
+      <h2 class="mt-[17px] mb-[7px] text-[20px] font-medium">No presentations yet</h2>
+      <p class="mb-5 text-[12px] text-[#97aebc]">Create your first deck from a prompt or a document.</p>
       <RouterLink to="/new" :class="buttonVariants()">New presentation</RouterLink>
     </template>
   </div>
