@@ -100,6 +100,15 @@ describe('InsertTab', () => {
     expect(ctx.select).toHaveBeenCalledWith({ kind: 'component', componentIndex: 2 })
   })
 
+  it('marks its selection as insert-made right before selecting it', async () => {
+    const { ctx, click } = mountTab()
+    const editor = useEditorStore()
+    let pendingAtSelect: boolean | undefined
+    ctx.select.mockImplementation(() => (pendingAtSelect = editor.insertSelectionPending))
+    await click('Insert Title')
+    expect(pendingAtSelect).toBe(true)
+  })
+
   it('commits an open inline edit before inserting', async () => {
     const { ctx, click } = mountTab({ inlineEdit: true })
     await click('Insert Rectangle')

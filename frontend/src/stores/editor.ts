@@ -35,6 +35,8 @@ export const useEditorStore = defineStore('editor', () => {
   const addSlideRequested = ref(0)
   // Mirrors the on-slide selection (set by useSlideEditing) so global arrow-key slide navigation can yield.
   const slideSelectionActive = ref(false)
+  // One-shot: set by an insert right before it selects what it added, so the Insert tab stays up.
+  const insertSelectionPending = ref(false)
 
   /** Ask AI has its own panel, docked right of the inspector (a drawer on narrow screens). */
   function openAsk() {
@@ -73,6 +75,7 @@ export const useEditorStore = defineStore('editor', () => {
     exportOpen.value = false
     deckBusy.value = 0
     slideSelectionActive.value = false
+    insertSelectionPending.value = false
   }
 
   return {
@@ -90,6 +93,7 @@ export const useEditorStore = defineStore('editor', () => {
     exportOpen,
     addSlideRequested,
     slideSelectionActive,
+    insertSelectionPending,
     openAsk,
     toggleAsk,
     openInsert,

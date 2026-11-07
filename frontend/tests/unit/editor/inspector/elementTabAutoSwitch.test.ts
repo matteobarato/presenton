@@ -41,12 +41,47 @@ describe('useElementTabAutoSwitch', () => {
     expect(editor.inspectorOpen).toBe(true)
   })
 
-  it('stays on the Insert tab when a selection appears', async () => {
+  it('on the Insert tab, a selection made by an insert stays on Insert', async () => {
+    const { selection, editor } = setup()
+    editor.inspectorTab = 'insert'
+    editor.insertSelectionPending = true
+    selection.value = sel
+    await nextTick()
+    expect(editor.inspectorTab).toBe('insert')
+    expect(editor.insertSelectionPending).toBe(false)
+  })
+
+  it('on the Insert tab, a normal selection switches to Element', async () => {
     const { selection, editor } = setup()
     editor.inspectorTab = 'insert'
     selection.value = sel
     await nextTick()
+    expect(editor.inspectorTab).toBe('element')
+  })
+
+  it('the insert marker is one-shot: the next canvas selection switches to Element', async () => {
+    const { selection, editor } = setup()
+    editor.inspectorTab = 'insert'
+    editor.insertSelectionPending = true
+    selection.value = sel
+    await nextTick()
+    selection.value = null
+    await nextTick()
+    selection.value = { kind: 'component', componentIndex: 1 }
+    await nextTick()
+    expect(editor.inspectorTab).toBe('element')
+  })
+
+  it('an insert replacing an existing selection still clears the marker', async () => {
+    const { selection, editor } = setup()
+    selection.value = sel
+    await nextTick()
+    editor.inspectorTab = 'insert'
+    editor.insertSelectionPending = true
+    selection.value = { kind: 'component', componentIndex: 2 }
+    await nextTick()
     expect(editor.inspectorTab).toBe('insert')
+    expect(editor.insertSelectionPending).toBe(false)
   })
 
   it('leaves a closed inspector closed when narrow', async () => {
