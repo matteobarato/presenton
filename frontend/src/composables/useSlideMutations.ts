@@ -5,6 +5,7 @@ import { getPresentation, presentationKeys, updatePresentation } from '@/api/pre
 import type { Presentation, Slide } from '@/api/types'
 import { slideKey, useEditorStore } from '@/stores/editor'
 import { useHistoryStore } from '@/stores/history'
+import type { RawUi } from '@/slide-editor/model'
 
 export const MAX_SLIDES = 50
 export const BLANK_SLIDE_LAYOUT_ID = '__blank_slide__'
@@ -288,5 +289,30 @@ export function useSlideMutations(presentationId: Ref<string>) {
     )
   }
 
-  return { reorder, removeSlide, duplicateSlide, addSlide, rename }
+  /** Replace the `ui` of the slide with this id. One history entry; undo writes back the `ui` captured at first apply. */
+  async function editSlideUi(slideId: string, next: RawUi, label: string): Promise<boolean> {
+    let previous: Slide['ui'] | undefined
+    const setUi = (ui: Slide['ui'], capture: boolean) =>
+      onSlides((l) => {
+        const i = indexOfId(l, slideId)
+        if (i < 0) return null
+        const slide = l[i]!
+        if (JSON.stringify(slide.ui) === JSON.stringify(ui)) return null
+        if (capture) previous = slide.ui
+        return l.map((s, n) => (n === i ? { ...s, ui } : s))
+      })
+    const nextUi = next as Slide['ui']
+    return commit(
+      label,
+      setUi(nextUi, true),
+      async () => {
+        if (editor.locked) throw new Error('The deck is busy.')
+        if (previous === undefined) return
+        const r = await applyEdit(label, setUi(previous, false))
+        await r.saved
+      },
+    )
+  }
+
+  return { reorder, removeSlide, duplicateSlide, addSlide, rename, editSlideUi }
 }

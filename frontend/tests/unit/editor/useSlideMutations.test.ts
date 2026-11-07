@@ -252,4 +252,55 @@ describe('useSlideMutations', () => {
     await m.addSlide(0, null)
     expect(update).not.toHaveBeenCalled()
   })
+
+  describe('editSlideUi', () => {
+    const uiA = { components: [{ id: 'x' }], elements: [] }
+    const uiB = { components: [{ id: 'x' }, { id: 'y' }], elements: [] }
+    beforeEach(() => {
+      const d = deck()
+      d.slides[0] = { ...d.slides[0]!, ui: uiA } as never
+      qc.setQueryData(presentationKeys.one('p1'), d)
+    })
+
+    it('updates the slide ui and PATCHes once', async () => {
+      const m = useSlideMutations(ref('p1'))
+      expect(await m.editSlideUi('a', uiB, 'Move')).toBe(true)
+      expect(cached().slides[0]!.ui).toEqual(uiB)
+      expect(update).toHaveBeenCalledTimes(1)
+    })
+
+    it('undo restores the previous ui', async () => {
+      const m = useSlideMutations(ref('p1'))
+      await m.editSlideUi('a', uiB, 'Move')
+      await useHistoryStore().undo()
+      expect(cached().slides[0]!.ui).toEqual(uiA)
+    })
+
+    it('undo after re-id is a no-op', async () => {
+      const m = useSlideMutations(ref('p1'))
+      await m.editSlideUi('a', uiB, 'Move')
+      const d = cached()
+      qc.setQueryData(presentationKeys.one('p1'), { ...d, slides: d.slides.map((s) => (s.id === 'a' ? { ...s, id: 'a2' } : s)) })
+      const before = JSON.stringify(cached())
+      await expect(useHistoryStore().undo()).resolves.not.toThrow()
+      expect(JSON.stringify(cached())).toBe(before)
+    })
+
+    it('returns false for an unchanged ui or unknown slide', async () => {
+      const m = useSlideMutations(ref('p1'))
+      expect(await m.editSlideUi('a', JSON.parse(JSON.stringify(uiA)), 'Move')).toBe(false)
+      expect(await m.editSlideUi('zzz', uiB, 'Move')).toBe(false)
+      expect(update).not.toHaveBeenCalled()
+    })
+
+    it('returns false and records nothing when locked', async () => {
+      const { useEditorStore } = await import('@/stores/editor')
+      useEditorStore().deckBusy = 1
+      const m = useSlideMutations(ref('p1'))
+      expect(await m.editSlideUi('a', uiB, 'Move')).toBe(false)
+      expect(update).not.toHaveBeenCalled()
+      expect(cached().slides[0]!.ui).toEqual(uiA)
+      expect(useHistoryStore().canUndo).toBe(false)
+    })
+  })
 })

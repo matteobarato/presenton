@@ -33,6 +33,8 @@ export const useEditorStore = defineStore('editor', () => {
   const exportOpen = ref(false)
   // Bumped by Cmd/Ctrl+Enter; the navigator opens its layout picker.
   const addSlideRequested = ref(0)
+  // Mirrors the on-slide selection (set by useSlideEditing) so global arrow-key slide navigation can yield.
+  const slideSelectionActive = ref(false)
 
   /** Ask AI has its own panel, docked right of the inspector (a drawer on narrow screens). */
   function openAsk() {
@@ -66,6 +68,7 @@ export const useEditorStore = defineStore('editor', () => {
     zoom.value = 1
     exportOpen.value = false
     deckBusy.value = 0
+    slideSelectionActive.value = false
   }
 
   return {
@@ -82,6 +85,7 @@ export const useEditorStore = defineStore('editor', () => {
     navigatorVisible,
     exportOpen,
     addSlideRequested,
+    slideSelectionActive,
     openAsk,
     toggleAsk,
     chatOpen,
