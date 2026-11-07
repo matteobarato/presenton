@@ -29,7 +29,8 @@ In scope:
 4. **Text** — Title, Subtitle, Body text, Bullet list, Numbered list, Quote.
 5. **Images** — Image (picker first), Image + Text, Image grid.
 6. **Shapes** — the four old groups: Basic Shapes, Lines & Arrows, Block
-   Arrows, Symbols (47 vector presets).
+   Arrows, Symbols (47 vector presets), each shown with the old editor's
+   lucide icon for it (`elementIconById`).
 7. **Click to insert** — a tile click inserts, selects the new content, and
    records one undo step.
 
@@ -71,7 +72,6 @@ frontend/src/api/templates.ts
 frontend/src/components/editor/inspector/insert/
   InsertTab.vue        the tab; sections, search, gating, empty/error states
   BlockThumb.vue       lazy TemplateSlideHost render of one block variant
-  ShapeTile.vue        small SVG preview of a vector preset
 frontend/src/components/editor/inspector/tabs.ts   + insert tab
 frontend/src/stores/editor.ts                      InspectorTabId += 'insert'
 frontend/src/components/editor/FloatingToolbar.vue + `+` button
@@ -104,7 +104,7 @@ over their parent component exactly as the old `componentVariants`
 (`id`, `name`, `description` fallbacks). A component without variants yields
 one variant: itself.
 
-The template id comes from `presentation.layout.template_id`.
+The template id comes from the slides' `layout_group` (the API does not expose `presentation.layout`): the active slide's, else the first template slide's, with a `template-v2:` / `template-v2-` prefix stripped; `smart-html`, `no`, `blank` and `template-v2` mean none.
 
 ### ops.insertContent
 
@@ -129,7 +129,8 @@ type InsertContent =
 - Reads the shared `useSlideEditing` context (created in `EditorView`, as for
   ElementTab). Insert = `commit(result.ui, \`Insert ${label}\`)` then set
   `selection`. The inspector **stays on the Insert tab** after inserting; a
-  click on the canvas element switches to Element as in 2a.
+  click on the canvas element switches to Element as in 2a, so
+  `useElementTabAutoSwitch` skips the switch while the Insert tab is active.
 - If an inline text edit is open, it is committed first.
 - **Image** opens the existing `canvas/ImagePickerDialog.vue`; the image element is
   created with the picked URL; cancel inserts nothing.
@@ -139,7 +140,7 @@ type InsertContent =
 - **Blocks section:** template detail is fetched only when the tab is open,
   cached per template id. States: loading skeletons; error → inline "Couldn't
   load template blocks" with Retry (other sections unaffected); no
-  `template_id` or no components → short note "This deck's template has no
+  template id or no components → short note "This deck's template has no
   reusable blocks".
 - **Thumbnails:** `BlockThumb` renders a `ui` containing only that variant
   through `TemplateSlideHost` at small scale, with the deck theme. Cover
