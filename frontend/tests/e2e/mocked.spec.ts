@@ -333,6 +333,95 @@ test.describe('on-slide editing (mocked)', () => {
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 
+  test('insert a Title: selected, persists across reload, undo removes it', async ({ page }) => {
+    const { patches, unexpected } = await editableApi(page, {
+      'GET /api/v1/ppt/template/modern': json(fixture('template-blocks')),
+    })
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    const original = editableDeck.slides[0].ui!.components.length
+
+    const selectionBox = page.locator('[data-selection-box]')
+    await expect(selectionBox).toHaveCount(0) // nothing selected yet
+
+    await page.getByRole('button', { name: 'Insert', exact: true }).click()
+    await page.getByRole('button', { name: 'Insert Title', exact: true }).click()
+    await expect.poll(() => lastPatch(patches)?.components.length).toBe(original + 1)
+    await expect(page.getByRole('tab', { name: 'Insert' })).toHaveAttribute('aria-selected', 'true')
+    // Only the freshly inserted component can be selected here.
+    await expect(selectionBox).toHaveCount(1)
+
+    // Undo removes it again (focus stays on the tile, so use the shortcut on the page).
+    await page.keyboard.press('Control+z')
+    await expect.poll(() => lastPatch(patches)?.components.length).toBe(original)
+
+    // Insert once more: the server state (last PATCH) is what a reload shows.
+    await page.getByRole('button', { name: 'Insert Title', exact: true }).click()
+    await expect.poll(() => lastPatch(patches)?.components.length).toBe(original + 1)
+    await page.reload()
+    await expect(page.locator('[data-slide-stage]').first()).toBeVisible()
+    expect(lastPatch(patches)?.components).toHaveLength(original + 1)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('insert a template block variant', async ({ page }) => {
+    const { patches, unexpected } = await editableApi(page, {
+      'GET /api/v1/ppt/template/modern': json(fixture('template-blocks')),
+    })
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    await page.getByRole('button', { name: 'Insert', exact: true }).click()
+    await page.getByRole('button', { name: 'Insert Metric Cards' }).click()
+    await expect.poll(() => JSON.stringify(lastPatch(patches) ?? null)).toContain('42%')
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('cancelling the image picker inserts nothing', async ({ page }) => {
+    const { patches, unexpected } = await editableApi(page, {
+      'GET /api/v1/ppt/template/modern': json(fixture('template-blocks')),
+    })
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    await page.getByRole('button', { name: 'Insert', exact: true }).click()
+    await page.getByRole('button', { name: 'Insert Image', exact: true }).click()
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    expect(patches).toHaveLength(0)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  // Docked inspector widths (motion.css): 240px up to 1279px, 260px, then 280px from 1600px.
+  for (const width of [1100, 1300, 1700]) {
+    test(`the inspector tab strip fits the docked inspector at ${width}px`, async ({ page }) => {
+      const unexpected = await mockApi(page, { 'GET /api/v1/ppt/template/modern': json(fixture('template-blocks')) })
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto(`/p/${DECK_ID}`)
+      const list = page.getByRole('tablist', { name: 'Inspector sections' })
+      await expect(list).toBeVisible()
+      const tabs = list.getByRole('tab')
+      await expect(tabs).toHaveCount(4)
+      for (const name of ['Element', 'Insert', 'Design', 'Narration']) {
+        await page.getByRole('tab', { name }).click()
+        await expect(page.getByRole('tab', { name })).toHaveAttribute('aria-selected', 'true')
+        const fit = await list.evaluate((el) => {
+          const box = el.getBoundingClientRect()
+          return {
+            overflow: el.scrollWidth - el.clientWidth,
+            outside: [...el.querySelectorAll('[role="tab"]')].filter((t) => {
+              const r = t.getBoundingClientRect()
+              return r.left < box.left - 0.5 || r.right > box.right + 0.5
+            }).length,
+          }
+        })
+        expect(fit, `${name} active`).toEqual({ overflow: 0, outside: 0 })
+      }
+      await page.getByRole('tab', { name: 'Insert' }).click()
+      await list.screenshot({ path: `/tmp/claude-1000/-var-www-presenton/9a49d1de-f03d-46e6-9382-5baa95b1d623/scratchpad/tabs-${width}.png` })
+      expect(unexpected, 'API calls without a mock').toEqual([])
+    })
+  }
+
   test('smart slides get no selection overlay', async ({ page }) => {
     const { unexpected } = await editableApi(page)
     await page.goto(`/p/${DECK_ID}`)

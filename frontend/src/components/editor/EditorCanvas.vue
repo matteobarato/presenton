@@ -2,6 +2,7 @@
 import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue'
 import { usePresentation } from '@/api/presentations'
+import { useSlideVideo } from '@/api/videos'
 import type { Slide } from '@/api/types'
 import SlideView from '@/render/SlideView.vue'
 import { slideKind } from '@/render/slide-kind'
@@ -15,6 +16,8 @@ const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 const editor = useEditorStore()
 const { data: presentation } = usePresentation(toRef(props, 'presentationId'), useEditorFetchGate())
 // The slide's editing state is provided by EditorView, so the inspector shares it.
+// The slide's avatar video shows in its placeholder on the canvas.
+const { src: videoSrc } = useSlideVideo(() => props.presentationId, () => props.slide?.index)
 const smart = computed(() => !!props.slide && slideKind(props.slide) === 'smart')
 
 // Ease zoom steps, but only around a zoom change: during panel animations the slide must
@@ -58,6 +61,7 @@ const slideWidth = computed(() => {
             :slide="slide"
             :theme="presentation?.theme"
             :fonts="presentation?.fonts"
+            :video-src="videoSrc"
             class="isolate rounded-[10px] shadow-[0_18px_38px_#0004] max-[450px]:rounded-[7px]"
           />
           <SlideView

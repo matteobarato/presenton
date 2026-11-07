@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { Crop, ImageIcon, Maximize2, Minimize2 } from 'lucide-vue-next'
 import ImagePickerDialog from '@/components/editor/canvas/ImagePickerDialog.vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { resolveAssetUrl } from '@/render/legacy/lib/template-v2-json-to-html'
 import { getElementAtSelection, updateElementInUi, type ElementSelection, type RawElement } from '@/slide-editor/model'
 import { useEditingActions } from '@/slide-editor/useEditingActions'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
@@ -32,6 +33,15 @@ const fit = computed<'cover' | 'contain' | 'fill'>(() => {
 const FIT_NAMES = { cover: 'Cover', contain: 'Contain', fill: 'Fill' } as const
 // An icon renders as a colour mask of its picture: a photo would show as a silhouette.
 const isIcon = computed(() => !!(element.value?.isIcon ?? element.value?.is_icon))
+const previewSrc = computed(() => {
+  const data = element.value?.data
+  return typeof data === 'string' && data ? resolveAssetUrl(data) : null
+})
+// The preview shows the crop as the slide does: cover crops around the focus point.
+const previewStyle = computed(() => ({
+  objectFit: fit.value,
+  objectPosition: `${focusX.value}% ${focusY.value}%`,
+}))
 const focusX = computed(() => clamp(element.value?.focus_x))
 const focusY = computed(() => clamp(element.value?.focus_y))
 
@@ -75,6 +85,19 @@ const segmentOn = '!border-accent/50 !bg-[#303c42] !text-[#c4e4f4]'
   <template v-if="element">
     <div v-if="!isIcon" :class="section">
       <div :class="label"><h3>Image</h3></div>
+      <button
+        v-if="previewSrc"
+        type="button"
+        class="group relative mb-2 block aspect-video w-full overflow-hidden rounded-control border border-white/[0.05] bg-[#11171a]"
+        aria-label="Image preview, click to replace"
+        title="Replace image"
+        data-testid="image-preview"
+        @mousedown.prevent
+        @click="pickerOpen = true"
+      >
+        <img :src="previewSrc" alt="" class="size-full" :style="previewStyle" draggable="false" />
+        <span class="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/25" aria-hidden="true" />
+      </button>
       <button type="button" :class="segment" class="w-full flex-none" aria-label="Replace image" @mousedown.prevent @click="pickerOpen = true">
         <ImageIcon class="size-4" aria-hidden="true" />
         Replace

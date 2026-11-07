@@ -15,10 +15,10 @@ import SelectionOverlay from './SelectionOverlay.vue'
 const STAGE_W = 1280
 const STAGE_H = 720
 
-const props = withDefaults(defineProps<{ slide: Slide; theme?: unknown; fonts?: unknown }>(), {
-  theme: undefined,
-  fonts: undefined,
-})
+const props = withDefaults(
+  defineProps<{ slide: Slide; theme?: unknown; fonts?: unknown; videoSrc?: string | null }>(),
+  { theme: undefined, fonts: undefined, videoSrc: null },
+)
 const emit = defineEmits<{ rendered: []; error: [message: string]; 'open-editor': [sel: ElementSelection] }>()
 
 const editing = useSlideEditingContext()
@@ -128,6 +128,7 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
           :ui="renderUi"
           :theme="theme"
           :fonts="fonts"
+          :video-src="videoSrc"
           annotate
           @rendered="emit('rendered')"
           @error="onFailed"

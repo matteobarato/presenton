@@ -7,6 +7,7 @@ import type { Slide } from '@/api/types'
 const editSlideUi = vi.hoisted(() => vi.fn())
 vi.mock('@/composables/useSlideMutations', () => ({ useSlideMutations: () => ({ editSlideUi }) }))
 vi.mock('@/api/presentations', () => ({ usePresentation: () => ({ data: ref(undefined) }) }))
+vi.mock('@/api/videos', () => ({ useSlideVideo: () => ({ src: ref(null) }) }))
 
 import EditorCanvas from '@/components/editor/EditorCanvas.vue'
 import EditableSlide from '@/components/editor/canvas/EditableSlide.vue'

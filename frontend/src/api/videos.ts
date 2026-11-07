@@ -1,6 +1,9 @@
+import { computed, toValue, type MaybeRefOrGetter } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
 import { api, requestJson, unwrap } from './client'
 import { ApiError } from './errors'
 import type { components } from './schema'
+import { audioSrc } from './tts'
 import type { AsyncTask } from './types'
 
 export type SlideVideo = components['schemas']['SlideVideoResponse']
@@ -108,4 +111,18 @@ export function getAvatarPreview(id: string, language?: string): Promise<AvatarP
 export function slidePlans(task: Pick<AsyncTask, 'data'> | null | undefined): AvatarSlidePlan[] {
   const slides = (task?.data as { slides?: unknown } | null | undefined)?.slides
   return Array.isArray(slides) ? (slides as AvatarSlidePlan[]) : []
+}
+
+/** A slide's video (by slide index) and its playable same-origin src, from the deck's shared videos query. */
+export function useSlideVideo(presentationId: MaybeRefOrGetter<string>, slideIndex: MaybeRefOrGetter<number | null | undefined>) {
+  const query = useQuery({
+    queryKey: () => videoKeys.all(toValue(presentationId)),
+    queryFn: () => getVideos(toValue(presentationId)),
+  })
+  const video = computed(() => {
+    const index = toValue(slideIndex)
+    return index == null ? undefined : (query.data.value?.videos ?? []).find((v) => v.slide_index === index)
+  })
+  const src = computed(() => (video.value?.url ? audioSrc({ url: video.value.url }) : null))
+  return { video, src, isPending: query.isPending }
 }

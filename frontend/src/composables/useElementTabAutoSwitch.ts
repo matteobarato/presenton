@@ -8,6 +8,7 @@ import { useEditorStore } from '@/stores/editor'
  * docked inspector. Below 1051px the inspector is a drawer: only the tab changes. Deselecting
  * never switches tabs. A selection made by a press waits for the release: opening the docked
  * inspector resizes the canvas, which would make a drag in progress drift under the pointer.
+ * A selection made by an insert (marked with `insertSelectionPending`) keeps the current tab.
  */
 export function useElementTabAutoSwitch(ctx: Pick<SlideEditing, 'selection'> & Partial<Pick<SlideEditing, 'gestureActive'>>) {
   const editor = useEditorStore()
@@ -20,8 +21,15 @@ export function useElementTabAutoSwitch(ctx: Pick<SlideEditing, 'selection'> & P
   }
 
   watch(
-    () => ctx.selection.value !== null,
-    (has, had) => {
+    () => ctx.selection.value,
+    (selection, previous) => {
+      if (editor.insertSelectionPending) {
+        editor.insertSelectionPending = false
+        deferred = false
+        return
+      }
+      const has = selection !== null
+      const had = previous !== null
       if (!has) deferred = false
       if (!has || had) return
       if (ctx.gestureActive?.value) deferred = true

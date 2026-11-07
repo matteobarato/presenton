@@ -584,21 +584,23 @@ function renderImage(item: JsonRecord, mode: RenderMode): string {
   const fit = imageFit(item.fit);
   const focusStyle = imageFocusStyle(item);
   const cropTransformStyle = imageCropTransformStyle(item);
+  // Marks the avatar placeholder, so a live view can play the slide's video in its place.
+  const marker = isVideoPlaceholderElement(item) ? ' data-video-placeholder="true"' : "";
   if (cropTransformStyle) {
-    return `<div style="${frameStyle(item, mode)}${boxStyle(
+    return `<div${marker} style="${frameStyle(item, mode)}${boxStyle(
       item
     )}${clipPath}overflow:hidden;"><img alt="" src="${escapeAttribute(
       source
     )}" style="display:block;max-width:none;max-height:none;height:100%;width:100%;object-fit:${fit};${focusStyle}${cropTransformStyle}"></div>`;
   }
   if (clipPath) {
-    return `<div style="${frameStyle(item, mode)}${boxStyle(
+    return `<div${marker} style="${frameStyle(item, mode)}${boxStyle(
       item
     )}${clipPath}overflow:hidden;"><img alt="" src="${escapeAttribute(
       source
     )}" style="display:block;max-width:none;max-height:none;height:100%;width:100%;object-fit:${fit};${focusStyle}"></div>`;
   }
-  return `<img alt="" src="${escapeAttribute(source)}" style="${frameStyle(
+  return `<img${marker} alt="" src="${escapeAttribute(source)}" style="${frameStyle(
     item,
     mode
   )}${boxStyle(

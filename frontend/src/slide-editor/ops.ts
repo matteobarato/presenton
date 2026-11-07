@@ -1,4 +1,6 @@
+import type { EditorInsertContent } from '@/slide-editor/insert/insert-elements'
 import {
+  appendInsertedContent,
   STAGE_HEIGHT,
   STAGE_WIDTH,
   ROOT_ELEMENTS_COMPONENT_INDEX,
@@ -24,6 +26,7 @@ import {
   selectionForComponentIndexes,
   setComponentPositionsInUi,
   ungroupTemplateV2ComponentInUi,
+  withUpdatedChildItems,
   canUngroupTemplateV2Component,
   type RawUi,
   type Selection,
@@ -146,4 +149,120 @@ export function nudge(ui: RawUi, sel: Selection, dx: number, dy: number): OpResu
   )
   if (next === ui) return null
   return { ui: next, selection: selectionForComponentIndexes(indexes) }
+}
+
+export type LayerAction = 'bring-to-front' | 'bring-forward' | 'send-backward' | 'send-to-back'
+
+function moveItem<T>(items: readonly T[], from: number, action: LayerAction): { items: T[]; index: number } | null {
+  const last = items.length - 1
+  if (from < 0 || from > last || last < 1) return null
+  const to =
+    action === 'bring-to-front' ? last : action === 'send-to-back' ? 0 : action === 'bring-forward' ? from + 1 : from - 1
+  if (to < 0 || to > last || to === from) return null
+  const next = [...items]
+  const [item] = next.splice(from, 1)
+  next.splice(to, 0, item as T)
+  return { items: next, index: to }
+}
+
+/**
+ * Moves the selection one layer up or down, or to the top or bottom, among its siblings: later
+ * siblings paint on top. A component moves within the slide's components; an element moves within
+ * its parent's children, unless the parent lays it out (flex/grid), where order is position. The
+ * lone element of a component moves its component.
+ */
+export function reorderSelection(ui: RawUi, sel: Selection, action: LayerAction): OpResult {
+  if (!sel || sel.kind === 'multi-component') return null
+  const components = readArray(ui.components)
+  const moveComponent = (componentIndex: number, toSelection: (index: number) => Selection): OpResult => {
+    const moved = moveItem(components, componentIndex, action)
+    return moved ? { ui: { ...ui, components: moved.items }, selection: toSelection(moved.index) } : null
+  }
+  if (sel.kind === 'component') {
+    return moveComponent(sel.componentIndex, (componentIndex) => ({ kind: 'component', componentIndex }))
+  }
+
+  const path = sel.elementPath
+  const index = path[path.length - 1]
+  if (index === undefined) return null
+  const withIndex = (i: number): Selection => ({ ...sel, elementPath: [...path.slice(0, -1), i] })
+
+  if (path.length === 1) {
+    if (sel.componentIndex === ROOT_ELEMENTS_COMPONENT_INDEX) {
+      const moved = moveItem(readArray(ui.elements), index, action)
+      return moved ? { ui: { ...ui, elements: moved.items }, selection: withIndex(moved.index) } : null
+    }
+    const component = components[sel.componentIndex] as Record<string, unknown> | undefined
+    const elements = readArray(component?.elements)
+    if (!component || elements.length === 0) return null
+    if (elements.length === 1) {
+      return moveComponent(sel.componentIndex, (componentIndex) => ({ ...sel, componentIndex }))
+    }
+    const moved = moveItem(elements, index, action)
+    if (!moved) return null
+    const nextComponents = [...components]
+    nextComponents[sel.componentIndex] = { ...component, elements: moved.items }
+    return { ui: { ...ui, components: nextComponents }, selection: withIndex(moved.index) }
+  }
+
+  if (isLayoutManagedElement(ui, sel)) return null
+  const parentSel: ElementSelection = { ...sel, elementPath: path.slice(0, -1) }
+  const parent = getElementAtSelection(ui, parentSel)
+  const info = parent ? childArrayInfo(parent) : null
+  if (!parent || !info || info.key === 'child') return null
+  const moved = moveItem(info.items, index, action)
+  if (!moved) return null
+  const next = updateElementInUi(ui, parentSel, (current) => withUpdatedChildItems(current, info, moved.items))
+  return next === ui ? null : { ui: next, selection: withIndex(moved.index) }
+}
+
+export type InsertRequest =
+  | { content: EditorInsertContent; label: string }
+  | { block: Record<string, unknown>; label: string }
+
+const CASCADE_NEAR = 2
+const CASCADE_MAX_STEPS = 20
+
+/** A template block as a slide component: without its sibling variants or the group's size. */
+function insertableBlock(block: Record<string, unknown>): Record<string, unknown> {
+  const rest = { ...block }
+  delete rest.variants
+  delete rest.size
+  return rest
+}
+
+export function insertContent(ui: RawUi, req: InsertRequest): OpResult {
+  const before = readArray(ui.components)
+  const appended =
+    'block' in req
+      ? appendInsertedContent(ui, [], [insertableBlock(req.block)], req.label, true)
+      : appendInsertedContent(ui, req.content.elements ?? [], req.content.components ?? [], req.label, false)
+  const components = [...readArray(appended.components)]
+  if (components.length <= before.length) return null
+
+  const isNear = (a: ReturnType<typeof componentBox>, b: ReturnType<typeof componentBox>) =>
+    Math.abs(a.x - b.x) <= CASCADE_NEAR && Math.abs(a.y - b.y) <= CASCADE_NEAR
+  const newIndexes = components.slice(before.length).map((_, i) => before.length + i)
+  const existingBoxes = before.map((component) => componentBox(component as never))
+  const collides = () =>
+    newIndexes.some((i) => {
+      const box = componentBox(components[i] as never)
+      return existingBoxes.some((existing) => isNear(existing, box))
+    })
+
+  for (let step = 0; step < CASCADE_MAX_STEPS && collides(); step += 1) {
+    for (const i of newIndexes) {
+      const component = components[i] as { position?: { x?: number; y?: number } }
+      components[i] = {
+        ...component,
+        position: {
+          ...component.position,
+          x: (component.position?.x ?? 0) + PASTE_OFFSET,
+          y: (component.position?.y ?? 0) + PASTE_OFFSET,
+        },
+      } as never
+    }
+  }
+
+  return { ui: { ...appended, components }, selection: selectionForComponentIndexes(newIndexes) }
 }

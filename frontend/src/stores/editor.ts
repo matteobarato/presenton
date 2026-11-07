@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export type InspectorTabId = 'element' | 'design' | 'narration'
+export type InspectorTabId = 'element' | 'insert' | 'design' | 'narration'
 
 /** Stable key of a slide; slides mid-stream may not have an id yet. */
 export const slideKey = (s: { id?: string | null; index: number }) => s.id ?? `index-${s.index}`
@@ -35,10 +35,16 @@ export const useEditorStore = defineStore('editor', () => {
   const addSlideRequested = ref(0)
   // Mirrors the on-slide selection (set by useSlideEditing) so global arrow-key slide navigation can yield.
   const slideSelectionActive = ref(false)
+  // One-shot: set by an insert right before it selects what it added, so the Insert tab stays up.
+  const insertSelectionPending = ref(false)
 
   /** Ask AI has its own panel, docked right of the inspector (a drawer on narrow screens). */
   function openAsk() {
     chatOpen.value = true
+  }
+  function openInsert() {
+    inspectorTab.value = 'insert'
+    inspectorOpen.value = true
   }
   function toggleAsk() {
     chatOpen.value = !chatOpen.value
@@ -69,6 +75,7 @@ export const useEditorStore = defineStore('editor', () => {
     exportOpen.value = false
     deckBusy.value = 0
     slideSelectionActive.value = false
+    insertSelectionPending.value = false
   }
 
   return {
@@ -86,8 +93,10 @@ export const useEditorStore = defineStore('editor', () => {
     exportOpen,
     addSlideRequested,
     slideSelectionActive,
+    insertSelectionPending,
     openAsk,
     toggleAsk,
+    openInsert,
     chatOpen,
     select,
     next,

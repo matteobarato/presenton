@@ -9,7 +9,9 @@ import ArrangeSection from './ArrangeSection.vue'
 import ImageSection from './ImageSection.vue'
 import LayerChildren from './LayerChildren.vue'
 import LayerTree from './LayerTree.vue'
+import OrderSection from './OrderSection.vue'
 import TextSection from './TextSection.vue'
+import VideoSection from './VideoSection.vue'
 
 const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
 
@@ -42,7 +44,9 @@ const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : [])
       </div>
       <TextSection v-if="kind === 'text'" :presentation="props.presentation" />
       <ImageSection v-else-if="kind === 'image'" />
+      <VideoSection v-else-if="kind === 'video'" :presentation-id="props.presentationId" :slide="props.activeSlide" />
       <ArrangeSection />
+      <OrderSection />
       <LayerChildren />
     </template>
     <div v-else-if="ctx.enabled.value" class="flex flex-col">
