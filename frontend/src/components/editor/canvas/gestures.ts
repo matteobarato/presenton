@@ -40,6 +40,7 @@ import {
   isVideoPlaceholderLayer,
 } from '@/render/legacy/components/slide-editor/video/video-placeholder'
 import { isLayoutManagedElement } from '@/slide-editor/ops'
+import type { Handle } from '@/slide-editor/rotation'
 import type { TemplateV2ItemSource } from '@/render/legacy/lib/template-v2-json-to-html'
 
 /** Snap distance in screen px, as `ALIGNMENT_GUIDE_SNAP_DISTANCE_PX` in the old TemplateV2KonvaSlide. */
@@ -48,7 +49,8 @@ export const SNAP_DISTANCE_PX = 8
 export const DRAG_START_PX = 3
 const MIN_SIZE = 8
 
-export type Handle = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w'
+// Re-exported so existing importers (SelectionOverlay) keep working; the type lives in slide-editor.
+export type { Handle }
 export const HANDLES: Handle[] = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']
 
 const SIDE_ANCHORS: Partial<Record<Handle, ComponentSideResizeAnchor>> = {

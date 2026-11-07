@@ -95,3 +95,26 @@ describe('toSlidePoint', () => {
     expect(toSlidePoint(100, 100, rect)).toEqual({ x: 0, y: 0 })
   })
 })
+
+describe('hit tests on rotated content', () => {
+  const rotatedUi = () =>
+    ({
+      components: [
+        {
+          position: { x: 100, y: 100 },
+          rotation: 90,
+          elements: [{ type: 'shape', position: { x: 0, y: 0 }, size: { width: 200, height: 100 } }],
+        },
+      ],
+    }) as never
+
+  it('hitComponent misses the AABB corner and hits the rotated body', () => {
+    expect(hitComponent(rotatedUi(), { x: 110, y: 110 })).toBeNull()
+    expect(hitComponent(rotatedUi(), { x: 200, y: 60 })).toEqual({ kind: 'component', componentIndex: 0 })
+  })
+
+  it('hitDeepest follows the rotation for the inner element', () => {
+    expect(hitDeepest(rotatedUi(), { x: 200, y: 60 })).toEqual({ kind: 'element', componentIndex: 0, elementPath: [0] })
+    expect(hitDeepest(rotatedUi(), { x: 110, y: 110 })).toBeNull()
+  })
+})
