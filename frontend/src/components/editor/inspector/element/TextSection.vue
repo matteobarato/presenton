@@ -6,6 +6,7 @@ import { resolvePresentationTheme } from '@/render/legacy/lib/template-theme'
 import { localFontOptionsFromUnknown } from '@/render/legacy/components/slide-editor/text/local-fonts'
 import { rawFont } from '@/render/legacy/components/slide-editor/text/template-v2-text'
 import { asRecord, getElementAtSelection, readArray, updateElementInUi, withHash, type ElementSelection, type RawElement } from '@/slide-editor/model'
+import { themePalette } from '@/slide-editor/themePalette'
 import { useEditingActions } from '@/slide-editor/useEditingActions'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 
@@ -88,11 +89,7 @@ const families = computed(() => {
   if (themeFont) list.add(themeFont)
   return [...list]
 })
-const palette = computed(() => {
-  const t = theme.value as unknown as Record<string, string>
-  const keys = ['primary', 'background', 'card', 'stroke', 'primary_text', 'background_text', ...Array.from({ length: 10 }, (_, i) => `graph_${i}`)]
-  return [...new Set(keys.map((k) => withHash(t[k])?.toLowerCase()).filter((c): c is string => !!c))]
-})
+const palette = computed(() => themePalette(props.presentation))
 const lineHeights = computed(() => (LINE_HEIGHTS.includes(lineHeight.value) ? LINE_HEIGHTS : [lineHeight.value, ...LINE_HEIGHTS]))
 
 type FontPatch = Partial<Record<'family' | 'size' | 'color' | 'bold' | 'italic' | 'underline' | 'line_height', string | number | boolean>>
