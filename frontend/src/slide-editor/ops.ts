@@ -1,13 +1,22 @@
 import {
   STAGE_HEIGHT,
   STAGE_WIDTH,
+  ROOT_ELEMENTS_COMPONENT_INDEX,
+  absoluteBoxForSelection,
   childArrayInfo,
   componentBox,
   componentForClipboardSelection,
   componentIndexesForSelection,
   createTemplateV2ClipboardPayload,
   deleteSelectionFromUi,
+  getElementAtSelection,
   elementBox,
+  isVectorType,
+  localElementBox,
+  rootElementsComponent,
+  translateVectorElement,
+  updateElementInUi,
+  type ElementSelection,
   groupTemplateV2ComponentsInUi,
   layoutChildren,
   pasteTemplateV2ClipboardPayload,
@@ -72,8 +81,49 @@ export function ungroupSelection(ui: RawUi, sel: Selection): OpResult {
   return { ui: result.ui as RawUi, selection: result.selection }
 }
 
-/** Moves the selected components by (dx, dy) slide px, keeping their union box inside the slide. */
+/** True when the element's parent layout (flex/grid/container) controls its position. */
+export function isLayoutManagedElement(ui: RawUi, sel: ElementSelection): boolean {
+  const path = sel.elementPath
+  if (path.length < 2) return false
+  const component =
+    sel.componentIndex === ROOT_ELEMENTS_COMPONENT_INDEX
+      ? rootElementsComponent(ui)
+      : (readArray(ui.components)[sel.componentIndex] as Record<string, unknown> | undefined)
+  if (!component) return true
+  const parentPath = path.slice(0, -1)
+  const parentBox = localElementBox(component, parentPath)
+  const parent = getElementAtSelection(ui, { ...sel, elementPath: parentPath })
+  const info = parent ? childArrayInfo(parent) : null
+  if (!parent || !info || !parentBox) return true
+  const index = path[path.length - 1]!
+  const laidOut = layoutChildren(parent, info.items, { x: 0, y: 0, width: parentBox.width, height: parentBox.height })
+  return laidOut.find((item) => item.index === index)?.layoutManaged ?? false
+}
+
+function nudgeElement(ui: RawUi, sel: ElementSelection, dx: number, dy: number): OpResult {
+  const element = getElementAtSelection(ui, sel)
+  const box = absoluteBoxForSelection(ui, sel)
+  if (!element || !box || isLayoutManagedElement(ui, sel)) return null
+  const mx = Math.min(Math.max(dx, -box.x), Math.max(-box.x, STAGE_WIDTH - (box.x + box.width)))
+  const my = Math.min(Math.max(dy, -box.y), Math.max(-box.y, STAGE_HEIGHT - (box.y + box.height)))
+  if (mx === 0 && my === 0) return null
+  const next = updateElementInUi(ui, sel, (current) =>
+    isVectorType(typeof current.type === 'string' ? current.type : null)
+      ? translateVectorElement(current, { x: mx, y: my })
+      : {
+          ...current,
+          position: {
+            x: (Number(current.position?.x) || 0) + mx,
+            y: (Number(current.position?.y) || 0) + my,
+          },
+        },
+  )
+  return next === ui ? null : { ui: next, selection: sel }
+}
+
+/** Moves the selection by (dx, dy) slide px, keeping it inside the slide. Layout-managed elements do not move. */
 export function nudge(ui: RawUi, sel: Selection, dx: number, dy: number): OpResult {
+  if (sel?.kind === 'element') return nudgeElement(ui, sel, dx, dy)
   const indexes = componentIndexesForSelection(sel)
   if (indexes.length === 0) return null
   const entries = indexes.flatMap((componentIndex) => {

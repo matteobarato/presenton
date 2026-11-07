@@ -6,6 +6,7 @@ import {
   deleteSelection,
   duplicateSelection,
   groupSelection,
+  isLayoutManagedElement,
   nudge,
   pasteFromPayload,
   ungroupSelection,
@@ -37,12 +38,18 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
     return toValue(active) && ctx.enabled.value && !ctx.inlineEdit.value && !isEditableTarget(target)
   }
 
+  // commit() publishes its ui optimistically, so the selection must follow synchronously, and a
+  // second key (auto-repeat) must not run against the new ui before this commit settles.
+  let pending = false
   async function apply(result: OpResult, label: string) {
-    if (!result) return
-    const slideId = ctx.slideId.value
-    const ok = await ctx.commit(result.ui, label)
-    if (ok === false || ctx.slideId.value !== slideId) return
+    if (!result || pending) return
+    pending = true
     ctx.select(result.selection)
+    try {
+      await ctx.commit(result.ui, label)
+    } finally {
+      pending = false
+    }
   }
 
   useEventListener(window, 'keydown', (e: KeyboardEvent) => {
@@ -52,6 +59,11 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
     const sel: Selection = ctx.selection.value
     if (!ui) return
     const mod = e.metaKey || e.ctrlKey
+    // Repeats while a commit is in flight are ignored (not queued).
+    if (pending) {
+      if (!mod && (e.key === 'Delete' || e.key === 'Backspace' || e.key in ARROWS)) e.preventDefault()
+      return
+    }
     const key = e.key.toLowerCase()
 
     if (mod && !e.altKey) {
@@ -84,7 +96,8 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
       const step = e.shiftKey ? 10 : 1
       const [dx, dy] = ARROWS[e.key]!
       const r = nudge(ui, sel, dx * step, dy * step)
-      // A selection owns the arrows even when it cannot move (slide edge), so they never navigate.
+      // Arrows stay with a movable selection even at the slide edge; layout-managed elements do nothing.
+      if (!r && sel.kind === 'element' && isLayoutManagedElement(ui, sel)) return
       e.preventDefault()
       void apply(r, 'Nudge')
     } else if (e.key === 'Enter') {

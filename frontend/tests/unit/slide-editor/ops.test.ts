@@ -57,6 +57,55 @@ describe('ops', () => {
   })
 })
 
+describe('element nudge', () => {
+  const withNested = (): RawUi =>
+    ({
+      components: [
+        {
+          id: 'c',
+          position: { x: 100, y: 80 },
+          elements: [
+            { type: 'text', position: { x: 10, y: 20 }, size: { width: 100, height: 40 }, text: 'a' },
+            {
+              type: 'flex',
+              position: { x: 0, y: 100 },
+              size: { width: 300, height: 100 },
+              children: [
+                { type: 'shape', size: { width: 50, height: 50 } },
+                { type: 'shape', size: { width: 50, height: 50 }, __presenton_manual_position: true, position: { x: 5, y: 5 } },
+              ],
+            },
+          ],
+        },
+      ],
+      elements: [{ type: 'shape', position: { x: 0, y: 0 }, size: { width: 200, height: 100 } }],
+    }) as unknown as RawUi
+  const el = (componentIndex: number, elementPath: number[]) => ({ kind: 'element', componentIndex, elementPath }) as const
+
+  it('moves the element, not its component, by 1 and 10', () => {
+    const one = nudge(withNested(), el(0, [0]), 1, 0)!
+    expect(comps(one.ui)[0]!.position).toEqual({ x: 100, y: 80 })
+    expect(comps(one.ui)[0]!.elements[0].position).toEqual({ x: 11, y: 20 })
+    expect(one.selection).toEqual(el(0, [0]))
+    const ten = nudge(withNested(), el(0, [0]), 0, 10)!
+    expect(comps(ten.ui)[0]!.elements[0].position).toEqual({ x: 10, y: 30 })
+  })
+
+  it('nudges root elements and clamps by absolute box', () => {
+    const r = nudge(withNested(), el(-1, [0]), 10, 5)!
+    expect((r.ui.elements as any[])[0].position).toEqual({ x: 10, y: 5 })
+    expect(nudge(withNested(), el(-1, [0]), -50, 0)).toBeNull()
+    const far = nudge(withNested(), el(0, [0]), 5000, 0)!
+    expect(comps(far.ui)[0]!.elements[0].position.x).toBe(1280 - 100 - 100)
+  })
+
+  it('skips layout-managed children but moves manual ones', () => {
+    expect(nudge(withNested(), el(0, [1, 0]), 1, 0)).toBeNull()
+    const manual = nudge(withNested(), el(0, [1, 1]), 1, 0)!
+    expect(comps(manual.ui)[0]!.elements[1].children[1].position).toEqual({ x: 6, y: 5 })
+  })
+})
+
 describe('clipboard payloads', () => {
   beforeEach(() => window.localStorage.clear())
 
