@@ -16,32 +16,41 @@ export type InsertTarget = { slideId: string; ui: RawUi }
 
 /** Inserts into the active slide as one undoable commit, then selects what was added. */
 export function useInsert(ctx: SlideEditing, theme: ComputedRef<TemplateTheme>) {
-  /** Captures the active slide, for an insert that completes later. */
-  function target(): InsertTarget | null {
+  /**
+   * Commits an open inline edit and captures the active slide with its ui, both synchronously:
+   * the commit puts the edited ui in the draft before its first await, so the capture includes it.
+   */
+  function capture(): { target: InsertTarget | null; closing: Promise<boolean> } {
+    const closing = ctx.inlineEdit.value ? ctx.closeInlineEdit(true) : Promise.resolve(true)
     const slideId = ctx.slideId.value
     const ui = ctx.ui.value
-    return slideId && ui ? { slideId, ui } : null
+    return { target: slideId && ui ? { slideId, ui } : null, closing }
   }
 
+  /** Inserts into the slide active now, or into `from` (captured earlier, e.g. when the image picker opened). */
   async function insert(req: InsertRequest, from?: InsertTarget | null): Promise<boolean> {
-    // An open text edit is committed first, so the insert builds on the typed text.
-    if (ctx.inlineEdit.value) await ctx.closeInlineEdit(true)
-    const stale = !!from && from.slideId !== ctx.slideId.value
-    const slideId = stale ? from!.slideId : ctx.slideId.value
-    const ui = stale ? from!.ui : ctx.ui.value
-    if (!slideId || !ui) return false
-    const next = insertContent(ui, req)
+    let target = from ?? null
+    // A target captured earlier on the slide still active builds on its current ui (it may have changed since).
+    if (target && target.slideId === ctx.slideId.value && ctx.ui.value) target = { slideId: target.slideId, ui: ctx.ui.value }
+    if (!target) {
+      const started = capture()
+      target = started.target
+      // The text edit's save may take a while; the insert still goes to the slide clicked on.
+      await started.closing
+    }
+    if (!target) return false
+    const next = insertContent(target.ui, req)
     if (!next) return false
-    const ok = ctx.commitTo(slideId, next.ui, `Insert ${req.label}`)
+    const ok = ctx.commitTo(target.slideId, next.ui, `Insert ${req.label}`)
     // Only the active slide's selection can point at the new content.
-    if (slideId === ctx.slideId.value) ctx.select(next.selection)
+    if (target.slideId === ctx.slideId.value) ctx.select(next.selection)
     return ok
   }
 
   const content = (elements: EditorInsertContent['elements']): EditorInsertContent => ({ elements })
 
   return {
-    target,
+    capture,
     insert,
     text: (kind: string, label: string) => insert({ content: content(createTextInsertElements(kind, theme.value)), label }),
     shape: (kind: string, label: string) => insert({ content: content(createElementInsertElements(kind, theme.value)), label }),

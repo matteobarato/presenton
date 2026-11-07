@@ -108,6 +108,39 @@ describe('InsertTab', () => {
     expect(ctx.commitTo.mock.calls[0]![2]).toBe('Insert Rectangle')
   })
 
+  it('an insert goes to the clicked slide even if the slide changes while the inline edit saves', async () => {
+    const { ctx, click } = mountTab({ inlineEdit: true })
+    let finish: (ok: boolean) => void = () => {}
+    const sync = ctx.closeInlineEdit.getMockImplementation()!
+    ctx.closeInlineEdit.mockImplementation(() => {
+      void sync() // swaps in the edited ui synchronously, as commitTo's draft does
+      return new Promise<boolean>((r) => (finish = r))
+    })
+    await click('Insert Title')
+    expect(ctx.commitTo).not.toHaveBeenCalled()
+    ;(ctx as { slideId: ComputedRef<string | null> }).slideId = computed(() => 's2')
+    finish(true)
+    await flushPromises()
+    expect(ctx.commitTo).toHaveBeenCalledTimes(1)
+    expect(ctx.commitTo.mock.calls[0]![0]).toBe('s1')
+    expect(JSON.stringify(ctx.commitTo.mock.calls[0]![1])).toContain('Edited')
+    expect(ctx.select).not.toHaveBeenCalled()
+  })
+
+  it('image insert commits an open inline edit at click time and keeps its text on a stale pick', async () => {
+    const { wrapper, ctx, click } = mountTab({ inlineEdit: true })
+    await click('Insert Image')
+    expect(ctx.closeInlineEdit).toHaveBeenCalledWith(true)
+    ;(ctx as { slideId: ComputedRef<string | null> }).slideId = computed(() => 's2')
+    wrapper.getComponent(ImagePickerDialog).vm.$emit('pick', '/app_data/images/x.png')
+    await flushPromises()
+    expect(ctx.commitTo.mock.calls[0]![0]).toBe('s1')
+    const ui = JSON.stringify(ctx.commitTo.mock.calls[0]![1])
+    expect(ui).toContain('Edited')
+    expect(ui).toContain('/app_data/images/x.png')
+    expect(ctx.select).not.toHaveBeenCalled()
+  })
+
   it('lists template blocks and inserts a variant', async () => {
     const { wrapper, ctx, click } = mountTab()
     await flushPromises()

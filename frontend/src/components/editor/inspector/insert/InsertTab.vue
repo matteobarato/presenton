@@ -54,7 +54,8 @@ function insertImage(item: InsertItem) {
     void actions.image(item.id, item.label)
     return
   }
-  pickTarget = actions.target()
+  // An open text edit is committed now, so the captured ui keeps the typed text.
+  pickTarget = actions.capture().target
   pickerOpen.value = true
 }
 function onPick(src: string) {
