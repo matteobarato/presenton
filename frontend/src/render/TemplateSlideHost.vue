@@ -7,6 +7,8 @@ import {
 import {
   TEMPLATE_V2_HTML_HEIGHT,
   TEMPLATE_V2_HTML_WIDTH,
+  type TemplateV2ItemSource,
+  templateV2ItemSources,
   templateV2UiHasChart,
   templateV2UiToHtmlFragment,
 } from '@/render/legacy/lib/template-v2-json-to-html'
@@ -76,6 +78,17 @@ function render() {
     fail(error)
   }
 }
+
+function layerFor(source: TemplateV2ItemSource): HTMLElement | null {
+  if (!shadow) return null
+  const index = templateV2ItemSources(props.ui).findIndex(
+    (candidate) => candidate.kind === source.kind && candidate.index === source.index,
+  )
+  if (index < 0) return null
+  return shadow.querySelector<HTMLElement>(`[data-hf-el="e${index}"]`)
+}
+
+defineExpose({ layerFor })
 
 onMounted(render)
 watch(() => [props.ui, props.theme, props.fonts, props.annotate], render)
