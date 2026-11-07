@@ -53,18 +53,19 @@ Additive; existing callers of `listTemplates()` keep working.
     otherwise.
   - `description?: string`. Built-ins: `settings.description`; custom:
     `description` from `TemplateListItem` (null → undefined).
-- `getTemplateDetail(id)` → `{ summary: TemplateSummary, layouts, theme, fonts }`.
-  Finds the summary in the cached `['templates']` list (fetching it if
-  needed). If the summary already carries real layout objects, uses them;
-  otherwise calls the existing `getTemplate(id)` (`GET /api/v1/ppt/template/{id}`).
-  Unknown id → throws a typed not-found error. Cached under the existing
-  `templateDetailKey(id)` so the gallery cards, the detail page, the outline
-  `TemplatePicker` and the editor layout picker share one cache entry.
-  *Plan must verify* whether built-in ids resolve via `GET /template/{id}`; the
-  design does not depend on it because built-ins carry layouts from the scan.
+- No separate detail fetcher. The detail page combines the `['templates']`
+  list (summary: name, description, kind, layout count; an id absent from the
+  loaded list = not found) with `useTemplateLayouts` (below), which loads
+  layouts/theme/fonts via the existing `getTemplate(id)`
+  (`GET /api/v1/ppt/template/{id}`) under the existing `templateDetailKey(id)`.
+  One cache entry shape, shared by gallery cards, detail page, outline
+  `TemplatePicker` and editor layout picker. Verified: built-ins are seeded in
+  the DB (`is_default=True`, `servers/fastapi/templates/default_templates.py`)
+  and resolve through `GET /template/{id}`; the Next.js scan only lists legacy
+  `.tsx` file names, never layout objects.
 - `renameTemplate(id, name)` → `PATCH /api/v1/ppt/template/{id}` `{ name }`.
 - `deleteTemplate(id)` → `DELETE /api/v1/ppt/template/{id}` (204).
-- Both mutations invalidate `['templates']` and `templateDetailKey(id)`.
+- Both mutations invalidate `['templates']`; delete also removes `templateDetailKey(id)`.
 - The backend returns 403 "Built-in templates are read-only" for built-ins;
   the UI never offers these actions on built-ins, the 403 surfaces as a toast
   if it ever happens.
@@ -168,9 +169,7 @@ Vitest unit tests (`frontend/tests/unit/templates/`, plus additions to
 existing files):
 
 - `api/templates`: `kind`/`description` mapping for built-in and custom;
-  `getTemplateDetail` uses scan layouts for built-ins and `GET /template/{id}`
-  for custom; unknown id → not-found; rename/delete call the right endpoints
-  and invalidate keys.
+  rename/delete call the right endpoints.
 - `useTemplateLayouts`: pending → loaded, failure, cache sharing with
   `templateDetailKey`; `TemplatePicker` existing tests still pass.
 - `TemplatesView`: renders cards, search filtering, `?kind` filter from and to
