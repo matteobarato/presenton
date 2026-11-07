@@ -67,3 +67,31 @@ export function uiWithVideoPlaceholder(): RawUi {
     ],
   } as RawUi
 }
+
+// uiTwoComponents with a second text component overlapping the first (drawn later).
+export function uiOverlapping(): RawUi {
+  const ui = uiWithText() as Record<string, unknown>
+  const first = (ui.components as Record<string, unknown>[])[0]
+  return {
+    ...ui,
+    components: [
+      first,
+      { ...first, id: 'c-over', position: { x: 150, y: 100 } },
+    ],
+  } as RawUi
+}
+
+// uiWithText plus a decorative full-slide root vector behind everything.
+export function uiWithDecorativeBackground(): RawUi {
+  return {
+    ...(uiWithText() as Record<string, unknown>),
+    elements: [
+      {
+        type: 'vector',
+        decorative: true,
+        position: { x: 0, y: 0 },
+        size: { width: 1280, height: 720 },
+      },
+    ],
+  } as RawUi
+}
