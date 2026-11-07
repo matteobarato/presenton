@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { computed, defineComponent, h, provide, ref, shallowRef } from 'vue'
 import { mount } from '@vue/test-utils'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import type { RawUi, Selection } from '@/slide-editor/model'
 import { SLIDE_EDITING_KEY, type SlideEditing } from '@/slide-editor/useSlideEditing'
 import ElementTab from '@/components/editor/inspector/element/ElementTab.vue'
@@ -28,6 +29,7 @@ function mountTab(sel: Selection, opts: { inlineEditing?: boolean; enabled?: boo
         return () => h(ElementTab, { presentationId: 'p1', presentation: {} as never, activeSlide: null })
       },
     }),
+    { global: { plugins: [[VueQueryPlugin, { queryClient: new QueryClient() }]] } },
   )
   return { wrapper, ctx, selection }
 }
@@ -118,5 +120,14 @@ describe('ElementTab', () => {
     ;(ui.components as Array<{ elements: Array<Record<string, unknown>> }>)[0]!.elements[0]!.type = 'text-list'
     expect(toolbarKind(ui, { kind: 'element', componentIndex: 0, elementPath: [0] })).toBe('text')
     expect(toolbarKind(ui, { kind: 'component', componentIndex: 0 })).toBe('text')
+  })
+})
+
+describe('ElementTab image kind', () => {
+  it('shows the Image section for an image component', () => {
+    const { wrapper } = mountTab({ kind: 'component', componentIndex: 1 })
+    expect(label(wrapper, 'Replace image').exists()).toBe(true)
+    expect(label(wrapper, 'Contain').exists()).toBe(true)
+    expect(label(wrapper, 'Duplicate').exists()).toBe(true)
   })
 })

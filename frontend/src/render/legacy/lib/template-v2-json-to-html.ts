@@ -4361,3 +4361,8 @@ function escapeCssUrl(value: string): string {
     .replaceAll("\n", "")
     .replaceAll("\r", "");
 }
+
+/** Resolve an image source the way the renderer does (backend-served paths become absolute URLs). */
+export function resolveAssetUrl(src: string | undefined | null): string {
+  return resolveBackendAssetUrl(src ?? "");
+}
