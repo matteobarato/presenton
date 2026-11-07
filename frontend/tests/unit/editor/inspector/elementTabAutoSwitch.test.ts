@@ -19,9 +19,10 @@ vi.stubGlobal('matchMedia', (q: string) => ({
 
 function setup() {
   const selection = ref<Selection>(null)
-  const ctx = { selection } as unknown as SlideEditing
+  const gestureActive = ref(false)
+  const ctx = { selection, gestureActive } as unknown as SlideEditing
   mount(defineComponent({ setup() { useElementTabAutoSwitch(ctx); return () => null } }))
-  return { selection, editor: useEditorStore() }
+  return { selection, gestureActive, editor: useEditorStore() }
 }
 const sel: Selection = { kind: 'component', componentIndex: 0 }
 
@@ -61,5 +62,32 @@ describe('useElementTabAutoSwitch', () => {
     selection.value = null
     await nextTick()
     expect(editor.inspectorTab).toBe('design')
+  })
+
+  it('waits for the gesture that made the selection to end before opening the inspector', async () => {
+    const { selection, gestureActive, editor } = setup()
+    editor.inspectorOpen = false
+    editor.inspectorTab = 'design'
+    gestureActive.value = true // press on an element: a drag may follow
+    selection.value = sel
+    await nextTick()
+    expect(editor.inspectorOpen).toBe(false)
+    expect(editor.inspectorTab).toBe('design')
+    gestureActive.value = false // pointerup
+    await nextTick()
+    expect(editor.inspectorTab).toBe('element')
+    expect(editor.inspectorOpen).toBe(true)
+  })
+
+  it('a selection cleared before the gesture ends opens nothing', async () => {
+    const { selection, gestureActive, editor } = setup()
+    editor.inspectorOpen = false
+    gestureActive.value = true
+    selection.value = sel
+    await nextTick()
+    selection.value = null
+    gestureActive.value = false
+    await nextTick()
+    expect(editor.inspectorOpen).toBe(false)
   })
 })

@@ -111,34 +111,38 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
 </script>
 
 <template>
+  <!-- Not clipped itself: the overlay's edge handles reach past the slide. The slide and the inline
+       editor are clipped to the (rounded) slide box by the inner layer. -->
   <div
     ref="root"
     :data-slide-id="slide.id"
-    class="relative w-full overflow-hidden bg-white"
+    class="relative w-full bg-white"
     :style="{ aspectRatio: '16 / 9' }"
   >
-    <div data-slide-stage class="absolute top-0 left-0 origin-top-left overflow-hidden bg-white" :style="stageStyle">
-      <SlideRenderError v-if="failure" :message="failure" />
-      <TemplateSlideHost
-        v-else-if="kind === 'template'"
-        ref="host"
-        :ui="renderUi"
-        :theme="theme"
-        :fonts="fonts"
-        annotate
-        @rendered="emit('rendered')"
-        @error="onFailed"
-      />
+    <div data-slide-clip class="absolute inset-0 overflow-hidden rounded-[inherit]">
+      <div data-slide-stage class="absolute top-0 left-0 origin-top-left overflow-hidden bg-white" :style="stageStyle">
+        <SlideRenderError v-if="failure" :message="failure" />
+        <TemplateSlideHost
+          v-else-if="kind === 'template'"
+          ref="host"
+          :ui="renderUi"
+          :theme="theme"
+          :fonts="fonts"
+          annotate
+          @rendered="emit('rendered')"
+          @error="onFailed"
+        />
+      </div>
+      <!-- Same scale as the stage, so the editor box and its font are in slide px. -->
+      <div
+        v-if="inlineEdit && editing.enabled.value && !failure"
+        data-inline-edit-layer
+        class="pointer-events-none absolute top-0 left-0 z-20 origin-top-left"
+        :style="{ width: `${STAGE_W}px`, height: `${STAGE_H}px`, transform: `scale(${scale})` }"
+      >
+        <InlineTextEditor :key="inlineEditKey" />
+      </div>
     </div>
     <SelectionOverlay v-if="editing.enabled.value && current && !failure" @open-editor="onOpenEditor" />
-    <!-- Same scale as the stage, so the editor box and its font are in slide px. -->
-    <div
-      v-if="inlineEdit && editing.enabled.value && !failure"
-      data-inline-edit-layer
-      class="pointer-events-none absolute top-0 left-0 z-20 origin-top-left"
-      :style="{ width: `${STAGE_W}px`, height: `${STAGE_H}px`, transform: `scale(${scale})` }"
-    >
-      <InlineTextEditor :key="inlineEditKey" />
-    </div>
   </div>
 </template>

@@ -48,6 +48,8 @@ export interface SlideEditing {
   /** The open inline editor's Tiptap instance (set by InlineTextEditor), for toolbar commands. */
   inlineEditor: ShallowRef<Editor | null>
   guides: Ref<AlignmentGuide[]>
+  /** True from the press to the release of a move or resize on the canvas. */
+  gestureActive: Ref<boolean>
   select: (sel: Selection) => void
   /** Commits `next` to the current slide; resolves once saved (`opts.onApplied` hears earlier). */
   commit: (next: RawUi, label: string, opts?: CommitOptions) => Promise<boolean>
@@ -96,6 +98,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   const inlineEdit = shallowRef<InlineEditSession | null>(null)
   const inlineEditor = shallowRef<Editor | null>(null)
   const guides = ref<AlignmentGuide[]>([])
+  const gestureActive = ref(false)
 
   const slideId = computed(() => slide.value?.id ?? null)
   const enabled = computed(() => !!slide.value && slideKind(slide.value) === 'template' && !editor.locked)
@@ -249,6 +252,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     inlineEdit,
     inlineEditor,
     guides,
+    gestureActive,
     select,
     commit,
     commitTo,

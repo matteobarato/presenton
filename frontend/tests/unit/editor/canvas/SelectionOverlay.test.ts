@@ -65,4 +65,34 @@ describe('SelectionOverlay', () => {
     await nextTick()
     expect(current.onOpenEditor).not.toHaveBeenCalled()
   })
+
+  it('a press on the slide takes focus from a text field outside the canvas', async () => {
+    current = mountEditable(tpl('a', uiWithText()))
+    const notes = document.createElement('textarea')
+    document.body.appendChild(notes)
+    notes.focus()
+    expect(document.activeElement).toBe(notes)
+    pointer(overlay().element, 'pointerdown', 150, 100)
+    pointer(overlay().element, 'pointerup', 150, 100)
+    expect(current.api().selection.value).toEqual({ kind: 'component', componentIndex: 0 })
+    expect(document.activeElement).not.toBe(notes)
+    notes.remove()
+  })
+
+  it('marks a gesture active from press to release', async () => {
+    current = mountEditable(tpl('a', uiWithText()))
+    expect(current.api().gestureActive.value).toBe(false)
+    pointer(overlay().element, 'pointerdown', 150, 100)
+    expect(current.api().gestureActive.value).toBe(true)
+    pointer(overlay().element, 'pointermove', 250, 100)
+    pointer(overlay().element, 'pointerup', 250, 100)
+    expect(current.api().gestureActive.value).toBe(false)
+    // A resize gesture too.
+    await nextTick()
+    const handle = overlay().get('[data-handle="se"]').element
+    pointer(handle, 'pointerdown', 600, 300)
+    expect(current.api().gestureActive.value).toBe(true)
+    pointer(handle, 'pointercancel', 600, 300)
+    expect(current.api().gestureActive.value).toBe(false)
+  })
 })

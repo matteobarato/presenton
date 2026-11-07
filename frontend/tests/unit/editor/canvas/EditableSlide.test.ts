@@ -11,7 +11,7 @@ vi.mock('@/api/presentations', () => ({ usePresentation: () => ({ data: ref(unde
 import EditorCanvas from '@/components/editor/EditorCanvas.vue'
 import EditableSlide from '@/components/editor/canvas/EditableSlide.vue'
 import SlideView from '@/render/SlideView.vue'
-import { absoluteBoxForSelection, type RawUi } from '@/slide-editor/model'
+import { absoluteBoxForSelection, type ElementSelection, type RawUi } from '@/slide-editor/model'
 import { useEditorStore } from '@/stores/editor'
 import { useSlideEditing } from '@/slide-editor/useSlideEditing'
 import { uiTwoComponents, uiWithText } from '../../slide-editor/fixtures'
@@ -84,6 +84,40 @@ describe('EditableSlide', () => {
     expect(editSlideUi).toHaveBeenCalledTimes(1)
     expect(editSlideUi.mock.calls[0]![2]).toBe('Move')
     expect(componentX(committedUi(), 0)).toBe(200)
+  })
+
+  it('dragging a selected nested element moves its owning component and keeps the element selected', async () => {
+    const { api } = setup(uiWithText())
+    const sel: ElementSelection = { kind: 'element', componentIndex: 0, elementPath: [0] }
+    api().select(sel)
+    await drag(150, 100, 250, 100)
+    expect(editSlideUi).toHaveBeenCalledTimes(1)
+    expect(editSlideUi.mock.calls[0]![2]).toBe('Move')
+    expect(componentX(committedUi(), 0)).toBe(200)
+    expect(api().selection.value).toEqual(sel)
+  })
+
+  it('a layout-managed nested element does not drag', async () => {
+    const ui = {
+      components: [
+        {
+          id: 'c',
+          position: { x: 100, y: 80 },
+          elements: [
+            {
+              type: 'flex',
+              position: { x: 0, y: 0 },
+              size: { width: 400, height: 120 },
+              children: [{ type: 'shape', size: { width: 50, height: 50 } }],
+            },
+          ],
+        },
+      ],
+    } as unknown as RawUi
+    const { api } = setup(ui)
+    api().select({ kind: 'element', componentIndex: 0, elementPath: [0, 0] })
+    await drag(110, 90, 250, 100)
+    expect(editSlideUi).not.toHaveBeenCalled()
   })
 
   it('a move under the 3 screen px threshold does not commit', async () => {
@@ -275,6 +309,19 @@ describe('EditorCanvas', () => {
     await nextTick()
     expect(w.findComponent(EditableSlide).exists()).toBe(true)
     expect(w.find('[data-testid="selection-overlay"]').exists()).toBe(true)
+    w.unmount()
+  })
+
+  it('nothing between the overlay and the canvas clips it, so edge handles show whole', async () => {
+    const w = mountCanvas(tpl('a', uiWithText()))
+    await nextTick()
+    const section = w.get('section').element
+    for (let n = w.get('[data-testid="selection-overlay"]').element.parentElement; n && n !== section; n = n.parentElement) {
+      expect(n.className).not.toMatch(/overflow-hidden/)
+    }
+    // The slide itself is still clipped to its rounded box.
+    const stage = w.get('[data-slide-stage]').element
+    expect(stage.closest('.overflow-hidden')).not.toBeNull()
     w.unmount()
   })
 })

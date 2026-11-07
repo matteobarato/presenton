@@ -65,6 +65,11 @@ interface ResizeGesture {
   moved: boolean
 }
 let gesture: MoveGesture | ResizeGesture | null = null
+// Mirrored into the context: the inspector waits for the release before it opens (and resizes the canvas).
+function setGesture(g: MoveGesture | ResizeGesture | null) {
+  gesture = g
+  editing.gestureActive.value = g != null
+}
 // Mirrors a running move for the template (the gesture itself is not reactive).
 const dragging = ref(false)
 const dragDelta = ref<Point>({ x: 0, y: 0 })
@@ -132,6 +137,15 @@ function measure() {
   return { rect, scale: rect.width > 0 ? rect.width / STAGE_WIDTH : 1 }
 }
 
+/**
+ * The press prevents its default (no text selection, no native drag), which also keeps focus where
+ * it was, e.g. in the notes or the Ask input, where Delete and the arrows would then go. Move focus
+ * to the canvas instead, so the editing shortcuts follow what the user pressed.
+ */
+function takeFocus() {
+  if (document.activeElement !== el.value) el.value?.focus({ preventScroll: true })
+}
+
 function capture(pointerId: number) {
   try {
     el.value?.setPointerCapture?.(pointerId)
@@ -169,16 +183,17 @@ function onPointerDown(e: PointerEvent) {
   if (e.button !== 0 || gesture) return
   const u = ui.value
   if (!u) return
+  takeFocus()
   const { rect, scale } = measure()
   const p = toSlidePoint(e.clientX, e.clientY, rect)
   const next = selectionAfterPress(u, p, e.shiftKey)
   editing.select(next)
   hover.value = null
   // Shift-click only toggles the multi-selection.
-  const items = e.shiftKey ? [] : moveItems(next)
+  const items = e.shiftKey ? [] : moveItems(next, u)
   if (items.length === 0) return
   e.preventDefault()
-  gesture = {
+  setGesture({
     type: 'move',
     slideId: editing.slideId.value,
     pointerId: e.pointerId,
@@ -190,7 +205,7 @@ function onPointerDown(e: PointerEvent) {
     started: false,
     delta: { x: 0, y: 0 },
     layers: [],
-  }
+  })
   capture(e.pointerId)
   listenForEnd()
 }
@@ -203,7 +218,7 @@ function onHandleDown(e: PointerEvent, handle: Handle) {
   if (!u) return
   const { scale } = measure()
   const client = { x: e.clientX, y: e.clientY }
-  gesture = {
+  setGesture({
     type: 'resize',
     slideId: editing.slideId.value,
     pointerId: e.pointerId,
@@ -215,7 +230,7 @@ function onHandleDown(e: PointerEvent, handle: Handle) {
     last: { client, shift: e.shiftKey },
     frame: null,
     moved: false,
-  }
+  })
   capture(e.pointerId)
   listenForEnd()
 }
@@ -273,7 +288,7 @@ function onPointerMove(e: PointerEvent) {
 function finish(commit: boolean) {
   const g = gesture
   if (!g) return
-  gesture = null
+  setGesture(null)
   stopListening()
   try {
     el.value?.releasePointerCapture?.(g.pointerId)
@@ -336,7 +351,8 @@ onBeforeUnmount(() => finish(false))
   <div
     ref="el"
     data-testid="selection-overlay"
-    class="absolute inset-0 z-10 touch-none select-none"
+    tabindex="-1"
+    class="absolute inset-0 z-10 touch-none outline-none select-none"
     :class="dragging && 'cursor-move'"
     @pointerdown="onPointerDown"
     @pointermove="onPointerMove"

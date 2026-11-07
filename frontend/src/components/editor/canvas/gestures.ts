@@ -39,6 +39,7 @@ import {
   isVideoPlaceholderElement,
   isVideoPlaceholderLayer,
 } from '@/render/legacy/components/slide-editor/video/video-placeholder'
+import { isLayoutManagedElement } from '@/slide-editor/ops'
 import type { TemplateV2ItemSource } from '@/render/legacy/lib/template-v2-json-to-html'
 
 /** Snap distance in screen px, as `ALIGNMENT_GUIDE_SNAP_DISTANCE_PX` in the old TemplateV2KonvaSlide. */
@@ -62,14 +63,18 @@ export type MoveItem =
   | { kind: 'component'; index: number }
   | { kind: 'root-element'; index: number }
 
-export function moveItems(sel: Selection): MoveItem[] {
+/**
+ * What a drag of `sel` moves. A nested element drags its owning component (or, inside a root
+ * element, that root element), as the old editor dragged the component group; a layout-managed
+ * element (placed by its flex/grid parent) does not drag at all.
+ */
+export function moveItems(sel: Selection, ui: RawUi): MoveItem[] {
   if (!sel) return []
   if (sel.kind === 'component') return [{ kind: 'component', index: sel.componentIndex }]
   if (sel.kind === 'multi-component') return sel.componentIndexes.map((index) => ({ kind: 'component', index }))
-  if (sel.componentIndex === ROOT_ELEMENTS_COMPONENT_INDEX && sel.elementPath.length === 1) {
-    return [{ kind: 'root-element', index: sel.elementPath[0]! }]
-  }
-  return []
+  if (sel.elementPath.length === 0 || isLayoutManagedElement(ui, sel)) return []
+  if (sel.componentIndex === ROOT_ELEMENTS_COMPONENT_INDEX) return [{ kind: 'root-element', index: sel.elementPath[0]! }]
+  return [{ kind: 'component', index: sel.componentIndex }]
 }
 
 export function layerSource(item: MoveItem): TemplateV2ItemSource {
