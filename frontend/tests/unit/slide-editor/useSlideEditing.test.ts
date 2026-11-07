@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { defineComponent, h, nextTick, ref, type Ref } from 'vue'
@@ -70,13 +71,39 @@ describe('useSlideEditing', () => {
     expect(api.ui.value).toEqual(uiWithText())
   })
 
-  it('commit clears draftUi and calls editSlideUi', async () => {
-    const { api } = setup(tpl('a', uiWithText()))
+  it('commit keeps draftUi until the committed ui arrives', async () => {
+    const { api, slide } = setup(tpl('a', uiWithText()))
     const next = uiTwoComponents()
-    api.draftUi.value = next
     expect(await api.commit(next, 'Move')).toBe(true)
-    expect(api.draftUi.value).toBeNull()
     expect(editSlideUi).toHaveBeenCalledWith('a', next, 'Move')
+    // The cache write has not reached the slide yet: the draft holds the new ui so nothing snaps back.
+    expect(api.draftUi.value).toBe(next)
+    expect(api.ui.value).toBe(next)
+    slide.value = tpl('a', next)
+    await nextTick()
+    expect(api.draftUi.value).toBeNull()
+  })
+
+  it('commit drops the draft when editSlideUi fails', async () => {
+    editSlideUi.mockResolvedValue(false)
+    const { api } = setup(tpl('a', uiWithText()))
+    api.draftUi.value = uiTwoComponents()
+    expect(await api.commit(uiTwoComponents(), 'Resize')).toBe(false)
+    expect(api.draftUi.value).toBeNull()
+  })
+
+  it('commit of an unchanged ui leaves no draft behind', async () => {
+    const { api } = setup(tpl('a', uiWithText()))
+    await api.commit(uiWithText(), 'Move')
+    expect(api.draftUi.value).toBeNull()
+  })
+
+  it('clears the selection when editing becomes disabled', async () => {
+    const { api } = setup(tpl('a', uiWithText()))
+    api.select({ kind: 'component', componentIndex: 0 })
+    useEditorStore().deckBusy = 1
+    await nextTick()
+    expect(api.selection.value).toBeNull()
   })
 
   it('drops a selection whose component no longer exists', async () => {

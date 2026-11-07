@@ -26,6 +26,8 @@ const host = ref<HTMLElement | null>(null)
 let shadow: ShadowRoot | null = null
 let disposeCharts: (() => void) | null = null
 let generation = 0
+// The item sources of the ui last written to the shadow DOM, so layerFor matches the DOM.
+let renderedSources: TemplateV2ItemSource[] = []
 
 function backgroundOnly(ui: unknown): string {
   const raw = (ui as { background?: unknown } | null)?.background
@@ -54,6 +56,7 @@ function render() {
       localFontOptionsFromUnknown(props.fonts).map(renderLocalFontFaceCss).join('') + themeFontFaceCss(props.theme)
     registerDocumentFonts(fontCss)
 
+    renderedSources = props.annotate && fragment ? templateV2ItemSources(props.ui) : []
     const vars = cssVarDeclarations(themeCssVars(props.theme))
     shadow.innerHTML =
       `<style>${fontCss.replaceAll('</style', '<\\/style')}` +
@@ -81,7 +84,7 @@ function render() {
 
 function layerFor(source: TemplateV2ItemSource): HTMLElement | null {
   if (!shadow) return null
-  const index = templateV2ItemSources(props.ui).findIndex(
+  const index = renderedSources.findIndex(
     (candidate) => candidate.kind === source.kind && candidate.index === source.index,
   )
   if (index < 0) return null

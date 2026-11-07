@@ -4,6 +4,7 @@ import {
   onScopeDispose,
   provide,
   ref,
+  shallowRef,
   watch,
   type ComputedRef,
   type InjectionKey,
@@ -62,7 +63,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   const { editSlideUi } = useSlideMutations(presentationId)
 
   const selection = ref<Selection>(null)
-  const draftUi = ref<RawUi | null>(null)
+  const draftUi = shallowRef<RawUi | null>(null)
   const inlineEdit = ref<{ selection: ElementSelection; element: RawElement } | null>(null)
   const guides = ref<AlignmentGuide[]>([])
 
@@ -78,12 +79,20 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     guides.value = []
   }
 
+  // The draft holds `next` until the committed ui reaches the slide (the ui watcher drops it),
+  // so the slide never snaps back to the old ui while the cache write propagates.
   async function commit(next: RawUi, label: string): Promise<boolean> {
     const id = slide.value?.id
-    draftUi.value = null
     guides.value = []
-    if (!id) return false
-    return editSlideUi(id, next, label)
+    if (!id) {
+      draftUi.value = null
+      return false
+    }
+    const unchanged = JSON.stringify(slide.value?.ui ?? null) === JSON.stringify(next)
+    draftUi.value = unchanged ? null : next
+    const ok = await editSlideUi(id, next, label)
+    if (!ok && draftUi.value === next) cancelDraft()
+    return ok
   }
 
   watch(
@@ -100,9 +109,17 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     () => slide.value?.ui,
     (committed) => {
       inlineEdit.value = null
+      draftUi.value = null
       if (!selectionValid((committed as RawUi | null | undefined) ?? null, selection.value)) selection.value = null
     },
   )
+
+  watch(enabled, (on) => {
+    if (on) return
+    selection.value = null
+    inlineEdit.value = null
+    cancelDraft()
+  })
 
   watch(
     () => selection.value !== null,
