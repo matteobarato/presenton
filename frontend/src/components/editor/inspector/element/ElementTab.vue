@@ -5,11 +5,16 @@ import type { Presentation, Slide } from '@/api/types'
 import { layerTree } from '@/slide-editor/layerTree'
 import { selectionLabel, toolbarKind } from '@/slide-editor/toolbarKind'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import AppearanceSection from './AppearanceSection.vue'
 import ArrangeSection from './ArrangeSection.vue'
+import IconSection from './IconSection.vue'
 import ImageSection from './ImageSection.vue'
 import LayerChildren from './LayerChildren.vue'
 import LayerTree from './LayerTree.vue'
+import LineSection from './LineSection.vue'
+import ListSection from './ListSection.vue'
 import OrderSection from './OrderSection.vue'
+import ShapeSection from './ShapeSection.vue'
 import TextSection from './TextSection.vue'
 import VideoSection from './VideoSection.vue'
 
@@ -18,6 +23,7 @@ const props = defineProps<{ presentationId: string; presentation: Presentation; 
 const ctx = useSlideEditingContext()
 const active = computed(() => ctx.enabled.value && ctx.selection.value !== null)
 const kind = computed(() => toolbarKind(ctx.ui.value, ctx.selection.value))
+const single = computed(() => ctx.selection.value?.kind !== 'multi-component')
 const heading = computed(() => selectionLabel(ctx.ui.value, ctx.selection.value) ?? 'Element')
 const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : []))
 </script>
@@ -42,9 +48,16 @@ const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : [])
           <X class="size-4" aria-hidden="true" />
         </button>
       </div>
-      <TextSection v-if="kind === 'text'" :presentation="props.presentation" />
+      <template v-if="kind === 'text' || kind === 'list'">
+        <TextSection :presentation="props.presentation" />
+        <ListSection v-if="kind === 'list'" />
+      </template>
       <ImageSection v-else-if="kind === 'image'" />
+      <IconSection v-else-if="kind === 'icon'" :presentation="props.presentation" />
+      <ShapeSection v-else-if="kind === 'shape'" :presentation="props.presentation" />
+      <LineSection v-else-if="kind === 'line'" :presentation="props.presentation" />
       <VideoSection v-else-if="kind === 'video'" :presentation-id="props.presentationId" :slide="props.activeSlide" />
+      <AppearanceSection v-if="single" :presentation="props.presentation" />
       <ArrangeSection />
       <OrderSection />
       <LayerChildren />

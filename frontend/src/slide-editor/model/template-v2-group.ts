@@ -1,4 +1,4 @@
-// Ported from servers/nextjs/components/slide-editor/model/template-v2-group.ts. Changes: import paths only.
+// Ported from servers/nextjs/components/slide-editor/model/template-v2-group.ts. Changes: import paths only; rotatedBox is exported.
 type RawRecord = Record<string, unknown>;
 
 export type TemplateV2GroupBox = {
@@ -166,7 +166,7 @@ function componentGroupElement(
   };
 }
 
-function rotatedBox(
+export function rotatedBox(
   box: TemplateV2GroupBox,
   rotation: number,
 ): TemplateV2GroupBox {

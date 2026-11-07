@@ -5,8 +5,9 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useEventListener } from '@vueuse/core'
 import { Editor } from '@tiptap/vue-3'
-import { absoluteInlineEditBox, withHash } from '@/slide-editor/model'
+import { absoluteBoxForSelection, absoluteInlineEditBox, withHash } from '@/slide-editor/model'
 import { cssFontFamilyStack, inlineTextExtensions, nextListMarkerPrefix } from '@/slide-editor/tiptapRuns'
+import { selectionFrame } from '@/slide-editor/rotation'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 
 const ctx = useSlideEditingContext()
@@ -26,12 +27,22 @@ const lineHeightPx = computed(() => {
   return Math.max(1, style.size * style.lineHeight, ...heights)
 })
 
+// Where the renderer draws the element: turned about its centre, and moved with any rotated ancestor.
+const frame = computed(() => selectionFrame(session.ui, session.selection))
+
 const boxStyle = computed(() => {
   const b = box.value
   const s = session.style
+  const f = frame.value
+  const rotation = f?.rotation ?? 0
+  const plain = absoluteBoxForSelection(session.ui, session.selection)
+  // A rotated ancestor moves the element's centre; the editor's own box is laid out unrotated.
+  const dx = rotation !== 0 && f && plain ? f.box.x + f.box.width / 2 - (plain.x + plain.width / 2) : 0
+  const dy = rotation !== 0 && f && plain ? f.box.y + f.box.height / 2 - (plain.y + plain.height / 2) : 0
   return {
-    left: `${b?.x ?? 0}px`,
-    top: `${b?.y ?? 0}px`,
+    left: `${(b?.x ?? 0) + dx}px`,
+    top: `${(b?.y ?? 0) + dy}px`,
+    ...(rotation !== 0 ? { transform: `rotate(${rotation}deg)`, transformOrigin: 'center' } : {}),
     width: `${b?.width ?? 0}px`,
     minHeight: `${b?.height ?? 0}px`,
     fontFamily: cssFontFamilyStack(s.family),

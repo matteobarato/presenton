@@ -183,19 +183,23 @@ const PNG = Buffer.from(
   'base64',
 )
 
+const ICON_RESULTS = ['/static/icons/bold/star-bold.png', '/static/icons/bold/starfish-bold.png']
+
 /** Mocks the editor screens with an editable deck. PATCHes are recorded and served back on reload. */
-async function editableApi(page: Page, overrides: Record<string, Handler> = {}) {
+async function editableApi(page: Page, overrides: Record<string, Handler> = {}, deck: typeof editableDeck = editableDeck) {
   const patches: { slides: PatchedSlide[] }[] = []
   const unexpected = await mockApi(page, {
     [`GET /api/v1/ppt/presentation/${DECK_ID}`]: json(deck),
+    'GET /api/v1/ppt/icons/search': json(ICON_RESULTS),
     ...overrides,
   })
+  await page.route('**/static/icons/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }))
   await page.route(
     (url) => url.pathname === `/api/v1/ppt/presentation/${DECK_ID}`,
     (route) => {
       if (route.request().method() !== 'GET') return route.fallback()
       const last = patches.at(-1)
-      return json(last ? { ...editableDeck, slides: last.slides } : editableDeck)(route)
+      return json(last ? { ...deck, slides: last.slides } : deck)(route)
     },
   )
   await page.route(
@@ -203,7 +207,7 @@ async function editableApi(page: Page, overrides: Record<string, Handler> = {}) 
     (route) => {
       const body = route.request().postDataJSON() as { slides: PatchedSlide[] }
       patches.push(body)
-      return json({ ...editableDeck, slides: body.slides ?? editableDeck.slides })(route)
+      return json({ ...deck, slides: body.slides ?? deck.slides })(route)
     },
   )
   return { patches, unexpected }
@@ -212,6 +216,18 @@ async function editableApi(page: Page, overrides: Record<string, Handler> = {}) 
 const lastPatch = (patches: { slides: PatchedSlide[] }[]) => patches.at(-1)?.slides[0]?.ui
 const component = (patches: { slides: PatchedSlide[] }[], id: string) =>
   lastPatch(patches)?.components.find((c) => c.id === id)
+interface ElementRecord {
+  fill?: { color: string } | null
+  stroke?: { width: number; dash?: number[] | null } | null
+  end_marker?: string
+  start_marker?: string
+  color: string
+  data?: string
+  marker?: string
+  opacity?: number
+  shadow?: unknown
+}
+const elementOf = (patches: { slides: PatchedSlide[] }[], id: string) => component(patches, id)?.elements[0] as ElementRecord | undefined
 const textOf = (patches: { slides: PatchedSlide[] }[]) =>
   JSON.stringify(component(patches, 'headline')?.elements ?? null)
 
@@ -440,6 +456,193 @@ test.describe('on-slide editing (mocked)', () => {
     await page.goto(`/p/${DECK_ID}?stream=1`)
     await expect(page.getByRole('complementary', { name: 'Slides' }).locator('button[data-slide-key]').first()).toBeVisible()
     await expect(page.getByTestId('selection-overlay')).toHaveCount(0)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+})
+
+// --- Visual element editing --------------------------------------------------------------------
+
+const visualDeck = fixture<typeof editableDeck>('visual-presentation')
+const rotationOf = (patches: { slides: PatchedSlide[] }[], id: string) =>
+  ((component(patches, id) as { rotation?: number } | undefined)?.rotation ?? 0)
+
+test.describe('visual element editing (mocked)', () => {
+  /** Opens the visual deck with `id`'s component selected (clicked at a slide point inside it). */
+  async function open(page: Page, at: [number, number], overrides: Record<string, Handler> = {}) {
+    const api = await editableApi(page, overrides, visualDeck)
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    await select(page, at)
+    return api
+  }
+  async function select(page: Page, [x, y]: [number, number]) {
+    const p = await slidePoint(page, x, y)
+    await page.mouse.click(p.px, p.py)
+  }
+  const box = async (page: Page) => (await page.locator('[data-selection-box]').first().boundingBox())!
+  const centre = (b: { x: number; y: number; width: number; height: number }) => ({ x: b.x + b.width / 2, y: b.y + b.height / 2 })
+  /** Turns the selection by dragging the rotate handle to the left of the box centre (a quarter turn clockwise). */
+  async function rotateQuarter(page: Page) {
+    const c = centre(await box(page))
+    const h = centre((await page.locator('[data-rotate-handle]').boundingBox())!)
+    const r = Math.hypot(h.x - c.x, h.y - c.y)
+    await page.mouse.move(h.x, h.y)
+    await page.mouse.down()
+    await page.mouse.move(c.x - r / 2, c.y + r / 2, { steps: 5 })
+    await page.mouse.move(c.x - r, c.y, { steps: 5 })
+    await expect(page.locator('[data-rotate-badge]')).toBeVisible()
+    await page.mouse.up()
+  }
+  const SHAPE: [number, number] = [200, 160]
+
+  test('rotating with the handle persists across reload; Ctrl+Z restores and Ctrl+Shift+Z redoes', async ({ page }) => {
+    const { patches, unexpected } = await open(page, SHAPE)
+    await expect(page.locator('[data-rotate-handle]')).toBeVisible()
+    await rotateQuarter(page)
+    await expect.poll(() => rotationOf(patches, 'shape')).toBeGreaterThan(80)
+    expect(rotationOf(patches, 'shape')).toBeCloseTo(90, -1)
+    await expect(page.locator('[data-rotate-badge]')).toHaveCount(0)
+
+    await page.keyboard.press('Control+z')
+    await expect.poll(() => rotationOf(patches, 'shape')).toBe(0)
+
+    await page.keyboard.press('Control+Shift+z')
+    await expect.poll(() => rotationOf(patches, 'shape')).toBeGreaterThan(80)
+    expect(rotationOf(patches, 'shape')).toBeCloseTo(90, -1)
+    await page.reload()
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    expect(rotationOf(patches, 'shape')).toBeCloseTo(90, -1)
+    await select(page, SHAPE)
+    await expect(page.getByRole('textbox', { name: 'Rotation' })).toHaveValue(/^(8[5-9]|9[0-5])/)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('hit-testing follows the rotated shape, not its unrotated bounds', async ({ page }) => {
+    const { patches, unexpected } = await open(page, SHAPE)
+    await rotateQuarter(page)
+    await expect.poll(() => rotationOf(patches, 'shape')).toBeGreaterThan(80)
+    const slide = (await page.getByTestId('selection-overlay').boundingBox())!
+
+    // The rotated shape is 120 wide x 200 tall around (200,160): (200,70) is inside it but outside the old bounds.
+    await select(page, [450, 450]) // elsewhere, so the shape is not selected
+    const isShapeSelected = async () => {
+      const b = await box(page)
+      return b.height > b.width && b.height < slide.height * 0.5 && b.height > (200 * slide.width) / 1280 - 4
+    }
+    expect(await isShapeSelected()).toBe(false)
+    await select(page, [200, 70])
+    await expect.poll(isShapeSelected).toBe(true)
+
+    // (105,105) is a corner of the old bounds that the rotated shape left empty: it falls through to the background.
+    await select(page, [450, 450])
+    await select(page, [105, 105])
+    const b = await box(page)
+    expect(b.width).toBeGreaterThan(slide.width * 0.9)
+    expect(patches.length).toBe(1) // only the rotation was saved
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('resizing a rotated shape keeps the opposite corner in place', async ({ page }) => {
+    const { patches, unexpected } = await open(page, SHAPE)
+    await rotateQuarter(page)
+    await expect.poll(() => rotationOf(patches, 'shape')).toBeGreaterThan(80)
+    const corner = async (h: string) => centre((await page.locator(`[data-handle="${h}"]`).first().boundingBox())!)
+    const scale = (await page.getByTestId('selection-overlay').boundingBox())!.width / 1280
+    const anchor = await corner('nw')
+    const grip = await corner('se')
+    const before = (await box(page))
+    await page.mouse.move(grip.x, grip.y)
+    await page.mouse.down()
+    // Outward: away from the anchored corner, whichever way the rotation sent the handle.
+    const len = Math.hypot(grip.x - anchor.x, grip.y - anchor.y)
+    const out = { x: (grip.x - anchor.x) / len, y: (grip.y - anchor.y) / len }
+    await page.mouse.move(grip.x + out.x * 20 * scale, grip.y + out.y * 20 * scale, { steps: 4 })
+    await page.mouse.move(grip.x + out.x * 60 * scale, grip.y + out.y * 60 * scale, { steps: 6 })
+    await page.mouse.up()
+    await expect.poll(() => patches.length).toBe(2)
+    const after = await corner('nw')
+    expect(Math.abs(after.x - anchor.x)).toBeLessThanOrEqual(2)
+    expect(Math.abs(after.y - anchor.y)).toBeLessThanOrEqual(2)
+    const now = await box(page)
+    expect(now.width * now.height).toBeGreaterThan(before.width * before.height)
+    expect(rotationOf(patches, 'shape')).toBeCloseTo(90, -1)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('Shape: fill toggle and palette colour, stroke width and dash', async ({ page }) => {
+    const { patches, unexpected } = await open(page, SHAPE)
+    const fill = page.getByRole('switch', { name: 'Fill' })
+    await fill.click()
+    // Only a saved PATCH counts: before one exists there is nothing to read.
+    await expect.poll(() => (patches.length ? (elementOf(patches, 'shape')?.fill ?? null) : 'no patch yet')).toBeNull()
+    await fill.click()
+    await expect.poll(() => elementOf(patches, 'shape')?.fill?.color).toBe('#3366FF')
+
+    await page.getByRole('button', { name: 'Fill colour', exact: true }).click()
+    const swatch = page.getByRole('button', { name: /^#[0-9a-f]{6}$/i }).nth(1)
+    const hex = (await swatch.getAttribute('aria-label'))!
+    await swatch.click()
+    await expect.poll(() => elementOf(patches, 'shape')?.fill?.color.toLowerCase()).toBe(hex.toLowerCase())
+
+    await page.getByRole('switch', { name: 'Stroke' }).click()
+    await expect.poll(() => elementOf(patches, 'shape')?.stroke?.width).toBe(1.5)
+    const width = page.getByRole('textbox', { name: 'Width', exact: true })
+    await width.fill('4')
+    await width.press('Enter')
+    await expect.poll(() => elementOf(patches, 'shape')?.stroke?.width).toBe(4)
+    await page.getByRole('group', { name: 'Dash' }).getByRole('button', { name: 'Dashed' }).click()
+    await expect.poll(() => elementOf(patches, 'shape')?.stroke?.dash).toEqual([12, 8])
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('Line: filled arrow end and swap ends', async ({ page }) => {
+    const { patches, unexpected } = await open(page, [550, 150])
+    await expect(page.getByRole('heading', { name: 'Line ends' })).toBeVisible()
+    await page.getByRole('button', { name: 'End', exact: true }).click()
+    await page.getByRole('option', { name: 'Filled arrow' }).click()
+    await expect.poll(() => elementOf(patches, 'arrow')?.end_marker).toBe('triangle')
+    await page.getByRole('button', { name: 'Swap ends' }).click()
+    await expect.poll(() => elementOf(patches, 'arrow')?.start_marker).toBe('triangle')
+    expect(elementOf(patches, 'arrow')?.end_marker).toBe('none')
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('Icon: colour swatch and replacing the icon from search', async ({ page }) => {
+    const { patches, unexpected } = await open(page, [832, 132])
+    await page.getByRole('button', { name: 'Icon colour', exact: true }).click()
+    const swatch = page.getByRole('button', { name: /^#[0-9a-f]{6}$/i }).first()
+    const hex = (await swatch.getAttribute('aria-label'))!
+    await swatch.click()
+    await expect.poll(() => elementOf(patches, 'icon')?.color.toLowerCase()).toBe(hex.toLowerCase())
+
+    await page.getByRole('button', { name: 'Change icon', exact: true }).click()
+    const dialog = page.getByRole('dialog')
+    await dialog.getByRole('searchbox', { name: 'Search icons' }).fill('star')
+    await expect(dialog.getByRole('button', { name: /^Icon \d$/ })).toHaveCount(2)
+    await dialog.getByRole('button', { name: 'Icon 2' }).click()
+    await dialog.getByRole('button', { name: 'Replace' }).click()
+    await expect.poll(() => elementOf(patches, 'icon')?.data).toBe(ICON_RESULTS[1])
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('List: number marker', async ({ page }) => {
+    const { patches, unexpected } = await open(page, [300, 480])
+    await page.getByRole('group', { name: 'Marker' }).getByRole('button', { name: 'Number' }).click()
+    await expect.poll(() => elementOf(patches, 'bullets')?.marker).toBe('number')
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('Appearance: opacity and shadow', async ({ page }) => {
+    const { patches, unexpected } = await open(page, [832, 132])
+    const opacity = page.getByRole('textbox', { name: 'Opacity', exact: true })
+    await opacity.fill('50')
+    await opacity.press('Enter')
+    await expect.poll(() => elementOf(patches, 'icon')?.opacity).toBe(0.5)
+
+    await page.getByRole('switch', { name: 'Shadow' }).click()
+    await expect
+      .poll(() => elementOf(patches, 'icon')?.shadow)
+      .toEqual({ color: '#000000', blur: 10, opacity: 0.18, offset_x: 6, offset_y: 6 })
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 })

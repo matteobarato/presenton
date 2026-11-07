@@ -145,11 +145,20 @@ describe('ElementTab', () => {
     expect(selection.value).toBeNull()
   })
 
-  it('classifies a text-list element and a lone text-list component as text', () => {
+  it('classifies a text-list element and a lone text-list component as list', () => {
     const ui = uiTwoComponents() as RawUi
     ;(ui.components as Array<{ elements: Array<Record<string, unknown>> }>)[0]!.elements[0]!.type = 'text-list'
-    expect(toolbarKind(ui, { kind: 'element', componentIndex: 0, elementPath: [0] })).toBe('text')
-    expect(toolbarKind(ui, { kind: 'component', componentIndex: 0 })).toBe('text')
+    expect(toolbarKind(ui, { kind: 'element', componentIndex: 0, elementPath: [0] })).toBe('list')
+    expect(toolbarKind(ui, { kind: 'component', componentIndex: 0 })).toBe('list')
+  })
+})
+
+describe('ElementTab appearance', () => {
+  it('shows Appearance for a single selection and not for a multi-selection', () => {
+    const single = mountTab({ kind: 'component', componentIndex: 0 })
+    expect(single.wrapper.find('input[aria-label="Rotation"]').exists()).toBe(true)
+    const multi = mountTab({ kind: 'multi-component', componentIndexes: [0, 1] })
+    expect(multi.wrapper.find('input[aria-label="Rotation"]').exists()).toBe(false)
   })
 })
 

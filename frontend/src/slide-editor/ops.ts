@@ -33,6 +33,9 @@ import {
   type TemplateV2ClipboardPayload,
 } from '@/slide-editor/model'
 
+import { isVideoPlaceholderLayer } from '@/render/legacy/components/slide-editor/video/video-placeholder'
+import { appearanceTargets, setRotationInUi } from '@/slide-editor/appearanceTarget'
+
 export type OpResult = { ui: RawUi; selection: Selection } | null
 
 export const PASTE_OFFSET = 16
@@ -265,4 +268,20 @@ export function insertContent(ui: RawUi, req: InsertRequest): OpResult {
   }
 
   return { ui: { ...appended, components }, selection: selectionForComponentIndexes(newIndexes) }
+}
+
+/** Whether the rotate handle applies: one component or element, not a video placeholder or layout-placed. */
+export function canRotate(ui: RawUi, sel: Selection): boolean {
+  if (!sel || sel.kind === 'multi-component') return false
+  if (sel.kind === 'component') {
+    const component = readArray(ui.components)[sel.componentIndex]
+    return !!component && !isVideoPlaceholderLayer(component)
+  }
+  return !isLayoutManagedElement(ui, sel)
+}
+
+export function rotateSelection(ui: RawUi, sel: Selection, deg: number): OpResult {
+  const targets = appearanceTargets(ui, sel)
+  if (!targets) return null
+  return { ui: setRotationInUi(ui, targets.rotation, deg), selection: sel }
 }

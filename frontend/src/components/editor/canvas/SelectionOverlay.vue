@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { hitComponent, hitDeepest, selectionBoxes, toSlidePoint } from '@/slide-editor/geometry'
+import { hitComponent, hitDeepest, selectionFrames, toSlidePoint } from '@/slide-editor/geometry'
 import {
-  absoluteBoxForSelection,
   selectionWithComponentToggle,
   STAGE_HEIGHT,
   STAGE_WIDTH,
-  type Box,
   type ElementSelection,
   type Point,
   type RawUi,
   type Selection,
+  ROOT_ELEMENTS_COMPONENT_INDEX,
 } from '@/slide-editor/model'
+import { normalizeRotation } from '@/slide-editor/elementStyle'
+import { canRotate, rotateSelection } from '@/slide-editor/ops'
+import { appearanceTargets, readRotation } from '@/slide-editor/appearanceTarget'
+import { pointInFrame, selectionFrame, type Frame } from '@/slide-editor/rotation'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import type { TemplateV2ItemSource } from '@/render/legacy/lib/template-v2-json-to-html'
 import { useEditableCanvas } from './canvas-context'
 import {
   applyMove,
@@ -65,31 +69,67 @@ interface ResizeGesture {
   frame: number | null
   moved: boolean
 }
-let gesture: MoveGesture | ResizeGesture | null = null
+interface RotateGesture {
+  type: 'rotate'
+  slideId: string | null
+  pointerId: number
+  ui: RawUi
+  sel: Selection
+  /** Frame centre, slide px. */
+  center: Point
+  startAngle: number
+  startRotation: number
+  angle: number
+  layers: HTMLElement[]
+}
+let gesture: MoveGesture | ResizeGesture | RotateGesture | null = null
 // Mirrored into the context: the inspector waits for the release before it opens (and resizes the canvas).
-function setGesture(g: MoveGesture | ResizeGesture | null) {
+function setGesture(g: MoveGesture | ResizeGesture | RotateGesture | null) {
   gesture = g
   editing.gestureActive.value = g != null
 }
 // Mirrors a running move for the template (the gesture itself is not reactive).
 const dragging = ref(false)
 const dragDelta = ref<Point>({ x: 0, y: 0 })
+// The angle of a running rotation (null otherwise) and how far it has turned the selection.
+const rotateAngle = ref<number | null>(null)
+const rotateDelta = ref(0)
 
 // Inert unless the editing context is on this canvas's slide.
 const active = computed(() => editing.slideId.value != null && editing.slideId.value === canvas.slideId.value)
 const ui = computed(() => (active.value ? editing.ui.value : null))
 const selection = computed(() => editing.selection.value)
 
-const selected = computed(() => {
+const selected = computed<Frame[]>(() => {
   const u = ui.value
   if (!u) return []
   const offset = dragDelta.value
-  return selectionBoxes(u, selection.value).map((b) => ({ ...b, x: b.x + offset.x, y: b.y + offset.y }))
+  return selectionFrames(u, selection.value).map(({ box, rotation }) => ({
+    box: { ...box, x: box.x + offset.x, y: box.y + offset.y },
+    rotation: rotation + rotateDelta.value,
+  }))
 })
 const showHandles = computed(
-  () => !dragging.value && selected.value.length === 1 && selection.value?.kind !== 'multi-component',
+  () =>
+    !dragging.value &&
+    rotateAngle.value == null &&
+    selected.value.length === 1 &&
+    selection.value?.kind !== 'multi-component',
 )
-const hoverBox = computed<Box | null>(() => {
+// The layer a rotate handle turns: a component, or a root element (nested elements get no handle).
+function rotateLayerSource(sel: Selection): TemplateV2ItemSource | null {
+  if (sel?.kind === 'component') return { kind: 'component', index: sel.componentIndex }
+  if (sel?.kind === 'element' && sel.componentIndex === ROOT_ELEMENTS_COMPONENT_INDEX && sel.elementPath.length === 1) {
+    return { kind: 'element', index: sel.elementPath[0]! }
+  }
+  return null
+}
+const showRotate = computed(() => {
+  const u = ui.value
+  const sel = selection.value
+  return !!u && !dragging.value && selected.value.length === 1 && rotateLayerSource(sel) != null && canRotate(u, sel)
+})
+const hoverBox = computed<Frame | null>(() => {
   const u = ui.value
   const h = hover.value
   if (!u || !h || dragging.value) return null
@@ -98,33 +138,40 @@ const hoverBox = computed<Box | null>(() => {
   if (sel?.kind === 'multi-component' && h.kind === 'component' && sel.componentIndexes.includes(h.componentIndex)) {
     return null
   }
-  return absoluteBoxForSelection(u, h)
+  return h.kind === 'multi-component' ? null : selectionFrame(u, h)
 })
 
 const pct = (v: number, of: number) => `${(v / of) * 100}%`
-function boxStyle(b: Box) {
+function boxStyle(f: Frame) {
+  const b = f.box
   return {
     left: pct(b.x, STAGE_WIDTH),
     top: pct(b.y, STAGE_HEIGHT),
     width: pct(b.width, STAGE_WIDTH),
     height: pct(b.height, STAGE_HEIGHT),
+    ...(f.rotation !== 0 ? { transform: `rotate(${f.rotation}deg)`, transformOrigin: 'center' } : {}),
   }
 }
-function handleStyle(b: Box, h: Handle) {
-  const x = h.includes('w') ? b.x : h.includes('e') ? b.x + b.width : b.x + b.width / 2
-  const y = h.startsWith('n') ? b.y : h.startsWith('s') ? b.y + b.height : b.y + b.height / 2
-  return { left: pct(x, STAGE_WIDTH), top: pct(y, STAGE_HEIGHT) }
+// Handles are children of the (rotated) selection box, so they sit at fractions of it. The box has a
+// 1.5px border, so edge handles move out by half of it to centre on the line.
+function handleStyle(h: Handle) {
+  const fx = h.includes('w') ? 0 : h.includes('e') ? 100 : 50
+  const fy = h.startsWith('n') ? 0 : h.startsWith('s') ? 100 : 50
+  const edge = (f: number) => (f === 0 ? ' - 1.5px' : f === 100 ? ' + 1.5px' : '')
+  return { left: `calc(${fx}%${edge(fx)})`, top: `calc(${fy}%${edge(fy)})` }
 }
-const HANDLE_CURSOR: Record<Handle, string> = {
-  nw: 'nwse-resize',
-  se: 'nwse-resize',
-  ne: 'nesw-resize',
-  sw: 'nesw-resize',
-  n: 'ns-resize',
-  s: 'ns-resize',
-  e: 'ew-resize',
-  w: 'ew-resize',
+const HANDLE_ANGLE: Record<Handle, number> = { e: 0, se: 45, s: 90, sw: 135, w: 180, nw: 225, n: 270, ne: 315 }
+const CURSORS = ['ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize']
+function handleCursor(h: Handle, rotation: number): string {
+  const steps = Math.round((HANDLE_ANGLE[h] + rotation) / 45)
+  return CURSORS[((steps % 4) + 4) % 4]!
 }
+const ROTATE_STEM_PX = 24
+const rotateBadgeStyle = computed(() => {
+  const f = selected.value[0]
+  if (!f) return {}
+  return { left: pct(f.box.x + f.box.width / 2, STAGE_WIDTH), top: pct(f.box.y + f.box.height / 2, STAGE_HEIGHT) }
+})
 const guideStyles = computed(() =>
   editing.guides.value.map((g) =>
     g.axis === 'vertical'
@@ -162,6 +209,14 @@ function listenForEnd() {
 function stopListening() {
   window.removeEventListener('pointerup', onPointerUp)
   window.removeEventListener('pointercancel', onPointerCancel)
+  window.removeEventListener('keydown', onRotateKey, true)
+}
+// Esc during a rotation cancels it, and nothing else sees the key.
+function onRotateKey(e: KeyboardEvent) {
+  if (e.key !== 'Escape' || gesture?.type !== 'rotate') return
+  e.preventDefault()
+  e.stopPropagation()
+  finish(false)
 }
 
 function selectionAfterPress(u: RawUi, p: Point, shift: boolean): Selection {
@@ -174,8 +229,8 @@ function selectionAfterPress(u: RawUi, p: Point, shift: boolean): Selection {
   }
   // A deeper element picked by double-click stays selected while pressed inside it.
   if (current?.kind === 'element') {
-    const box = absoluteBoxForSelection(u, current)
-    if (box && p.x >= box.x && p.x <= box.x + box.width && p.y >= box.y && p.y <= box.y + box.height) return current
+    const frame = selectionFrame(u, current)
+    if (frame && pointInFrame(frame, p)) return current
   }
   return hit
 }
@@ -236,8 +291,55 @@ function onHandleDown(e: PointerEvent, handle: Handle) {
   listenForEnd()
 }
 
+const angleOf = (p: Point, c: Point) => (Math.atan2(p.y - c.y, p.x - c.x) * 180) / Math.PI
+
+function onRotateDown(e: PointerEvent) {
+  if (e.button !== 0 || gesture) return
+  e.stopPropagation()
+  e.preventDefault()
+  const u = ui.value
+  const sel = selection.value
+  const targets = u ? appearanceTargets(u, sel) : null
+  const frame = u && sel && sel.kind !== 'multi-component' ? selectionFrame(u, sel) : null
+  const source = rotateLayerSource(sel)
+  if (!u || !source || !targets || !frame) return
+  const { rect } = measure()
+  const center = { x: frame.box.x + frame.box.width / 2, y: frame.box.y + frame.box.height / 2 }
+  const startRotation = normalizeRotation(readRotation(u, targets.rotation))
+  const layer = canvas.layerFor(source)
+  setGesture({
+    type: 'rotate',
+    slideId: editing.slideId.value,
+    pointerId: e.pointerId,
+    ui: u,
+    sel,
+    center,
+    startAngle: angleOf(toSlidePoint(e.clientX, e.clientY, rect), center),
+    startRotation,
+    angle: startRotation,
+    layers: layer ? [layer] : [],
+  })
+  rotateAngle.value = startRotation
+  capture(e.pointerId)
+  listenForEnd()
+  window.addEventListener('keydown', onRotateKey, true)
+}
+
 function slideDelta(g: { startClient: Point; scale: number }, client: Point): Point {
   return { x: (client.x - g.startClient.x) / g.scale, y: (client.y - g.startClient.y) / g.scale }
+}
+
+function setRotation(g: RotateGesture, e: PointerEvent) {
+  const p = toSlidePoint(e.clientX, e.clientY, measure().rect)
+  let raw = g.startRotation + angleOf(p, g.center) - g.startAngle
+  if (e.shiftKey) raw = Math.round(raw / 15) * 15
+  // Hundredths: float noise around 180 must not tip the angle to -180.
+  raw = Math.round(raw * 100) / 100
+  g.angle = normalizeRotation(raw)
+  rotateAngle.value = g.angle
+  rotateDelta.value = g.angle - g.startRotation
+  const value = rotateDelta.value === 0 ? '' : `rotate(${rotateDelta.value}deg)`
+  for (const layer of g.layers) layer.style.transform = value
 }
 
 function setTransforms(g: MoveGesture, delta: Point) {
@@ -258,6 +360,10 @@ function onPointerMove(e: PointerEvent) {
     return
   }
   if (e.pointerId !== g.pointerId) return
+  if (g.type === 'rotate') {
+    setRotation(g, e)
+    return
+  }
   const client = { x: e.clientX, y: e.clientY }
   if (g.type === 'resize') {
     g.last = { client, shift: e.shiftKey }
@@ -299,6 +405,16 @@ function finish(commit: boolean) {
   // A gesture never outlives its slide: its ui must not reach another one.
   const sameSlide = editing.slideId.value === g.slideId
   commit &&= sameSlide
+  if (g.type === 'rotate') {
+    for (const layer of g.layers) layer.style.transform = ''
+    rotateAngle.value = null
+    rotateDelta.value = 0
+    if (commit && g.angle !== g.startRotation) {
+      const result = rotateSelection(g.ui, g.sel, g.angle)
+      if (result) void editing.commit(result.ui, 'Rotate')
+    }
+    return
+  }
   if (g.type === 'resize') {
     if (g.frame != null) cancelAnimationFrame(g.frame)
     if (!sameSlide) return
@@ -368,22 +484,45 @@ onBeforeUnmount(() => finish(false))
       :style="boxStyle(hoverBox)"
     />
     <div
-      v-for="(b, i) in selected"
+      v-for="(f, i) in selected"
       :key="i"
       data-selection-box
       class="pointer-events-none absolute box-border border-[1.5px] border-solid border-[#4bb3e6]"
-      :style="boxStyle(b)"
-    />
-    <template v-if="showHandles">
-      <div
-        v-for="h in HANDLES"
-        :key="h"
-        :data-handle="h"
-        class="absolute box-border size-2 -translate-x-1/2 -translate-y-1/2 border border-[#4bb3e6] bg-white"
-        :style="[handleStyle(selected[0]!, h), { cursor: HANDLE_CURSOR[h] }]"
-        @pointerdown="onHandleDown($event, h)"
-      />
-    </template>
+      :style="boxStyle(f)"
+    >
+      <template v-if="i === 0 && showHandles">
+        <div
+          v-for="h in HANDLES"
+          :key="h"
+          :data-handle="h"
+          class="pointer-events-auto absolute box-border size-2 -translate-x-1/2 -translate-y-1/2 border border-[#4bb3e6] bg-white"
+          :style="[handleStyle(h), { cursor: handleCursor(h, f.rotation) }]"
+          @pointerdown="onHandleDown($event, h)"
+        />
+      </template>
+      <template v-if="i === 0 && showRotate">
+        <div
+          class="pointer-events-none absolute w-px -translate-x-1/2 bg-[#4bb3e6]"
+          :style="{ left: '50%', top: '100%', height: `${ROTATE_STEM_PX}px` }"
+        />
+        <div
+          data-rotate-handle
+          role="button"
+          aria-label="Rotate"
+          class="pointer-events-auto absolute box-border size-3 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border border-[#4bb3e6] bg-white"
+          :style="{ left: '50%', top: `calc(100% + ${ROTATE_STEM_PX}px)` }"
+          @pointerdown="onRotateDown"
+        />
+      </template>
+    </div>
+    <div
+      v-if="rotateAngle != null"
+      data-rotate-badge
+      class="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded bg-[#0f1417] px-1.5 py-0.5 text-xs text-white"
+      :style="rotateBadgeStyle"
+    >
+      {{ normalizeRotation(Math.round(rotateAngle)) }}°
+    </div>
     <div
       v-for="(g, i) in guideStyles"
       :key="`g${i}`"

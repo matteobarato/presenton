@@ -14,6 +14,7 @@ import {
   isVideoPlaceholderElement,
   isVideoPlaceholderLayer,
 } from '@/render/legacy/components/slide-editor/video/video-placeholder'
+import { pointInFrame, selectionFrame, type Frame } from '@/slide-editor/rotation'
 
 const SLIDE_WIDTH = 1280
 const SLIDE_HEIGHT = 720
@@ -25,14 +26,9 @@ type Rec = Record<string, unknown>
 const isRec = (v: unknown): v is Rec => !!v && typeof v === 'object' && !Array.isArray(v)
 const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : [])
 
-function contains(box: Box | null | undefined, p: Point): boolean {
-  return (
-    !!box &&
-    p.x >= box.x &&
-    p.x <= box.x + box.width &&
-    p.y >= box.y &&
-    p.y <= box.y + box.height
-  )
+function hits(ui: RawUi, sel: ElementSelection | { kind: 'component'; componentIndex: number }, p: Point): boolean {
+  const frame = selectionFrame(ui, sel)
+  return !!frame && pointInFrame(frame, p)
 }
 
 function isDecorativeBackground(element: Rec, box: Box | null): boolean {
@@ -50,7 +46,7 @@ export function hitComponent(ui: RawUi, p: Point): Selection {
   for (let i = components.length - 1; i >= 0; i -= 1) {
     const component = components[i]
     if (!isRec(component) || isVideoPlaceholderLayer(component)) continue
-    if (contains(absoluteBoxForSelection(ui, { kind: 'component', componentIndex: i }), p)) {
+    if (hits(ui, { kind: 'component', componentIndex: i }, p)) {
       return { kind: 'component', componentIndex: i }
     }
   }
@@ -61,8 +57,9 @@ export function hitComponent(ui: RawUi, p: Point): Selection {
     if (!isRec(element) || isVideoPlaceholderElement(element)) continue
     const box = absoluteElementBox(root, [i]) as Box | null
     if (isDecorativeBackground(element, box)) continue
-    if (contains(box, p)) {
-      return { kind: 'element', componentIndex: ROOT_ELEMENTS_COMPONENT_INDEX, elementPath: [i] }
+    const sel: ElementSelection = { kind: 'element', componentIndex: ROOT_ELEMENTS_COMPONENT_INDEX, elementPath: [i] }
+    if (hits(ui, sel, p)) {
+      return sel
     }
   }
   return null
@@ -80,7 +77,7 @@ function deepestIn(
     if (!isRec(item) || isVideoPlaceholderElement(item)) continue
     const path = [...prefix, i]
     const sel: ElementSelection = { kind: 'element', componentIndex, elementPath: path }
-    if (!contains(absoluteBoxForSelection(ui, sel), p)) continue
+    if (!hits(ui, sel, p)) continue
     const info = childArrayInfo(item)
     const deeper = info ? deepestIn(ui, componentIndex, info.items, path, p) : null
     return deeper ?? path
@@ -117,6 +114,19 @@ export function selectionBoxes(ui: RawUi, sel: Selection): Box[] {
   }
   const box = absoluteBoxForSelection(ui, sel)
   return box ? [box] : []
+}
+
+/** One frame per selected component, or the element's frame; rotated where the renderer draws it. */
+export function selectionFrames(ui: RawUi, sel: Selection): Frame[] {
+  if (!sel) return []
+  if (sel.kind === 'multi-component') {
+    return sel.componentIndexes.flatMap((componentIndex) => {
+      const frame = selectionFrame(ui, { kind: 'component', componentIndex })
+      return frame ? [frame] : []
+    })
+  }
+  const frame = selectionFrame(ui, sel)
+  return frame ? [frame] : []
 }
 
 export function toSlidePoint(clientX: number, clientY: number, rect: DOMRect): Point {

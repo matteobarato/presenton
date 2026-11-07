@@ -111,11 +111,11 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
       e.preventDefault()
       void apply(r, 'Nudge')
     } else if (e.key === 'Enter') {
-      // A text element, or a component whose lone element is text (as the Text section edits it).
+      // A text or list element, or a component whose lone element is text or a list (as the Text section edits it).
       const target: ElementSelection | null =
         sel?.kind === 'element'
           ? sel
-          : sel?.kind === 'component' && toolbarKind(ui, sel) === 'text'
+          : sel?.kind === 'component' && ['text', 'list'].includes(toolbarKind(ui, sel))
             ? { kind: 'element', componentIndex: sel.componentIndex, elementPath: [0] }
             : null
       const type = target ? getElementAtSelection(ui, target)?.type : null

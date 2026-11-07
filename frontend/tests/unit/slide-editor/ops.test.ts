@@ -9,12 +9,14 @@ import {
   deleteSelection,
   duplicateSelection,
   groupSelection,
+  canRotate,
   nudge,
   pasteFromPayload,
+  rotateSelection,
   ungroupSelection,
 } from '@/slide-editor/ops'
 import { CLIPBOARD_PREFIX, CLIPBOARD_STORAGE_KEY, useClipboard } from '@/slide-editor/useClipboard'
-import { uiTwoComponents, uiWithText } from './fixtures'
+import { uiTwoComponents, uiWithText, uiWithVideoPlaceholder } from './fixtures'
 
 const comps = (ui: RawUi) => ui.components as Array<Record<string, any>>
 
@@ -134,5 +136,24 @@ describe('clipboard payloads', () => {
     await useClipboard().copy(ui, { kind: 'component', componentIndex: 0 })
     expect(window.localStorage.getItem(CLIPBOARD_STORAGE_KEY)).toContain('presenton/template-v2')
     expect(await useClipboard().readPayload()).not.toBeNull()
+  })
+
+  it('rotateSelection writes component.rotation for a component and element.rotation for an element', () => {
+    const c = rotateSelection(uiWithText(), { kind: 'component', componentIndex: 0 }, 190)!
+    expect(comps(c.ui)[0]!.rotation).toBe(-170)
+    expect(comps(c.ui)[0]!.elements[0].rotation).toBeUndefined()
+    const e = rotateSelection(uiWithText(), { kind: 'element', componentIndex: 0, elementPath: [0] }, 45)!
+    expect(comps(e.ui)[0]!.elements[0].rotation).toBe(45)
+    expect(comps(e.ui)[0]!.rotation).toBeUndefined()
+    expect(rotateSelection(uiTwoComponents(), { kind: 'multi-component', componentIndexes: [0, 1] }, 10)).toBeNull()
+    expect(rotateSelection(uiTwoComponents(), null, 10)).toBeNull()
+  })
+
+  it('canRotate: single component only, not multi or a video placeholder', () => {
+    expect(canRotate(uiWithText(), { kind: 'component', componentIndex: 0 })).toBe(true)
+    expect(canRotate(uiTwoComponents(), { kind: 'multi-component', componentIndexes: [0, 1] })).toBe(false)
+    expect(canRotate(uiWithText(), null)).toBe(false)
+    expect(canRotate(uiWithText(), { kind: 'element', componentIndex: 0, elementPath: [0] })).toBe(true)
+    expect(canRotate(uiWithVideoPlaceholder(), { kind: 'component', componentIndex: 1 })).toBe(false)
   })
 })

@@ -9,8 +9,9 @@ import { useEditingShortcuts } from '@/slide-editor/useEditingShortcuts'
 import type { SlideEditing } from '@/slide-editor/useSlideEditing'
 import { uiTwoComponents } from './fixtures'
 
-function setup(opts: { selection?: Selection; inlineEdit?: boolean; active?: boolean } = {}) {
+function setup(opts: { selection?: Selection; inlineEdit?: boolean; active?: boolean; listFirst?: boolean } = {}) {
   const ui = uiTwoComponents()
+  if (opts.listFirst) (ui.components as Array<{ elements: Array<Record<string, unknown>> }>)[0]!.elements[0]!.type = 'text-list'
   const ctx = {
     enabled: computed(() => true),
     slideId: computed(() => 's1'),
@@ -261,6 +262,14 @@ describe('useEditingShortcuts', () => {
 
   it('Enter on a component whose lone element is text opens its inline editor', () => {
     const { ctx, wrapper } = setup({ selection: { kind: 'component', componentIndex: 0 } })
+    const e = press('Enter')
+    expect(e.defaultPrevented).toBe(true)
+    expect(ctx.requestInlineEdit).toHaveBeenCalledWith({ kind: 'element', componentIndex: 0, elementPath: [0] })
+    wrapper.unmount()
+  })
+
+  it('Enter on a component whose lone element is a text-list opens its inline editor', () => {
+    const { ctx, wrapper } = setup({ selection: { kind: 'component', componentIndex: 0 }, listFirst: true })
     const e = press('Enter')
     expect(e.defaultPrevented).toBe(true)
     expect(ctx.requestInlineEdit).toHaveBeenCalledWith({ kind: 'element', componentIndex: 0, elementPath: [0] })

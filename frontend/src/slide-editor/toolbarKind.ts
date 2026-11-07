@@ -1,28 +1,40 @@
-import { getElementAtSelection, type RawUi, type Selection } from '@/slide-editor/model'
+import { getElementAtSelection, type RawElement, type RawUi, type Selection } from '@/slide-editor/model'
 import { ungroupSelection } from '@/slide-editor/ops'
 import { isVideoPlaceholderElement } from '@/render/legacy/components/slide-editor/video/video-placeholder'
+import { isOpenVector } from '@/slide-editor/elementStyle'
 
-export type ToolbarKind = 'text' | 'image' | 'video' | 'multi' | 'generic'
+export type ToolbarKind = 'text' | 'list' | 'image' | 'icon' | 'shape' | 'line' | 'video' | 'multi' | 'generic'
 
-const imageKind = (el: unknown): ToolbarKind => (isVideoPlaceholderElement(el) ? 'video' : 'image')
+type KindElement = { type?: string; is_icon?: unknown; isIcon?: unknown }
 
-/** Which context toolbar a selection gets; Tasks 9 and 10 plug the text and image toolbars in by this. */
+function elementKind(el: KindElement | null | undefined): ToolbarKind {
+  const isIcon = !!(el?.is_icon || el?.isIcon)
+  switch (el?.type) {
+    case 'text':
+      return 'text'
+    case 'text-list':
+      return 'list'
+    case 'image':
+      if (isVideoPlaceholderElement(el)) return 'video'
+      return isIcon ? 'icon' : 'image'
+    case 'vector':
+      return isOpenVector(el as RawElement) ? 'line' : 'shape'
+    default:
+      return 'generic'
+  }
+}
+
+/** Which inspector section a selection gets: the kind of the selected element, or of a component's lone element. */
 export function toolbarKind(ui: RawUi | null, sel: Selection): ToolbarKind {
   if (!ui || !sel) return 'generic'
   if (sel.kind === 'multi-component') return 'multi'
   if (sel.kind === 'element') {
     const element = getElementAtSelection(ui, sel)
-    const type = element?.type
-    return type === 'text' || type === 'text-list' ? 'text' : type === 'image' ? imageKind(element) : 'generic'
+    return elementKind(element)
   }
-  const component = (ui.components as Array<{ elements?: Array<{ type?: string }> }> | undefined)?.[sel.componentIndex]
+  const component = (ui.components as Array<{ elements?: KindElement[] }> | undefined)?.[sel.componentIndex]
   const elements = component?.elements
-  if (elements?.length === 1) {
-    const type = elements[0]?.type
-    if (type === 'text' || type === 'text-list') return 'text'
-    if (type === 'image') return imageKind(elements[0])
-  }
-  return 'generic'
+  return elements?.length === 1 ? elementKind(elements[0]) : 'generic'
 }
 
 /** True when the selection is a single group component that can be ungrouped. */
@@ -30,14 +42,21 @@ export function isGroupSelection(ui: RawUi | null, sel: Selection): boolean {
   return !!ui && sel?.kind === 'component' && ungroupSelection(ui, sel) !== null
 }
 
-/** Short name of what is selected: "Text", "Image", "Video", "Group", "Element", or "N items". */
+/** Short name of what is selected: "Text", "List", "Image", "Icon", "Shape", "Line", "Video", "Group", "Element", or "N items". */
 export function selectionLabel(ui: RawUi | null, sel: Selection): string | null {
   if (!sel) return null
   if (sel.kind === 'multi-component') return `${sel.componentIndexes.length} items`
   const kind = toolbarKind(ui, sel)
-  if (kind === 'text') return 'Text'
-  if (kind === 'image') return 'Image'
-  if (kind === 'video') return 'Video'
+  const names: Partial<Record<ToolbarKind, string>> = {
+    text: 'Text',
+    list: 'List',
+    image: 'Image',
+    icon: 'Icon',
+    shape: 'Shape',
+    line: 'Line',
+    video: 'Video',
+  }
+  if (names[kind]) return names[kind]!
   if (isGroupSelection(ui, sel)) return 'Group'
   return 'Element'
 }
