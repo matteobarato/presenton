@@ -333,6 +333,60 @@ test.describe('on-slide editing (mocked)', () => {
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 
+  test('insert a Title: selected, persists across reload, undo removes it', async ({ page }) => {
+    const { patches, unexpected } = await editableApi(page, {
+      'GET /api/v1/ppt/template/modern': json(fixture('template-blocks')),
+    })
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    const original = editableDeck.slides[0].ui!.components.length
+
+    await page.getByRole('button', { name: 'Insert', exact: true }).click()
+    await page.getByRole('button', { name: 'Insert Title', exact: true }).click()
+    await expect.poll(() => lastPatch(patches)?.components.length).toBe(original + 1)
+    await expect(page.getByRole('tab', { name: 'Insert' })).toHaveAttribute('aria-selected', 'true')
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+
+    // Undo removes it again (focus stays on the tile, so use the shortcut on the page).
+    await page.keyboard.press('Control+z')
+    await expect.poll(() => lastPatch(patches)?.components.length).toBe(original)
+
+    // Insert once more: the server state (last PATCH) is what a reload shows.
+    await page.getByRole('button', { name: 'Insert Title', exact: true }).click()
+    await expect.poll(() => lastPatch(patches)?.components.length).toBe(original + 1)
+    await page.reload()
+    await expect(page.locator('[data-slide-stage]').first()).toBeVisible()
+    expect(lastPatch(patches)?.components).toHaveLength(original + 1)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('insert a template block variant', async ({ page }) => {
+    const { patches, unexpected } = await editableApi(page, {
+      'GET /api/v1/ppt/template/modern': json(fixture('template-blocks')),
+    })
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    await page.getByRole('button', { name: 'Insert', exact: true }).click()
+    await page.getByRole('button', { name: 'Insert Metric Cards' }).click()
+    await expect.poll(() => JSON.stringify(lastPatch(patches) ?? null)).toContain('42%')
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('cancelling the image picker inserts nothing', async ({ page }) => {
+    const { patches, unexpected } = await editableApi(page, {
+      'GET /api/v1/ppt/template/modern': json(fixture('template-blocks')),
+    })
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    await page.getByRole('button', { name: 'Insert', exact: true }).click()
+    await page.getByRole('button', { name: 'Insert Image', exact: true }).click()
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    expect(patches).toHaveLength(0)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
   test('smart slides get no selection overlay', async ({ page }) => {
     const { unexpected } = await editableApi(page)
     await page.goto(`/p/${DECK_ID}`)

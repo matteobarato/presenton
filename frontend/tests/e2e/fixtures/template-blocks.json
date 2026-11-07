@@ -1,0 +1,35 @@
+{
+  "id": "modern",
+  "name": "Modern",
+  "layouts": [],
+  "theme": null,
+  "fonts": null,
+  "is_default": true,
+  "merged_components": {
+    "components": [
+      {
+        "id": "metric_cards",
+        "description": "Metric cards",
+        "variants": [
+          {
+            "id": "metric_cards_1",
+            "position": { "x": 0, "y": 0 },
+            "elements": [
+              {
+                "type": "text",
+                "position": { "x": 0, "y": 0 },
+                "size": { "width": 300, "height": 100 },
+                "font": { "size": 48, "family": "Montserrat", "color": "#1E4CD9", "bold": true, "line_height": 1.2 },
+                "alignment": { "horizontal": "left", "vertical": "top" },
+                "runs": [{ "text": "42%", "font": { "size": 48, "family": "Montserrat", "color": "#1E4CD9", "bold": true, "line_height": 1.2 } }],
+                "decorative": false,
+                "name": "metric",
+                "rotation": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
