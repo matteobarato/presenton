@@ -67,6 +67,11 @@ describe('TemplatesView', () => {
     expect(wrapper.text()).toContain('Every layout your next deck can be built from.')
   })
 
+  it('card links carry the active kind filter as ?from', async () => {
+    const { wrapper } = await mountAt('/templates?kind=custom')
+    expect(wrapper.get('[data-testid="template-card"] a').attributes('href')).toBe('/templates/c1?from=custom')
+  })
+
   it('filters by search, case-insensitive', async () => {
     const { wrapper } = await mountAt()
     await wrapper.get('input[type="search"]').setValue('BRAND')

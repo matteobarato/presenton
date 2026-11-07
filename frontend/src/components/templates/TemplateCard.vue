@@ -2,13 +2,13 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { ArrowUpRight } from 'lucide-vue-next'
-import type { TemplateSummary } from '@/api/templates'
+import type { TemplateKind, TemplateSummary } from '@/api/templates'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTemplateLayouts } from '@/composables/useTemplateLayouts'
 import SlideView from '@/render/SlideView.vue'
 import { layoutToSlide } from './layoutSlide'
 
-const props = defineProps<{ template: TemplateSummary }>()
+const props = defineProps<{ template: TemplateSummary; from?: TemplateKind }>()
 
 const { layouts, theme, fonts, pending } = useTemplateLayouts(() => props.template)
 const cover = computed(() => {
@@ -24,7 +24,7 @@ const meta = computed(
 <template>
   <article data-testid="template-card" class="group min-w-0">
     <RouterLink
-      :to="`/templates/${template.id}`"
+      :to="{ path: `/templates/${template.id}`, query: from ? { from } : undefined }"
       :aria-label="`View ${template.name}`"
       class="block rounded-card focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
     >

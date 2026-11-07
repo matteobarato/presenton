@@ -90,7 +90,7 @@ function clearFilters() {
       </template>
     </div>
     <div v-else class="grid grid-cols-3 gap-6 max-[1050px]:grid-cols-2 max-[760px]:grid-cols-1 max-[760px]:gap-[25px] min-[1800px]:grid-cols-4">
-      <TemplateCard v-for="t in visible" :key="t.id" :template="t" />
+      <TemplateCard v-for="t in visible" :key="t.id" :template="t" :from="kind === 'all' ? undefined : kind" />
     </div>
   </section>
 </template>
