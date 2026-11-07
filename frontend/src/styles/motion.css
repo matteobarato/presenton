@@ -2,6 +2,7 @@
    is a short fade plus a 5px rise; presentation transitions add a restrained blur.
    prefers-reduced-motion removes translation, scale and blur. */
 @keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes rise-in { from { opacity: 0; translate: 0 5px } to { opacity: 1; translate: 0 0 } }
 @keyframes dialog-in { from { opacity: 0; translate: 0 12px; filter: blur(3px) } to { opacity: 1; translate: 0 0; filter: blur(0) } }
 @keyframes sheet-in-right { from { opacity: 0; translate: 24px 0 } to { opacity: 1; translate: 0 0 } }
 @keyframes sheet-in-left { from { opacity: 0; translate: -24px 0 } to { opacity: 1; translate: 0 0 } }
@@ -10,6 +11,7 @@
 @keyframes working { from { border-color: #bedff02e } to { border-color: #bedff09c } }
 @keyframes shimmer { from { background-position: 200% 0 } to { background-position: -200% 0 } }
 
+.anim-rise-in { animation: rise-in 220ms var(--ease) both }
 .anim-fade-in { animation: fade-in 200ms ease-out }
 .anim-dialog-in { animation: dialog-in 300ms var(--ease) }
 .anim-pop-in { animation: pop-in 180ms var(--ease) }
@@ -39,7 +41,7 @@
 
 /* Reduced motion keeps opacity feedback and drops translation, scale and blur. */
 @media (prefers-reduced-motion: reduce) {
-  .anim-dialog-in, .anim-pop-in, .anim-sheet-right, .anim-sheet-left { animation: fade-in 150ms ease-out }
+  .anim-rise-in, .anim-dialog-in, .anim-pop-in, .anim-sheet-right, .anim-sheet-left { animation: fade-in 150ms ease-out }
   .thinking-dots > span { animation-name: thinking-fade }
   .slide-change-enter-from, .present-change-enter-from, .toast-enter-from, .toast-leave-to { transform: none; translate: none; filter: none }
   .slide-change-enter-active, .present-change-enter-active, .toast-enter-active, .toast-leave-active { transition-property: opacity }

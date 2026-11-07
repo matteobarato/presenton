@@ -14,8 +14,8 @@ const options: { value: 'all' | TemplateKind; label: string }[] = [
 </script>
 
 <template>
-  <div class="flex items-center gap-3 max-[760px]:w-full">
-    <label class="flex h-[35px] items-center gap-[9px] rounded-[8px] bg-[#242d32] px-[11px] text-[#91a5b1] focus-within:outline-2 focus-within:outline-offset-3 focus-within:outline-accent max-[760px]:min-w-[100px] max-[760px]:flex-1">
+  <div class="flex flex-wrap items-center gap-3 max-[760px]:w-full">
+    <label class="flex h-[35px] items-center gap-[9px] rounded-[8px] bg-[#242d32] px-[11px] text-[#91a5b1] focus-within:outline-2 focus-within:outline-offset-3 focus-within:outline-accent max-[760px]:min-w-[180px] max-[760px]:flex-1">
       <Search class="size-[15px] flex-none" aria-hidden="true" />
       <input
         v-model="search"

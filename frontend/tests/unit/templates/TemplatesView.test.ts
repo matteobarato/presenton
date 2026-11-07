@@ -41,7 +41,7 @@ async function mountAt(path = '/templates') {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const wrapper = mount(TemplatesView, { global: { plugins: [router, [VueQueryPlugin, { queryClient }]] }, attachTo: document.body })
   await flushPromises()
-  return { wrapper, router }
+  return { wrapper, router, queryClient }
 }
 
 const names = (w: ReturnType<typeof mount>) => w.findAll('[data-testid="template-card"] h3').map((h) => h.text())
@@ -123,6 +123,25 @@ describe('TemplatesView', () => {
     await button(wrapper, 'Retry')!.trigger('click')
     await flushPromises()
     expect(names(wrapper)).toHaveLength(3)
+  })
+
+  it('failed background refetch keeps the loaded gallery', async () => {
+    const { wrapper, queryClient } = await mountAt()
+    const q = queryClient.getQueryCache().find({ queryKey: ['templates'] })!
+    q.setState({ ...q.state, status: 'error', error: new Error('boom'), fetchStatus: 'idle' })
+    await flushPromises()
+    expect(names(wrapper)).toHaveLength(3)
+    expect(wrapper.text()).not.toContain('Could not load templates')
+  })
+
+  it('?kind=builtin matching nothing shows no-match state with Clear', async () => {
+    mocks.listTemplates.mockResolvedValue([custom])
+    const { wrapper, router } = await mountAt('/templates?kind=builtin')
+    expect(wrapper.text()).toContain('No built-in templates')
+    await button(wrapper, 'Clear')!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.query.kind).toBeUndefined()
+    expect(names(wrapper)).toEqual(['Brand Kit'])
   })
 
   it('card whose layouts fail still links', async () => {

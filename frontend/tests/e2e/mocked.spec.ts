@@ -152,6 +152,9 @@ test.describe('mocked backend', () => {
     // No click inside the dialog first: arrow keys must work from the initial focus.
     await page.keyboard.press('ArrowRight')
     await expect(dialog.getByText('2 / 2')).toBeVisible()
+    // Focus sits on the now-inactive Next button; ArrowLeft must still go back.
+    await page.keyboard.press('ArrowLeft')
+    await expect(dialog.getByText('1 / 2')).toBeVisible()
     await page.keyboard.press('Escape')
     await expect(dialog).toHaveCount(0)
 

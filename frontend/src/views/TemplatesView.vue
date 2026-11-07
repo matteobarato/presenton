@@ -27,7 +27,7 @@ const kind = computed<'all' | TemplateKind>({
 const visible = computed(() => {
   const needle = search.value.trim().toLowerCase()
   const all = query.data.value ?? []
-  // Built-in first; Array.prototype.sort is stable so each group keeps its API order.
+  // Built-in first, then custom; each group keeps API order.
   const ordered = [...all.filter((t) => t.kind === 'builtin'), ...all.filter((t) => t.kind !== 'builtin')]
   return ordered.filter(
     (t) => (kind.value === 'all' || t.kind === kind.value) && (!needle || t.name.toLowerCase().includes(needle)),
@@ -49,7 +49,7 @@ function clearFilters() {
   <PageHeader title="Templates" />
 
   <section class="workspace-card">
-    <div class="mb-[33px]">
+    <div class="anim-rise-in mb-[33px]">
       <h1 class="text-[34px] leading-[1.22] font-medium tracking-[-0.04em] text-[#e4ecf0] max-[1050px]:text-[30px] max-[760px]:text-[27px] max-[450px]:text-[25px]">
         A head start on something great.
       </h1>
@@ -69,14 +69,14 @@ function clearFilters() {
     <div v-if="query.isPending.value" class="grid grid-cols-3 gap-6 max-[1050px]:grid-cols-2 max-[760px]:grid-cols-1" aria-busy="true">
       <Skeleton v-for="n in 6" :key="n" class="aspect-video rounded-card" />
     </div>
-    <Alert v-else-if="query.isError.value" variant="destructive" class="flex items-center justify-between gap-4 py-2 text-[12px]">
+    <Alert v-else-if="query.isError.value && !query.data.value" variant="destructive" class="flex items-center justify-between gap-4 py-2 text-[12px]">
       <span>{{ errorMessage(query.error.value, 'Could not load templates') }}</span>
       <Button variant="secondary" size="sm" @click="query.refetch()">Retry</Button>
     </Alert>
     <div v-else-if="!visible.length" class="flex flex-col items-center px-6 py-[55px] text-center text-[#acc3d2]">
       <Search class="size-7" aria-hidden="true" />
-      <template v-if="search.trim()">
-        <h2 class="mt-[17px] mb-[7px] text-[20px] font-medium">No templates match “{{ search.trim() }}”</h2>
+      <template v-if="search.trim() || (kind === 'builtin' && (query.data.value?.length ?? 0) > 0)">
+        <h2 class="mt-[17px] mb-[7px] text-[20px] font-medium">{{ search.trim() ? `No templates match “${search.trim()}”` : 'No built-in templates' }}</h2>
         <p class="mb-5 text-[12px] text-[#97aebc]">Try a different name or type.</p>
         <Button variant="secondary" @click="clearFilters">Clear</Button>
       </template>

@@ -49,7 +49,23 @@ describe('LayoutLightbox', () => {
     await key('ArrowLeft')
     await key('ArrowLeft')
     expect(q('[data-testid="lightbox-counter"]')?.textContent).toBe('1 / 3')
-    expect(byLabel('Previous layout').disabled).toBe(true)
+    expect(byLabel('Previous layout').getAttribute('aria-disabled')).toBe('true')
+  })
+
+  it('arrow keys still work from a focused end button', async () => {
+    mountBox(1)
+    await nextTick()
+    const next = byLabel('Next layout')
+    next.focus()
+    next.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+    await flushPromises()
+    expect(q('[data-testid="lightbox-counter"]')?.textContent).toBe('3 / 3')
+    expect(next.disabled).toBe(false)
+    expect(next.getAttribute('aria-disabled')).toBe('true')
+    expect(document.activeElement).toBe(next)
+    next.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
+    await flushPromises()
+    expect(q('[data-testid="lightbox-counter"]')?.textContent).toBe('2 / 3')
   })
 
   it('Escape closes', async () => {
