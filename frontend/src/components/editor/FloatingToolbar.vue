@@ -27,14 +27,17 @@ const askTitle = computed(() =>
   smart.value ? 'AI edit is available for template slides' : 'Ask AI to edit this slide (Ctrl+K)',
 )
 
-const insertDisabled = computed(() => smart.value || editor.locked)
+const hasSlide = computed(() => Boolean(presentation.value?.slides.some((s) => s.id === editor.activeSlideId)))
+const insertDisabled = computed(() => smart.value || !hasSlide.value || editor.locked)
 const insertActive = computed(() => editor.inspectorOpen && editor.inspectorTab === 'insert')
 const insertTitle = computed(() =>
   smart.value
     ? 'Insert is available for template slides'
-    : editor.locked
-      ? 'Insert is unavailable while the deck is busy'
-      : 'Insert (blocks, text, images, shapes)',
+    : !hasSlide.value
+      ? 'Select a slide to insert into'
+      : editor.locked
+        ? 'Insert is unavailable while the deck is busy'
+        : 'Insert (blocks, text, images, shapes)',
 )
 
 const slidesVisible = computed(() => (narrow.value ? editor.navigatorOpen : editor.navigatorVisible))

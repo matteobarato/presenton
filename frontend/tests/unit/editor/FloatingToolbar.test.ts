@@ -48,6 +48,15 @@ describe('FloatingToolbar insert button', () => {
     expect(b.attributes('title')).toBe('Insert is available for template slides')
   })
 
+  it('is disabled with no active slide', async () => {
+    const w = mountToolbar(template)
+    editor.activeSlideId = null
+    await w.vm.$nextTick()
+    const b = w.find('button[aria-label="Insert"]')
+    expect(b.attributes('disabled')).toBeDefined()
+    expect(b.attributes('title')).toBe('Select a slide to insert into')
+  })
+
   it('is disabled while locked', async () => {
     const w = mountToolbar(template)
     editor.generating = true
