@@ -10,6 +10,8 @@ describe('router', () => {
     expect(router.resolve({ name: 'outline', params: { id: 'x' } }).path).toBe('/new/x/outline')
     expect(router.resolve({ name: 'editor', params: { id: 'x' } }).path).toBe('/p/x')
     expect(router.resolve({ name: 'present', params: { id: 'x' } }).path).toBe('/p/x/present')
+    expect(router.resolve({ name: 'templates' }).path).toBe('/templates')
+    expect(router.resolve({ name: 'template', params: { id: 'x' } }).path).toBe('/templates/x')
     expect(router.resolve('/nope/nothing').name).toBe('not-found')
   })
 
@@ -23,7 +25,7 @@ describe('router', () => {
     for (const name of ['login', 'setup', 'present']) {
       expect(router.resolve({ name, params: { id: 'x' } }).meta.layout).toBe('bare')
     }
-    for (const name of ['library', 'new', 'outline', 'editor', 'not-found']) {
+    for (const name of ['library', 'new', 'outline', 'editor', 'templates', 'template', 'not-found']) {
       expect(router.resolve({ name, params: { id: 'x' } }).meta.layout).toBe('app')
     }
   })

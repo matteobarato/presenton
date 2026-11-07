@@ -12,17 +12,19 @@ vi.mock('@/api/next-routes', () => ({ getRuntimeConfig: vi.fn().mockResolvedValu
 
 const view = { template: '<div />' }
 
-async function mountShell() {
+async function mountShell(path = '/') {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
       { path: '/', name: 'library', component: view },
       { path: '/new', name: 'new', component: view },
       { path: '/p/:id', name: 'editor', component: view },
+      { path: '/templates', name: 'templates', component: view },
+      { path: '/templates/:id', name: 'template', component: view },
       { path: '/login', name: 'login', component: view },
     ],
   })
-  await router.push('/')
+  await router.push(path)
   await router.isReady()
   const wrapper = mount(AppShell, { slots: { default: '<p>page</p>' }, global: { plugins: [router] }, attachTo: document.body })
   return wrapper
@@ -72,6 +74,14 @@ describe('AppShell', () => {
     expect(nav.find('[aria-label="Settings (classic app)"]').exists()).toBe(true)
     expect(nav.find('button[aria-label="Account menu"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('page')
+  })
+
+  it('links to Templates and marks it current on template routes', async () => {
+    const wrapper = await mountShell('/templates/abc')
+    const link = wrapper.get('nav[aria-label="Main"] a[href="/templates"]')
+    expect(link.text()).toBe('Templates')
+    expect(link.attributes('aria-current')).toBe('page')
+    expect(wrapper.get('nav[aria-label="Main"] a[href="/new"]').attributes('aria-current')).toBeUndefined()
   })
 
   it('opens Settings in a new tab', async () => {

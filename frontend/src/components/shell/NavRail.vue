@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { CircleHelp, FolderOpen, Plus, Settings2, Presentation } from 'lucide-vue-next'
+import { CircleHelp, FolderOpen, LayoutTemplate, Plus, Settings2, Presentation } from 'lucide-vue-next'
 import { useHelpDialog } from '@/composables/useHelpDialog'
 import UserMenu from './UserMenu.vue'
 
@@ -12,6 +12,7 @@ const link =
 const active = 'bg-[#222b30] text-[#c2e5f5]'
 const libraryActive = computed(() => route.name === 'library' || route.name === 'editor')
 const newActive = computed(() => route.name === 'new' || route.name === 'outline')
+const templatesActive = computed(() => route.name === 'templates' || route.name === 'template')
 </script>
 
 <template>
@@ -33,6 +34,9 @@ const newActive = computed(() => route.name === 'new' || route.name === 'outline
       </RouterLink>
       <RouterLink :to="{ name: 'new' }" :class="[link, newActive && active]" :aria-current="newActive ? 'page' : undefined">
         <Plus class="size-[19px] stroke-[1.5]" aria-hidden="true" />New
+      </RouterLink>
+      <RouterLink :to="{ name: 'templates' }" :class="[link, templatesActive && active]" :aria-current="templatesActive ? 'page' : undefined">
+        <LayoutTemplate class="size-[19px] stroke-[1.5]" aria-hidden="true" />Templates
       </RouterLink>
       <a href="/settings" target="_blank" rel="noopener" aria-label="Settings (classic app)" :class="link">
         <Settings2 class="size-[19px] stroke-[1.5]" aria-hidden="true" />Settings

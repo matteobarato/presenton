@@ -19,6 +19,8 @@ export const router = createRouter({
     { path: '/new/:id/outline', name: 'outline', component: () => import('@/views/OutlineView.vue'), meta: { layout: 'app' } },
     { path: '/p/:id', name: 'editor', component: () => import('@/views/EditorView.vue'), meta: { layout: 'app' } },
     { path: '/p/:id/present', name: 'present', component: () => import('@/views/PresentView.vue'), meta: { layout: 'bare' } },
+    { path: '/templates', name: 'templates', component: () => import('@/views/TemplatesView.vue'), meta: { layout: 'app' } },
+    { path: '/templates/:id', name: 'template', component: () => import('@/views/TemplateDetailView.vue'), meta: { layout: 'app' } },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue'), meta: { layout: 'app' } },
   ],
 })
