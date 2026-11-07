@@ -21,6 +21,24 @@ const id = computed(() => String(route.params.id ?? ''))
 const { items, status, streaming, error, retry } = useOutlineStream(id)
 const templates = useQuery({ queryKey: ['templates'], queryFn: listTemplates })
 const selectedTemplate = ref<string | null>(null)
+
+// One-shot: preselect from ?template once the list is known.
+let preselected = false
+watch(
+  () => templates.data.value,
+  (list) => {
+    if (!list || preselected) return
+    preselected = true
+    const wanted = route.query.template
+    if (!selectedTemplate.value && typeof wanted === 'string' && list.some((t) => t.id === wanted)) {
+      selectedTemplate.value = wanted
+    }
+  },
+  { immediate: true },
+)
+watch(selectedTemplate, (v) => {
+  void router.replace({ query: { ...route.query, template: v ?? undefined } })
+})
 const generating = ref(false)
 const actionError = ref<string | null>(null)
 const saveError = ref<string | null>(null)

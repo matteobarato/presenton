@@ -32,7 +32,7 @@ vi.mock('@/render/SlideView.vue', () => ({
 
 const layout = (n: number) => ({ id: `l${n}` })
 
-async function mountView() {
+async function mountView(path = '/new/p1/outline') {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -43,7 +43,7 @@ async function mountView() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
-  await router.push('/new/p1/outline')
+  await router.push(path)
   await router.isReady()
   const wrapper = mount(OutlineView, {
     global: { plugins: [router, [VueQueryPlugin, { queryClient }]] },
@@ -179,6 +179,29 @@ describe('OutlineView', () => {
       layout: 'modern',
     })
     expect(router.currentRoute.value.fullPath).toBe('/p/p1?stream=1')
+  })
+
+  it('preselects ?template once templates load', async () => {
+    const { wrapper } = await mountView('/new/p1/outline?template=modern')
+    expect(wrapper.get('[data-testid="template-modern"]').attributes('aria-checked')).toBe('true')
+    expect(wrapper.findAll('button').some((b) => b.text().includes('Generate presentation'))).toBe(true)
+  })
+
+  it('ignores an unknown ?template', async () => {
+    const { wrapper } = await mountView('/new/p1/outline?template=nope')
+    expect(wrapper.get('[data-testid="template-modern"]').attributes('aria-checked')).toBe('false')
+    expect(wrapper.get('[data-testid="template-custom-1"]').attributes('aria-checked')).toBe('false')
+    expect(wrapper.findAll('button').some((b) => b.text().includes('Select a template'))).toBe(true)
+  })
+
+  it('changing the selection updates the query and generates with it', async () => {
+    const { wrapper, router } = await mountView('/new/p1/outline?template=modern')
+    await wrapper.get('[data-testid="template-custom-1"]').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.query.template).toBe('custom-1')
+    await wrapper.findAll('button').find((b) => b.text().includes('Generate presentation'))!.trigger('click')
+    await flushPromises()
+    expect(mocks.preparePresentation).toHaveBeenCalledWith(expect.objectContaining({ layout: 'custom-1' }))
   })
 
   it('keeps Generate disabled while streaming and locks editing', async () => {
