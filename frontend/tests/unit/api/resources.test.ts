@@ -8,7 +8,8 @@ import {
   updatePresentation,
 } from '@/api/presentations'
 import { generateSpeakerNotes, updateSpeakerNotes } from '@/api/speakerNotes'
-import { listTemplates } from '@/api/templates'
+import { ApiError } from '@/api/errors'
+import { deleteTemplate, listTemplates, renameTemplate } from '@/api/templates'
 import { audioSrc, deleteTts, generateTtsAsync, getTtsStatus, slideAudioMetaUrl, ttsKeys } from '@/api/tts'
 
 const json = (body: unknown, status = 200) =>
@@ -100,17 +101,40 @@ describe('templates', () => {
       }
       return json({
         items: [
-          { id: 'c1', name: 'Custom 1', layout_count: 2 },
-          { id: 'c2', name: 'Custom 2', layout_count: 0 },
+          { id: 'c1', name: 'Custom 1', layout_count: 2, is_default: false, description: 'cd' },
+          { id: 'c2', name: 'Custom 2', layout_count: 0, is_default: false, description: null },
+          { id: 'c3', name: 'Custom 3', layout_count: 1, is_default: true },
         ],
-        total: 2,
+        total: 3,
         page: 1,
         page_size: 100,
       })
     })
     const list = await listTemplates()
-    expect(list.map((t) => t.id)).toEqual(['general', 'c1', 'c2'])
-    expect(list[0]).toMatchObject({ name: 'general', layouts: ['A.tsx', 'B.tsx'] })
+    expect(list.map((t) => t.id)).toEqual(['general', 'c1', 'c2', 'c3'])
+    expect(list[0]).toMatchObject({ name: 'general', layouts: ['A.tsx', 'B.tsx'], kind: 'builtin', description: 'd' })
+    expect(list[1].kind).toBe('builtin')
+    expect(list[2]).toMatchObject({ kind: 'custom', description: undefined })
+    expect(list[3].kind).toBe('builtin')
+  })
+  it('renameTemplate sends PATCH with {name}', async () => {
+    fetchMock.mockImplementation(async () => json({}))
+    await renameTemplate('c1', 'New')
+    const c = await lastCall()
+    expect(c.method).toBe('PATCH')
+    expect(c.url.pathname.endsWith('/api/v1/ppt/template/c1')).toBe(true)
+    expect(c.body).toEqual({ name: 'New' })
+  })
+  it('deleteTemplate sends DELETE', async () => {
+    fetchMock.mockImplementation(async () => new Response(null, { status: 204 }))
+    await deleteTemplate('c1')
+    const c = await lastCall()
+    expect(c.method).toBe('DELETE')
+    expect(c.url.pathname.endsWith('/api/v1/ppt/template/c1')).toBe(true)
+  })
+  it('renameTemplate rejects with ApiError on 403', async () => {
+    fetchMock.mockImplementation(async () => json({ detail: 'Built-in templates are read-only' }, 403))
+    await expect(renameTemplate('c1', 'x')).rejects.toBeInstanceOf(ApiError)
   })
 })
 
