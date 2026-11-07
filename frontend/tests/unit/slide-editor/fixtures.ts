@@ -95,3 +95,64 @@ export function uiWithDecorativeBackground(): RawUi {
     ],
   } as RawUi
 }
+
+const rectPoints = [
+  { x: 0, y: 0 },
+  { x: 200, y: 0 },
+  { x: 200, y: 100 },
+  { x: 0, y: 100 },
+]
+
+// One component holding a closed 4-point vector with fill and stroke.
+export function uiWithShape(): RawUi {
+  return {
+    ...rootBackground(),
+    components: [
+      {
+        id: 'c-shape',
+        description: 'Shape',
+        position: { x: 100, y: 80 },
+        elements: [
+          {
+            type: 'vector',
+            closed: true,
+            position: { x: 0, y: 0 },
+            size: { width: 200, height: 100 },
+            points: rectPoints,
+            fill: { color: 'FF0000', opacity: 1 },
+            stroke: { color: '112233', opacity: 1, width: 2 },
+          },
+        ],
+      },
+    ],
+  } as RawUi
+}
+
+// One component holding an open 2-point vector with an end arrow.
+export function uiWithLine(): RawUi {
+  return {
+    ...rootBackground(),
+    components: [
+      {
+        id: 'c-line',
+        description: 'Line',
+        position: { x: 100, y: 80 },
+        elements: [
+          {
+            type: 'vector',
+            closed: false,
+            position: { x: 0, y: 0 },
+            size: { width: 200, height: 0 },
+            points: [
+              { x: 0, y: 0 },
+              { x: 200, y: 0 },
+            ],
+            stroke: { color: '112233', opacity: 1, width: 2 },
+            start_marker: 'none',
+            end_marker: 'arrow',
+          },
+        ],
+      },
+    ],
+  } as RawUi
+}
