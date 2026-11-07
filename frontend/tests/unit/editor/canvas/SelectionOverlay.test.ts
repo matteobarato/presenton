@@ -257,5 +257,22 @@ describe('SelectionOverlay', () => {
       const ui = editSlideUi.mock.calls[0]![1] as { components: { rotation: number }[] }
       expect(ui.components[0]!.rotation).toBeCloseTo(-170)
     })
+
+    it('shows 180° (never -180°) just past the wrap, and commits an in-range value', async () => {
+      await select(rotated(170), { kind: 'component', componentIndex: 0 })
+      const start = 90 + 170
+      const from = at(start)
+      pointer(handle(), 'pointerdown', from.x, from.y)
+      // 170 + 9.7 = 179.7 -> 180, and 170 + 9.7 + ... check the negative side: sweep to -179.7 (= 180.3).
+      const p = at(start + 10.3)
+      pointer(handle(), 'pointermove', p.x, p.y)
+      await nextTick()
+      expect(overlay().get('[data-rotate-badge]').text()).toBe('180°')
+      pointer(handle(), 'pointerup', p.x, p.y)
+      await nextTick()
+      const value = (editSlideUi.mock.calls[0]![1] as { components: { rotation: number }[] }).components[0]!.rotation
+      expect(value).toBeGreaterThan(-180)
+      expect(value).toBeLessThanOrEqual(180)
+    })
   })
 })

@@ -83,3 +83,13 @@ describe('elementStyle', () => {
     expect(readAppearance(rect).shadow).toEqual(DEFAULT_SHADOW)
   })
 })
+
+import { normalizeRotation as normalizeRotationRange } from '@/slide-editor/elementStyle'
+describe('normalizeRotation range', () => {
+  it('maps values that round to -180 to 180', () => {
+    expect(normalizeRotationRange(-179.96)).toBe(180)
+    expect(normalizeRotationRange(-180)).toBe(180)
+    expect(normalizeRotationRange(180.04)).toBe(180)
+    expect(normalizeRotationRange(190)).toBe(-170)
+  })
+})

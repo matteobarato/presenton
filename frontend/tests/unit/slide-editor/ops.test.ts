@@ -153,6 +153,7 @@ describe('clipboard payloads', () => {
     expect(canRotate(uiWithText(), { kind: 'component', componentIndex: 0 })).toBe(true)
     expect(canRotate(uiTwoComponents(), { kind: 'multi-component', componentIndexes: [0, 1] })).toBe(false)
     expect(canRotate(uiWithText(), null)).toBe(false)
+    expect(canRotate(uiWithText(), { kind: 'element', componentIndex: 0, elementPath: [0] })).toBe(true)
     expect(canRotate(uiWithVideoPlaceholder(), { kind: 'component', componentIndex: 1 })).toBe(false)
   })
 })

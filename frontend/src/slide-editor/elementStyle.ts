@@ -215,11 +215,11 @@ export function setShadow(el: RawElement, shadow: Shadow | null): RawElement {
 
 /** Normalises degrees to (-180, 180], rounded to 0.1. */
 export function normalizeRotation(deg: number): number {
-  let r = deg % 360
+  // Round first: -179.96 rounds to -180, which must read 180.
+  let r = Math.round((deg % 360) * 10) / 10
   if (r <= -180) r += 360
   else if (r > 180) r -= 360
-  const rounded = Math.round(r * 10) / 10
-  return rounded === 0 ? 0 : rounded
+  return r === 0 ? 0 : r
 }
 
 export function readListMarker(el: RawElement): 'bullet' | 'number' | 'none' {

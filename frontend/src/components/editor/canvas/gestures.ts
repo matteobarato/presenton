@@ -195,20 +195,26 @@ export function resizedBox(box: Box, handle: Handle, delta: Point, keepRatio: bo
   }
 }
 
+/** The point (fractions of the box) that stays put while `handle` is dragged. */
+const ANCHOR_FRACTION: Record<Handle, Point> = {
+  se: { x: 0, y: 0 }, nw: { x: 1, y: 1 }, e: { x: 0, y: 0.5 }, w: { x: 1, y: 0.5 },
+  s: { x: 0.5, y: 0 }, n: { x: 0.5, y: 1 }, ne: { x: 0, y: 1 }, sw: { x: 1, y: 0 },
+}
+
 const ownRotation = (item: unknown): number => {
   const r = asRecord(item)?.rotation
   return typeof r === 'number' && Number.isFinite(r) ? r : 0
 }
 
 /**
- * Adds a screen-space anchor `shift` to the stored position. The position lives in the parent's
- * frame, which is rotated by `total - own` on screen, so the shift is rotated back by that.
- * Known limitation: under an odd ancestor flip the delta and shift would also need mirroring.
+ * Adds the anchor-fixing shift to the stored position. Both live in the parent's frame: the box
+ * grows about its own centre, which turns with `own` only, so the shift comes from `own` alone
+ * (an ancestor's rotation turns the displacement and the target alike and cancels out).
+ * Known limitation: under an odd ancestor flip the delta would also need mirroring.
  */
-function withShiftedPosition<T extends Record<string, unknown>>(item: T, shift: Point, total: number, own: number): T {
-  const s = rotatePoint(shift, { x: 0, y: 0 }, -(total - own))
+function withShiftedPosition<T extends Record<string, unknown>>(item: T, shift: Point): T {
   const p = readPoint(item.position)
-  return { ...item, position: { x: p.x + s.x, y: p.y + s.y } }
+  return { ...item, position: { x: p.x + shift.x, y: p.y + shift.y } }
 }
 
 /**
@@ -243,9 +249,8 @@ export function applyResize(
           scaleY: source.height > 0 ? next.height / source.height : 1,
         })
       }
-      return total === 0
-        ? resized
-        : withShiftedPosition(resized, rotatedResizeShift(source, componentBox(resized), handle, total), total, ownRotation(component))
+      const own = ownRotation(component)
+      return own === 0 ? resized : withShiftedPosition(resized, rotatedResizeShift(source, componentBox(resized), handle, own))
     })
   }
   const abs = absoluteBoxForSelection(ui, sel)
@@ -259,15 +264,38 @@ export function applyResize(
   const scaleX = abs.width > 0 ? next.width / abs.width : 1
   const scaleY = abs.height > 0 ? next.height / abs.height : 1
   let position = { x: local.x + next.x - abs.x, y: local.y + next.y - abs.y }
-  if (total !== 0) {
-    const shift = rotatePoint(rotatedResizeShift(abs, next, handle, total), { x: 0, y: 0 }, -(total - ownRotation(getElementAtSelection(ui, sel))))
+  const own = ownRotation(getElementAtSelection(ui, sel))
+  if (own !== 0) {
+    const shift = rotatedResizeShift(abs, next, handle, own)
     position = { x: position.x + shift.x, y: position.y + shift.y }
   }
-  return updateElementInUi(ui, sel, (current: RawElement) => {
-    const scaled = scaleRawElementTextMetrics(current, fontScaleFromResize(scaleX, scaleY))
-    const geometry = isVectorType(readString(current.type))
-      ? polygonElementFromFrame(scaled, position, scaleX, scaleY)
-      : { ...scaled, position, size: { width: next.width, height: next.height } }
-    return isManualPositioned(current) ? { ...geometry, __presenton_manual_position: true } : geometry
-  })
+  const build = (at: Point): RawUi =>
+    updateElementInUi(ui, sel, (current: RawElement) => {
+      const scaled = scaleRawElementTextMetrics(current, fontScaleFromResize(scaleX, scaleY))
+      const geometry = isVectorType(readString(current.type))
+        ? polygonElementFromFrame(scaled, at, scaleX, scaleY)
+        : { ...scaled, position: at, size: { width: next.width, height: next.height } }
+      return isManualPositioned(current) ? { ...geometry, __presenton_manual_position: true } : geometry
+    })
+  let result = build(position)
+  if (total === own) return result
+  // Under a rotated ancestor the ancestor's box (and so its centre of rotation) may change with the
+  // element, which no closed form covers: nudge the position until the anchor is back on screen.
+  const anchor = ANCHOR_FRACTION[handle]
+  const anchorOnScreen = (u: RawUi): Point | null => {
+    const frame = selectionFrame(u, sel)
+    if (!frame) return null
+    const { box } = frame
+    const centre = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+    return rotatePoint({ x: box.x + box.width * anchor.x, y: box.y + box.height * anchor.y }, centre, frame.rotation)
+  }
+  const target = anchorOnScreen(ui)
+  for (let i = 0; i < 30 && target; i += 1) {
+    const now = anchorOnScreen(result)
+    if (!now || Math.hypot(target.x - now.x, target.y - now.y) < 1e-9) break
+    const fix = rotatePoint({ x: target.x - now.x, y: target.y - now.y }, { x: 0, y: 0 }, -(total - own))
+    position = { x: position.x + fix.x, y: position.y + fix.y }
+    result = build(position)
+  }
+  return result
 }

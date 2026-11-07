@@ -59,6 +59,23 @@ describe('applyResize with rotation', () => {
   })
 })
 
+describe('applyResize under a rotated ancestor', () => {
+  it('keeps the nw corner of a 20° element in a 30° component still on screen', () => {
+    const ui = rotated(30) as unknown as { components: { elements: Record<string, unknown>[] }[] }
+    ui.components[0]!.elements[0]!.rotation = 20
+    const sel: ElementSelection = { kind: 'element', componentIndex: 0, elementPath: [0] }
+    const frame0 = selectionFrame(ui as unknown as RawUi, sel)!
+    expect(frame0.rotation).toBeCloseTo(50)
+    const before = corner(frame0, 0, 0)
+    const next = applyResize(ui as unknown as RawUi, sel, 'se', { x: 40, y: 25 }, false)
+    const frame1 = selectionFrame(next, sel)!
+    expect(frame1.box.width).not.toBeCloseTo(frame0.box.width)
+    const after = corner(frame1, 0, 0)
+    expect(Math.abs(after.x - before.x)).toBeLessThan(1e-6)
+    expect(Math.abs(after.y - before.y)).toBeLessThan(1e-6)
+  })
+})
+
 describe('planMove with rotation', () => {
   it('snaps the axis-aligned bounds of a rotated component', () => {
     const plan = planMove(rotated(90), [{ kind: 'component', index: 0 }])!
