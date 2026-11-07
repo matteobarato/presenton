@@ -89,8 +89,8 @@ E2E_BACKEND=1 E2E_USER=<username> E2E_PASSWORD=<password> npm run e2e
 
 The dev server proxies to `BACKEND_URL` (default `http://localhost:5001`). The live suite signs in,
 opens the first deck, checks that no slide fails to render, and enters and leaves present mode. A second
-test moves a component on the first slide, reloads to check the position persisted, and drags it back
-so the deck is left unchanged (skipped when the first deck has no editable template slide).
+test moves a component on the first slide, reloads to check the position persisted, and restores the
+deck's original slides through the API (skipped when the first deck has no editable template slide).
 
 ## Layout
 

@@ -51,15 +51,30 @@ test('move a component, reload, the position persisted (then restore it)', async
   test.skip(!(await overlay.isVisible().catch(() => false)), 'first deck has no editable template slide')
 
   const selectionBox = page.locator('[data-selection-box]')
-  const pick = async () => {
+  const probe = async (fx: number, fy: number) => {
     const box = (await overlay.boundingBox())!
-    // The slide's centre-left area; any component there is picked, else the test skips.
-    await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.5)
+    await page.mouse.click(box.x + box.width * fx, box.y + box.height * fy)
   }
-  await pick()
-  test.skip((await selectionBox.count()) === 0, 'nothing selectable at the probe point')
+  // A component that is not the full-bleed background (that one covers >= 90% of a side).
+  const pick = async () => {
+    const slide = (await overlay.boundingBox())!
+    for (const [fx, fy] of [[0.3, 0.5], [0.5, 0.5], [0.2, 0.3], [0.7, 0.6], [0.5, 0.2]] as const) {
+      await probe(fx, fy)
+      if ((await selectionBox.count()) === 0) continue
+      const b = (await selectionBox.first().boundingBox())!
+      if (b.width < slide.width * 0.9 && b.height < slide.height * 0.9) return true
+    }
+    return false
+  }
+  test.skip(!(await pick()), 'no movable component found on the first slide')
   const before = (await selectionBox.first().boundingBox())!
   const scale = (await overlay.boundingBox())!.width / 1280
+
+  // Snapshot the deck before any mutation: the restore resends it verbatim.
+  const deckId = page.url().split('/p/')[1]!.split(/[/?#]/)[0]!
+  const original = await page.request.get(`/api/v1/ppt/presentation/${deckId}`)
+  expect(original.ok(), 'could not read the deck before editing').toBeTruthy()
+  const originalDeck = (await original.json()) as { id: string; title?: string; slides: unknown[]; theme?: unknown }
 
   const drag = async (dx: number) => {
     const b = (await selectionBox.first().boundingBox())!
@@ -72,20 +87,29 @@ test('move a component, reload, the position persisted (then restore it)', async
     await page.mouse.up()
   }
 
-  const saved = page.waitForResponse((r) => r.url().includes('/presentation/update') && r.ok())
-  await drag(40)
-  await saved
+  let failed = true
   try {
+    const saved = page.waitForResponse((r) => r.url().includes('/presentation/update') && r.ok())
+    await drag(40)
+    await saved
     await page.reload()
     await expect(overlay).toBeVisible()
-    await pick()
-    await expect(selectionBox.first()).toBeVisible()
+    expect(await pick()).toBe(true)
     const after = (await selectionBox.first().boundingBox())!
     expect(Math.abs(after.x - before.x - 40 * scale)).toBeLessThan(6 * scale)
+    failed = false
   } finally {
-    // Leave the user's deck as it was: drag the component back (history does not survive a reload).
-    const restored = page.waitForResponse((r) => r.url().includes('/presentation/update') && r.ok())
-    await drag(-40)
-    await restored
+    // Put the original slides back through the API. The theme is always resent: the endpoint resets it when omitted.
+    let restoreError: unknown
+    try {
+      const res = await page.request.patch('/api/v1/ppt/presentation/update', {
+        data: { id: originalDeck.id, slides: originalDeck.slides, title: originalDeck.title, theme: originalDeck.theme },
+      })
+      if (!res.ok()) throw new Error(`restore failed: ${res.status()}`)
+    } catch (e) {
+      restoreError = e
+      console.error('Could not restore the deck after the live editing test:', e)
+    }
+    if (restoreError && !failed) throw restoreError
   }
 })
