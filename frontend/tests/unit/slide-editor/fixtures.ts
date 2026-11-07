@@ -156,3 +156,28 @@ export function uiWithLine(): RawUi {
     ],
   } as RawUi
 }
+
+// One component holding an icon (an image element flagged is_icon).
+export function uiWithIcon(): RawUi {
+  return {
+    ...rootBackground(),
+    components: [
+      {
+        id: 'c-icon',
+        description: 'Icon',
+        position: { x: 100, y: 80 },
+        elements: [
+          {
+            type: 'image',
+            is_icon: true,
+            position: { x: 0, y: 0 },
+            size: { width: 64, height: 64 },
+            data: '/static/icons/bold/star-bold.png',
+            icon_type: 'bold',
+            color: '112233',
+          },
+        ],
+      },
+    ],
+  } as RawUi
+}

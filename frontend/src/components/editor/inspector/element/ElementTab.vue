@@ -6,6 +6,7 @@ import { layerTree } from '@/slide-editor/layerTree'
 import { selectionLabel, toolbarKind } from '@/slide-editor/toolbarKind'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import ArrangeSection from './ArrangeSection.vue'
+import IconSection from './IconSection.vue'
 import ImageSection from './ImageSection.vue'
 import LayerChildren from './LayerChildren.vue'
 import LayerTree from './LayerTree.vue'
@@ -46,6 +47,7 @@ const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : [])
       </div>
       <TextSection v-if="kind === 'text' || kind === 'list'" :presentation="props.presentation" />
       <ImageSection v-else-if="kind === 'image'" />
+      <IconSection v-else-if="kind === 'icon'" :presentation="props.presentation" />
       <ShapeSection v-else-if="kind === 'shape'" :presentation="props.presentation" />
       <LineSection v-else-if="kind === 'line'" :presentation="props.presentation" />
       <VideoSection v-else-if="kind === 'video'" :presentation-id="props.presentationId" :slide="props.activeSlide" />
