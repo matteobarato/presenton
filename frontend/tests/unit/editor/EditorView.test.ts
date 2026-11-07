@@ -119,6 +119,19 @@ describe('EditorView', () => {
     expect(canvas[0]!.props('slide').id).toBe('b')
   })
 
+  it('slide navigation keys yield while an on-slide element is selected', async () => {
+    await mountAt('/p/p1')
+    const editor = useEditorStore()
+    editor.slideSelectionActive = true
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
+    await flushPromises()
+    expect(editor.activeSlideId).toBe('a')
+    editor.slideSelectionActive = false
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
+    await flushPromises()
+    expect(editor.activeSlideId).toBe('b')
+  })
+
   it('builds the inspector tabs from inspectorTabs', async () => {
     const w = await mountAt('/p/p1')
     const tabs = w.findAll('[role="tab"]')

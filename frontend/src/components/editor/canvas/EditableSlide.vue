@@ -5,6 +5,7 @@ import SlideRenderError from '@/render/SlideRenderError.vue'
 import TemplateSlideHost from '@/render/TemplateSlideHost.vue'
 import { slideKind } from '@/render/slide-kind'
 import type { ElementSelection } from '@/slide-editor/model'
+import { useEditingShortcuts } from '@/slide-editor/useEditingShortcuts'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import { EDITABLE_CANVAS_KEY } from './canvas-context'
 import SelectionOverlay from './SelectionOverlay.vue'
@@ -42,6 +43,8 @@ const stageStyle = computed(() => ({
 const slideId = computed(() => props.slide.id ?? null)
 // The context follows the canvas's current slide; a slide fading out after a switch is not it.
 const current = computed(() => editing.slideId.value === slideId.value)
+// Only the current slide handles keys; a slide fading out must not double-handle them.
+useEditingShortcuts(editing, current)
 provide(EDITABLE_CANVAS_KEY, { layerFor: (source) => host.value?.layerFor(source) ?? null, slideId })
 
 function onFailed(message: string) {

@@ -56,7 +56,9 @@ export function useEditorShortcuts() {
       return
     }
     if (mod || e.altKey) return
-    // Arrows belong to an open dialog or drawer.
+    // Arrows belong to a selected on-slide element (nudge) ...
+    if (editor.slideSelectionActive) return
+    // ... or to an open dialog or drawer.
     if (document.querySelector('[role="dialog"]')) return
     if (e.key === 'ArrowDown' || e.key === 'PageDown') {
       e.preventDefault()

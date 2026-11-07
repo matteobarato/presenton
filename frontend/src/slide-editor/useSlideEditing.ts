@@ -36,6 +36,8 @@ export interface SlideEditing {
   select: (sel: Selection) => void
   commit: (next: RawUi, label: string) => Promise<boolean>
   cancelDraft: () => void
+  /** Opens the inline text editor for a text element (implemented with the inline editor). */
+  requestInlineEdit: (sel: ElementSelection) => void
 }
 
 export const SLIDE_EDITING_KEY: InjectionKey<SlideEditing> = Symbol('slide-editing')
@@ -135,7 +137,12 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     editor.slideSelectionActive = false
   })
 
-  const api: SlideEditing = { enabled, slideId, ui, selection, draftUi, inlineEdit, guides, select, commit, cancelDraft }
+  // Placeholder until the inline editor lands.
+  function requestInlineEdit(sel: ElementSelection) {
+    void sel
+  }
+
+  const api: SlideEditing = { enabled, slideId, ui, selection, draftUi, inlineEdit, guides, select, commit, cancelDraft, requestInlineEdit }
   provide(SLIDE_EDITING_KEY, api)
   return api
 }
