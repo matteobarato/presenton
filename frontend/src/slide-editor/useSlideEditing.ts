@@ -48,6 +48,11 @@ export function useSlideEditingContext(): SlideEditing {
   return api
 }
 
+/** Like useSlideEditingContext, but null outside an editing provider. */
+export function useSlideEditingContextOptional(): SlideEditing | null {
+  return inject(SLIDE_EDITING_KEY, null)
+}
+
 function componentExists(ui: RawUi, index: number): boolean {
   return Number.isInteger(index) && index >= 0 && Array.isArray(ui.components) && index < ui.components.length
 }

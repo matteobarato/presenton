@@ -12,6 +12,7 @@ import {
   ungroupSelection,
   type OpResult,
 } from '@/slide-editor/ops'
+import { useEditingActions } from '@/slide-editor/useEditingActions'
 import type { SlideEditing } from '@/slide-editor/useSlideEditing'
 
 function isEditableTarget(el: EventTarget | null): boolean {
@@ -38,25 +39,8 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
     return toValue(active) && ctx.enabled.value && !ctx.inlineEdit.value && !isEditableTarget(target)
   }
 
-  // commit() publishes its ui optimistically, so the selection must follow synchronously, and a
-  // structural key (auto-repeat) must not run against the new ui before the commit settles.
-  // Nudges are the exception: each builds on the optimistic ui and keeps the selection, so a held
-  // arrow keeps moving while earlier nudges are still saving.
-  let inflight = 0
-  let structuralInflight = 0
-  async function apply(result: OpResult, label: string) {
-    const structural = label !== 'Nudge'
-    if (!result || (structural ? inflight > 0 : structuralInflight > 0)) return
-    inflight += 1
-    if (structural) structuralInflight += 1
-    ctx.select(result.selection)
-    try {
-      await ctx.commit(result.ui, label)
-    } finally {
-      inflight -= 1
-      if (structural) structuralInflight -= 1
-    }
-  }
+  const actions = useEditingActions(ctx)
+  const apply = (result: OpResult, label: string) => actions.run(label, result)
 
   useEventListener(window, 'keydown', (e: KeyboardEvent) => {
     if (e.defaultPrevented || e.isComposing || !usable(e.target)) return
@@ -69,7 +53,7 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
     // so they never reach the browser or slide navigation. Copy mutates nothing and always runs.
     const k = e.key.toLowerCase()
     const owned = mod ? !e.altKey && (k === 'd' || k === 'g') : e.key === 'Delete' || e.key === 'Backspace'
-    if ((owned && inflight > 0) || (!mod && e.key in ARROWS && structuralInflight > 0)) {
+    if ((owned && actions.busy()) || (!mod && e.key in ARROWS && actions.structuralBusy())) {
       e.preventDefault()
       return
     }
