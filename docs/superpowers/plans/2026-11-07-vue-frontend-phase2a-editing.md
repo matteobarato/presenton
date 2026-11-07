@@ -223,39 +223,66 @@ Behaviour:
 
 ---
 
-### Task 9: Text toolbar
+### Task 7b: Element inspector tab (revision 2026-11-07, user decision; supersedes Task 7's placement)
+
+Spec: §2 "Element inspector tab". Element editing moves out of the floating top toolbar into a dedicated **Element** tab in the inspector sidebar.
 
 **Files:**
-- Create: `frontend/src/components/editor/canvas/toolbars/TextToolbar.vue`
-- Modify: `ContextToolbar.vue` (use it for text targets)
-- Test: `frontend/tests/unit/editor/canvas/TextToolbar.test.ts`
+- Modify: `frontend/src/views/EditorView.vue` (call `useSlideEditing(id, activeSlide)` here), `frontend/src/components/editor/EditorCanvas.vue` (stop calling it; consume the context), `frontend/src/components/editor/FloatingToolbar.vue` (back to slide tools only: no ContextToolbar), `frontend/src/stores/editor.ts` (`InspectorTabId` gains `'element'`), `frontend/src/components/editor/inspector/tabs.ts` (Element tab first or after Design — place it first)
+- Create: `frontend/src/components/editor/inspector/element/ElementTab.vue`, `ArrangeSection.vue`
+- Move/delete: `components/editor/canvas/toolbars/ContextToolbar.vue`, `GenericToolbar.vue`, `MultiToolbar.vue` → their behaviour moves into ElementTab/ArrangeSection (keep `toolbarKind.ts`, `useEditingActions.ts`)
+- Test: `frontend/tests/unit/editor/inspector/ElementTab.test.ts` (replace ContextToolbar.test.ts cases), update FloatingToolbar/EditorView tests
+
+**Interfaces:**
+- `ElementTab` gets the standard inspector tab props (`presentationId, presentation, activeSlide`) and uses `useSlideEditingContext()`. Root carries `data-inline-edit-ignore`.
+- Section layout follows the Aera inspector (see `aera-frontend/src/App.vue` Design tab: `control-section`, `section-label` header row with label left and a muted value right, `select-wrap`, swatch row with a custom colour, segmented option buttons) using the existing frontend tokens/classes already used by `DesignTab.vue`.
+- Exports for Tasks 9/10: ElementTab renders `<TextSection v-if="kind==='text'" />` and `<ImageSection v-if="kind==='image'" />` slots/components; until those tasks land, only Header + Arrange render.
+
+Behaviour:
+- Header: selection label (`Text`, `Image`, `Group`, `N items`, `Element`) + Deselect button (`aria-label="Deselect"`).
+- Arrange: Duplicate, Copy, Delete; Group when multi; Ungroup when group. Via `useEditingActions().run`. Disabled while `inlineEdit` is set (structural ops) — same rule Task 8 added.
+- Empty state when no selection or editing disabled: "Select something on the slide to edit it." + muted hint "Double-click text to type." (smart slide: "This slide can't be edited on the canvas.").
+- Auto-switch: a watcher in `EditorView` (or ElementTab-independent composable): when selection goes from null to non-null → `editor.inspectorTab = 'element'`; when the inspector is docked (`min-width: 1051px`) and closed → `editor.inspectorOpen = true`. Below 1051px only the tab changes. Deselect never switches tabs.
+
+- [ ] **Step 1: Failing tests:** FloatingToolbar shows slide tools (Undo present) even with a selection; selecting a component switches `inspectorTab` to `element` and opens a closed docked inspector; at narrow width the inspector stays closed; ElementTab with a component selection shows Duplicate/Copy/Delete; multi shows Group; Delete click commits `Delete`; no selection → empty-state text; Deselect clears selection; ElementTab root has `data-inline-edit-ignore`; Arrange buttons disabled while `inlineEdit` set.
+- [ ] **Step 2: Run, FAIL. Step 3: Implement. Step 4: Run, PASS** (plus `tests/unit/editor`, `tests/unit/slide-editor`).
+- [ ] **Step 5: Commit** `feat(frontend): element inspector tab replaces the selection toolbar`
+
+---
+
+### Task 9: Text section (Element tab)
+
+**Files:**
+- Create: `frontend/src/components/editor/inspector/element/TextSection.vue`
+- Modify: `ElementTab.vue` (render it for text targets)
+- Test: `frontend/tests/unit/editor/inspector/TextSection.test.ts`
 
 **Interfaces:**
 - Consumes: context, Task 1 `updateElementInUi`, `rawFont`, Task 8 editor instance (exposed by `useSlideEditing` as `inlineEditor: ShallowRef<Editor | null>`).
 - Controls: font family (select; options = `localFontOptionsFromUnknown(presentation.fonts)` families ∪ theme fonts from `themeCssVars`, current first), font size (number input 8–200), Bold, Italic, Underline (toggle buttons), colour (popover with native `<input type="color">` + theme palette swatches), align left/center/right/justify, line height (select 1.0, 1.15, 1.5, 2.0).
-- No inline editor open → patch the whole element (`font.*`, `align`, `lineHeight` per the ported text model field names) and every run, `commit(…, 'Text style')`. Inline editor open → apply via Tiptap commands (`toggleBold`, `setColor`, `setTextAlign`, …); committed when the editor closes. Toolbar clicks must not blur the editor (`@mousedown.prevent`).
+- No inline editor open → patch the whole element (`font.*`, `align`, `lineHeight` per the ported text model field names) and every run, `commit(…, 'Text style')`. Inline editor open → apply via Tiptap commands (`toggleBold`, `setColor`, `setTextAlign`, …); committed when the editor closes. Section clicks must not close the editor (`@mousedown.prevent` on buttons; the tab is `data-inline-edit-ignore`).
 
 - [ ] **Step 1: Failing tests:** Bold with element selected → commit where every run has `bold: true`; size 48 → element font size 48; font list contains the deck font family; with inline editor open, Bold calls the editor command and does not commit.
 - [ ] **Step 2: Run, FAIL. Step 3: Implement. Step 4: Run, PASS.**
-- [ ] **Step 5: Commit** `feat(frontend): text toolbar`
+- [ ] **Step 5: Commit** `feat(frontend): text section in the element tab`
 
 ---
 
 ### Task 10: Images — API, picker, toolbar
 
 **Files:**
-- Create: `frontend/src/api/images.ts`, `frontend/src/components/editor/canvas/ImagePickerDialog.vue`, `frontend/src/components/editor/canvas/toolbars/ImageToolbar.vue`
-- Modify: `ContextToolbar.vue`
-- Test: `frontend/tests/unit/api/images.test.ts`, `frontend/tests/unit/editor/canvas/ImagePickerDialog.test.ts`, `frontend/tests/unit/editor/canvas/ImageToolbar.test.ts`
+- Create: `frontend/src/api/images.ts`, `frontend/src/components/editor/canvas/ImagePickerDialog.vue`, `frontend/src/components/editor/inspector/element/ImageSection.vue`
+- Modify: `ElementTab.vue`
+- Test: `frontend/tests/unit/api/images.test.ts`, `frontend/tests/unit/editor/canvas/ImagePickerDialog.test.ts`, `frontend/tests/unit/editor/inspector/ImageSection.test.ts`
 
 **Interfaces:**
 - `images.ts` (through the typed `api` client; regenerate `schema.d.ts` with `pnpm gen:api` if paths are missing): `uploadImage(file: File): Promise<ImageAsset>` (POST `/api/v1/ppt/images/upload`, multipart), `listUploadedImages(): Promise<ImageAsset[]>`, `listGeneratedImages(): Promise<ImageAsset[]>`, `generateImage(prompt: string, signal?: AbortSignal): Promise<string>` (GET `/api/v1/ppt/images/generate?prompt=`), `searchStockImages(query: string, signal?: AbortSignal): Promise<string[]>` (GET `/api/v1/ppt/images/search`; match params/response to the FastAPI endpoint), `type ImageAsset = { id: string; path: string }` (match schema). Query keys `['images','uploaded']`, `['images','generated']`.
 - `ImagePickerDialog` props `{ open: boolean }`, emits `update:open`, `pick(src: string)`. Tabs Upload (dropzone, reuse `create/FileDropzone.vue` if its API fits, accept `image/*`), Uploaded (grid), Generate (prompt + Generate; shows a spinner and a Cancel that aborts), Stock (search box + grid). Errors render inline in the active tab (`role="alert"`). Displayed URLs resolve with the same asset resolver the renderer uses (`normalizeTemplateV2AssetUrls` logic — export a `resolveAssetUrl(src)` from the renderer module if none exists).
-- `ImageToolbar`: Replace (opens dialog; `pick` → `commit(updateElementInUi(… src …), 'Replace image')`), fit Cover / Contain (toggle; element `fit` / `objectFit` per ported model field), crop focus (popover 3×3 grid → `focus` / `objectPosition` field per ported model), plus Duplicate / Delete.
+- `ImageSection`: Replace (opens dialog; `pick` → `commit(updateElementInUi(… src …), 'Replace image')`), fit Cover / Contain (toggle; element `fit` / `objectFit` per ported model field), crop focus (popover 3×3 grid → `focus` / `objectPosition` field per ported model). (Duplicate/Delete live in the Arrange section.)
 
-- [ ] **Step 1: Failing tests:** `uploadImage` sends multipart to the upload path (fetch mock); picker Generate → spinner, Cancel aborts the signal, no `pick`; generate error shows alert text; picking an uploaded image emits its path; ImageToolbar pick → one commit with the new `src`; Contain → commit with contain fit.
+- [ ] **Step 1: Failing tests:** `uploadImage` sends multipart to the upload path (fetch mock); picker Generate → spinner, Cancel aborts the signal, no `pick`; generate error shows alert text; picking an uploaded image emits its path; ImageSection pick → one commit with the new `src`; Contain → commit with contain fit.
 - [ ] **Step 2: Run, FAIL. Step 3: Implement. Step 4: Run, PASS.**
-- [ ] **Step 5: Commit** `feat(frontend): image replace picker and image toolbar`
+- [ ] **Step 5: Commit** `feat(frontend): image replace picker and image section`
 
 ---
 
@@ -264,7 +291,7 @@ Behaviour:
 **Files:**
 - Modify: `frontend/tests/e2e/mocked.spec.ts`, `frontend/tests/e2e/live.spec.ts`, `frontend/tests/e2e/fixtures/*` (add a template slide fixture with a text and an image component if none fits)
 
-- [ ] **Step 1: Mocked suite** (route PATCH `presentation/update`, assert bodies): click text component → toolbar shows Delete; drag by 100px → PATCH body has the new position; reload (fixture serves last PATCH) → position kept; double-click text, type " world", Esc → PATCH contains "Hello world"; Ctrl+Z → PATCH restores "Hello"; replace image via Upload tab (mock upload response) → PATCH has new src; smart slide fixture → no `[data-testid="selection-overlay"]`; during generation (`editor.generating`) → no overlay.
+- [ ] **Step 1: Mocked suite** (route PATCH `presentation/update`, assert bodies): click text component → Element tab shows Delete; drag by 100px → PATCH body has the new position; reload (fixture serves last PATCH) → position kept; double-click text, type " world", Esc → PATCH contains "Hello world"; Ctrl+Z → PATCH restores "Hello"; replace image via Upload tab (mock upload response) → PATCH has new src; smart slide fixture → no `[data-testid="selection-overlay"]`; during generation (`editor.generating`) → no overlay.
 - [ ] **Step 2: Live suite** (against the stack, skipped when unavailable like the existing live tests): open a generated deck, move a component, reload, assert position persisted.
 - [ ] **Step 3: Run** `pnpm e2e` — PASS; `pnpm check` — PASS.
 - [ ] **Step 4: Commit** `test(frontend): e2e for on-slide editing`

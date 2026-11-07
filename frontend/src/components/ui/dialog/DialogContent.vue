@@ -6,6 +6,7 @@ import { type DialogContentEmits, type DialogContentProps, DialogClose, DialogCo
 import { cn } from '@/lib/utils'
 import DialogOverlay from './DialogOverlay.vue'
 
+defineOptions({ inheritAttrs: false })
 const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>()
 const emits = defineEmits<DialogContentEmits>()
 const delegated = reactiveOmit(props, 'class')
@@ -16,7 +17,7 @@ const forwarded = useForwardPropsEmits(delegated, emits)
   <DialogPortal>
     <DialogOverlay />
     <DialogContent
-      v-bind="forwarded"
+      v-bind="{ ...forwarded, ...$attrs }"
       :class="
         cn(
           'anim-dialog-in fixed top-1/2 left-1/2 z-71 w-[min(490px,calc(100vw-32px))] max-h-[calc(100dvh-40px)] overflow-y-auto',

@@ -26,6 +26,7 @@ import {
 } from "../components/slide-editor/text/local-fonts";
 import {
   findVideoPlaceholder,
+  isVideoPlaceholderElement,
   isVideoPlaceholderLayer,
   liftRootVideoPlaceholder,
 } from "../components/slide-editor/video/video-placeholder";
@@ -129,6 +130,7 @@ const ANIMATION_TARGET_MAX_TEXT = 200;
 
 interface TemplateV2RenderPayload {
   items: JsonToHtmlItem[];
+  sources: TemplateV2ItemSource[];
   width: number;
   height: number;
   fonts?: unknown;
@@ -355,13 +357,40 @@ function annotateAnimationTarget(
   )}px ${cssNumber(originY)}px">${html}</div>`;
 }
 
+export type TemplateV2ItemSource = { kind: "element" | "component"; index: number };
+
+// Where each rendered item came from in `ui`, in `templateV2RenderPayload`'s
+// order: root elements (minus placeholders lifted out), components, then the
+// lifted root placeholders at the end. Indexes refer to the original `ui`.
+function itemSources(ui: JsonRecord): TemplateV2ItemSource[] {
+  const elements = readArray(ui.elements);
+  const kept: TemplateV2ItemSource[] = [];
+  const lifted: TemplateV2ItemSource[] = [];
+  elements.forEach((element, index) => {
+    (isVideoPlaceholderElement(element) ? lifted : kept).push({
+      kind: "element",
+      index,
+    });
+  });
+  const components = readArray(ui.components).map(
+    (_, index): TemplateV2ItemSource => ({ kind: "component", index })
+  );
+  return [...kept, ...components, ...lifted];
+}
+
+/** The model item behind each `payload.items[i]` (annotation id `e<i>`). */
+export function templateV2ItemSources(ui: unknown): TemplateV2ItemSource[] {
+  return templateV2RenderPayload(ui, {})?.sources ?? [];
+}
+
 function templateV2RenderPayload(
   ui: unknown,
   options: TemplateV2HtmlOptions
 ): TemplateV2RenderPayload | null {
   // A placeholder still in the root elements is drawn on top, where exports
   // have always put the avatar.
-  const record = liftRootVideoPlaceholder(readRecord(ui));
+  const original = readRecord(ui);
+  const record = liftRootVideoPlaceholder(original);
   const rootElements = readArray(record.elements);
   const components = readArray(record.components);
   const items = [...rootElements, ...components].map((item) =>
@@ -378,6 +407,7 @@ function templateV2RenderPayload(
 
   return {
     items,
+    sources: itemSources(original),
     width,
     height,
     fonts: options.fonts,
@@ -4330,4 +4360,9 @@ function escapeCssUrl(value: string): string {
     .replaceAll("'", "\\'")
     .replaceAll("\n", "")
     .replaceAll("\r", "");
+}
+
+/** Resolve an image source the way the renderer does (backend-served paths become absolute URLs). */
+export function resolveAssetUrl(src: string | undefined | null): string {
+  return resolveBackendAssetUrl(src ?? "");
 }

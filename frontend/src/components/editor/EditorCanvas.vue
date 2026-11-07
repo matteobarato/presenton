@@ -4,13 +4,18 @@ import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue'
 import { usePresentation } from '@/api/presentations'
 import type { Slide } from '@/api/types'
 import SlideView from '@/render/SlideView.vue'
+import { slideKind } from '@/render/slide-kind'
 import { useEditorStore } from '@/stores/editor'
 import FloatingToolbar from './FloatingToolbar.vue'
+import EditableSlide from './canvas/EditableSlide.vue'
+import SelectionAnnouncer from './canvas/SelectionAnnouncer.vue'
 
 const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 
 const editor = useEditorStore()
 const { data: presentation } = usePresentation(toRef(props, 'presentationId'), useEditorFetchGate())
+// The slide's editing state is provided by EditorView, so the inspector shares it.
+const smart = computed(() => !!props.slide && slideKind(props.slide) === 'smart')
 
 // Ease zoom steps, but only around a zoom change: during panel animations the slide must
 // track the stage frame by frame, which a running width transition would lag behind.
@@ -46,8 +51,17 @@ const slideWidth = computed(() => {
       <!-- margin:auto centres safely: a zoomed-in slide scrolls instead of clipping its left edge -->
       <div v-if="slide" class="relative m-auto shrink-0" :class="zooming && 'zoom-easing'" :style="{ width: slideWidth }">
         <Transition name="slide-change" mode="out-in">
-          <!-- the key remounts SlideView per slide, so `rendered` fires for every switch -->
+          <!-- the key remounts the slide per switch, so `rendered` fires for every switch -->
+          <EditableSlide
+            v-if="!smart"
+            :key="slide.id ?? slide.index"
+            :slide="slide"
+            :theme="presentation?.theme"
+            :fonts="presentation?.fonts"
+            class="isolate rounded-[10px] shadow-[0_18px_38px_#0004] max-[450px]:rounded-[7px]"
+          />
           <SlideView
+            v-else
             :key="slide.id ?? slide.index"
             :slide="slide"
             :theme="presentation?.theme"
@@ -59,5 +73,6 @@ const slideWidth = computed(() => {
       <p v-else class="m-auto text-[12px] text-muted">No slides yet.</p>
     </div>
     <slot name="status" />
+    <SelectionAnnouncer />
   </section>
 </template>

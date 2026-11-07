@@ -1,0 +1,185 @@
+{
+  "id": "11111111-1111-4111-8111-111111111111",
+  "content": "",
+  "n_slides": 2,
+  "language": "English",
+  "title": "Quarterly Review",
+  "created_at": "2026-11-01T10:00:00Z",
+  "updated_at": "2026-11-05T10:00:00Z",
+  "tone": null,
+  "verbosity": null,
+  "fonts": null,
+  "theme": {
+    "name": "modern",
+    "data": {
+      "colors": {
+        "primary": "#F59E0B",
+        "background": "#F5F8FE",
+        "card": "#FFFFFF",
+        "stroke": "#E5E7EB",
+        "primary_text": "#334155",
+        "background_text": "#234CD9",
+        "graph_0": "#3B82F6",
+        "graph_1": "#F59E0B",
+        "graph_2": "#234CD9",
+        "graph_3": "#3182BD",
+        "graph_4": "#E4EAF3",
+        "graph_5": "#CBE3CC",
+        "graph_6": "#334155",
+        "graph_7": "#E5E7EB",
+        "graph_8": "#6B7280",
+        "graph_9": "#FFFFFF"
+      },
+      "fonts": {
+        "textFont": {
+          "name": "Montserrat",
+          "url": "https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap"
+        }
+      }
+    }
+  },
+  "generation_mode": "standard",
+  "slides": [
+    {
+      "id": "aaaaaaaa-0000-4000-8000-000000000000",
+      "presentation": "11111111-1111-4111-8111-111111111111",
+      "layout_group": "template-v2:modern",
+      "layout": "template-v2:modern:editable_slide",
+      "index": 0,
+      "content": {},
+      "html_content": null,
+      "speaker_note": "",
+      "properties": null,
+      "ui": {
+        "id": "editable_slide",
+        "description": "A slide with one editable text and one image.",
+        "elements": [],
+        "components": [
+          {
+            "id": "background",
+            "description": "White background.",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "elements": [
+              {
+                "type": "vector",
+                "shape": "polygon",
+                "fill": {
+                  "color": "#FFFFFF",
+                  "opacity": 1
+                },
+                "points": [
+                  {
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "x": 1280,
+                    "y": 0
+                  },
+                  {
+                    "x": 1280,
+                    "y": 720
+                  },
+                  {
+                    "x": 0,
+                    "y": 720
+                  }
+                ],
+                "closed": true
+              }
+            ]
+          },
+          {
+            "id": "headline",
+            "description": "Headline text.",
+            "position": {
+              "x": 100,
+              "y": 80
+            },
+            "elements": [
+              {
+                "type": "text",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "size": {
+                  "width": 400,
+                  "height": 120
+                },
+                "font": {
+                  "size": 32,
+                  "family": "Montserrat",
+                  "color": "#1E4CD9",
+                  "bold": false,
+                  "line_height": 1.2
+                },
+                "alignment": {
+                  "horizontal": "left",
+                  "vertical": "top"
+                },
+                "runs": [
+                  {
+                    "text": "Hello",
+                    "font": {
+                      "size": 32,
+                      "family": "Montserrat",
+                      "color": "#1E4CD9",
+                      "bold": false,
+                      "line_height": 1.2
+                    }
+                  }
+                ],
+                "decorative": false,
+                "name": "headline",
+                "rotation": 0
+              }
+            ]
+          },
+          {
+            "id": "photo",
+            "description": "Photo.",
+            "position": {
+              "x": 600,
+              "y": 200
+            },
+            "elements": [
+              {
+                "type": "image",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "size": {
+                  "width": 300,
+                  "height": 200
+                },
+                "rotation": 0,
+                "data": "/static/images/replaceable_template_image.png",
+                "fit": "cover",
+                "decorative": false,
+                "name": "photo",
+                "is_icon": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "aaaaaaaa-0000-4000-8000-000000000002",
+      "presentation": "11111111-1111-4111-8111-111111111111",
+      "layout_group": "smart-html",
+      "layout": "smart-html:custom",
+      "index": 1,
+      "content": {},
+      "html_content": "<div style=\"width:1280px;height:720px;background:#10202a;color:#fff;display:flex;align-items:center;justify-content:center;font-family:sans-serif\"><h1>Smart slide survives</h1></div>",
+      "speaker_note": "A hand-built smart slide.",
+      "properties": null,
+      "ui": null
+    }
+  ]
+}

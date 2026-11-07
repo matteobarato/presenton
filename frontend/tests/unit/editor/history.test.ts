@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useHistoryStore } from '@/stores/history'
 
@@ -72,5 +72,40 @@ describe('history store', () => {
     await first
     expect(undo).toHaveBeenCalledTimes(1)
     expect(h.canRedo).toBe(true)
+  })
+
+  describe('merge', () => {
+    afterEach(() => vi.useRealTimers())
+
+    it('folds same-key pushes within 500ms into one command: first undo, latest do', async () => {
+      vi.useFakeTimers()
+      const h = useHistoryStore()
+      const log: string[] = []
+      h.push(cmd(log, 'n1'), { key: 'k' })
+      vi.advanceTimersByTime(300)
+      h.push(cmd(log, 'n2'), { key: 'k' })
+      vi.advanceTimersByTime(300) // sliding: 300ms after the last push
+      h.push(cmd(log, 'n3'), { key: 'k' })
+      await h.undo()
+      expect(h.canUndo).toBe(false)
+      await h.redo()
+      expect(log).toEqual(['undo n1', 'do n3'])
+    })
+
+    it('does not merge across a different key, an unkeyed push, a gap over 500ms or an undo', async () => {
+      vi.useFakeTimers()
+      const h = useHistoryStore()
+      const log: string[] = []
+      h.push(cmd(log, 'a'), { key: 'k' })
+      h.push(cmd(log, 'b'), { key: 'other' })
+      h.push(cmd(log, 'c'))
+      h.push(cmd(log, 'd'), { key: 'k' })
+      vi.advanceTimersByTime(501)
+      h.push(cmd(log, 'e'), { key: 'k' })
+      await h.undo()
+      h.push(cmd(log, 'f'), { key: 'k' })
+      for (let i = 0; i < 10; i++) await h.undo()
+      expect(log).toEqual(['undo e', 'undo f', 'undo d', 'undo c', 'undo b', 'undo a'])
+    })
   })
 })

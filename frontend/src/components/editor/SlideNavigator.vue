@@ -73,7 +73,7 @@ watch(
 </script>
 
 <template>
-  <div ref="root" class="flex min-h-0 flex-1 flex-col" @keydown="onKeydown">
+  <div ref="root" data-slide-navigator class="flex min-h-0 flex-1 flex-col" @keydown="onKeydown">
     <div class="flex h-[58px] flex-none items-center justify-between px-[15px] text-[12px] font-semibold [@media(max-height:780px)_and_(min-width:1051px)]:h-[49px]">
       <div class="flex items-center gap-2">
         Slides

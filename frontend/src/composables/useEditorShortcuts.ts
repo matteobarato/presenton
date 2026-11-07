@@ -7,9 +7,12 @@ import { slideKind } from '@/render/slide-kind'
 import { useEditorStore } from '@/stores/editor'
 import { useUndoRedo } from './useUndoRedo'
 
+// closest() as well as isContentEditable: a key can target a node inside the editable root
+// (the inline Tiptap editor), and jsdom has no isContentEditable.
 const isEditable = (el: EventTarget | null) => {
   if (!(el instanceof HTMLElement)) return false
-  return el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)
+  if (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return true
+  return !!el.closest('[contenteditable]:not([contenteditable="false"])')
 }
 
 /**
@@ -56,7 +59,9 @@ export function useEditorShortcuts() {
       return
     }
     if (mod || e.altKey) return
-    // Arrows belong to an open dialog or drawer.
+    // Arrows belong to a selected on-slide element (nudge) ...
+    if (editor.slideSelectionActive) return
+    // ... or to an open dialog or drawer.
     if (document.querySelector('[role="dialog"]')) return
     if (e.key === 'ArrowDown' || e.key === 'PageDown') {
       e.preventDefault()
