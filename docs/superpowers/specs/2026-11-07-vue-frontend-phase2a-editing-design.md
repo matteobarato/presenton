@@ -47,8 +47,10 @@ serves editor, preview and export.
 
 In scope:
 
-1. **Selection.** Click selects a component; double-click drills into a nested
-   element, following the old `surfaceSelectionTarget` rules. Shift-click adds
+1. **Selection.** Click selects a component (a root element is selected as an
+   element); double-click selects the deepest element under the pointer and
+   opens its editor (inline text for text), following the old `nodes.tsx`
+   click/double-click handlers. Shift-click adds
    or removes components (multi-select). Esc or a click on empty canvas
    deselects. Hover outline on the element under the pointer.
 2. **Move.** Pointer drag moves the selection (single or multi). Alignment
@@ -92,7 +94,7 @@ paths rewritten, behaviour unchanged:
 
 | From `servers/nextjs/components/slide-editor/` | Purpose |
 |---|---|
-| `model/model.ts`, `model/core.ts` | element paths, selection, `updateElementInUi`, boxes, `deleteSelectionFromUi`, `surfaceSelectionTarget` |
+| `model/model.ts`, `model/core.ts` | element paths, selection, `updateElementInUi`, boxes, `deleteSelectionFromUi` |
 | `model/component-resize.ts`, `layout/layoutResize.ts` | resize maths |
 | `model/element-model.ts`, `model/render-style.ts` | toolbar element views |
 | `model/template-v2-group.ts`, `model/template-v2-ungroup.ts` | group/ungroup |
@@ -144,8 +146,8 @@ frontend/src/api/images.ts      upload, list uploaded/generated, generate, stock
 
 - `hitTest(ui, point, current?: Selection): Selection | null` — topmost
   component whose `absoluteBoxForSelection` contains the point; with a
-  current component selection and a double-click, returns the element path
-  per `surfaceSelectionTarget`.
+  double-click, returns the deepest element under the point
+  (`kind: 'element'`).
 - `selectionBoxes(ui, selection): Box[]` and `overlayScale(hostWidth)` (slide
   px → screen px). Hit-testing uses model boxes, not the DOM, so nested
   elements are hit without finer render annotation.
@@ -172,8 +174,9 @@ State: `selection`, `draftUi` (non-null only during a drag/resize),
 ### EditableSlide.vue
 
 Replaces `SlideView` inside `EditorCanvas.vue` for template slides; smart
-slides keep `SlideView`. Renders `TemplateSlideHost` with `annotate` and an
-`include` that hides the element under inline edit, and positions
+slides keep `SlideView`. Renders `TemplateSlideHost` with `annotate`, rendering a copy of the `ui` in which the element under inline
+edit has its text blanked (so nested elements work, unlike top-level
+`include`), and positions
 `SelectionOverlay` and `InlineTextEditor` in the same scaled box. A
 ResizeObserver keeps the scale correct across zoom and panel animations.
 
@@ -222,7 +225,7 @@ fonts, so every offered font renders.
 ## 4. Testing
 
 - **Unit (Vitest)**: the ported model on fixture `ui`s — move, resize,
-  delete, paste (new ids, offset), group/ungroup, `surfaceSelectionTarget`;
+  delete, paste (new ids, offset), group/ungroup;
   `geometry.ts` hit-testing (topmost wins, nested drill-down, video
   placeholder skipped); `useSlideEditing` (commit → cache, history do/undo,
   lock and smart gating, external `ui` change closes inline edit);
