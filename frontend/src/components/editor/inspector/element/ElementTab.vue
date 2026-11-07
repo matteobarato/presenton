@@ -42,7 +42,7 @@ const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : [])
           <X class="size-4" aria-hidden="true" />
         </button>
       </div>
-      <TextSection v-if="kind === 'text'" :presentation="props.presentation" />
+      <TextSection v-if="kind === 'text' || kind === 'list'" :presentation="props.presentation" />
       <ImageSection v-else-if="kind === 'image'" />
       <VideoSection v-else-if="kind === 'video'" :presentation-id="props.presentationId" :slide="props.activeSlide" />
       <ArrangeSection />

@@ -145,11 +145,11 @@ describe('ElementTab', () => {
     expect(selection.value).toBeNull()
   })
 
-  it('classifies a text-list element and a lone text-list component as text', () => {
+  it('classifies a text-list element and a lone text-list component as list', () => {
     const ui = uiTwoComponents() as RawUi
     ;(ui.components as Array<{ elements: Array<Record<string, unknown>> }>)[0]!.elements[0]!.type = 'text-list'
-    expect(toolbarKind(ui, { kind: 'element', componentIndex: 0, elementPath: [0] })).toBe('text')
-    expect(toolbarKind(ui, { kind: 'component', componentIndex: 0 })).toBe('text')
+    expect(toolbarKind(ui, { kind: 'element', componentIndex: 0, elementPath: [0] })).toBe('list')
+    expect(toolbarKind(ui, { kind: 'component', componentIndex: 0 })).toBe('list')
   })
 })
 
