@@ -56,9 +56,6 @@ importers:
       pinia:
         specifier: ^4.1.0
         version: 4.1.0(@vue/devtools-api@8.2.1)(typescript@5.9.3)(vue@3.5.45(typescript@5.9.3))
-      presenton-frontend:
-        specifier: 'link:'
-        version: 'link:'
       reka-ui:
         specifier: ^2.11.0
         version: 2.11.0(vue@3.5.45(typescript@5.9.3))
