@@ -75,13 +75,32 @@ describe('useSlideEditing', () => {
     const { api, slide } = setup(tpl('a', uiWithText()))
     const next = uiTwoComponents()
     expect(await api.commit(next, 'Move')).toBe(true)
-    expect(editSlideUi).toHaveBeenCalledWith('a', next, 'Move')
+    expect(editSlideUi).toHaveBeenCalledWith('a', next, 'Move', expect.objectContaining({ deckId: 'p1' }))
     // The cache write has not reached the slide yet: the draft holds the new ui so nothing snaps back.
     expect(api.draftUi.value).toBe(next)
     expect(api.ui.value).toBe(next)
     slide.value = tpl('a', next)
     await nextTick()
     expect(api.draftUi.value).toBeNull()
+  })
+
+  it('commit forwards onApplied and mergeKey, and names the deck', async () => {
+    const { api } = setup(tpl('a', uiWithText()))
+    const onApplied = vi.fn()
+    editSlideUi.mockImplementation(async (_id: string, _ui: unknown, _label: string, opts: { onApplied?: (ok: boolean) => void }) => {
+      opts.onApplied?.(true)
+      return true
+    })
+    await api.commit(uiTwoComponents(), 'Nudge', { onApplied, mergeKey: 'k' })
+    expect(editSlideUi).toHaveBeenCalledWith('a', uiTwoComponents(), 'Nudge', expect.objectContaining({ mergeKey: 'k', deckId: 'p1' }))
+    expect(onApplied).toHaveBeenCalledWith(true)
+  })
+
+  it('commit with no slide reports not applied', async () => {
+    const { api } = setup(null)
+    const onApplied = vi.fn()
+    expect(await api.commit(uiTwoComponents(), 'Move', { onApplied })).toBe(false)
+    expect(onApplied).toHaveBeenCalledWith(false)
   })
 
   it('commit drops the draft when editSlideUi fails', async () => {

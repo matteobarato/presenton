@@ -44,12 +44,14 @@ const flush = () => new Promise((r) => setTimeout(r))
 beforeEach(() => setActivePinia(createPinia()))
 
 describe('useEditingShortcuts races', () => {
-  function setupOptimistic(sel: Selection) {
+  /** `applies`: the commit reports applied a microtask later, like editSlideUi, while its save stays pending. */
+  function setupOptimistic(sel: Selection, applies = false) {
     const ui = ref(uiTwoComponents() as RawUi | null)
     const selection = ref<Selection>(sel)
     const releases: Array<() => void> = []
-    const commit = vi.fn((next: RawUi) => {
+    const commit = vi.fn((next: RawUi, _label: string, opts?: { onApplied?: (ok: boolean) => void }) => {
       ui.value = next // optimistic draft, like useSlideEditing
+      if (applies) void Promise.resolve().then(() => opts?.onApplied?.(true))
       return new Promise<boolean>((r) => releases.push(() => r(true)))
     })
     const ctx = {
@@ -80,6 +82,47 @@ describe('useEditingShortcuts races', () => {
     await flush()
     press('Delete')
     expect(t.commit).toHaveBeenCalledTimes(1) // nothing selected any more
+    t.wrapper.unmount()
+  })
+
+  it('double Delete still removes one component when commits report applied', async () => {
+    const t = setupOptimistic({ kind: 'component', componentIndex: 0 }, true)
+    press('Delete')
+    press('Delete')
+    await flush()
+    press('Delete') // nothing selected any more
+    expect(t.commit).toHaveBeenCalledTimes(1)
+    expect((t.ui.value!.components as unknown[]).length).toBe(1)
+    t.release()
+    t.wrapper.unmount()
+  })
+
+  it('Delete and Duplicate run once the previous edit is applied, while its save is still pending', async () => {
+    const t = setupOptimistic({ kind: 'component', componentIndex: 0 }, true)
+    press('ArrowRight')
+    await flush()
+    press('d', { ctrlKey: true })
+    await flush()
+    press('Delete')
+    await flush()
+    expect(t.commit.mock.calls.map((c) => c[1])).toEqual(['Nudge', 'Duplicate', 'Delete'])
+    t.release()
+    t.wrapper.unmount()
+  })
+
+  it('nudges carry one merge key per slide and selection; other edits carry none', async () => {
+    const t = setupOptimistic({ kind: 'component', componentIndex: 0 }, true)
+    press('ArrowRight')
+    press('ArrowRight')
+    await flush()
+    press('d', { ctrlKey: true })
+    await flush()
+    const keys = t.commit.mock.calls.map((c) => (c[2] as { mergeKey?: string } | undefined)?.mergeKey)
+    expect(keys[0]).toBeTruthy()
+    expect(keys[1]).toBe(keys[0])
+    expect(keys[0]).toContain('s1')
+    expect(keys[2]).toBeUndefined()
+    t.release()
     t.wrapper.unmount()
   })
 
@@ -127,7 +170,7 @@ describe('useEditingShortcuts races', () => {
     t.wrapper.unmount()
   })
 
-  it('structural keys are swallowed during a pending save, copy is not, and Delete waits for a pending nudge', () => {
+  it('structural keys are swallowed while an edit is being applied, copy is not, and Delete waits for a nudge being applied', () => {
     const t = setupOptimistic({ kind: 'component', componentIndex: 0 })
     press('ArrowRight')
     const d = press('d', { ctrlKey: true })
@@ -141,7 +184,7 @@ describe('useEditingShortcuts races', () => {
     t.wrapper.unmount()
   })
 
-  it('arrows are swallowed while a structural commit is pending', () => {
+  it('arrows are swallowed while a structural commit is being applied', () => {
     const t = setupOptimistic({ kind: 'component', componentIndex: 0 })
     press('d', { ctrlKey: true })
     const a = press('ArrowRight')

@@ -15,20 +15,20 @@ export function stubRect() {
   } as DOMRect)
 }
 
-export function mountEditable(initial: Slide) {
+export function mountEditable(initial: Slide, deck: Ref<string> = ref('p1')) {
   const slide = ref<Slide>(initial) as Ref<Slide | null>
   let api!: SlideEditing
   const onOpenEditor = vi.fn()
   const wrapper = mount(
     defineComponent({
       setup() {
-        api = useSlideEditing(ref('p1'), slide)
+        api = useSlideEditing(deck, slide)
         return () => h(EditableSlide, { slide: slide.value!, onOpenEditor })
       },
     }),
     { attachTo: document.body },
   )
-  return { wrapper, slide, api: () => api, onOpenEditor }
+  return { wrapper, slide, deck, api: () => api, onOpenEditor }
 }
 
 /** Pointer at slide coordinates (screen = slide / 2). */

@@ -34,8 +34,29 @@ const BLANK_LAYOUT = {
 export const DELETE_NOTICE =
   'Undo restores the slide content but not its narration audio or avatar video.'
 
-/** Per-deck tail of the save queue: only the network PATCH is serialized. */
-const queues = new Map<string, Promise<void>>()
+/** A save waiting in its deck's queue. */
+interface QueuedSave {
+  label: string
+  withSlides: boolean
+  /** Settles once this save, or the newer save that covered it, has settled. */
+  done: Promise<void>
+}
+
+/**
+ * Per-deck save queue: only the network PATCH is serialized. `waiting` holds the saves queued
+ * but not started, oldest first, so a save can see that a newer one will send the cache anyway.
+ */
+const queues = new Map<string, { tail: Promise<void>; waiting: QueuedSave[] }>()
+
+/** How `editSlideUi` reports progress and joins history. */
+export interface EditSlideUiOptions {
+  /** Called once the edit is in the cache (true) or was refused (false); the save may still be pending. */
+  onApplied?: (applied: boolean) => void
+  /** Consecutive edits with this key fold into one history entry (see the history store's merge window). */
+  mergeKey?: string
+  /** Deck to edit; defaults to the current one. An edit to another deck is not recorded in history. */
+  deckId?: string
+}
 
 /** A layout chosen in the picker. `null` to `addSlide` means a blank slide. */
 export interface NewSlideLayout {
@@ -81,13 +102,33 @@ export function useSlideMutations(presentationId: Ref<string>) {
   const history = useHistoryStore()
   const editor = useEditorStore()
 
-  const key = () => presentationKeys.one(presentationId.value)
+  const keyOf = (deckId: string) => presentationKeys.one(deckId)
+  const key = () => keyOf(presentationId.value)
   const current = () => queryClient.getQueryData<Presentation>(key())
 
-  function schedule(label: string, withSlides: boolean): Promise<void> {
-    const deckId = presentationId.value
+  /**
+   * Queue a PATCH of the deck as cached when its turn comes. A save that finds a newer save of the
+   * same action (same label, so the same fields and the same failure toast) queued behind it skips
+   * its own PATCH: the newer one sends the latest cache. A held arrow thus sends one PATCH per
+   * round trip, not one per key repeat. A skipped save settles with the save that covered it, so a
+   * failure there (toast + refetch of server truth) still applies to its edit.
+   */
+  function schedule(label: string, withSlides: boolean, deckId = presentationId.value): Promise<void> {
+    let queue = queues.get(deckId)
+    if (!queue) {
+      queue = { tail: Promise.resolve(), waiting: [] }
+      queues.set(deckId, queue)
+    }
+    const q = queue
+    const entry: QueuedSave = { label, withSlides, done: Promise.resolve() }
+    q.waiting.push(entry)
+    let coveredBy: QueuedSave | undefined
     const job = async () => {
-      const snapshot = queryClient.getQueryData<Presentation>(presentationKeys.one(deckId))
+      q.waiting.splice(q.waiting.indexOf(entry), 1)
+      // Everything still waiting is newer than this save.
+      coveredBy = q.waiting.find((later) => later.label === label && later.withSlides === withSlides)
+      if (coveredBy) return
+      const snapshot = queryClient.getQueryData<Presentation>(keyOf(deckId))
       if (!snapshot) return
       try {
         await updatePresentation({
@@ -99,38 +140,40 @@ export function useSlideMutations(presentationId: Ref<string>) {
       } catch (error) {
         toast.error(`Could not ${label.toLowerCase()}`, { description: error instanceof Error ? error.message : undefined })
         try {
-          await queryClient.fetchQuery({ queryKey: presentationKeys.one(deckId), queryFn: () => getPresentation(deckId), staleTime: 0 })
+          await queryClient.fetchQuery({ queryKey: keyOf(deckId), queryFn: () => getPresentation(deckId), staleTime: 0 })
         } catch {
           // Offline: the banner explains; the next successful save resyncs.
         }
       }
     }
-    const next = (queues.get(deckId) ?? Promise.resolve()).then(job)
-    queues.set(deckId, next)
-    return next
+    const ran = q.tail.then(job)
+    q.tail = ran
+    // Not chained into the tail: the covering save is queued after this one.
+    entry.done = ran.then(() => coveredBy?.done)
+    return entry.done
   }
 
-  /** Apply `edit` to the current cache now (null = nothing to do) and queue the save. */
-  async function applyEdit(label: string, edit: (p: Presentation) => Presentation | null, withSlides = true) {
+  /** Apply `edit` to the deck's cache now (null = nothing to do) and queue the save. */
+  async function applyEdit(label: string, edit: (p: Presentation) => Presentation | null, withSlides = true, deckId = presentationId.value) {
+    const deckKey = keyOf(deckId)
     // A fetch in flight (or an invalidated entry) may carry server-side changes, e.g. an AI edit that
     // re-ids a slide. Edit on top of it rather than cancelling it, or the PATCH would write the old slide back.
-    const state = queryClient.getQueryState(key())
+    const state = queryClient.getQueryState(deckKey)
     if (state?.fetchStatus === 'fetching' || state?.isInvalidated) {
-      const id = presentationId.value
       try {
-        await queryClient.fetchQuery({ queryKey: key(), queryFn: () => getPresentation(id), staleTime: 0 })
+        await queryClient.fetchQuery({ queryKey: deckKey, queryFn: () => getPresentation(deckId), staleTime: 0 })
       } catch {
         // Offline: edit the cache as it is.
       }
     } else {
       // Nothing in flight: make sure nothing lands on top of the optimistic write.
-      await queryClient.cancelQueries({ queryKey: key() })
+      await queryClient.cancelQueries({ queryKey: deckKey })
     }
-    const before = current()
+    const before = queryClient.getQueryData<Presentation>(deckKey)
     const after = before && edit(before)
     if (!after) return { applied: false, saved: Promise.resolve() }
-    queryClient.setQueryData<Presentation>(key(), { ...after, slides: reindex(after.slides) })
-    return { applied: true, saved: schedule(label, withSlides) }
+    queryClient.setQueryData<Presentation>(deckKey, { ...after, slides: reindex(after.slides) })
+    return { applied: true, saved: schedule(label, withSlides, deckId) }
   }
 
   const onSlides =
@@ -141,25 +184,40 @@ export function useSlideMutations(presentationId: Ref<string>) {
     }
 
   /** A history body: apply, then wait for the save so undo/redo stay one at a time. */
-  const body = (label: string, edit: (p: Presentation) => Presentation | null, withSlides = true) => async () => {
+  const body = (label: string, edit: (p: Presentation) => Presentation | null, withSlides = true, deckId?: string) => async () => {
     if (editor.locked) throw new Error('The deck is busy.')
-    const r = await applyEdit(label, edit, withSlides)
+    const r = await applyEdit(label, edit, withSlides, deckId)
     await r.saved
   }
 
-  /** Apply the primary edit; on success record it and wait for the save. */
+  /**
+   * Apply the primary edit; on success record it and wait for the save. `onApplied` hears as soon
+   * as the edit is in the cache (or refused), before the save settles.
+   */
   async function commit(
     label: string,
     edit: (p: Presentation) => Presentation | null,
     undo: () => Promise<void>,
     after?: () => void,
     withSlides = true,
+    opts: EditSlideUiOptions = {},
   ): Promise<boolean> {
-    if (editor.locked) return false
-    const r = await applyEdit(label, edit, withSlides)
-    if (!r.applied) return false
+    const deckId = opts.deckId ?? presentationId.value
+    if (editor.locked) {
+      opts.onApplied?.(false)
+      return false
+    }
+    const r = await applyEdit(label, edit, withSlides, deckId)
+    if (!r.applied) {
+      opts.onApplied?.(false)
+      return false
+    }
     after?.()
-    history.push({ label, do: body(label, edit, withSlides), undo })
+    // History belongs to the deck now open (it is cleared on a deck switch).
+    if (deckId === presentationId.value) {
+      history.push({ label, do: body(label, edit, withSlides, deckId), undo }, opts.mergeKey ? { key: opts.mergeKey } : undefined)
+    }
+    opts.onApplied?.(true)
     await r.saved
     return true
   }
@@ -289,8 +347,12 @@ export function useSlideMutations(presentationId: Ref<string>) {
     )
   }
 
-  /** Replace the `ui` of the slide with this id. One history entry; undo writes back the `ui` captured at first apply. */
-  async function editSlideUi(slideId: string, next: RawUi, label: string): Promise<boolean> {
+  /**
+   * Replace the `ui` of the slide with this id. One history entry (or one merged run of entries
+   * with `mergeKey`); undo writes back the `ui` captured at first apply.
+   */
+  async function editSlideUi(slideId: string, next: RawUi, label: string, opts: EditSlideUiOptions = {}): Promise<boolean> {
+    const deckId = opts.deckId ?? presentationId.value
     let previous: Slide['ui'] | undefined
     const setUi = (ui: Slide['ui'], capture: boolean) =>
       onSlides((l) => {
@@ -308,9 +370,12 @@ export function useSlideMutations(presentationId: Ref<string>) {
       async () => {
         if (editor.locked) throw new Error('The deck is busy.')
         if (previous === undefined) return
-        const r = await applyEdit(label, setUi(previous, false))
+        const r = await applyEdit(label, setUi(previous, false), true, deckId)
         await r.saved
       },
+      undefined,
+      true,
+      { ...opts, deckId },
     )
   }
 

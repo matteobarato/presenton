@@ -316,6 +316,8 @@ export function nextListMarkerPrefix(textBeforeCursor: string, marker: Marker | 
 /** Everything the inline editor needs, captured when it opens. */
 export interface InlineEditSession {
   slideId: string
+  /** Deck the edit was opened on; its commit goes there. */
+  deckId?: string
   selection: ElementSelection
   /** The element being edited (markdown already rendered into runs). */
   element: RawElement

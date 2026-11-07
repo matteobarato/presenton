@@ -153,6 +153,19 @@ describe('InlineTextEditor', () => {
     expect(committedText()).toBe('Hello!')
   })
 
+  it('commits on unmount to the deck it was opened on, even after the route moved on', async () => {
+    const { deck } = setup()
+    await doubleClickText()
+    type('!')
+    deck.value = 'p2' // back-navigation / deck switch: the route id changes before the unmount
+    current!.wrapper.unmount()
+    current = null
+    await flushPromises()
+    expect(editSlideUi).toHaveBeenCalledTimes(1)
+    expect(editSlideUi.mock.calls[0]![3]).toMatchObject({ deckId: 'p1' })
+    expect(committedText()).toBe('Hello!')
+  })
+
   it('an external ui change closes the editor without committing', async () => {
     const { api, slide } = setup()
     await doubleClickText()

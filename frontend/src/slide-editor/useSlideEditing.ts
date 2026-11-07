@@ -26,6 +26,16 @@ import {
 } from '@/slide-editor/model'
 import { inlineEditUi, startInlineEdit, type InlineEditSession } from '@/slide-editor/tiptapRuns'
 
+/** How a commit reports progress and joins history. */
+export interface CommitOptions {
+  /** Called once the edit is in the cache (true) or was refused (false); the save may still be pending. */
+  onApplied?: (applied: boolean) => void
+  /** Consecutive commits with this key fold into one history entry. */
+  mergeKey?: string
+  /** Deck to commit to; defaults to the one open now. */
+  deckId?: string
+}
+
 export interface SlideEditing {
   enabled: ComputedRef<boolean>
   /** Id of the slide this state belongs to. */
@@ -39,9 +49,10 @@ export interface SlideEditing {
   inlineEditor: ShallowRef<Editor | null>
   guides: Ref<AlignmentGuide[]>
   select: (sel: Selection) => void
-  commit: (next: RawUi, label: string) => Promise<boolean>
+  /** Commits `next` to the current slide; resolves once saved (`opts.onApplied` hears earlier). */
+  commit: (next: RawUi, label: string, opts?: CommitOptions) => Promise<boolean>
   /** Commits `next` to the slide with this id (the current slide or one just left). */
-  commitTo: (slideId: string, next: RawUi, label: string) => Promise<boolean>
+  commitTo: (slideId: string, next: RawUi, label: string, opts?: CommitOptions) => Promise<boolean>
   cancelDraft: () => void
   /** Opens the inline text editor for a text or text-list element. */
   requestInlineEdit: (sel: ElementSelection) => void
@@ -101,18 +112,19 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
 
   // The draft holds `next` until the committed ui reaches the slide (the ui watcher drops it),
   // so the slide never snaps back to the old ui while the cache write propagates.
-  async function commit(next: RawUi, label: string): Promise<boolean> {
+  async function commit(next: RawUi, label: string, opts: CommitOptions = {}): Promise<boolean> {
     const id = slide.value?.id
     guides.value = []
     if (!id) {
       draftUi.value = null
+      opts.onApplied?.(false)
       return false
     }
-    return commitTo(id, next, label)
+    return commitTo(id, next, label, opts)
   }
 
   // A commit for a slide that is no longer current skips the draft: the draft belongs to the current slide.
-  async function commitTo(id: string, next: RawUi, label: string): Promise<boolean> {
+  async function commitTo(id: string, next: RawUi, label: string, opts: CommitOptions = {}): Promise<boolean> {
     const current = id === slide.value?.id
     if (current) {
       guides.value = []
@@ -122,7 +134,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     const entry = { slideId: id, ui: next }
     pending.push(entry)
     try {
-      const ok = await editSlideUi(id, next, label)
+      const ok = await editSlideUi(id, next, label, { ...opts, deckId: opts.deckId ?? presentationId.value })
       if (current && !ok && draftUi.value === next) cancelDraft()
       return ok
     } finally {
@@ -152,7 +164,8 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     dropInlineEdit()
     if (!edit || !commitEdit || !tiptap || tiptap.isDestroyed) return Promise.resolve(false)
     const next = inlineEditUi(edit, tiptap.getJSON())
-    return next ? commitTo(edit.slideId, next, 'Edit text') : Promise.resolve(false)
+    // The deck it was opened on: on back-navigation or a deck switch the route already names the next one.
+    return next ? commitTo(edit.slideId, next, 'Edit text', { deckId: edit.deckId }) : Promise.resolve(false)
   }
 
   function requestInlineEdit(sel: ElementSelection) {
@@ -163,7 +176,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     const edit = startInlineEdit(u, sel, id)
     if (!edit) return
     selection.value = sel
-    inlineEdit.value = edit
+    inlineEdit.value = { ...edit, deckId: presentationId.value }
   }
 
   // Typed text is committed to the slide it was typed on before anything is cleared for the next one;

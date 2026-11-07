@@ -68,14 +68,14 @@ describe('ElementTab', () => {
   it('Delete commits with the Delete label', async () => {
     const { wrapper, ctx } = mountTab({ kind: 'component', componentIndex: 0 })
     await label(wrapper, 'Delete').trigger('click')
-    expect(ctx.commit).toHaveBeenCalledWith(expect.anything(), 'Delete')
+    expect(ctx.commit).toHaveBeenCalledWith(expect.anything(), 'Delete', expect.anything())
     expect(ctx.select).toHaveBeenCalled()
   })
 
   it('Duplicate commits with the Duplicate label', async () => {
     const { wrapper, ctx } = mountTab({ kind: 'component', componentIndex: 0 })
     await label(wrapper, 'Duplicate').trigger('click')
-    expect(ctx.commit).toHaveBeenCalledWith(expect.anything(), 'Duplicate')
+    expect(ctx.commit).toHaveBeenCalledWith(expect.anything(), 'Duplicate', expect.anything())
   })
 
   it('ignores a second structural click while a commit is pending', async () => {

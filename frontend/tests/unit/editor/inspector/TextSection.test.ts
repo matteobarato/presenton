@@ -65,11 +65,38 @@ describe('TextSection', () => {
     ;(ui.components as Array<{ elements: Array<Record<string, unknown>> }>)[0].elements[0].runs = [{ text: 'Hel' }, { text: 'lo', font: { italic: true } }]
     const { wrapper, ctx } = mountPlain(textSel, ui)
     await wrapper.get('button[aria-label="Bold"]').trigger('click')
-    expect(ctx.commit).toHaveBeenCalledWith(expect.anything(), 'Text style')
+    expect(ctx.commit).toHaveBeenCalledWith(expect.anything(), 'Text style', expect.anything())
     const el = elOf(committed(ctx))
     expect(el.font.bold).toBe(true)
     expect(el.runs.map((r) => r.font.bold)).toEqual([true, true])
     expect(el.runs[1].font.italic).toBe(true)
+  })
+
+  it('Bold then Italic both apply while the first save is still pending', async () => {
+    const ui = ref<RawUi>(uiWithText())
+    const commit = vi.fn((next: RawUi, _label: string, opts?: { onApplied?: (ok: boolean) => void }) => {
+      ui.value = next // optimistic, as useSlideEditing's draft
+      void Promise.resolve().then(() => opts?.onApplied?.(true))
+      return new Promise<boolean>(() => {}) // the save never settles in this test
+    })
+    const ctx = {
+      enabled: computed(() => true),
+      slideId: computed(() => 's1'),
+      ui: computed(() => ui.value),
+      selection: ref<Selection>(textSel),
+      inlineEdit: shallowRef(null),
+      inlineEditor: shallowRef(null),
+      commit,
+      select: vi.fn(),
+    } as unknown as SlideEditing
+    const wrapper = mountWith(ctx)
+    await wrapper.get('button[aria-label="Bold"]').trigger('click')
+    await new Promise((r) => setTimeout(r))
+    await wrapper.get('button[aria-label="Italic"]').trigger('click')
+    expect(commit).toHaveBeenCalledTimes(2)
+    const font = elOf(ui.value).font
+    expect(font.bold).toBe(true)
+    expect(font.italic).toBe(true)
   })
 
   it('patches the text element of a component selection', async () => {

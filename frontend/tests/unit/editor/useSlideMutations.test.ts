@@ -293,6 +293,65 @@ describe('useSlideMutations', () => {
       expect(update).not.toHaveBeenCalled()
     })
 
+    it('redo after undo writes the next ui again', async () => {
+      const m = useSlideMutations(ref('p1'))
+      await m.editSlideUi('a', uiB, 'Move')
+      const h = useHistoryStore()
+      await h.undo()
+      expect(cached().slides[0]!.ui).toEqual(uiA)
+      await h.redo()
+      expect(cached().slides[0]!.ui).toEqual(uiB)
+      expect(update.mock.calls.at(-1)![0].slides[0].ui).toEqual(uiB)
+    })
+
+    it('reports applied before the save settles', async () => {
+      let release!: () => void
+      update.mockImplementationOnce(() => new Promise<void>((r) => (release = r)))
+      const m = useSlideMutations(ref('p1'))
+      const onApplied = vi.fn()
+      let saved = false
+      const p = m.editSlideUi('a', uiB, 'Move', { onApplied }).then(() => (saved = true))
+      await vi.waitFor(() => expect(onApplied).toHaveBeenCalledWith(true))
+      expect(cached().slides[0]!.ui).toEqual(uiB)
+      expect(saved).toBe(false)
+      release()
+      await p
+      expect(saved).toBe(true)
+    })
+
+    it('reports not applied for an unchanged ui', async () => {
+      const m = useSlideMutations(ref('p1'))
+      const onApplied = vi.fn()
+      await m.editSlideUi('a', JSON.parse(JSON.stringify(uiA)), 'Move', { onApplied })
+      expect(onApplied).toHaveBeenCalledWith(false)
+    })
+
+    it('merges consecutive edits with the same merge key into one history entry', async () => {
+      const m = useSlideMutations(ref('p1'))
+      const ui = (x: number) => ({ components: [{ id: 'x', position: { x } }], elements: [] })
+      await m.editSlideUi('a', ui(1), 'Nudge', { mergeKey: 'k' })
+      await m.editSlideUi('a', ui(2), 'Nudge', { mergeKey: 'k' })
+      await m.editSlideUi('a', ui(3), 'Nudge', { mergeKey: 'k' })
+      const h = useHistoryStore()
+      expect(h.undoLabel).toBe('Nudge')
+      await h.undo()
+      expect(cached().slides[0]!.ui).toEqual(uiA)
+      expect(h.canUndo).toBe(false)
+      await h.redo()
+      expect(cached().slides[0]!.ui).toEqual(ui(3))
+    })
+
+    it('commits to the deck id it is given, even after the route moved on', async () => {
+      qc.setQueryData(presentationKeys.one('p2'), { ...deck(), id: 'p2', slides: [] })
+      const route = ref('p2')
+      const m = useSlideMutations(route)
+      expect(await m.editSlideUi('a', uiB, 'Edit text', { deckId: 'p1' })).toBe(true)
+      expect(cached().slides[0]!.ui).toEqual(uiB)
+      expect(update.mock.calls[0]![0].id).toBe('p1')
+      // The history belongs to the deck now open; an edit to the deck just left is not recorded there.
+      expect(useHistoryStore().canUndo).toBe(false)
+    })
+
     it('returns false and records nothing when locked', async () => {
       const { useEditorStore } = await import('@/stores/editor')
       useEditorStore().deckBusy = 1
@@ -301,6 +360,78 @@ describe('useSlideMutations', () => {
       expect(update).not.toHaveBeenCalled()
       expect(cached().slides[0]!.ui).toEqual(uiA)
       expect(useHistoryStore().canUndo).toBe(false)
+    })
+  })
+
+  describe('save queue coalescing', () => {
+    const uiN = (x: number) => ({ components: [{ id: 'x', position: { x } }], elements: [] })
+
+    it('saves queued behind a pending PATCH collapse into one PATCH of the latest cache', async () => {
+      let release!: () => void
+      update.mockImplementationOnce(() => new Promise<void>((r) => (release = r)))
+      const m = useSlideMutations(ref('p1'))
+      const first = m.editSlideUi('a', uiN(1), 'Nudge')
+      await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
+      const later = [m.editSlideUi('a', uiN(2), 'Nudge'), m.editSlideUi('a', uiN(3), 'Nudge'), m.editSlideUi('a', uiN(4), 'Nudge')]
+      await vi.waitFor(() => expect(cached().slides[0]!.ui).toEqual(uiN(4)))
+      release()
+      expect(await Promise.all([first, ...later])).toEqual([true, true, true, true])
+      expect(update).toHaveBeenCalledTimes(2)
+      expect(update.mock.calls[1]![0].slides[0].ui).toEqual(uiN(4))
+    })
+
+    it('a skipped save resolves only once the save that covers it settles', async () => {
+      let releaseFirst!: () => void
+      let releaseLast!: () => void
+      update.mockImplementationOnce(() => new Promise<void>((r) => (releaseFirst = r)))
+      update.mockImplementationOnce(() => new Promise<void>((r) => (releaseLast = r)))
+      const m = useSlideMutations(ref('p1'))
+      void m.editSlideUi('a', uiN(1), 'Nudge')
+      await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
+      let skippedDone = false
+      const skipped = m.editSlideUi('a', uiN(2), 'Nudge').then(() => (skippedDone = true))
+      const last = m.editSlideUi('a', uiN(3), 'Nudge')
+      await vi.waitFor(() => expect(cached().slides[0]!.ui).toEqual(uiN(3)))
+      releaseFirst()
+      await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(2))
+      await new Promise((r) => setTimeout(r))
+      expect(skippedDone).toBe(false)
+      releaseLast()
+      await Promise.all([skipped, last])
+      expect(skippedDone).toBe(true)
+    })
+
+    it('a failing coalesced save still refetches server truth', async () => {
+      let release!: () => void
+      update.mockImplementationOnce(() => new Promise<void>((r) => (release = r)))
+      update.mockRejectedValueOnce(new Error('boom'))
+      const m = useSlideMutations(ref('p1'))
+      const all = [m.editSlideUi('a', uiN(1), 'Nudge')]
+      await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
+      all.push(m.editSlideUi('a', uiN(2), 'Nudge'), m.editSlideUi('a', uiN(3), 'Nudge'))
+      await vi.waitFor(() => expect(cached().slides[0]!.ui).toEqual(uiN(3)))
+      release()
+      await Promise.all(all)
+      expect(update).toHaveBeenCalledTimes(2)
+      expect(toastError).toHaveBeenCalledTimes(1)
+      expect(get).toHaveBeenCalledTimes(1)
+      expect(cached().slides[0]!.ui).toBeUndefined() // server truth: the fixture deck has no ui
+    })
+
+    it('a title-only save never absorbs an earlier slides save', async () => {
+      let release!: () => void
+      update.mockImplementationOnce(() => new Promise<void>((r) => (release = r)))
+      const m = useSlideMutations(ref('p1'))
+      const first = m.editSlideUi('a', uiN(1), 'Nudge')
+      await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
+      const edit = m.editSlideUi('a', uiN(2), 'Nudge')
+      const rename = m.rename('Renamed')
+      await vi.waitFor(() => expect(cached().title).toBe('Renamed'))
+      release()
+      await Promise.all([first, edit, rename])
+      expect(update).toHaveBeenCalledTimes(3)
+      expect(update.mock.calls[1]![0].slides[0].ui).toEqual(uiN(2))
+      expect('slides' in update.mock.calls[2]![0]).toBe(false)
     })
   })
 })
