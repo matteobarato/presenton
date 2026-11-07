@@ -1,6 +1,7 @@
 import { toValue, type MaybeRefOrGetter } from 'vue'
 import { useEventListener } from '@vueuse/core'
-import { getElementAtSelection, type RawUi, type Selection } from '@/slide-editor/model'
+import { getElementAtSelection, type ElementSelection, type RawUi, type Selection } from '@/slide-editor/model'
+import { toolbarKind } from '@/slide-editor/toolbarKind'
 import { CLIPBOARD_MIME, CLIPBOARD_PREFIX, nextPasteOffset, useClipboard } from '@/slide-editor/useClipboard'
 import {
   deleteSelection,
@@ -67,7 +68,8 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
         e.preventDefault()
         void apply(r, 'Duplicate')
       } else if (key === 'c' && !e.shiftKey) {
-        if (!sel) return
+        // Highlighted page text (notes, chat, a label) is what the user means to copy.
+        if (!sel || window.getSelection()?.isCollapsed === false) return
         e.preventDefault()
         void clipboard.copy(ui, sel)
       } else if (key === 'g') {
@@ -95,10 +97,17 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
       e.preventDefault()
       void apply(r, 'Nudge')
     } else if (e.key === 'Enter') {
-      const type = sel?.kind === 'element' ? getElementAtSelection(ui, sel)?.type : null
-      if (sel?.kind !== 'element' || (type !== 'text' && type !== 'text-list')) return
+      // A text element, or a component whose lone element is text (as the Text section edits it).
+      const target: ElementSelection | null =
+        sel?.kind === 'element'
+          ? sel
+          : sel?.kind === 'component' && toolbarKind(ui, sel) === 'text'
+            ? { kind: 'element', componentIndex: sel.componentIndex, elementPath: [0] }
+            : null
+      const type = target ? getElementAtSelection(ui, target)?.type : null
+      if (!target || (type !== 'text' && type !== 'text-list')) return
       e.preventDefault()
-      ctx.requestInlineEdit(sel)
+      ctx.requestInlineEdit(target)
     } else if (e.key === 'Escape') {
       if (!sel) return
       e.preventDefault()

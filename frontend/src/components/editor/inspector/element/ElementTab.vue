@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { X } from 'lucide-vue-next'
 import type { Presentation, Slide } from '@/api/types'
-import { isGroupSelection, toolbarKind } from '@/slide-editor/toolbarKind'
+import { selectionLabel, toolbarKind } from '@/slide-editor/toolbarKind'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import ArrangeSection from './ArrangeSection.vue'
 import ImageSection from './ImageSection.vue'
@@ -13,14 +13,7 @@ const props = defineProps<{ presentationId: string; presentation: Presentation; 
 const ctx = useSlideEditingContext()
 const active = computed(() => ctx.enabled.value && ctx.selection.value !== null)
 const kind = computed(() => toolbarKind(ctx.ui.value, ctx.selection.value))
-const heading = computed(() => {
-  const sel = ctx.selection.value
-  if (sel?.kind === 'multi-component') return `${sel.componentIndexes.length} items`
-  if (kind.value === 'text') return 'Text'
-  if (kind.value === 'image') return 'Image'
-  if (isGroupSelection(ctx.ui.value, sel)) return 'Group'
-  return 'Element'
-})
+const heading = computed(() => selectionLabel(ctx.ui.value, ctx.selection.value) ?? 'Element')
 const emptyHint = computed(() => (ctx.enabled.value ? 'Double-click text to type.' : null))
 </script>
 

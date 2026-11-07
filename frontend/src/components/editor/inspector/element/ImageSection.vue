@@ -24,7 +24,14 @@ const element = computed<RawElement | null>(() => {
 })
 
 const clamp = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : 50)
-const fit = computed<'cover' | 'contain'>(() => (element.value?.fit === 'cover' ? 'cover' : 'contain'))
+// As the renderer reads it: cover, fill, else contain. A fill image has neither button pressed.
+const fit = computed<'cover' | 'contain' | 'fill'>(() => {
+  const raw = element.value?.fit
+  return raw === 'cover' || raw === 'fill' ? raw : 'contain'
+})
+const FIT_NAMES = { cover: 'Cover', contain: 'Contain', fill: 'Fill' } as const
+// An icon renders as a colour mask of its picture: a photo would show as a silhouette.
+const isIcon = computed(() => !!(element.value?.isIcon ?? element.value?.is_icon))
 const focusX = computed(() => clamp(element.value?.focus_x))
 const focusY = computed(() => clamp(element.value?.focus_y))
 
@@ -66,7 +73,7 @@ const segmentOn = '!border-accent/50 !bg-[#303c42] !text-[#c4e4f4]'
 
 <template>
   <template v-if="element">
-    <div :class="section">
+    <div v-if="!isIcon" :class="section">
       <div :class="label"><h3>Image</h3></div>
       <button type="button" :class="segment" class="w-full flex-none" aria-label="Replace image" @mousedown.prevent @click="pickerOpen = true">
         <ImageIcon class="size-4" aria-hidden="true" />
@@ -77,7 +84,7 @@ const segmentOn = '!border-accent/50 !bg-[#303c42] !text-[#c4e4f4]'
     <div :class="section">
       <div :class="label">
         <h3>Fit</h3>
-        <span :class="muted">{{ fit === 'cover' ? 'Cover' : 'Contain' }}</span>
+        <span :class="muted">{{ FIT_NAMES[fit] }}</span>
       </div>
       <div class="flex gap-2">
         <button
@@ -125,6 +132,6 @@ const segmentOn = '!border-accent/50 !bg-[#303c42] !text-[#c4e4f4]'
       </Popover>
     </div>
 
-    <ImagePickerDialog v-model:open="pickerOpen" @pick="onPick" />
+    <ImagePickerDialog v-if="!isIcon" v-model:open="pickerOpen" @pick="onPick" />
   </template>
 </template>

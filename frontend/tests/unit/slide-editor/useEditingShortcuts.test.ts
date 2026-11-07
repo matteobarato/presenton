@@ -259,6 +259,39 @@ describe('useEditingShortcuts', () => {
     ;[a, b, c].forEach((x) => x.wrapper.unmount())
   })
 
+  it('Enter on a component whose lone element is text opens its inline editor', () => {
+    const { ctx, wrapper } = setup({ selection: { kind: 'component', componentIndex: 0 } })
+    const e = press('Enter')
+    expect(e.defaultPrevented).toBe(true)
+    expect(ctx.requestInlineEdit).toHaveBeenCalledWith({ kind: 'element', componentIndex: 0, elementPath: [0] })
+    wrapper.unmount()
+  })
+
+  it('Enter on an image component does nothing', () => {
+    const { ctx, wrapper } = setup({ selection: { kind: 'component', componentIndex: 1 } })
+    const e = press('Enter')
+    expect(e.defaultPrevented).toBe(false)
+    expect(ctx.requestInlineEdit).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('Ctrl+C leaves highlighted page text to the browser', () => {
+    const { wrapper } = setup({ selection: { kind: 'component', componentIndex: 0 } })
+    const p = document.createElement('p')
+    p.textContent = 'Some page text'
+    document.body.appendChild(p)
+    const range = document.createRange()
+    range.selectNodeContents(p)
+    window.getSelection()!.removeAllRanges()
+    window.getSelection()!.addRange(range)
+    const c = press('c', { ctrlKey: true })
+    expect(c.defaultPrevented).toBe(false)
+    window.getSelection()!.removeAllRanges()
+    expect(press('c', { ctrlKey: true }).defaultPrevented).toBe(true)
+    p.remove()
+    wrapper.unmount()
+  })
+
   it('Escape clears the selection', () => {
     const { ctx, wrapper } = setup({ selection: { kind: 'component', componentIndex: 0 } })
     press('Escape')

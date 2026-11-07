@@ -18,8 +18,10 @@ vi.mock('@/api/images', async (orig) => ({
 
 const sel: ElementSelection = { kind: 'element', componentIndex: 0, elementPath: [0] }
 
-function mountSection(selection: Selection = { kind: 'component', componentIndex: 0 }) {
-  const ui = ref<RawUi>(uiWithImage())
+function mountSection(selection: Selection = { kind: 'component', componentIndex: 0 }, patch: Record<string, unknown> = {}) {
+  const base = uiWithImage()
+  Object.assign((base.components as Array<{ elements: Array<Record<string, unknown>> }>)[0]!.elements[0]!, patch)
+  const ui = ref<RawUi>(base)
   const ctx = {
     enabled: computed(() => true),
     ui: computed(() => ui.value),
@@ -86,5 +88,21 @@ describe('ImageSection', () => {
     await flushPromises()
     expect(el(committed(ctx)).focus_x).toBe(0)
     expect(el(committed(ctx)).focus_y).toBe(0)
+  })
+
+  it('a fill image shows neither Cover nor Contain pressed, and Contain commits contain', async () => {
+    const { wrapper, ctx } = mountSection(sel, { fit: 'fill' })
+    expect(wrapper.find('button[aria-label="Contain"]').attributes('aria-pressed')).toBe('false')
+    expect(wrapper.find('button[aria-label="Cover"]').attributes('aria-pressed')).toBe('false')
+    expect(wrapper.text()).toContain('Fill')
+    await wrapper.find('button[aria-label="Contain"]').trigger('click')
+    expect(ctx.commit).toHaveBeenCalledTimes(1)
+    expect(el(committed(ctx)).fit).toBe('contain')
+  })
+
+  it('hides Replace for an icon image', () => {
+    expect(mountSection(sel, { isIcon: true, color: '#ff0000' }).wrapper.find('button[aria-label="Replace image"]').exists()).toBe(false)
+    expect(mountSection(sel, { is_icon: true }).wrapper.find('button[aria-label="Replace image"]').exists()).toBe(false)
+    expect(mountSection(sel, { isIcon: true }).wrapper.find('button[aria-label="Contain"]').exists()).toBe(true)
   })
 })

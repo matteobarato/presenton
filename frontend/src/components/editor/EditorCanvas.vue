@@ -8,6 +8,7 @@ import { slideKind } from '@/render/slide-kind'
 import { useEditorStore } from '@/stores/editor'
 import FloatingToolbar from './FloatingToolbar.vue'
 import EditableSlide from './canvas/EditableSlide.vue'
+import SelectionAnnouncer from './canvas/SelectionAnnouncer.vue'
 
 const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 
@@ -72,5 +73,6 @@ const slideWidth = computed(() => {
       <p v-else class="m-auto text-[12px] text-muted">No slides yet.</p>
     </div>
     <slot name="status" />
+    <SelectionAnnouncer />
   </section>
 </template>

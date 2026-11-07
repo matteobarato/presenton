@@ -25,3 +25,14 @@ export function toolbarKind(ui: RawUi | null, sel: Selection): ToolbarKind {
 export function isGroupSelection(ui: RawUi | null, sel: Selection): boolean {
   return !!ui && sel?.kind === 'component' && ungroupSelection(ui, sel) !== null
 }
+
+/** Short name of what is selected: "Text", "Image", "Group", "Element", or "N items". */
+export function selectionLabel(ui: RawUi | null, sel: Selection): string | null {
+  if (!sel) return null
+  if (sel.kind === 'multi-component') return `${sel.componentIndexes.length} items`
+  const kind = toolbarKind(ui, sel)
+  if (kind === 'text') return 'Text'
+  if (kind === 'image') return 'Image'
+  if (isGroupSelection(ui, sel)) return 'Group'
+  return 'Element'
+}
