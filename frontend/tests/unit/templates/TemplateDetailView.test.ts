@@ -128,6 +128,21 @@ describe('TemplateDetailView', () => {
   })
 })
 
+describe('TemplateDetailView lightbox', () => {
+  it('clicking a layout opens the lightbox and focus returns on close', async () => {
+    const { wrapper } = await mountAt()
+    const card = wrapper.findAll('[data-testid="layout-card"]')[1]
+    expect(card.attributes('aria-label')).toBe('Preview layout 02')
+    await card.trigger('click')
+    await flushPromises()
+    expect(document.body.querySelector('[data-testid="lightbox-counter"]')?.textContent).toBe('2 / 3')
+    document.body.querySelector('[role="dialog"]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await flushPromises()
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
+    expect(document.activeElement).toBe(card.element)
+  })
+})
+
 describe('TemplateDetailView rename and delete', () => {
   const c1: TemplateSummary = { ...custom, name: 'Custom 1' }
   beforeEach(() => mocks.listTemplates.mockResolvedValue([c1, builtin]))

@@ -10,6 +10,7 @@ import DeleteTemplateDialog from '@/components/templates/DeleteTemplateDialog.vu
 import RenameTemplateDialog from '@/components/templates/RenameTemplateDialog.vue'
 import { toast } from '@/components/ui/sonner'
 import PageHeader from '@/components/shell/PageHeader.vue'
+import LayoutLightbox from '@/components/templates/LayoutLightbox.vue'
 import { layoutToSlide } from '@/components/templates/layoutSlide'
 import { Alert } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -40,6 +41,17 @@ const parent = computed(() => ({
 
 const count = computed(() => template.value?.layouts.length ?? 0)
 const isCustom = computed(() => template.value?.kind === 'custom')
+
+const lightboxIndex = ref<number | null>(null)
+const previewSlides = computed(() => (template.value ? layouts.value.map((l, i) => layoutToSlide(template.value!.id, l, i)) : []))
+const lastCard = ref<HTMLElement | null>(null)
+function openLightbox(i: number, e: MouseEvent) {
+  lastCard.value = e.currentTarget as HTMLElement
+  lightboxIndex.value = i
+}
+function restoreFocus() {
+  lastCard.value?.focus()
+}
 
 const renameOpen = ref(false)
 const deleteOpen = ref(false)
@@ -154,7 +166,9 @@ function errorMessage(error: unknown, fallback: string): string {
           :key="i"
           type="button"
           data-testid="layout-card"
+          :aria-label="`Preview layout ${String(i + 1).padStart(2, '0')}`"
           class="group block min-w-0 rounded-[9px] p-0 text-left focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
+          @click="openLightbox(i, $event)"
         >
           <div class="aspect-video overflow-hidden rounded-[9px] bg-[#101416] shadow-[0_6px_15px_#0002] transition-transform duration-[180ms] motion-safe:group-hover:-translate-y-[3px]">
             <SlideView :slide="layoutToSlide(template.id, layout, i)" :theme="theme" :fonts="fonts" fit="width" lazy />
@@ -164,6 +178,16 @@ function errorMessage(error: unknown, fallback: string): string {
       </div>
     </template>
   </section>
+
+  <LayoutLightbox
+    v-if="template"
+    v-model:index="lightboxIndex"
+    :slides="previewSlides"
+    :theme="theme"
+    :fonts="fonts"
+    :title="template.name"
+    @closed="restoreFocus"
+  />
 
   <template v-if="template && isCustom">
     <RenameTemplateDialog
