@@ -4,10 +4,12 @@ import type { Slide } from '@/api/types'
 import SlideRenderError from '@/render/SlideRenderError.vue'
 import TemplateSlideHost from '@/render/TemplateSlideHost.vue'
 import { slideKind } from '@/render/slide-kind'
-import type { ElementSelection } from '@/slide-editor/model'
+import { getElementAtSelection, type ElementSelection, type RawUi } from '@/slide-editor/model'
+import { blankTextAt } from '@/slide-editor/tiptapRuns'
 import { useEditingShortcuts } from '@/slide-editor/useEditingShortcuts'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import { EDITABLE_CANVAS_KEY } from './canvas-context'
+import InlineTextEditor from './InlineTextEditor.vue'
 import SelectionOverlay from './SelectionOverlay.vue'
 
 const STAGE_W = 1280
@@ -27,9 +29,29 @@ const width = ref<number | null>(null)
 const failure = ref<string | null>(null)
 
 const kind = computed(() => slideKind(props.slide))
+const slideId = computed(() => props.slide.id ?? null)
+// The inline edit open on this slide, if any.
+const inlineEdit = computed(() => {
+  const edit = editing.inlineEdit.value
+  return edit && edit.slideId === slideId.value ? edit : null
+})
+// One editor instance per edit, even when the same element is reopened at once.
+const editKeys = new WeakMap<object, number>()
+let editSeq = 0
+const inlineEditKey = computed(() => {
+  const edit = inlineEdit.value
+  if (!edit) return 0
+  if (!editKeys.has(edit)) editKeys.set(edit, ++editSeq)
+  return editKeys.get(edit)!
+})
 // The draft (resize preview, just-committed ui) wins over this slide's committed ui; the draft is
-// dropped on slide change, so a slide fading out never shows its successor's ui.
-const renderUi = computed(() => editing.draftUi.value ?? props.slide.ui)
+// dropped on slide change, so a slide fading out never shows its successor's ui. While the inline
+// editor is open, the edited text is blanked underneath it (the editor shows it instead).
+const renderUi = computed(() => {
+  const base = editing.draftUi.value ?? props.slide.ui
+  const edit = inlineEdit.value
+  return edit && base ? blankTextAt(base as RawUi, edit.selection) : base
+})
 
 const scale = computed(() => (width.value && width.value > 0 ? width.value / STAGE_W : 1))
 const stageStyle = computed(() => ({
@@ -40,12 +62,19 @@ const stageStyle = computed(() => ({
   opacity: width.value == null && typeof ResizeObserver !== 'undefined' ? 0 : 1,
 }))
 
-const slideId = computed(() => props.slide.id ?? null)
 // The context follows the canvas's current slide; a slide fading out after a switch is not it.
 const current = computed(() => editing.slideId.value === slideId.value)
 // Only the current slide handles keys; a slide fading out must not double-handle them.
 useEditingShortcuts(editing, current)
 provide(EDITABLE_CANVAS_KEY, { layerFor: (source) => host.value?.layerFor(source) ?? null, slideId })
+
+// Text and text-list elements edit in place; every double-click is still reported.
+function onOpenEditor(sel: ElementSelection) {
+  const ui = editing.ui.value
+  const type = ui ? getElementAtSelection(ui, sel)?.type : null
+  if (type === 'text' || type === 'text-list') editing.requestInlineEdit(sel)
+  emit('open-editor', sel)
+}
 
 function onFailed(message: string) {
   failure.value = message
@@ -101,6 +130,15 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
         @error="onFailed"
       />
     </div>
-    <SelectionOverlay v-if="editing.enabled.value && current && !failure" @open-editor="emit('open-editor', $event)" />
+    <SelectionOverlay v-if="editing.enabled.value && current && !failure" @open-editor="onOpenEditor" />
+    <!-- Same scale as the stage, so the editor box and its font are in slide px. -->
+    <div
+      v-if="inlineEdit && editing.enabled.value && !failure"
+      data-inline-edit-layer
+      class="pointer-events-none absolute top-0 left-0 z-20 origin-top-left"
+      :style="{ width: `${STAGE_W}px`, height: `${STAGE_H}px`, transform: `scale(${scale})` }"
+    >
+      <InlineTextEditor :key="inlineEditKey" />
+    </div>
   </div>
 </template>

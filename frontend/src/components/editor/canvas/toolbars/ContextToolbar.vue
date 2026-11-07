@@ -14,7 +14,8 @@ const body = computed(() => (kind.value === 'multi' ? MultiToolbar : GenericTool
 </script>
 
 <template>
-  <div role="toolbar" aria-label="Selection tools" :data-kind="kind" :class="container">
+  <!-- data-inline-edit-ignore: focus moving into the toolbar keeps the inline text editor open. -->
+  <div role="toolbar" aria-label="Selection tools" :data-kind="kind" data-inline-edit-ignore="true" :class="container">
     <button type="button" :class="tool" aria-label="Deselect" title="Done (Esc)" @mousedown.prevent @click="ctx.select(null)">
       <X class="size-4" aria-hidden="true" />
     </button>

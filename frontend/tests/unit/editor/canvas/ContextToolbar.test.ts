@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { computed, defineComponent, h, provide, ref } from 'vue'
+import { computed, defineComponent, h, provide, ref, shallowRef } from 'vue'
 import { mount } from '@vue/test-utils'
 import type { RawUi, Selection } from '@/slide-editor/model'
 import { SLIDE_EDITING_KEY, type SlideEditing } from '@/slide-editor/useSlideEditing'
@@ -18,13 +18,14 @@ vi.mock('@/composables/useUndoRedo', () => ({
   }),
 }))
 
-function mountToolbar(sel: Selection, withContext = true) {
+function mountToolbar(sel: Selection, withContext = true, inlineEditing = false) {
   const ui = uiTwoComponents() as RawUi
   const selection = ref<Selection>(sel)
   const ctx = {
     enabled: computed(() => true),
     ui: computed(() => ui),
     selection,
+    inlineEdit: shallowRef(inlineEditing ? { selection: sel } : null),
     commit: vi.fn().mockResolvedValue(true),
     select: vi.fn((s: Selection) => {
       selection.value = s
@@ -91,6 +92,21 @@ describe('context toolbar', () => {
     const e = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
     label(wrapper, 'Delete').element.dispatchEvent(e)
     expect(e.defaultPrevented).toBe(true)
+  })
+
+  it('structural tools are disabled while the inline text editor is open', async () => {
+    const single = mountToolbar({ kind: 'component', componentIndex: 0 }, true, true)
+    for (const l of ['Delete', 'Duplicate', 'Copy']) expect(label(single.wrapper, l).attributes('disabled')).toBeDefined()
+    await label(single.wrapper, 'Delete').trigger('click')
+    expect(single.ctx.commit).not.toHaveBeenCalled()
+    const multi = mountToolbar({ kind: 'multi-component', componentIndexes: [0, 1] }, true, true)
+    for (const l of ['Group', 'Duplicate', 'Delete']) expect(label(multi.wrapper, l).attributes('disabled')).toBeDefined()
+    expect(label(single.wrapper, 'Deselect').attributes('disabled')).toBeUndefined()
+  })
+
+  it('the toolbar keeps the inline editor open when it takes focus', () => {
+    const { wrapper } = mountToolbar({ kind: 'component', componentIndex: 0 })
+    expect(wrapper.get('[role="toolbar"][aria-label="Selection tools"]').attributes('data-inline-edit-ignore')).toBe('true')
   })
 
   it('Deselect clears the selection and restores the slide tools', async () => {

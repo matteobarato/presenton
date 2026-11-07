@@ -9,7 +9,9 @@ import {
   type ComputedRef,
   type InjectionKey,
   type Ref,
+  type ShallowRef,
 } from 'vue'
+import type { Editor } from '@tiptap/vue-3'
 import type { Slide } from '@/api/types'
 import { slideKind } from '@/render/slide-kind'
 import { useSlideMutations } from '@/composables/useSlideMutations'
@@ -19,10 +21,10 @@ import {
   getElementAtSelection,
   type AlignmentGuide,
   type ElementSelection,
-  type RawElement,
   type RawUi,
   type Selection,
 } from '@/slide-editor/model'
+import { inlineEditUi, startInlineEdit, type InlineEditSession } from '@/slide-editor/tiptapRuns'
 
 export interface SlideEditing {
   enabled: ComputedRef<boolean>
@@ -31,13 +33,20 @@ export interface SlideEditing {
   ui: ComputedRef<RawUi | null>
   selection: Ref<Selection>
   draftUi: Ref<RawUi | null>
-  inlineEdit: Ref<{ selection: ElementSelection; element: RawElement } | null>
+  /** The open inline text edit; its slideId is the slide it commits to. */
+  inlineEdit: Ref<InlineEditSession | null>
+  /** The open inline editor's Tiptap instance (set by InlineTextEditor), for toolbar commands. */
+  inlineEditor: ShallowRef<Editor | null>
   guides: Ref<AlignmentGuide[]>
   select: (sel: Selection) => void
   commit: (next: RawUi, label: string) => Promise<boolean>
+  /** Commits `next` to the slide with this id (the current slide or one just left). */
+  commitTo: (slideId: string, next: RawUi, label: string) => Promise<boolean>
   cancelDraft: () => void
-  /** Opens the inline text editor for a text element (implemented with the inline editor). */
+  /** Opens the inline text editor for a text or text-list element. */
   requestInlineEdit: (sel: ElementSelection) => void
+  /** Closes the inline editor; with `commit`, its text goes to the slide it was opened on. */
+  closeInlineEdit: (commit: boolean) => Promise<boolean>
 }
 
 export const SLIDE_EDITING_KEY: InjectionKey<SlideEditing> = Symbol('slide-editing')
@@ -73,7 +82,8 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
 
   const selection = ref<Selection>(null)
   const draftUi = shallowRef<RawUi | null>(null)
-  const inlineEdit = ref<{ selection: ElementSelection; element: RawElement } | null>(null)
+  const inlineEdit = shallowRef<InlineEditSession | null>(null)
+  const inlineEditor = shallowRef<Editor | null>(null)
   const guides = ref<AlignmentGuide[]>([])
 
   const slideId = computed(() => slide.value?.id ?? null)
@@ -98,18 +108,60 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
       draftUi.value = null
       return false
     }
-    const unchanged = JSON.stringify(slide.value?.ui ?? null) === JSON.stringify(next)
-    draftUi.value = unchanged ? null : next
+    return commitTo(id, next, label)
+  }
+
+  // A commit for a slide that is no longer current skips the draft: the draft belongs to the current slide.
+  async function commitTo(id: string, next: RawUi, label: string): Promise<boolean> {
+    const current = id === slide.value?.id
+    if (current) {
+      guides.value = []
+      const unchanged = JSON.stringify(slide.value?.ui ?? null) === JSON.stringify(next)
+      draftUi.value = unchanged ? null : next
+    }
     const ok = await editSlideUi(id, next, label)
-    if (!ok && draftUi.value === next) cancelDraft()
+    if (current && !ok && draftUi.value === next) cancelDraft()
     return ok
   }
+
+  function dropInlineEdit() {
+    inlineEdit.value = null
+    inlineEditor.value = null
+  }
+
+  function closeInlineEdit(commitEdit: boolean): Promise<boolean> {
+    const edit = inlineEdit.value
+    const tiptap = inlineEditor.value
+    dropInlineEdit()
+    if (!edit || !commitEdit || !tiptap || tiptap.isDestroyed) return Promise.resolve(false)
+    const next = inlineEditUi(edit, tiptap.getJSON())
+    return next ? commitTo(edit.slideId, next, 'Edit text') : Promise.resolve(false)
+  }
+
+  function requestInlineEdit(sel: ElementSelection) {
+    if (inlineEdit.value) void closeInlineEdit(true)
+    const id = slide.value?.id
+    const u = ui.value
+    if (!enabled.value || !id || !u) return
+    const edit = startInlineEdit(u, sel, id)
+    if (!edit) return
+    selection.value = sel
+    inlineEdit.value = edit
+  }
+
+  // Typed text is committed to the slide it was typed on before anything is cleared for the next one;
+  // sync, so it runs before the watchers below see the new slide.
+  watch(
+    () => slide.value?.id,
+    () => void closeInlineEdit(true),
+    { flush: 'sync' },
+  )
 
   watch(
     () => slide.value?.id,
     () => {
       selection.value = null
-      inlineEdit.value = null
+      dropInlineEdit()
       cancelDraft()
     },
   )
@@ -118,7 +170,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   watch(
     () => slide.value?.ui,
     (committed) => {
-      inlineEdit.value = null
+      dropInlineEdit()
       draftUi.value = null
       if (!selectionValid((committed as RawUi | null | undefined) ?? null, selection.value)) selection.value = null
     },
@@ -127,8 +179,14 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   watch(enabled, (on) => {
     if (on) return
     selection.value = null
-    inlineEdit.value = null
+    dropInlineEdit()
     cancelDraft()
+  })
+
+  // Selecting anything else closes the editor (and keeps its text).
+  watch(selection, (sel) => {
+    const edit = inlineEdit.value
+    if (edit && JSON.stringify(sel) !== JSON.stringify(edit.selection)) void closeInlineEdit(true)
   })
 
   watch(
@@ -140,14 +198,25 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   )
   onScopeDispose(() => {
     editor.slideSelectionActive = false
+    void closeInlineEdit(true)
   })
 
-  // Placeholder until the inline editor lands.
-  function requestInlineEdit(sel: ElementSelection) {
-    void sel
+  const api: SlideEditing = {
+    enabled,
+    slideId,
+    ui,
+    selection,
+    draftUi,
+    inlineEdit,
+    inlineEditor,
+    guides,
+    select,
+    commit,
+    commitTo,
+    cancelDraft,
+    requestInlineEdit,
+    closeInlineEdit,
   }
-
-  const api: SlideEditing = { enabled, slideId, ui, selection, draftUi, inlineEdit, guides, select, commit, cancelDraft, requestInlineEdit }
   provide(SLIDE_EDITING_KEY, api)
   return api
 }

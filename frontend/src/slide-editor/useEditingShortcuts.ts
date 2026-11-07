@@ -17,7 +17,8 @@ import type { SlideEditing } from '@/slide-editor/useSlideEditing'
 
 function isEditableTarget(el: EventTarget | null): boolean {
   if (!(el instanceof HTMLElement)) return false
-  return el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)
+  if (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return true
+  return !!el.closest('[contenteditable]:not([contenteditable="false"])')
 }
 
 const ARROWS: Record<string, [number, number]> = {
@@ -94,7 +95,8 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
       e.preventDefault()
       void apply(r, 'Nudge')
     } else if (e.key === 'Enter') {
-      if (sel?.kind !== 'element' || getElementAtSelection(ui, sel)?.type !== 'text') return
+      const type = sel?.kind === 'element' ? getElementAtSelection(ui, sel)?.type : null
+      if (sel?.kind !== 'element' || (type !== 'text' && type !== 'text-list')) return
       e.preventDefault()
       ctx.requestInlineEdit(sel)
     } else if (e.key === 'Escape') {

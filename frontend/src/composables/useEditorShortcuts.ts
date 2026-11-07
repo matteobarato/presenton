@@ -7,9 +7,12 @@ import { slideKind } from '@/render/slide-kind'
 import { useEditorStore } from '@/stores/editor'
 import { useUndoRedo } from './useUndoRedo'
 
+// closest() as well as isContentEditable: a key can target a node inside the editable root
+// (the inline Tiptap editor), and jsdom has no isContentEditable.
 const isEditable = (el: EventTarget | null) => {
   if (!(el instanceof HTMLElement)) return false
-  return el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)
+  if (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return true
+  return !!el.closest('[contenteditable]:not([contenteditable="false"])')
 }
 
 /**

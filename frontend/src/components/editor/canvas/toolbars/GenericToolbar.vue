@@ -12,6 +12,8 @@ const ctx = useSlideEditingContext()
 const actions = useEditingActions(ctx)
 const clipboard = useClipboard()
 const isGroup = computed(() => isGroupSelection(ctx.ui.value, ctx.selection.value))
+// Structural tools wait while text is being typed (the keyboard shortcuts are off then too).
+const editingText = computed(() => !!ctx.inlineEdit.value)
 
 function duplicate() {
   const ui = ctx.ui.value
@@ -32,16 +34,16 @@ function ungroup() {
 </script>
 
 <template>
-  <button v-if="isGroup" type="button" :class="tool" aria-label="Ungroup" title="Ungroup (Shift+Ctrl+G)" @mousedown.prevent @click="ungroup">
+  <button v-if="isGroup" type="button" :class="tool" :disabled="editingText" aria-label="Ungroup" title="Ungroup (Shift+Ctrl+G)" @mousedown.prevent @click="ungroup">
     <Ungroup class="size-4" aria-hidden="true" />
   </button>
-  <button type="button" :class="tool" aria-label="Duplicate" title="Duplicate (Ctrl+D)" @mousedown.prevent @click="duplicate">
+  <button type="button" :class="tool" :disabled="editingText" aria-label="Duplicate" title="Duplicate (Ctrl+D)" @mousedown.prevent @click="duplicate">
     <CopyPlus class="size-4" aria-hidden="true" />
   </button>
-  <button type="button" :class="tool" aria-label="Copy" title="Copy (Ctrl+C)" @mousedown.prevent @click="copy">
+  <button type="button" :class="tool" :disabled="editingText" aria-label="Copy" title="Copy (Ctrl+C)" @mousedown.prevent @click="copy">
     <Copy class="size-4" aria-hidden="true" />
   </button>
-  <button type="button" :class="tool" aria-label="Delete" title="Delete (Del)" @mousedown.prevent @click="remove">
+  <button type="button" :class="tool" :disabled="editingText" aria-label="Delete" title="Delete (Del)" @mousedown.prevent @click="remove">
     <Trash2 class="size-4" aria-hidden="true" />
   </button>
 </template>

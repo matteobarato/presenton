@@ -124,7 +124,7 @@ describe('useSlideEditing', () => {
 
   it('external ui change drops inline edit', async () => {
     const { api, slide } = setup(tpl('a', uiWithText()))
-    api.inlineEdit.value = { selection: { kind: 'element', componentIndex: 0, elementPath: [0] }, element: {} }
+    api.inlineEdit.value = { slideId: 'a', selection: { kind: 'element', componentIndex: 0, elementPath: [0] }, element: {} } as never
     slide.value = tpl('a', uiTwoComponents())
     await nextTick()
     expect(api.inlineEdit.value).toBeNull()
