@@ -1,5 +1,6 @@
 import {
   absoluteBoxForSelection,
+  getElementAtSelection,
   asRecord,
   boxContainingBoxes,
   componentBox,
@@ -40,7 +41,7 @@ import {
   isVideoPlaceholderLayer,
 } from '@/render/legacy/components/slide-editor/video/video-placeholder'
 import { isLayoutManagedElement } from '@/slide-editor/ops'
-import type { Handle } from '@/slide-editor/rotation'
+import { aabb, rotatedResizeShift, rotatePoint, selectionFrame, type Handle } from '@/slide-editor/rotation'
 import type { TemplateV2ItemSource } from '@/render/legacy/lib/template-v2-json-to-html'
 
 /** Snap distance in screen px, as `ALIGNMENT_GUIDE_SNAP_DISTANCE_PX` in the old TemplateV2KonvaSlide. */
@@ -95,10 +96,18 @@ export interface MovePlan {
   targets: AlignmentSnapTargets
 }
 
+/** The box snapping sees: the axis-aligned bounds of a rotated item, else its plain box. */
+function snapBox(ui: RawUi, sel: Selection): Box | null {
+  if (!sel || sel.kind === 'multi-component') return null
+  const frame = selectionFrame(ui, sel)
+  if (frame && frame.rotation !== 0) return aabb(frame)
+  return absoluteBoxForSelection(ui, sel)
+}
+
 /** Bounding box of the moving items and the boxes of everything else to snap against. */
 export function planMove(ui: RawUi, items: MoveItem[]): MovePlan | null {
   const boxes = items.flatMap((item) => {
-    const box = absoluteBoxForSelection(ui, itemSelection(item))
+    const box = snapBox(ui, itemSelection(item))
     return box ? [box] : []
   })
   if (boxes.length === 0) return null
@@ -108,13 +117,13 @@ export function planMove(ui: RawUi, items: MoveItem[]): MovePlan | null {
   readArray(ui.components).forEach((component, index) => {
     const record = asRecord(component)
     if (!record || movingComponents.has(index) || isVideoPlaceholderLayer(record)) return
-    const box = absoluteBoxForSelection(ui, { kind: 'component', componentIndex: index })
+    const box = snapBox(ui, { kind: 'component', componentIndex: index })
     if (box) others.push(box)
   })
   readArray(rootElementsComponent(ui).elements).forEach((element, index) => {
     const record = asRecord(element)
     if (!record || movingRoot.has(index) || isVideoPlaceholderElement(record)) return
-    const box = absoluteBoxForSelection(ui, { kind: 'element', componentIndex: ROOT_ELEMENTS_COMPONENT_INDEX, elementPath: [index] })
+    const box = snapBox(ui, { kind: 'element', componentIndex: ROOT_ELEMENTS_COMPONENT_INDEX, elementPath: [index] })
     if (box) others.push(box)
   })
   return { items, startBox: boxContainingBoxes(boxes), targets: createAlignmentSnapTargets(STAGE_BOX, others) }
@@ -186,6 +195,22 @@ export function resizedBox(box: Box, handle: Handle, delta: Point, keepRatio: bo
   }
 }
 
+const ownRotation = (item: unknown): number => {
+  const r = asRecord(item)?.rotation
+  return typeof r === 'number' && Number.isFinite(r) ? r : 0
+}
+
+/**
+ * Adds a screen-space anchor `shift` to the stored position. The position lives in the parent's
+ * frame, which is rotated by `total - own` on screen, so the shift is rotated back by that.
+ * Known limitation: under an odd ancestor flip the delta and shift would also need mirroring.
+ */
+function withShiftedPosition<T extends Record<string, unknown>>(item: T, shift: Point, total: number, own: number): T {
+  const s = rotatePoint(shift, { x: 0, y: 0 }, -(total - own))
+  const p = readPoint(item.position)
+  return { ...item, position: { x: p.x + s.x, y: p.y + s.y } }
+}
+
 /**
  * The ui after dragging `handle` by `delta` (slide px) from `ui`, following the old editor's
  * transform end: side handles → resizeComponentFromSideTransform (element bounds), corners →
@@ -199,20 +224,28 @@ export function applyResize(
   keepRatio: boolean,
 ): RawUi {
   if (!sel || sel.kind === 'multi-component') return ui
+  // The pointer moves in screen space; the box's own axes are rotated by the frame's total rotation.
+  const total = selectionFrame(ui, sel)?.rotation ?? 0
+  const localDelta = total === 0 ? delta : rotatePoint(delta, { x: 0, y: 0 }, -total)
   if (sel.kind === 'component') {
     return updateComponentInUi(ui, sel.componentIndex, (component) => {
       const source = componentBox(component)
       const side = SIDE_ANCHORS[handle]
+      let resized: Record<string, unknown>
       if (side) {
-        const size = resizedBox(source, handle, delta, false)
-        return resizeComponentFromSideTransform(component, source, size, side, STAGE_BOX).component
+        const size = resizedBox(source, handle, localDelta, false)
+        resized = resizeComponentFromSideTransform(component, source, size, side, STAGE_BOX).component
+      } else {
+        const next = resizedBox(source, handle, localDelta, keepRatio)
+        resized = resizeComponent(component, {
+          ...next,
+          scaleX: source.width > 0 ? next.width / source.width : 1,
+          scaleY: source.height > 0 ? next.height / source.height : 1,
+        })
       }
-      const next = resizedBox(source, handle, delta, keepRatio)
-      return resizeComponent(component, {
-        ...next,
-        scaleX: source.width > 0 ? next.width / source.width : 1,
-        scaleY: source.height > 0 ? next.height / source.height : 1,
-      })
+      return total === 0
+        ? resized
+        : withShiftedPosition(resized, rotatedResizeShift(source, componentBox(resized), handle, total), total, ownRotation(component))
     })
   }
   const abs = absoluteBoxForSelection(ui, sel)
@@ -222,10 +255,14 @@ export function applyResize(
       : asRecord(readArray(ui.components)[sel.componentIndex])
   const local = parent ? localElementBox(parent, sel.elementPath) : null
   if (!abs || !local) return ui
-  const next = resizedBox(abs, handle, delta, keepRatio)
+  const next = resizedBox(abs, handle, localDelta, keepRatio)
   const scaleX = abs.width > 0 ? next.width / abs.width : 1
   const scaleY = abs.height > 0 ? next.height / abs.height : 1
-  const position = { x: local.x + next.x - abs.x, y: local.y + next.y - abs.y }
+  let position = { x: local.x + next.x - abs.x, y: local.y + next.y - abs.y }
+  if (total !== 0) {
+    const shift = rotatePoint(rotatedResizeShift(abs, next, handle, total), { x: 0, y: 0 }, -(total - ownRotation(getElementAtSelection(ui, sel))))
+    position = { x: position.x + shift.x, y: position.y + shift.y }
+  }
   return updateElementInUi(ui, sel, (current: RawElement) => {
     const scaled = scaleRawElementTextMetrics(current, fontScaleFromResize(scaleX, scaleY))
     const geometry = isVectorType(readString(current.type))
