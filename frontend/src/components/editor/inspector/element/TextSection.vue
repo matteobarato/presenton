@@ -97,6 +97,17 @@ const lineHeights = computed(() => (LINE_HEIGHTS.includes(lineHeight.value) ? LI
 
 type FontPatch = Partial<Record<'family' | 'size' | 'color' | 'bold' | 'italic' | 'underline' | 'line_height', string | number | boolean>>
 
+/** Text-list items are a string, a run array, or { font, runs }; patch the font of every run. */
+function patchListItem(item: unknown, fontPatch: FontPatch): unknown {
+  const patchRun = (run: unknown) => ({ ...(asRecord(run) ?? {}), font: { ...(asRecord(asRecord(run)?.font) ?? {}), ...fontPatch } })
+  if (typeof item === 'string' || typeof item === 'number') return [{ text: String(item), font: { ...fontPatch } }]
+  if (Array.isArray(item)) return item.map(patchRun)
+  const record = asRecord(item)
+  if (!record) return item
+  const runs = readArray(record.runs)
+  return { ...record, font: { ...(asRecord(record.font) ?? {}), ...fontPatch }, ...(runs.length > 0 ? { runs: runs.map(patchRun) } : {}) }
+}
+
 /** No inline editor: patch the element font and every run, plus the alignment, in one commit. */
 function patchElement(fontPatch: FontPatch, horizontal?: Align) {
   const ui = ctx.ui.value
@@ -104,10 +115,12 @@ function patchElement(fontPatch: FontPatch, horizontal?: Align) {
   if (!ui || !sel) return
   const next = updateElementInUi(ui, sel, (el) => {
     const runs = readArray(el.runs)
+    const items = readArray(el.items)
     return {
       ...el,
       font: { ...(asRecord(el.font) ?? {}), ...fontPatch },
       ...(horizontal ? { alignment: { ...(asRecord(el.alignment) ?? {}), horizontal } } : {}),
+      ...(el.type === 'text-list' && items.length > 0 ? { items: items.map((item) => patchListItem(item, fontPatch)) } : {}),
       ...(runs.length > 0
         ? { runs: runs.map((run) => ({ ...(asRecord(run) ?? {}), font: { ...(asRecord(asRecord(run)?.font) ?? {}), ...fontPatch } })) }
         : {}),
@@ -123,8 +136,12 @@ function setFamily(event: Event) {
   else patchElement({ family: value })
 }
 function commitSize(event: Event) {
-  const n = Number((event.target as HTMLInputElement).value)
-  if (!Number.isFinite(n) || n <= 0) return
+  const input = event.target as HTMLInputElement
+  const n = Number(input.value)
+  if (input.value.trim() === '' || !Number.isFinite(n) || n <= 0) {
+    input.value = String(size.value)
+    return
+  }
   const fontSize = Math.min(200, Math.max(8, Math.round(n)))
   if (editor.value) editor.value.chain().focus().setMark('textStyle', { fontSize }).run()
   else patchElement({ size: fontSize })

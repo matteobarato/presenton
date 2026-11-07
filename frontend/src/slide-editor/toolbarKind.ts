@@ -9,13 +9,13 @@ export function toolbarKind(ui: RawUi | null, sel: Selection): ToolbarKind {
   if (sel.kind === 'multi-component') return 'multi'
   if (sel.kind === 'element') {
     const type = getElementAtSelection(ui, sel)?.type
-    return type === 'text' ? 'text' : type === 'image' ? 'image' : 'generic'
+    return type === 'text' || type === 'text-list' ? 'text' : type === 'image' ? 'image' : 'generic'
   }
   const component = (ui.components as Array<{ elements?: Array<{ type?: string }> }> | undefined)?.[sel.componentIndex]
   const elements = component?.elements
   if (elements?.length === 1) {
     const type = elements[0]?.type
-    if (type === 'text') return 'text'
+    if (type === 'text' || type === 'text-list') return 'text'
     if (type === 'image') return 'image'
   }
   return 'generic'

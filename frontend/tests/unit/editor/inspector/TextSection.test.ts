@@ -120,6 +120,46 @@ describe('TextSection', () => {
   })
 })
 
+function listUi(): RawUi {
+  const ui = uiWithText()
+  Object.assign((ui.components as Array<{ elements: Array<Record<string, unknown>> }>)[0]!.elements[0]!, {
+    type: 'text-list',
+    items: ['One', [{ text: 'Two' }, { text: '!', font: { italic: true } }], { runs: [{ text: 'Three' }] }],
+  })
+  return ui
+}
+
+describe('TextSection for a text-list', () => {
+  it('renders for a selected list', () => {
+    expect(mountPlain(textSel, listUi()).wrapper.find('button[aria-label="Bold"]').exists()).toBe(true)
+  })
+  it('Bold makes every item run bold', async () => {
+    const { wrapper, ctx } = mountPlain(textSel, listUi())
+    await wrapper.get('button[aria-label="Bold"]').trigger('click')
+    const el = elOf(committed(ctx)) as unknown as { font: { bold: boolean }; items: unknown[] }
+    expect(el.font.bold).toBe(true)
+    const runs = el.items.flatMap((i) => (Array.isArray(i) ? i : (i as { runs: unknown[] }).runs)) as Array<{ font: { bold: boolean; italic?: boolean } }>
+    expect(runs).toHaveLength(4)
+    expect(runs.every((r) => r.font.bold === true)).toBe(true)
+    expect(runs[2]!.font.italic).toBe(true)
+  })
+  it('size applies to the element font', async () => {
+    const { wrapper, ctx } = mountPlain(textSel, listUi())
+    const input = wrapper.get('input[aria-label="Font size"]')
+    await input.setValue('30')
+    await input.trigger('change')
+    expect(elOf(committed(ctx)).font.size).toBe(30)
+  })
+  it('resets the size input after an empty entry', async () => {
+    const { wrapper, ctx } = mountPlain(textSel, listUi())
+    const input = wrapper.get('input[aria-label="Font size"]')
+    ;(input.element as HTMLInputElement).value = 'abc'
+    await input.trigger('change')
+    expect(ctx.commit).not.toHaveBeenCalled()
+    expect((input.element as HTMLInputElement).value).toBe('24')
+  })
+})
+
 describe('TextSection with the inline editor open', () => {
   let current: ReturnType<typeof mountEditable>
   let section: ReturnType<typeof mount>

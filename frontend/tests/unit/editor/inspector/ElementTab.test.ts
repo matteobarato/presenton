@@ -5,6 +5,7 @@ import { mount } from '@vue/test-utils'
 import type { RawUi, Selection } from '@/slide-editor/model'
 import { SLIDE_EDITING_KEY, type SlideEditing } from '@/slide-editor/useSlideEditing'
 import ElementTab from '@/components/editor/inspector/element/ElementTab.vue'
+import { toolbarKind } from '@/slide-editor/toolbarKind'
 import { uiTwoComponents } from '../../slide-editor/fixtures'
 
 function mountTab(sel: Selection, opts: { inlineEditing?: boolean; enabled?: boolean } = {}) {
@@ -110,5 +111,12 @@ describe('ElementTab', () => {
     await label(wrapper, 'Deselect').trigger('click')
     expect(ctx.select).toHaveBeenCalledWith(null)
     expect(selection.value).toBeNull()
+  })
+
+  it('classifies a text-list element and a lone text-list component as text', () => {
+    const ui = uiTwoComponents() as RawUi
+    ;(ui.components as Array<{ elements: Array<Record<string, unknown>> }>)[0]!.elements[0]!.type = 'text-list'
+    expect(toolbarKind(ui, { kind: 'element', componentIndex: 0, elementPath: [0] })).toBe('text')
+    expect(toolbarKind(ui, { kind: 'component', componentIndex: 0 })).toBe('text')
   })
 })
