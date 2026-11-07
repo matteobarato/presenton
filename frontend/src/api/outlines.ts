@@ -34,6 +34,7 @@ export interface TemplateDetail {
   layouts: unknown[]
   theme?: unknown
   fonts?: unknown
+  mergedComponents: unknown
 }
 
 const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v)
@@ -59,6 +60,7 @@ export async function getTemplate(id: string): Promise<TemplateDetail> {
     layouts: extractLayouts(res.layouts),
     theme: res.theme ?? undefined,
     fonts: res.fonts ?? undefined,
+    mergedComponents: res.merged_components,
   }
 }
 
