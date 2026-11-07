@@ -391,6 +391,37 @@ test.describe('on-slide editing (mocked)', () => {
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 
+  // Docked inspector widths (motion.css): 240px up to 1279px, 260px, then 280px from 1600px.
+  for (const width of [1100, 1300, 1700]) {
+    test(`the inspector tab strip fits the docked inspector at ${width}px`, async ({ page }) => {
+      const unexpected = await mockApi(page, { 'GET /api/v1/ppt/template/modern': json(fixture('template-blocks')) })
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto(`/p/${DECK_ID}`)
+      const list = page.getByRole('tablist', { name: 'Inspector sections' })
+      await expect(list).toBeVisible()
+      const tabs = list.getByRole('tab')
+      await expect(tabs).toHaveCount(4)
+      for (const name of ['Element', 'Insert', 'Design', 'Narration']) {
+        await page.getByRole('tab', { name }).click()
+        await expect(page.getByRole('tab', { name })).toHaveAttribute('aria-selected', 'true')
+        const fit = await list.evaluate((el) => {
+          const box = el.getBoundingClientRect()
+          return {
+            overflow: el.scrollWidth - el.clientWidth,
+            outside: [...el.querySelectorAll('[role="tab"]')].filter((t) => {
+              const r = t.getBoundingClientRect()
+              return r.left < box.left - 0.5 || r.right > box.right + 0.5
+            }).length,
+          }
+        })
+        expect(fit, `${name} active`).toEqual({ overflow: 0, outside: 0 })
+      }
+      await page.getByRole('tab', { name: 'Insert' }).click()
+      await list.screenshot({ path: `/tmp/claude-1000/-var-www-presenton/9a49d1de-f03d-46e6-9382-5baa95b1d623/scratchpad/tabs-${width}.png` })
+      expect(unexpected, 'API calls without a mock').toEqual([])
+    })
+  }
+
   test('smart slides get no selection overlay', async ({ page }) => {
     const { unexpected } = await editableApi(page)
     await page.goto(`/p/${DECK_ID}`)
