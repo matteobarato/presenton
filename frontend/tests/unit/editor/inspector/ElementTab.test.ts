@@ -153,6 +153,15 @@ describe('ElementTab', () => {
   })
 })
 
+describe('ElementTab appearance', () => {
+  it('shows Appearance for a single selection and not for a multi-selection', () => {
+    const single = mountTab({ kind: 'component', componentIndex: 0 })
+    expect(single.wrapper.find('input[aria-label="Rotation"]').exists()).toBe(true)
+    const multi = mountTab({ kind: 'multi-component', componentIndexes: [0, 1] })
+    expect(multi.wrapper.find('input[aria-label="Rotation"]').exists()).toBe(false)
+  })
+})
+
 describe('ElementTab image kind', () => {
   it('shows the Image section for an image component', () => {
     const { wrapper } = mountTab({ kind: 'component', componentIndex: 1 })
