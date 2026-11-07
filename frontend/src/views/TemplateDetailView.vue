@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-vue-next'
 import { ApiError, extractApiErrorMessage } from '@/api/errors'
-import { listTemplates, templatesKey } from '@/api/templates'
+import { templateDetailKey } from '@/api/outlines'
+import { deleteTemplate, listTemplates, renameTemplate, templatesKey, type TemplateSummary } from '@/api/templates'
+import DeleteTemplateDialog from '@/components/templates/DeleteTemplateDialog.vue'
+import RenameTemplateDialog from '@/components/templates/RenameTemplateDialog.vue'
+import { toast } from '@/components/ui/sonner'
 import PageHeader from '@/components/shell/PageHeader.vue'
 import { layoutToSlide } from '@/components/templates/layoutSlide'
 import { Alert } from '@/components/ui/alert'
@@ -22,6 +26,7 @@ import SlideView from '@/render/SlideView.vue'
 
 const route = useRoute()
 const router = useRouter()
+const queryClient = useQueryClient()
 const list = useQuery({ queryKey: templatesKey, queryFn: listTemplates })
 
 const template = computed(() => list.data.value?.find((t) => t.id === route.params.id))
@@ -36,7 +41,6 @@ const parent = computed(() => ({
 const count = computed(() => template.value?.layouts.length ?? 0)
 const isCustom = computed(() => template.value?.kind === 'custom')
 
-// Task 5 binds the rename/delete dialogs to these.
 const renameOpen = ref(false)
 const deleteOpen = ref(false)
 function openRename() {
@@ -45,6 +49,39 @@ function openRename() {
 function openDelete() {
   deleteOpen.value = true
 }
+
+const rename = useMutation({
+  mutationFn: ({ id, name }: { id: string; name: string }) => renameTemplate(id, name),
+  onMutate: async ({ id, name }) => {
+    await queryClient.cancelQueries({ queryKey: templatesKey })
+    const previous = queryClient.getQueryData<TemplateSummary[]>(templatesKey)
+    queryClient.setQueryData<TemplateSummary[]>(templatesKey, (old) => old?.map((t) => (t.id === id ? { ...t, name } : t)))
+    renameOpen.value = false
+    return { previous }
+  },
+  onSuccess: () => toast.success('Template renamed'),
+  onError: (error, _vars, ctx) => {
+    if (ctx?.previous) queryClient.setQueryData(templatesKey, ctx.previous)
+    toast.error(errorMessage(error, 'Could not rename the template'))
+  },
+  onSettled: () => queryClient.invalidateQueries({ queryKey: templatesKey }),
+})
+
+const remove = useMutation({
+  mutationFn: (id: string) => deleteTemplate(id),
+  onSuccess: async (_r, id) => {
+    deleteOpen.value = false
+    queryClient.removeQueries({ queryKey: templateDetailKey(id) })
+    await router.replace({ name: 'templates' })
+    queryClient.setQueryData<TemplateSummary[]>(templatesKey, (old) => old?.filter((t) => t.id !== id))
+    void queryClient.invalidateQueries({ queryKey: templatesKey })
+    toast.success('Template deleted')
+  },
+  onError: (error) => {
+    deleteOpen.value = false
+    toast.error(errorMessage(error, 'Could not delete the template'))
+  },
+})
 
 function useTemplate() {
   if (template.value) void router.push({ name: 'new', query: { template: template.value.id } })
@@ -84,7 +121,7 @@ function errorMessage(error: unknown, fallback: string): string {
         <Skeleton v-for="n in 6" :key="n" class="aspect-video rounded-[9px]" />
       </div>
     </div>
-    <Alert v-else-if="list.isError.value" variant="destructive" class="flex items-center justify-between gap-4 py-2 text-[12px]">
+    <Alert v-else-if="list.isError.value && !list.data.value" variant="destructive" class="flex items-center justify-between gap-4 py-2 text-[12px]">
       <span>{{ errorMessage(list.error.value, 'Could not load templates') }}</span>
       <Button variant="secondary" size="sm" @click="list.refetch()">Retry</Button>
     </Alert>
@@ -127,4 +164,19 @@ function errorMessage(error: unknown, fallback: string): string {
       </div>
     </template>
   </section>
+
+  <template v-if="template && isCustom">
+    <RenameTemplateDialog
+      v-model:open="renameOpen"
+      :name="template.name"
+      :pending="rename.isPending.value"
+      @submit="(name) => rename.mutate({ id: template!.id, name })"
+    />
+    <DeleteTemplateDialog
+      v-model:open="deleteOpen"
+      :name="template.name"
+      :pending="remove.isPending.value"
+      @confirm="remove.mutate(template!.id)"
+    />
+  </template>
 </template>
