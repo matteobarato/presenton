@@ -24,6 +24,7 @@ function onChange(event: Event) {
       :aria-label="`${label} slider`"
       class="h-1 min-w-0 flex-1 cursor-pointer accent-accent"
       @pointerdown="emit('focus')"
+      @focus="emit('focus')"
       @change="onChange"
     />
     <NumberField class="w-[64px] flex-none" :model-value="modelValue" :label="label" :min="min" :max="max" :unit="unit" @focus="emit('focus')" @commit="emit('commit', $event)" />

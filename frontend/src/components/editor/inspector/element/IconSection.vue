@@ -34,16 +34,22 @@ const currentUrl = computed(() => (typeof element.value?.data === 'string' ? ele
 // The target when the colour popover or picker opened: the commit lands there even if the selection moves.
 let anchor: ElementSelection | null = null
 const hold = () => (anchor = capture())
+// Both holders are popover/dialog opens: the anchor survives selection changes and is consumed by the commit.
+function takeAnchor() {
+  const held = anchor ?? undefined
+  anchor = null
+  return held
+}
 const pickerOpen = ref(false)
 function openPicker() {
   hold()
   pickerOpen.value = true
 }
 
-const setColor = (value: string | null) => value && patch('Icon colour', (el) => setIconColor(el, value), anchor ?? undefined)
+const setColor = (value: string | null) => value && patch('Icon colour', (el) => setIconColor(el, value), takeAnchor())
 
 function onPick(url: string, picked: IconWeight) {
-  const at = anchor ?? capture()
+  const at = takeAnchor() ?? capture()
   const ui = ctx.ui.value
   if (!at || !ui || !getElementAtSelection(ui, at)) {
     toast.error('The icon was removed from the slide.')

@@ -96,6 +96,16 @@ describe('SliderField', () => {
   })
 })
 
+describe('SliderField focus', () => {
+  it('emits focus on native focus (keyboard) and on pointerdown', async () => {
+    wrapper = mount(SliderField, { props: { modelValue: 10, label: 'Opacity', min: 0, max: 100 } })
+    const range = wrapper.get('input[type="range"]')
+    await range.trigger('focus')
+    await range.trigger('pointerdown')
+    expect(wrapper.emitted('focus')).toHaveLength(2)
+  })
+})
+
 describe('ToggleRow', () => {
   it('renders the slot only when on and toggles', async () => {
     wrapper = mount(ToggleRow, { props: { modelValue: false, label: 'Shadow' }, slots: { default: '<p id="s">x</p>' } })
