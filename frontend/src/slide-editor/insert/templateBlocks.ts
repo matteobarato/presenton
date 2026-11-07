@@ -97,7 +97,7 @@ function templateIdOf(layoutGroup: string | null | undefined): string | null {
 
 /** The template a deck was generated from: the active slide's, else the first slide that has one. */
 export function deckTemplateId(
-  slides: readonly { id: string; layout_group?: string | null }[],
+  slides: readonly { id?: string | null; layout_group?: string | null }[],
   activeSlideId?: string | null,
 ): string | null {
   const active = activeSlideId ? slides.find((s) => s.id === activeSlideId) : undefined
