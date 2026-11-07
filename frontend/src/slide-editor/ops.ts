@@ -1,4 +1,6 @@
+import type { EditorInsertContent } from '@/slide-editor/insert/insert-elements'
 import {
+  appendInsertedContent,
   STAGE_HEIGHT,
   STAGE_WIDTH,
   ROOT_ELEMENTS_COMPONENT_INDEX,
@@ -212,4 +214,47 @@ export function reorderSelection(ui: RawUi, sel: Selection, action: LayerAction)
   if (!moved) return null
   const next = updateElementInUi(ui, parentSel, (current) => withUpdatedChildItems(current, info, moved.items))
   return next === ui ? null : { ui: next, selection: withIndex(moved.index) }
+}
+
+export type InsertRequest =
+  | { content: EditorInsertContent; label: string }
+  | { block: Record<string, unknown>; label: string }
+
+const CASCADE_NEAR = 2
+const CASCADE_MAX_STEPS = 20
+
+export function insertContent(ui: RawUi, req: InsertRequest): OpResult {
+  const before = readArray(ui.components)
+  const appended =
+    'block' in req
+      ? appendInsertedContent(ui, [], [req.block], req.label, true)
+      : appendInsertedContent(ui, req.content.elements ?? [], req.content.components ?? [], req.label, false)
+  const components = [...readArray(appended.components)]
+  if (components.length <= before.length) return null
+
+  const isNear = (a: ReturnType<typeof componentBox>, b: ReturnType<typeof componentBox>) =>
+    Math.abs(a.x - b.x) <= CASCADE_NEAR && Math.abs(a.y - b.y) <= CASCADE_NEAR
+  const newIndexes = components.slice(before.length).map((_, i) => before.length + i)
+  const existingBoxes = before.map((component) => componentBox(component as never))
+  const collides = () =>
+    newIndexes.some((i) => {
+      const box = componentBox(components[i] as never)
+      return existingBoxes.some((existing) => isNear(existing, box))
+    })
+
+  for (let step = 0; step < CASCADE_MAX_STEPS && collides(); step += 1) {
+    for (const i of newIndexes) {
+      const component = components[i] as { position?: { x?: number; y?: number } }
+      components[i] = {
+        ...component,
+        position: {
+          ...component.position,
+          x: (component.position?.x ?? 0) + PASTE_OFFSET,
+          y: (component.position?.y ?? 0) + PASTE_OFFSET,
+        },
+      } as never
+    }
+  }
+
+  return { ui: { ...appended, components }, selection: selectionForComponentIndexes(newIndexes) }
 }
