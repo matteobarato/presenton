@@ -250,10 +250,16 @@ describe('EditableSlide of a slide the context has left', () => {
 
 describe('EditorCanvas', () => {
   const mountCanvas = (slide: Slide) =>
-    mount(EditorCanvas, {
-      props: { presentationId: 'p1', slide },
-      global: { stubs: { FloatingToolbar: true, SlideView: true } },
-    })
+    mount(
+      defineComponent({
+        setup() {
+          // EditorView provides the editing state in the app.
+          useSlideEditing(ref('p1'), ref<Slide | null>(slide))
+          return () => h(EditorCanvas, { presentationId: 'p1', slide })
+        },
+      }),
+      { global: { stubs: { FloatingToolbar: true, SlideView: true } } },
+    )
 
   it('smart slide renders SlideView and no overlay', async () => {
     const w = mountCanvas({ id: 's', index: 0, html_content: '<p>x</p>', layout_group: 'smart-html' } as unknown as Slide)

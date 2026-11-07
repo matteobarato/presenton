@@ -5,7 +5,6 @@ import { usePresentation } from '@/api/presentations'
 import type { Slide } from '@/api/types'
 import SlideView from '@/render/SlideView.vue'
 import { slideKind } from '@/render/slide-kind'
-import { useSlideEditing } from '@/slide-editor/useSlideEditing'
 import { useEditorStore } from '@/stores/editor'
 import FloatingToolbar from './FloatingToolbar.vue'
 import EditableSlide from './canvas/EditableSlide.vue'
@@ -14,8 +13,7 @@ const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 
 const editor = useEditorStore()
 const { data: presentation } = usePresentation(toRef(props, 'presentationId'), useEditorFetchGate())
-// Provides the slide's editing state to everything inside the canvas, the toolbar included.
-useSlideEditing(toRef(props, 'presentationId'), toRef(props, 'slide'))
+// The slide's editing state is provided by EditorView, so the inspector shares it.
 const smart = computed(() => !!props.slide && slideKind(props.slide) === 'smart')
 
 // Ease zoom steps, but only around a zoom change: during panel animations the slide must

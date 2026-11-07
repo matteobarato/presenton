@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export type InspectorTabId = 'design' | 'narration'
+export type InspectorTabId = 'element' | 'design' | 'narration'
 
 /** Stable key of a slide; slides mid-stream may not have an id yet. */
 export const slideKey = (s: { id?: string | null; index: number }) => s.id ?? `index-${s.index}`

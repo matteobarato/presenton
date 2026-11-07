@@ -8,8 +8,6 @@ import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { useUndoRedo } from '@/composables/useUndoRedo'
 import { slideKind } from '@/render/slide-kind'
 import { useEditorStore } from '@/stores/editor'
-import { useSlideEditingContextOptional } from '@/slide-editor/useSlideEditing'
-import ContextToolbar from './canvas/toolbars/ContextToolbar.vue'
 import { active, container, divider, tool } from './canvas/toolbars/toolbarClasses'
 
 const editor = useEditorStore()
@@ -17,8 +15,6 @@ const route = useRoute()
 const { history, undo, redo } = useUndoRedo()
 const id = computed(() => String(route.params.id ?? ''))
 const { data: presentation } = usePresentation(id, useEditorFetchGate())
-const editing = useSlideEditingContextOptional()
-const hasSelection = computed(() => !!editing?.enabled.value && editing.selection.value !== null)
 const narrow = useMediaQuery('(max-width: 760px)')
 
 const smart = computed(() => {
@@ -39,8 +35,7 @@ function toggleSlides() {
 </script>
 
 <template>
-  <ContextToolbar v-if="hasSelection" />
-  <div v-else role="toolbar" aria-label="Slide tools" :class="container">
+  <div role="toolbar" aria-label="Slide tools" :class="container">
     <button
       type="button"
       :class="[tool, slidesVisible && active]"
