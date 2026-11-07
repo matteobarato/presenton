@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { deckTemplateId, templateBlockGroups } from '@/slide-editor/insert/templateBlocks'
+import { blockTemplateId, templateBlockGroups } from '@/slide-editor/insert/templateBlocks'
 
 const mc = {
   components: [
@@ -25,6 +25,18 @@ describe('templateBlockGroups', () => {
     expect(g[1]!.variants).toHaveLength(1)
   })
 
+  it('skips variants without elements, and groups left with none', () => {
+    const g = templateBlockGroups([
+      { id: 'cards', variants: [{ id: 'a', elements: [] }, { id: 'b', elements: [{ type: 'text' }] }, { id: 'c' }] },
+      { id: 'empty', variants: [{ id: 'x', elements: [] }] },
+      { id: 'bare' },
+      { id: 'inherits', elements: [{ type: 'text' }], variants: [{ id: 'i1' }] },
+    ])
+    expect(g.map((x) => x.title)).toEqual(['Cards', 'Inherits'])
+    expect(g[0]!.variants.map((v) => v.raw.id)).toEqual(['b'])
+    expect(g[1]!.variants).toHaveLength(1)
+  })
+
   it('accepts an array, an id-keyed record and empty input', () => {
     expect(templateBlockGroups(mc.components)).toHaveLength(2)
     expect(templateBlockGroups({ a: mc.components[1], b: mc.components[0] })).toHaveLength(2)
@@ -33,18 +45,18 @@ describe('templateBlockGroups', () => {
   })
 })
 
-describe('deckTemplateId', () => {
+describe('blockTemplateId', () => {
   it('reads the template id from the active slide, stripping the prefix', () => {
     const slides = [
       { id: 'a', layout_group: 'template-v2:modern' },
       { id: 'b', layout_group: 'momentum' },
     ]
-    expect(deckTemplateId(slides, 'b')).toBe('momentum')
-    expect(deckTemplateId(slides, null)).toBe('modern')
+    expect(blockTemplateId(slides, 'b')).toBe('momentum')
+    expect(blockTemplateId(slides, null)).toBe('modern')
   })
 
   it('skips smart slides', () => {
-    expect(deckTemplateId([{ id: 'a', layout_group: 'smart-html' }, { id: 'b', layout_group: 'pulse' }], 'a')).toBe('pulse')
-    expect(deckTemplateId([{ id: 'a', layout_group: 'smart-html' }], 'a')).toBeNull()
+    expect(blockTemplateId([{ id: 'a', layout_group: 'smart-html' }, { id: 'b', layout_group: 'pulse' }], 'a')).toBe('pulse')
+    expect(blockTemplateId([{ id: 'a', layout_group: 'smart-html' }], 'a')).toBeNull()
   })
 })

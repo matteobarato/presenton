@@ -70,21 +70,26 @@ function componentVariants(component: UnknownRecord): UnknownRecord[] {
     .filter((variant): variant is UnknownRecord => variant !== null)
 }
 
-/** Insertable blocks of a template, grouped by component with one entry per variant. */
+const hasElements = (component: UnknownRecord) => readArray(component.elements).length > 0
+
+/** Insertable blocks of a template, grouped by component with one entry per variant that has elements. */
 export function templateBlockGroups(mergedComponents: unknown): TemplateBlockGroup[] {
-  return mergedComponentList(mergedComponents).map((component, componentIndex) => {
+  return mergedComponentList(mergedComponents).flatMap((component, componentIndex) => {
     const base = templateBlockFromComponent(component, componentIndex)
     const variants = componentVariants(component)
-    const sources = variants.length > 0 ? variants : [component]
-    return {
-      key: base.key,
-      title: base.title,
-      description: base.description,
-      variants: sources.map((variant, variantIndex) => ({
-        ...templateBlockFromComponent(variant, componentIndex),
-        key: `${base.key}-variant-${variantIndex}`,
-      })),
-    }
+    const sources = (variants.length > 0 ? variants : [component]).filter(hasElements)
+    if (sources.length === 0) return []
+    return [
+      {
+        key: base.key,
+        title: base.title,
+        description: base.description,
+        variants: sources.map((variant, variantIndex) => ({
+          ...templateBlockFromComponent(variant, componentIndex),
+          key: `${base.key}-variant-${variantIndex}`,
+        })),
+      },
+    ]
   })
 }
 
@@ -96,7 +101,7 @@ function templateIdOf(layoutGroup: string | null | undefined): string | null {
 }
 
 /** The template a deck was generated from: the active slide's, else the first slide that has one. */
-export function deckTemplateId(
+export function blockTemplateId(
   slides: readonly { id?: string | null; layout_group?: string | null }[],
   activeSlideId?: string | null,
 ): string | null {

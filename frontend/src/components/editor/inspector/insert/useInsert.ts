@@ -40,13 +40,17 @@ export function useInsert(ctx: SlideEditing, theme: ComputedRef<TemplateTheme>) 
     if (!target) return false
     const next = insertContent(target.ui, req)
     if (!next) return false
-    const ok = ctx.commitTo(target.slideId, next.ui, `Insert ${req.label}`)
+    const saved = ctx.commitTo(target.slideId, next.ui, `Insert ${req.label}`)
     // Only the active slide's selection can point at the new content.
-    if (target.slideId === ctx.slideId.value) {
+    const selected = target.slideId === ctx.slideId.value
+    if (selected) {
       // Keeps the Insert tab up (see useElementTabAutoSwitch).
       editor.insertSelectionPending = true
       ctx.select(next.selection)
     }
+    const ok = await saved
+    // A refused edit leaves nothing to select; a selection made since stays.
+    if (!ok && selected && ctx.selection.value === next.selection) ctx.select(null)
     return ok
   }
 

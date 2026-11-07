@@ -109,6 +109,27 @@ describe('InsertTab', () => {
     expect(pendingAtSelect).toBe(true)
   })
 
+  it('clears its selection when the edit is refused', async () => {
+    const { ctx, click } = mountTab()
+    ctx.select.mockImplementation((s: Selection) => (ctx.selection.value = s))
+    ctx.commitTo.mockResolvedValue(false)
+    await click('Insert Title')
+    expect(ctx.select).toHaveBeenLastCalledWith(null)
+    expect(ctx.selection.value).toBeNull()
+  })
+
+  it('a refused edit leaves a selection made since alone', async () => {
+    const { ctx, click } = mountTab()
+    ctx.select.mockImplementation((s: Selection) => (ctx.selection.value = s))
+    let refuse: (ok: boolean) => void = () => {}
+    ctx.commitTo.mockReturnValue(new Promise<boolean>((r) => (refuse = r)))
+    await click('Insert Title')
+    ctx.select({ kind: 'component', componentIndex: 0 })
+    refuse(false)
+    await flushPromises()
+    expect(ctx.selection.value).toEqual({ kind: 'component', componentIndex: 0 })
+  })
+
   it('commits an open inline edit before inserting', async () => {
     const { ctx, click } = mountTab({ inlineEdit: true })
     await click('Insert Rectangle')
@@ -237,15 +258,21 @@ describe('InsertTab', () => {
     expect(wrapper.findAll('[data-testid="block-skeleton"]')).toHaveLength(4)
   })
 
-  it('shows an error with Retry when the template fails to load', async () => {
+  it('retries once, then shows an error with Retry when the template fails to load', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
     getTemplate.mockRejectedValue(new Error('boom'))
     const { wrapper, click } = mountTab()
     await flushPromises()
+    expect(wrapper.text()).not.toContain("Couldn't load template blocks")
+    await vi.advanceTimersByTimeAsync(1000) // query retry delay
+    await flushPromises()
+    vi.useRealTimers()
+    expect(getTemplate).toHaveBeenCalledTimes(2)
     expect(wrapper.text()).toContain("Couldn't load template blocks")
     expect(wrapper.text()).toContain('Title')
     getTemplate.mockResolvedValue(TEMPLATE)
     await click('Retry')
-    expect(getTemplate).toHaveBeenCalledTimes(2)
+    expect(getTemplate).toHaveBeenCalledTimes(3)
     expect(wrapper.text()).toContain('Metric Cards')
   })
 

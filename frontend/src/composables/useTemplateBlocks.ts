@@ -11,6 +11,7 @@ export function useTemplateBlocks(templateId: MaybeRefOrGetter<string | null>, e
     queryFn: () => getTemplate(id.value!),
     enabled: computed(() => !!id.value && toValue(enabled)),
     staleTime: Infinity,
+    retry: 1,
   })
 
   return {

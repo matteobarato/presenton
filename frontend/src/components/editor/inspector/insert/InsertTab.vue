@@ -11,7 +11,7 @@ import {
   TEXT_INSERT_ITEMS,
   type InsertItem,
 } from '@/slide-editor/insert/insert-elements'
-import { deckTemplateId, type TemplateBlock } from '@/slide-editor/insert/templateBlocks'
+import { blockTemplateId, type TemplateBlock } from '@/slide-editor/insert/templateBlocks'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import { useEditorStore } from '@/stores/editor'
 import BlocksSection from './BlocksSection.vue'
@@ -25,7 +25,7 @@ const editor = useEditorStore()
 const theme = computed(() => resolvePresentationTheme(props.presentation))
 const actions = useInsert(ctx, theme)
 
-const templateId = computed(() => deckTemplateId(props.presentation.slides ?? [], props.activeSlide?.id))
+const templateId = computed(() => blockTemplateId(props.presentation.slides ?? [], props.activeSlide?.id))
 
 // Same copy and precedence as the toolbar's Insert button.
 const disabledTitle = computed<string | null>(() => {
