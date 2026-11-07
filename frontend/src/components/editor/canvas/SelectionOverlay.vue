@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, shallowRef } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { hitComponent, hitDeepest, selectionBoxes, toSlidePoint } from '@/slide-editor/geometry'
 import {
   absoluteBoxForSelection,
@@ -39,6 +39,7 @@ const hover = shallowRef<Selection>(null)
 
 interface MoveGesture {
   type: 'move'
+  slideId: string | null
   pointerId: number
   ui: RawUi
   startClient: Point
@@ -52,6 +53,7 @@ interface MoveGesture {
 }
 interface ResizeGesture {
   type: 'resize'
+  slideId: string | null
   pointerId: number
   ui: RawUi
   sel: Selection
@@ -67,7 +69,9 @@ let gesture: MoveGesture | ResizeGesture | null = null
 const dragging = ref(false)
 const dragDelta = ref<Point>({ x: 0, y: 0 })
 
-const ui = computed(() => editing.ui.value)
+// Inert unless the editing context is on this canvas's slide.
+const active = computed(() => editing.slideId.value != null && editing.slideId.value === canvas.slideId.value)
+const ui = computed(() => (active.value ? editing.ui.value : null))
 const selection = computed(() => editing.selection.value)
 
 const selected = computed(() => {
@@ -176,6 +180,7 @@ function onPointerDown(e: PointerEvent) {
   e.preventDefault()
   gesture = {
     type: 'move',
+    slideId: editing.slideId.value,
     pointerId: e.pointerId,
     ui: u,
     startClient: { x: e.clientX, y: e.clientY },
@@ -200,6 +205,7 @@ function onHandleDown(e: PointerEvent, handle: Handle) {
   const client = { x: e.clientX, y: e.clientY }
   gesture = {
     type: 'resize',
+    slideId: editing.slideId.value,
     pointerId: e.pointerId,
     ui: u,
     sel: selection.value,
@@ -242,7 +248,7 @@ function onPointerMove(e: PointerEvent) {
     g.moved = true
     g.frame ??= requestAnimationFrame(() => {
       g.frame = null
-      if (gesture === g) editing.draftUi.value = resizedUi(g)
+      if (gesture === g && editing.slideId.value === g.slideId) editing.draftUi.value = resizedUi(g)
     })
     return
   }
@@ -274,8 +280,12 @@ function finish(commit: boolean) {
   } catch {
     // Already released.
   }
+  // A gesture never outlives its slide: its ui must not reach another one.
+  const sameSlide = editing.slideId.value === g.slideId
+  commit &&= sameSlide
   if (g.type === 'resize') {
     if (g.frame != null) cancelAnimationFrame(g.frame)
+    if (!sameSlide) return
     if (commit && g.moved) void editing.commit(resizedUi(g), 'Resize')
     else editing.cancelDraft()
     return
@@ -307,6 +317,17 @@ function onDoubleClick(e: MouseEvent) {
   editing.select(hit)
   emit('open-editor', hit)
 }
+
+watch(
+  () => editing.slideId.value,
+  (id) => {
+    if (gesture && gesture.slideId !== id) finish(false)
+  },
+  { flush: 'sync' },
+)
+watch(active, (on) => {
+  if (!on) hover.value = null
+})
 
 onBeforeUnmount(() => finish(false))
 </script>

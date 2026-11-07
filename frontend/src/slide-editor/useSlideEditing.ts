@@ -26,6 +26,8 @@ import {
 
 export interface SlideEditing {
   enabled: ComputedRef<boolean>
+  /** Id of the slide this state belongs to. */
+  slideId: ComputedRef<string | null>
   ui: ComputedRef<RawUi | null>
   selection: Ref<Selection>
   draftUi: Ref<RawUi | null>
@@ -67,6 +69,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   const inlineEdit = ref<{ selection: ElementSelection; element: RawElement } | null>(null)
   const guides = ref<AlignmentGuide[]>([])
 
+  const slideId = computed(() => slide.value?.id ?? null)
   const enabled = computed(() => !!slide.value && slideKind(slide.value) === 'template' && !editor.locked)
   const ui = computed<RawUi | null>(() => draftUi.value ?? ((slide.value?.ui as RawUi | null | undefined) ?? null))
 
@@ -132,7 +135,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     editor.slideSelectionActive = false
   })
 
-  const api: SlideEditing = { enabled, ui, selection, draftUi, inlineEdit, guides, select, commit, cancelDraft }
+  const api: SlideEditing = { enabled, slideId, ui, selection, draftUi, inlineEdit, guides, select, commit, cancelDraft }
   provide(SLIDE_EDITING_KEY, api)
   return api
 }

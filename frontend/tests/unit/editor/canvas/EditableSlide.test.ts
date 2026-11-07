@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { flushPromises, mount } from '@vue/test-utils'
-import { nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import type { Slide } from '@/api/types'
 
 const editSlideUi = vi.hoisted(() => vi.fn())
@@ -13,6 +13,7 @@ import EditableSlide from '@/components/editor/canvas/EditableSlide.vue'
 import SlideView from '@/render/SlideView.vue'
 import { absoluteBoxForSelection, type RawUi } from '@/slide-editor/model'
 import { useEditorStore } from '@/stores/editor'
+import { useSlideEditing } from '@/slide-editor/useSlideEditing'
 import { uiTwoComponents, uiWithText } from '../../slide-editor/fixtures'
 import { mountEditable, pointer, stubRect, tpl } from './harness'
 
@@ -192,11 +193,58 @@ describe('EditableSlide', () => {
     expect(wrapper.findAll('[data-selection-box]')).toHaveLength(2)
   })
 
+  it('a drag in progress is cancelled on slide change', async () => {
+    const { slide, api } = setup(uiWithText())
+    pointer(overlay(), 'pointerdown', 150, 100)
+    pointer(overlay(), 'pointermove', 160, 100)
+    pointer(overlay(), 'pointermove', 250, 100)
+    slide.value = tpl('b', uiTwoComponents())
+    await nextTick()
+    pointer(window, 'pointerup', 250, 100)
+    await flushPromises()
+    expect(editSlideUi).not.toHaveBeenCalled()
+    expect(api().draftUi.value).toBeNull()
+    expect(api().guides.value).toEqual([])
+  })
+
+  it('a resize in progress is cancelled on slide change and leaks no draft', async () => {
+    const { wrapper, slide, api } = setup(uiWithText())
+    api().select({ kind: 'component', componentIndex: 0 })
+    await nextTick()
+    const handle = wrapper.get('[data-handle="e"]').element
+    pointer(handle, 'pointerdown', 500, 140)
+    pointer(handle, 'pointermove', 700, 140)
+    slide.value = tpl('b', uiTwoComponents())
+    await new Promise((r) => requestAnimationFrame(() => r(null)))
+    pointer(window, 'pointerup', 700, 140)
+    await flushPromises()
+    expect(editSlideUi).not.toHaveBeenCalled()
+    expect(api().draftUi.value).toBeNull()
+  })
+
   it('no overlay while the deck is busy', async () => {
     const { wrapper } = setup(uiWithText())
     useEditorStore().deckBusy = 1
     await nextTick()
     expect(wrapper.find('[data-testid="selection-overlay"]').exists()).toBe(false)
+  })
+})
+
+describe('EditableSlide of a slide the context has left', () => {
+  it('has no overlay, so no hover or gestures', async () => {
+    const slide = ref<Slide | null>(tpl('b', uiWithText()))
+    const w = mount(
+      defineComponent({
+        setup() {
+          useSlideEditing(ref('p1'), slide)
+          // the leaving slide of an out-in transition still renders its own slide
+          return () => h(EditableSlide, { slide: tpl('a', uiWithText()) })
+        },
+      }),
+    )
+    await nextTick()
+    expect(w.find('[data-testid="selection-overlay"]').exists()).toBe(false)
+    w.unmount()
   })
 })
 

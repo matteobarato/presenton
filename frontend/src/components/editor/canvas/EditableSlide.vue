@@ -39,7 +39,10 @@ const stageStyle = computed(() => ({
   opacity: width.value == null && typeof ResizeObserver !== 'undefined' ? 0 : 1,
 }))
 
-provide(EDITABLE_CANVAS_KEY, { layerFor: (source) => host.value?.layerFor(source) ?? null })
+const slideId = computed(() => props.slide.id ?? null)
+// The context follows the canvas's current slide; a slide fading out after a switch is not it.
+const current = computed(() => editing.slideId.value === slideId.value)
+provide(EDITABLE_CANVAS_KEY, { layerFor: (source) => host.value?.layerFor(source) ?? null, slideId })
 
 function onFailed(message: string) {
   failure.value = message
@@ -95,6 +98,6 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
         @error="onFailed"
       />
     </div>
-    <SelectionOverlay v-if="editing.enabled.value && !failure" @open-editor="emit('open-editor', $event)" />
+    <SelectionOverlay v-if="editing.enabled.value && current && !failure" @open-editor="emit('open-editor', $event)" />
   </div>
 </template>
