@@ -34,7 +34,7 @@ const currentUrl = computed(() => (typeof element.value?.data === 'string' ? ele
 // The target when the colour popover or picker opened: the commit lands there even if the selection moves.
 let anchor: ElementSelection | null = null
 const hold = () => (anchor = capture())
-// Both holders are popover/dialog opens: the anchor survives selection changes and is consumed by the commit.
+// Consumed by the commit it was held for.
 function takeAnchor() {
   const held = anchor ?? undefined
   anchor = null

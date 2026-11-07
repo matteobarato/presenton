@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive } from 'vue'
 import { ArrowLeftRight } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
 import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
@@ -26,36 +26,20 @@ import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 
 const props = defineProps<{ presentation: Presentation }>()
 
-const ctx = useSlideEditingContext()
-const { element, patch, capture } = useSelectedElement(ctx)
+const { element, patch, capture } = useSelectedElement(useSlideEditingContext())
 const style = computed(() => (element.value ? readShapeStyle(element.value) : null))
 const markers = computed(() => (element.value ? readMarkers(element.value) : null))
 const palette = computed(() => themePalette(props.presentation))
 
 // The target when a colour popover opened or a number field took focus (see ShapeSection).
 let anchor: ElementSelection | null = null
-// A focus anchor dies when the selection moves; a popover anchor survives it until the commit.
-// Either is consumed by the commit it was held for.
-let sticky = false
-const hold = () => {
-  anchor = capture()
-  sticky = false
-}
-const holdOpen = () => {
-  anchor = capture()
-  sticky = true
-}
+// Consumed by the commit it was held for; survives selection changes in between (blur commits arrive after the click).
+const hold = () => (anchor = capture())
 const at = () => {
   const held = anchor ?? undefined
   anchor = null
   return held
 }
-watch(
-  () => ctx.selection.value,
-  () => {
-    if (!sticky) anchor = null
-  },
-)
 
 const color = (value: string | null) => value && patch('Stroke', (el) => setStroke(el, { color: value }), at())
 const width = (value: number) => patch('Stroke', (el) => setStroke(el, { width: value }), at())
@@ -88,7 +72,7 @@ const sub = 'mb-2 mt-4 text-[10px] text-[#9aa9b0]'
 <template>
   <div v-if="style && markers" :class="section">
     <div :class="label"><h3>Line</h3></div>
-    <ColorField :model-value="style.stroke.color" :palette="palette" label="Colour" @open="holdOpen" @commit="color" />
+    <ColorField :model-value="style.stroke.color" :palette="palette" label="Colour" @open="hold" @commit="color" />
     <div :class="sub">Width</div>
     <NumberField :model-value="style.stroke.width" label="Width" :min="0" :max="40" :step="0.5" unit="px" @focus="hold" @commit="width" />
     <div :class="sub">Dash</div>

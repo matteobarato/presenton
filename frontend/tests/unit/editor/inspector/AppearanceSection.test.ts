@@ -106,6 +106,22 @@ describe('AppearanceSection', () => {
     expect(elOf(calls(ctx)[1]![0]).shadow).toEqual({ ...DEFAULT_SHADOW, blur: 20 })
   })
 
+  it('a pending number edit lands on the element it was focused on, even if the selection moves', async () => {
+    const ui = uiWithShape()
+    const comps = ui.components as Rec[]
+    comps.push({ ...comps[0], id: 'c-other', elements: [{ ...comps[0].elements[0] }] })
+    const ctx = mountSection(ui)
+    const input = wrapper!.get('input[aria-label="Opacity"]')
+    await input.trigger('focus')
+    ;(ctx.selection as { value: Selection }).value = { kind: 'component', componentIndex: 1 }
+    await input.setValue('10')
+    await input.trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+    const next = calls(ctx)[0]![0]
+    expect((next.components as Rec[])[0]!.elements[0].opacity).toBe(0.1)
+    expect((next.components as Rec[])[1]!.elements[0].opacity).toBeUndefined()
+  })
+
   it('a colour popover commit lands on the target it opened on, even if the selection moves', async () => {
     const ui = uiWithShape()
     const comps = ui.components as Rec[]

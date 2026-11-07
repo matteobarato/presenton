@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { FlipHorizontal2, FlipVertical2, RotateCcw, RotateCw } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
 import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
@@ -43,24 +43,9 @@ const palette = computed(() => themePalette(props.presentation))
 
 // The targets at the moment a colour popover opened or a number field took focus:
 // the commit lands there even if the selection moves before it fires.
-// A focus anchor dies when the selection moves; a popover anchor survives it until the commit.
-// Either is consumed by the commit it was held for.
+// Consumed by the commit it was held for; survives selection changes in between (blur commits arrive after the click).
 let anchor: AppearanceTargets | null = null
-let sticky = false
-const hold = () => {
-  anchor = targets.value
-  sticky = false
-}
-const holdOpen = () => {
-  anchor = targets.value
-  sticky = true
-}
-watch(
-  () => ctx.selection.value,
-  () => {
-    if (!sticky) anchor = null
-  },
-)
+const hold = () => (anchor = targets.value)
 
 function commit(name: string, change: (ui: RawUi, t: AppearanceTargets) => RawUi, deferred = false) {
   const ui = ctx.ui.value
@@ -115,7 +100,7 @@ const turnButton = [segment, 'h-[34px] w-[34px] flex-none']
     <SliderField :model-value="Math.round(appearance.opacity * 100)" label="Opacity" :min="0" :max="100" unit="%" @focus="hold" @commit="opacity" />
 
     <ToggleRow class="mt-5" :model-value="appearance.shadowEnabled" label="Shadow" @update:model-value="shadowOn">
-      <ColorField :model-value="appearance.shadow.color" :palette="palette" label="Shadow colour" @open="holdOpen" @commit="(c: string | null) => c && shadowPatch({ color: c })" />
+      <ColorField :model-value="appearance.shadow.color" :palette="palette" label="Shadow colour" @open="hold" @commit="(c: string | null) => c && shadowPatch({ color: c })" />
       <div :class="sub">Blur</div>
       <NumberField :model-value="appearance.shadow.blur" label="Blur" :min="0" :max="100" @focus="hold" @commit="shadowPatch({ blur: $event })" />
       <div class="mt-4 grid grid-cols-2 gap-2">

@@ -160,4 +160,21 @@ describe('ShapeSection', () => {
     expect(el(committed(ctx)).stroke.color).toBe(colour)
     expect(el(committed(ctx), { kind: 'element', componentIndex: 1, elementPath: [0] }).stroke.color).toBe('445566')
   })
+
+  it('a stroke Width edit focused on the shape lands there after the selection moves', async () => {
+    const ui = uiWithShape()
+    const comps = ui.components as Array<Rec>
+    comps.push({ ...comps[0], id: 'c-other', elements: [{ ...comps[0].elements[0] }] })
+    const { ctx } = mountSection(ui)
+    const input = wrapper!.get('input[aria-label="Width"]')
+    await input.trigger('focus')
+    ;(ctx.selection as { value: Selection }).value = { kind: 'element', componentIndex: 1, elementPath: [0] }
+    await ticks()
+    await input.setValue('5')
+    await input.trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+    expect(ctx.commit).toHaveBeenCalledTimes(1)
+    expect(el(committed(ctx)).stroke.width).toBe(5)
+    expect(el(committed(ctx), { kind: 'element', componentIndex: 1, elementPath: [0] }).stroke.width).toBe(2)
+  })
 })
