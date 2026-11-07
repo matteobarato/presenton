@@ -2,10 +2,13 @@
 import { computed } from 'vue'
 import { X } from 'lucide-vue-next'
 import type { Presentation, Slide } from '@/api/types'
+import { layerTree } from '@/slide-editor/layerTree'
 import { selectionLabel, toolbarKind } from '@/slide-editor/toolbarKind'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import ArrangeSection from './ArrangeSection.vue'
 import ImageSection from './ImageSection.vue'
+import LayerChildren from './LayerChildren.vue'
+import LayerTree from './LayerTree.vue'
 import TextSection from './TextSection.vue'
 
 const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
@@ -14,7 +17,7 @@ const ctx = useSlideEditingContext()
 const active = computed(() => ctx.enabled.value && ctx.selection.value !== null)
 const kind = computed(() => toolbarKind(ctx.ui.value, ctx.selection.value))
 const heading = computed(() => selectionLabel(ctx.ui.value, ctx.selection.value) ?? 'Element')
-const emptyHint = computed(() => (ctx.enabled.value ? 'Double-click text to type.' : null))
+const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : []))
 </script>
 
 <template>
@@ -40,12 +43,19 @@ const emptyHint = computed(() => (ctx.enabled.value ? 'Double-click text to type
       <TextSection v-if="kind === 'text'" :presentation="props.presentation" />
       <ImageSection v-else-if="kind === 'image'" />
       <ArrangeSection />
+      <LayerChildren />
     </template>
+    <div v-else-if="ctx.enabled.value" class="flex flex-col">
+      <div class="pt-6 pb-[18px] min-[1600px]:pt-7 [@media(max-height:780px)_and_(min-width:1051px)]:pt-[17px]">
+        <h2 class="text-[19px] font-medium tracking-[-0.04em] text-[#f0f2f3] max-[1279px]:text-[18px] min-[1600px]:text-[22px]">Layers</h2>
+        <p class="mt-[5px] text-[10px] leading-[1.6] text-[#a0abb1]">Select something on the slide to edit it. Double-click text to type.</p>
+      </div>
+      <LayerTree :nodes="layers" />
+    </div>
     <div v-else class="pt-6">
       <h2 class="text-[19px] font-medium tracking-[-0.04em] text-[#f0f2f3] max-[1279px]:text-[18px] min-[1600px]:text-[22px]">
-        {{ ctx.enabled.value ? 'Select something on the slide to edit it.' : "This slide can't be edited on the canvas." }}
+        This slide can't be edited on the canvas.
       </h2>
-      <p v-if="emptyHint" class="mt-[5px] text-[10px] leading-[1.6] text-[#a0abb1]">{{ emptyHint }}</p>
     </div>
   </section>
 </template>

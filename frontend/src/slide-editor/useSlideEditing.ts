@@ -42,6 +42,8 @@ export interface SlideEditing {
   slideId: ComputedRef<string | null>
   ui: ComputedRef<RawUi | null>
   selection: Ref<Selection>
+  /** What is hovered, on the canvas or in the inspector's layer list; the canvas outlines it. */
+  hover: ShallowRef<Selection>
   draftUi: Ref<RawUi | null>
   /** The open inline text edit; its slideId is the slide it commits to. */
   inlineEdit: Ref<InlineEditSession | null>
@@ -94,6 +96,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   const { editSlideUi } = useSlideMutations(presentationId)
 
   const selection = ref<Selection>(null)
+  const hover = shallowRef<Selection>(null)
   const draftUi = shallowRef<RawUi | null>(null)
   const inlineEdit = shallowRef<InlineEditSession | null>(null)
   const inlineEditor = shallowRef<Editor | null>(null)
@@ -194,6 +197,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     () => slide.value?.id,
     () => {
       selection.value = null
+      hover.value = null
       dropInlineEdit()
       cancelDraft()
     },
@@ -248,6 +252,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     slideId,
     ui,
     selection,
+    hover,
     draftUi,
     inlineEdit,
     inlineEditor,

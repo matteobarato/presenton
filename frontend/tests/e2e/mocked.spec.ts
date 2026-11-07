@@ -265,6 +265,32 @@ test.describe('on-slide editing (mocked)', () => {
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 
+  test('the Element tab lists the slide layers and navigates the selection', async ({ page }) => {
+    const { patches, unexpected } = await editableApi(page)
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    await page.getByRole('tab', { name: 'Element' }).click()
+    const tree = page.getByRole('tree', { name: 'Slide layers' })
+    await expect(tree).toBeVisible()
+    const rows = tree.locator('[data-layer-row]')
+    await expect(rows).not.toHaveCount(0)
+
+    await rows.first().hover()
+    await expect(page.locator('[data-hover-box]')).toBeVisible()
+    await page.screenshot({ path: 'test-results/layers-tree.png' })
+
+    await rows.first().locator('[data-layer-select]').click()
+    await expect(page.getByRole('button', { name: 'Delete', exact: true })).toBeVisible()
+    const crumbs = page.getByRole('navigation', { name: 'Selection path' })
+    await expect(crumbs).toBeVisible()
+    await page.screenshot({ path: 'test-results/layers-selected.png' })
+
+    await crumbs.getByRole('button', { name: 'Slide' }).click()
+    await expect(tree).toBeVisible()
+    expect(patches).toHaveLength(0)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
   test('double-click edits text inline; Esc commits; Ctrl+Z restores', async ({ page }) => {
     const { patches, unexpected } = await editableApi(page)
     await page.goto(`/p/${DECK_ID}`)

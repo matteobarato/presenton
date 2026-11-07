@@ -16,6 +16,7 @@ function mountTab(sel: Selection, opts: { inlineEditing?: boolean; enabled?: boo
     enabled: computed(() => opts.enabled ?? true),
     ui: computed(() => ui),
     selection,
+    hover: shallowRef<Selection>(null),
     inlineEdit: shallowRef(opts.inlineEditing ? { selection: sel } : null),
     commit: vi.fn().mockResolvedValue(true),
     select: vi.fn((s: Selection) => {
@@ -39,11 +40,40 @@ const label = (w: ReturnType<typeof mountTab>['wrapper'], l: string) => w.find(`
 beforeEach(() => setActivePinia(createPinia()))
 
 describe('ElementTab', () => {
-  it('shows the empty state without a selection', () => {
+  it('lists the slide layers without a selection', () => {
     const { wrapper } = mountTab(null)
-    expect(wrapper.text()).toContain('Select something on the slide to edit it.')
+    expect(wrapper.text()).toContain('Layers')
     expect(wrapper.text()).toContain('Double-click text to type.')
+    const rows = wrapper.findAll('[data-layer-select]')
+    expect(rows.map((r) => r.text())).toEqual(['TextHello', 'Imagea.png'])
     expect(label(wrapper, 'Delete').exists()).toBe(false)
+  })
+
+  it('selects a layer on click and outlines it on hover', async () => {
+    const { wrapper, ctx } = mountTab(null)
+    const row = wrapper.findAll('[data-layer-row]')[1]!
+    await row.trigger('mouseenter')
+    expect(ctx.hover.value).toEqual({ kind: 'component', componentIndex: 1 })
+    await row.trigger('mouseleave')
+    expect(ctx.hover.value).toBeNull()
+    await row.find('[data-layer-select]').trigger('click')
+    expect(ctx.select).toHaveBeenCalledWith({ kind: 'component', componentIndex: 1 })
+  })
+
+  it('shows a breadcrumb under the options and navigates up to the slide', async () => {
+    const { wrapper, ctx } = mountTab({ kind: 'component', componentIndex: 0 })
+    const children = wrapper.get('[data-testid="layer-children"]')
+    expect(children.get('nav').text()).toContain('Slide')
+    await children.get('nav button').trigger('click')
+    expect(ctx.select).toHaveBeenCalledWith(null)
+  })
+
+  it('narrows a multi-selection to one of its members', async () => {
+    const { wrapper, ctx } = mountTab({ kind: 'multi-component', componentIndexes: [0, 1] })
+    const rows = wrapper.get('[data-testid="layer-children"]').findAll('[data-layer-select]')
+    expect(rows).toHaveLength(2)
+    await rows[0]!.trigger('click')
+    expect(ctx.select).toHaveBeenCalledWith({ kind: 'component', componentIndex: 0 })
   })
 
   it('shows the smart-slide empty state when editing is disabled', () => {

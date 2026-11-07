@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { hitComponent, hitDeepest, selectionBoxes, toSlidePoint } from '@/slide-editor/geometry'
 import {
   absoluteBoxForSelection,
@@ -35,7 +35,8 @@ const editing = useSlideEditingContext()
 const canvas = useEditableCanvas()
 
 const el = ref<HTMLElement | null>(null)
-const hover = shallowRef<Selection>(null)
+// Shared with the inspector's layer list, which outlines the row under the pointer here.
+const hover = editing.hover
 
 interface MoveGesture {
   type: 'move'
@@ -356,7 +357,7 @@ onBeforeUnmount(() => finish(false))
     :class="dragging && 'cursor-move'"
     @pointerdown="onPointerDown"
     @pointermove="onPointerMove"
-    @pointerleave="hover = null"
+    @pointerleave="editing.hover.value = null"
     @lostpointercapture="onLostCapture"
     @dblclick="onDoubleClick"
   >
