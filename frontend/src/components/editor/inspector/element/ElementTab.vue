@@ -5,8 +5,9 @@ import type { Presentation, Slide } from '@/api/types'
 import { isGroupSelection, toolbarKind } from '@/slide-editor/toolbarKind'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import ArrangeSection from './ArrangeSection.vue'
+import TextSection from './TextSection.vue'
 
-defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
+const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
 
 const ctx = useSlideEditingContext()
 const active = computed(() => ctx.enabled.value && ctx.selection.value !== null)
@@ -42,7 +43,8 @@ const emptyHint = computed(() => (ctx.enabled.value ? 'Double-click text to type
           <X class="size-4" aria-hidden="true" />
         </button>
       </div>
-      <!-- Tasks 9 and 10 add TextSection (kind === 'text') and ImageSection (kind === 'image') here. -->
+      <TextSection v-if="kind === 'text'" :presentation="props.presentation" />
+      <!-- Task 10 adds ImageSection (kind === 'image') here. -->
       <ArrangeSection />
     </template>
     <div v-else class="pt-6">
