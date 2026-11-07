@@ -64,10 +64,10 @@ In scope:
    (bold, italic, underline, colour) round-trip through
    `text-runs.ts` / `template-v2-text-editing.ts`. The commit happens on
    close (Esc, click outside, slide change); typing never re-renders the slide.
-5. **Text toolbar.** Font family, font size, bold / italic / underline,
+5. **Text controls** (Element tab, Text section). Font family, font size, bold / italic / underline,
    colour, horizontal alignment, line height. Applies to the whole element
    when selected, or to the Tiptap selection while editing inline. A trimmed
-   port of the old `TextToolbar`.
+   port of the old `TextToolbar`, laid out as an inspector section.
 6. **Images.** "Replace" opens an image picker dialog with tabs Upload,
    Uploaded, Generate (AI) and Stock (`/api/v1/ppt/images/upload|uploaded|
    generate|search`). Toolbar: fit mode (cover / contain) and crop focus
@@ -135,9 +135,11 @@ frontend/src/components/editor/canvas/
   EditableSlide.vue     TemplateSlideHost + overlay in one scaled 1280×720 box
   SelectionOverlay.vue  hover/selection boxes, handles, guides, pointer logic
   InlineTextEditor.vue  Tiptap editor positioned over a text element
-  toolbars/ContextToolbar.vue   picks Text / Image / Multi / Generic toolbar
-  toolbars/TextToolbar.vue
-  toolbars/ImageToolbar.vue
+frontend/src/components/editor/inspector/element/
+  ElementTab.vue        Element inspector tab: header, empty state, picks sections
+  ArrangeSection.vue    duplicate / copy / delete / group / ungroup
+  TextSection.vue       text controls
+  ImageSection.vue      image controls
   ImagePickerDialog.vue
 frontend/src/api/images.ts      upload, list uploaded/generated, generate, stock search
 ```
@@ -180,13 +182,30 @@ edit has its text blanked (so nested elements work, unlike top-level
 `SelectionOverlay` and `InlineTextEditor` in the same scaled box. A
 ResizeObserver keeps the scale correct across zoom and panel animations.
 
-### ContextToolbar
+### Element inspector tab (revised 2026-11-07, user decision)
 
-Takes the place of the `FloatingToolbar` contents while something is
-selected (same glass style and position; Aera classes), with a back/deselect
-button on the left. Chosen by `toolbarTarget`: text → TextToolbar, image →
-ImageToolbar, multiple → Multi (group, delete, duplicate), anything else →
-Generic (delete, duplicate, copy). All toolbars include delete / duplicate.
+Element editing does **not** live in the floating top toolbar. It is a
+dedicated **Element** tab in the inspector sidebar, next to Design and
+Narration, styled like the Aera mockup's inspector sections
+(`control-section` / `section-label` patterns: labelled sections, select
+wraps, colour swatches with a custom colour, segmented option buttons).
+
+- The floating top toolbar keeps only the slide tools, unchanged.
+- `useSlideEditing` is created in `EditorView` (it renders both the canvas and
+  the inspector), so the canvas and the inspector share one context.
+- Selecting something on the slide switches the inspector to the Element tab;
+  on wide screens (docked inspector, > 1050px) it also opens the inspector if
+  it is collapsed. Below 1050px (drawer) it switches the tab without opening
+  the drawer, so the canvas stays visible. Deselecting does not switch tabs.
+- With nothing selected the tab shows an empty state ("Select something on
+  the slide to edit it", hint: double-click text to type).
+- Tab content, chosen by `toolbarKind`: a header with the selection label and
+  a Deselect button; an **Arrange** section (Duplicate, Copy, Delete, Group
+  for multi, Ungroup for groups); a **Text** section for text (§Scope 5
+  controls); an **Image** section for images (§Scope 6 controls).
+- The whole tab is marked `data-inline-edit-ignore`, so using it while the
+  inline text editor is open styles the selection inside the editor instead
+  of closing it.
 
 ### InlineTextEditor
 
@@ -231,7 +250,7 @@ fonts, so every offered font renders.
   lock and smart gating, external `ui` change closes inline edit);
   run ↔ Tiptap JSON round-trip.
 - **Component**: SelectionOverlay drag produces the expected box and snaps
-  within threshold; ContextToolbar picks the right toolbar per selection;
+  within threshold; ElementTab shows the right sections per selection;
   TextToolbar applies style patches.
 - **e2e (Playwright, mocked + live suites)**: select → drag → reload keeps
   position; inline text edit persists; image replace via upload; undo/redo of
