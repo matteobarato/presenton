@@ -341,11 +341,15 @@ test.describe('on-slide editing (mocked)', () => {
     await expect(page.getByTestId('selection-overlay')).toBeVisible()
     const original = editableDeck.slides[0].ui!.components.length
 
+    const selectionBox = page.locator('[data-selection-box]')
+    await expect(selectionBox).toHaveCount(0) // nothing selected yet
+
     await page.getByRole('button', { name: 'Insert', exact: true }).click()
     await page.getByRole('button', { name: 'Insert Title', exact: true }).click()
     await expect.poll(() => lastPatch(patches)?.components.length).toBe(original + 1)
     await expect(page.getByRole('tab', { name: 'Insert' })).toHaveAttribute('aria-selected', 'true')
-    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    // Only the freshly inserted component can be selected here.
+    await expect(selectionBox).toHaveCount(1)
 
     // Undo removes it again (focus stays on the tile, so use the shortcut on the page).
     await page.keyboard.press('Control+z')
