@@ -10,7 +10,9 @@ import {
   isLayoutManagedElement,
   nudge,
   pasteFromPayload,
+  reorderSelection,
   ungroupSelection,
+  type LayerAction,
   type OpResult,
 } from '@/slide-editor/ops'
 import { useEditingActions } from '@/slide-editor/useEditingActions'
@@ -20,6 +22,12 @@ function isEditableTarget(el: EventTarget | null): boolean {
   if (!(el instanceof HTMLElement)) return false
   if (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return true
   return !!el.closest('[contenteditable]:not([contenteditable="false"])')
+}
+
+// Ctrl+] / Ctrl+[ move a layer up / down; with Shift, to the front / back. By code: Shift changes the key.
+const LAYER_KEYS: Record<string, [LayerAction, LayerAction, string, string]> = {
+  BracketRight: ['bring-forward', 'bring-to-front', 'Bring forward', 'Bring to front'],
+  BracketLeft: ['send-backward', 'send-to-back', 'Send backward', 'Send to back'],
 }
 
 const ARROWS: Record<string, [number, number]> = {
@@ -54,7 +62,7 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
     // Keys this handler owns are swallowed (not queued) while a conflicting commit is in flight,
     // so they never reach the browser or slide navigation. Copy mutates nothing and always runs.
     const k = e.key.toLowerCase()
-    const owned = mod ? !e.altKey && (k === 'd' || k === 'g') : e.key === 'Delete' || e.key === 'Backspace'
+    const owned = mod ? !e.altKey && (k === 'd' || k === 'g' || e.code in LAYER_KEYS) : e.key === 'Delete' || e.key === 'Backspace'
     if ((owned && actions.busy()) || (!mod && e.key in ARROWS && actions.structuralBusy())) {
       e.preventDefault()
       return
@@ -77,6 +85,12 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
         if (!r) return
         e.preventDefault()
         void apply(r, e.shiftKey ? 'Ungroup' : 'Group')
+      } else if (e.code in LAYER_KEYS) {
+        const [step, end, stepLabel, endLabel] = LAYER_KEYS[e.code]!
+        const r = reorderSelection(ui, sel, e.shiftKey ? end : step)
+        if (!r) return
+        e.preventDefault()
+        void apply(r, e.shiftKey ? endLabel : stepLabel)
       }
       return
     }

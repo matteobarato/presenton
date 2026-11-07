@@ -24,6 +24,7 @@ import {
   selectionForComponentIndexes,
   setComponentPositionsInUi,
   ungroupTemplateV2ComponentInUi,
+  withUpdatedChildItems,
   canUngroupTemplateV2Component,
   type RawUi,
   type Selection,
@@ -146,4 +147,69 @@ export function nudge(ui: RawUi, sel: Selection, dx: number, dy: number): OpResu
   )
   if (next === ui) return null
   return { ui: next, selection: selectionForComponentIndexes(indexes) }
+}
+
+export type LayerAction = 'bring-to-front' | 'bring-forward' | 'send-backward' | 'send-to-back'
+
+function moveItem<T>(items: readonly T[], from: number, action: LayerAction): { items: T[]; index: number } | null {
+  const last = items.length - 1
+  if (from < 0 || from > last || last < 1) return null
+  const to =
+    action === 'bring-to-front' ? last : action === 'send-to-back' ? 0 : action === 'bring-forward' ? from + 1 : from - 1
+  if (to < 0 || to > last || to === from) return null
+  const next = [...items]
+  const [item] = next.splice(from, 1)
+  next.splice(to, 0, item as T)
+  return { items: next, index: to }
+}
+
+/**
+ * Moves the selection one layer up or down, or to the top or bottom, among its siblings: later
+ * siblings paint on top. A component moves within the slide's components; an element moves within
+ * its parent's children, unless the parent lays it out (flex/grid), where order is position. The
+ * lone element of a component moves its component.
+ */
+export function reorderSelection(ui: RawUi, sel: Selection, action: LayerAction): OpResult {
+  if (!sel || sel.kind === 'multi-component') return null
+  const components = readArray(ui.components)
+  const moveComponent = (componentIndex: number, toSelection: (index: number) => Selection): OpResult => {
+    const moved = moveItem(components, componentIndex, action)
+    return moved ? { ui: { ...ui, components: moved.items }, selection: toSelection(moved.index) } : null
+  }
+  if (sel.kind === 'component') {
+    return moveComponent(sel.componentIndex, (componentIndex) => ({ kind: 'component', componentIndex }))
+  }
+
+  const path = sel.elementPath
+  const index = path[path.length - 1]
+  if (index === undefined) return null
+  const withIndex = (i: number): Selection => ({ ...sel, elementPath: [...path.slice(0, -1), i] })
+
+  if (path.length === 1) {
+    if (sel.componentIndex === ROOT_ELEMENTS_COMPONENT_INDEX) {
+      const moved = moveItem(readArray(ui.elements), index, action)
+      return moved ? { ui: { ...ui, elements: moved.items }, selection: withIndex(moved.index) } : null
+    }
+    const component = components[sel.componentIndex] as Record<string, unknown> | undefined
+    const elements = readArray(component?.elements)
+    if (!component || elements.length === 0) return null
+    if (elements.length === 1) {
+      return moveComponent(sel.componentIndex, (componentIndex) => ({ ...sel, componentIndex }))
+    }
+    const moved = moveItem(elements, index, action)
+    if (!moved) return null
+    const nextComponents = [...components]
+    nextComponents[sel.componentIndex] = { ...component, elements: moved.items }
+    return { ui: { ...ui, components: nextComponents }, selection: withIndex(moved.index) }
+  }
+
+  if (isLayoutManagedElement(ui, sel)) return null
+  const parentSel: ElementSelection = { ...sel, elementPath: path.slice(0, -1) }
+  const parent = getElementAtSelection(ui, parentSel)
+  const info = parent ? childArrayInfo(parent) : null
+  if (!parent || !info || info.key === 'child') return null
+  const moved = moveItem(info.items, index, action)
+  if (!moved) return null
+  const next = updateElementInUi(ui, parentSel, (current) => withUpdatedChildItems(current, info, moved.items))
+  return next === ui ? null : { ui: next, selection: withIndex(moved.index) }
 }

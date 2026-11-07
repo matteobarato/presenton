@@ -17,8 +17,15 @@ import { hydrateTemplateCharts } from '@/render/template-charts'
 import { cssVarDeclarations, themeCssVars, themeFontFaceCss } from '@/render/theme'
 
 const props = withDefaults(
-  defineProps<{ ui: unknown; theme?: unknown; fonts?: unknown; annotate?: boolean }>(),
-  { theme: undefined, fonts: undefined, annotate: false },
+  defineProps<{
+    ui: unknown
+    theme?: unknown
+    fonts?: unknown
+    annotate?: boolean
+    /** The slide's avatar video: shown in the placeholder layer, in place of its picture. */
+    videoSrc?: string | null
+  }>(),
+  { theme: undefined, fonts: undefined, annotate: false, videoSrc: null },
 )
 const emit = defineEmits<{ rendered: []; error: [message: string] }>()
 
@@ -33,6 +40,31 @@ function backgroundOnly(ui: unknown): string {
   const raw = (ui as { background?: unknown } | null)?.background
   const color = typeof raw === 'string' && /^[#\w(),.%\s-]+$/.test(raw) ? raw : '#FFFFFF'
   return `<div style="width:${TEMPLATE_V2_HTML_WIDTH}px;height:${TEMPLATE_V2_HTML_HEIGHT}px;background:${color}"></div>`
+}
+
+// The placeholder's picture becomes a paused video at the same place, keeping its layer, so content
+// above the avatar still covers it. The first frame shows (#t); it fills the box as the export does.
+function mountVideo(root: ShadowRoot) {
+  const src = props.videoSrc
+  if (!src) return
+  root.querySelectorAll<HTMLElement>('[data-video-placeholder]').forEach((node) => {
+    const img = node instanceof HTMLImageElement ? node : node.querySelector('img')
+    if (!img) return
+    const video = document.createElement('video')
+    video.setAttribute('style', img.getAttribute('style') ?? '')
+    video.style.objectFit = 'cover'
+    video.style.objectPosition = 'center'
+    video.style.transform = ''
+    video.style.background = '#000'
+    video.style.pointerEvents = 'none'
+    video.muted = true
+    video.playsInline = true
+    video.preload = 'metadata'
+    video.src = `${src}#t=0.1`
+    video.dataset.slideVideo = 'true'
+    if (img === node) video.dataset.videoPlaceholder = 'true'
+    img.replaceWith(video)
+  })
 }
 
 function fail(error: unknown) {
@@ -62,6 +94,7 @@ function render() {
       `<style>${fontCss.replaceAll('</style', '<\\/style')}` +
       `:host{display:block;width:${TEMPLATE_V2_HTML_WIDTH}px;height:${TEMPLATE_V2_HTML_HEIGHT}px;overflow:hidden;${vars}}</style>` +
       (fragment ?? backgroundOnly(props.ui))
+    mountVideo(shadow)
 
     if (templateV2UiHasChart(props.ui)) {
       const charts = hydrateTemplateCharts(shadow)
@@ -94,7 +127,7 @@ function layerFor(source: TemplateV2ItemSource): HTMLElement | null {
 defineExpose({ layerFor })
 
 onMounted(render)
-watch(() => [props.ui, props.theme, props.fonts, props.annotate], render)
+watch(() => [props.ui, props.theme, props.fonts, props.annotate, props.videoSrc], render)
 onBeforeUnmount(() => {
   generation++
   disposeCharts?.()

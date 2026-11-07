@@ -39,3 +39,31 @@ describe('TemplateSlideHost layerFor', () => {
     wrapper.unmount()
   })
 })
+
+describe('TemplateSlideHost avatar video', () => {
+  const ui = () => ({
+    components: [
+      { id: 'text', position: { x: 0, y: 0 }, elements: [{ type: 'text', text: 'Hi', position: { x: 0, y: 0 }, size: { width: 200, height: 40 } }] },
+      {
+        id: 'video_placeholder',
+        position: { x: 900, y: 400 },
+        elements: [{ type: 'image', data: '/p.png', video_placeholder: true, position: { x: 0, y: 0 }, size: { width: 320, height: 240 } }],
+      },
+    ],
+  })
+  const shadowOf = (wrapper: ReturnType<typeof mount>) => (wrapper.find('[data-template-host]').element as HTMLElement).shadowRoot!
+
+  it('plays the slide video in the placeholder, in place of its picture', async () => {
+    const wrapper = mount(TemplateSlideHost, { props: { ui: ui(), annotate: true } })
+    expect(shadowOf(wrapper).querySelector('video')).toBeNull()
+    expect(shadowOf(wrapper).querySelector('[data-video-placeholder]')).not.toBeNull()
+
+    await wrapper.setProps({ videoSrc: '/app_data/videos/s1.mp4' })
+    await nextTick()
+    const video = shadowOf(wrapper).querySelector('video')!
+    expect(video.getAttribute('src')).toBe('/app_data/videos/s1.mp4#t=0.1')
+    expect(video.style.objectFit).toBe('cover')
+    expect(shadowOf(wrapper).querySelector('img[src="/p.png"]')).toBeNull()
+    wrapper.unmount()
+  })
+})

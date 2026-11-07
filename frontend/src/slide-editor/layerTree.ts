@@ -75,7 +75,7 @@ function elementDetail(el: RawElement): string | null {
   if (el.type === 'text' || el.type === 'text-list') return textPreview(el)
   if (el.type === 'image') {
     if (el.video_placeholder === true) return 'Video placeholder'
-    return (typeof el.alt === 'string' && truncate(el.alt)) || fileName(el.src)
+    return (typeof el.alt === 'string' && truncate(el.alt)) || fileName(el.data ?? el.src)
   }
   if (typeof el.name === 'string') return truncate(el.name)
   return null
