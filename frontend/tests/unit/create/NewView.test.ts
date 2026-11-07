@@ -6,6 +6,11 @@ import { ApiError } from '@/api/errors'
 import { useSessionStore } from '@/stores/session'
 import type { GenerationMode } from '@/api/next-routes'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+
+vi.mock('@/render/SlideView.vue', () => ({
+  default: { props: ['slide'], template: '<div data-testid="slide-view" :data-slide="slide.id" />' },
+}))
+
 import NewView from '@/views/NewView.vue'
 
 const m = vi.hoisted(() => ({
@@ -81,8 +86,7 @@ describe('NewView', () => {
   it('renders no mode switch, creates a standard presentation and routes to the outline, without file calls', async () => {
     m.createPresentation.mockResolvedValue({ id: 'abc' })
     const { wrapper, router } = await mountView()
-    expect(wrapper.find('[role="radiogroup"]').exists()).toBe(false)
-    expect(wrapper.find('[role="radio"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toMatch(/smart/i)
     await wrapper.get('#create-prompt').setValue('Quarterly review')
     await wrapper.get('#opt-slides').setValue('8')
     await wrapper.get('form').trigger('submit')
@@ -146,27 +150,46 @@ describe('NewView', () => {
     expect(third.wrapper.get('[role="alert"]').text()).toBe('Generation is disabled')
   })
 
-  describe('template chip', () => {
-    it('shows the template chip from ?template', async () => {
-      const { wrapper } = await mountView('both', {}, '/new?template=c1')
+  describe('template selector', () => {
+    it('defaults to "Decide later" with no ?template', async () => {
+      const { wrapper } = await mountView()
       await flushPromises()
-      expect(wrapper.text()).toContain('Using Pitch')
+      expect(wrapper.get('[data-testid="new-template-none"]').attributes('aria-checked')).toBe('true')
+      expect(wrapper.get('[data-testid="new-template-c1"]').attributes('aria-checked')).toBe('false')
     })
 
-    it('clearing the chip removes the param', async () => {
-      const { wrapper, router } = await mountView('both', {}, '/new?template=c1')
+    it('preselects from ?template', async () => {
+      const { wrapper } = await mountView('both', {}, '/new?template=c1')
       await flushPromises()
-      await wrapper.get('button[aria-label="Don’t use Pitch"]').trigger('click')
+      expect(wrapper.get('[data-testid="new-template-c1"]').attributes('aria-checked')).toBe('true')
+      expect(wrapper.get('[data-testid="new-template-c1"]').text()).toContain('Pitch')
+    })
+
+    it('picking a template writes ?template, and "Decide later" removes it', async () => {
+      const { wrapper, router } = await mountView()
+      await flushPromises()
+      await wrapper.get('[data-testid="new-template-c1"]').trigger('click')
+      await flushPromises()
+      expect(router.currentRoute.value.query.template).toBe('c1')
+      await wrapper.get('[data-testid="new-template-none"]').trigger('click')
       await flushPromises()
       expect(router.currentRoute.value.query.template).toBeUndefined()
-      expect(wrapper.text()).not.toContain('Using Pitch')
+    })
+
+    it('still allows submitting when templates fail to load', async () => {
+      m.listTemplates.mockRejectedValue(new Error('boom'))
+      const { wrapper } = await mountView()
+      await flushPromises()
+      expect(wrapper.text()).toContain('pick one on the outline step')
+      await wrapper.get('#create-prompt').setValue('Topic')
+      expect(submitBtn(wrapper).attributes('disabled')).toBeUndefined()
     })
 
     it('drops an unknown template id', async () => {
       const { wrapper, router } = await mountView('both', {}, '/new?template=zzz')
       await flushPromises()
-      expect(wrapper.text()).not.toContain('Using')
       expect(router.currentRoute.value.query.template).toBeUndefined()
+      expect(wrapper.get('[data-testid="new-template-none"]').attributes('aria-checked')).toBe('true')
     })
 
     it('forwards the template to the outline step', async () => {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, Sparkles, X } from 'lucide-vue-next'
+import { ArrowRight, Sparkles } from 'lucide-vue-next'
 import PageHeader from '@/components/shell/PageHeader.vue'
 import { computed, ref, watch } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
@@ -11,8 +11,10 @@ import { createPresentation } from '@/api/generation'
 import { useSessionStore } from '@/stores/session'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import FileDropzone from '@/components/create/FileDropzone.vue'
 import GenerationOptions from '@/components/create/GenerationOptions.vue'
+import NewTemplateSelector from '@/components/create/NewTemplateSelector.vue'
 import PromptField from '@/components/create/PromptField.vue'
 import { type CreateOptions } from '@/components/create/options'
 import { AUTO_LANGUAGE } from '@/lib/languages'
@@ -21,19 +23,24 @@ const router = useRouter()
 const route = useRoute()
 
 const templateId = computed(() => (typeof route.query.template === 'string' ? route.query.template : ''))
-const templates = useQuery({ queryKey: templatesKey, queryFn: listTemplates, enabled: computed(() => !!templateId.value) })
+const templates = useQuery({ queryKey: templatesKey, queryFn: listTemplates })
 const chosen = computed(() => templates.data.value?.find((t) => t.id === templateId.value))
 
-function clearTemplate() {
+function setTemplate(id: string | null) {
   const rest = { ...route.query }
-  delete rest.template
+  if (id) rest.template = id
+  else delete rest.template
   void router.replace({ query: rest })
 }
+const selectedTemplate = computed({
+  get: () => chosen.value?.id ?? null,
+  set: setTemplate,
+})
 // A deleted or garbage id must not linger in the URL.
 watch(
   () => [templates.isSuccess.value, templates.data.value, templateId.value] as const,
   ([ok, list, id]) => {
-    if (ok && id && !list?.some((t) => t.id === id)) clearTemplate()
+    if (ok && id && !list?.some((t) => t.id === id)) setTemplate(null)
   },
   { immediate: true },
 )
@@ -123,21 +130,13 @@ async function submit() {
         </p>
       </header>
       <form class="flex flex-col gap-6" @submit.prevent="submit">
-        <span v-if="chosen" class="inline-flex w-fit items-center gap-2 rounded-full border border-[#ffffff14] bg-[#ffffff0a] py-1 pr-1 pl-3 text-[12px] text-[#e4ecf0]">
-          <span class="size-[7px] rounded-full bg-accent" aria-hidden="true" />
-          <span>Using <span class="font-semibold">{{ chosen.name }}</span></span>
-          <button
-            type="button"
-            :aria-label="`Don’t use ${chosen.name}`"
-            class="grid size-5 place-items-center rounded-full text-[#9aabb4] transition-colors duration-200 hover:bg-[#ffffff14] hover:text-[#e4ecf0]"
-            :disabled="pending"
-            @click="clearTemplate"
-          >
-            <X class="size-3" aria-hidden="true" />
-          </button>
-        </span>
         <PromptField v-model="prompt" :disabled="pending" />
         <FileDropzone v-model="files" :disabled="pending" />
+        <Skeleton v-if="templates.isPending.value" class="h-[260px] w-full" />
+        <Alert v-else-if="templates.isError.value" class="py-2 text-[12px]">
+          Templates couldn’t load. You can still pick one on the outline step.
+        </Alert>
+        <NewTemplateSelector v-else-if="templates.data.value?.length" v-model="selectedTemplate" :templates="templates.data.value" :disabled="pending" />
         <GenerationOptions v-model="options" :disabled="pending" />
         <Alert v-if="error" variant="destructive" role="alert" class="py-2 text-[12px]">{{ error }}</Alert>
         <div class="flex flex-col gap-3">
