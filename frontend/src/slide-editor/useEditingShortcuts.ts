@@ -39,16 +39,22 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
   }
 
   // commit() publishes its ui optimistically, so the selection must follow synchronously, and a
-  // second key (auto-repeat) must not run against the new ui before this commit settles.
-  let pending = false
+  // structural key (auto-repeat) must not run against the new ui before the commit settles.
+  // Nudges are the exception: each builds on the optimistic ui and keeps the selection, so a held
+  // arrow keeps moving while earlier nudges are still saving.
+  let inflight = 0
+  let structuralInflight = 0
   async function apply(result: OpResult, label: string) {
-    if (!result || pending) return
-    pending = true
+    const structural = label !== 'Nudge'
+    if (!result || (structural ? inflight > 0 : structuralInflight > 0)) return
+    inflight += 1
+    if (structural) structuralInflight += 1
     ctx.select(result.selection)
     try {
       await ctx.commit(result.ui, label)
     } finally {
-      pending = false
+      inflight -= 1
+      if (structural) structuralInflight -= 1
     }
   }
 
@@ -59,9 +65,12 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
     const sel: Selection = ctx.selection.value
     if (!ui) return
     const mod = e.metaKey || e.ctrlKey
-    // Repeats while a commit is in flight are ignored (not queued).
-    if (pending) {
-      if (!mod && (e.key === 'Delete' || e.key === 'Backspace' || e.key in ARROWS)) e.preventDefault()
+    // Keys this handler owns are swallowed (not queued) while a conflicting commit is in flight,
+    // so they never reach the browser or slide navigation. Copy mutates nothing and always runs.
+    const k = e.key.toLowerCase()
+    const owned = mod ? !e.altKey && (k === 'd' || k === 'g') : e.key === 'Delete' || e.key === 'Backspace'
+    if ((owned && inflight > 0) || (!mod && e.key in ARROWS && structuralInflight > 0)) {
+      e.preventDefault()
       return
     }
     const key = e.key.toLowerCase()

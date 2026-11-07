@@ -47,10 +47,10 @@ describe('useEditingShortcuts races', () => {
   function setupOptimistic(sel: Selection) {
     const ui = ref(uiTwoComponents() as RawUi | null)
     const selection = ref<Selection>(sel)
-    let release!: () => void
+    const releases: Array<() => void> = []
     const commit = vi.fn((next: RawUi) => {
       ui.value = next // optimistic draft, like useSlideEditing
-      return new Promise<boolean>((r) => (release = () => r(true)))
+      return new Promise<boolean>((r) => releases.push(() => r(true)))
     })
     const ctx = {
       enabled: computed(() => true),
@@ -66,7 +66,7 @@ describe('useEditingShortcuts races', () => {
       defineComponent({ setup: () => (useEditingShortcuts(ctx, true), () => h('div')) }),
       { attachTo: document.body },
     )
-    return { ctx, ui, commit, release: () => release(), wrapper }
+    return { ctx, ui, commit, release: () => releases.forEach((r) => r()), wrapper }
   }
 
   it('auto-repeat Delete before the commit resolves removes only one component', async () => {
@@ -88,6 +88,66 @@ describe('useEditingShortcuts races', () => {
     const e = press('ArrowRight')
     expect(e.defaultPrevented).toBe(true)
     expect(t.commit).toHaveBeenCalledTimes(1)
+    t.wrapper.unmount()
+  })
+
+  it('layout-managed element arrows neither commit nor preventDefault', () => {
+    const t = setupOptimistic({ kind: 'element', componentIndex: 0, elementPath: [0] })
+    t.ui.value = {
+      components: [
+        {
+          id: 'c',
+          position: { x: 0, y: 0 },
+          elements: [
+            {
+              type: 'flex',
+              position: { x: 0, y: 0 },
+              size: { width: 300, height: 100 },
+              children: [{ type: 'shape', size: { width: 50, height: 50 } }],
+            },
+          ],
+        },
+      ],
+    } as unknown as RawUi
+    t.ctx.selection.value = { kind: 'element', componentIndex: 0, elementPath: [0, 0] }
+    const e = press('ArrowRight')
+    expect(e.defaultPrevented).toBe(false)
+    expect(t.commit).not.toHaveBeenCalled()
+    t.wrapper.unmount()
+  })
+
+  it('held arrows keep nudging while earlier nudges are still saving', () => {
+    const t = setupOptimistic({ kind: 'component', componentIndex: 0 })
+    press('ArrowRight')
+    press('ArrowRight')
+    press('ArrowRight')
+    expect(t.commit).toHaveBeenCalledTimes(3)
+    expect((t.ui.value!.components as any[])[0].position.x).toBe(103)
+    t.release()
+    t.wrapper.unmount()
+  })
+
+  it('structural keys are swallowed during a pending save, copy is not, and Delete waits for a pending nudge', () => {
+    const t = setupOptimistic({ kind: 'component', componentIndex: 0 })
+    press('ArrowRight')
+    const d = press('d', { ctrlKey: true })
+    expect(d.defaultPrevented).toBe(true)
+    const del = press('Delete')
+    expect(del.defaultPrevented).toBe(true)
+    const c = press('c', { ctrlKey: true })
+    expect(c.defaultPrevented).toBe(true) // handled: copy ran
+    expect(t.commit).toHaveBeenCalledTimes(1)
+    t.release()
+    t.wrapper.unmount()
+  })
+
+  it('arrows are swallowed while a structural commit is pending', () => {
+    const t = setupOptimistic({ kind: 'component', componentIndex: 0 })
+    press('d', { ctrlKey: true })
+    const a = press('ArrowRight')
+    expect(a.defaultPrevented).toBe(true)
+    expect(t.commit).toHaveBeenCalledTimes(1)
+    t.release()
     t.wrapper.unmount()
   })
 })
