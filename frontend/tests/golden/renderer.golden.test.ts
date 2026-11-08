@@ -8,6 +8,17 @@ const oldDir = resolve(process.cwd(), process.env.OLD_FRONTEND_DIR ?? '../server
 const templatesDir = resolve(process.cwd(), '../templates')
 const available = existsSync(resolve(oldDir, 'lib'))
 
+// Intentional deviation: the new renderer draws `opacity` and `shadow` on vector
+// shapes (as a drop-shadow filter) and `opacity` on text, which the old renderer
+// ignores. Strip exactly those additions, only at the two places they are
+// inserted, before comparing. Anything else that differs still fails.
+const withoutVectorEffects = (html: string): string =>
+  html
+    .replace(/(?:opacity:[^;"]*;)?(?:filter:drop-shadow\([^;"]*\);)?(?=overflow:visible"><svg)/g, '')
+    .replace(/opacity:[^;"]*;(?=display:flex;align-items)/g, '')
+
+let layoutsWithEffects = 0
+
 type Layout = Record<string, unknown>
 const templates: { name: string; layouts: Layout[] }[] = available
   ? readdirSync(templatesDir)
@@ -37,11 +48,16 @@ describe.skipIf(!available)('template-v2 renderer golden equivalence', () => {
         t.layouts.forEach((layout, i) => {
           const ui = layout as never
           const where = `${t.name}[${i}]`
+          if (newMod.templateV2UiToHtml(ui, opts) !== oldMod.templateV2UiToHtml(ui, opts)) layoutsWithEffects++
           expect(oldMod.templateV2UiToHtml(ui, opts), `${where} renders`).toEqual(expect.any(String))
-          expect(newMod.templateV2UiToHtml(ui, opts), `${where} html`).toBe(oldMod.templateV2UiToHtml(ui, opts))
-          expect(newMod.templateV2UiToHtml(ui), `${where} html plain`).toBe(oldMod.templateV2UiToHtml(ui))
-          expect(newMod.templateV2UiToHtmlFragment(ui, opts), `${where} fragment`).toBe(
-            oldMod.templateV2UiToHtmlFragment(ui, opts),
+          expect(withoutVectorEffects(newMod.templateV2UiToHtml(ui, opts)), `${where} html`).toBe(
+            oldMod.templateV2UiToHtml(ui, opts),
+          )
+          expect(withoutVectorEffects(newMod.templateV2UiToHtml(ui)), `${where} html plain`).toBe(
+            oldMod.templateV2UiToHtml(ui),
+          )
+          expect(withoutVectorEffects(newMod.templateV2UiToHtmlFragment(ui, opts) ?? ''), `${where} fragment`).toBe(
+            oldMod.templateV2UiToHtmlFragment(ui, opts) ?? '',
           )
           expect(newMod.hasTemplateV2RenderableUi(ui), `${where} renderable`).toBe(
             oldMod.hasTemplateV2RenderableUi(ui),
@@ -51,6 +67,10 @@ describe.skipIf(!available)('template-v2 renderer golden equivalence', () => {
       })
     })
   }
+
+  it('exercises the opacity/shadow deviation on real templates', () => {
+    expect(layoutsWithEffects).toBeGreaterThan(0)
+  })
 
   it('compares a non-trivial number of layouts', () => {
     const total = templates.reduce((n, t) => n + t.layouts.length, 0)
