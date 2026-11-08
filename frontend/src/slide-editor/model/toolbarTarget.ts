@@ -285,7 +285,7 @@ function tableToolbarElement(
   };
 }
 
-function findFirstComponentChartElement(
+export function findFirstComponentChartElement(
   elements: unknown[],
   parentPath: number[] = [],
 ): { element: RawRecord; elementPath: number[] } | null {
@@ -305,7 +305,7 @@ function findFirstComponentChartElement(
   return null;
 }
 
-function findFirstComponentTableElement(
+export function findFirstComponentTableElement(
   elements: unknown[],
   parentPath: number[] = [],
 ): { element: RawRecord; elementPath: number[] } | null {

@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { defineComponent, h, nextTick, ref, type Ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import type { Slide } from '@/api/types'
+import type { ElementSelection } from '@/slide-editor/model'
 
 const editSlideUi = vi.hoisted(() => vi.fn())
 vi.mock('@/composables/useSlideMutations', () => ({ useSlideMutations: () => ({ editSlideUi }) }))
@@ -174,5 +175,78 @@ describe('useSlideEditing', () => {
     await nextTick()
     wrapper.unmount()
     expect(editor.slideSelectionActive).toBe(false)
+  })
+
+  describe('tableCell', () => {
+    const cellOf = (rows: number, cols: number) => ({
+      components: [
+        {
+          id: 'c',
+          elements: [
+            {
+              type: 'table',
+              position: { x: 0, y: 0 },
+              size: { width: 300, height: 200 },
+              columns: Array.from({ length: cols }, () => ({ runs: [{ text: 'h' }] })),
+              rows: Array.from({ length: rows - 1 }, () => Array.from({ length: cols }, () => ({ runs: [{ text: 'x' }] }))),
+            },
+          ],
+        },
+        { id: 'd', elements: [{ type: 'text', position: { x: 0, y: 0 }, size: { width: 10, height: 10 } }] },
+      ],
+    })
+    const root: ElementSelection = { kind: 'element', componentIndex: 0, elementPath: [0] }
+
+    it('clears when another component is selected', async () => {
+      const { api } = setup(tpl('a', cellOf(3, 3)))
+      api.select({ kind: 'component', componentIndex: 0 })
+      api.tableCell.value = { root, row: 1, col: 1 }
+      await nextTick()
+      expect(api.tableCell.value).not.toBeNull()
+      api.select({ kind: 'component', componentIndex: 1 })
+      await nextTick()
+      expect(api.tableCell.value).toBeNull()
+    })
+
+    it('clamps the row when the last row is deleted', async () => {
+      const { api, slide } = setup(tpl('a', cellOf(4, 3)))
+      api.select(root)
+      api.tableCell.value = { root, row: 3, col: 1 }
+      slide.value = tpl('a', cellOf(3, 3))
+      await nextTick()
+      expect(api.tableCell.value).toEqual({ root, row: 2, col: 1 })
+    })
+
+    it('clamps the column when undo returns a narrower table', async () => {
+      const { api, slide } = setup(tpl('a', cellOf(3, 3)))
+      api.select(root)
+      api.tableCell.value = { root, row: 1, col: 2 }
+      slide.value = tpl('a', cellOf(3, 2))
+      await nextTick()
+      expect(api.tableCell.value).toEqual({ root, row: 1, col: 1 })
+    })
+
+    it('clamps against a draft ui too', async () => {
+      const { api } = setup(tpl('a', cellOf(3, 3)))
+      api.select(root)
+      api.tableCell.value = { root, row: 2, col: 2 }
+      api.draftUi.value = cellOf(2, 2) as never
+      await nextTick()
+      expect(api.tableCell.value).toEqual({ root, row: 1, col: 1 })
+    })
+
+    it('is nulled when the table is gone', async () => {
+      const { api, slide } = setup(tpl('a', cellOf(3, 3)))
+      api.select(root)
+      api.tableCell.value = { root, row: 1, col: 1 }
+      slide.value = tpl('a', uiWithText())
+      await nextTick()
+      expect(api.tableCell.value).toBeNull()
+    })
+
+    it('requestCellEdit is a harmless stub', () => {
+      const { api } = setup(tpl('a', cellOf(3, 3)))
+      expect(() => api.requestCellEdit(root, { row: 0, col: 0 })).not.toThrow()
+    })
   })
 })

@@ -26,4 +26,23 @@ describe('toolbarKind', () => {
   it('treats a multi-element component as generic', () => {
     expect(toolbarKind(ui({ type: 'text' }, { type: 'text' }), comp)).toBe('generic')
   })
+
+  it('table and chart elements and components', () => {
+    for (const [type, kind, label] of [['table', 'table', 'Table'], ['chart', 'chart', 'Chart']] as const) {
+      expect(toolbarKind(ui({ type }), el)).toBe(kind)
+      expect(selectionLabel(ui({ type }), el)).toBe(label)
+    }
+  })
+
+  it('a component with a chart nested in a group is a chart, even beside other elements', () => {
+    const u = ui({ type: 'text' }, { type: 'group', children: [{ type: 'chart' }] })
+    expect(toolbarKind(u, comp)).toBe('chart')
+    expect(selectionLabel(u, comp)).toBe('Chart')
+  })
+
+  it('labels a selected table cell "Cell"', () => {
+    expect(selectionLabel(ui({ type: 'table' }), el, { row: 0, col: 1 })).toBe('Cell')
+    expect(selectionLabel(ui({ type: 'table' }), el, null)).toBe('Table')
+    expect(selectionLabel(ui({ type: 'chart' }), el, { row: 0, col: 0 })).toBe('Chart')
+  })
 })

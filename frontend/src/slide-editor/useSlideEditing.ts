@@ -24,6 +24,9 @@ import {
   type RawUi,
   type Selection,
 } from '@/slide-editor/model'
+import { dataRoot } from '@/slide-editor/dataRoot'
+import { sameSelection } from '@/slide-editor/layerTree'
+import { clampCell, type TableCellRef } from '@/slide-editor/tableOps'
 import { inlineEditUi, startInlineEdit, type InlineEditSession } from '@/slide-editor/tiptapRuns'
 
 /** How a commit reports progress and joins history. */
@@ -45,6 +48,8 @@ export interface SlideEditing {
   /** What is hovered, on the canvas or in the inspector's layer list; the canvas outlines it. */
   hover: ShallowRef<Selection>
   draftUi: Ref<RawUi | null>
+  /** The selected table cell (row 0 is the header), with the table element it belongs to. */
+  tableCell: Ref<{ root: ElementSelection; row: number; col: number } | null>
   /** The open inline text edit; its slideId is the slide it commits to. */
   inlineEdit: Ref<InlineEditSession | null>
   /** The open inline editor's Tiptap instance (set by InlineTextEditor), for toolbar commands. */
@@ -60,6 +65,8 @@ export interface SlideEditing {
   cancelDraft: () => void
   /** Opens the inline text editor for a text or text-list element. */
   requestInlineEdit: (sel: ElementSelection) => void
+  /** Opens the inline editor on a table cell. */
+  requestCellEdit: (root: ElementSelection, cell: TableCellRef) => void
   /** Closes the inline editor; with `commit`, its text goes to the slide it was opened on. */
   closeInlineEdit: (commit: boolean) => Promise<boolean>
 }
@@ -98,6 +105,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   const selection = ref<Selection>(null)
   const hover = shallowRef<Selection>(null)
   const draftUi = shallowRef<RawUi | null>(null)
+  const tableCell = ref<{ root: ElementSelection; row: number; col: number } | null>(null)
   const inlineEdit = shallowRef<InlineEditSession | null>(null)
   const inlineEditor = shallowRef<Editor | null>(null)
   const guides = ref<AlignmentGuide[]>([])
@@ -185,6 +193,28 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     inlineEdit.value = { ...edit, deckId: presentationId.value }
   }
 
+  // Task 6 implements this.
+  function requestCellEdit() {}
+
+  // The cell belongs to the selected table: it goes when the selection leaves it, and stays inside the table as it shrinks.
+  watch(
+    [ui, selection],
+    ([u, sel]) => {
+      const cell = tableCell.value
+      if (!cell) return
+      const root = dataRoot(u, sel, 'table')
+      const table = root ? getElementAtSelection(u!, root) : null
+      if (!root || !table || !sameSelection(root, cell.root)) {
+        tableCell.value = null
+        return
+      }
+      const clamped = clampCell(table, cell)
+      if (!clamped) tableCell.value = null
+      else if (clamped.row !== cell.row || clamped.col !== cell.col) tableCell.value = { root: cell.root, ...clamped }
+    },
+    { flush: 'sync' },
+  )
+
   // Typed text is committed to the slide it was typed on before anything is cleared for the next one;
   // sync, so it runs before the watchers below see the new slide.
   watch(
@@ -254,6 +284,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     selection,
     hover,
     draftUi,
+    tableCell,
     inlineEdit,
     inlineEditor,
     guides,
@@ -263,6 +294,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     commitTo,
     cancelDraft,
     requestInlineEdit,
+    requestCellEdit,
     closeInlineEdit,
   }
   provide(SLIDE_EDITING_KEY, api)
