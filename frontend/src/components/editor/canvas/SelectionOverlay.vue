@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { hitComponent, hitDeepest, selectionFrames, toSlidePoint } from '@/slide-editor/geometry'
 import {
+  getElementAtSelection,
   selectionWithComponentToggle,
   STAGE_HEIGHT,
   STAGE_WIDTH,
@@ -13,6 +14,10 @@ import {
 } from '@/slide-editor/model'
 import { normalizeRotation } from '@/slide-editor/elementStyle'
 import { canRotate, rotateSelection } from '@/slide-editor/ops'
+import { dataRoot } from '@/slide-editor/dataRoot'
+import { sameSelection } from '@/slide-editor/layerTree'
+import { cellAtPoint, cellFrame } from '@/slide-editor/tableGeometry'
+import { tableSize } from '@/slide-editor/tableOps'
 import { appearanceTargets, readRotation } from '@/slide-editor/appearanceTarget'
 import { pointInFrame, selectionFrame, type Frame } from '@/slide-editor/rotation'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
@@ -55,6 +60,8 @@ interface MoveGesture {
   started: boolean
   delta: Point
   layers: HTMLElement[]
+  /** Set when the press landed on a table that was already selected: a release without a drag picks the cell. */
+  cellPress: { root: ElementSelection; point: Point } | null
 }
 interface ResizeGesture {
   type: 'resize'
@@ -128,6 +135,17 @@ const showRotate = computed(() => {
   const u = ui.value
   const sel = selection.value
   return !!u && !dragging.value && selected.value.length === 1 && rotateLayerSource(sel) != null && canRotate(u, sel)
+})
+// The selected cell's outline, hidden while a gesture is moving or turning the table.
+const cellOutline = computed(() => {
+  const u = ui.value
+  const cell = editing.tableCell.value
+  if (!u || !cell || dragging.value || rotateAngle.value != null) return null
+  const table = getElementAtSelection(u, cell.root)
+  const frame = table ? selectionFrame(u, cell.root) : null
+  if (!table || !frame) return null
+  const { rows, cols } = tableSize(table)
+  return { row: cell.row, col: cell.col, frame: cellFrame(frame, rows, cols, cell) }
 })
 const hoverBox = computed<Frame | null>(() => {
   const u = ui.value
@@ -242,12 +260,18 @@ function onPointerDown(e: PointerEvent) {
   takeFocus()
   const { rect, scale } = measure()
   const p = toSlidePoint(e.clientX, e.clientY, rect)
+  const tableBefore = dataRoot(u, selection.value, 'table')
   const next = selectionAfterPress(u, p, e.shiftKey)
   editing.select(next)
   hover.value = null
+  // A press on the table that was already selected picks a cell on release; the first press only selects it.
+  const tableNow = e.shiftKey ? null : dataRoot(u, next, 'table')
+  const cellPress =
+    tableBefore && tableNow && sameSelection(tableBefore, tableNow) ? { root: tableNow, point: p } : null
   // Shift-click only toggles the multi-selection.
   const items = e.shiftKey ? [] : moveItems(next, u)
-  if (items.length === 0) return
+  // A table that cannot move (layout-managed) still gets a gesture, so its release can pick the cell.
+  if (items.length === 0 && !cellPress) return
   e.preventDefault()
   setGesture({
     type: 'move',
@@ -261,6 +285,7 @@ function onPointerDown(e: PointerEvent) {
     started: false,
     delta: { x: 0, y: 0 },
     layers: [],
+    cellPress,
   })
   capture(e.pointerId)
   listenForEnd()
@@ -375,6 +400,7 @@ function onPointerMove(e: PointerEvent) {
     return
   }
   if (!g.started) {
+    if (g.items.length === 0) return
     if (Math.hypot(client.x - g.startClient.x, client.y - g.startClient.y) < DRAG_START_PX) return
     g.plan = planMove(g.ui, g.items)
     if (!g.plan) return
@@ -429,6 +455,16 @@ function finish(commit: boolean) {
   if (commit && g.started && (g.delta.x !== 0 || g.delta.y !== 0)) {
     void editing.commit(applyMove(g.ui, g.items, g.delta), 'Move')
   }
+  if (commit && !g.started && g.cellPress) selectCell(g.ui, g.cellPress)
+}
+
+function selectCell(u: RawUi, press: { root: ElementSelection; point: Point }) {
+  const table = getElementAtSelection(u, press.root)
+  const frame = table ? selectionFrame(u, press.root) : null
+  if (!table || !frame) return
+  const { rows, cols } = tableSize(table)
+  const cell = cellAtPoint(frame, rows, cols, press.point)
+  if (cell) editing.tableCell.value = { root: press.root, ...cell }
 }
 
 function onPointerUp(e: PointerEvent) {
@@ -515,6 +551,14 @@ onBeforeUnmount(() => finish(false))
         />
       </template>
     </div>
+    <div
+      v-if="cellOutline"
+      data-table-cell-outline
+      :data-row="cellOutline.row"
+      :data-col="cellOutline.col"
+      class="pointer-events-none absolute box-border border-2 border-solid border-[#4bb3e6]"
+      :style="boxStyle(cellOutline.frame)"
+    />
     <div
       v-if="rotateAngle != null"
       data-rotate-badge
