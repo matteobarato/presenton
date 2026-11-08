@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { ChartElement } from '@/render/legacy/components/slide-editor/types'
 import type { RawElement } from '@/slide-editor/model'
 import {
-  addCategory, addSeries, axesApply, chartGrid, chartTypeOptions, deleteCategory, deleteSeries,
+  addCategory, addSeries, canAddSeries, axesApply, chartGrid, chartTypeOptions, deleteCategory, deleteSeries,
   defaultLegendVisible, isCompleteNumericInput, isRadial, moveSeries, readChart, setCategory,
   setChartField, setChartType, setDataLabels, setSeriesName, setValue, withGrid, writeChart,
 } from '@/slide-editor/chartOps'
@@ -122,6 +122,26 @@ describe('grid ops', () => {
   it('moves series', () => {
     expect(moveSeries(g, 0, 1).series.map((s) => s.name)).toEqual(['S2', 'S1'])
     expect(moveSeries(g, 0, -1)).toEqual(g)
+  })
+})
+
+describe('limits', () => {
+  const big = (nc: number, ns: number) => ({
+    categories: Array.from({ length: nc }, (_, i) => `c${i}`),
+    series: Array.from({ length: ns }, (_, i) => ({ name: `s${i}`, values: Array(nc).fill(0) })),
+  })
+  it('caps categories and series', () => {
+    expect(addCategory(big(24, 1))).toEqual(big(24, 1))
+    expect(addCategory(big(23, 1)).categories).toHaveLength(24)
+    expect(addSeries(big(2, 12))).toEqual(big(2, 12))
+    expect(canAddSeries(big(2, 1), 'pie')).toBe(false)
+    expect(canAddSeries(big(2, 1), 'bar')).toBe(true)
+    expect(canAddSeries(big(2, 12), 'bar')).toBe(false)
+  })
+  it('withGrid writes at most 24 categories', () => {
+    const next = withGrid(chart(), big(30, 1))
+    expect(next.categories).toHaveLength(24)
+    expect(next.series![0].values).toHaveLength(24)
   })
 })
 

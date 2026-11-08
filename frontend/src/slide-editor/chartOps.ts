@@ -50,7 +50,8 @@ export function writeChart(raw: RawElement, chart: ChartElement): RawElement {
 
 export type ChartGrid = { categories: string[]; series: { name: string; values: number[] }[] }
 
-const MAX_SERIES = 12
+export const MAX_CHART_CATEGORIES = 24
+export const MAX_CHART_SERIES = 12
 
 export function chartGrid(chart: ChartElement): ChartGrid {
   let categories = resolvedChartCategories(chart)
@@ -73,10 +74,10 @@ export function chartGrid(chart: ChartElement): ChartGrid {
 
 /** Write a grid back, mirroring the old ChartDataModal: categories, series, palette and `data`. */
 export function withGrid(chart: ChartElement, grid: ChartGrid): ChartElement {
-  const categories = grid.categories.map(limitChartText)
+  const categories = grid.categories.slice(0, MAX_CHART_CATEGORIES).map(limitChartText)
   const n = categories.length
   const series: ChartSeries[] = grid.series
-    .slice(0, chartSupportsMultipleSeries(chart.chart_type) ? MAX_SERIES : 1)
+    .slice(0, chartSupportsMultipleSeries(chart.chart_type) ? MAX_CHART_SERIES : 1)
     .map((s) => ({
       name: limitChartText(s.name),
       values: Array.from({ length: n }, (_, i) => s.values[i] ?? 0),
@@ -113,10 +114,19 @@ export const setSeriesName = (g: ChartGrid, i: number, text: string): ChartGrid 
 export const setValue = (g: ChartGrid, row: number, series: number, n: number): ChartGrid =>
   mapSeries(g, series, (s) => ({ ...s, values: s.values.map((v, k) => (k === row ? n : v)) }))
 
-export const addCategory = (g: ChartGrid): ChartGrid => ({
-  categories: [...g.categories, `Item ${g.categories.length + 1}`],
-  series: g.series.map((s) => ({ ...s, values: [...s.values, 0] })),
-})
+export const canAddCategory = (g: ChartGrid): boolean => g.categories.length < MAX_CHART_CATEGORIES
+
+/** Single-series types (pie, donut) hold exactly one series; others up to MAX_CHART_SERIES. */
+export const canAddSeries = (g: ChartGrid, type: ChartType): boolean =>
+  g.series.length < (chartSupportsMultipleSeries(type) ? MAX_CHART_SERIES : 1)
+
+export const addCategory = (g: ChartGrid): ChartGrid =>
+  !canAddCategory(g)
+    ? g
+    : {
+        categories: [...g.categories, `Item ${g.categories.length + 1}`],
+        series: g.series.map((s) => ({ ...s, values: [...s.values, 0] })),
+      }
 
 export const deleteCategory = (g: ChartGrid, i: number): ChartGrid =>
   g.categories.length <= 1 || i < 0 || i >= g.categories.length
@@ -126,13 +136,17 @@ export const deleteCategory = (g: ChartGrid, i: number): ChartGrid =>
         series: g.series.map((s) => ({ ...s, values: s.values.filter((_, k) => k !== i) })),
       }
 
-export const addSeries = (g: ChartGrid): ChartGrid => ({
-  ...g,
-  series: [
-    ...g.series,
-    { name: `Series ${g.series.length + 1}`, values: g.categories.map(() => 0) },
-  ],
-})
+// Capped at MAX_CHART_SERIES here; withGrid slices further for single-series types.
+export const addSeries = (g: ChartGrid): ChartGrid =>
+  g.series.length >= MAX_CHART_SERIES
+    ? g
+    : {
+        ...g,
+        series: [
+          ...g.series,
+          { name: `Series ${g.series.length + 1}`, values: g.categories.map(() => 0) },
+        ],
+      }
 
 export const deleteSeries = (g: ChartGrid, i: number): ChartGrid =>
   g.series.length <= 1 || i < 0 || i >= g.series.length
