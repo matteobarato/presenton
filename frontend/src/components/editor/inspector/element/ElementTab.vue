@@ -7,6 +7,7 @@ import { selectionLabel, toolbarKind } from '@/slide-editor/toolbarKind'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import AppearanceSection from './AppearanceSection.vue'
 import ArrangeSection from './ArrangeSection.vue'
+import ChartSection from './ChartSection.vue'
 import IconSection from './IconSection.vue'
 import ImageSection from './ImageSection.vue'
 import LayerChildren from './LayerChildren.vue'
@@ -15,6 +16,7 @@ import LineSection from './LineSection.vue'
 import ListSection from './ListSection.vue'
 import OrderSection from './OrderSection.vue'
 import ShapeSection from './ShapeSection.vue'
+import TableSection from './TableSection.vue'
 import TextSection from './TextSection.vue'
 import VideoSection from './VideoSection.vue'
 
@@ -24,7 +26,7 @@ const ctx = useSlideEditingContext()
 const active = computed(() => ctx.enabled.value && ctx.selection.value !== null)
 const kind = computed(() => toolbarKind(ctx.ui.value, ctx.selection.value))
 const single = computed(() => ctx.selection.value?.kind !== 'multi-component')
-const heading = computed(() => selectionLabel(ctx.ui.value, ctx.selection.value) ?? 'Element')
+const heading = computed(() => selectionLabel(ctx.ui.value, ctx.selection.value, ctx.tableCell?.value) ?? 'Element')
 const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : []))
 </script>
 
@@ -56,6 +58,8 @@ const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : [])
       <IconSection v-else-if="kind === 'icon'" :presentation="props.presentation" />
       <ShapeSection v-else-if="kind === 'shape'" :presentation="props.presentation" />
       <LineSection v-else-if="kind === 'line'" :presentation="props.presentation" />
+      <TableSection v-else-if="kind === 'table'" :presentation="props.presentation" />
+      <ChartSection v-else-if="kind === 'chart'" :presentation="props.presentation" />
       <VideoSection v-else-if="kind === 'video'" :presentation-id="props.presentationId" :slide="props.activeSlide" />
       <AppearanceSection v-if="single" :presentation="props.presentation" />
       <ArrangeSection />

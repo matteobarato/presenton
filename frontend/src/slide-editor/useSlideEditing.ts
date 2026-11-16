@@ -5,6 +5,7 @@ import {
   provide,
   ref,
   shallowRef,
+  toRaw,
   watch,
   type ComputedRef,
   type InjectionKey,
@@ -24,7 +25,10 @@ import {
   type RawUi,
   type Selection,
 } from '@/slide-editor/model'
-import { inlineEditUi, startInlineEdit, type InlineEditSession } from '@/slide-editor/tiptapRuns'
+import { dataRoot } from '@/slide-editor/dataRoot'
+import { sameSelection } from '@/slide-editor/layerTree'
+import { clampCell, type TableCellRef } from '@/slide-editor/tableOps'
+import { inlineEditUi, startCellEdit, startInlineEdit, type InlineEditSession } from '@/slide-editor/tiptapRuns'
 
 /** How a commit reports progress and joins history. */
 export interface CommitOptions {
@@ -41,10 +45,14 @@ export interface SlideEditing {
   /** Id of the slide this state belongs to. */
   slideId: ComputedRef<string | null>
   ui: ComputedRef<RawUi | null>
+  /** The slide's saved ui, ignoring any draft; its identity changes on every commit or remote update. */
+  committedUi: ComputedRef<RawUi | null>
   selection: Ref<Selection>
   /** What is hovered, on the canvas or in the inspector's layer list; the canvas outlines it. */
   hover: ShallowRef<Selection>
   draftUi: Ref<RawUi | null>
+  /** The selected table cell (row 0 is the header), with the table element it belongs to. */
+  tableCell: Ref<{ root: ElementSelection; row: number; col: number } | null>
   /** The open inline text edit; its slideId is the slide it commits to. */
   inlineEdit: Ref<InlineEditSession | null>
   /** The open inline editor's Tiptap instance (set by InlineTextEditor), for toolbar commands. */
@@ -60,8 +68,15 @@ export interface SlideEditing {
   cancelDraft: () => void
   /** Opens the inline text editor for a text or text-list element. */
   requestInlineEdit: (sel: ElementSelection) => void
+  /** Opens the inline editor on a table cell. */
+  requestCellEdit: (root: ElementSelection, cell: TableCellRef) => void
   /** Closes the inline editor; with `commit`, its text goes to the slide it was opened on. */
   closeInlineEdit: (commit: boolean) => Promise<boolean>
+  /**
+   * True when `ui` is a commit this context made to the current slide: still saving, or the last of
+   * them to land. A committedUi change for which this is false is remote (undo, AI edit, refetch).
+   */
+  isOwnCommit: (ui: RawUi | null) => boolean
 }
 
 export const SLIDE_EDITING_KEY: InjectionKey<SlideEditing> = Symbol('slide-editing')
@@ -98,6 +113,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   const selection = ref<Selection>(null)
   const hover = shallowRef<Selection>(null)
   const draftUi = shallowRef<RawUi | null>(null)
+  const tableCell = ref<{ root: ElementSelection; row: number; col: number } | null>(null)
   const inlineEdit = shallowRef<InlineEditSession | null>(null)
   const inlineEditor = shallowRef<Editor | null>(null)
   const guides = ref<AlignmentGuide[]>([])
@@ -106,6 +122,8 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   const slideId = computed(() => slide.value?.id ?? null)
   const enabled = computed(() => !!slide.value && slideKind(slide.value) === 'template' && !editor.locked)
   const ui = computed<RawUi | null>(() => draftUi.value ?? ((slide.value?.ui as RawUi | null | undefined) ?? null))
+
+  const committedUi = computed<RawUi | null>(() => (slide.value?.ui as RawUi | null | undefined) ?? null)
 
   function select(sel: Selection) {
     selection.value = sel
@@ -159,6 +177,14 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     return pending.findIndex((p) => p.slideId === id && JSON.stringify(p.ui) === json)
   }
 
+  // The last own commit that reached the slide: its save may resolve (leaving `pending`) before a
+  // watcher further down the tree compares against it.
+  let landedOwn: RawUi | null = null
+  function isOwnCommit(u: RawUi | null): boolean {
+    if (!u) return false
+    return (landedOwn !== null && toRaw(u) === toRaw(landedOwn)) || pendingIndex(slide.value?.id, u) >= 0
+  }
+
   function dropInlineEdit() {
     inlineEdit.value = null
     inlineEditor.value = null
@@ -185,6 +211,39 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     inlineEdit.value = { ...edit, deckId: presentationId.value }
   }
 
+  // The table stays selected as it is (component or element) and the cell stays picked, during and after the edit.
+  function requestCellEdit(root: ElementSelection, cell: TableCellRef) {
+    if (inlineEdit.value) void closeInlineEdit(true)
+    const id = slide.value?.id
+    const u = ui.value
+    if (!enabled.value || !id || !u) return
+    const edit = startCellEdit(u, root, cell, id)
+    if (!edit) return
+    const current = dataRoot(u, selection.value, 'table')
+    if (!current || !sameSelection(current, root)) selection.value = root
+    tableCell.value = { root, row: cell.row, col: cell.col }
+    inlineEdit.value = { ...edit, deckId: presentationId.value }
+  }
+
+  // The cell belongs to the selected table: it goes when the selection leaves it, and stays inside the table as it shrinks.
+  watch(
+    [ui, selection],
+    ([u, sel]) => {
+      const cell = tableCell.value
+      if (!cell) return
+      const root = dataRoot(u, sel, 'table')
+      const table = root ? getElementAtSelection(u!, root) : null
+      if (!root || !table || !sameSelection(root, cell.root)) {
+        tableCell.value = null
+        return
+      }
+      const clamped = clampCell(table, cell)
+      if (!clamped) tableCell.value = null
+      else if (clamped.row !== cell.row || clamped.col !== cell.col) tableCell.value = { root: cell.root, ...clamped }
+    },
+    { flush: 'sync' },
+  )
+
   // Typed text is committed to the slide it was typed on before anything is cleared for the next one;
   // sync, so it runs before the watchers below see the new slide.
   watch(
@@ -208,6 +267,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     () => slide.value?.ui,
     (committed) => {
       const own = pendingIndex(slide.value?.id, committed)
+      landedOwn = own >= 0 ? ((committed as RawUi | null | undefined) ?? null) : null
       if (own >= 0) {
         // Our own commit landed: the open edit and any newer draft still stand. The draft goes only
         // when it is this ui (or an older one), never when a later commit is still on its way.
@@ -232,7 +292,16 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   // Selecting anything else closes the editor (and keeps its text).
   watch(selection, (sel) => {
     const edit = inlineEdit.value
-    if (edit && JSON.stringify(sel) !== JSON.stringify(edit.selection)) void closeInlineEdit(true)
+    if (!edit) return
+    // A cell edit belongs to its table, however the table is selected.
+    const editing =
+      edit.target.kind === 'cell'
+        ? (() => {
+            const root = dataRoot(ui.value, sel, 'table')
+            return !!root && sameSelection(root, edit.selection)
+          })()
+        : JSON.stringify(sel) === JSON.stringify(edit.selection)
+    if (!editing) void closeInlineEdit(true)
   })
 
   watch(
@@ -251,9 +320,11 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     enabled,
     slideId,
     ui,
+    committedUi,
     selection,
     hover,
     draftUi,
+    tableCell,
     inlineEdit,
     inlineEditor,
     guides,
@@ -263,7 +334,9 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     commitTo,
     cancelDraft,
     requestInlineEdit,
+    requestCellEdit,
     closeInlineEdit,
+    isOwnCommit,
   }
   provide(SLIDE_EDITING_KEY, api)
   return api

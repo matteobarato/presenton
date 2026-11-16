@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { field, label as labelClass } from './styles'
 
 const props = defineProps<{ modelValue: string | null; palette: string[]; label: string; allowNone?: boolean }>()
-const emit = defineEmits<{ open: []; commit: [value: string | null] }>()
+const emit = defineEmits<{ open: []; close: []; commit: [value: string | null] }>()
 
 const HEX = /^#[0-9a-f]{6}$/i
 const open = ref(false)
@@ -38,6 +38,7 @@ watch(open, (isOpen) => {
     return
   }
   if (!committed && norm(draft.value) !== norm(openedWith)) done(draft.value)
+  emit('close')
 })
 
 function done(value: string | null) {

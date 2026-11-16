@@ -4,12 +4,19 @@ import { createPinia, setActivePinia } from 'pinia'
 import { defineComponent, h, nextTick, ref, type Ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import type { Slide } from '@/api/types'
+import type { ElementSelection } from '@/slide-editor/model'
 
 const editSlideUi = vi.hoisted(() => vi.fn())
 vi.mock('@/composables/useSlideMutations', () => ({ useSlideMutations: () => ({ editSlideUi }) }))
 
 import { SLIDE_EDITING_KEY, useSlideEditing, useSlideEditingContext, type SlideEditing } from '@/slide-editor/useSlideEditing'
 import { useEditorStore } from '@/stores/editor'
+import { getElementAtSelection, updateElementInUi } from '@/slide-editor/model'
+import { useEditingActions } from '@/slide-editor/useEditingActions'
+import { addRow, tableCellAt, tableSize } from '@/slide-editor/tableOps'
+import { runsToDoc } from '@/slide-editor/tiptapRuns'
+import { useSelectedElement } from '@/slide-editor/useSelectedElement'
+import { textRunsContent } from '@/render/legacy/components/slide-editor/text/text-runs'
 import { uiTwoComponents, uiWithText } from './fixtures'
 
 const tpl = (id: string, ui: unknown) => ({ id, index: 0, layout: 'template-v2-x:a', layout_group: 'template-v2-x', content: {}, ui }) as unknown as Slide
@@ -174,5 +181,162 @@ describe('useSlideEditing', () => {
     await nextTick()
     wrapper.unmount()
     expect(editor.slideSelectionActive).toBe(false)
+  })
+
+  it('an appearance op during a text edit keeps the typed text and survives the close', async () => {
+    const { api } = setup(tpl('a', uiWithText()))
+    const at: ElementSelection = { kind: 'element', componentIndex: 0, elementPath: [0] }
+    api.requestInlineEdit(at)
+    const edit = api.inlineEdit.value!
+    api.inlineEditor.value = {
+      isDestroyed: false,
+      getJSON: () => runsToDoc([{ text: 'Typed' }], false, { baseFont: edit.baseFont, align: 'left' }),
+    } as never
+    await useEditingActions(api).run('Opacity', (ui) => ({ ui: updateElementInUi(ui, at, (el) => ({ ...el, opacity: 0.5 })), selection: at }))
+    expect(api.inlineEdit.value).toBeNull()
+    expect(editSlideUi.mock.calls.map((c) => c[2])).toEqual(['Edit text', 'Opacity'])
+    const last = getElementAtSelection(editSlideUi.mock.calls[1][1], at)!
+    expect(last).toMatchObject({ opacity: 0.5 })
+    expect(JSON.stringify(last)).toContain('Typed')
+  })
+
+  it('isOwnCommit is true for a pending or just-landed own commit, false for a remote ui', async () => {
+    let resolve!: (ok: boolean) => void
+    editSlideUi.mockImplementation(() => new Promise<boolean>((r) => (resolve = r)))
+    const { api, slide } = setup(tpl('a', uiWithText()))
+    const next = uiTwoComponents()
+    const saving = api.commit(next, 'Move')
+    expect(api.isOwnCommit(next)).toBe(true)
+    expect(api.isOwnCommit(uiTwoComponents())).toBe(true)
+    slide.value = tpl('a', next)
+    await nextTick()
+    resolve(true)
+    await saving
+    // Landed and saved: still recognised, so a watcher that runs after the save resolved does not call it remote.
+    expect(api.isOwnCommit(next)).toBe(true)
+    expect(api.isOwnCommit(uiWithText())).toBe(false)
+    const remote = uiWithText()
+    slide.value = tpl('a', remote)
+    await nextTick()
+    expect(api.isOwnCommit(remote)).toBe(false)
+    expect(api.isOwnCommit(null)).toBe(false)
+  })
+
+  describe('tableCell', () => {
+    const cellOf = (rows: number, cols: number) => ({
+      components: [
+        {
+          id: 'c',
+          elements: [
+            {
+              type: 'table',
+              position: { x: 0, y: 0 },
+              size: { width: 300, height: 200 },
+              columns: Array.from({ length: cols }, () => ({ runs: [{ text: 'h' }] })),
+              rows: Array.from({ length: rows - 1 }, () => Array.from({ length: cols }, () => ({ runs: [{ text: 'x' }] }))),
+            },
+          ],
+        },
+        { id: 'd', elements: [{ type: 'text', position: { x: 0, y: 0 }, size: { width: 10, height: 10 } }] },
+      ],
+    })
+    const root: ElementSelection = { kind: 'element', componentIndex: 0, elementPath: [0] }
+
+    it('clears when another component is selected', async () => {
+      const { api } = setup(tpl('a', cellOf(3, 3)))
+      api.select({ kind: 'component', componentIndex: 0 })
+      api.tableCell.value = { root, row: 1, col: 1 }
+      await nextTick()
+      expect(api.tableCell.value).not.toBeNull()
+      api.select({ kind: 'component', componentIndex: 1 })
+      await nextTick()
+      expect(api.tableCell.value).toBeNull()
+    })
+
+    it('clamps the row when the last row is deleted', async () => {
+      const { api, slide } = setup(tpl('a', cellOf(4, 3)))
+      api.select(root)
+      api.tableCell.value = { root, row: 3, col: 1 }
+      slide.value = tpl('a', cellOf(3, 3))
+      await nextTick()
+      expect(api.tableCell.value).toEqual({ root, row: 2, col: 1 })
+    })
+
+    it('clamps the column when undo returns a narrower table', async () => {
+      const { api, slide } = setup(tpl('a', cellOf(3, 3)))
+      api.select(root)
+      api.tableCell.value = { root, row: 1, col: 2 }
+      slide.value = tpl('a', cellOf(3, 2))
+      await nextTick()
+      expect(api.tableCell.value).toEqual({ root, row: 1, col: 1 })
+    })
+
+    it('clamps against a draft ui too', async () => {
+      const { api } = setup(tpl('a', cellOf(3, 3)))
+      api.select(root)
+      api.tableCell.value = { root, row: 2, col: 2 }
+      api.draftUi.value = cellOf(2, 2) as never
+      await nextTick()
+      expect(api.tableCell.value).toEqual({ root, row: 1, col: 1 })
+    })
+
+    it('is nulled when the table is gone', async () => {
+      const { api, slide } = setup(tpl('a', cellOf(3, 3)))
+      api.select(root)
+      api.tableCell.value = { root, row: 1, col: 1 }
+      slide.value = tpl('a', uiWithText())
+      await nextTick()
+      expect(api.tableCell.value).toBeNull()
+    })
+
+    // Inspector patches made while a cell is being typed in must not be reverted when the editor closes.
+    it('a table patch during a cell edit commits the typed text first, then patches the live ui', async () => {
+      const { api, slide } = setup(tpl('a', cellOf(3, 3)))
+      api.select(root)
+      api.requestCellEdit(root, { row: 1, col: 1 })
+      const edit = api.inlineEdit.value!
+      expect(edit.target).toEqual({ kind: 'cell', row: 1, col: 1 })
+      api.inlineEditor.value = {
+        isDestroyed: false,
+        getJSON: () => runsToDoc([{ text: 'typed' }], false, { baseFont: edit.baseFont, align: 'left' }),
+      } as never
+      useSelectedElement(api).patch('Add row', (t) => addRow(t, 1), root)
+      await nextTick()
+      // The edit closed; its text and the row went in as two history entries, in that order.
+      expect(api.inlineEdit.value).toBeNull()
+      expect(api.tableCell.value).toEqual({ root, row: 1, col: 1 })
+      expect(editSlideUi.mock.calls.map((c) => c[2])).toEqual(['Edit text', 'Add row'])
+      const tableIn = (ui: unknown) => getElementAtSelection(ui as never, root)!
+      const typed = tableIn(editSlideUi.mock.calls[0][1])
+      const added = tableIn(editSlideUi.mock.calls[1][1])
+      expect(tableSize(typed).rows).toBe(3)
+      expect(textRunsContent(tableCellAt(typed, { row: 1, col: 1 })!.runs as never)).toBe('typed')
+      expect(tableSize(added).rows).toBe(4)
+      expect(textRunsContent(tableCellAt(added, { row: 1, col: 1 })!.runs as never)).toBe('typed')
+      // Closing again (blur after the click) commits nothing more and cannot revert the row.
+      await api.closeInlineEdit(true)
+      expect(editSlideUi).toHaveBeenCalledTimes(2)
+      slide.value = tpl('a', editSlideUi.mock.calls[1][1])
+      await nextTick()
+      expect(tableSize(tableIn(api.ui.value)).rows).toBe(4)
+      // Undo of the row returns to the typed table: the text stays, the row goes.
+      slide.value = tpl('a', editSlideUi.mock.calls[0][1])
+      await nextTick()
+      expect(tableSize(tableIn(api.ui.value)).rows).toBe(3)
+      expect(textRunsContent(tableCellAt(tableIn(api.ui.value), { row: 1, col: 1 })!.runs as never)).toBe('typed')
+    })
+
+    it('a patch with no inline edit open leaves editing alone and commits once', async () => {
+      const { api } = setup(tpl('a', cellOf(3, 3)))
+      api.select(root)
+      useSelectedElement(api).patch('Add row', (t) => addRow(t, 1), root)
+      await nextTick()
+      expect(editSlideUi.mock.calls.map((c) => c[2])).toEqual(['Add row'])
+    })
+
+    it('requestCellEdit is a harmless stub', () => {
+      const { api } = setup(tpl('a', cellOf(3, 3)))
+      expect(() => api.requestCellEdit(root, { row: 0, col: 0 })).not.toThrow()
+    })
   })
 })

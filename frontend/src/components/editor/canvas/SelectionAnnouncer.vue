@@ -7,11 +7,12 @@ import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 const ctx = useSlideEditingContext()
 const message = ref('')
 
+// A picked table cell is announced too ("Cell"), so the cell is part of what is watched.
 watch(
-  () => JSON.stringify(ctx.selection.value),
+  () => JSON.stringify([ctx.selection.value, ctx.tableCell?.value ?? null]),
   () => {
     const sel = ctx.selection.value
-    const label = selectionLabel(ctx.ui.value, sel)
+    const label = selectionLabel(ctx.ui.value, sel, ctx.tableCell?.value)
     if (sel?.kind === 'multi-component') message.value = `${label} selected`
     else if (label) message.value = `Selected: ${label}`
     else if (message.value) message.value = 'Selection cleared'

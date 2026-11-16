@@ -25,12 +25,11 @@ export function useSelectedElement(ctx: SlideEditing): SelectedElement {
     return ui && target.value ? getElementAtSelection(ui, target.value) : null
   })
 
+  // Built on the live ui inside run: an open inline edit commits first, so its text is kept and cannot revert this.
   function patch(label: string, fn: (el: RawElement) => RawElement, at?: ElementSelection) {
-    const ui = ctx.ui.value
     const sel = at ?? target.value
-    if (!ui || !sel || !getElementAtSelection(ui, sel)) return
-    const next = updateElementInUi(ui, sel, fn)
-    void actions.run(label, { ui: next, selection: ctx.selection.value } as never)
+    if (!sel || !ctx.ui.value || !getElementAtSelection(ctx.ui.value, sel)) return
+    void actions.run(label, (ui) => (getElementAtSelection(ui, sel) ? { ui: updateElementInUi(ui, sel, fn), selection: ctx.selection.value } : null))
   }
 
   return { target, element, patch, capture: () => target.value }

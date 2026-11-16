@@ -1,9 +1,17 @@
+import type { RawUi } from '@/slide-editor/model'
 import type { OpResult } from '@/slide-editor/ops'
 import type { SlideEditing } from '@/slide-editor/useSlideEditing'
 
+/** An op result, or a builder that makes one from the live ui (preferred: it sees an open inline edit's text). */
+export type OpSource = OpResult | ((ui: RawUi) => OpResult)
+
 export interface EditingActions {
-  /** Runs an op result: selects synchronously, then commits. Skipped when it conflicts with an in-flight commit. */
-  run: (label: string, result: OpResult) => Promise<void>
+  /**
+   * Runs an op: selects synchronously, then commits. Skipped when it conflicts with an in-flight commit.
+   * Given a builder, an open inline edit (text or cell) is closed and its text committed first, and the
+   * op is built on the ui that holds it: the editor's snapshot would otherwise revert the op on close.
+   */
+  run: (label: string, source: OpSource) => Promise<void>
   /** True while any commit is being applied (its save may outlive this). */
   busy: () => boolean
   /** True while a structural (non-nudge) commit is being applied. */
@@ -22,9 +30,17 @@ function createActions(ctx: SlideEditing): EditingActions {
   // share a merge key, so a held arrow is one history entry.
   let inflight = 0
   let structuralInflight = 0
-  async function run(label: string, result: OpResult) {
+  async function run(label: string, source: OpSource) {
     const structural = label !== 'Nudge'
-    if (!result || (structural ? inflight > 0 : structuralInflight > 0)) return
+    if (!source || (structural ? inflight > 0 : structuralInflight > 0)) return
+    let result: OpResult
+    if (typeof source === 'function') {
+      // closeInlineEdit publishes the typed text as the draft synchronously, so ctx.ui holds it below.
+      if (ctx.inlineEdit?.value) void ctx.closeInlineEdit(true)
+      const ui = ctx.ui.value
+      result = ui ? source(ui) : null
+      if (!result) return
+    } else result = source
     inflight += 1
     if (structural) structuralInflight += 1
     let released = false

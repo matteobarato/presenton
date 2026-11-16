@@ -646,3 +646,114 @@ test.describe('visual element editing (mocked)', () => {
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 })
+
+// --- Table and chart editing -------------------------------------------------------------------
+
+const dataDeck = fixture<typeof editableDeck>('data-presentation')
+interface RawCell { runs: { text: string }[] }
+interface DataElement {
+  rows?: RawCell[][]
+  chart_type?: string
+  series?: { name: string; values: number[] }[]
+}
+const dataElementOf = (patch: { slides: PatchedSlide[] } | undefined, id: string) =>
+  patch?.slides.flatMap((s) => s.ui?.components ?? []).find((c) => c.id === id)?.elements[0] as DataElement | undefined
+/** Body rows plus the header: what the table reports as its row count. */
+const tableRowCount = (patch: { slides: PatchedSlide[] } | undefined) => {
+  const rows = dataElementOf(patch, 'table')?.rows
+  return rows ? rows.length + 1 : 0
+}
+
+test.describe('table and chart editing (mocked)', () => {
+  // The table sits at (100,100) and is 600x300: its 3x3 cells are 200x100. Cell (r,c) centres at (200+200c, 150+100r).
+  const cellPoint = (row: number, col: number): [number, number] => [200 + 200 * col, 150 + 100 * row]
+
+  async function open(page: Page, slide = 1) {
+    const api = await editableApi(page, {}, dataDeck)
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    if (slide > 1) {
+      const thumb = page.getByRole('button', { name: `Slide ${slide}`, exact: true })
+      await thumb.click()
+      await expect(thumb).toHaveAttribute('aria-current', 'true')
+      await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    }
+    return api
+  }
+  async function click(page: Page, [x, y]: [number, number], options: { clickCount?: number } = {}) {
+    const p = await slidePoint(page, x, y)
+    await page.mouse.click(p.px, p.py, options)
+  }
+  /** The slide switch cross-fades, so the new overlay can lag the thumbnail: click until the chart is selected. */
+  async function selectChart(page: Page) {
+    await expect(async () => {
+      await click(page, [400, 300])
+      await expect(page.getByRole('combobox', { name: 'Chart type' })).toBeVisible({ timeout: 500 })
+    }).toPass({ timeout: 10_000 })
+  }
+  /** First click selects the table, the second (no movement) picks the cell. */
+  async function selectCell(page: Page, row: number, col: number) {
+    await click(page, cellPoint(row, col))
+    await click(page, cellPoint(row, col))
+    const outline = page.locator('[data-table-cell-outline]')
+    await expect(outline).toHaveAttribute('data-row', String(row))
+    await expect(outline).toHaveAttribute('data-col', String(col))
+  }
+
+  test('editing a table cell in place persists across reload', async ({ page }) => {
+    const { patches, unexpected } = await open(page)
+    await selectCell(page, 1, 1)
+    await click(page, cellPoint(1, 1), { clickCount: 2 })
+    const editor = page.locator('.ProseMirror')
+    await expect(editor).toBeVisible()
+    await page.keyboard.press('Control+a')
+    await page.keyboard.type('Edited')
+    await page.keyboard.press('Escape')
+    await expect.poll(() => dataElementOf(patches.at(-1), 'table')?.rows?.[0]?.[1]?.runs.map((r) => r.text).join('')).toBe('Edited')
+
+    await page.reload()
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    await expect(page.getByTestId('selection-overlay').locator('xpath=..').getByText('Edited').first()).toBeAttached()
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('add and delete a row from the Element tab; Ctrl+Z restores it', async ({ page }) => {
+    const { patches, unexpected } = await open(page)
+    await selectCell(page, 1, 0)
+    await page.getByRole('button', { name: 'Add row', exact: true }).click()
+    await expect.poll(() => tableRowCount(patches.at(-1))).toBe(4)
+    await page.getByRole('button', { name: 'Delete row', exact: true }).click()
+    await expect.poll(() => tableRowCount(patches.at(-1))).toBe(3)
+    await page.keyboard.press('Control+z')
+    await expect.poll(() => tableRowCount(patches.at(-1))).toBe(4)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('chart type switches to line and saves', async ({ page }) => {
+    const { patches, unexpected } = await open(page, 2)
+    await selectChart(page)
+    await page.getByRole('combobox', { name: 'Chart type' }).selectOption({ label: 'Line Chart' })
+    await expect.poll(() => dataElementOf(patches.at(-1), 'chart')?.chart_type).toBe('line')
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('Edit data saves one PATCH and Ctrl+Z undoes it in one step', async ({ page }) => {
+    const { patches, unexpected } = await open(page, 2)
+    await selectChart(page)
+    await expect(page.locator('[data-chart-mini]')).toBeVisible()
+    await page.getByRole('button', { name: 'Edit data', exact: true }).click()
+    const dialog = page.getByRole('dialog')
+    const value = dialog.getByRole('textbox', { name: 'Value 1,1', exact: true })
+    await expect(value).toHaveValue('10')
+    await value.fill('99')
+    await dialog.getByRole('button', { name: 'Done', exact: true }).click()
+    await expect(dialog).toHaveCount(0)
+    await expect.poll(() => dataElementOf(patches.at(-1), 'chart')?.series?.[0]?.values[0]).toBe(99)
+    expect(patches).toHaveLength(1)
+
+    await page.keyboard.press('Control+z')
+    await expect.poll(() => dataElementOf(patches.at(-1), 'chart')?.series?.[0]?.values[0]).toBe(10)
+    expect(patches).toHaveLength(2)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+})

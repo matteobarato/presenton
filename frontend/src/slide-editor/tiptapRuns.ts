@@ -22,6 +22,7 @@ import {
 } from '@/render/legacy/components/slide-editor/text/template-v2-text'
 import {
   asRecord,
+  editorTableCellToRaw,
   elementWithInlineDraft,
   getElementAtSelection,
   isLatexTextRun,
@@ -29,6 +30,8 @@ import {
   mergeAdjacentTextRuns,
   normalizeMarkdownTextInUi,
   readArray,
+  rawTableCellForEditor,
+  readNumber,
   readString,
   renderedLocalBoxForElementSelection,
   syncComponentHeightToElement,
@@ -42,6 +45,9 @@ import {
   type RawUi,
   type TemplateV2TextEditStyle,
 } from '@/slide-editor/model'
+import { readableTableTextColor } from '@/slide-editor/tableColors'
+import { cellBox } from '@/slide-editor/tableGeometry'
+import { tableCellAt, tableSize, updateTableCell, type RawRecord, type TableCellRef } from '@/slide-editor/tableOps'
 
 const NON_BREAKING_SPACE = '\u00A0'
 
@@ -333,7 +339,11 @@ export interface InlineEditSession {
   doc: JSONContent
   /** Runs signature at open, to skip a commit when nothing changed. */
   baseline: string
+  /** What the edit writes to: the element itself, or one cell of the table at `selection`. */
+  target: InlineEditTarget
 }
+
+export type InlineEditTarget = { kind: 'element' } | { kind: 'cell'; row: number; col: number }
 
 function autoSizeInlineTextFrame(frame: Box | null, runs: TextRun[], style: TemplateV2TextEditStyle): Box | null {
   if (!frame) return frame
@@ -377,11 +387,13 @@ export function startInlineEdit(ui: RawUi, selection: ElementSelection, slideId:
     listMarker,
     doc,
     baseline: runsSignature(docToRuns(doc, list, { baseFont })),
+    target: { kind: 'element' },
   }
 }
 
 /** The ui with the editor's doc committed into the edited element, or null when nothing changed. */
 export function inlineEditUi(session: InlineEditSession, doc: JSONContent): RawUi | null {
+  if (session.target.kind === 'cell') return cellEditUi(session, session.target, doc)
   const list = session.kind === 'text-list'
   const runs = docToRuns(doc, list, { baseFont: session.baseFont })
   const align = docTextAlign(doc) ?? 'left'
@@ -394,4 +406,142 @@ export function inlineEditUi(session: InlineEditSession, doc: JSONContent): RawU
     return alignChanged ? { ...edited, alignment: { ...(asRecord(edited.alignment) ?? {}), horizontal: align } } : edited
   })
   return normalizeMarkdownTextInUi(syncComponentHeightToElement(next, session.selection))
+}
+
+// ---- Table cells ----
+// The cell font, alignment and padding follow renderTable / tableCellStyle / cellText in
+// render/legacy/lib/template-v2-json-to-html.ts, so the editor sits exactly over the rendered cell.
+// Ported in spirit from servers/nextjs/components/slide-editor/tables/TableInlineEditor.tsx.
+
+const TABLE_BASE_FONT = { family: 'Arial', size: 18, color: '#111827', line_height: 1.15 }
+const CELL_PADDING = { top: 4, right: 6, bottom: 4, left: 6 }
+
+function tableFontRecord(table: RawElement): RawRecord {
+  return { ...TABLE_BASE_FONT, ...(asRecord(table.font) ?? {}) }
+}
+
+function cellFirstRunFont(cell: RawRecord): RawRecord {
+  return asRecord(asRecord(readArray(cell.runs)[0])?.font) ?? {}
+}
+
+/** Header cells render bold unless the cell, its first run or its text sets `bold` itself. */
+function cellHasExplicitBold(cell: RawRecord): boolean {
+  const has = (font: unknown) => Object.prototype.hasOwnProperty.call(asRecord(font) ?? {}, 'bold')
+  return has(cell.font) || has(cellFirstRunFont(cell)) || has(asRecord(cell.text)?.font)
+}
+
+function cellAlignment(cell: RawRecord): TextAlignValue {
+  const value =
+    readString(cell.alignment) ??
+    readString(asRecord(cell.alignment)?.horizontal) ??
+    readString(asRecord(asRecord(cell.text)?.alignment)?.horizontal)
+  return value === 'center' || value === 'right' || value === 'justify' ? value : 'left'
+}
+
+function cellFill(cell: RawRecord): string | null {
+  return readString(asRecord(cell.color ?? cell.fill)?.color) ?? null
+}
+
+/** The rendered cell's border widths plus its padding: where its text box starts inside the cell. */
+export function tableCellInsets(table: RawElement, ref: TableCellRef) {
+  const cell = tableCellAt(table, ref) ?? {}
+  const borders = asRecord(cell.borders)
+  const width = (stroke: unknown, fallback: number) => Math.max(0, readNumber(asRecord(stroke)?.width) ?? fallback)
+  const uniform = width(cell.stroke, 1)
+  const side = (name: 'top' | 'right' | 'bottom' | 'left') => (borders ? width(borders[name], 0) : uniform)
+  return {
+    top: CELL_PADDING.top + side('top'),
+    right: CELL_PADDING.right + side('right'),
+    bottom: CELL_PADDING.bottom + side('bottom'),
+    left: CELL_PADDING.left + side('left'),
+  }
+}
+
+/** Opens an inline edit on one cell of the table at `root`, or null when there is no such cell. */
+export function startCellEdit(ui: RawUi, root: ElementSelection, ref: TableCellRef, slideId: string): InlineEditSession | null {
+  const table = getElementAtSelection(ui, root)
+  if (!table || readString(table.type) !== 'table') return null
+  const raw = tableCellAt(table, ref)
+  const localBox = renderedLocalBoxForElementSelection(ui, root)
+  if (!raw || !localBox) return null
+  const { rows, cols } = tableSize(table)
+  const header = ref.row === 0
+  const forceBold = header && !cellHasExplicitBold(raw)
+
+  const editorCell = rawTableCellForEditor(raw)
+  const sourceRuns = (readArray(editorCell.runs) as TextRun[]).map((run) => {
+    const { font, ...rest } = run as TextRun & { font?: Font }
+    return (font ? { ...rest, font } : rest) as TextRun
+  })
+  const storedText = typeof raw.text === 'string' ? raw.text : textRunsContent(sourceRuns)
+  const runs = wordWrappedTextRuns(
+    normalizeRawTextMarkdownElement({ type: 'text', text: storedText, runs: sourceRuns }).runs,
+  )
+
+  // Runs inherit the table font under the cell font; the box shows the cell as rendered (first run included).
+  const inherited = { ...tableFontRecord(table), ...(asRecord(raw.font) ?? {}) }
+  const shown = { ...inherited, ...cellFirstRunFont(raw) }
+  const fill = cellFill(raw)
+  const color = (font: RawRecord) =>
+    header ? (withHash(readString(font.color)) ?? '#111827') : readableTableTextColor(readString(font.color), fill)
+  const base = rawFont({ font: inherited })
+  const baseFont: Font = { ...fontToSource(base), color: color(inherited), ...(forceBold ? { bold: true } : {}) }
+  const shownFont = rawFont({ font: shown })
+  const align = cellAlignment(raw)
+  const style: TemplateV2TextEditStyle = {
+    ...shownFont,
+    color: color(shown),
+    bold: forceBold || shownFont.bold,
+    horizontal: align,
+    vertical: 'middle',
+  }
+  const doc = runsToDoc(runs, false, { baseFont, align })
+  return {
+    slideId,
+    selection: root,
+    element: table,
+    ui,
+    kind: 'text',
+    runs,
+    style,
+    baseFont,
+    frame: cellBox(localBox, rows, cols, ref),
+    listMarker: null,
+    doc,
+    baseline: runsSignature(docToRuns(doc, false, { baseFont })),
+    target: { kind: 'cell', row: ref.row, col: ref.col },
+  }
+}
+
+function cellEditUi(session: InlineEditSession, ref: TableCellRef, doc: JSONContent): RawUi | null {
+  const runs = docToRuns(doc, false, { baseFont: session.baseFont })
+  const align = docTextAlign(doc) ?? 'left'
+  const alignChanged = align !== session.style.horizontal
+  if (runsSignature(runs) === session.baseline && !alignChanged) return null
+  const wrapped = wordWrappedTextRuns(runs)
+  // Only the cell changes: no auto-size, the table frame stays.
+  return updateElementInUi(session.ui, session.selection, (table) =>
+    updateTableCell(table, ref, (cell) => {
+      const next: RawRecord = editorTableCellToRaw({ ...rawTableCellForEditor(cell), runs: wrapped }, cell)
+      // The renderer reads a stored string `text` over the runs' own text, so it follows them.
+      if (typeof cell.text === 'string') next.text = textRunsContent(wrapped)
+      if (alignChanged) next.alignment = align
+      return next
+    }),
+  )
+}
+
+/** The ui with one table cell's text emptied (its fill and borders kept), for rendering under the editor. */
+export function blankTableCellAt(ui: RawUi, root: ElementSelection, ref: TableCellRef): RawUi {
+  const table = getElementAtSelection(ui, root)
+  if (!table || readString(table.type) !== 'table' || !tableCellAt(table, ref)) return ui
+  return updateElementInUi(ui, root, (el) =>
+    updateTableCell(el, ref, (cell) => {
+      const runs = readArray(cell.runs).map((run) => {
+        const record = asRecord(run) ?? {}
+        return readString(record.type) === 'latex' ? { ...record, latex: '' } : { ...record, text: '' }
+      })
+      return { ...cell, runs: runs.length > 0 ? runs : [{ text: '' }], ...('text' in cell ? { text: '' } : {}) }
+    }),
+  )
 }

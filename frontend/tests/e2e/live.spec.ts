@@ -206,3 +206,93 @@ test('rotate a shape and change its fill, reload, both persisted (then restore t
     if (restoreError && !failed) throw restoreError
   }
 })
+
+test('edit a table cell in place, reload, the text persisted (then restore the deck)', async ({ page }) => {
+  const user = process.env.E2E_USER
+  const password = process.env.E2E_PASSWORD
+  expect(user && password, 'E2E_USER and E2E_PASSWORD are required').toBeTruthy()
+
+  await page.goto('/login')
+  await page.getByLabel('Username').fill(user!)
+  await page.getByLabel('Password').fill(password!)
+  await page.getByRole('button', { name: 'Sign in' }).click()
+  await expect(page.getByTestId('deck').first()).toBeVisible()
+
+  type Pt = { x?: number; y?: number }
+  interface Table { type: string; position?: Pt; size?: { width: number; height: number }; rotation?: number; columns?: unknown[]; rows?: unknown[][] }
+  interface Deck { id: string; title?: string; slides: { ui?: { components?: { position?: Pt; elements?: Table[] }[] } | null }[]; theme?: unknown }
+
+  // Find a deck with an unrotated table on a template slide.
+  const list = await page.request.get('/api/v1/ppt/presentation/all')
+  expect(list.ok()).toBeTruthy()
+  let target: { deck: Deck; slide: number; frame: { x: number; y: number; width: number; height: number }; rows: number; cols: number } | null = null
+  search: for (const { id } of (await list.json()) as { id: string }[]) {
+    const res = await page.request.get(`/api/v1/ppt/presentation/${id}`)
+    if (!res.ok()) continue
+    const deck = (await res.json()) as Deck
+    for (const [slide, s] of deck.slides.entries()) {
+      for (const c of s.ui?.components ?? []) {
+        const t = c.elements?.find((e) => e.type === 'table' && e.size && !e.rotation)
+        if (!t?.size || !t.columns?.length || !t.rows?.length) continue
+        const x = (c.position?.x ?? 0) + (t.position?.x ?? 0)
+        const y = (c.position?.y ?? 0) + (t.position?.y ?? 0)
+        target = { deck, slide, frame: { x, y, ...t.size }, rows: t.rows.length + 1, cols: t.columns.length }
+        break search
+      }
+    }
+  }
+  test.skip(!target, 'no deck has an editable table')
+  const { deck, slide, frame, rows, cols } = target!
+  const originalDeck = structuredClone(deck)
+
+  await page.goto(`/p/${deck.id}`)
+  const overlay = page.getByTestId('selection-overlay')
+  await expect(overlay).toBeVisible()
+  if (slide > 0) {
+    await page.getByRole('button', { name: `Slide ${slide + 1}`, exact: true }).click()
+    await expect(overlay).toBeVisible()
+  }
+  const at = async (row: number, col: number) => {
+    const box = (await overlay.boundingBox())!
+    const k = box.width / 1280
+    return {
+      x: box.x + (frame.x + ((col + 0.5) * frame.width) / cols) * k,
+      y: box.y + (frame.y + ((row + 0.5) * frame.height) / rows) * k,
+    }
+  }
+
+  const marker = `Live ${Date.now()}`
+  let failed = true
+  try {
+    const p = await at(1, 0)
+    await page.mouse.click(p.x, p.y) // selects the table
+    await page.mouse.click(p.x, p.y) // picks the cell
+    await expect(page.locator('[data-table-cell-outline]')).toHaveAttribute('data-row', '1')
+    await page.mouse.dblclick(p.x, p.y)
+    await expect(page.locator('.ProseMirror')).toBeVisible()
+    await page.keyboard.press('Control+a')
+    await page.keyboard.type(marker)
+    const saved = page.waitForResponse((r) => r.url().includes('/presentation/update') && r.ok())
+    await page.keyboard.press('Escape')
+    await saved
+
+    await page.reload()
+    await expect(overlay).toBeVisible()
+    const res = await page.request.get(`/api/v1/ppt/presentation/${deck.id}`)
+    expect(JSON.stringify(((await res.json()) as Deck).slides[slide])).toContain(marker)
+    failed = false
+  } finally {
+    // Put the original slides back through the API. The theme is always resent: the endpoint resets it when omitted.
+    let restoreError: unknown
+    try {
+      const res = await page.request.patch('/api/v1/ppt/presentation/update', {
+        data: { id: originalDeck.id, slides: originalDeck.slides, title: originalDeck.title, theme: originalDeck.theme },
+      })
+      if (!res.ok()) throw new Error(`restore failed: ${res.status()}`)
+    } catch (e) {
+      restoreError = e
+      console.error('Could not restore the deck after the live table test:', e)
+    }
+    if (restoreError && !failed) throw restoreError
+  }
+})

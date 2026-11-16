@@ -3,19 +3,20 @@ import { createPinia, setActivePinia } from 'pinia'
 import { computed, defineComponent, h, provide, ref, shallowRef } from 'vue'
 import { mount } from '@vue/test-utils'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
-import type { RawUi, Selection } from '@/slide-editor/model'
+import type { ElementSelection, RawUi, Selection } from '@/slide-editor/model'
 import { SLIDE_EDITING_KEY, type SlideEditing } from '@/slide-editor/useSlideEditing'
 import ElementTab from '@/components/editor/inspector/element/ElementTab.vue'
 import { toolbarKind } from '@/slide-editor/toolbarKind'
 import { uiTwoComponents } from '../../slide-editor/fixtures'
 
-function mountTab(sel: Selection, opts: { inlineEditing?: boolean; enabled?: boolean } = {}) {
-  const ui = uiTwoComponents() as RawUi
+function mountTab(sel: Selection, opts: { inlineEditing?: boolean; enabled?: boolean; ui?: RawUi; cell?: { row: number; col: number } } = {}) {
+  const ui = opts.ui ?? (uiTwoComponents() as RawUi)
   const selection = ref<Selection>(sel)
   const ctx = {
     enabled: computed(() => opts.enabled ?? true),
     ui: computed(() => ui),
     selection,
+    tableCell: ref(opts.cell && sel ? { root: sel, ...opts.cell } : null),
     hover: shallowRef<Selection>(null),
     inlineEdit: shallowRef(opts.inlineEditing ? { selection: sel } : null),
     commit: vi.fn().mockResolvedValue(true),
@@ -40,6 +41,20 @@ const label = (w: ReturnType<typeof mountTab>['wrapper'], l: string) => w.find(`
 beforeEach(() => setActivePinia(createPinia()))
 
 describe('ElementTab', () => {
+  it('heads a picked table cell as Cell', () => {
+    const root: ElementSelection = { kind: 'element', componentIndex: 0, elementPath: [0] }
+    const ui = {
+      components: [
+        {
+          id: 't',
+          elements: [{ type: 'table', position: { x: 0, y: 0 }, size: { width: 200, height: 100 }, columns: [{ runs: [{ text: 'h' }] }], rows: [[{ runs: [{ text: 'x' }] }]] }],
+        },
+      ],
+    } as unknown as RawUi
+    expect(mountTab(root, { ui }).wrapper.find('h2').text()).toBe('Table')
+    expect(mountTab(root, { ui, cell: { row: 1, col: 0 } }).wrapper.find('h2').text()).toBe('Cell')
+  })
+
   it('lists the slide layers without a selection', () => {
     const { wrapper } = mountTab(null)
     expect(wrapper.text()).toContain('Layers')

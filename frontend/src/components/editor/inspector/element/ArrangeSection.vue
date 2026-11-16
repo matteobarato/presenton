@@ -19,8 +19,7 @@ const button =
   'inline-flex h-8 items-center justify-center gap-1.5 rounded-control border border-white/[0.06] bg-field px-2 text-[10px] font-normal text-[#c6ced3] hover:bg-[#303a3f] hover:text-white disabled:opacity-35 disabled:hover:bg-field'
 
 function run(label: string, op: typeof groupSelection) {
-  const ui = ctx.ui.value
-  if (ui) void actions.run(label, op(ui, ctx.selection.value))
+  void actions.run(label, (ui) => op(ui, ctx.selection.value))
 }
 function copy() {
   const ui = ctx.ui.value
