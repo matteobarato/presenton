@@ -28,6 +28,22 @@ describe('appearanceTargets', () => {
   })
 })
 
+describe('layout and infographic roots', () => {
+  const ui = (...elements: Array<Record<string, unknown>>) => ({ components: [{ id: 'c', elements }] }) as unknown as RawUi
+
+  it('styles the layout root of a component, and rotates the component', () => {
+    const u = ui({ type: 'shape' }, { type: 'container', child: { type: 'text' } })
+    const t = appearanceTargets(u, { kind: 'component', componentIndex: 0 })!
+    expect(t.rotation).toEqual({ kind: 'component', componentIndex: 0 })
+    expect(t.style).toEqual({ kind: 'element', componentIndex: 0, elementPath: [1] })
+  })
+
+  it('styles the infographic root of a component', () => {
+    const u = ui({ type: 'flex', children: [{ type: 'infographic' }] })
+    expect(appearanceTargets(u, { kind: 'component', componentIndex: 0 })!.style).toEqual({ kind: 'element', componentIndex: 0, elementPath: [0, 0] })
+  })
+})
+
 describe('rotation and patch', () => {
   it('writes the normalised rotation and keeps unknown fields', () => {
     const ui = uiWithShape()
