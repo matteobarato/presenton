@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { selectionLabel, toolbarKind } from '@/slide-editor/toolbarKind'
+import { isGroupSelection, selectionLabel, toolbarKind } from '@/slide-editor/toolbarKind'
 import type { RawUi, Selection } from '@/slide-editor/model'
 
 const ui = (...elements: Array<Record<string, unknown>>) => ({ components: [{ id: 'c', elements }] }) as unknown as RawUi
@@ -66,5 +66,14 @@ describe('toolbarKind', () => {
 
   it('keeps a group a Group', () => {
     expect(selectionLabel(ui({ type: 'text' }, { type: 'text' }), comp)).toBe('Group')
+  })
+
+  it('a component whose single element is a group holding a card stays a Group, not a layout', () => {
+    const card = { type: 'flex', direction: 'row', position: { left: 0, top: 0 }, size: { width: 200, height: 50 }, children: [{ type: 'text', position: { left: 0, top: 0 }, size: { width: 90, height: 50 } }, { type: 'text', position: { left: 100, top: 0 }, size: { width: 90, height: 50 } }] }
+    const g = { type: 'group', position: { left: 0, top: 0 }, size: { width: 200, height: 100 }, children: [card, { type: 'text', position: { left: 0, top: 60 }, size: { width: 200, height: 40 } }] }
+    const u = { components: [{ id: 'c', position: { x: 0, y: 0 }, size: { width: 200, height: 100 }, elements: [g] }] } as unknown as RawUi
+    expect(isGroupSelection(u, comp)).toBe(true)
+    expect(toolbarKind(u, comp)).not.toBe('layout')
+    expect(selectionLabel(u, comp)).toBe('Group')
   })
 })

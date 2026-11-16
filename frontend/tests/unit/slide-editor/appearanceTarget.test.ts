@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { appearanceTargets, patchAppearanceInUi, readRotation, setRotationInUi } from '@/slide-editor/appearanceTarget'
 import type { ElementSelection, RawUi } from '@/slide-editor/model'
+import { toolbarKind } from '@/slide-editor/toolbarKind'
 import { uiTwoComponents, uiWithShape } from './fixtures'
 
 const elSel: ElementSelection = { kind: 'element', componentIndex: 0, elementPath: [0] }
@@ -41,6 +42,20 @@ describe('layout and infographic roots', () => {
   it('styles the infographic root of a component', () => {
     const u = ui({ type: 'flex', children: [{ type: 'infographic' }] })
     expect(appearanceTargets(u, { kind: 'component', componentIndex: 0 })!.style).toEqual({ kind: 'element', componentIndex: 0, elementPath: [0, 0] })
+  })
+})
+
+describe('selections that are not a layout or infographic keep the pre-branch targets', () => {
+  const comp0 = { kind: 'component', componentIndex: 0 } as const
+  it('a component whose single element is a group styles the group, not the card inside it', () => {
+    const g = { type: 'group', children: [{ type: 'flex', children: [{ type: 'text' }, { type: 'text' }] }, { type: 'text' }] }
+    const u = { components: [{ id: 'c', elements: [g] }] } as unknown as RawUi
+    expect(appearanceTargets(u, comp0)).toEqual({ rotation: comp0, style: { kind: 'element', componentIndex: 0, elementPath: [0] } })
+  })
+  it('a component with a chart beside a layout is a chart and takes both on the component', () => {
+    const u = { components: [{ id: 'c', elements: [{ type: 'chart' }, { type: 'flex', children: [{ type: 'text' }] }] }] } as unknown as RawUi
+    expect(toolbarKind(u, comp0)).toBe('chart')
+    expect(appearanceTargets(u, comp0)).toEqual({ rotation: comp0, style: comp0 })
   })
 })
 

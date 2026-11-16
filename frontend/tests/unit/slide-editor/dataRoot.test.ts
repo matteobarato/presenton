@@ -48,4 +48,13 @@ describe('dataRoot', () => {
     expect(at('list-view')).toBeNull()
     expect(dataRoot(ui({ type: 'group', children: [{ type: 'text' }] }), { kind: 'component', componentIndex: 0 }, 'layout')).toBeNull()
   })
+
+  it('does not resolve a layout or infographic through a top-level group of a component', () => {
+    const u = ui({ type: 'group', children: [{ type: 'flex', children: [{ type: 'infographic' }] }, { type: 'text' }] })
+    const sel: Selection = { kind: 'component', componentIndex: 0 }
+    expect(dataRoot(u, sel, 'layout')).toBeNull()
+    expect(dataRoot(u, sel, 'infographic')).toBeNull()
+    const beside = ui({ type: 'group', children: [{ type: 'grid', children: [] }] }, { type: 'container', child: { type: 'text' } })
+    expect(dataRoot(beside, sel, 'layout')?.elementPath).toEqual([1])
+  })
 })

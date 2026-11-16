@@ -26,6 +26,10 @@ function find(kind: DataRootKind, elements: unknown[]): Found {
   }
 }
 
+function isGroup(el: unknown): boolean {
+  return !!el && typeof el === 'object' && (el as { type?: unknown }).type === 'group'
+}
+
 /** The table, chart, infographic or layout element a selection edits: the selected element itself, or the first one inside a selected component. */
 export function dataRoot(ui: RawUi | null, sel: Selection, kind: DataRootKind): ElementSelection | null {
   if (!ui || !sel) return null
@@ -37,7 +41,10 @@ export function dataRoot(ui: RawUi | null, sel: Selection, kind: DataRootKind): 
   if (sel.kind !== 'component') return null
   const elements = (ui.components as Array<{ elements?: unknown[] }> | undefined)?.[sel.componentIndex]?.elements
   if (!Array.isArray(elements)) return null
-  const found = find(kind, elements)
+  // A group is not a layout kind (spec §1): a component's top-level group keeps its own kind, so its contents
+  // are not resolved as the component's layout or infographic. Masked rather than removed to keep the paths.
+  const searched = kind === 'layout' || kind === 'infographic' ? elements.map((el) => (isGroup(el) ? null : el)) : elements
+  const found = find(kind, searched)
   if (!found) return null
   if (kind === 'layout' && !LAYOUT_TYPES.includes(found.element.type as string)) return null
   return { kind: 'element', componentIndex: sel.componentIndex, elementPath: found.elementPath }
