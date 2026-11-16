@@ -325,7 +325,7 @@ export function findFirstComponentTableElement(
   return null;
 }
 
-function findFirstComponentInfographicElement(
+export function findFirstComponentInfographicElement(
   elements: unknown[],
   parentPath: number[] = [],
 ): {

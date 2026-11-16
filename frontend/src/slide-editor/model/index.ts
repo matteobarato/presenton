@@ -35,3 +35,5 @@ export * from "./layoutToolbarTarget";
 // Text-run converters and inline-edit helpers are already ported; re-export, never duplicate.
 export * from "@/render/legacy/components/slide-editor/text/text-runs";
 export * from "@/render/legacy/components/slide-editor/text/template-v2-text-editing";
+export * from "./layoutItems";
+export * from "./infographic-sizing";
