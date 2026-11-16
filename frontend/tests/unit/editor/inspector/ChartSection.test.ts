@@ -49,6 +49,8 @@ function mountSection(ui: RawUi, sel: Selection = { kind: 'element', componentIn
       return true
     }),
     select: vi.fn(),
+    // Every commit in this harness is the section's own.
+    isOwnCommit: vi.fn(() => true),
   } as unknown as SlideEditing
   wrapper = mount(ChartSection, { props: { presentation }, global: { provide: { [SLIDE_EDITING_KEY as symbol]: ctx } }, attachTo: document.body })
   return { ctx }
@@ -151,6 +153,21 @@ describe('ChartSection', () => {
     const { ctx } = mountSection(uiWith(chart()))
     await btn('Edit data').trigger('click')
     expect(ctx.commit).not.toHaveBeenCalled()
+  })
+
+  it('Edit data commits a pending title draft first, then opens and stays open', async () => {
+    const { ctx } = mountSection(uiWith(chart()))
+    await wrapper!.get('input[aria-label="Chart title"]').setValue('Revenue')
+    await wrapper!.get('input[aria-label="X axis title"]').setValue('Quarter')
+    expect(ctx.commit).not.toHaveBeenCalled()
+    await btn('Edit data').trigger('click')
+    await nextTick()
+    expect(ctx.commit).toHaveBeenCalledTimes(1)
+    expect(at(committed(ctx))).toMatchObject({ title: 'Revenue', x_axis_title: 'Quarter' })
+    expect((wrapper!.vm as unknown as { dataOpen: boolean }).dataOpen).toBe(true)
+    // The blur when focus leaves for the dialog has nothing left to commit.
+    await wrapper!.get('input[aria-label="Chart title"]').trigger('blur')
+    expect(ctx.commit).toHaveBeenCalledTimes(1)
   })
 
   it('patches a chart nested in a wrapper, not the first child', async () => {

@@ -63,10 +63,14 @@ function begin() {
   initialGrid = JSON.stringify(grid.value)
 }
 
-function preview() {
-  if (!snapshotUi || !snapshotRoot || !snapshotChart) return
+function edited(): RawUi | null {
+  if (!snapshotUi || !snapshotRoot || !snapshotChart) return null
   const g = grid.value
-  editing.draftUi.value = updateElementInUi(snapshotUi, snapshotRoot, (raw) => writeChart(raw, withGrid(readChart(raw), g)))
+  return updateElementInUi(snapshotUi, snapshotRoot, (raw) => writeChart(raw, withGrid(readChart(raw), g)))
+}
+function preview() {
+  const next = edited()
+  if (next) editing.draftUi.value = next
 }
 function edit(next: ChartGrid) {
   grid.value = next
@@ -85,8 +89,9 @@ function done() {
   finished = true
   // Incomplete cell drafts never reached the grid, so the last complete value stands.
   const changed = JSON.stringify(grid.value) !== initialGrid
-  const next = editing.draftUi.value
-  if (changed && next) void editing.commit(next, 'Edit chart data')
+  // Built from the snapshot, not read back from draftUi: an own commit landing meanwhile may have dropped the draft.
+  const next = changed ? edited() : null
+  if (next) void editing.commit(next, 'Edit chart data')
   else editing.cancelDraft()
   close()
 }
@@ -107,9 +112,15 @@ watch(
   { immediate: true },
 )
 
-// A slide switch or a remote update to the saved ui invalidates the snapshot: discard and close.
-watch([() => editing.slideId.value, () => editing.committedUi.value], () => {
+// A slide switch, a remote update to the saved ui or the editor locking invalidates the snapshot:
+// discard and close. An own commit landing (one in flight when the dialog opened, already in the
+// snapshot) is not remote: the context drops its draft for it, so put the preview back.
+watch([() => editing.slideId.value, () => editing.committedUi.value, () => editing.enabled.value], ([id, committed, on], [prevId]) => {
   if (!props.open || finished) return
+  if (id === prevId && on && editing.isOwnCommit(committed)) {
+    if (JSON.stringify(grid.value) !== initialGrid) preview()
+    return
+  }
   cancel()
 })
 

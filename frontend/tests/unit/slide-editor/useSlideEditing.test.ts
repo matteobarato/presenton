@@ -200,6 +200,28 @@ describe('useSlideEditing', () => {
     expect(JSON.stringify(last)).toContain('Typed')
   })
 
+  it('isOwnCommit is true for a pending or just-landed own commit, false for a remote ui', async () => {
+    let resolve!: (ok: boolean) => void
+    editSlideUi.mockImplementation(() => new Promise<boolean>((r) => (resolve = r)))
+    const { api, slide } = setup(tpl('a', uiWithText()))
+    const next = uiTwoComponents()
+    const saving = api.commit(next, 'Move')
+    expect(api.isOwnCommit(next)).toBe(true)
+    expect(api.isOwnCommit(uiTwoComponents())).toBe(true)
+    slide.value = tpl('a', next)
+    await nextTick()
+    resolve(true)
+    await saving
+    // Landed and saved: still recognised, so a watcher that runs after the save resolved does not call it remote.
+    expect(api.isOwnCommit(next)).toBe(true)
+    expect(api.isOwnCommit(uiWithText())).toBe(false)
+    const remote = uiWithText()
+    slide.value = tpl('a', remote)
+    await nextTick()
+    expect(api.isOwnCommit(remote)).toBe(false)
+    expect(api.isOwnCommit(null)).toBe(false)
+  })
+
   describe('tableCell', () => {
     const cellOf = (rows: number, cols: number) => ({
       components: [

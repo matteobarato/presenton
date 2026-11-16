@@ -110,6 +110,24 @@ function commitText(key: TextKey, name: string) {
   apply(name, (c) => setChartField(c, key, next))
 }
 
+const TEXT_NAMES: Record<TextKey, string> = { title: 'Chart title', x_axis_title: 'X axis title', y_axis_title: 'Y axis title' }
+/** Commits every pending title draft in one patch, so Edit data opens on a ui that already holds them. */
+function flushText() {
+  const changes = (Object.keys(TEXT_NAMES) as TextKey[]).flatMap((key) => {
+    const draft = drafts.value[key]
+    if (draft === undefined) return []
+    delete drafts.value[key]
+    const next = limitChartText(draft) || null
+    return next === (chart.value?.[key] ?? null) ? [] : [{ key, next }]
+  })
+  if (changes.length === 0) return
+  apply(changes.length === 1 ? TEXT_NAMES[changes[0]!.key] : 'Chart text', (c) => changes.reduce((acc, { key, next }) => setChartField(acc, key, next), c))
+}
+function toggleData() {
+  if (!dataOpen.value) flushText()
+  dataOpen.value = !dataOpen.value
+}
+
 type FlagKey = 'x_axis' | 'y_axis' | 'x_axis_grid' | 'y_axis_grid'
 const flag = (key: FlagKey) => chart.value?.[key] ?? true
 const setFlag = (key: FlagKey, name: string, v: boolean) => apply(name, (c) => setChartField(c, key, v))
@@ -189,7 +207,7 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
           <template v-if="mini.moreSeries">+{{ mini.moreSeries }} more series</template>
         </p>
       </div>
-      <button type="button" :class="[segment, 'mt-2 w-full flex-none text-[10px]']" aria-label="Edit data" @mousedown.prevent @click="dataOpen = !dataOpen">Edit data</button>
+      <button type="button" :class="[segment, 'mt-2 w-full flex-none text-[10px]']" aria-label="Edit data" @mousedown.prevent @click="toggleData">Edit data</button>
       <ChartDataDialog v-if="root" v-model:open="dataOpen" :root="root" />
     </div>
 

@@ -28,7 +28,11 @@ function mountDialog(ui: RawUi = uiWith()) {
   const committedUi = shallowRef<RawUi>(ui)
   const draftUi = shallowRef<RawUi | null>(null)
   const slideId = ref('s1')
+  const enabled = ref(true)
+  const own = new Set<RawUi>()
   const ctx = {
+    enabled: computed(() => enabled.value),
+    isOwnCommit: vi.fn((ui: RawUi | null) => !!ui && own.has(ui)),
     ui: computed(() => draftUi.value ?? committedUi.value),
     committedUi: computed(() => committedUi.value),
     draftUi,
@@ -44,7 +48,7 @@ function mountDialog(ui: RawUi = uiWith()) {
     global: { provide: { [SLIDE_EDITING_KEY as symbol]: ctx } },
     attachTo: document.body,
   })
-  return { ctx, draftUi, committedUi, slideId, open }
+  return { ctx, draftUi, committedUi, slideId, open, enabled, own }
 }
 const q = (sel: string) => document.body.querySelector(sel) as HTMLElement | null
 const aria = (l: string) => q(`[aria-label="${l}"]`) as HTMLInputElement | null
@@ -156,6 +160,42 @@ describe('ChartDataDialog', () => {
     const { ctx, committedUi, open } = mountDialog()
     await ticks()
     committedUi.value = uiWith({ categories: ['X', 'Y'] })
+    await ticks()
+    expect(open.value).toBe(false)
+    expect(ctx.cancelDraft).toHaveBeenCalled()
+    expect(ctx.commit).not.toHaveBeenCalled()
+  })
+
+  it('stays open when an own pending commit of the context lands, and Done keeps it', async () => {
+    const { ctx, draftUi, committedUi, open, own } = mountDialog()
+    // A title commit was in flight when the dialog opened: the snapshot already holds it as the draft.
+    const titled = uiWith({ title: 'Typed title' })
+    draftUi.value = titled
+    await wrapper!.setProps({ open: false })
+    await wrapper!.setProps({ open: true })
+    await ticks()
+    await type('Value 1,1', '42')
+    // That commit lands (the editing context drops its draft when it does).
+    own.add(titled)
+    committedUi.value = titled
+    draftUi.value = null
+    await ticks()
+    expect(open.value).toBe(true)
+    expect(ctx.cancelDraft).not.toHaveBeenCalled()
+    // The preview is restored over the landed ui.
+    expect(chartOf(draftUi.value!).series[0].values[0]).toBe(42)
+    btn('Done')!.click()
+    await ticks()
+    expect(ctx.commit).toHaveBeenCalledTimes(1)
+    expect(committedChart(ctx).title).toBe('Typed title')
+    expect(committedChart(ctx).series[0].values[0]).toBe(42)
+  })
+
+  it('closes without committing when editing locks', async () => {
+    const { ctx, enabled, open } = mountDialog()
+    await ticks()
+    await type('Value 1,1', '5')
+    enabled.value = false
     await ticks()
     expect(open.value).toBe(false)
     expect(ctx.cancelDraft).toHaveBeenCalled()

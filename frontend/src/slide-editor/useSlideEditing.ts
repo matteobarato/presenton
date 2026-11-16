@@ -5,6 +5,7 @@ import {
   provide,
   ref,
   shallowRef,
+  toRaw,
   watch,
   type ComputedRef,
   type InjectionKey,
@@ -71,6 +72,11 @@ export interface SlideEditing {
   requestCellEdit: (root: ElementSelection, cell: TableCellRef) => void
   /** Closes the inline editor; with `commit`, its text goes to the slide it was opened on. */
   closeInlineEdit: (commit: boolean) => Promise<boolean>
+  /**
+   * True when `ui` is a commit this context made to the current slide: still saving, or the last of
+   * them to land. A committedUi change for which this is false is remote (undo, AI edit, refetch).
+   */
+  isOwnCommit: (ui: RawUi | null) => boolean
 }
 
 export const SLIDE_EDITING_KEY: InjectionKey<SlideEditing> = Symbol('slide-editing')
@@ -171,6 +177,14 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     return pending.findIndex((p) => p.slideId === id && JSON.stringify(p.ui) === json)
   }
 
+  // The last own commit that reached the slide: its save may resolve (leaving `pending`) before a
+  // watcher further down the tree compares against it.
+  let landedOwn: RawUi | null = null
+  function isOwnCommit(u: RawUi | null): boolean {
+    if (!u) return false
+    return (landedOwn !== null && toRaw(u) === toRaw(landedOwn)) || pendingIndex(slide.value?.id, u) >= 0
+  }
+
   function dropInlineEdit() {
     inlineEdit.value = null
     inlineEditor.value = null
@@ -253,6 +267,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     () => slide.value?.ui,
     (committed) => {
       const own = pendingIndex(slide.value?.id, committed)
+      landedOwn = own >= 0 ? ((committed as RawUi | null | undefined) ?? null) : null
       if (own >= 0) {
         // Our own commit landed: the open edit and any newer draft still stand. The draft goes only
         // when it is this ui (or an older one), never when a later commit is still on its way.
@@ -321,6 +336,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     requestInlineEdit,
     requestCellEdit,
     closeInlineEdit,
+    isOwnCommit,
   }
   provide(SLIDE_EDITING_KEY, api)
   return api
