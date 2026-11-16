@@ -76,6 +76,18 @@ describe('tableOps', () => {
     expect(grid(out)).toEqual([['a', 'b'], ['c', 'd'], ['', ''], ['e', 'f']])
   })
 
+  it('addRow after the header copies the first body row style, not the header', () => {
+    const t = table([['a', 'b'], ['c', 'd']])
+    t.columns[0] = { ...t.columns[0], color: { color: '#000000' }, font: { color: '#FFFFFF', bold: true } }
+    t.rows[0][0] = { ...t.rows[0][0], color: { color: '#EEEEEE' } }
+    const out = addRow(t, 0)
+    expect(grid(out)).toEqual([['a', 'b'], ['', ''], ['c', 'd']])
+    expect(out.rows[0][0]).toEqual({ color: { color: '#EEEEEE' }, runs: [{ text: '' }] })
+    // A header-only table gives a blank row.
+    const lone = addRow(table([['a', 'b']]), 0)
+    expect(lone.rows[0]).toEqual([{ runs: [{ text: '' }] }, { runs: [{ text: '' }] }])
+  })
+
   it('addRow(null) appends', () => {
     const out = addRow(table([['a'], ['c']]), null)
     expect(grid(out)).toEqual([['a'], ['c'], ['']])
@@ -129,12 +141,15 @@ describe('tableOps', () => {
     expect(grid(addRow(t, null))).toEqual([['a', 'b'], ['c', ''], ['', '']])
   })
 
-  it('setCellFill sets colour and readable font colour', () => {
+  it('setCellFill on a body cell sets the colour and writes no font colour', () => {
     const t = table([['a', 'b'], ['c', 'd']])
     const out = setCellFill(t, { row: 1, col: 0 }, '#112233')
     expect(out.rows[0][0].color).toEqual({ color: '#112233' })
-    expect(out.rows[0][0].font.color).toBe(readableTableTextColor(undefined, '#112233'))
+    expect(out.rows[0][0].font).toBeUndefined()
     expect(out.rows[0][1].color).toBeUndefined()
+    const cleared = setCellFill(out, { row: 1, col: 0 }, null)
+    expect(cleared.rows[0][0].color).toBeUndefined()
+    expect(cleared.rows[0][0].font).toBeUndefined()
   })
 
   it('setCellFill keeps existing font colour and preserves fill opacity', () => {
@@ -143,6 +158,30 @@ describe('tableOps', () => {
     const out = setCellFill(t, { row: 0, col: 0 }, '#112233')
     expect(out.columns[0].font.color).toBe('#ABCDEF')
     expect(out.columns[0].color).toEqual({ color: '#112233', opacity: 0.5 })
+    // None keeps a colour the user chose.
+    expect(setCellFill(out, { row: 0, col: 0 }, null).columns[0].font.color).toBe('#ABCDEF')
+  })
+
+  it('setCellFill on an uncoloured header writes a readable colour, follows refills, and removes it on None', () => {
+    const t = table([['a', 'b'], ['c', 'd']])
+    const dark = setCellFill(t, { row: 0, col: 0 }, '#112233')
+    expect(dark.columns[0].font.color).toBe(readableTableTextColor(undefined, '#112233'))
+    expect(dark.columns[0].font.color).toBe('#FFFFFF')
+    expect(dark.columns[1].font).toBeUndefined()
+    // A light refill replaces the auto colour (the default text colour already reads, so none is written).
+    const light = setCellFill(dark, { row: 0, col: 0 }, '#FFFFEE')
+    expect(light.columns[0].font).toBeUndefined()
+    const none = setCellFill(dark, { row: 0, col: 0 }, null)
+    expect(none.columns[0].color).toBeUndefined()
+    expect(none.columns[0].font).toBeUndefined()
+  })
+
+  it('setCellFill on a header whose runs or table font set a colour writes none', () => {
+    const t = table([['a', 'b'], ['c', 'd']])
+    t.columns[0] = { runs: [{ text: 'a', font: { color: '#FF0000' } }] }
+    expect(setCellFill(t, { row: 0, col: 0 }, '#112233').columns[0].font).toBeUndefined()
+    const light = table([['a'], ['b']], { font: { color: '#FFFFFF' } })
+    expect(setCellFill(light, { row: 0, col: 0 }, '#112233').columns[0].font).toBeUndefined()
   })
 
   it('setCellFill(null) removes color and fill', () => {

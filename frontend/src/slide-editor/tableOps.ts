@@ -2,7 +2,7 @@
 // Row 0 is the header (`columns`); row r > 0 is `rows[r - 1]`.
 // Cell fill read/write follows servers/nextjs/components/slide-editor/tables/TableToolbar.tsx
 // (`color` as a Fill object, with the legacy `fill` as a read fallback).
-import { asRecord, readArray, readNumber, type RawElement } from '@/slide-editor/model'
+import { asRecord, readArray, readNumber, readString, type RawElement } from '@/slide-editor/model'
 import { readableTableTextColor } from '@/slide-editor/tableColors'
 
 export type RawRecord = Record<string, unknown>
@@ -63,7 +63,9 @@ export function tableCellAt(el: RawElement, cell: TableCellRef): RawRecord | nul
 export function addRow(el: RawElement, afterRow: number | null): RawElement {
   const g = grid(el)
   const at = afterRow == null ? g.length : Math.max(0, Math.min(g.length - 1, afterRow)) + 1
-  const ref = g[afterRow == null ? g.length - 1 : Math.max(0, Math.min(g.length - 1, afterRow))] ?? []
+  // The header's styling is not a body row's: after the header, copy the first body row (or none).
+  const refIndex = afterRow == null ? g.length - 1 : Math.max(0, Math.min(g.length - 1, afterRow))
+  const ref = (refIndex === 0 ? g[1] : g[refIndex]) ?? []
   const width = g[0]?.length ?? 0
   const row = Array.from({ length: width }, (_, c) => styleOnlyCell(ref[c]))
   return fromGrid(el, [...g.slice(0, at), row, ...g.slice(at)])
@@ -136,19 +138,39 @@ export function updateTableCell(el: RawElement, ref: TableCellRef, fn: (cell: Ra
   return fromGrid(el, g.map((r, ri) => (ri === ref.row ? r.map((c, ci) => (ci === ref.col ? fn(c) : c)) : r)))
 }
 
+/** The colour a header cell's text gets on `fill` when nothing sets one (the renderer leaves headers as they are). */
+function autoHeaderTextColor(el: RawElement, fill: string): string {
+  return readableTableTextColor(readString(asRecord(el.font)?.color), fill)
+}
+
+const sameColor = (a: unknown, b: unknown) =>
+  typeof a === 'string' && typeof b === 'string' && a.replace('#', '').toLowerCase() === b.replace('#', '').toLowerCase()
+
+/**
+ * Sets (or with null removes) a cell's fill. Body cells get no font colour: the renderer keeps their text
+ * readable. A header cell whose text colour nothing sets gets a readable one, recognised as ours (it equals
+ * what the previous fill would have written) and removed or replaced on the next fill change.
+ */
 export function setCellFill(el: RawElement, ref: TableCellRef, color: string | null): RawElement {
+  const header = ref.row === 0
   return updateTableCell(el, ref, (cell) => {
     const next = { ...cell }
-    if (color == null) {
-      delete next.color
-      delete next.fill
-      return next
-    }
-    const existing = asRecord(cell.color) ?? asRecord(cell.fill) ?? {}
-    next.color = { ...existing, color }
+    const previous = readString(asRecord(cell.color ?? cell.fill)?.color)
     delete next.fill
-    const font = asRecord(cell.font) ?? {}
-    if (!font.color) next.font = { ...font, color: readableTableTextColor(undefined, color) }
+    if (color == null) delete next.color
+    else next.color = { ...(asRecord(cell.color) ?? asRecord(cell.fill) ?? {}), color }
+    if (!header) return next
+
+    const font: RawRecord = { ...(asRecord(cell.font) ?? {}) }
+    if (previous && sameColor(font.color, autoHeaderTextColor(el, previous))) delete font.color
+    const runColored = readArray(cell.runs).some((run) => !!asRecord(asRecord(run)?.font)?.color)
+    if (color != null && !font.color && !runColored) {
+      const auto = autoHeaderTextColor(el, color)
+      const shown = readString(asRecord(el.font)?.color) ?? '#111827'
+      if (!sameColor(auto, shown)) font.color = auto
+    }
+    if (Object.keys(font).length > 0) next.font = font
+    else delete next.font
     return next
   })
 }
