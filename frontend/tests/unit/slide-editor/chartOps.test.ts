@@ -138,17 +138,39 @@ describe('limits', () => {
     expect(canAddSeries(big(2, 1), 'bar')).toBe(true)
     expect(canAddSeries(big(2, 12), 'bar')).toBe(false)
   })
-  it('withGrid writes at most 24 categories', () => {
-    const next = withGrid(chart(), big(30, 1))
-    expect(next.categories).toHaveLength(24)
-    expect(next.series![0].values).toHaveLength(24)
+  // Caps gate the add actions only: data a chart already holds survives a Done.
+  it('withGrid keeps existing categories beyond 24 and series beyond 12', () => {
+    const next = withGrid(chart(), big(30, 14))
+    expect(next.categories).toHaveLength(30)
+    expect(next.series).toHaveLength(14)
+    expect(next.series![0].values).toHaveLength(30)
+  })
+  it('a single-series Done writes the edited first series and keeps the hidden rest', () => {
+    const raw: RawElement = {
+      ...pieRaw,
+      categories: ['x', 'y'],
+      series: [{ name: 'A', values: [1, 2] }, { name: 'B', values: [3, 4] }, { name: 'C', values: [5, 6] }],
+    }
+    const g = chartGrid(readChart(raw))
+    // The grid shows the one series a pie renders; the others are hidden, not gone.
+    expect(g.series).toHaveLength(1)
+    const next = writeChart(raw, withGrid(readChart(raw), setValue(g, 0, 0, 9)))
+    expect((next.series as { name: string; values: number[] }[]).map((s) => [s.name, s.values])).toEqual([
+      ['A', [9, 2]],
+      ['B', [3, 4]],
+      ['C', [5, 6]],
+    ])
+    // Becoming a bar chart shows them again.
+    const bar = writeChart(raw, setChartType(readChart(raw), 'bar'))
+    expect((bar.series as { name: string }[]).map((s) => s.name)).toEqual(['A', 'B', 'C'])
   })
 })
 
 describe('predicates', () => {
   it('isCompleteNumericInput', () => {
     for (const s of ['12', '-3.5', '0']) expect(isCompleteNumericInput(s)).toBe(true)
-    for (const s of ['', '-', '1.', '1e', 'abc']) expect(isCompleteNumericInput(s)).toBe(false)
+    for (const s of ['', ' ', '\t\n', '-', '1.', '1e', 'abc']) expect(isCompleteNumericInput(s)).toBe(false)
+    expect(isCompleteNumericInput(' 12 ')).toBe(true)
   })
   it('axesApply / isRadial', () => {
     expect(axesApply('pie')).toBe(false)

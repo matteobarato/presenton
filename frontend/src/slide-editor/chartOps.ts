@@ -15,6 +15,7 @@ import {
   chartSupportsMultipleSeries,
   extendChartColors,
   limitChartText,
+  rawChartType,
   resolvedChartCategories,
   resolvedChartDatasets,
 } from '@/render/legacy/components/slide-editor/charts/chart-data'
@@ -44,8 +45,17 @@ export function readChart(raw: RawElement): ChartElement {
   return rawChartToEditorChart(raw)
 }
 
+/**
+ * Writes the editor chart over the raw element. readChart gives a single-series type (pie, donut) only
+ * its first series; the raw element's further series are hidden, not gone, so they are written back
+ * after it (and show again if the chart becomes a multi-series type).
+ */
 export function writeChart(raw: RawElement, chart: ChartElement): RawElement {
-  return editorChartToRawChart(raw, chart as unknown as Record<string, unknown>) as RawElement
+  const next = editorChartToRawChart(raw, chart as unknown as Record<string, unknown>) as RawElement
+  if (chartSupportsMultipleSeries(rawChartType(raw.chart_type ?? raw.chartType))) return next
+  const written = Array.isArray(next.series) ? next.series : []
+  const hidden = Array.isArray(raw.series) ? raw.series.slice(written.length) : []
+  return hidden.length > 0 ? { ...next, series: [...written, ...hidden] } : next
 }
 
 export type ChartGrid = { categories: string[]; series: { name: string; values: number[] }[] }
@@ -72,12 +82,15 @@ export function chartGrid(chart: ChartElement): ChartGrid {
   }
 }
 
-/** Write a grid back, mirroring the old ChartDataModal: categories, series, palette and `data`. */
+/**
+ * Write a grid back, mirroring the old ChartDataModal: categories, series, palette and `data`.
+ * The category and series caps gate the add actions only: data the chart already holds beyond them is
+ * kept. (A single-series type's hidden extra series are kept by writeChart.)
+ */
 export function withGrid(chart: ChartElement, grid: ChartGrid): ChartElement {
-  const categories = grid.categories.slice(0, MAX_CHART_CATEGORIES).map(limitChartText)
+  const categories = grid.categories.map(limitChartText)
   const n = categories.length
   const series: ChartSeries[] = grid.series
-    .slice(0, chartSupportsMultipleSeries(chart.chart_type) ? MAX_CHART_SERIES : 1)
     .map((s) => ({
       name: limitChartText(s.name),
       values: Array.from({ length: n }, (_, i) => s.values[i] ?? 0),
@@ -161,8 +174,10 @@ export const moveSeries = (g: ChartGrid, i: number, dir: -1 | 1): ChartGrid => {
   return { ...g, series }
 }
 
-export function isCompleteNumericInput(value: string): boolean {
+export function isCompleteNumericInput(raw: string): boolean {
   // The old editor rejected '', '-', '.', '-.'; a trailing '.' is also still mid-typing.
+  // Number(' ') is 0, so surrounding whitespace is trimmed first and blank input is incomplete.
+  const value = raw.trim()
   if (!value || value === '-' || value === '.' || value === '-.' || value.endsWith('.')) return false
   return Number.isFinite(Number(value))
 }
