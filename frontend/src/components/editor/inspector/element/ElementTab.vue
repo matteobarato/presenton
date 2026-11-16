@@ -15,6 +15,7 @@ import LineSection from './LineSection.vue'
 import ListSection from './ListSection.vue'
 import OrderSection from './OrderSection.vue'
 import ShapeSection from './ShapeSection.vue'
+import TableSection from './TableSection.vue'
 import TextSection from './TextSection.vue'
 import VideoSection from './VideoSection.vue'
 
@@ -56,6 +57,7 @@ const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : [])
       <IconSection v-else-if="kind === 'icon'" :presentation="props.presentation" />
       <ShapeSection v-else-if="kind === 'shape'" :presentation="props.presentation" />
       <LineSection v-else-if="kind === 'line'" :presentation="props.presentation" />
+      <TableSection v-else-if="kind === 'table'" :presentation="props.presentation" />
       <VideoSection v-else-if="kind === 'video'" :presentation-id="props.presentationId" :slide="props.activeSlide" />
       <AppearanceSection v-if="single" :presentation="props.presentation" />
       <ArrangeSection />

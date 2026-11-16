@@ -6,20 +6,25 @@ import { resolvePresentationTheme } from '@/render/legacy/lib/template-theme'
 import { localFontOptionsFromUnknown } from '@/render/legacy/components/slide-editor/text/local-fonts'
 import { rawFont } from '@/render/legacy/components/slide-editor/text/template-v2-text'
 import { asRecord, getElementAtSelection, readArray, updateElementInUi, withHash, type ElementSelection, type RawElement } from '@/slide-editor/model'
+import { setCellAlignment, setCellFont, setTableAlignment, setTableFont, tableCellAt, type TableCellRef } from '@/slide-editor/tableOps'
 import { themePalette } from '@/slide-editor/themePalette'
 import { useEditingActions } from '@/slide-editor/useEditingActions'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 
-const props = defineProps<{ presentation: Presentation }>()
+const props = defineProps<{
+  presentation: Presentation
+  /** Edits a table: the cell's text, or the whole table when no cell is selected. */
+  target?: { kind: 'table'; root: ElementSelection; cell: TableCellRef | null }
+}>()
 
 const LINE_HEIGHTS = [1, 1.15, 1.5, 2]
-const ALIGNS = [
+const ALL_ALIGNS = [
   { value: 'left', label: 'Align left', icon: AlignLeft },
   { value: 'center', label: 'Align center', icon: AlignCenter },
   { value: 'right', label: 'Align right', icon: AlignRight },
   { value: 'justify', label: 'Justify', icon: AlignJustify },
 ] as const
-type Align = (typeof ALIGNS)[number]['value']
+type Align = (typeof ALL_ALIGNS)[number]['value']
 const MARKS = [
   { mark: 'bold', label: 'Bold', title: 'Bold (Ctrl+B)', icon: Bold },
   { mark: 'italic', label: 'Italic', title: 'Italic (Ctrl+I)', icon: Italic },
@@ -27,10 +32,13 @@ const MARKS = [
 ] as const
 
 const ctx = useSlideEditingContext()
+// Table cells have no justify.
+const ALIGNS = computed(() => (props.target ? ALL_ALIGNS.filter((a) => a.value !== 'justify') : ALL_ALIGNS))
 const actions = useEditingActions(ctx)
 
 /** The text element edited: the selected element, or the lone text element of a selected component. */
 const target = computed<ElementSelection | null>(() => {
+  if (props.target) return props.target.root
   const sel = ctx.selection.value
   if (!sel || sel.kind === 'multi-component') return null
   return sel.kind === 'element' ? sel : { kind: 'element', componentIndex: sel.componentIndex, elementPath: [0] }
@@ -58,14 +66,22 @@ watch(
 )
 onBeforeUnmount(() => detach?.())
 
-const font = computed(() => (element.value ? rawFont(element.value) : null))
+/** The text element: for a table cell, the cell's font laid over the table's base font. */
+const textSource = computed<RawElement | null>(() => {
+  const el = element.value
+  const cell = props.target?.cell
+  if (!el || !cell) return el
+  const own = tableCellAt(el, cell)
+  return { ...el, font: { ...asRecord(el.font), ...asRecord(own?.font) }, alignment: { horizontal: own?.alignment } }
+})
+const font = computed(() => (textSource.value ? rawFont(textSource.value) : null))
 const textStyleAttrs = computed(() => {
   void tick.value
   return (editor.value?.getAttributes('textStyle') ?? {}) as Record<string, unknown>
 })
 const alignment = computed<Align>(() => {
   void tick.value
-  const value = editor.value?.getAttributes('paragraph').textAlign ?? asRecord(element.value?.alignment)?.horizontal
+  const value = editor.value?.getAttributes('paragraph').textAlign ?? asRecord(textSource.value?.alignment)?.horizontal
   return value === 'center' || value === 'right' || value === 'justify' ? value : 'left'
 })
 const family = computed(() => (textStyleAttrs.value.fontFamily as string | undefined) ?? font.value?.family ?? '')
@@ -105,12 +121,23 @@ function patchListItem(item: unknown, fontPatch: FontPatch): unknown {
   return { ...record, font: { ...(asRecord(record.font) ?? {}), ...fontPatch }, ...(runs.length > 0 ? { runs: runs.map(patchRun) } : {}) }
 }
 
+/** A table: one cell, or (no cell) the base font and every cell. */
+function patchTable(el: RawElement, cell: TableCellRef | null, fontPatch: FontPatch, horizontal?: Align) {
+  const align = horizontal === 'left' || horizontal === 'center' || horizontal === 'right' ? horizontal : null
+  let next = el
+  if (Object.keys(fontPatch).length > 0) next = cell ? setCellFont(next, cell, fontPatch) : setTableFont(next, fontPatch)
+  if (align) next = cell ? setCellAlignment(next, cell, align) : setTableAlignment(next, align)
+  return next
+}
+
 /** No inline editor: patch the element font and every run, plus the alignment, in one commit. */
 function patchElement(fontPatch: FontPatch, horizontal?: Align) {
   const ui = ctx.ui.value
   const sel = target.value
   if (!ui || !sel) return
+  const table = props.target
   const next = updateElementInUi(ui, sel, (el) => {
+    if (table) return patchTable(el, table.cell, fontPatch, horizontal)
     const runs = readArray(el.runs)
     const items = readArray(el.items)
     return {

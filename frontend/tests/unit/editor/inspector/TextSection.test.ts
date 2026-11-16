@@ -235,3 +235,64 @@ describe('TextSection with the inline editor open', () => {
     expect(editor.getAttributes('textStyle').fontSize).toBe(40)
   })
 })
+
+describe('TextSection with a table target', () => {
+  const cellText = (t: string) => ({ runs: [{ text: t }] })
+  const tableUi = () =>
+    ({
+      components: [
+        { id: 'c', position: { x: 0, y: 0 }, elements: [{ type: 'table', position: { x: 0, y: 0 }, size: { width: 1, height: 1 }, columns: [cellText('a'), cellText('b')], rows: [[cellText('c'), cellText('d')]] }] },
+      ],
+    }) as unknown as RawUi
+  function mountTable(cell: { row: number; col: number } | null) {
+    const ui = tableUi()
+    const ctx = {
+      enabled: computed(() => true),
+      ui: computed(() => ui),
+      selection: ref<Selection>(textSel),
+      inlineEdit: shallowRef(null),
+      inlineEditor: shallowRef(null),
+      commit: vi.fn().mockResolvedValue(true),
+      select: vi.fn(),
+    } as unknown as SlideEditing
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provide(SLIDE_EDITING_KEY, ctx)
+          return () => h(TextSection, { presentation, target: { kind: 'table', root: textSel, cell } })
+        },
+      }),
+      { attachTo: document.body },
+    )
+    return { wrapper, ctx }
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const table = (ui: RawUi) => getElementAtSelection(ui, textSel) as any
+
+  it('Bold with a cell sets that cell font only', async () => {
+    const { wrapper, ctx } = mountTable({ row: 1, col: 1 })
+    await wrapper.get('button[aria-label="Bold"]').trigger('click')
+    const t = table(committed(ctx))
+    expect(ctx.commit).toHaveBeenCalledTimes(1)
+    expect(t.rows[0][1].font.bold).toBe(true)
+    expect(t.rows[0][1].runs[0].font.bold).toBe(true)
+    expect(t.rows[0][0].font).toBeUndefined()
+    expect(t.font).toBeUndefined()
+  })
+
+  it('Bold with no cell sets the table font, every cell and run', async () => {
+    const { wrapper, ctx } = mountTable(null)
+    await wrapper.get('button[aria-label="Bold"]').trigger('click')
+    const t = table(committed(ctx))
+    expect(t.font.bold).toBe(true)
+    expect(t.columns[0].font.bold).toBe(true)
+    expect(t.rows[0][1].runs[0].font.bold).toBe(true)
+  })
+
+  it('has no Justify option and aligns the cell', async () => {
+    const { wrapper, ctx } = mountTable({ row: 0, col: 0 })
+    expect(wrapper.find('button[aria-label="Justify"]').exists()).toBe(false)
+    await wrapper.get('button[aria-label="Align center"]').trigger('click')
+    expect(table(committed(ctx)).columns[0].alignment).toBe('center')
+  })
+})

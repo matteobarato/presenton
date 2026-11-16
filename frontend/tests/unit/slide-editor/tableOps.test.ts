@@ -14,6 +14,8 @@ import {
   setCellAlignment,
   setCellFill,
   setCellFont,
+  setTableAlignment,
+  setTableFont,
   tableCellAt,
   tableLimits,
   tableSize,
@@ -169,6 +171,22 @@ describe('tableOps', () => {
     expect(clampCell(table([['a', 'b'], ['c', 'd']]), { row: 5, col: 3 })).toEqual({ row: 1, col: 1 })
     expect(clampCell(table([['a', 'b'], ['c', 'd']]), { row: -1, col: 0 })).toEqual({ row: 0, col: 0 })
     expect(clampCell({ type: 'table', columns: [], rows: [] }, { row: 0, col: 0 })).toBeNull()
+  })
+
+  it('setTableFont patches the base font, every cell font and every run', () => {
+    const t = table([['a', 'b'], ['c', 'd']], { font: { size: 12 } })
+    const out = setTableFont(t, { bold: true })
+    expect(out.font).toEqual({ size: 12, bold: true })
+    for (const c of [...out.columns, ...out.rows[0]]) {
+      expect(c.font).toEqual({ bold: true })
+      expect(c.runs[0].font).toEqual({ bold: true })
+    }
+    snapshotCheck((x) => setTableFont(x, { bold: true }))
+  })
+
+  it('setTableAlignment aligns every cell', () => {
+    const out = setTableAlignment(table([['a', 'b'], ['c', 'd']]), 'right')
+    expect([...out.columns, ...out.rows[0]].map((c) => c.alignment)).toEqual(['right', 'right', 'right', 'right'])
   })
 
   it('never mutates the input', () => {

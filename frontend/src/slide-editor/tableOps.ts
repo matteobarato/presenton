@@ -176,3 +176,19 @@ export function clampCell(el: RawElement, cell: TableCellRef): TableCellRef | nu
     col: Math.max(0, Math.min(cols - 1, cell.col)),
   }
 }
+
+/** Patch the table's base font plus every cell font and run (inline edits freeze fonts into runs). */
+export function setTableFont(el: RawElement, patch: Record<string, unknown>): RawElement {
+  const { rows, cols } = tableSize(el)
+  let next: RawElement = { ...el, font: { ...asRecord(el.font), ...patch } }
+  for (let row = 0; row < rows; row++) for (let col = 0; col < cols; col++) next = setCellFont(next, { row, col }, patch)
+  return next
+}
+
+/** Align every cell. */
+export function setTableAlignment(el: RawElement, a: 'left' | 'center' | 'right'): RawElement {
+  const { rows, cols } = tableSize(el)
+  let next = el
+  for (let row = 0; row < rows; row++) for (let col = 0; col < cols; col++) next = setCellAlignment(next, { row, col }, a)
+  return next
+}
