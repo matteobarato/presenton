@@ -757,3 +757,93 @@ test.describe('table and chart editing (mocked)', () => {
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 })
+
+// --- Layout and infographic editing ------------------------------------------------------------
+
+const layoutDeck = fixture<typeof editableDeck>('layout-presentation')
+interface LayoutElement {
+  gap?: number
+  children?: unknown[]
+  data?: { value?: number; items?: { heading: string }[] }
+}
+const layoutElementOf = (patch: { slides: PatchedSlide[] } | undefined, id: string) =>
+  patch?.slides.flatMap((s) => s.ui?.components ?? []).find((c) => c.id === id)?.elements[0] as LayoutElement | undefined
+
+test.describe('layout and infographic editing (mocked)', () => {
+  async function open(page: Page, slide = 1) {
+    const api = await editableApi(page, {}, layoutDeck)
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    if (slide > 1) {
+      const thumb = page.getByRole('button', { name: `Slide ${slide}`, exact: true })
+      await thumb.click()
+      await expect(thumb).toHaveAttribute('aria-current', 'true')
+      await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    }
+    return api
+  }
+  /** The slide switch cross-fades, so click until the section for the target is showing. */
+  async function select(page: Page, [x, y]: [number, number], heading: 'Layout' | 'Infographic') {
+    await expect(async () => {
+      const p = await slidePoint(page, x, y)
+      await page.mouse.click(p.px, p.py)
+      await expect(page.getByRole('heading', { name: heading, exact: true, level: 3 })).toBeVisible({ timeout: 500 })
+    }).toPass({ timeout: 10_000 })
+  }
+  const numberField = (page: Page, name: string) => page.getByRole('textbox', { name, exact: true })
+
+  test('Layout: gap change saves and Ctrl+Z restores it', async ({ page }) => {
+    const { patches, unexpected } = await open(page)
+    await select(page, [200, 150], 'Layout')
+    const gap = numberField(page, 'Gap')
+    await expect(gap).toHaveValue('10')
+    await gap.fill('24')
+    await gap.press('Enter')
+    await expect.poll(() => layoutElementOf(patches.at(-1), 'cards')?.gap).toBe(24)
+    await gap.blur() // shortcuts ignore a focused input, where Ctrl+Z is the browser's own text undo
+    await page.keyboard.press('Control+z')
+    await expect.poll(() => layoutElementOf(patches.at(-1), 'cards')?.gap).toBe(10)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('Layout: Add item adds a third card', async ({ page }) => {
+    const { patches, unexpected } = await open(page)
+    await select(page, [200, 150], 'Layout')
+    await page.getByRole('button', { name: 'Add item', exact: true }).click()
+    await expect.poll(() => layoutElementOf(patches.at(-1), 'cards')?.children?.length).toBe(3)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('Infographic: gauge value saves clamped', async ({ page }) => {
+    const { patches, unexpected } = await open(page, 2)
+    await select(page, [520, 320], 'Infographic')
+    const value = numberField(page, 'Value')
+    await expect(value).toHaveValue('84')
+    await value.fill('150')
+    await value.press('Enter')
+    await expect.poll(() => layoutElementOf(patches.at(-1), 'gauge')?.data?.value).toBe(100)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('Edit items saves one PATCH and Ctrl+Z undoes it in one step', async ({ page }) => {
+    const { patches, unexpected } = await open(page, 3)
+    await select(page, [520, 310], 'Infographic')
+    await page.getByRole('button', { name: /Edit items/ }).click()
+    const dialog = page.getByRole('dialog')
+    const heading = dialog.getByRole('textbox', { name: 'Heading 1', exact: true })
+    await expect(heading).toHaveValue('Screen Time')
+    await heading.fill('Edited')
+    await dialog.getByRole('button', { name: 'Add item', exact: true }).click()
+    await dialog.getByRole('button', { name: 'Done', exact: true }).click()
+    await expect(dialog).toHaveCount(0)
+    await expect.poll(() => layoutElementOf(patches.at(-1), 'funnel')?.data?.items?.length).toBe(5)
+    expect(layoutElementOf(patches.at(-1), 'funnel')?.data?.items?.[0]?.heading).toBe('Edited')
+    expect(patches).toHaveLength(1)
+
+    await page.keyboard.press('Control+z')
+    await expect.poll(() => layoutElementOf(patches.at(-1), 'funnel')?.data?.items?.length).toBe(4)
+    expect(layoutElementOf(patches.at(-1), 'funnel')?.data?.items?.[0]?.heading).toBe('Screen Time')
+    expect(patches).toHaveLength(2)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+})
