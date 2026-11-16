@@ -64,10 +64,27 @@ const structure = computed(() => {
     { label: 'Add column', icon: Columns3, ok: canAddColumn(el), why: `Tables have at most ${l.maxCols} columns`, run: () => patch('Add column', (t) => addColumn(t, col.value), root.value ?? undefined) },
     { label: 'Delete row', icon: Trash2, ok: canDeleteRow(el, row.value), why: deleteRowWhy, run: () => canDeleteRow(el, row.value) && patch('Delete row', (t) => deleteRow(t, row.value!), root.value ?? undefined) },
     { label: 'Delete column', icon: Trash2, ok: canDeleteColumn(el, col.value), why: deleteColWhy, run: () => canDeleteColumn(el, col.value) && patch('Delete column', (t) => deleteColumn(t, col.value!), root.value ?? undefined) },
-    { label: 'Move column left', icon: ArrowLeft, ok: canMoveColumn(el, col.value, -1), why: edge(-1), run: () => canMoveColumn(el, col.value, -1) && patch('Move column', (t) => moveColumn(t, col.value!, -1), root.value ?? undefined) },
-    { label: 'Move column right', icon: ArrowRight, ok: canMoveColumn(el, col.value, 1), why: edge(1), run: () => canMoveColumn(el, col.value, 1) && patch('Move column', (t) => moveColumn(t, col.value!, 1), root.value ?? undefined) },
+    { label: 'Move column left', icon: ArrowLeft, ok: canMoveColumn(el, col.value, -1), why: edge(-1), run: () => canMoveColumn(el, col.value, -1) && move(-1) },
+    { label: 'Move column right', icon: ArrowRight, ok: canMoveColumn(el, col.value, 1), why: edge(1), run: () => canMoveColumn(el, col.value, 1) && move(1) },
   ]
 })
+
+/** Moves the selected cell's column; the cell goes with it, so a second move keeps going the same way. */
+function move(dir: -1 | 1) {
+  const picked = ctx.tableCell.value
+  const at = root.value
+  if (!picked || !at || cell.value == null) return
+  const from = cell.value.col
+  patch(
+    'Move column',
+    (t) => {
+      // Runs only when the patch is committed (it can be skipped while another commit applies).
+      ctx.tableCell.value = { ...picked, col: from + dir }
+      return moveColumn(t, from, dir)
+    },
+    at,
+  )
+}
 
 // The cell and table at the moment the colour popover opened: the commit lands there even if the selection moves.
 let anchor: { root: ElementSelection; cell: TableCellRef } | null = null

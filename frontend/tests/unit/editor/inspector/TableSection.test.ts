@@ -117,6 +117,21 @@ describe('TableSection', () => {
     expect(el(committed(ctx, 1)).columns[1].runs[0].text).toBe('r0c0')
   })
 
+  it('Move column follows the moved column, so a second move keeps going', async () => {
+    const { ctx } = mountSection(uiWithTable(3, 3), { row: 1, col: 0 })
+    await btn('Move column right').trigger('click')
+    await flushPromises()
+    expect(ctx.tableCell.value).toEqual({ root: sel, row: 1, col: 1 })
+    await btn('Move column right').trigger('click')
+    await flushPromises()
+    const t = el(committed(ctx, 1))
+    expect(t.columns.map((c: Rec) => c.runs[0].text)).toEqual(['r0c1', 'r0c2', 'r0c0'])
+    expect(ctx.tableCell.value).toEqual({ root: sel, row: 1, col: 2 })
+    await btn('Move column left').trigger('click')
+    await flushPromises()
+    expect(ctx.tableCell.value).toEqual({ root: sel, row: 1, col: 1 })
+  })
+
   it('the Cell background palette swatch sets color on that cell only', async () => {
     const { ctx } = mountSection(uiWithTable(3), { row: 1, col: 1 })
     await btn('Cell background').trigger('click')
