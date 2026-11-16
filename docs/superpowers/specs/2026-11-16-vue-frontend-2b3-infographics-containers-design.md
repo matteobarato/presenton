@@ -145,7 +145,7 @@ exactly, so decks stay compatible with the old editor and the exporters.
   type)`, in the `ChartColorSwatches` pattern (the commit is anchored at
   picker open, so a drag is one undo step). Writing colours removes the
   legacy `base_color` and `highlight_color`. **Text colour** writes
-  `text_color`; it is hidden for `progress_bar`, which draws no text.
+  `text_color`, for every type.
 - **Items** (`vertical_funnel`, `maturity_model`): the count, **Add item**,
   **Remove last item**, and **Edit items…** (§4). Add and remove use the
   ported helpers and limits (1 to 8), except that `maturity_model` stops at
