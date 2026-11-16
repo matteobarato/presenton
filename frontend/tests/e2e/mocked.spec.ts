@@ -806,6 +806,28 @@ test.describe('layout and infographic editing (mocked)', () => {
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 
+  test('Layout: a container fill changes in one PATCH and Ctrl+Z restores it', async ({ page }) => {
+    const { patches, unexpected } = await open(page)
+    await select(page, [200, 190], 'Layout')
+    // The Contains list drills from the flex into its first container.
+    await page.getByRole('button', { name: 'Container', exact: true }).first().click()
+    const fill = page.getByRole('button', { name: 'Fill colour', exact: true })
+    await expect(fill).toBeVisible()
+    const cardFill = (patch: { slides: PatchedSlide[] } | undefined) =>
+      (layoutElementOf(patch, 'cards')?.children?.[0] as { fill?: { color?: string } } | undefined)?.fill?.color?.toLowerCase()
+    await fill.click()
+    const swatch = page.getByRole('button', { name: /^#[0-9a-f]{6}$/i }).first()
+    const hex = (await swatch.getAttribute('aria-label'))!.toLowerCase()
+    expect(hex).not.toBe('#4a6ff3')
+    await swatch.click()
+    await expect.poll(() => cardFill(patches.at(-1))).toBe(hex)
+    expect(patches).toHaveLength(1)
+    await page.keyboard.press('Control+z')
+    await expect.poll(() => cardFill(patches.at(-1))).toBe('#4a6ff3')
+    expect(patches).toHaveLength(2)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
   test('Layout: Add item adds a third card', async ({ page }) => {
     const { patches, unexpected } = await open(page)
     await select(page, [200, 150], 'Layout')
