@@ -9,6 +9,7 @@ import AppearanceSection from './AppearanceSection.vue'
 import ArrangeSection from './ArrangeSection.vue'
 import ChartSection from './ChartSection.vue'
 import IconSection from './IconSection.vue'
+import InfographicSection from './InfographicSection.vue'
 import ImageSection from './ImageSection.vue'
 import LayerChildren from './LayerChildren.vue'
 import LayerTree from './LayerTree.vue'
@@ -62,6 +63,7 @@ const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : [])
       <TableSection v-else-if="kind === 'table'" :presentation="props.presentation" />
       <ChartSection v-else-if="kind === 'chart'" :presentation="props.presentation" />
       <LayoutSection v-else-if="kind === 'layout'" :presentation="props.presentation" />
+      <InfographicSection v-else-if="kind === 'infographic'" :presentation="props.presentation" />
       <VideoSection v-else-if="kind === 'video'" :presentation-id="props.presentationId" :slide="props.activeSlide" />
       <AppearanceSection v-if="single" :presentation="props.presentation" />
       <ArrangeSection />
