@@ -1,6 +1,7 @@
 // Where rotation and style (opacity, flip, shadow) are written for the current selection.
 // A component with one element keeps rotation on the component and style on its element;
-// a group (several elements) takes both on the component.
+// a group (several elements) takes both on the component. A component that resolves to a layout or
+// infographic root styles that root.
 import {
   getElementAtSelection,
   updateComponentInUi,
@@ -9,6 +10,7 @@ import {
   type RawUi,
   type Selection,
 } from '@/slide-editor/model'
+import { dataRoot } from '@/slide-editor/dataRoot'
 import { normalizeRotation } from '@/slide-editor/elementStyle'
 
 type Rec = Record<string, unknown>
@@ -22,6 +24,11 @@ export function appearanceTargets(ui: RawUi, sel: Selection): AppearanceTargets 
   const component = (Array.isArray(ui.components) ? ui.components : [])[sel.componentIndex] as Rec | undefined
   if (!component) return null
   const rotation: ComponentTarget = { kind: 'component', componentIndex: sel.componentIndex }
+  // Only when the selection resolves to an infographic or layout (spec §1): the same order as toolbarKind
+  // (table, chart, infographic, layout), not imported from it to avoid an import cycle through ops.ts.
+  const resolvesToTableOrChart = !!(dataRoot(ui, sel, 'table') ?? dataRoot(ui, sel, 'chart'))
+  const root = resolvesToTableOrChart ? null : (dataRoot(ui, sel, 'infographic') ?? dataRoot(ui, sel, 'layout'))
+  if (root) return { rotation, style: root }
   const single = Array.isArray(component.elements) && component.elements.length === 1
   return { rotation, style: single ? { kind: 'element', componentIndex: sel.componentIndex, elementPath: [0] } : rotation }
 }
