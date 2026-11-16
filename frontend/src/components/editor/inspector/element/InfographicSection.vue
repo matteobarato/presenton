@@ -21,7 +21,6 @@ import { dataRoot } from '@/slide-editor/dataRoot'
 import { getElementAtSelection, updateElementInUi, type ElementSelection, type RawElement } from '@/slide-editor/model'
 import { themePalette } from '@/slide-editor/themePalette'
 import { useEditingActions } from '@/slide-editor/useEditingActions'
-import { useSelectedElement } from '@/slide-editor/useSelectedElement'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 
 import InfographicItemsDialog from './InfographicItemsDialog.vue'
@@ -30,7 +29,6 @@ const props = defineProps<{ presentation: Presentation }>()
 
 const ctx = useSlideEditingContext()
 const actions = useEditingActions(ctx)
-const { patch } = useSelectedElement(ctx)
 const palette = computed(() => themePalette(props.presentation))
 
 /** The infographic (it can sit inside a selected component). */
@@ -46,7 +44,9 @@ const stats = computed(() => (raw.value ? itemStats(raw.value) : null))
 const itemsOpen = ref(false)
 defineExpose({ itemsOpen })
 
-// Anchor: the infographic root when a colour popover opened, so a deferred commit lands there.
+// Anchor: the infographic root when a colour popover opened or a number field took focus, so a deferred commit
+// lands there. A number field commits on blur, after a canvas click has already moved the selection
+// (see AppearanceSection.vue).
 let anchor: ElementSelection | null = null
 const hold = () => (anchor = root.value)
 function target(): ElementSelection | null {
@@ -67,17 +67,18 @@ function edit(name: string, build: (el: RawElement) => RawElement | null, at: El
 
 // An unchanged or rejected patch commits nothing, and NumberField re-shows the stored value itself.
 function setMeterField(key: keyof Meter, name: string, value: number) {
+  const at = target()
   edit(name, (el) => {
     const next = setMeter(el, { [key]: value })
     if (!next) return null
     const before = readMeter(el)
     const after = readMeter(next)
     return before.value === after.value && before.min === after.min && before.max === after.max && !('infographic_type' in el) ? null : next
-  })
+  }, at)
 }
 
 const colour = (index: number, value: string | null) => value && edit('Infographic colour', (el) => setColor(el, index, value), target())
-const textColourCommit = (value: string | null) => value && patch('Text colour', (el) => setTextColor(el, value), target() ?? undefined)
+const textColourCommit = (value: string | null) => value && edit('Text colour', (el) => setTextColor(el, value), target())
 const add = () => edit('Add item', addItem)
 const remove = () => edit('Remove item', removeLastItem)
 

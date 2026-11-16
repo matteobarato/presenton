@@ -157,6 +157,22 @@ describe('InfographicSection', () => {
     expect(el(committed(ctx), { kind: 'element', componentIndex: 0, elementPath: [1] }).data.value).toBe(60)
   })
 
+  it('a meter Value typed for one gauge lands on that gauge when the selection moves before the blur commit', async () => {
+    const ui = uiOf(infographic({ type: 'gauge', value: 84, min_value: 0, max_value: 100 })) as Rec
+    ui.components.push({ position: { x: 500, y: 0 }, size: { width: 400, height: 300 }, elements: [infographic({ type: 'gauge', value: 84, min_value: 0, max_value: 100 })] })
+    const { ctx } = mountSection(ui as RawUi)
+    const input = byLabel('Value')
+    await input.trigger('focus')
+    await input.setValue('50')
+    ;(ctx.selection as unknown as { value: Selection }).value = { kind: 'element', componentIndex: 1, elementPath: [0] }
+    await nextTick()
+    await input.trigger('blur')
+    await flushPromises()
+    expect(ctx.commit).toHaveBeenCalledTimes(1)
+    const next = committed(ctx)
+    expect([el(next).data.value, el(next, { kind: 'element', componentIndex: 1, elementPath: [0] }).data.value]).toEqual([50, 84])
+  })
+
   it('Edit items… sets itemsOpen', async () => {
     const { section } = mountSection(uiOf(infographic({ type: 'maturity_model', items: items(3) })))
     expect(section().itemsOpen).toBe(false)

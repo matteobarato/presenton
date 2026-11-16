@@ -86,4 +86,24 @@ describe('applyLayoutChanges', () => {
     const t = { components: [{ position: { x: 0, y: 0 }, elements: [text('a')] }], elements: [] } as unknown as RawUi
     expect(applyLayoutChanges(t, sel, { gap: 1 })).toBeNull()
   })
+
+  it('refuses container changes on a flex or grid, and gap or item changes on a container', () => {
+    const containerUi = {
+      components: [{ position: { x: 0, y: 0 }, size: { width: 200, height: 100 }, elements: [{ type: 'container', position: { left: 0, top: 0 }, size: { width: 200, height: 100 }, children: [] }] }],
+      elements: [],
+    } as unknown as RawUi
+    const flexEl = flex([text('a'), text('b')])
+    for (const changes of [
+      fillChanges(flexEl, { color: '#222222' }),
+      strokeChanges(flexEl, { width: 2 }),
+      radiusChanges(4, 10),
+      alignmentChanges(flexEl, 'center', 'middle'),
+      paddingChanges(flexEl, 'x', 4),
+    ]) expect(applyLayoutChanges(ui(), sel, changes), JSON.stringify(changes)).toBeNull()
+    expect(applyLayoutChanges(containerUi, sel, gapChanges(4))).toBeNull()
+    expect(applyLayoutChanges(containerUi, sel, { children: [text('a')], max_children: 1, min_children: 0 })).toBeNull()
+    expect(addLayoutItem(containerUi, sel)).toBeNull()
+    expect(applyLayoutChanges(containerUi, sel, fillChanges({ type: 'container' }, { color: '#222222' }))).not.toBeNull()
+    expect(applyLayoutChanges(ui(), sel, gapChanges(4))).not.toBeNull()
+  })
 })

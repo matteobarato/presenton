@@ -108,3 +108,17 @@ describe('drafts', () => {
     expect((written.data as Rec).type).toBe('vertical_funnel')
   })
 })
+
+describe('wrong element type', () => {
+  const shape = { type: 'vector', colors: ['#000000'], data: { type: 'gauge', value: 1, items: [] } } as unknown as RawElement
+  it('setMeter returns null, so the section commits nothing', () => {
+    expect(setMeter(shape, { value: 5 })).toBeNull()
+  })
+  it('the other builders return the input unchanged', () => {
+    expect(setColor(shape, 0, '#ffffff')).toBe(shape)
+    expect(setTextColor(shape, '#ffffff')).toBe(shape)
+    expect(addItem(shape)).toBe(shape)
+    expect(removeLastItem(shape)).toBe(shape)
+    expect(writeItems(shape, [{ heading: 'A', description: '' }])).toBe(shape)
+  })
+})

@@ -19,7 +19,7 @@ import {
   type RawElement,
   type RawUi,
 } from '@/slide-editor/model'
-import type { LayoutType } from '@/slide-editor/dataRoot'
+import { LAYOUT_TYPES, type LayoutType } from '@/slide-editor/dataRoot'
 
 export type { LayoutType }
 export type Horizontal = 'left' | 'center' | 'right'
@@ -40,7 +40,9 @@ export interface ContainerControls {
   paddingY: number
 }
 
-const LAYOUT_TYPES: readonly string[] = ['flex', 'grid', 'container']
+// Keys only a container takes, and keys only a flex or grid takes (gap and the item list).
+const CONTAINER_KEYS = ['fill', 'stroke', 'border_radius', 'alignment', 'padding']
+const FLOW_KEYS = ['gap', 'column_gap', 'row_gap', 'children', 'elements', 'max_children', 'min_children']
 
 function rec(value: unknown): Rec {
   return value && typeof value === 'object' && !Array.isArray(value) ? (value as Rec) : {}
@@ -127,9 +129,16 @@ export function paddingChanges(el: RawElement, axis: 'x' | 'y', value: number): 
   }
 }
 
-/** Applies changes to the layout at `root`, resizing its component when the item count changed. Null when root is not a layout. */
+/** True when `changes` fit the layout type: container controls only on a container, gap and items only on a flex or grid. */
+function changesFit(type: LayoutType, changes: Rec): boolean {
+  const refused = type === 'container' ? FLOW_KEYS : CONTAINER_KEYS
+  return !refused.some((key) => key in changes)
+}
+
+/** Applies changes to the layout at `root`, resizing its component when the item count changed. Null when root is not a layout, or the changes do not fit its type (a stale call). */
 export function applyLayoutChanges(ui: RawUi, root: ElementSelection, changes: Rec): RawUi | null {
-  if (!layoutAt(ui, root)) return null
+  const type = layoutType(layoutAt(ui, root))
+  if (!type || !changesFit(type, changes)) return null
   const isRoot = root.componentIndex === ROOT_ELEMENTS_COMPONENT_INDEX
   const component = isRoot
     ? rootElementsComponent(ui)

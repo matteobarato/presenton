@@ -50,7 +50,9 @@ const stats = computed(() => (raw.value ? layoutItemStats(raw.value) : null))
 const box = computed(() => (ctx.ui.value && root.value ? absoluteBoxForSelection(ctx.ui.value, root.value) : null))
 const container = computed(() => (raw.value && isContainer.value ? readContainer(raw.value, box.value ?? { width: 0, height: 0 }) : null))
 
-// Anchor: the layout root when a colour popover opened, so a deferred commit lands there.
+// Anchor: the layout root when a colour popover opened, a field took focus or an alignment button was pressed,
+// so a deferred commit lands there. A number field commits on blur, after a canvas click has already moved the
+// selection (see AppearanceSection.vue).
 let anchor: ElementSelection | null = null
 const hold = () => (anchor = root.value)
 function target(): ElementSelection | null {
@@ -66,14 +68,21 @@ function run(name: string, fn: (ui: RawUi, at: ElementSelection) => RawUi | null
     return next ? { ui: next, selection: ctx.selection.value } : null
   })
 }
-function change(name: string, build: (el: RawElement) => Record<string, unknown>, at: ElementSelection | null = root.value) {
+function change(name: string, build: (el: RawElement, ui: RawUi, at: ElementSelection) => Record<string, unknown>, at: ElementSelection | null) {
   run(name, (ui, r) => {
     const el = getElementAtSelection(ui, r)
-    return el ? applyLayoutChanges(ui, r, build(el)) : null
+    return el ? applyLayoutChanges(ui, r, build(el, ui, r)) : null
   }, at)
 }
+/** The corner radius cap of the container at `at` (the anchored one, not the current selection). */
+function maxRadiusAt(el: RawElement, ui: RawUi, at: ElementSelection): number {
+  return readContainer(el, absoluteBoxForSelection(ui, at) ?? { width: 0, height: 0 }).maxRadius
+}
 
-const setGap = (v: number) => Number.isFinite(v) && change('Gap', () => gapChanges(v))
+const setGap = (v: number) => {
+  const at = target()
+  if (Number.isFinite(v)) change('Gap', () => gapChanges(v), at)
+}
 const addItem = () => run('Add item', addLayoutItem)
 const removeItem = () => run('Remove item', removeLastLayoutItem)
 const fillColour = (c: string | null) => c && change('Fill', (el) => fillChanges(el, { color: c }), target())
@@ -81,8 +90,8 @@ const fillOpacity = (p: number) => change('Fill', (el) => fillChanges(el, { opac
 const strokeColour = (c: string | null) => c && change('Stroke', (el) => strokeChanges(el, { color: c }), target())
 const strokeWidth = (w: number) => change('Stroke', (el) => strokeChanges(el, { width: w }), target())
 const strokeOpacity = (p: number) => change('Stroke', (el) => strokeChanges(el, { opacity: p / 100 }), target())
-const setRadius = (v: number) => change('Corner radius', () => radiusChanges(v, container.value?.maxRadius ?? 0), target())
-const align = (h: Horizontal, v: Vertical) => change('Alignment', (el) => alignmentChanges(el, h, v))
+const setRadius = (v: number) => change('Corner radius', (el, ui, at) => radiusChanges(v, maxRadiusAt(el, ui, at)), target())
+const align = (h: Horizontal, v: Vertical) => change('Alignment', (el) => alignmentChanges(el, h, v), target())
 const setPadding = (axis: 'x' | 'y', v: number) => change('Padding', (el) => paddingChanges(el, axis, v), target())
 
 const HORIZONTALS: Horizontal[] = ['left', 'center', 'right']
@@ -124,7 +133,7 @@ const action = `${field} cursor-pointer justify-center hover:bg-[#303a3f] disabl
       <SliderField :model-value="Math.round(container.strokeOpacity * 100)" label="Stroke opacity" :min="0" :max="100" unit="%" @focus="hold" @commit="strokeOpacity" />
 
       <div :class="[sub, 'mt-5']">Corner radius</div>
-      <NumberField :model-value="Math.round(container.radius * 10) / 10" label="Corner radius" :min="0" :max="container.maxRadius" :step="0.5" unit="px" @focus="hold" @commit="setRadius" />
+      <NumberField :model-value="Math.round(container.radius * 10) / 10" label="Corner radius" :min="0" :step="0.5" unit="px" @focus="hold" @commit="setRadius" />
 
       <div :class="[sub, 'mt-5']">Alignment</div>
       <div role="group" aria-label="Alignment" class="grid grid-cols-3 gap-1">
@@ -136,7 +145,7 @@ const action = `${field} cursor-pointer justify-center hover:bg-[#303a3f] disabl
           :aria-label="`${cap(c.h)} ${cap(c.v)}`"
           :aria-pressed="container.horizontal === c.h && container.vertical === c.v"
           :title="`${cap(c.h)} ${cap(c.v)}`"
-          @mousedown.prevent
+          @mousedown.prevent="hold"
           @click="align(c.h, c.v)"
         >
           <span class="size-1.5 rounded-full bg-current" aria-hidden="true" />

@@ -31,6 +31,10 @@ function num(value: unknown, fallback: number): number {
 function colour(value: string): string {
   return (value.startsWith('#') ? value : `#${value}`).toLowerCase()
 }
+/** Builders return the input unchanged (setMeter: null) for anything but an infographic, so a stale call is a no-op. */
+function isInfographic(el: RawElement): boolean {
+  return el.type === 'infographic'
+}
 function withoutLegacy(el: RawElement): Rec {
   const next: Rec = { ...el }
   for (const key of LEGACY_KEYS) delete next[key]
@@ -56,7 +60,9 @@ export function readMeter(el: RawElement): Meter {
   return { value: num(data.value, num(el.value, min)), min, max }
 }
 
+/** The meter patched into `data`, legacy fields dropped. Null for an invalid patch or a non-infographic element, so the caller commits nothing. */
 export function setMeter(el: RawElement, patch: Partial<Meter>): RawElement | null {
+  if (!isInfographic(el)) return null
   if (Object.values(patch).some((v) => v !== undefined && !Number.isFinite(v))) return null
   const current = readMeter(el)
   const min = patch.min ?? current.min
@@ -73,6 +79,7 @@ export function readColors(el: RawElement): string[] {
 }
 
 export function setColor(el: RawElement, index: number, color: string): RawElement {
+  if (!isInfographic(el)) return el
   const type = (infographicType(el) ?? 'gauge') as InfographicType
   const colors = normalizeInfographicColors(el.colors, type)
   colors[index] = color
@@ -87,6 +94,7 @@ export function readTextColor(el: RawElement): string | null {
 }
 
 export function setTextColor(el: RawElement, color: string): RawElement {
+  if (!isInfographic(el)) return el
   return { ...el, text_color: color } as RawElement
 }
 
@@ -121,13 +129,13 @@ export function itemStats(el: RawElement): { count: number; canAdd: boolean; can
 }
 
 export function addItem(el: RawElement): RawElement {
-  if (!itemStats(el).canAdd) return el
+  if (!isInfographic(el) || !itemStats(el).canAdd) return el
   const next = addInfographicToolbarItem(dataWithItems(el))
   return next === el.data ? el : withData(el, next)
 }
 
 export function removeLastItem(el: RawElement): RawElement {
-  if (!itemStats(el).canRemove) return el
+  if (!isInfographic(el) || !itemStats(el).canRemove) return el
   return withData(el, removeLastInfographicToolbarItem(dataWithItems(el)))
 }
 
@@ -165,6 +173,7 @@ export function draftComplete(type: ItemType, items: DraftItem[]): boolean {
 }
 
 export function writeItems(el: RawElement, items: DraftItem[]): RawElement {
+  if (!isInfographic(el)) return el
   const written = items.map((draft) => {
     const item: Rec = { ...draft }
     if (typeof draft.value === 'string') item.value = Number(draft.value)

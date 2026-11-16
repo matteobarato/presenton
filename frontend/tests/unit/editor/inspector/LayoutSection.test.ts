@@ -150,6 +150,44 @@ describe('LayoutSection', () => {
     expect(ctx.commit).not.toHaveBeenCalled()
   })
 
+  it('a Gap typed for one card lands on that card when the selection moves before the blur commit', async () => {
+    const card = (x: number) => ({
+      position: { x, y: 100 },
+      size: { width: 210, height: 50 },
+      elements: [{ type: 'flex', direction: 'row', gap: 10, position: { left: 0, top: 0 }, size: { width: 210, height: 50 }, children: [text('a'), text('b')] }],
+    })
+    const { ctx } = mountSection({ components: [card(0), card(400)], elements: [] } as unknown as RawUi)
+    const input = byLabel('Gap')
+    await input.trigger('focus')
+    await input.setValue('24')
+    ;(ctx.selection as unknown as { value: Selection }).value = { kind: 'element', componentIndex: 1, elementPath: [0] }
+    await nextTick()
+    await input.trigger('blur')
+    await flushPromises()
+    expect(ctx.commit).toHaveBeenCalledTimes(1)
+    const next = committed(ctx)
+    expect([el(next).gap, el(next, { kind: 'element', componentIndex: 1, elementPath: [0] }).gap]).toEqual([24, 10])
+  })
+
+  it('a corner radius committed after the selection moved is capped by the anchored container', async () => {
+    const box = (x: number, w: number, h: number) => ({
+      position: { x, y: 0 },
+      size: { width: w, height: h },
+      elements: [{ type: 'container', position: { left: 0, top: 0 }, size: { width: w, height: h }, children: [] }],
+    })
+    const { ctx } = mountSection({ components: [box(0, 200, 100), box(400, 40, 20)], elements: [] } as unknown as RawUi)
+    const input = byLabel('Corner radius')
+    await input.trigger('focus')
+    await input.setValue('30')
+    ;(ctx.selection as unknown as { value: Selection }).value = { kind: 'element', componentIndex: 1, elementPath: [0] }
+    await nextTick()
+    await input.trigger('blur')
+    await flushPromises()
+    const next = committed(ctx)
+    expect(el(next).border_radius.tl).toBe(30)
+    expect(el(next, { kind: 'element', componentIndex: 1, elementPath: [0] }).border_radius).toBeUndefined()
+  })
+
   it('edits the layout root when a component is selected', async () => {
     const { ctx } = mountSection(flexUi(), { kind: 'component', componentIndex: 0 } as Selection)
     const input = byLabel('Gap')

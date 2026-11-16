@@ -9,7 +9,7 @@ import {
 export type DataRootKind = 'table' | 'chart' | 'infographic' | 'layout'
 export type LayoutType = 'flex' | 'grid' | 'container'
 
-const LAYOUT_TYPES: readonly string[] = ['flex', 'grid', 'container'] satisfies LayoutType[]
+export const LAYOUT_TYPES: readonly string[] = ['flex', 'grid', 'container'] satisfies LayoutType[]
 
 type Found = { element: { type?: unknown }; elementPath: number[] } | null
 
