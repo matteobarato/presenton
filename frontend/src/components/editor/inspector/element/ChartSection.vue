@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import type { Presentation } from '@/api/types'
 import type { ChartElement, DataLabelPosition } from '@/render/legacy/components/slide-editor/types'
-import { CHART_SYSTEM_COLORS, CHART_TEXT_MAX_LENGTH, limitChartText, readChartDataLabelPosition } from '@/render/legacy/components/slide-editor/charts/chart-data'
+import { CHART_SYSTEM_COLORS, CHART_TEXT_MAX_LENGTH, appendChartColorTarget, removeChartColorTarget, updateChartColorTarget, limitChartText, readChartDataLabelPosition } from '@/render/legacy/components/slide-editor/charts/chart-data'
 import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
 import SegmentedControl from '@/components/editor/inspector/controls/SegmentedControl.vue'
 import ToggleRow from '@/components/editor/inspector/controls/ToggleRow.vue'
@@ -123,11 +123,19 @@ const LABELS = [
   { value: 'outside', label: 'Outside' },
 ]
 const labelValue = computed(() => readChartDataLabelPosition(chart.value?.data_labels) ?? 'off')
+/** Builds the swatch update from the current chart at the root held when the picker opened. */
+function swatchPatch(name: string, fn: (c: ChartElement) => ChartElement) {
+  const at = anchor ?? root.value
+  anchor = null
+  if (!at) return
+  patch(name, (el) => writeChart(el, fn(readChart(el))), at)
+}
+
 function setLabels(v: string) {
   const at = root.value
   if (!at) return
   const pos = v === 'off' ? null : (v as DataLabelPosition)
-  // The raw writer maps "off" to null; keep an explicit false so the renderer sees labels switched off.
+  // The raw writer maps "off" to null. Null, false and an absent key all mean Off to the renderer and backend; we keep writing an explicit false.
   patch('Data labels', (el) => {
     const out = writeChart(el, setDataLabels(readChart(el), pos))
     return pos === null ? { ...out, data_labels: false } : out
@@ -185,7 +193,14 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
 
     <div :class="section">
       <div :class="label"><h3>Colours</h3></div>
-      <ChartColorSwatches :chart="chart" :palette="palette" @change="(next) => apply('Chart colours', () => next)" />
+      <ChartColorSwatches
+        :chart="chart"
+        :palette="colourChoices"
+        @open="hold"
+        @pick="(i, c) => swatchPatch('Chart colour', (ch) => updateChartColorTarget(ch, i, c))"
+        @add="swatchPatch('Add chart colour', appendChartColorTarget)"
+        @remove="(i) => swatchPatch('Remove chart colour', (ch) => removeChartColorTarget(ch, i))"
+      />
     </div>
 
     <div :class="section">

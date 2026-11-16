@@ -2,32 +2,17 @@
 import { computed } from 'vue'
 import { Plus, X } from 'lucide-vue-next'
 import type { ChartElement } from '@/render/legacy/components/slide-editor/types'
-import {
-  CHART_SYSTEM_COLORS,
-  appendChartColorTarget,
-  removeChartColorTarget,
-  resolvedChartColorTargets,
-  updateChartColorTarget,
-} from '@/render/legacy/components/slide-editor/charts/chart-data'
+import { resolvedChartColorTargets } from '@/render/legacy/components/slide-editor/charts/chart-data'
 import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
 import { segment } from '@/components/editor/inspector/controls/styles'
 
+/** `palette` is the full choice list (theme plus system colours). The parent owns every commit. */
 const props = defineProps<{ chart: ChartElement; palette: string[] }>()
-const emit = defineEmits<{ change: [next: ChartElement] }>()
+const emit = defineEmits<{ open: []; pick: [index: number, color: string]; add: []; remove: [index: number] }>()
 
 const targets = computed(() => resolvedChartColorTargets(props.chart))
-const colours = computed(() => [...new Set([...props.palette, ...CHART_SYSTEM_COLORS.map((c) => `#${c.toLowerCase()}`)])])
 const canAdd = computed(() => targets.value.length < 12)
 const canRemove = computed(() => targets.value.length > 1)
-
-// The chart at the moment a colour popover opened, so a late commit lands on it.
-let held: ChartElement | null = null
-const hold = () => (held = props.chart)
-function pick(index: number, value: string | null) {
-  const base = held ?? props.chart
-  held = null
-  if (value) emit('change', updateChartColorTarget(base, index, value))
-}
 </script>
 
 <template>
@@ -36,16 +21,16 @@ function pick(index: number, value: string | null) {
       <div class="min-w-0 flex-1">
         <ColorField
           :model-value="`#${t.color.toLowerCase()}`"
-          :palette="colours"
+          :palette="palette"
           :label="`Chart colour ${t.index + 1}`"
-          @open="hold"
-          @commit="(v) => pick(t.index, v)"
+          @open="emit('open')"
+          @commit="(v) => v && emit('pick', t.index, v)"
         />
       </div>
       <span class="w-16 shrink-0 truncate text-[9px] text-[#9aa9b0]" :title="t.label">{{ t.label }}</span>
     </div>
     <div class="flex gap-2">
-      <button type="button" :class="[segment, 'disabled:cursor-not-allowed disabled:opacity-40']" aria-label="Add chart colour" title="Add chart colour" :disabled="!canAdd" @mousedown.prevent @click="emit('change', appendChartColorTarget(chart))">
+      <button type="button" :class="[segment, 'disabled:cursor-not-allowed disabled:opacity-40']" aria-label="Add chart colour" title="Add chart colour" :disabled="!canAdd" @mousedown.prevent @click="emit('add')">
         <Plus class="size-4" aria-hidden="true" />
       </button>
       <button
@@ -55,7 +40,7 @@ function pick(index: number, value: string | null) {
         title="Remove the last chart colour"
         :disabled="!canRemove"
         @mousedown.prevent
-        @click="emit('change', removeChartColorTarget(chart, targets.length - 1))"
+        @click="emit('remove', targets.length - 1)"
       >
         <X class="size-4" aria-hidden="true" />
       </button>

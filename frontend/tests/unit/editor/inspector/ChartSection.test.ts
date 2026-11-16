@@ -158,3 +158,45 @@ describe('ChartSection', () => {
     expect(at(next, [0]).children[1].data_labels).toBe('top')
   })
 })
+
+describe('ChartSection swatches', () => {
+  it('commits a swatch colour to the chart that was selected when the picker opened', async () => {
+    const other = chart({ colors: ['111111'] })
+    const ui = {
+      background: { color: 'FFFFFF' },
+      components: [
+        { id: 'c1', position: { x: 0, y: 0 }, elements: [chart()] },
+        { id: 'c2', position: { x: 0, y: 0 }, elements: [other] },
+      ],
+    } as unknown as RawUi
+    const { ctx } = mountSection(ui)
+    await btn('Chart colour 1').trigger('click')
+    ;(ctx.selection as { value: Selection }).value = { kind: 'element', componentIndex: 1, elementPath: [0] }
+    await nextTick()
+    const pick = document.body.querySelector('button[aria-label="#ef4444"]') as HTMLButtonElement
+    pick.click()
+    await nextTick()
+    const next = committed(ctx)
+    const el = (i: number) => getElementAtSelection(next, { kind: 'element', componentIndex: i, elementPath: [0] } as ElementSelection) as Rec
+    expect(el(0).colors[0]).toBe('EF4444')
+    expect(el(1)).toEqual(other)
+  })
+
+  it('shows per-series swatches for a multi-series polar area chart', () => {
+    mountSection(
+      uiWith(
+        chart({
+          chart_type: 'polar_area',
+          colors: ['7C51F8', '22C55E'],
+          series: [
+            { name: 'North', values: [1, 2, 3] },
+            { name: 'South', values: [3, 2, 1] },
+          ],
+        }),
+      ),
+    )
+    expect(wrapper!.findAll('button[aria-label^="Chart colour "]')).toHaveLength(2)
+    expect(wrapper!.text()).toContain('North')
+    expect(wrapper!.text()).toContain('South')
+  })
+})
