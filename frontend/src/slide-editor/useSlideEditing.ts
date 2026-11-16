@@ -44,6 +44,8 @@ export interface SlideEditing {
   /** Id of the slide this state belongs to. */
   slideId: ComputedRef<string | null>
   ui: ComputedRef<RawUi | null>
+  /** The slide's saved ui, ignoring any draft; its identity changes on every commit or remote update. */
+  committedUi: ComputedRef<RawUi | null>
   selection: Ref<Selection>
   /** What is hovered, on the canvas or in the inspector's layer list; the canvas outlines it. */
   hover: ShallowRef<Selection>
@@ -114,6 +116,8 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   const slideId = computed(() => slide.value?.id ?? null)
   const enabled = computed(() => !!slide.value && slideKind(slide.value) === 'template' && !editor.locked)
   const ui = computed<RawUi | null>(() => draftUi.value ?? ((slide.value?.ui as RawUi | null | undefined) ?? null))
+
+  const committedUi = computed<RawUi | null>(() => (slide.value?.ui as RawUi | null | undefined) ?? null)
 
   function select(sel: Selection) {
     selection.value = sel
@@ -301,6 +305,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     enabled,
     slideId,
     ui,
+    committedUi,
     selection,
     hover,
     draftUi,

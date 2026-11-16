@@ -25,6 +25,7 @@ import { themePalette } from '@/slide-editor/themePalette'
 import { useSelectedElement } from '@/slide-editor/useSelectedElement'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import ChartColorSwatches from './ChartColorSwatches.vue'
+import ChartDataDialog from './ChartDataDialog.vue'
 
 const props = defineProps<{ presentation: Presentation }>()
 
@@ -38,7 +39,7 @@ const root = computed<ElementSelection | null>(() => dataRoot(ctx.ui.value, ctx.
 const raw = computed<RawElement | null>(() => (ctx.ui.value && root.value ? getElementAtSelection(ctx.ui.value, root.value) : null))
 const chart = computed<ChartElement | null>(() => (raw.value ? readChart(raw.value) : null))
 
-/** Local only: Task 9's data dialog binds to this. */
+/** Whether the Edit data dialog is open. */
 const dataOpen = ref(false)
 defineExpose({ dataOpen })
 
@@ -189,6 +190,7 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
         </p>
       </div>
       <button type="button" :class="[segment, 'mt-2 w-full flex-none text-[10px]']" aria-label="Edit data" @mousedown.prevent @click="dataOpen = !dataOpen">Edit data</button>
+      <ChartDataDialog v-if="root" v-model:open="dataOpen" :root="root" />
     </div>
 
     <div :class="section">

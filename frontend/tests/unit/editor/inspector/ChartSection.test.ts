@@ -37,6 +37,10 @@ function mountSection(ui: RawUi, sel: Selection = { kind: 'element', componentIn
   const ctx = {
     enabled: computed(() => true),
     ui: computed(() => state.value),
+    committedUi: computed(() => state.value),
+    slideId: computed(() => 's1'),
+    draftUi: shallowRef(null),
+    cancelDraft: vi.fn(),
     selection: ref<Selection>(sel),
     inlineEdit: shallowRef(null),
     inlineEditor: shallowRef(null),
