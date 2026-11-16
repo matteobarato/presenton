@@ -34,6 +34,11 @@ function mountSection(ui: RawUi, selection: Selection = sel) {
     enabled: computed(() => true),
     ui: computed(() => state.value),
     selection: ref<Selection>(selection),
+    slideId: computed(() => 's1'),
+    committedUi: computed(() => state.value),
+    isOwnCommit: () => false,
+    draftUi: shallowRef(null),
+    cancelDraft: vi.fn(),
     inlineEdit: shallowRef(null),
     inlineEditor: shallowRef(null),
     commit: vi.fn(async (next: RawUi) => {

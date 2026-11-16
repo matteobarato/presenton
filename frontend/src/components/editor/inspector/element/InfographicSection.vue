@@ -24,6 +24,8 @@ import { useEditingActions } from '@/slide-editor/useEditingActions'
 import { useSelectedElement } from '@/slide-editor/useSelectedElement'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 
+import InfographicItemsDialog from './InfographicItemsDialog.vue'
+
 const props = defineProps<{ presentation: Presentation }>()
 
 const ctx = useSlideEditingContext()
@@ -40,7 +42,7 @@ const colours = computed(() => (raw.value ? readColors(raw.value) : []))
 const textColour = computed(() => (raw.value ? readTextColor(raw.value) : null))
 const stats = computed(() => (raw.value ? itemStats(raw.value) : null))
 
-/** Whether the items dialog is open (the dialog itself arrives in a later task). */
+/** Whether the items dialog is open. */
 const itemsOpen = ref(false)
 defineExpose({ itemsOpen })
 
@@ -124,4 +126,6 @@ const action = `${field} cursor-pointer justify-center hover:bg-[#303a3f] disabl
     <div :class="sub">Text colour</div>
     <ColorField :model-value="textColour ?? colours[0] ?? null" :palette="palette" label="Text colour" @open="hold" @close="anchor = null" @commit="textColourCommit" />
   </div>
+
+  <InfographicItemsDialog v-if="root && group === 'items'" v-model:open="itemsOpen" :root="root" />
 </template>
