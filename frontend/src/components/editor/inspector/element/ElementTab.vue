@@ -26,7 +26,7 @@ const ctx = useSlideEditingContext()
 const active = computed(() => ctx.enabled.value && ctx.selection.value !== null)
 const kind = computed(() => toolbarKind(ctx.ui.value, ctx.selection.value))
 const single = computed(() => ctx.selection.value?.kind !== 'multi-component')
-const heading = computed(() => selectionLabel(ctx.ui.value, ctx.selection.value) ?? 'Element')
+const heading = computed(() => selectionLabel(ctx.ui.value, ctx.selection.value, ctx.tableCell?.value) ?? 'Element')
 const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : []))
 </script>
 
