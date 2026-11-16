@@ -73,15 +73,36 @@ export function setMeter(el: RawElement, patch: Partial<Meter>): RawElement | nu
   return { ...withoutLegacy(el), data } as RawElement
 }
 
-export function readColors(el: RawElement): string[] {
+function legacyString(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+/**
+ * The stored colours padded to the swatch count. An entry missing from `colors` comes from the legacy keys
+ * before the defaults, with the renderer's precedence (template-v2-json-to-html.ts, infographicBaseColor and
+ * infographicHighlightColor): entry 0 from `baseColor ?? base_color`; for meters, which are the only types that
+ * draw a highlight, entry 1 from `highlightColor ?? highlight_color ?? color ?? fill.color`.
+ */
+function storedColors(el: RawElement): string[] {
   const type = (infographicType(el) ?? 'gauge') as InfographicType
-  return normalizeInfographicColors(el.colors, type).map(colour)
+  const colors = normalizeInfographicColors(el.colors, type)
+  const given = Array.isArray(el.colors) ? el.colors.filter((c) => typeof c === 'string' && c.trim().length > 0).length : 0
+  const legacy = [
+    legacyString(el.baseColor ?? el.base_color),
+    type === 'gauge' || type === 'progress_bar' ? legacyString(el.highlightColor ?? el.highlight_color ?? el.color ?? rec(el.fill).color) : null,
+  ]
+  legacy.forEach((value, i) => {
+    if (i >= given && value) colors[i] = value
+  })
+  return colors
+}
+
+export function readColors(el: RawElement): string[] {
+  return storedColors(el).map(colour)
 }
 
 export function setColor(el: RawElement, index: number, color: string): RawElement {
   if (!isInfographic(el)) return el
-  const type = (infographicType(el) ?? 'gauge') as InfographicType
-  const colors = normalizeInfographicColors(el.colors, type)
+  const colors = storedColors(el)
   colors[index] = color
   const next: Rec = { ...el, colors }
   delete next.base_color

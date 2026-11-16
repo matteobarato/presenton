@@ -59,6 +59,24 @@ describe('colours', () => {
     expect(col.colors).toEqual(['#aabbcc', '#285E1D'])
     expect('base_color' in col || 'highlight_color' in col).toBe(false)
   })
+  it('a legacy-only gauge reads base_color and highlight_color for the missing entries', () => {
+    const legacy = (colors: unknown) => ({ type: 'infographic', data: { type: 'gauge' }, colors, base_color: '#1D242D', highlight_color: '#448BCA' }) as RawElement
+    expect(readColors(legacy(null))).toEqual(['#1d242d', '#448bca'])
+    expect(readColors(legacy(['#ffffff']))).toEqual(['#ffffff', '#448bca'])
+    expect(readColors(legacy(['#ABCDEF', '#123456']))).toEqual(['#abcdef', '#123456'])
+  })
+  it('editing one colour of a legacy-only gauge keeps the other legacy colour', () => {
+    const next = setColor({ type: 'infographic', data: { type: 'gauge' }, colors: ['#ffffff'], base_color: '#1D242D', highlight_color: '#448BCA' } as RawElement, 0, '#111111')
+    expect(next.colors).toEqual(['#111111', '#448BCA'])
+    expect('base_color' in next || 'highlight_color' in next).toBe(false)
+    const fromNull = setColor({ type: 'infographic', data: { type: 'progress_bar' }, colors: null, base_color: '#1D242D', highlight_color: '#448BCA' } as RawElement, 1, '#222222')
+    expect(fromNull.colors).toEqual(['#1D242D', '#222222'])
+  })
+  it('the highlight fallback is for meters only, as in the renderer', () => {
+    const other = { type: 'infographic', data: { type: 'timeline' }, colors: null, base_color: '#1D242D', highlight_color: '#448BCA' } as RawElement
+    expect(readColors(other)[0]).toBe('#1d242d')
+    expect(readColors(other)[1]).not.toBe('#448bca')
+  })
   it('reads and writes the text colour', () => {
     expect(setTextColor({ type: 'infographic' } as RawElement, '#174b40').text_color).toBe('#174b40')
     expect(readTextColor({ type: 'infographic', text_color: null } as RawElement)).toBeNull()
