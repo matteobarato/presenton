@@ -5,7 +5,7 @@ import SlideRenderError from '@/render/SlideRenderError.vue'
 import TemplateSlideHost from '@/render/TemplateSlideHost.vue'
 import { slideKind } from '@/render/slide-kind'
 import { getElementAtSelection, type ElementSelection, type RawUi } from '@/slide-editor/model'
-import { blankTextAt } from '@/slide-editor/tiptapRuns'
+import { blankTableCellAt, blankTextAt } from '@/slide-editor/tiptapRuns'
 import { useEditingShortcuts } from '@/slide-editor/useEditingShortcuts'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import { EDITABLE_CANVAS_KEY } from './canvas-context'
@@ -46,11 +46,14 @@ const inlineEditKey = computed(() => {
 })
 // The draft (resize preview, just-committed ui) wins over this slide's committed ui; the draft is
 // dropped on slide change, so a slide fading out never shows its successor's ui. While the inline
-// editor is open, the edited text is blanked underneath it (the editor shows it instead).
+// editor is open, the edited text (or table cell) is blanked underneath it (the editor shows it instead).
 const renderUi = computed(() => {
   const base = editing.draftUi.value ?? props.slide.ui
   const edit = inlineEdit.value
-  return edit && base ? blankTextAt(base as RawUi, edit.selection) : base
+  if (!edit || !base) return base
+  return edit.target.kind === 'cell'
+    ? blankTableCellAt(base as RawUi, edit.selection, edit.target)
+    : blankTextAt(base as RawUi, edit.selection)
 })
 
 const scale = computed(() => (width.value && width.value > 0 ? width.value / STAGE_W : 1))

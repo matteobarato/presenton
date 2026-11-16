@@ -4,13 +4,33 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { computed, defineComponent, h, ref } from 'vue'
 import { mount } from '@vue/test-utils'
-import type { RawUi, Selection } from '@/slide-editor/model'
+import type { ElementSelection, RawUi, Selection } from '@/slide-editor/model'
 import { useEditingShortcuts } from '@/slide-editor/useEditingShortcuts'
 import type { SlideEditing } from '@/slide-editor/useSlideEditing'
 import { uiTwoComponents } from './fixtures'
 
-function setup(opts: { selection?: Selection; inlineEdit?: boolean; active?: boolean; listFirst?: boolean } = {}) {
+function setup(
+  opts: {
+    selection?: Selection
+    inlineEdit?: boolean
+    active?: boolean
+    listFirst?: boolean
+    tableFirst?: boolean
+    tableCell?: { root: ElementSelection; row: number; col: number }
+  } = {},
+) {
   const ui = uiTwoComponents()
+  if (opts.tableFirst) {
+    ;(ui.components as Array<{ elements: unknown[] }>)[0]!.elements = [
+      {
+        type: 'table',
+        position: { x: 0, y: 0 },
+        size: { width: 400, height: 300 },
+        columns: [{ runs: [{ text: 'a' }] }, { runs: [{ text: 'b' }] }],
+        rows: [[{ runs: [{ text: 'c' }] }, { runs: [{ text: 'd' }] }]],
+      },
+    ]
+  }
   if (opts.listFirst) (ui.components as Array<{ elements: Array<Record<string, unknown>> }>)[0]!.elements[0]!.type = 'text-list'
   const ctx = {
     enabled: computed(() => true),
@@ -21,6 +41,8 @@ function setup(opts: { selection?: Selection; inlineEdit?: boolean; active?: boo
     commit: vi.fn().mockResolvedValue(true),
     select: vi.fn(),
     requestInlineEdit: vi.fn(),
+    requestCellEdit: vi.fn(),
+    tableCell: ref(opts.tableCell ?? null),
   } as unknown as SlideEditing
   const active = ref(opts.active ?? true)
   const wrapper = mount(
@@ -280,6 +302,29 @@ describe('useEditingShortcuts', () => {
     const { ctx, wrapper } = setup({ selection: { kind: 'component', componentIndex: 1 } })
     const e = press('Enter')
     expect(e.defaultPrevented).toBe(false)
+    expect(ctx.requestInlineEdit).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('Enter with a table cell selected opens the cell editor', () => {
+    const root: ElementSelection = { kind: 'element', componentIndex: 0, elementPath: [0] }
+    const { ctx, wrapper } = setup({
+      selection: { kind: 'component', componentIndex: 0 },
+      tableFirst: true,
+      tableCell: { root, row: 1, col: 1 },
+    })
+    const e = press('Enter')
+    expect(e.defaultPrevented).toBe(true)
+    expect(ctx.requestCellEdit).toHaveBeenCalledWith(root, { row: 1, col: 1 })
+    expect(ctx.requestInlineEdit).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('Enter on a table with no cell selected does nothing', () => {
+    const { ctx, wrapper } = setup({ selection: { kind: 'component', componentIndex: 0 }, tableFirst: true })
+    const e = press('Enter')
+    expect(e.defaultPrevented).toBe(false)
+    expect(ctx.requestCellEdit).not.toHaveBeenCalled()
     expect(ctx.requestInlineEdit).not.toHaveBeenCalled()
     wrapper.unmount()
   })

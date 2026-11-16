@@ -1,6 +1,8 @@
 import { toValue, type MaybeRefOrGetter } from 'vue'
 import { useEventListener } from '@vueuse/core'
 import { getElementAtSelection, type ElementSelection, type RawUi, type Selection } from '@/slide-editor/model'
+import { dataRoot } from '@/slide-editor/dataRoot'
+import { sameSelection } from '@/slide-editor/layerTree'
 import { toolbarKind } from '@/slide-editor/toolbarKind'
 import { CLIPBOARD_MIME, CLIPBOARD_PREFIX, nextPasteOffset, useClipboard } from '@/slide-editor/useClipboard'
 import {
@@ -111,6 +113,14 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
       e.preventDefault()
       void apply(r, 'Nudge')
     } else if (e.key === 'Enter') {
+      // A picked cell of the selected table edits in place.
+      const cell = ctx.tableCell.value
+      const table = dataRoot(ui, sel, 'table')
+      if (cell && table && sameSelection(table, cell.root)) {
+        e.preventDefault()
+        ctx.requestCellEdit(cell.root, { row: cell.row, col: cell.col })
+        return
+      }
       // A text or list element, or a component whose lone element is text or a list (as the Text section edits it).
       const target: ElementSelection | null =
         sel?.kind === 'element'

@@ -480,10 +480,28 @@ function onLostCapture(e: PointerEvent) {
 function onDoubleClick(e: MouseEvent) {
   const u = ui.value
   if (!u) return
-  const hit = hitDeepest(u, toSlidePoint(e.clientX, e.clientY, measure().rect))
+  const p = toSlidePoint(e.clientX, e.clientY, measure().rect)
+  // A table edits the cell under the pointer; its selection (component or element) is kept when it has one.
+  const table = dataRoot(u, selectionAfterPress(u, p, false), 'table')
+  if (table && editCellAt(u, table, p)) return
+  const hit = hitDeepest(u, p)
   if (!hit) return
   editing.select(hit)
   emit('open-editor', hit)
+}
+
+function editCellAt(u: RawUi, root: ElementSelection, p: Point): boolean {
+  const element = getElementAtSelection(u, root)
+  const frame = element ? selectionFrame(u, root) : null
+  if (!element || !frame) return false
+  const { rows, cols } = tableSize(element)
+  const cell = cellAtPoint(frame, rows, cols, p)
+  if (!cell) return false
+  const current = dataRoot(u, selection.value, 'table')
+  if (!current || !sameSelection(current, root)) editing.select(selectionAfterPress(u, p, false))
+  editing.tableCell.value = { root, ...cell }
+  editing.requestCellEdit(root, cell)
+  return true
 }
 
 watch(

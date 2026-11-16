@@ -128,7 +128,8 @@ export function canMoveColumn(el: RawElement, col: number | null, dir: -1 | 1): 
   return col >= 0 && to >= 0 && col < tableSize(el).cols && to < tableSize(el).cols
 }
 
-function updateCell(el: RawElement, ref: TableCellRef, fn: (cell: RawRecord) => RawRecord): RawElement {
+/** The table with `fn` applied to one cell (unchanged when the cell does not exist). */
+export function updateTableCell(el: RawElement, ref: TableCellRef, fn: (cell: RawRecord) => RawRecord): RawElement {
   const g = grid(el)
   const cell = g[ref.row]?.[ref.col]
   if (!cell) return el
@@ -136,7 +137,7 @@ function updateCell(el: RawElement, ref: TableCellRef, fn: (cell: RawRecord) => 
 }
 
 export function setCellFill(el: RawElement, ref: TableCellRef, color: string | null): RawElement {
-  return updateCell(el, ref, (cell) => {
+  return updateTableCell(el, ref, (cell) => {
     const next = { ...cell }
     if (color == null) {
       delete next.color
@@ -153,11 +154,11 @@ export function setCellFill(el: RawElement, ref: TableCellRef, color: string | n
 }
 
 export function setCellAlignment(el: RawElement, ref: TableCellRef, a: 'left' | 'center' | 'right'): RawElement {
-  return updateCell(el, ref, (cell) => ({ ...cell, alignment: a }))
+  return updateTableCell(el, ref, (cell) => ({ ...cell, alignment: a }))
 }
 
 export function setCellFont(el: RawElement, ref: TableCellRef, patch: Record<string, unknown>): RawElement {
-  return updateCell(el, ref, (cell) => ({
+  return updateTableCell(el, ref, (cell) => ({
     ...cell,
     font: { ...asRecord(cell.font), ...patch },
     runs: readArray(cell.runs).map((run) => {

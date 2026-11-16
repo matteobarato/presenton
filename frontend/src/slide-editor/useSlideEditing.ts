@@ -27,7 +27,7 @@ import {
 import { dataRoot } from '@/slide-editor/dataRoot'
 import { sameSelection } from '@/slide-editor/layerTree'
 import { clampCell, type TableCellRef } from '@/slide-editor/tableOps'
-import { inlineEditUi, startInlineEdit, type InlineEditSession } from '@/slide-editor/tiptapRuns'
+import { inlineEditUi, startCellEdit, startInlineEdit, type InlineEditSession } from '@/slide-editor/tiptapRuns'
 
 /** How a commit reports progress and joins history. */
 export interface CommitOptions {
@@ -193,8 +193,19 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     inlineEdit.value = { ...edit, deckId: presentationId.value }
   }
 
-  // Task 6 implements this.
-  function requestCellEdit() {}
+  // The table stays selected as it is (component or element) and the cell stays picked, during and after the edit.
+  function requestCellEdit(root: ElementSelection, cell: TableCellRef) {
+    if (inlineEdit.value) void closeInlineEdit(true)
+    const id = slide.value?.id
+    const u = ui.value
+    if (!enabled.value || !id || !u) return
+    const edit = startCellEdit(u, root, cell, id)
+    if (!edit) return
+    const current = dataRoot(u, selection.value, 'table')
+    if (!current || !sameSelection(current, root)) selection.value = root
+    tableCell.value = { root, row: cell.row, col: cell.col }
+    inlineEdit.value = { ...edit, deckId: presentationId.value }
+  }
 
   // The cell belongs to the selected table: it goes when the selection leaves it, and stays inside the table as it shrinks.
   watch(
@@ -262,7 +273,16 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
   // Selecting anything else closes the editor (and keeps its text).
   watch(selection, (sel) => {
     const edit = inlineEdit.value
-    if (edit && JSON.stringify(sel) !== JSON.stringify(edit.selection)) void closeInlineEdit(true)
+    if (!edit) return
+    // A cell edit belongs to its table, however the table is selected.
+    const editing =
+      edit.target.kind === 'cell'
+        ? (() => {
+            const root = dataRoot(ui.value, sel, 'table')
+            return !!root && sameSelection(root, edit.selection)
+          })()
+        : JSON.stringify(sel) === JSON.stringify(edit.selection)
+    if (!editing) void closeInlineEdit(true)
   })
 
   watch(
