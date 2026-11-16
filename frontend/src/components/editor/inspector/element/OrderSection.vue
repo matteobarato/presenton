@@ -24,8 +24,7 @@ const available = computed(() => {
 })
 
 function run(action: LayerAction, label: string) {
-  const ui = ctx.ui.value
-  if (ui) void actions.run(label, reorderSelection(ui, ctx.selection.value, action))
+  void actions.run(label, (ui) => reorderSelection(ui, ctx.selection.value, action))
 }
 
 const button =

@@ -53,9 +53,12 @@ function commit(name: string, change: (ui: RawUi, t: AppearanceTargets) => RawUi
   anchor = null
   // Silently drops the edit when the held target no longer exists (deleted since focus).
   if (!ui || !t || !readTarget(ui, t.rotation) || !readTarget(ui, t.style)) return
-  const next = change(ui, t)
-  if (next === ui) return
-  void actions.run(name, { ui: next, selection: ctx.selection.value })
+  // Built on the live ui: an open inline edit commits its text first rather than reverting this on close.
+  void actions.run(name, (live) => {
+    if (!readTarget(live, t.rotation) || !readTarget(live, t.style)) return null
+    const next = change(live, t)
+    return next === live ? null : { ui: next, selection: ctx.selection.value }
+  })
 }
 
 const rotate = (deg: number, deferred = false) => commit('Rotate', (ui, t) => setRotationInUi(ui, t.rotation, deg), deferred)

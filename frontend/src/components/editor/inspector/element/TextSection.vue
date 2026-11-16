@@ -132,25 +132,28 @@ function patchTable(el: RawElement, cell: TableCellRef | null, fontPatch: FontPa
 
 /** No inline editor: patch the element font and every run, plus the alignment, in one commit. */
 function patchElement(fontPatch: FontPatch, horizontal?: Align) {
-  const ui = ctx.ui.value
   const sel = target.value
-  if (!ui || !sel) return
+  if (!ctx.ui.value || !sel) return
   const table = props.target
-  const next = updateElementInUi(ui, sel, (el) => {
-    if (table) return patchTable(el, table.cell, fontPatch, horizontal)
-    const runs = readArray(el.runs)
-    const items = readArray(el.items)
-    return {
-      ...el,
-      font: { ...(asRecord(el.font) ?? {}), ...fontPatch },
-      ...(horizontal ? { alignment: { ...(asRecord(el.alignment) ?? {}), horizontal } } : {}),
-      ...(el.type === 'text-list' && items.length > 0 ? { items: items.map((item) => patchListItem(item, fontPatch)) } : {}),
-      ...(runs.length > 0
-        ? { runs: runs.map((run) => ({ ...(asRecord(run) ?? {}), font: { ...(asRecord(asRecord(run)?.font) ?? {}), ...fontPatch } })) }
-        : {}),
-    }
+  // Built on the live ui (see useEditingActions.run); only reached with no Tiptap editor to drive.
+  void actions.run('Text style', (ui) => {
+    if (!getElementAtSelection(ui, sel)) return null
+    const next = updateElementInUi(ui, sel, (el) => {
+      if (table) return patchTable(el, table.cell, fontPatch, horizontal)
+      const runs = readArray(el.runs)
+      const items = readArray(el.items)
+      return {
+        ...el,
+        font: { ...(asRecord(el.font) ?? {}), ...fontPatch },
+        ...(horizontal ? { alignment: { ...(asRecord(el.alignment) ?? {}), horizontal } } : {}),
+        ...(el.type === 'text-list' && items.length > 0 ? { items: items.map((item) => patchListItem(item, fontPatch)) } : {}),
+        ...(runs.length > 0
+          ? { runs: runs.map((run) => ({ ...(asRecord(run) ?? {}), font: { ...(asRecord(asRecord(run)?.font) ?? {}), ...fontPatch } })) }
+          : {}),
+      }
+    })
+    return { ui: next, selection: ctx.selection.value }
   })
-  void actions.run('Text style', { ui: next, selection: ctx.selection.value } as never)
 }
 
 function setFamily(event: Event) {
