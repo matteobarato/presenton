@@ -182,6 +182,28 @@ describe('ChartSection swatches', () => {
     expect(el(1)).toEqual(other)
   })
 
+  it('does not keep a stale anchor after a picker closes unchanged', async () => {
+    const ui = {
+      background: { color: 'FFFFFF' },
+      components: [
+        { id: 'c1', position: { x: 0, y: 0 }, elements: [chart()] },
+        { id: 'c2', position: { x: 0, y: 0 }, elements: [chart({ colors: ['111111'] })] },
+      ],
+    } as unknown as RawUi
+    const { ctx } = mountSection(ui)
+    await btn('Chart colour 1').trigger('click')
+    await nextTick()
+    await btn('Chart colour 1').trigger('click')
+    await nextTick()
+    ;(ctx.selection as { value: Selection }).value = { kind: 'element', componentIndex: 1, elementPath: [0] }
+    await nextTick()
+    await btn('Add chart colour').trigger('click')
+    const next = committed(ctx)
+    const el = (i: number) => getElementAtSelection(next, { kind: 'element', componentIndex: i, elementPath: [0] } as ElementSelection) as Rec
+    expect(el(1).colors).toHaveLength(2)
+    expect(el(0).colors).toEqual(['7C51F8'])
+  })
+
   it('shows per-series swatches for a multi-series polar area chart', () => {
     mountSection(
       uiWith(

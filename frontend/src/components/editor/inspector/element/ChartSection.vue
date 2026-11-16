@@ -124,8 +124,8 @@ const LABELS = [
 ]
 const labelValue = computed(() => readChartDataLabelPosition(chart.value?.data_labels) ?? 'off')
 /** Builds the swatch update from the current chart at the root held when the picker opened. */
-function swatchPatch(name: string, fn: (c: ChartElement) => ChartElement) {
-  const at = anchor ?? root.value
+function swatchPatch(name: string, fn: (c: ChartElement) => ChartElement, fromPicker = false) {
+  const at = (fromPicker ? anchor : null) ?? root.value
   anchor = null
   if (!at) return
   patch(name, (el) => writeChart(el, fn(readChart(el))), at)
@@ -197,7 +197,8 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
         :chart="chart"
         :palette="colourChoices"
         @open="hold"
-        @pick="(i, c) => swatchPatch('Chart colour', (ch) => updateChartColorTarget(ch, i, c))"
+        @close="anchor = null"
+        @pick="(i, c) => swatchPatch('Chart colour', (ch) => updateChartColorTarget(ch, i, c), true)"
         @add="swatchPatch('Add chart colour', appendChartColorTarget)"
         @remove="(i) => swatchPatch('Remove chart colour', (ch) => removeChartColorTarget(ch, i))"
       />
@@ -219,7 +220,7 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
         />
       </label>
       <div :class="sub">Colour</div>
-      <ColorField :model-value="colourValue('title_color')" :palette="colourChoices" label="Title colour" @open="hold" @commit="(v) => setColour('title_color', 'Title colour', v)" />
+      <ColorField :model-value="colourValue('title_color')" :palette="colourChoices" label="Title colour" @open="hold" @close="anchor = null" @commit="(v) => setColour('title_color', 'Title colour', v)" />
     </div>
 
     <div v-if="axes" :class="section">
@@ -245,7 +246,7 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
     <div :class="section">
       <div :class="label"><h3>Legend</h3></div>
       <ToggleRow :model-value="legendOn" label="Show legend" @update:model-value="(v) => apply('Legend', (c) => setChartField(c, 'legend', v))">
-        <ColorField :model-value="colourValue('legend_color')" :palette="colourChoices" label="Legend colour" @open="hold" @commit="(v) => setColour('legend_color', 'Legend colour', v)" />
+        <ColorField :model-value="colourValue('legend_color')" :palette="colourChoices" label="Legend colour" @open="hold" @close="anchor = null" @commit="(v) => setColour('legend_color', 'Legend colour', v)" />
       </ToggleRow>
     </div>
 
@@ -257,9 +258,9 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
     <div v-if="axes" :class="section">
       <div :class="label"><h3>Frame</h3></div>
       <div :class="[sub, '!mt-0']">Axis colour</div>
-      <ColorField :model-value="colourValue('axis_color')" :palette="colourChoices" label="Axis colour" @open="hold" @commit="(v) => setColour('axis_color', 'Axis colour', v)" />
+      <ColorField :model-value="colourValue('axis_color')" :palette="colourChoices" label="Axis colour" @open="hold" @close="anchor = null" @commit="(v) => setColour('axis_color', 'Axis colour', v)" />
       <div :class="sub">Grid colour</div>
-      <ColorField :model-value="colourValue('grid_color')" :palette="colourChoices" label="Grid colour" @open="hold" @commit="(v) => setColour('grid_color', 'Grid colour', v)" />
+      <ColorField :model-value="colourValue('grid_color')" :palette="colourChoices" label="Grid colour" @open="hold" @close="anchor = null" @commit="(v) => setColour('grid_color', 'Grid colour', v)" />
     </div>
   </template>
 </template>

@@ -8,7 +8,7 @@ import { segment } from '@/components/editor/inspector/controls/styles'
 
 /** `palette` is the full choice list (theme plus system colours). The parent owns every commit. */
 const props = defineProps<{ chart: ChartElement; palette: string[] }>()
-const emit = defineEmits<{ open: []; pick: [index: number, color: string]; add: []; remove: [index: number] }>()
+const emit = defineEmits<{ open: []; close: []; pick: [index: number, color: string]; add: []; remove: [index: number] }>()
 
 const targets = computed(() => resolvedChartColorTargets(props.chart))
 const canAdd = computed(() => targets.value.length < 12)
@@ -24,6 +24,7 @@ const canRemove = computed(() => targets.value.length > 1)
           :palette="palette"
           :label="`Chart colour ${t.index + 1}`"
           @open="emit('open')"
+          @close="emit('close')"
           @commit="(v) => v && emit('pick', t.index, v)"
         />
       </div>
