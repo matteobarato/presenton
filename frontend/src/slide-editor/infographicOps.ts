@@ -8,6 +8,7 @@ import {
   normalizeInfographicColors,
   removeLastInfographicToolbarItem,
 } from '@/render/legacy/components/slide-editor/infographics/infographic-editing'
+import { defaultInfographicIcon } from '@/render/legacy/components/slide-editor/infographics/infographic-icons'
 import type { InfographicType } from '@/render/legacy/components/slide-editor/types'
 import { isCompleteNumericInput } from '@/slide-editor/chartOps'
 import { resizedInfographicFrame, type RawElement } from '@/slide-editor/model'
@@ -168,7 +169,7 @@ export function toDraftItems(el: RawElement): DraftItem[] {
       heading: typeof item.heading === 'string' ? item.heading : '',
       description: typeof item.description === 'string' ? item.description : '',
     }
-    if (item.value !== undefined) draft.value = String(item.value)
+    if (item.value !== undefined) draft.value = item.value === null ? '' : String(item.value)
     return draft
   })
 }
@@ -180,9 +181,11 @@ export function newDraftItem(type: ItemType, items: DraftItem[]): DraftItem {
     const value = Number.isFinite(previous) ? Math.max(0, previous - 10) : 60
     return { value: String(value), heading: `Stage ${items.length + 1}`, description: 'Add a description.' }
   }
+  // Copied from the last item; with none (or a plain-string icon) the ported default, as the old editor adds.
   const icon = rec(last?.icon)
+  const copied = typeof icon.url === 'string' && icon.url.trim() ? { ...icon, color: typeof icon.color === 'string' && icon.color ? icon.color : 'FFFFFF' } : null
   return {
-    icon: { ...icon, url: icon.url ?? '', color: icon.color ?? '#FFFFFF' },
+    icon: copied ?? defaultInfographicIcon(items.length),
     heading: `Level ${items.length + 1}`,
     description: '',
   }

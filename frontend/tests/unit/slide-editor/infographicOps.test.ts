@@ -5,6 +5,8 @@ import {
   removeLastItem, setColor, setMeter, setTextColor, toDraftItems, writeItems,
 } from '@/slide-editor/infographicOps'
 
+import { defaultInfographicIcon } from '@/render/legacy/components/slide-editor/infographics/infographic-icons'
+
 type Rec = Record<string, unknown>
 
 const gauge = {
@@ -113,6 +115,19 @@ describe('drafts', () => {
     expect(newDraftItem('vertical_funnel', toDraftItems(funnel(1)))).toMatchObject({ value: '90', heading: 'Stage 2', description: 'Add a description.' })
     expect(newDraftItem('vertical_funnel', [])).toMatchObject({ value: '60', heading: 'Stage 1' })
     expect(newDraftItem('maturity_model', toDraftItems(maturity(2)))).toMatchObject({ heading: 'Level 3', description: '', icon: { url: 'u', color: '#18324A' } })
+  })
+  it('a new maturity item gets the default icon when there is no last icon to copy', () => {
+    expect(newDraftItem('maturity_model', []).icon).toEqual(defaultInfographicIcon(0))
+    const stringIcon = [{ heading: 'L', description: '', icon: '/plain.svg' }]
+    expect(newDraftItem('maturity_model', stringIcon).icon).toEqual(defaultInfographicIcon(1))
+    expect((newDraftItem('maturity_model', []).icon as Rec).url).not.toBe('')
+    expect(newDraftItem('maturity_model', [{ heading: 'L', description: '', icon: { url: 'u' } }]).icon).toEqual({ url: 'u', color: 'FFFFFF' })
+  })
+  it('a null funnel value shows as an empty, incomplete draft', () => {
+    const el = { type: 'infographic', data: { type: 'vertical_funnel', items: [{ value: null, heading: 'A', description: '' }] } } as RawElement
+    const drafts = toDraftItems(el)
+    expect(drafts[0]!.value).toBe('')
+    expect(draftComplete('vertical_funnel', drafts)).toBe(false)
   })
   it('validates drafts', () => {
     expect(draftComplete('vertical_funnel', [{ heading: '', description: '', value: '' }])).toBe(false)

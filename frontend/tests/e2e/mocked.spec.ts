@@ -814,16 +814,18 @@ test.describe('layout and infographic editing (mocked)', () => {
     const fill = page.getByRole('button', { name: 'Fill colour', exact: true })
     await expect(fill).toBeVisible()
     const cardFill = (patch: { slides: PatchedSlide[] } | undefined) =>
-      (layoutElementOf(patch, 'cards')?.children?.[0] as { fill?: { color?: string } } | undefined)?.fill?.color?.toLowerCase()
+      (layoutElementOf(patch, 'cards')?.children?.[0] as { fill?: { color?: string } } | undefined)?.fill?.color
     await fill.click()
     const swatch = page.getByRole('button', { name: /^#[0-9a-f]{6}$/i }).first()
     const hex = (await swatch.getAttribute('aria-label'))!.toLowerCase()
     expect(hex).not.toBe('#4a6ff3')
     await swatch.click()
-    await expect.poll(() => cardFill(patches.at(-1))).toBe(hex)
+    // Only the forward change is compared case-insensitively (the picker's case is its own).
+    await expect.poll(() => cardFill(patches.at(-1))?.toLowerCase()).toBe(hex)
     expect(patches).toHaveLength(1)
     await page.keyboard.press('Control+z')
-    await expect.poll(() => cardFill(patches.at(-1))).toBe('#4a6ff3')
+    // Undo restores the stored value exactly, as the fixture holds it.
+    await expect.poll(() => cardFill(patches.at(-1))).toBe('#4A6FF3')
     expect(patches).toHaveLength(2)
     expect(unexpected, 'API calls without a mock').toEqual([])
   })

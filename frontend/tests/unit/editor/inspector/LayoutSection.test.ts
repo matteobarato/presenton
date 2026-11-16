@@ -6,6 +6,8 @@ import { getElementAtSelection, type ElementSelection, type RawUi, type Selectio
 import { SLIDE_EDITING_KEY, type SlideEditing } from '@/slide-editor/useSlideEditing'
 import { DEFAULT_TEMPLATE_THEME } from '@/render/legacy/lib/template-theme'
 import LayoutSection from '@/components/editor/inspector/element/LayoutSection.vue'
+import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
+import SliderField from '@/components/editor/inspector/controls/SliderField.vue'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Rec = Record<string, any>
@@ -186,6 +188,34 @@ describe('LayoutSection', () => {
     const next = committed(ctx)
     expect(el(next).border_radius.tl).toBe(30)
     expect(el(next, { kind: 'element', componentIndex: 1, elementPath: [0] }).border_radius).toBeUndefined()
+  })
+
+  it('a Fill colour commit lands on the container held when the picker opened', async () => {
+    const box = (x: number) => ({
+      position: { x, y: 0 },
+      size: { width: 200, height: 100 },
+      elements: [{ type: 'container', position: { left: 0, top: 0 }, size: { width: 200, height: 100 }, children: [] }],
+    })
+    const { ctx } = mountSection({ components: [box(0), box(400)], elements: [] } as unknown as RawUi)
+    const fill = wrapper!.findAllComponents(ColorField).find((c) => c.props('label') === 'Fill colour')!
+    fill.vm.$emit('open')
+    ;(ctx.selection as unknown as { value: Selection }).value = { kind: 'element', componentIndex: 1, elementPath: [0] }
+    await nextTick()
+    fill.vm.$emit('commit', '#123456')
+    await flushPromises()
+    expect(label(ctx)).toBe('Fill')
+    const next = committed(ctx)
+    expect(el(next).fill).toEqual({ color: '#123456' })
+    expect(el(next, { kind: 'element', componentIndex: 1, elementPath: [0] }).fill).toBeUndefined()
+  })
+
+  it('Fill opacity 50 % writes fill.opacity 0.5', async () => {
+    const { ctx } = mountSection(containerUi())
+    const slider = wrapper!.findAllComponents(SliderField).find((c) => c.props('label') === 'Fill opacity')!
+    slider.vm.$emit('commit', 50)
+    await flushPromises()
+    expect(label(ctx)).toBe('Fill')
+    expect(el(committed(ctx)).fill).toEqual({ opacity: 0.5 })
   })
 
   it('edits the layout root when a component is selected', async () => {

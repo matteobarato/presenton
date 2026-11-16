@@ -6,6 +6,7 @@ import { getElementAtSelection, type ElementSelection, type RawUi, type Selectio
 import { SLIDE_EDITING_KEY, type SlideEditing } from '@/slide-editor/useSlideEditing'
 import { DEFAULT_TEMPLATE_THEME } from '@/render/legacy/lib/template-theme'
 import InfographicSection from '@/components/editor/inspector/element/InfographicSection.vue'
+import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Rec = Record<string, any>
@@ -171,6 +172,21 @@ describe('InfographicSection', () => {
     expect(ctx.commit).toHaveBeenCalledTimes(1)
     const next = committed(ctx)
     expect([el(next).data.value, el(next, { kind: 'element', componentIndex: 1, elementPath: [0] }).data.value]).toEqual([50, 84])
+  })
+
+  it('Colour 1 writes colors[0] as Infographic colour, and Text colour writes text_color', async () => {
+    const { ctx } = mountSection(gauge())
+    const field = (l: string) => wrapper!.findAllComponents(ColorField).find((c) => c.props('label') === l)!
+    field('Colour 1').vm.$emit('open')
+    field('Colour 1').vm.$emit('commit', '#abcdef')
+    await flushPromises()
+    expect(label(ctx)).toBe('Infographic colour')
+    expect(el(committed(ctx)).colors).toEqual(['#abcdef', '#445566'])
+    field('Text colour').vm.$emit('open')
+    field('Text colour').vm.$emit('commit', '#174b40')
+    await flushPromises()
+    expect(label(ctx, 1)).toBe('Text colour')
+    expect(el(committed(ctx, 1)).text_color).toBe('#174b40')
   })
 
   it('Edit items… sets itemsOpen', async () => {

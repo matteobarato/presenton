@@ -2,6 +2,8 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { ArrowDown, ArrowUp, ImageIcon, Plus, Trash2 } from 'lucide-vue-next'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { normalizeInfographicIcon } from '@/render/legacy/components/slide-editor/infographics/infographic-editing'
+import { defaultInfographicIcon } from '@/render/legacy/components/slide-editor/infographics/infographic-icons'
 import { resolveAssetUrl } from '@/render/legacy/lib/template-v2-json-to-html'
 import { getElementAtSelection, updateElementInUi, type ElementSelection, type RawUi } from '@/slide-editor/model'
 import {
@@ -86,7 +88,8 @@ function onPick(url: string) {
   const index = pickerIndex.value
   if (index === null) return
   const item = items.value[index]
-  if (item) setField(index, { icon: { ...iconOf(item), url } })
+  // The old editor's shape: { url, color }, the colour kept or its default.
+  if (item) setField(index, { icon: { url, color: normalizeInfographicIcon(item.icon)?.color ?? defaultInfographicIcon(index).color } })
 }
 
 function close() {

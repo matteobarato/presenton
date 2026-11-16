@@ -127,6 +127,54 @@ describe('InfographicItemsDialog', () => {
     expect(open.value).toBe(false)
   })
 
+  it('Escape discards: no commit, draftUi null', async () => {
+    const { ctx, draftUi, open } = mountDialog()
+    await ticks()
+    await type('Heading 1', 'X')
+    expect(draftUi.value).not.toBeNull()
+    aria('Heading 1')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await ticks()
+    expect(open.value).toBe(false)
+    expect(ctx.commit).not.toHaveBeenCalled()
+    expect(draftUi.value).toBeNull()
+  })
+
+  it('the close button discards: no commit, draftUi null', async () => {
+    const { ctx, draftUi, open } = mountDialog()
+    await ticks()
+    await type('Heading 1', 'X')
+    aria('Close dialog')!.click()
+    await ticks()
+    expect(open.value).toBe(false)
+    expect(ctx.commit).not.toHaveBeenCalled()
+    expect(draftUi.value).toBeNull()
+  })
+
+  it('stays open, with the preview restored, when its own commit lands', async () => {
+    const { ctx, draftUi, committedUi, open } = mountDialog()
+    await ticks()
+    await type('Heading 1', 'X')
+    ;(ctx.isOwnCommit as ReturnType<typeof vi.fn>).mockReturnValue(true)
+    // The context drops the draft for an own commit landing.
+    draftUi.value = null
+    committedUi.value = uiWith()
+    await ticks()
+    expect(open.value).toBe(true)
+    expect(ctx.cancelDraft).not.toHaveBeenCalled()
+    expect(itemsOf(draftUi.value!)[0]!.heading).toBe('X')
+  })
+
+  it('unmounting while open clears the draft', async () => {
+    const { ctx, draftUi } = mountDialog()
+    await ticks()
+    await type('Heading 1', 'X')
+    wrapper!.unmount()
+    wrapper = null
+    expect(ctx.cancelDraft).toHaveBeenCalled()
+    expect(draftUi.value).toBeNull()
+    expect(ctx.commit).not.toHaveBeenCalled()
+  })
+
   it('Done with no changes closes without a commit', async () => {
     const { ctx, open } = mountDialog()
     await ticks()
@@ -194,6 +242,22 @@ describe('InfographicItemsDialog', () => {
     expect(items[1]!.icon).toEqual({ url: '/new.svg', color: '#445566' })
     expect(items[0]!.icon).toEqual({ url: '/a.svg', color: '#112233' })
     expect(items[0]!.focus).toBe(true)
+  })
+
+  it('picking an icon for an item whose icon has no colour writes the old editor default colour', async () => {
+    const items = [{ icon: { url: '/a.svg' }, heading: 'One', description: '' }, { icon: '/b.svg', heading: 'Two', description: '' }]
+    const { draftUi } = mountDialog(uiWith({ type: 'maturity_model', items }))
+    await ticks()
+    const picker = () => wrapper!.findComponent({ name: 'IconPickerDialog' })
+    await click('Change icon 1')
+    picker().vm.$emit('pick', '/new.svg', 'bold')
+    await ticks()
+    await click('Change icon 2')
+    picker().vm.$emit('pick', '/other.svg', 'bold')
+    await ticks()
+    const written = itemsOf(draftUi.value!)
+    expect(written[0]!.icon).toEqual({ url: '/new.svg', color: 'FFFFFF' })
+    expect(written[1]!.icon).toEqual({ url: '/other.svg', color: 'FFFFFF' })
   })
 
   it('opens with no rows when data.items is missing, and Add works', async () => {
