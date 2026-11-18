@@ -24,9 +24,11 @@ import {
   type Shadow,
 } from '@/slide-editor/elementStyle'
 import type { RawElement, RawUi } from '@/slide-editor/model'
+import { toolbarKind } from '@/slide-editor/toolbarKind'
 import { themePalette } from '@/slide-editor/themePalette'
 import { useEditingActions } from '@/slide-editor/useEditingActions'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import { useImageControls } from './useImageControls'
 
 const props = defineProps<{ presentation: Presentation }>()
 
@@ -38,6 +40,14 @@ const appearance = computed(() => {
   const t = targets.value
   const rec = ctx.ui.value && t ? readTarget(ctx.ui.value, t.style) : null
   return rec ? readAppearance(rec as RawElement) : null
+})
+// Pictures and videos can round their corners; icons are colour masks and cannot.
+const { radius, maxRadius, setRadius } = useImageControls()
+// Shown as a percentage of the largest radius, so 100% is a circle or pill whatever the size.
+const radiusPercent = computed(() => (maxRadius.value > 0 ? Math.round((radius.value / maxRadius.value) * 100) : 0))
+const roundable = computed(() => {
+  const kind = ctx.ui.value ? toolbarKind(ctx.ui.value, ctx.selection.value) : null
+  return kind === 'image' || kind === 'video'
 })
 const palette = computed(() => themePalette(props.presentation))
 
@@ -101,6 +111,11 @@ const turnButton = [segment, 'h-[34px] w-[34px] flex-none']
 
     <div :class="sub">Opacity</div>
     <SliderField :model-value="Math.round(appearance.opacity * 100)" label="Opacity" :min="0" :max="100" unit="%" @focus="hold" @commit="opacity" />
+
+    <template v-if="roundable">
+      <div :class="sub">Corner radius</div>
+      <SliderField :model-value="radiusPercent" label="Corner radius" :min="0" :max="100" unit="%" @commit="setRadius($event / 100 * maxRadius)" />
+    </template>
 
     <ToggleRow class="mt-5" :model-value="appearance.shadowEnabled" label="Shadow" @update:model-value="shadowOn">
       <ColorField :model-value="appearance.shadow.color" :palette="palette" label="Shadow colour" @open="hold" @commit="(c: string | null) => c && shadowPatch({ color: c })" />

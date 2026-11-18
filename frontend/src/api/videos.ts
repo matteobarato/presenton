@@ -126,3 +126,15 @@ export function useSlideVideo(presentationId: MaybeRefOrGetter<string>, slideInd
   const src = computed(() => (video.value?.url ? audioSrc({ url: video.value.url }) : null))
   return { video, src, isPending: query.isPending }
 }
+
+/** Playable src of every slide's video, by slide index, from the deck's shared videos query. */
+export function useDeckVideoSrcs(presentationId: MaybeRefOrGetter<string>) {
+  const query = useQuery({
+    queryKey: () => videoKeys.all(toValue(presentationId)),
+    queryFn: () => getVideos(toValue(presentationId)),
+  })
+  return (slideIndex: number | null | undefined): string | null => {
+    const video = (query.data.value?.videos ?? []).find((v) => v.slide_index === slideIndex)
+    return video?.url ? audioSrc({ url: video.url }) : null
+  }
+}

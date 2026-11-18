@@ -10,10 +10,6 @@ import {
   type RawUi,
   type Selection,
 } from '@/slide-editor/model'
-import {
-  isVideoPlaceholderElement,
-  isVideoPlaceholderLayer,
-} from '@/render/legacy/components/slide-editor/video/video-placeholder'
 import { pointInFrame, selectionFrame, type Frame } from '@/slide-editor/rotation'
 
 const SLIDE_WIDTH = 1280
@@ -40,12 +36,12 @@ function isDecorativeBackground(element: Rec, box: Box | null): boolean {
   )
 }
 
-/** Topmost component or root element under `p`, or null. */
+/** Topmost component or root element under `p`, or null. The video placeholder is hit like any other item; it sits in the lowest layer, so content above it wins. */
 export function hitComponent(ui: RawUi, p: Point): Selection {
   const components = arr(ui.components)
   for (let i = components.length - 1; i >= 0; i -= 1) {
     const component = components[i]
-    if (!isRec(component) || isVideoPlaceholderLayer(component)) continue
+    if (!isRec(component)) continue
     if (hits(ui, { kind: 'component', componentIndex: i }, p)) {
       return { kind: 'component', componentIndex: i }
     }
@@ -54,7 +50,7 @@ export function hitComponent(ui: RawUi, p: Point): Selection {
   const elements = arr(root.elements)
   for (let i = elements.length - 1; i >= 0; i -= 1) {
     const element = elements[i]
-    if (!isRec(element) || isVideoPlaceholderElement(element)) continue
+    if (!isRec(element)) continue
     const box = absoluteElementBox(root, [i]) as Box | null
     if (isDecorativeBackground(element, box)) continue
     const sel: ElementSelection = { kind: 'element', componentIndex: ROOT_ELEMENTS_COMPONENT_INDEX, elementPath: [i] }
@@ -74,7 +70,7 @@ function deepestIn(
 ): number[] | null {
   for (let i = items.length - 1; i >= 0; i -= 1) {
     const item = items[i]
-    if (!isRec(item) || isVideoPlaceholderElement(item)) continue
+    if (!isRec(item)) continue
     const path = [...prefix, i]
     const sel: ElementSelection = { kind: 'element', componentIndex, elementPath: path }
     if (!hits(ui, sel, p)) continue

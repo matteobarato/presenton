@@ -46,7 +46,18 @@ function backgroundOnly(ui: unknown): string {
 // above the avatar still covers it. The first frame shows (#t); it fills the box as the export does.
 function mountVideo(root: ShadowRoot) {
   const src = props.videoSrc
-  if (!src) return
+  if (!src) {
+    // No video yet: the poster is transparent, so give the placeholder a visible default fill while editing.
+    if (props.annotate) {
+      root.querySelectorAll<HTMLElement>('[data-video-placeholder]').forEach((node) => {
+        node.style.background = 'repeating-conic-gradient(#d9dee1 0% 25%, #f4f6f7 0% 50%) 0 0 / 24px 24px'
+        node.style.opacity = '0.5'
+        node.style.outline = '2px dashed rgba(0,0,0,0.35)'
+        node.style.outlineOffset = '-2px'
+      })
+    }
+    return
+  }
   root.querySelectorAll<HTMLElement>('[data-video-placeholder]').forEach((node) => {
     const img = node instanceof HTMLImageElement ? node : node.querySelector('img')
     if (!img) return

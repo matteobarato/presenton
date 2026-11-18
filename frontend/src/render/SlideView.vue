@@ -18,8 +18,9 @@ const props = withDefaults(
     scale?: number
     lazy?: boolean
     annotate?: boolean
+    videoSrc?: string | null
   }>(),
-  { theme: undefined, fonts: undefined, fit: 'contain', scale: undefined, lazy: false, annotate: false },
+  { theme: undefined, fonts: undefined, fit: 'contain', scale: undefined, lazy: false, annotate: false, videoSrc: null },
 )
 const emit = defineEmits<{ rendered: []; error: [message: string] }>()
 
@@ -134,6 +135,7 @@ onBeforeUnmount(() => {
           :theme="theme"
           :fonts="fonts"
           :annotate="annotate"
+          :video-src="videoSrc"
           @rendered="onRendered"
           @error="onFailed"
         />

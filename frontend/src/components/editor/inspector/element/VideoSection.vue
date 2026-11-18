@@ -3,8 +3,9 @@ import { computed } from 'vue'
 import { Film } from 'lucide-vue-next'
 import type { Slide } from '@/api/types'
 import { useSlideVideo } from '@/api/videos'
+import SlideAvatarSection from '../video/SlideAvatarSection.vue'
 
-/** The avatar placeholder's video, previewed. Uploading and generating stay in the Avatar tab. */
+/** The avatar placeholder's video, previewed. Shows this slide's card state with its generate and upload buttons. */
 const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 
 const { video, src, isPending } = useSlideVideo(() => props.presentationId, () => props.slide?.index)
@@ -36,7 +37,8 @@ const name = computed(() =>
     >
       <Film class="size-5" aria-hidden="true" />
       <span v-if="isPending">Loading video…</span>
-      <span v-else>No video on this slide yet. Upload or generate one in the Avatar tab.</span>
+      <span v-else>No video on this slide yet. Generate or upload one below.</span>
     </div>
+    <SlideAvatarSection v-if="slide" :slide="slide" class="mt-3" />
   </div>
 </template>

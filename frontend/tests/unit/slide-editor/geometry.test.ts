@@ -35,8 +35,17 @@ describe('hitComponent', () => {
     expect(hitComponent(uiOverlapping(), { x: 200, y: 150 })).toEqual({ kind: 'component', componentIndex: 1 })
     expect(hitComponent(uiOverlapping(), { x: 110, y: 90 })).toEqual({ kind: 'component', componentIndex: 0 })
   })
-  it('skips the video placeholder layer', () => {
-    expect(hitComponent(uiWithVideoPlaceholder(), { x: 1000, y: 500 })).toBeNull()
+  it('hits the video placeholder layer', () => {
+    const ui = uiWithVideoPlaceholder()
+    const index = (ui.components as unknown[]).length - 1
+    expect(hitComponent(ui, { x: 1000, y: 500 })).toEqual({ kind: 'component', componentIndex: index })
+  })
+  it('hits a video placeholder kept in the root elements', () => {
+    const ui = {
+      elements: [{ type: 'image', video_placeholder: true, position: { x: 900, y: 400 }, size: { width: 240, height: 240 }, src: '' }],
+      components: [],
+    } as never
+    expect(hitComponent(ui, { x: 1000, y: 500 })).toEqual({ kind: 'element', componentIndex: -1, elementPath: [0] })
   })
 })
 
@@ -50,7 +59,12 @@ describe('hitDeepest', () => {
   })
   it('returns null outside any component or video placeholder', () => {
     expect(hitDeepest(uiTwoComponents(), { x: 5, y: 5 })).toBeNull()
-    expect(hitDeepest(uiWithVideoPlaceholder(), { x: 1000, y: 500 })).toBeNull()
+    expect(hitDeepest(uiWithVideoPlaceholder(), { x: 600, y: 600 })).toBeNull()
+  })
+  it('returns the video placeholder element under the point', () => {
+    const ui = uiWithVideoPlaceholder()
+    const index = (ui.components as unknown[]).length - 1
+    expect(hitDeepest(ui, { x: 1000, y: 500 })).toEqual({ kind: 'element', componentIndex: index, elementPath: [0] })
   })
   it('descends into nested children', () => {
     const ui = {

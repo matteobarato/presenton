@@ -4,6 +4,7 @@ import { nextTick, ref, toRef, watch } from 'vue'
 import Draggable from 'vuedraggable'
 import { Check, Copy, GripVertical, Plus, Trash2 } from 'lucide-vue-next'
 import { usePresentation } from '@/api/presentations'
+import { useDeckVideoSrcs } from '@/api/videos'
 import type { Slide } from '@/api/types'
 import { deckTemplateId, useSlideMutations, type NewSlideLayout } from '@/composables/useSlideMutations'
 import { slideLabel } from '@/lib/slide-label'
@@ -19,6 +20,7 @@ const editor = useEditorStore()
 const id = toRef(props, 'presentationId')
 const { data: presentation } = usePresentation(id, useEditorFetchGate())
 const mutations = useSlideMutations(id)
+const videoSrcFor = useDeckVideoSrcs(() => props.presentationId)
 
 // Local copy so the drag can reorder the DOM before the save settles; it is
 // re-synced from the cache (and so restored on a failed save).
@@ -126,6 +128,7 @@ watch(
                   :slide="element"
                   :theme="presentation?.theme"
                   :fonts="presentation?.fonts"
+                  :video-src="videoSrcFor(element.index)"
                   fit="width"
                   lazy
                   class="pointer-events-none overflow-hidden rounded-[3px]"
