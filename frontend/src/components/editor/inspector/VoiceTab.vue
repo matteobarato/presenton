@@ -2,19 +2,12 @@
 import type { Presentation, Slide } from '@/api/types'
 import DeckNarrationSection from './narration/DeckNarrationSection.vue'
 import SlideVoiceSection from './narration/SlideVoiceSection.vue'
-import { injectDeckNarration } from './narration/useDeckNarration'
-import GenerateAvatarsDialog from './video/GenerateAvatarsDialog.vue'
-import SlideAvatarSection from './video/SlideAvatarSection.vue'
-import { injectDeckAvatars } from './video/useDeckAvatars'
 
 /**
- * Narration and avatar video of the active slide, with the deck-wide settings, side by side in the footer.
- * The deck state (TTS task, avatar run) is provided by DeckStateProvider and shared with the Avatar tab.
+ * Speech of the active slide, with the deck-wide narration settings, side by side in the footer.
+ * Avatar and video options live in the inspector's Avatar tab; both share the state DeckStateProvider provides.
  */
 defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
-
-const { language } = injectDeckNarration()
-const { confirming, pendingIndices, generate } = injectDeckAvatars()
 </script>
 
 <template>
@@ -26,20 +19,9 @@ const { confirming, pendingIndices, generate } = injectDeckAvatars()
     </template>
     <p v-else class="text-[12px] text-muted">Select a slide to edit its narration.</p>
 
-    <div data-testid="voice-columns" class="grid items-start gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3">
-      <template v-if="activeSlide">
-        <SlideVoiceSection :slide="activeSlide" />
-        <SlideAvatarSection :slide="activeSlide" />
-      </template>
-      <DeckNarrationSection :presentation-id="presentationId" :presentation="presentation" :active-slide="activeSlide" />
+    <div data-testid="voice-columns" class="grid items-start gap-4 @2xl:grid-cols-2">
+      <SlideVoiceSection v-if="activeSlide" :slide="activeSlide" />
+      <DeckNarrationSection :presentation="presentation" />
     </div>
-
-    <GenerateAvatarsDialog
-      v-model:open="confirming"
-      :count="pendingIndices.length"
-      :language="language"
-      :pending="generate.isPending.value"
-      @confirm="generate.mutate($event)"
-    />
-  </section>
+</section>
 </template>

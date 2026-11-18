@@ -3,7 +3,6 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import type { Ref } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { QueryClient, useQuery, VueQueryPlugin } from '@tanstack/vue-query'
-import { ApiError } from '@/api/errors'
 import VoiceTab from '@/components/editor/inspector/VoiceTab.vue'
 import { deckHost } from './helpers/deckHost'
 import { narrationState } from '@/components/editor/inspector/narration/narration-state'
@@ -91,7 +90,6 @@ async function mountTab(active = 0) {
 const button = (w: VueWrapper, text: string) => w.findAll('button').find((b) => b.text().trim() === text)!
 const dialogButton = (text: string) => [...document.body.querySelectorAll('button')].find((b) => b.textContent?.trim() === text)!
 const voice = (w: VueWrapper) => w.find('[data-testid="slide-voice"]')
-const avatar = (w: VueWrapper) => w.find('[data-testid="slide-avatar"]')
 const show = async (w: VueWrapper, index: number) => {
   await w.setProps({ activeSlide: presentation.slides[index] as never })
   await flushPromises()
@@ -153,7 +151,7 @@ describe('VoiceTab: the active slide', () => {
     expect(wrapper.find('[data-testid="narration-slide"]').text()).toBe('Slide 1 of 3')
     expect(wrapper.findAll('textarea')).toHaveLength(0)
     expect(wrapper.findAll('[data-testid="slide-voice"]')).toHaveLength(1)
-    expect(wrapper.findAll('[role="switch"]')).toHaveLength(1)
+    expect(wrapper.findAll('[role="switch"]')).toHaveLength(0)
     await show(wrapper, 2)
     expect(wrapper.find('[data-testid="narration-slide"]').text()).toBe('Slide 3 of 3')
   })
@@ -170,7 +168,15 @@ describe('VoiceTab: the active slide', () => {
     const columns = wrapper.find('[data-testid="voice-columns"]')
     expect(columns.exists()).toBe(true)
     const sections = [...columns.element.children].map((e) => e.getAttribute('data-testid') ?? e.getAttribute('aria-label'))
-    expect(sections).toEqual(['slide-voice', 'slide-avatar', 'Whole deck'])
+    expect(sections).toEqual(['slide-voice', 'Whole deck'])
+  })
+
+  it('has no avatar controls', async () => {
+    const { wrapper } = await mountTab()
+    expect(wrapper.find('[data-testid="slide-avatar"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Presenter portrait')
+    expect(wrapper.text()).not.toContain('Voice bubble')
+    expect(button(wrapper, 'Generate avatars')).toBeUndefined()
   })
 
   it('shows the voice of the active slide: up to date, out of date or missing', async () => {
@@ -276,175 +282,5 @@ describe('VoiceTab: whole deck', () => {
     dialogButton('Delete').click()
     await flushPromises()
     expect(m.deleteTts).toHaveBeenCalledWith('p1', 'en-US')
-  })
-
-  it('uploads and removes the portrait', async () => {
-    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait: null, videos: [] })
-    const { wrapper } = await mountTab()
-    const file = new File(['x'], 'me.png', { type: 'image/png' })
-    const input = wrapper.find('[data-testid="portrait-input"]')
-    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
-    await input.trigger('change')
-    await flushPromises()
-    expect(m.uploadPortrait).toHaveBeenCalledWith('p1', file)
-
-    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait, videos: [] })
-    await queryClient.invalidateQueries({ queryKey: ['videos', 'p1'] })
-    await flushPromises()
-    await button(wrapper, 'Remove portrait').trigger('click')
-    await flushPromises()
-    expect(m.deletePortrait).toHaveBeenCalledWith('p1')
-  })
-})
-
-describe('VoiceTab: avatar of the active slide', () => {
-  it('toggles the placeholder and refetches the presentation', async () => {
-    const { wrapper, invalidate } = await mountTab()
-    const toggle = () => wrapper.find('[role="switch"]')
-    expect(toggle().attributes('aria-checked')).toBe('true')
-    await toggle().trigger('click')
-    await flushPromises()
-    expect(m.removePlaceholder).toHaveBeenCalledWith('p1', 0)
-
-    await show(wrapper, 2)
-    expect(toggle().attributes('aria-checked')).toBe('false')
-    await toggle().trigger('click')
-    await flushPromises()
-    expect(m.addPlaceholder).toHaveBeenCalledWith('p1', 2)
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['presentation', 'p1'] })
-  })
-
-  it('keeps the placeholder toggle busy until the presentation refetch lands', async () => {
-    const { wrapper, invalidate } = await mountTab(2)
-    let land!: () => void
-    invalidate.mockImplementation(((filters: { queryKey: unknown[] }) =>
-      filters.queryKey[0] === 'presentation' ? new Promise<void>((r) => (land = r)) : Promise.resolve()) as never)
-    await wrapper.find('[role="switch"]').trigger('click')
-    await flushPromises()
-    expect(m.addPlaceholder).toHaveBeenCalledWith('p1', 2)
-    expect(wrapper.find('[role="switch"]').attributes('disabled')).toBeDefined()
-    land()
-    await flushPromises()
-    expect(wrapper.find('[role="switch"]').attributes('disabled')).toBeUndefined()
-  })
-
-  it('uploads a slide video and removes an existing one', async () => {
-    m.getVideos.mockResolvedValue({
-      presentation_id: 'p1',
-      generation_available: true,
-      portrait,
-      videos: [{ slide_index: 0, source: 'upload', stale: false, original_filename: 'clip.mp4' }],
-    })
-    const { wrapper } = await mountTab()
-    expect(avatar(wrapper).text()).toContain('clip.mp4')
-    expect(avatar(wrapper).attributes('data-chip')).toBe('uploaded')
-    await avatar(wrapper).find('button[aria-label="Remove video from slide 1"]').trigger('click')
-    await flushPromises()
-    expect(m.deleteSlideVideo).toHaveBeenCalledWith('p1', 0)
-
-    await show(wrapper, 1)
-    const file = new File(['x'], 'b.mp4', { type: 'video/mp4' })
-    const input = avatar(wrapper).find('input[type="file"]')
-    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
-    await input.trigger('change')
-    await flushPromises()
-    expect(m.uploadSlideVideo).toHaveBeenCalledWith('p1', 1, file)
-  })
-
-  it('explains why a slide with stale narration cannot get an avatar', async () => {
-    const { wrapper } = await mountTab(1)
-    expect(avatar(wrapper).text()).toContain('Narration changed — regenerate the audio first.')
-    expect(button(wrapper, 'Generate avatar').attributes('disabled')).toBeDefined()
-    expect(wrapper.find('[data-testid="slide-avatar-reason"]').exists()).toBe(false)
-    await show(wrapper, 0)
-    expect(avatar(wrapper).text()).not.toContain('Narration changed')
-    expect(button(wrapper, 'Generate avatar').attributes('disabled')).toBeUndefined()
-  })
-
-  it('explains a deck-wide blocker on the slide too', async () => {
-    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait: null, videos: [] })
-    const { wrapper } = await mountTab()
-    expect(button(wrapper, 'Generate avatar').attributes('disabled')).toBeDefined()
-    expect(wrapper.find('[data-testid="slide-avatar-reason"]').text()).toBe('Upload a presenter portrait first.')
-  })
-
-  it('generates the avatar of the active slide only', async () => {
-    const { wrapper } = await mountTab()
-    await button(wrapper, 'Generate avatar').trigger('click')
-    await flushPromises()
-    expect(document.body.textContent).toContain('1 slide will get a lip-synced avatar')
-    dialogButton('Generate').click()
-    await flushPromises()
-    expect(m.startAvatarGeneration).toHaveBeenCalledWith('p1', { slide_indices: [0], language: 'en-US', force: false })
-    expect(sessionStorage.getItem('presenton.task.avatars.p1')).toBe('g1')
-  })
-
-  it('shows the provider message on a failed slide', async () => {
-    m.getAvatarGeneration.mockResolvedValue({
-      id: 'g0',
-      status: 'error',
-      data: { slides: [{ slide_index: 0, slide_id: 's0', state: 'failed', reason: 'request_error', message: 'HeyGen said: face not found' }] },
-    })
-    const { wrapper } = await mountTab()
-    expect(avatar(wrapper).attributes('data-chip')).toBe('failed')
-    expect(avatar(wrapper).find('[role="alert"]').text()).toBe('HeyGen said: face not found')
-  })
-})
-
-describe('VoiceTab: avatars for the whole deck', () => {
-  const generateAll = (w: VueWrapper) => button(w, 'Generate avatars')
-
-  it('is disabled with a reason when there is no portrait', async () => {
-    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait: null, videos: [] })
-    const { wrapper } = await mountTab()
-    expect(generateAll(wrapper).attributes('disabled')).toBeDefined()
-    expect(wrapper.find('[data-testid="avatar-reason"]').text()).toBe('Upload a presenter portrait first.')
-  })
-
-  it('covers only placeholder slides with up-to-date narration', async () => {
-    const { wrapper } = await mountTab()
-    expect(wrapper.find('[aria-label="Whole deck"]').text()).toContain('1 of 2 placeholder slides are ready to generate.')
-    await generateAll(wrapper).trigger('click')
-    await flushPromises()
-    dialogButton('Generate').click()
-    await flushPromises()
-    expect(m.startAvatarGeneration).toHaveBeenCalledWith('p1', { slide_indices: [0], language: 'en-US', force: false })
-  })
-
-  it('is disabled when no placeholder slide is ready', async () => {
-    m.getTtsStatus.mockResolvedValue({ presentation_id: 'p1', language: 'en-US', audios: [] })
-    const { wrapper } = await mountTab()
-    expect(generateAll(wrapper).attributes('disabled')).toBeDefined()
-    expect(wrapper.find('[data-testid="avatar-reason"]').text()).toBe('Every placeholder slide needs up-to-date narration first.')
-  })
-
-  it('follows the running task when the backend answers 409', async () => {
-    m.startAvatarGeneration.mockRejectedValue(
-      new ApiError('Avatars are already being generated for this deck', 409, { detail: { message: 'x', task_id: 'g7' } }),
-    )
-    m.getTask.mockResolvedValue({ id: 'g7', status: 'pending', data: { slides: [] } })
-    const { wrapper } = await mountTab()
-    await generateAll(wrapper).trigger('click')
-    await flushPromises()
-    dialogButton('Generate').click()
-    await flushPromises()
-    expect(sessionStorage.getItem('presenton.task.avatars.p1')).toBe('g7')
-    expect(m.getTask).toHaveBeenCalledWith('g7')
-  })
-
-  it('resumes polling on mount while the latest run is still running', async () => {
-    m.getAvatarGeneration.mockResolvedValue({ id: 'g9', status: 'pending', data: { slides: [] } })
-    m.getTask.mockResolvedValue({
-      id: 'g9',
-      status: 'pending',
-      data: { slides: [{ slide_index: 0, slide_id: 's0', state: 'generating' }] },
-    })
-    const { wrapper } = await mountTab()
-    await vi.waitFor(() => expect(m.getTask).toHaveBeenCalledWith('g9'))
-    await flushPromises()
-    expect(wrapper.find('[role="status"]').exists()).toBe(true)
-    expect(avatar(wrapper).attributes('data-chip')).toBe('generating')
-    expect(generateAll(wrapper).attributes('disabled')).toBeDefined()
-    expect(wrapper.find('[data-testid="avatar-reason"]').text()).toBe('An avatar generation is already running.')
   })
 })
