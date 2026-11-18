@@ -44,7 +44,7 @@ const panelProps = computed(() => props.item.props?.(props.context) ?? {})
       :side="side ?? 'bottom'"
       :side-offset="10"
       :collision-padding="8"
-      class="max-h-[min(70vh,520px)] w-[300px] max-w-[calc(100vw-16px)] overflow-y-auto"
+      class="max-h-[min(70vh,520px,var(--reka-popper-available-height))] w-[300px] max-w-[calc(100vw-16px)] overflow-y-auto"
       :aria-label="item.label"
       data-inline-edit-ignore="true"
       data-floating-panel
