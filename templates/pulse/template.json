@@ -30776,14 +30776,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 90
+                "height": 99
               },
               "rotation": 0,
               "font": {
                 "size": 44,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -30797,7 +30797,7 @@
                     "size": 44,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -30811,7 +30811,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 135
+                "y": 144
               },
               "size": {
                 "width": 696,
@@ -30859,7 +30859,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 294
+            "y": 303
           },
           "elements": [
             {
@@ -31172,7 +31172,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 267
+            "y": 279
           },
           "elements": [
             {
@@ -31204,14 +31204,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Inter 1 Bold",
                 "color": "#FFFFFF",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -31225,7 +31225,7 @@
                     "size": 22,
                     "family": "Inter 1 Bold",
                     "color": "#FFFFFF",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -31342,14 +31342,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Inter 1 Bold",
                 "color": "#FFFFFF",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -31363,7 +31363,7 @@
                     "size": 22,
                     "family": "Inter 1 Bold",
                     "color": "#FFFFFF",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -31480,14 +31480,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Inter 1 Bold",
                 "color": "#FFFFFF",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -31501,7 +31501,7 @@
                     "size": 22,
                     "family": "Inter 1 Bold",
                     "color": "#FFFFFF",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -31650,14 +31650,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 38
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -31671,7 +31671,7 @@
                     "size": 36,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -32249,14 +32249,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 54
+                "height": 60
               },
               "rotation": 0,
               "font": {
                 "size": 52,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -32270,7 +32270,7 @@
                     "size": 52,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -32293,7 +32293,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 150
+            "y": 156
           },
           "elements": [
             {
@@ -32304,7 +32304,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 259
+                "height": 380
               },
               "fill": {
                 "color": "#C6DDFF",
@@ -32325,7 +32325,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 259
+                "height": 380
               },
               "fill": {
                 "color": "#18324A",
@@ -32342,18 +32342,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 70
               },
               "size": {
                 "width": 80,
-                "height": 82
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -32367,7 +32367,7 @@
                     "size": 80,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -32381,18 +32381,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 136
               },
               "size": {
                 "width": 624,
-                "height": 80
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -32403,10 +32403,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -32420,7 +32420,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 170
+                "y": 262
               },
               "size": {
                 "width": 624,
@@ -32459,7 +32459,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 198
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -64902,14 +64902,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 90
+                "height": 99
               },
               "rotation": 0,
               "font": {
                 "size": 44,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -64923,7 +64923,7 @@
                     "size": 44,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -64937,7 +64937,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 135
+                "y": 144
               },
               "size": {
                 "width": 696,
@@ -64979,7 +64979,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 294
+            "y": 303
           },
           "elements": [
             {
@@ -65340,14 +65340,14 @@
               },
               "size": {
                 "width": 720,
-                "height": 114
+                "height": 126
               },
               "rotation": 0,
               "font": {
                 "size": 56,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -65361,7 +65361,7 @@
                     "size": 56,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -65375,7 +65375,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 126
+                "y": 138
               },
               "size": {
                 "width": 720,
@@ -65417,7 +65417,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 267
+            "y": 279
           },
           "elements": [
             {
@@ -65449,14 +65449,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Inter 1 Bold",
                 "color": "#FFFFFF",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -65470,7 +65470,7 @@
                     "size": 22,
                     "family": "Inter 1 Bold",
                     "color": "#FFFFFF",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -65587,14 +65587,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Inter 1 Bold",
                 "color": "#FFFFFF",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -65608,7 +65608,7 @@
                     "size": 22,
                     "family": "Inter 1 Bold",
                     "color": "#FFFFFF",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -65725,14 +65725,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Inter 1 Bold",
                 "color": "#FFFFFF",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -65746,7 +65746,7 @@
                     "size": 22,
                     "family": "Inter 1 Bold",
                     "color": "#FFFFFF",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -65953,14 +65953,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 38
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -65974,7 +65974,7 @@
                     "size": 36,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -66592,14 +66592,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 54
+                "height": 60
               },
               "rotation": 0,
               "font": {
                 "size": 52,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -66613,7 +66613,7 @@
                     "size": 52,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -66630,7 +66630,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 150
+            "y": 156
           },
           "elements": [
             {
@@ -66641,7 +66641,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 259
+                "height": 380
               },
               "fill": {
                 "color": "#C6DDFF",
@@ -66662,7 +66662,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 259
+                "height": 380
               },
               "fill": {
                 "color": "#18324A",
@@ -66679,18 +66679,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 70
               },
               "size": {
                 "width": 80,
-                "height": 82
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -66704,7 +66704,7 @@
                     "size": 80,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -66718,18 +66718,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 136
               },
               "size": {
                 "width": 624,
-                "height": 80
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -66740,10 +66740,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -66757,7 +66757,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 170
+                "y": 262
               },
               "size": {
                 "width": 624,
@@ -66796,7 +66796,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 198
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -67008,14 +67008,14 @@
               },
               "size": {
                 "width": 752,
-                "height": 98
+                "height": 108
               },
               "rotation": 0,
               "font": {
                 "size": 48,
                 "family": "Inter 1 Bold",
                 "color": "#18324A",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -67029,7 +67029,7 @@
                     "size": 48,
                     "family": "Inter 1 Bold",
                     "color": "#18324A",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -67043,7 +67043,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 110
+                "y": 120
               },
               "size": {
                 "width": 752,
@@ -67460,8 +67460,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 460.0,
-            "y": 40.0
+            "x": 1024,
+            "y": 104
           },
           "elements": [
             {
@@ -67471,8 +67471,8 @@
                 "y": 0
               },
               "size": {
-                "width": 360,
-                "height": 640
+                "width": 192,
+                "height": 341
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -68277,8 +68277,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 460.0,
-            "y": 40.0
+            "x": 712,
+            "y": 40
           },
           "elements": [
             {

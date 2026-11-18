@@ -86,3 +86,86 @@ def test_placeholder_stays_on_stage_when_the_image_bleeds_off_it():
     x, y = comp["position"]["x"] + el["position"]["x"], comp["position"]["y"] + el["position"]["y"]
     assert x >= 0 and y >= 0
     assert x + el["size"]["width"] <= 1280 and y + el["size"]["height"] <= 720
+
+
+def _text_at(x, y, w, h):
+    return {"type": "text", "name": "t", "position": {"x": x, "y": y}, "size": {"width": w, "height": h}}
+
+
+def _boxes_overlap(a, b):
+    return min(a[0] + a[2], b[0] + b[2]) - max(a[0], b[0]) > 1 and min(a[1] + a[3], b[1] + b[3]) - max(a[1], b[1]) > 1
+
+
+def _placeholder_box(layout):
+    comp = next(c for c in layout["components"] if c["id"] == "video_placeholder")
+    el = comp["elements"][0]
+    return (comp["position"]["x"] + el["position"]["x"], comp["position"]["y"] + el["position"]["y"],
+            el["size"]["width"], el["size"]["height"])
+
+
+def test_layouts_with_no_free_spot_for_the_placeholder_are_skipped():
+    # the image box is stage x 110..710, y 70..570; the text fills all of it
+    covered = _layout("covered_1", "Text over the whole image", _image(600, 500), with_text=False)
+    covered["components"].append({"id": "overlay", "description": "o", "position": {"x": 100, "y": 60}, "elements": [_text_at(0, 0, 620, 520)]})
+    clear = _layout("clear_2", "Text beside the image", _image(600, 500), with_text=False)
+    clear["components"].append({"id": "side", "description": "s", "position": {"x": 800, "y": 100}, "elements": [_text_at(0, 0, 300, 60)]})
+    assert [l["id"] for l in derive_layouts({"layouts": [covered, clear]}, 5, 1)] == ["clear_2_pv01"]
+
+
+def test_placeholder_moves_to_free_space_inside_the_image_when_text_overlays_its_middle():
+    layout = _layout("over_1", "Text over the middle", _image(600, 500), with_text=False)
+    text = _text_at(0, 0, 220, 300)  # stage x 310..530, y 170..470: the middle of the image
+    layout["components"].append({"id": "overlay", "description": "o", "position": {"x": 310, "y": 170}, "elements": [text]})
+    out = derive_layouts({"layouts": [layout]}, 1, 1)
+    assert len(out) == 1
+    box = _placeholder_box(out[0])
+    assert not _boxes_overlap(box, (310, 170, 220, 300))
+    assert 110 <= box[0] and box[0] + box[2] <= 710 and 70 <= box[1] and box[1] + box[3] <= 570  # still on the image
+    assert box[2] >= 160 and abs(box[2] / box[3] - 9 / 16) < 0.02
+
+
+def test_text_nested_in_a_group_counts_at_its_absolute_position():
+    layout = _layout("nested_1", "Nested text over the whole image", _image(600, 500), with_text=False)
+    layout["components"].append(
+        {"id": "grp", "description": "g", "position": {"x": 0, "y": 0},
+         "elements": [{"type": "group", "position": {"x": 100, "y": 60}, "children": [_text_at(0, 0, 620, 520)]}]}
+    )
+    assert derive_layouts({"layouts": [layout]}, 5, 1) == []
+
+
+def test_a_flex_container_over_the_image_counts_as_one_content_box():
+    # children of a flex get their place at render time, so their stored positions say nothing
+    layout = _layout("flexed_1", "Flex text over the whole image", _image(600, 500), with_text=False)
+    layout["components"].append(
+        {"id": "stack", "description": "s", "position": {"x": 100, "y": 60},
+         "elements": [{"type": "flex", "position": {"x": 0, "y": 0}, "size": {"width": 620, "height": 520},
+                       "children": [_text_at(0, 0, 50, 20)]}]}
+    )
+    assert derive_layouts({"layouts": [layout]}, 5, 1) == []
+
+
+def _panel(x, y, w, h, opacity=1):
+    return {"type": "container", "position": {"x": x, "y": y}, "size": {"width": w, "height": h},
+            "fill": {"color": "#112233", "opacity": opacity}}
+
+
+def test_an_opaque_panel_in_a_later_layer_blocks_the_placeholder_but_one_underneath_does_not():
+    above = _layout("above_1", "Panel above", _image(600, 500), with_text=False)
+    above["components"].append({"id": "panel", "description": "p", "position": {"x": 100, "y": 60}, "elements": [_panel(0, 0, 620, 520)]})
+    below = _layout("below_2", "Panel below", _image(600, 500), with_text=False)
+    below["components"].insert(1, {"id": "panel", "description": "p", "position": {"x": 100, "y": 60}, "elements": [_panel(0, 0, 620, 520)]})
+    assert [l["id"] for l in derive_layouts({"layouts": [above, below]}, 5, 1)] == ["below_2_pv01"]
+
+
+def test_a_full_slide_backdrop_in_a_later_layer_is_not_a_blocker():
+    layout = _layout("backdrop_1", "Backdrop above", _image(600, 500), with_text=False)
+    layout["components"].append({"id": "wash", "description": "w", "position": {"x": 0, "y": 0}, "elements": [_panel(0, 0, 1280, 720, 0.4)]})
+    assert len(derive_layouts({"layouts": [layout]}, 1, 1)) == 1
+
+
+def test_a_filled_vector_card_in_a_later_layer_blocks_the_placeholder():
+    card = {"type": "vector", "shape": "polygon", "fill": {"color": "#1B8C2D", "opacity": 1}, "closed": True,
+            "points": [{"x": 0, "y": 0}, {"x": 620, "y": 0}, {"x": 620, "y": 520}, {"x": 0, "y": 520}]}
+    layout = _layout("vector_1", "Vector card above", _image(600, 500), with_text=False)
+    layout["components"].append({"id": "card", "description": "c", "position": {"x": 100, "y": 60}, "elements": [card]})
+    assert derive_layouts({"layouts": [layout]}, 5, 1) == []

@@ -12430,7 +12430,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 280
+                "height": 380
               },
               "fill": {
                 "color": "#C24D12",
@@ -12451,7 +12451,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 280
+                "height": 380
               },
               "fill": {
                 "color": "#C24D12",
@@ -12468,7 +12468,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 59
               },
               "size": {
                 "width": 80,
@@ -12507,15 +12507,15 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 133
               },
               "size": {
                 "width": 624,
-                "height": 96
+                "height": 110
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Montserrat Medium",
                 "color": "#FFFFFF",
                 "line_height": 1.2,
@@ -12529,7 +12529,7 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Montserrat Medium",
                     "color": "#FFFFFF",
                     "line_height": 1.2,
@@ -12546,7 +12546,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 186
+                "y": 267
               },
               "size": {
                 "width": 624,
@@ -12585,7 +12585,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 217
+                "y": 298
               },
               "size": {
                 "width": 624,
@@ -13265,43 +13265,82 @@
       ]
     },
     {
-      "id": "upper_left_header_pv",
-      "description": "Large title and two-line supporting copy are positioned in the upper-left area with generous spacing.",
+      "id": "full_bleed_backdrop_pv",
+      "description": "Full-slide decorative background combining a black base with a cropped warm textured image accent along the bottom edge.",
       "variants": [
         {
-          "id": "upper_left_header_pv",
-          "description": "Large title and two-line supporting copy are positioned in the upper-left area with generous spacing.",
+          "id": "full_bleed_backdrop_pv",
+          "description": "Full-slide decorative background combining a black base with a cropped warm textured image accent along the bottom edge.",
           "position": {
-            "x": 72,
-            "y": 69
+            "x": 0,
+            "y": 0
           },
           "elements": [
             {
-              "type": "text",
+              "type": "vector",
+              "shape": "polygon",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true,
+              "fill": {
+                "color": "#000000",
+                "opacity": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "centered_text_stack_pv",
+      "description": "Centered vertical text block with a large two-line headline and smaller supporting copy beneath it.",
+      "variants": [
+        {
+          "id": "centered_text_stack_pv",
+          "description": "Centered vertical text block with a large two-line headline and smaller supporting copy beneath it.",
+          "position": {
+            "x": 320,
+            "y": 200
+          },
+          "elements": [
+            {
+              "type": "flex",
               "position": {
                 "x": 0,
                 "y": 0
               },
               "size": {
-                "width": 1136.88,
-                "height": 80
+                "width": 640,
+                "height": 230
               },
-              "rotation": 0,
-              "font": {
-                "size": 64,
-                "family": "Montserrat Medium",
-                "color": "#FFFFFF",
-                "bold": true,
-                "line_height": 1.25,
-                "letter_spacing": -0.64
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
+              "direction": "column",
+              "wrap": false,
+              "align_items": "center",
+              "justify_content": "flex-start",
+              "gap": 6,
+              "children": [
                 {
-                  "text": "LOREM IPSUM DOL",
+                  "type": "text",
+                  "size": {
+                    "width": 630,
+                    "height": 160
+                  },
                   "font": {
                     "size": 64,
                     "family": "Montserrat Medium",
@@ -13309,345 +13348,72 @@
                     "bold": true,
                     "line_height": 1.25,
                     "letter_spacing": -0.64
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "primary_title",
-              "max_length": 31,
-              "min_length": 8
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 0,
-                "y": 99
-              },
-              "size": {
-                "width": 733.5,
-                "height": 73
-              },
-              "rotation": 0,
-              "font": {
-                "size": 21.33,
-                "family": "Montserrat",
-                "color": "#D9D9D9",
-                "line_height": 1.5,
-                "letter_spacing": -0.21
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
+                  },
+                  "alignment": {
+                    "horizontal": "center",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "WHAT COMES NEXT?",
+                      "font": {
+                        "size": 64,
+                        "family": "Montserrat Medium",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.25,
+                        "letter_spacing": -0.64
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "headline_text",
+                  "max_length": 29,
+                  "min_length": 8
+                },
                 {
-                  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et",
+                  "type": "text",
+                  "position": {
+                    "x": 0,
+                    "y": 166
+                  },
+                  "size": {
+                    "width": 640,
+                    "height": 131.03
+                  },
+                  "rotation": 0,
                   "font": {
                     "size": 21.33,
                     "family": "Montserrat",
-                    "color": "#D9D9D9",
+                    "color": "#FFFFFF",
                     "line_height": 1.5,
                     "letter_spacing": -0.21
-                  }
+                  },
+                  "alignment": {
+                    "horizontal": "center",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et",
+                      "font": {
+                        "size": 21.33,
+                        "family": "Montserrat",
+                        "color": "#FFFFFF",
+                        "line_height": 1.5,
+                        "letter_spacing": -0.21
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "supporting_text",
+                  "max_length": 216,
+                  "min_length": 52
                 }
               ],
-              "decorative": false,
-              "name": "supporting_summary",
-              "max_length": 127,
-              "min_length": 52
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "lower_left_chart_pv",
-      "description": "Wide trend chart occupies the lower-left content area beneath the header, with subtle gridlines and orange series styling.",
-      "variants": [
-        {
-          "id": "lower_left_chart_pv",
-          "description": "Wide trend chart occupies the lower-left content area beneath the header, with subtle gridlines and orange series styling.",
-          "position": {
-            "x": 84,
-            "y": 294
-          },
-          "elements": [
-            {
-              "type": "chart",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 645,
-                "height": 329
-              },
-              "chart_type": "line",
-              "colors": [
-                "#FF6B2A"
-              ],
-              "x_axis": true,
-              "y_axis": true,
-              "axis_color": "#D9D9D9",
-              "categories": [
-                "Jan 2021",
-                "Jul 2021",
-                "Jan 2022",
-                "Jul 2022",
-                "Jan 2023",
-                "Jul 2023",
-                "Jan 2024",
-                "Jul 2024",
-                "Jan 2025"
-              ],
-              "series": [
-                {
-                  "name": "Series 1",
-                  "values": [
-                    8,
-                    13,
-                    18,
-                    19,
-                    20,
-                    26,
-                    33,
-                    35,
-                    36
-                  ]
-                }
-              ],
-              "legend": false,
-              "x_axis_grid": false,
-              "y_axis_grid": true,
-              "grid_color": "#262626",
-              "source": "static/image24-02344c48b17e.png",
-              "decorative": false,
-              "name": "trend_line_chart"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "right_stacked_card_pv",
-      "description": "A translucent right-side panel contains two vertically stacked text sections separated by a subtle horizontal divider.",
-      "variants": [
-        {
-          "id": "right_stacked_card_pv",
-          "description": "A translucent right-side panel contains two vertically stacked text sections separated by a subtle horizontal divider.",
-          "position": {
-            "x": 806,
-            "y": 195
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 402,
-                  "y": 0
-                },
-                {
-                  "x": 402,
-                  "y": 453
-                },
-                {
-                  "x": 0,
-                  "y": 453
-                }
-              ],
-              "closed": true,
-              "corner_radii": [
-                3,
-                3,
-                3,
-                3
-              ],
-              "fill": {
-                "color": "#242424",
-                "opacity": 0.82
-              }
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 19,
-                "y": 28
-              },
-              "size": {
-                "width": 264,
-                "height": 46
-              },
-              "font": {
-                "size": 33.78,
-                "family": "Montserrat Semi-Bold",
-                "color": "#FFFFFF",
-                "bold": true,
-                "line_height": 1.4,
-                "letter_spacing": -0.34
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Heading",
-                  "font": {
-                    "size": 33.78,
-                    "family": "Montserrat Semi-Bold",
-                    "color": "#FFFFFF",
-                    "bold": true,
-                    "line_height": 1.4,
-                    "letter_spacing": -0.34
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "upper_card_title",
-              "max_length": 15,
-              "min_length": 4
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 19,
-                "y": 91
-              },
-              "size": {
-                "width": 293,
-                "height": 113
-              },
-              "font": {
-                "size": 19.55,
-                "family": "Montserrat",
-                "color": "#E6E6E6",
-                "line_height": 1.5,
-                "letter_spacing": -0.19
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore",
-                  "font": {
-                    "size": 19.55,
-                    "family": "Montserrat",
-                    "color": "#E6E6E6",
-                    "line_height": 1.5,
-                    "letter_spacing": -0.19
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "upper_card_body",
-              "max_length": 82,
-              "min_length": 55
-            },
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "points": [
-                {
-                  "x": 0,
-                  "y": 226
-                },
-                {
-                  "x": 402,
-                  "y": 227
-                }
-              ],
-              "closed": false,
-              "stroke": {
-                "color": "#FFFFFF",
-                "opacity": 0.08,
-                "width": 2.67
-              }
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 19,
-                "y": 249
-              },
-              "size": {
-                "width": 264,
-                "height": 46
-              },
-              "font": {
-                "size": 33.78,
-                "family": "Montserrat Semi-Bold",
-                "color": "#FFFFFF",
-                "bold": true,
-                "line_height": 1.4,
-                "letter_spacing": -0.34
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Heading",
-                  "font": {
-                    "size": 33.78,
-                    "family": "Montserrat Semi-Bold",
-                    "color": "#FFFFFF",
-                    "bold": true,
-                    "line_height": 1.4,
-                    "letter_spacing": -0.34
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "lower_card_title",
-              "max_length": 15,
-              "min_length": 4
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 19,
-                "y": 311
-              },
-              "size": {
-                "width": 293,
-                "height": 113
-              },
-              "font": {
-                "size": 19.55,
-                "family": "Montserrat",
-                "color": "#E6E6E6",
-                "line_height": 1.5,
-                "letter_spacing": -0.19
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore",
-                  "font": {
-                    "size": 19.55,
-                    "family": "Montserrat",
-                    "color": "#E6E6E6",
-                    "line_height": 1.5,
-                    "letter_spacing": -0.19
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "lower_card_body",
-              "max_length": 82,
-              "min_length": 55
+              "name": "centered_copy_group",
+              "max_children": 2,
+              "min_children": 2
             }
           ]
         }
@@ -26226,7 +25992,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 280
+                "height": 380
               },
               "fill": {
                 "color": "#C24D12",
@@ -26247,7 +26013,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 280
+                "height": 380
               },
               "fill": {
                 "color": "#C24D12",
@@ -26264,7 +26030,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 59
               },
               "size": {
                 "width": 80,
@@ -26303,15 +26069,15 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 133
               },
               "size": {
                 "width": 624,
-                "height": 96
+                "height": 110
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Montserrat Medium",
                 "color": "#FFFFFF",
                 "line_height": 1.2,
@@ -26325,7 +26091,7 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Montserrat Medium",
                     "color": "#FFFFFF",
                     "line_height": 1.2,
@@ -26342,7 +26108,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 186
+                "y": 267
               },
               "size": {
                 "width": 624,
@@ -26381,7 +26147,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 217
+                "y": 298
               },
               "size": {
                 "width": 624,
@@ -27045,8 +26811,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 460.0,
-            "y": 40.0
+            "x": 504,
+            "y": 240
           },
           "elements": [
             {
@@ -27056,8 +26822,8 @@
                 "y": 0
               },
               "size": {
-                "width": 360,
-                "height": 640
+                "width": 264,
+                "height": 469
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -27280,15 +27046,52 @@
       ]
     },
     {
-      "id": "title_chart_right_info_panel_2580_pv07",
-      "description": "Presenter avatar video version: Dark full-bleed slide with a large upper-left header, lower-left trend visualization, and stacked translucent information panel on the right.",
+      "id": "closing_title_description_1992_pv07",
+      "description": "Presenter avatar video version: A dark full-bleed slide with a warm textured lower glow and a centered headline with supporting text.",
       "components": [
+        {
+          "id": "full_bleed_backdrop_pv",
+          "description": "Full-slide decorative background combining a black base with a cropped warm textured image accent along the bottom edge.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true,
+              "fill": {
+                "color": "#000000",
+                "opacity": 1
+              }
+            }
+          ]
+        },
         {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 460.0,
-            "y": 40.0
+            "x": 8,
+            "y": 80
           },
           "elements": [
             {
@@ -27298,8 +27101,8 @@
                 "y": 0
               },
               "size": {
-                "width": 360,
-                "height": 640
+                "width": 312,
+                "height": 555
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -27311,39 +27114,35 @@
           ]
         },
         {
-          "id": "upper_left_header_pv",
-          "description": "Large title and two-line supporting copy are positioned in the upper-left area with generous spacing.",
+          "id": "centered_text_stack_pv",
+          "description": "Centered vertical text block with a large two-line headline and smaller supporting copy beneath it.",
           "position": {
-            "x": 72,
-            "y": 69
+            "x": 320,
+            "y": 200
           },
           "elements": [
             {
-              "type": "text",
+              "type": "flex",
               "position": {
                 "x": 0,
                 "y": 0
               },
               "size": {
-                "width": 1136.88,
-                "height": 80
+                "width": 640,
+                "height": 230
               },
-              "rotation": 0,
-              "font": {
-                "size": 64,
-                "family": "Montserrat Medium",
-                "color": "#FFFFFF",
-                "bold": true,
-                "line_height": 1.25,
-                "letter_spacing": -0.64
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
+              "direction": "column",
+              "wrap": false,
+              "align_items": "center",
+              "justify_content": "flex-start",
+              "gap": 6,
+              "children": [
                 {
-                  "text": "LOREM IPSUM DOL",
+                  "type": "text",
+                  "size": {
+                    "width": 630,
+                    "height": 160
+                  },
                   "font": {
                     "size": 64,
                     "family": "Montserrat Medium",
@@ -27351,333 +27150,72 @@
                     "bold": true,
                     "line_height": 1.25,
                     "letter_spacing": -0.64
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "primary_title",
-              "max_length": 31,
-              "min_length": 8
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 0,
-                "y": 99
-              },
-              "size": {
-                "width": 733.5,
-                "height": 73
-              },
-              "rotation": 0,
-              "font": {
-                "size": 21.33,
-                "family": "Montserrat",
-                "color": "#D9D9D9",
-                "line_height": 1.5,
-                "letter_spacing": -0.21
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
+                  },
+                  "alignment": {
+                    "horizontal": "center",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "WHAT COMES NEXT?",
+                      "font": {
+                        "size": 64,
+                        "family": "Montserrat Medium",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.25,
+                        "letter_spacing": -0.64
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "headline_text",
+                  "max_length": 29,
+                  "min_length": 8
+                },
                 {
-                  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et",
+                  "type": "text",
+                  "position": {
+                    "x": 0,
+                    "y": 166
+                  },
+                  "size": {
+                    "width": 640,
+                    "height": 131.03
+                  },
+                  "rotation": 0,
                   "font": {
                     "size": 21.33,
                     "family": "Montserrat",
-                    "color": "#D9D9D9",
+                    "color": "#FFFFFF",
                     "line_height": 1.5,
                     "letter_spacing": -0.21
-                  }
+                  },
+                  "alignment": {
+                    "horizontal": "center",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et",
+                      "font": {
+                        "size": 21.33,
+                        "family": "Montserrat",
+                        "color": "#FFFFFF",
+                        "line_height": 1.5,
+                        "letter_spacing": -0.21
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "supporting_text",
+                  "max_length": 216,
+                  "min_length": 52
                 }
               ],
-              "decorative": false,
-              "name": "supporting_summary",
-              "max_length": 127,
-              "min_length": 52
-            }
-          ]
-        },
-        {
-          "id": "lower_left_chart_pv",
-          "description": "Wide trend chart occupies the lower-left content area beneath the header, with subtle gridlines and orange series styling.",
-          "position": {
-            "x": 84,
-            "y": 294
-          },
-          "elements": [
-            {
-              "type": "chart",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 645,
-                "height": 329
-              },
-              "chart_type": "line",
-              "colors": [
-                "#FF6B2A"
-              ],
-              "x_axis": true,
-              "y_axis": true,
-              "axis_color": "#D9D9D9",
-              "categories": [
-                "Jan 2021",
-                "Jul 2021",
-                "Jan 2022",
-                "Jul 2022",
-                "Jan 2023",
-                "Jul 2023",
-                "Jan 2024",
-                "Jul 2024",
-                "Jan 2025"
-              ],
-              "series": [
-                {
-                  "name": "Series 1",
-                  "values": [
-                    8,
-                    13,
-                    18,
-                    19,
-                    20,
-                    26,
-                    33,
-                    35,
-                    36
-                  ]
-                }
-              ],
-              "legend": false,
-              "x_axis_grid": false,
-              "y_axis_grid": true,
-              "grid_color": "#262626",
-              "source": "static/image24-02344c48b17e.png",
-              "decorative": false,
-              "name": "trend_line_chart"
-            }
-          ]
-        },
-        {
-          "id": "right_stacked_card_pv",
-          "description": "A translucent right-side panel contains two vertically stacked text sections separated by a subtle horizontal divider.",
-          "position": {
-            "x": 806,
-            "y": 195
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 402,
-                  "y": 0
-                },
-                {
-                  "x": 402,
-                  "y": 453
-                },
-                {
-                  "x": 0,
-                  "y": 453
-                }
-              ],
-              "closed": true,
-              "corner_radii": [
-                3,
-                3,
-                3,
-                3
-              ],
-              "fill": {
-                "color": "#242424",
-                "opacity": 0.82
-              }
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 19,
-                "y": 28
-              },
-              "size": {
-                "width": 264,
-                "height": 46
-              },
-              "font": {
-                "size": 33.78,
-                "family": "Montserrat Semi-Bold",
-                "color": "#FFFFFF",
-                "bold": true,
-                "line_height": 1.4,
-                "letter_spacing": -0.34
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Heading",
-                  "font": {
-                    "size": 33.78,
-                    "family": "Montserrat Semi-Bold",
-                    "color": "#FFFFFF",
-                    "bold": true,
-                    "line_height": 1.4,
-                    "letter_spacing": -0.34
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "upper_card_title",
-              "max_length": 15,
-              "min_length": 4
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 19,
-                "y": 91
-              },
-              "size": {
-                "width": 293,
-                "height": 113
-              },
-              "font": {
-                "size": 19.55,
-                "family": "Montserrat",
-                "color": "#E6E6E6",
-                "line_height": 1.5,
-                "letter_spacing": -0.19
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore",
-                  "font": {
-                    "size": 19.55,
-                    "family": "Montserrat",
-                    "color": "#E6E6E6",
-                    "line_height": 1.5,
-                    "letter_spacing": -0.19
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "upper_card_body",
-              "max_length": 82,
-              "min_length": 55
-            },
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "points": [
-                {
-                  "x": 0,
-                  "y": 226
-                },
-                {
-                  "x": 402,
-                  "y": 227
-                }
-              ],
-              "closed": false,
-              "stroke": {
-                "color": "#FFFFFF",
-                "opacity": 0.08,
-                "width": 2.67
-              }
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 19,
-                "y": 249
-              },
-              "size": {
-                "width": 264,
-                "height": 46
-              },
-              "font": {
-                "size": 33.78,
-                "family": "Montserrat Semi-Bold",
-                "color": "#FFFFFF",
-                "bold": true,
-                "line_height": 1.4,
-                "letter_spacing": -0.34
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Heading",
-                  "font": {
-                    "size": 33.78,
-                    "family": "Montserrat Semi-Bold",
-                    "color": "#FFFFFF",
-                    "bold": true,
-                    "line_height": 1.4,
-                    "letter_spacing": -0.34
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "lower_card_title",
-              "max_length": 15,
-              "min_length": 4
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 19,
-                "y": 311
-              },
-              "size": {
-                "width": 293,
-                "height": 113
-              },
-              "font": {
-                "size": 19.55,
-                "family": "Montserrat",
-                "color": "#E6E6E6",
-                "line_height": 1.5,
-                "letter_spacing": -0.19
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore",
-                  "font": {
-                    "size": 19.55,
-                    "family": "Montserrat",
-                    "color": "#E6E6E6",
-                    "line_height": 1.5,
-                    "letter_spacing": -0.19
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "lower_card_body",
-              "max_length": 82,
-              "min_length": 55
+              "name": "centered_copy_group",
+              "max_children": 2,
+              "min_children": 2
             }
           ]
         }

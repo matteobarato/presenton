@@ -101,3 +101,19 @@ def test_layouts_fit_the_stage_and_text_fits_its_box(template_id):
                     lines = math.ceil(el["max_length"] * 0.55 * font["size"] / w)
                     assert lines * font["size"] * font["line_height"] <= h + 1, (layout["id"], el["name"])
         assert len(names) == len(set(names)), layout["id"]
+
+
+def test_mirror_flips_the_layout_horizontally_and_stays_on_stage():
+    from scripts.template_video_layouts.archetypes import mirror
+
+    left = archetypes("momentum")[0]
+    flipped = mirror(left, 6)
+    assert flipped["id"] == "video_left_title_points_alt_pv06"
+    assert flipped["description"] == left["description"]
+    assert placeholder_box(flipped)[0] > 700  # the video was on the left
+    assert abs((placeholder_box(left)[0] + 288 / 2) - (1280 - (placeholder_box(flipped)[0] + 288 / 2))) <= 1
+    assert flipped["components"][0] == left["components"][0]  # the full-slide background is not moved
+    for comp in flipped["components"]:
+        right_edge = comp["position"]["x"] + max(e["position"]["x"] + e["size"]["width"] for e in comp["elements"] if e["type"] != "vector") if any(e["type"] != "vector" for e in comp["elements"]) else 0
+        assert comp["position"]["x"] >= -0.5 and right_edge <= 1280.5, comp["id"]
+    assert left["components"][2]["position"]["x"] == 96  # the original is not mutated

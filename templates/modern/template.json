@@ -7218,14 +7218,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 90
+                "height": 99
               },
               "rotation": 0,
               "font": {
                 "size": 44,
                 "family": "Montserrat",
                 "color": "#234CD9",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -7239,7 +7239,7 @@
                     "size": 44,
                     "family": "Montserrat",
                     "color": "#234CD9",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -7253,7 +7253,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 135
+                "y": 144
               },
               "size": {
                 "width": 696,
@@ -7301,7 +7301,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 294
+            "y": 303
           },
           "elements": [
             {
@@ -7614,7 +7614,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 251
+            "y": 261
           },
           "elements": [
             {
@@ -7646,14 +7646,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat",
                 "color": "#000000",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -7667,7 +7667,7 @@
                     "size": 22,
                     "family": "Montserrat",
                     "color": "#000000",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -7784,14 +7784,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat",
                 "color": "#000000",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -7805,7 +7805,7 @@
                     "size": 22,
                     "family": "Montserrat",
                     "color": "#000000",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -7922,14 +7922,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat",
                 "color": "#000000",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -7943,7 +7943,7 @@
                     "size": 22,
                     "family": "Montserrat",
                     "color": "#000000",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -8092,14 +8092,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 38
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Montserrat",
                 "color": "#234CD9",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -8113,7 +8113,7 @@
                     "size": 36,
                     "family": "Montserrat",
                     "color": "#234CD9",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -8691,14 +8691,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 50
+                "height": 55
               },
               "rotation": 0,
               "font": {
                 "size": 48,
                 "family": "Montserrat",
                 "color": "#234CD9",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -8712,7 +8712,7 @@
                     "size": 48,
                     "family": "Montserrat",
                     "color": "#234CD9",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -8735,7 +8735,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 146
+            "y": 151
           },
           "elements": [
             {
@@ -8746,7 +8746,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 259
+                "height": 380
               },
               "fill": {
                 "color": "#F59E0B",
@@ -8767,7 +8767,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 259
+                "height": 380
               },
               "fill": {
                 "color": "#F59E0B",
@@ -8784,18 +8784,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 70
               },
               "size": {
                 "width": 80,
-                "height": 82
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Montserrat",
                 "color": "#F59E0B",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -8809,7 +8809,7 @@
                     "size": 80,
                     "family": "Montserrat",
                     "color": "#F59E0B",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -8823,18 +8823,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 136
               },
               "size": {
                 "width": 624,
-                "height": 80
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Montserrat",
                 "color": "#000000",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -8845,10 +8845,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Montserrat",
                     "color": "#000000",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -8862,7 +8862,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 170
+                "y": 262
               },
               "size": {
                 "width": 624,
@@ -8901,7 +8901,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 198
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -16528,14 +16528,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 90
+                "height": 99
               },
               "rotation": 0,
               "font": {
                 "size": 44,
                 "family": "Montserrat",
                 "color": "#234CD9",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -16549,7 +16549,7 @@
                     "size": 44,
                     "family": "Montserrat",
                     "color": "#234CD9",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -16563,7 +16563,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 135
+                "y": 144
               },
               "size": {
                 "width": 696,
@@ -16605,7 +16605,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 294
+            "y": 303
           },
           "elements": [
             {
@@ -16966,14 +16966,14 @@
               },
               "size": {
                 "width": 720,
-                "height": 98
+                "height": 108
               },
               "rotation": 0,
               "font": {
                 "size": 48,
                 "family": "Montserrat",
                 "color": "#234CD9",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -16987,7 +16987,7 @@
                     "size": 48,
                     "family": "Montserrat",
                     "color": "#234CD9",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -17001,7 +17001,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 110
+                "y": 120
               },
               "size": {
                 "width": 720,
@@ -17043,7 +17043,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 251
+            "y": 261
           },
           "elements": [
             {
@@ -17075,14 +17075,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat",
                 "color": "#000000",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -17096,7 +17096,7 @@
                     "size": 22,
                     "family": "Montserrat",
                     "color": "#000000",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -17213,14 +17213,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat",
                 "color": "#000000",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -17234,7 +17234,7 @@
                     "size": 22,
                     "family": "Montserrat",
                     "color": "#000000",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -17351,14 +17351,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat",
                 "color": "#000000",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -17372,7 +17372,7 @@
                     "size": 22,
                     "family": "Montserrat",
                     "color": "#000000",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -17579,14 +17579,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 38
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Montserrat",
                 "color": "#234CD9",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -17600,7 +17600,7 @@
                     "size": 36,
                     "family": "Montserrat",
                     "color": "#234CD9",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -18218,14 +18218,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 50
+                "height": 55
               },
               "rotation": 0,
               "font": {
                 "size": 48,
                 "family": "Montserrat",
                 "color": "#234CD9",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -18239,7 +18239,7 @@
                     "size": 48,
                     "family": "Montserrat",
                     "color": "#234CD9",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -18256,7 +18256,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 146
+            "y": 151
           },
           "elements": [
             {
@@ -18267,7 +18267,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 259
+                "height": 380
               },
               "fill": {
                 "color": "#F59E0B",
@@ -18288,7 +18288,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 259
+                "height": 380
               },
               "fill": {
                 "color": "#F59E0B",
@@ -18305,18 +18305,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 70
               },
               "size": {
                 "width": 80,
-                "height": 82
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Montserrat",
                 "color": "#F59E0B",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -18330,7 +18330,7 @@
                     "size": 80,
                     "family": "Montserrat",
                     "color": "#F59E0B",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -18344,18 +18344,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 136
               },
               "size": {
                 "width": 624,
-                "height": 80
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Montserrat",
                 "color": "#000000",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -18366,10 +18366,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Montserrat",
                     "color": "#000000",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -18383,7 +18383,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 170
+                "y": 262
               },
               "size": {
                 "width": 624,
@@ -18422,7 +18422,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 198
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -18634,14 +18634,14 @@
               },
               "size": {
                 "width": 752,
-                "height": 98
+                "height": 108
               },
               "rotation": 0,
               "font": {
                 "size": 48,
                 "family": "Montserrat",
                 "color": "#234CD9",
-                "line_height": 1.0,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -18655,7 +18655,7 @@
                     "size": 48,
                     "family": "Montserrat",
                     "color": "#234CD9",
-                    "line_height": 1.0,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -18669,7 +18669,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 110
+                "y": 120
               },
               "size": {
                 "width": 752,
@@ -19491,8 +19491,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 804.7,
-            "y": 64.0
+            "x": 814.41,
+            "y": 80
           },
           "elements": [
             {
@@ -19502,8 +19502,8 @@
                 "y": 0
               },
               "size": {
-                "width": 333,
-                "height": 592
+                "width": 312,
+                "height": 555
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -19562,8 +19562,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 212.0,
-            "y": 152.0
+            "x": 208,
+            "y": 152
           },
           "elements": [
             {

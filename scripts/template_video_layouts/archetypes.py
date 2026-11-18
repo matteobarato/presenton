@@ -6,7 +6,9 @@ from its `max_length`, so text at the limit still fits its box.
 
 from __future__ import annotations
 
+import copy
 import math
+import re
 from typing import Any
 
 from .style import TemplateStyle, contrast, readable_on
@@ -59,7 +61,7 @@ def _text(
     color: str | None = None,
     letter_spacing: float | None = None,
 ) -> dict:
-    line_height = float(base.get("line_height") or 1.2)
+    line_height = max(float(base.get("line_height") or 1.2), 1.1)
     lines = max(1, math.ceil(max_length * CHAR_W * size / w))
     height = math.ceil(lines * size * line_height) + 2
     font: dict[str, Any] = {
@@ -248,13 +250,20 @@ def _quote(style: TemplateStyle, n: int) -> dict:
     bg, card = style.background, style.card
     title = _text("main_title", "In their words", 64, 64, 740, style.heading_font, min(style.heading_size, 52), bg, 6, 24)
     panel_y = 64 + title["size"]["height"] + 32
-    quote = _text("quote_body_text", "Working this way changed how our whole team plans and delivers.", 56, 70, 624,
-                  style.heading_font, 26, card, 30, 110, bold=False)
-    author = _text("quote_author_text", "Jordan Lee", 56, 70 + quote["size"]["height"] + 20, 624, style.body_font, 18, card, 4, 28, bold=True)
-    role = _text("quote_author_role", "Head of Operations", 56, author["position"]["y"] + author["size"]["height"] + 2, 624,
-                 style.body_font, 14, card, 6, 36)
-    mark = _text("quote_mark_accent", "“", 56, 8, 80, style.heading_font, 80, card, 1, 1, color=style.accent, bold=True)
-    panel_h = role["position"]["y"] + role["size"]["height"] + 40
+    quote = _text("quote_body_text", "Working this way changed how our whole team plans and delivers.", 56, 0, 624,
+                  style.heading_font, 30, card, 30, 110, bold=False)
+    author = _text("quote_author_text", "Jordan Lee", 56, 0, 624, style.body_font, 18, card, 4, 28, bold=True)
+    role = _text("quote_author_role", "Head of Operations", 56, 0, 624, style.body_font, 14, card, 6, 36)
+    mark = _text("quote_mark_accent", "\u201c", 56, 0, 80, style.heading_font, 80, card, 1, 1, color=style.accent, bold=True)
+    # Stack mark, quote and attribution, then centre the group in a panel at least 380 tall.
+    quote["position"]["y"] = mark["size"]["height"] - 24
+    author["position"]["y"] = quote["position"]["y"] + quote["size"]["height"] + 24
+    role["position"]["y"] = author["position"]["y"] + author["size"]["height"] + 2
+    content_h = role["position"]["y"] + role["size"]["height"]
+    panel_h = max(content_h + 96, 380)
+    pad = round((panel_h - content_h) / 2)
+    for el in (mark, quote, author, role):
+        el["position"]["y"] += pad
     return {
         "id": f"quote_panel_video_pv{n:02d}",
         "description": "Testimonial or leadership message with a large title, a quote panel and a presenter avatar video on the right. Use for a quote delivered on camera.",
@@ -305,3 +314,20 @@ def build_archetypes(style: TemplateStyle, start: int) -> list[dict]:
         _quote(style, start + 3),
         _band(style, start + 4),
     ]
+
+
+def mirror(layout: dict, n: int) -> dict:
+    """A left-right flipped copy of an archetype layout, numbered `_alt_pv<n>`.
+
+    Components swap sides as blocks; what is inside a block keeps its reading
+    order. Full-slide background vectors stay put.
+    """
+    flipped = copy.deepcopy(layout)
+    for comp in flipped["components"]:
+        boxes = [e for e in comp["elements"] if e["type"] != "vector"]
+        if not boxes:
+            continue
+        extent = max(e["position"]["x"] + e["size"]["width"] for e in boxes)
+        comp["position"]["x"] = round(STAGE_W - comp["position"]["x"] - extent, 2)
+    flipped["id"] = re.sub(r"_pv\d\d$", "", layout["id"]) + f"_alt_pv{n:02d}"
+    return flipped

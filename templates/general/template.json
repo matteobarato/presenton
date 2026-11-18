@@ -8880,14 +8880,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 73
+                "height": 99
               },
               "rotation": 0,
               "font": {
                 "size": 44,
                 "family": "Poppins",
                 "color": "#111827",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -8901,7 +8901,7 @@
                     "size": 44,
                     "family": "Poppins",
                     "color": "#111827",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -8915,7 +8915,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 117
+                "y": 143
               },
               "size": {
                 "width": 696,
@@ -8963,7 +8963,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 314
+            "y": 340
           },
           "elements": [
             {
@@ -9276,7 +9276,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 276
+            "y": 310
           },
           "elements": [
             {
@@ -9308,14 +9308,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 20
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Poppins",
                 "color": "#000000",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -9329,7 +9329,7 @@
                     "size": 22,
                     "family": "Poppins",
                     "color": "#000000",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -9446,14 +9446,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 20
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Poppins",
                 "color": "#000000",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -9467,7 +9467,7 @@
                     "size": 22,
                     "family": "Poppins",
                     "color": "#000000",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -9584,14 +9584,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 20
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Poppins",
                 "color": "#000000",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -9605,7 +9605,7 @@
                     "size": 22,
                     "family": "Poppins",
                     "color": "#000000",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -9754,14 +9754,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 31
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Poppins",
                 "color": "#111827",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -9775,7 +9775,7 @@
                     "size": 36,
                     "family": "Poppins",
                     "color": "#111827",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -10353,14 +10353,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 44
+                "height": 60
               },
               "rotation": 0,
               "font": {
                 "size": 52,
                 "family": "Poppins",
                 "color": "#111827",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -10374,7 +10374,7 @@
                     "size": 52,
                     "family": "Poppins",
                     "color": "#111827",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -10397,7 +10397,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 140
+            "y": 156
           },
           "elements": [
             {
@@ -10408,7 +10408,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 242
+                "height": 380
               },
               "fill": {
                 "color": "#3B82F6",
@@ -10429,7 +10429,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 242
+                "height": 380
               },
               "fill": {
                 "color": "#3B82F6",
@@ -10446,18 +10446,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 70
               },
               "size": {
                 "width": 80,
-                "height": 66
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Poppins",
                 "color": "#3B82F6",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -10471,7 +10471,7 @@
                     "size": 80,
                     "family": "Poppins",
                     "color": "#3B82F6",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -10485,18 +10485,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 136
               },
               "size": {
                 "width": 624,
-                "height": 65
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Poppins",
                 "color": "#111827",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -10507,10 +10507,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Poppins",
                     "color": "#111827",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -10524,7 +10524,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 155
+                "y": 262
               },
               "size": {
                 "width": 624,
@@ -10563,7 +10563,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 182
+                "y": 289
               },
               "size": {
                 "width": 624,
@@ -11422,12 +11422,12 @@
       ]
     },
     {
-      "id": "slide_background_pv",
-      "description": "Full canvas white background with a decorative grid accent behind the visual area.",
+      "id": "background_canvas_pv",
+      "description": "Full slide background with subtle decorative corner accents framing the content area.",
       "variants": [
         {
-          "id": "slide_background_pv",
-          "description": "Full canvas white background with a decorative grid accent behind the visual area.",
+          "id": "background_canvas_pv",
+          "description": "Full slide background with subtle decorative corner accents framing the content area.",
           "position": {
             "x": 0,
             "y": 0
@@ -11437,7 +11437,8 @@
               "type": "vector",
               "shape": "polygon",
               "fill": {
-                "color": "#FFFFFF"
+                "color": "#FFFFFF",
+                "opacity": 1
               },
               "points": [
                 {
@@ -11462,33 +11463,107 @@
             {
               "type": "image",
               "position": {
-                "x": 552,
-                "y": 220
+                "x": 0,
+                "y": 528
               },
               "size": {
-                "width": 24,
-                "height": 24
+                "width": 192,
+                "height": 192
               },
-              "data": "static/image12-2ed5eba60707.png",
+              "rotation": 0,
+              "data": "static/image22-6dd2f52e896c.png",
               "fit": "fill",
               "decorative": true,
-              "name": "sparkle_accent_icon",
-              "is_icon": true
+              "name": "bottom_corner_accent",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 1024,
+                "y": 0
+              },
+              "size": {
+                "width": 256,
+                "height": 256
+              },
+              "rotation": 0,
+              "data": "static/image23-f21b824d69c7.png",
+              "fit": "fill",
+              "decorative": true,
+              "name": "top_corner_accent",
+              "is_icon": false
             }
           ]
         }
       ]
     },
     {
-      "id": "headline_area_pv",
-      "description": "Large single-line heading placed in the upper-left corner with generous margin and bold typography.",
+      "id": "left_image_card_pv",
+      "description": "Rounded visual card with shadow holding a large primary image on the left side.",
       "variants": [
         {
-          "id": "headline_area_pv",
-          "description": "Large single-line heading placed in the upper-left corner with generous margin and bold typography.",
+          "id": "left_image_card_pv",
+          "description": "Rounded visual card with shadow holding a large primary image on the left side.",
           "position": {
-            "x": 80,
-            "y": 48
+            "x": 88,
+            "y": 176
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#FFFFFF",
+                "opacity": 1
+              },
+              "shadow": {
+                "color": "#000000",
+                "blur": 15,
+                "opacity": 0.1,
+                "offset_x": 0,
+                "offset_y": 10
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 512,
+                  "y": 0
+                },
+                {
+                  "x": 512,
+                  "y": 384
+                },
+                {
+                  "x": 0,
+                  "y": 384
+                }
+              ],
+              "closed": true,
+              "corner_radii": [
+                16,
+                16,
+                16,
+                16
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "right_text_block_pv",
+      "description": "Right-side narrative block with prominent headline and supporting paragraph aligned above metrics.",
+      "variants": [
+        {
+          "id": "right_text_block_pv",
+          "description": "Right-side narrative block with prominent headline and supporting paragraph aligned above metrics.",
+          "position": {
+            "x": 672,
+            "y": 190
           },
           "elements": [
             {
@@ -11498,8 +11573,8 @@
                 "y": 0
               },
               "size": {
-                "width": 1122,
-                "height": 60
+                "width": 530,
+                "height": 120
               },
               "font": {
                 "size": 60,
@@ -11515,7 +11590,7 @@
               },
               "runs": [
                 {
-                  "text": "Problem",
+                  "text": "Competitive Advantage",
                   "font": {
                     "size": 60,
                     "family": "Poppins",
@@ -11527,112 +11602,19 @@
                 }
               ],
               "decorative": false,
-              "name": "main_heading",
-              "max_length": 30,
-              "min_length": 4
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "left_visual_card_pv",
-      "description": "Rounded rectangular photo card layered over the decorative grid on the left side of the slide.",
-      "variants": [
-        {
-          "id": "left_visual_card_pv",
-          "description": "Rounded rectangular photo card layered over the decorative grid on the left side of the slide.",
-          "position": {
-            "x": 120,
-            "y": 254
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#FFFFFF"
-              },
-              "shadow": {
-                "color": "#000000",
-                "blur": 15,
-                "opacity": 0.1,
-                "offset_x": 0,
-                "offset_y": 10
-              },
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 448,
-                  "y": 0
-                },
-                {
-                  "x": 448,
-                  "y": 320
-                },
-                {
-                  "x": 0,
-                  "y": 320
-                }
-              ],
-              "closed": true,
-              "corner_radii": [
-                16,
-                16,
-                16,
-                16
-              ]
+              "name": "headline_text",
+              "max_length": 21,
+              "min_length": 11
             },
-            {
-              "type": "image",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 448,
-                "height": 320
-              },
-              "data": "/static/images/replaceable_template_image.png",
-              "fit": "cover",
-              "border_radius": {
-                "tl": 16,
-                "tr": 16,
-                "bl": 16,
-                "br": 16
-              },
-              "decorative": false,
-              "name": "primary_photo",
-              "is_icon": false
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "right_content_column_pv",
-      "description": "Right-aligned narrative section containing an introductory paragraph and two repeated icon-led feature descriptions.",
-      "variants": [
-        {
-          "id": "right_content_column_pv",
-          "description": "Right-aligned narrative section containing an introductory paragraph and two repeated icon-led feature descriptions.",
-          "position": {
-            "x": 672,
-            "y": 143.72
-          },
-          "elements": [
             {
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 0
+                "y": 144
               },
               "size": {
                 "width": 530,
-                "height": 88
+                "height": 112
               },
               "font": {
                 "size": 18,
@@ -11640,7 +11622,7 @@
                 "color": "#4B5563",
                 "bold": false,
                 "italic": false,
-                "line_height": 1.3
+                "line_height": 1.24
               },
               "alignment": {
                 "horizontal": "left",
@@ -11648,184 +11630,82 @@
               },
               "runs": [
                 {
-                  "text": "Businesses face challenges with outdated technology and rising costs, limiting efficiency and growth in competitive markets.",
+                  "text": "Ginyard International Co. stands out by offering custom digital solutions tailored to client needs, alongside long-term support to ensure lasting relationships and continuous adaptation.",
                   "font": {
                     "size": 18,
                     "family": "Poppins",
                     "color": "#4B5563",
                     "bold": false,
                     "italic": false,
-                    "line_height": 1.3
+                    "line_height": 1.24
                   }
                 }
               ],
               "decorative": false,
-              "name": "intro_paragraph",
-              "max_length": 124,
-              "min_length": 62
-            },
+              "name": "body_text",
+              "max_length": 186,
+              "min_length": 93
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "metric_pair_grid_pv",
+      "description": "Two centered metric callouts placed in an even horizontal grid beneath the narrative text.",
+      "variants": [
+        {
+          "id": "metric_pair_grid_pv",
+          "description": "Two centered metric callouts placed in an even horizontal grid beneath the narrative text.",
+          "position": {
+            "x": 672,
+            "y": 470
+          },
+          "elements": [
             {
-              "type": "flex",
+              "type": "grid",
               "position": {
                 "x": 0,
-                "y": 120
+                "y": 0
               },
               "size": {
                 "width": 530,
-                "height": 228
+                "height": 88.39
               },
-              "direction": "column",
-              "wrap": false,
-              "align_items": "stretch",
-              "justify_content": "flex-start",
-              "gap": 30,
+              "columns": 2,
+              "rows": 1,
+              "column_gap": 22,
+              "align_items": "center",
+              "justify_items": "stretch",
               "children": [
                 {
                   "type": "group",
+                  "position": {
+                    "x": 0,
+                    "y": 0
+                  },
                   "size": {
-                    "width": 530,
-                    "height": 96
+                    "width": 254,
+                    "height": 76
                   },
                   "children": [
                     {
-                      "type": "vector",
-                      "shape": "polygon",
-                      "fill": {
-                        "color": "#9333EA"
-                      },
-                      "shadow": {
-                        "color": "#000000",
-                        "blur": 6,
-                        "opacity": 0.1,
-                        "offset_x": 0,
-                        "offset_y": 4
-                      },
-                      "points": [
-                        {
-                          "x": 0,
-                          "y": 0
-                        },
-                        {
-                          "x": 48,
-                          "y": 0
-                        },
-                        {
-                          "x": 48,
-                          "y": 48
-                        },
-                        {
-                          "x": 0,
-                          "y": 48
-                        }
-                      ],
-                      "closed": true,
-                      "corner_radii": [
-                        8,
-                        8,
-                        8,
-                        8
-                      ]
-                    },
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 12,
-                        "y": 12.3
-                      },
-                      "size": {
-                        "width": 24,
-                        "height": 24
-                      },
-                      "data": "/static/icons/placeholder.svg",
-                      "fit": "fill",
-                      "color": "#FFFFFF",
-                      "decorative": false,
-                      "name": "feature_icon",
-                      "is_icon": true
-                    },
-                    {
                       "type": "text",
                       "position": {
-                        "x": 64,
-                        "y": 0
+                        "x": 1.37,
+                        "y": -5.52
                       },
                       "size": {
-                        "width": 466,
-                        "height": 28
+                        "width": 254,
+                        "height": 20
                       },
                       "font": {
-                        "size": 20,
-                        "family": "Poppins",
-                        "color": "#111827",
-                        "bold": false,
-                        "italic": false,
-                        "line_height": 1.12
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Inefficiency",
-                          "font": {
-                            "size": 20,
-                            "family": "Poppins",
-                            "color": "#111827",
-                            "bold": false,
-                            "italic": false,
-                            "line_height": 1.12
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "feature_title",
-                      "max_length": 40,
-                      "min_length": 6
-                    },
-                    {
-                      "type": "vector",
-                      "shape": "polygon",
-                      "fill": {
-                        "color": "#9333EA"
-                      },
-                      "points": [
-                        {
-                          "x": 64,
-                          "y": 36
-                        },
-                        {
-                          "x": 112,
-                          "y": 36
-                        },
-                        {
-                          "x": 112,
-                          "y": 38
-                        },
-                        {
-                          "x": 64,
-                          "y": 38
-                        }
-                      ],
-                      "closed": true
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 64,
-                        "y": 50
-                      },
-                      "size": {
-                        "width": 466,
-                        "height": 52
-                      },
-                      "font": {
-                        "size": 16,
+                        "size": 14,
                         "family": "Poppins",
                         "color": "#4B5563",
                         "bold": false,
                         "italic": false,
-                        "line_height": 1.3
+                        "line_height": 1.14
                       },
                       "alignment": {
                         "horizontal": "left",
@@ -11833,171 +11713,93 @@
                       },
                       "runs": [
                         {
-                          "text": "Businesses struggle to find digital tools that meet their needs, causing operational slowdowns.",
+                          "text": "Satisfied Clients",
                           "font": {
-                            "size": 16,
+                            "size": 14,
                             "family": "Poppins",
                             "color": "#4B5563",
                             "bold": false,
                             "italic": false,
-                            "line_height": 1.3
+                            "line_height": 1.14
                           }
                         }
                       ],
                       "decorative": false,
-                      "name": "feature_description",
-                      "max_length": 100,
-                      "min_length": 48
+                      "name": "metric_label",
+                      "max_length": 30,
+                      "min_length": 9
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 28
+                      },
+                      "size": {
+                        "width": 254,
+                        "height": 48
+                      },
+                      "font": {
+                        "size": 48,
+                        "family": "Poppins",
+                        "color": "#9333EA",
+                        "bold": true,
+                        "italic": false,
+                        "line_height": 0.8
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "200+",
+                          "font": {
+                            "size": 48,
+                            "family": "Poppins",
+                            "color": "#9333EA",
+                            "bold": true,
+                            "italic": false,
+                            "line_height": 0.8
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "metric_value",
+                      "max_length": 8,
+                      "min_length": 2
                     }
                   ],
-                  "name": "feature_item"
+                  "name": "metric_item"
                 },
                 {
                   "type": "group",
+                  "position": {
+                    "x": 276,
+                    "y": 0
+                  },
                   "size": {
-                    "width": 530,
-                    "height": 96
+                    "width": 254,
+                    "height": 76
                   },
                   "children": [
                     {
-                      "type": "vector",
-                      "shape": "polygon",
-                      "fill": {
-                        "color": "#9333EA"
-                      },
-                      "shadow": {
-                        "color": "#000000",
-                        "blur": 6,
-                        "opacity": 0.1,
-                        "offset_x": 0,
-                        "offset_y": 4
-                      },
-                      "points": [
-                        {
-                          "x": 0,
-                          "y": 0
-                        },
-                        {
-                          "x": 48,
-                          "y": 0
-                        },
-                        {
-                          "x": 48,
-                          "y": 48
-                        },
-                        {
-                          "x": 0,
-                          "y": 48
-                        }
-                      ],
-                      "closed": true,
-                      "corner_radii": [
-                        8,
-                        8,
-                        8,
-                        8
-                      ]
-                    },
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 12,
-                        "y": 12.3
-                      },
-                      "size": {
-                        "width": 24,
-                        "height": 24
-                      },
-                      "data": "/static/icons/placeholder.svg",
-                      "fit": "fill",
-                      "color": "#FFFFFF",
-                      "decorative": false,
-                      "name": "feature_icon",
-                      "is_icon": true
-                    },
-                    {
                       "type": "text",
                       "position": {
-                        "x": 64,
-                        "y": 0
+                        "x": 0,
+                        "y": -4.13
                       },
                       "size": {
-                        "width": 466,
-                        "height": 28
+                        "width": 254,
+                        "height": 20
                       },
                       "font": {
-                        "size": 20,
-                        "family": "Poppins",
-                        "color": "#111827",
-                        "bold": false,
-                        "italic": false,
-                        "line_height": 1.12
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "High Costs",
-                          "font": {
-                            "size": 20,
-                            "family": "Poppins",
-                            "color": "#111827",
-                            "bold": false,
-                            "italic": false,
-                            "line_height": 1.12
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "feature_title",
-                      "max_length": 40,
-                      "min_length": 6
-                    },
-                    {
-                      "type": "vector",
-                      "shape": "polygon",
-                      "fill": {
-                        "color": "#9333EA"
-                      },
-                      "points": [
-                        {
-                          "x": 64,
-                          "y": 36
-                        },
-                        {
-                          "x": 112,
-                          "y": 36
-                        },
-                        {
-                          "x": 112,
-                          "y": 38
-                        },
-                        {
-                          "x": 64,
-                          "y": 38
-                        }
-                      ],
-                      "closed": true
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 64,
-                        "y": 50
-                      },
-                      "size": {
-                        "width": 466,
-                        "height": 52
-                      },
-                      "font": {
-                        "size": 16,
+                        "size": 14,
                         "family": "Poppins",
                         "color": "#4B5563",
                         "bold": false,
                         "italic": false,
-                        "line_height": 1.3
+                        "line_height": 1.14
                       },
                       "alignment": {
                         "horizontal": "left",
@@ -12005,28 +11807,69 @@
                       },
                       "runs": [
                         {
-                          "text": "Outdated systems increase expenses, while small businesses struggle to expand their market reach.",
+                          "text": "Client Retention Rate",
                           "font": {
-                            "size": 16,
+                            "size": 14,
                             "family": "Poppins",
                             "color": "#4B5563",
                             "bold": false,
                             "italic": false,
-                            "line_height": 1.3
+                            "line_height": 1.14
                           }
                         }
                       ],
                       "decorative": false,
-                      "name": "feature_description",
-                      "max_length": 100,
-                      "min_length": 48
+                      "name": "metric_label",
+                      "max_length": 30,
+                      "min_length": 9
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 28
+                      },
+                      "size": {
+                        "width": 254,
+                        "height": 48
+                      },
+                      "font": {
+                        "size": 48,
+                        "family": "Poppins",
+                        "color": "#9333EA",
+                        "bold": true,
+                        "italic": false,
+                        "line_height": 0.8
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "95%",
+                          "font": {
+                            "size": 48,
+                            "family": "Poppins",
+                            "color": "#9333EA",
+                            "bold": true,
+                            "italic": false,
+                            "line_height": 0.8
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "metric_value",
+                      "max_length": 8,
+                      "min_length": 2
                     }
                   ],
-                  "name": "feature_item"
+                  "name": "metric_item"
                 }
               ],
-              "name": "feature_list",
-              "max_children": 3,
+              "name": "metrics_grid",
+              "rotation": 0,
+              "max_children": 4,
               "min_children": 2
             }
           ]
@@ -20877,14 +20720,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 73
+                "height": 99
               },
               "rotation": 0,
               "font": {
                 "size": 44,
                 "family": "Poppins",
                 "color": "#111827",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -20898,7 +20741,7 @@
                     "size": 44,
                     "family": "Poppins",
                     "color": "#111827",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -20912,7 +20755,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 117
+                "y": 143
               },
               "size": {
                 "width": 696,
@@ -20954,7 +20797,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 314
+            "y": 340
           },
           "elements": [
             {
@@ -21315,14 +21158,14 @@
               },
               "size": {
                 "width": 720,
-                "height": 92
+                "height": 126
               },
               "rotation": 0,
               "font": {
                 "size": 56,
                 "family": "Poppins",
                 "color": "#111827",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -21336,7 +21179,7 @@
                     "size": 56,
                     "family": "Poppins",
                     "color": "#111827",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -21350,7 +21193,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 104
+                "y": 138
               },
               "size": {
                 "width": 720,
@@ -21392,7 +21235,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 276
+            "y": 310
           },
           "elements": [
             {
@@ -21424,14 +21267,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 20
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Poppins",
                 "color": "#000000",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -21445,7 +21288,7 @@
                     "size": 22,
                     "family": "Poppins",
                     "color": "#000000",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -21562,14 +21405,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 20
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Poppins",
                 "color": "#000000",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -21583,7 +21426,7 @@
                     "size": 22,
                     "family": "Poppins",
                     "color": "#000000",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -21700,14 +21543,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 20
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Poppins",
                 "color": "#000000",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -21721,7 +21564,7 @@
                     "size": 22,
                     "family": "Poppins",
                     "color": "#000000",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -21928,14 +21771,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 31
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Poppins",
                 "color": "#111827",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -21949,7 +21792,7 @@
                     "size": 36,
                     "family": "Poppins",
                     "color": "#111827",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -22567,14 +22410,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 44
+                "height": 60
               },
               "rotation": 0,
               "font": {
                 "size": 52,
                 "family": "Poppins",
                 "color": "#111827",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -22588,7 +22431,7 @@
                     "size": 52,
                     "family": "Poppins",
                     "color": "#111827",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -22605,7 +22448,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 140
+            "y": 156
           },
           "elements": [
             {
@@ -22616,7 +22459,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 242
+                "height": 380
               },
               "fill": {
                 "color": "#3B82F6",
@@ -22637,7 +22480,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 242
+                "height": 380
               },
               "fill": {
                 "color": "#3B82F6",
@@ -22654,18 +22497,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 70
               },
               "size": {
                 "width": 80,
-                "height": 66
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Poppins",
                 "color": "#3B82F6",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -22679,7 +22522,7 @@
                     "size": 80,
                     "family": "Poppins",
                     "color": "#3B82F6",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -22693,18 +22536,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 136
               },
               "size": {
                 "width": 624,
-                "height": 65
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Poppins",
                 "color": "#111827",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -22715,10 +22558,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Poppins",
                     "color": "#111827",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -22732,7 +22575,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 155
+                "y": 262
               },
               "size": {
                 "width": 624,
@@ -22771,7 +22614,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 182
+                "y": 289
               },
               "size": {
                 "width": 624,
@@ -22983,14 +22826,14 @@
               },
               "size": {
                 "width": 752,
-                "height": 79
+                "height": 108
               },
               "rotation": 0,
               "font": {
                 "size": 48,
                 "family": "Poppins",
                 "color": "#111827",
-                "line_height": 0.8,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -23004,7 +22847,7 @@
                     "size": 48,
                     "family": "Poppins",
                     "color": "#111827",
-                    "line_height": 0.8,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -23018,7 +22861,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 91
+                "y": 120
               },
               "size": {
                 "width": 752,
@@ -23617,8 +23460,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 460.0,
-            "y": 40.0
+            "x": 0,
+            "y": 192
           },
           "elements": [
             {
@@ -23628,8 +23471,8 @@
                 "y": 0
               },
               "size": {
-                "width": 360,
-                "height": 640
+                "width": 192,
+                "height": 341
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -23855,12 +23698,12 @@
       ]
     },
     {
-      "id": "title_description_bullet_points_pv07",
-      "description": "Presenter avatar video version: A clean split presentation layout with a large visual panel on the left and explanatory feature blocks on the right.",
+      "id": "title_image_description_metrics_pv07",
+      "description": "Presenter avatar video version: A clean split layout with a large visual card on the left and headline, body copy, and metrics on the right.",
       "components": [
         {
-          "id": "slide_background_pv",
-          "description": "Full canvas white background with a decorative grid accent behind the visual area.",
+          "id": "background_canvas_pv",
+          "description": "Full slide background with subtle decorative corner accents framing the content area.",
           "position": {
             "x": 0,
             "y": 0
@@ -23870,7 +23713,8 @@
               "type": "vector",
               "shape": "polygon",
               "fill": {
-                "color": "#FFFFFF"
+                "color": "#FFFFFF",
+                "opacity": 1
               },
               "points": [
                 {
@@ -23895,18 +23739,86 @@
             {
               "type": "image",
               "position": {
-                "x": 552,
-                "y": 220
+                "x": 0,
+                "y": 528
               },
               "size": {
-                "width": 24,
-                "height": 24
+                "width": 192,
+                "height": 192
               },
-              "data": "static/image12-2ed5eba60707.png",
+              "rotation": 0,
+              "data": "static/image22-6dd2f52e896c.png",
               "fit": "fill",
               "decorative": true,
-              "name": "sparkle_accent_icon",
-              "is_icon": true
+              "name": "bottom_corner_accent",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 1024,
+                "y": 0
+              },
+              "size": {
+                "width": 256,
+                "height": 256
+              },
+              "rotation": 0,
+              "data": "static/image23-f21b824d69c7.png",
+              "fit": "fill",
+              "decorative": true,
+              "name": "top_corner_accent",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "left_image_card_pv",
+          "description": "Rounded visual card with shadow holding a large primary image on the left side.",
+          "position": {
+            "x": 88,
+            "y": 176
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#FFFFFF",
+                "opacity": 1
+              },
+              "shadow": {
+                "color": "#000000",
+                "blur": 15,
+                "opacity": 0.1,
+                "offset_x": 0,
+                "offset_y": 10
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 512,
+                  "y": 0
+                },
+                {
+                  "x": 512,
+                  "y": 384
+                },
+                {
+                  "x": 0,
+                  "y": 384
+                }
+              ],
+              "closed": true,
+              "corner_radii": [
+                16,
+                16,
+                16,
+                16
+              ]
             }
           ]
         },
@@ -23914,8 +23826,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 190.0,
-            "y": 140.0
+            "x": 232,
+            "y": 176
           },
           "elements": [
             {
@@ -23925,8 +23837,8 @@
                 "y": 0
               },
               "size": {
-                "width": 308,
-                "height": 548
+                "width": 216,
+                "height": 384
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -23938,11 +23850,11 @@
           ]
         },
         {
-          "id": "headline_area_pv",
-          "description": "Large single-line heading placed in the upper-left corner with generous margin and bold typography.",
+          "id": "right_text_block_pv",
+          "description": "Right-side narrative block with prominent headline and supporting paragraph aligned above metrics.",
           "position": {
-            "x": 80,
-            "y": 48
+            "x": 672,
+            "y": 190
           },
           "elements": [
             {
@@ -23952,8 +23864,8 @@
                 "y": 0
               },
               "size": {
-                "width": 1122,
-                "height": 60
+                "width": 530,
+                "height": 120
               },
               "font": {
                 "size": 60,
@@ -23969,7 +23881,7 @@
               },
               "runs": [
                 {
-                  "text": "Problem",
+                  "text": "Competitive Advantage",
                   "font": {
                     "size": 60,
                     "family": "Poppins",
@@ -23981,100 +23893,19 @@
                 }
               ],
               "decorative": false,
-              "name": "main_heading",
-              "max_length": 30,
-              "min_length": 4
-            }
-          ]
-        },
-        {
-          "id": "left_visual_card_pv",
-          "description": "Rounded rectangular photo card layered over the decorative grid on the left side of the slide.",
-          "position": {
-            "x": 120,
-            "y": 254
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#FFFFFF"
-              },
-              "shadow": {
-                "color": "#000000",
-                "blur": 15,
-                "opacity": 0.1,
-                "offset_x": 0,
-                "offset_y": 10
-              },
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 448,
-                  "y": 0
-                },
-                {
-                  "x": 448,
-                  "y": 320
-                },
-                {
-                  "x": 0,
-                  "y": 320
-                }
-              ],
-              "closed": true,
-              "corner_radii": [
-                16,
-                16,
-                16,
-                16
-              ]
+              "name": "headline_text",
+              "max_length": 21,
+              "min_length": 11
             },
-            {
-              "type": "image",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 448,
-                "height": 320
-              },
-              "data": "/static/images/replaceable_template_image.png",
-              "fit": "cover",
-              "border_radius": {
-                "tl": 16,
-                "tr": 16,
-                "bl": 16,
-                "br": 16
-              },
-              "decorative": false,
-              "name": "primary_photo",
-              "is_icon": false
-            }
-          ]
-        },
-        {
-          "id": "right_content_column_pv",
-          "description": "Right-aligned narrative section containing an introductory paragraph and two repeated icon-led feature descriptions.",
-          "position": {
-            "x": 672,
-            "y": 143.72
-          },
-          "elements": [
             {
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 0
+                "y": 144
               },
               "size": {
                 "width": 530,
-                "height": 88
+                "height": 112
               },
               "font": {
                 "size": 18,
@@ -24082,7 +23913,7 @@
                 "color": "#4B5563",
                 "bold": false,
                 "italic": false,
-                "line_height": 1.3
+                "line_height": 1.24
               },
               "alignment": {
                 "horizontal": "left",
@@ -24090,184 +23921,76 @@
               },
               "runs": [
                 {
-                  "text": "Businesses face challenges with outdated technology and rising costs, limiting efficiency and growth in competitive markets.",
+                  "text": "Ginyard International Co. stands out by offering custom digital solutions tailored to client needs, alongside long-term support to ensure lasting relationships and continuous adaptation.",
                   "font": {
                     "size": 18,
                     "family": "Poppins",
                     "color": "#4B5563",
                     "bold": false,
                     "italic": false,
-                    "line_height": 1.3
+                    "line_height": 1.24
                   }
                 }
               ],
               "decorative": false,
-              "name": "intro_paragraph",
-              "max_length": 124,
-              "min_length": 62
-            },
+              "name": "body_text",
+              "max_length": 186,
+              "min_length": 93
+            }
+          ]
+        },
+        {
+          "id": "metric_pair_grid_pv",
+          "description": "Two centered metric callouts placed in an even horizontal grid beneath the narrative text.",
+          "position": {
+            "x": 672,
+            "y": 470
+          },
+          "elements": [
             {
-              "type": "flex",
+              "type": "grid",
               "position": {
                 "x": 0,
-                "y": 120
+                "y": 0
               },
               "size": {
                 "width": 530,
-                "height": 228
+                "height": 88.39
               },
-              "direction": "column",
-              "wrap": false,
-              "align_items": "stretch",
-              "justify_content": "flex-start",
-              "gap": 30,
+              "columns": 2,
+              "rows": 1,
+              "column_gap": 22,
+              "align_items": "center",
+              "justify_items": "stretch",
               "children": [
                 {
                   "type": "group",
+                  "position": {
+                    "x": 0,
+                    "y": 0
+                  },
                   "size": {
-                    "width": 530,
-                    "height": 96
+                    "width": 254,
+                    "height": 76
                   },
                   "children": [
                     {
-                      "type": "vector",
-                      "shape": "polygon",
-                      "fill": {
-                        "color": "#9333EA"
-                      },
-                      "shadow": {
-                        "color": "#000000",
-                        "blur": 6,
-                        "opacity": 0.1,
-                        "offset_x": 0,
-                        "offset_y": 4
-                      },
-                      "points": [
-                        {
-                          "x": 0,
-                          "y": 0
-                        },
-                        {
-                          "x": 48,
-                          "y": 0
-                        },
-                        {
-                          "x": 48,
-                          "y": 48
-                        },
-                        {
-                          "x": 0,
-                          "y": 48
-                        }
-                      ],
-                      "closed": true,
-                      "corner_radii": [
-                        8,
-                        8,
-                        8,
-                        8
-                      ]
-                    },
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 12,
-                        "y": 12.3
-                      },
-                      "size": {
-                        "width": 24,
-                        "height": 24
-                      },
-                      "data": "/static/icons/placeholder.svg",
-                      "fit": "fill",
-                      "color": "#FFFFFF",
-                      "decorative": false,
-                      "name": "feature_icon",
-                      "is_icon": true
-                    },
-                    {
                       "type": "text",
                       "position": {
-                        "x": 64,
-                        "y": 0
+                        "x": 1.37,
+                        "y": -5.52
                       },
                       "size": {
-                        "width": 466,
-                        "height": 28
+                        "width": 254,
+                        "height": 20
                       },
                       "font": {
-                        "size": 20,
-                        "family": "Poppins",
-                        "color": "#111827",
-                        "bold": false,
-                        "italic": false,
-                        "line_height": 1.12
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Inefficiency",
-                          "font": {
-                            "size": 20,
-                            "family": "Poppins",
-                            "color": "#111827",
-                            "bold": false,
-                            "italic": false,
-                            "line_height": 1.12
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "feature_title",
-                      "max_length": 40,
-                      "min_length": 6
-                    },
-                    {
-                      "type": "vector",
-                      "shape": "polygon",
-                      "fill": {
-                        "color": "#9333EA"
-                      },
-                      "points": [
-                        {
-                          "x": 64,
-                          "y": 36
-                        },
-                        {
-                          "x": 112,
-                          "y": 36
-                        },
-                        {
-                          "x": 112,
-                          "y": 38
-                        },
-                        {
-                          "x": 64,
-                          "y": 38
-                        }
-                      ],
-                      "closed": true
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 64,
-                        "y": 50
-                      },
-                      "size": {
-                        "width": 466,
-                        "height": 52
-                      },
-                      "font": {
-                        "size": 16,
+                        "size": 14,
                         "family": "Poppins",
                         "color": "#4B5563",
                         "bold": false,
                         "italic": false,
-                        "line_height": 1.3
+                        "line_height": 1.14
                       },
                       "alignment": {
                         "horizontal": "left",
@@ -24275,171 +23998,93 @@
                       },
                       "runs": [
                         {
-                          "text": "Businesses struggle to find digital tools that meet their needs, causing operational slowdowns.",
+                          "text": "Satisfied Clients",
                           "font": {
-                            "size": 16,
+                            "size": 14,
                             "family": "Poppins",
                             "color": "#4B5563",
                             "bold": false,
                             "italic": false,
-                            "line_height": 1.3
+                            "line_height": 1.14
                           }
                         }
                       ],
                       "decorative": false,
-                      "name": "feature_description",
-                      "max_length": 100,
-                      "min_length": 48
+                      "name": "metric_label",
+                      "max_length": 30,
+                      "min_length": 9
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 28
+                      },
+                      "size": {
+                        "width": 254,
+                        "height": 48
+                      },
+                      "font": {
+                        "size": 48,
+                        "family": "Poppins",
+                        "color": "#9333EA",
+                        "bold": true,
+                        "italic": false,
+                        "line_height": 0.8
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "200+",
+                          "font": {
+                            "size": 48,
+                            "family": "Poppins",
+                            "color": "#9333EA",
+                            "bold": true,
+                            "italic": false,
+                            "line_height": 0.8
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "metric_value",
+                      "max_length": 8,
+                      "min_length": 2
                     }
                   ],
-                  "name": "feature_item"
+                  "name": "metric_item"
                 },
                 {
                   "type": "group",
+                  "position": {
+                    "x": 276,
+                    "y": 0
+                  },
                   "size": {
-                    "width": 530,
-                    "height": 96
+                    "width": 254,
+                    "height": 76
                   },
                   "children": [
                     {
-                      "type": "vector",
-                      "shape": "polygon",
-                      "fill": {
-                        "color": "#9333EA"
-                      },
-                      "shadow": {
-                        "color": "#000000",
-                        "blur": 6,
-                        "opacity": 0.1,
-                        "offset_x": 0,
-                        "offset_y": 4
-                      },
-                      "points": [
-                        {
-                          "x": 0,
-                          "y": 0
-                        },
-                        {
-                          "x": 48,
-                          "y": 0
-                        },
-                        {
-                          "x": 48,
-                          "y": 48
-                        },
-                        {
-                          "x": 0,
-                          "y": 48
-                        }
-                      ],
-                      "closed": true,
-                      "corner_radii": [
-                        8,
-                        8,
-                        8,
-                        8
-                      ]
-                    },
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 12,
-                        "y": 12.3
-                      },
-                      "size": {
-                        "width": 24,
-                        "height": 24
-                      },
-                      "data": "/static/icons/placeholder.svg",
-                      "fit": "fill",
-                      "color": "#FFFFFF",
-                      "decorative": false,
-                      "name": "feature_icon",
-                      "is_icon": true
-                    },
-                    {
                       "type": "text",
                       "position": {
-                        "x": 64,
-                        "y": 0
+                        "x": 0,
+                        "y": -4.13
                       },
                       "size": {
-                        "width": 466,
-                        "height": 28
+                        "width": 254,
+                        "height": 20
                       },
                       "font": {
-                        "size": 20,
-                        "family": "Poppins",
-                        "color": "#111827",
-                        "bold": false,
-                        "italic": false,
-                        "line_height": 1.12
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "High Costs",
-                          "font": {
-                            "size": 20,
-                            "family": "Poppins",
-                            "color": "#111827",
-                            "bold": false,
-                            "italic": false,
-                            "line_height": 1.12
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "feature_title",
-                      "max_length": 40,
-                      "min_length": 6
-                    },
-                    {
-                      "type": "vector",
-                      "shape": "polygon",
-                      "fill": {
-                        "color": "#9333EA"
-                      },
-                      "points": [
-                        {
-                          "x": 64,
-                          "y": 36
-                        },
-                        {
-                          "x": 112,
-                          "y": 36
-                        },
-                        {
-                          "x": 112,
-                          "y": 38
-                        },
-                        {
-                          "x": 64,
-                          "y": 38
-                        }
-                      ],
-                      "closed": true
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 64,
-                        "y": 50
-                      },
-                      "size": {
-                        "width": 466,
-                        "height": 52
-                      },
-                      "font": {
-                        "size": 16,
+                        "size": 14,
                         "family": "Poppins",
                         "color": "#4B5563",
                         "bold": false,
                         "italic": false,
-                        "line_height": 1.3
+                        "line_height": 1.14
                       },
                       "alignment": {
                         "horizontal": "left",
@@ -24447,28 +24092,69 @@
                       },
                       "runs": [
                         {
-                          "text": "Outdated systems increase expenses, while small businesses struggle to expand their market reach.",
+                          "text": "Client Retention Rate",
                           "font": {
-                            "size": 16,
+                            "size": 14,
                             "family": "Poppins",
                             "color": "#4B5563",
                             "bold": false,
                             "italic": false,
-                            "line_height": 1.3
+                            "line_height": 1.14
                           }
                         }
                       ],
                       "decorative": false,
-                      "name": "feature_description",
-                      "max_length": 100,
-                      "min_length": 48
+                      "name": "metric_label",
+                      "max_length": 30,
+                      "min_length": 9
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 28
+                      },
+                      "size": {
+                        "width": 254,
+                        "height": 48
+                      },
+                      "font": {
+                        "size": 48,
+                        "family": "Poppins",
+                        "color": "#9333EA",
+                        "bold": true,
+                        "italic": false,
+                        "line_height": 0.8
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "95%",
+                          "font": {
+                            "size": 48,
+                            "family": "Poppins",
+                            "color": "#9333EA",
+                            "bold": true,
+                            "italic": false,
+                            "line_height": 0.8
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "metric_value",
+                      "max_length": 8,
+                      "min_length": 2
                     }
                   ],
-                  "name": "feature_item"
+                  "name": "metric_item"
                 }
               ],
-              "name": "feature_list",
-              "max_children": 3,
+              "name": "metrics_grid",
+              "rotation": 0,
+              "max_children": 4,
               "min_children": 2
             }
           ]

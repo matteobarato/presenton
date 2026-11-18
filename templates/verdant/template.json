@@ -21757,14 +21757,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 81
+                "height": 99
               },
               "rotation": 0,
               "font": {
                 "size": 44,
                 "family": "Tinos",
                 "color": "#03362D",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -21778,7 +21778,7 @@
                     "size": 44,
                     "family": "Tinos",
                     "color": "#03362D",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -21792,7 +21792,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 129
+                "y": 147
               },
               "size": {
                 "width": 696,
@@ -21840,7 +21840,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 300
+            "y": 318
           },
           "elements": [
             {
@@ -22153,7 +22153,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 285
+            "y": 309
           },
           "elements": [
             {
@@ -22185,14 +22185,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 22
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Tinos",
                 "color": "#FFFFFF",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -22206,7 +22206,7 @@
                     "size": 22,
                     "family": "Tinos",
                     "color": "#FFFFFF",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -22323,14 +22323,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 22
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Tinos",
                 "color": "#FFFFFF",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -22344,7 +22344,7 @@
                     "size": 22,
                     "family": "Tinos",
                     "color": "#FFFFFF",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -22461,14 +22461,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 22
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Tinos",
                 "color": "#FFFFFF",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -22482,7 +22482,7 @@
                     "size": 22,
                     "family": "Tinos",
                     "color": "#FFFFFF",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -22631,14 +22631,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 35
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Tinos",
                 "color": "#03362D",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -22652,7 +22652,7 @@
                     "size": 36,
                     "family": "Tinos",
                     "color": "#03362D",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -23230,14 +23230,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 49
+                "height": 60
               },
               "rotation": 0,
               "font": {
                 "size": 52,
                 "family": "Tinos",
                 "color": "#03362D",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -23251,7 +23251,7 @@
                     "size": 52,
                     "family": "Tinos",
                     "color": "#03362D",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -23274,7 +23274,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 145
+            "y": 156
           },
           "elements": [
             {
@@ -23285,7 +23285,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 258
+                "height": 380
               },
               "fill": {
                 "color": "#D5E0D0",
@@ -23306,7 +23306,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 258
+                "height": 380
               },
               "fill": {
                 "color": "#285F20",
@@ -23323,18 +23323,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 66
               },
               "size": {
                 "width": 80,
-                "height": 74
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Tinos",
                 "color": "#285F20",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -23348,7 +23348,7 @@
                     "size": 80,
                     "family": "Tinos",
                     "color": "#285F20",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -23362,18 +23362,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 132
               },
               "size": {
                 "width": 624,
-                "height": 72
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Tinos",
                 "color": "#03362D",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -23384,10 +23384,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Tinos",
                     "color": "#03362D",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -23401,7 +23401,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 162
+                "y": 258
               },
               "size": {
                 "width": 624,
@@ -23440,7 +23440,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 194
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -24110,372 +24110,134 @@
       ]
     },
     {
-      "id": "slide_background_pv",
-      "description": "Full-canvas neutral background providing the fixed base surface behind every title, chart panel, and summary card.",
+      "id": "top_corner_accent_pv",
+      "description": "Flowing abstract accent cropped along the upper-left corner, providing fixed visual framing without carrying replaceable content.",
       "variants": [
         {
-          "id": "slide_background_pv",
-          "description": "Full-canvas neutral background providing the fixed base surface behind every title, chart panel, and summary card.",
+          "id": "top_corner_accent_pv",
+          "description": "Flowing abstract accent cropped along the upper-left corner, providing fixed visual framing without carrying replaceable content.",
           "position": {
             "x": 0,
-            "y": 0
+            "y": -7.73
           },
           "elements": [
             {
-              "type": "vector",
-              "shape": "polygon",
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 720
-                },
-                {
-                  "x": 0,
-                  "y": 720
-                }
-              ],
-              "closed": true,
-              "fill": {
-                "color": "#F4F4F4"
-              }
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 299.29,
+                "height": 159.45
+              },
+              "flip_h": true,
+              "flip_v": true,
+              "data": "static/Freeform_2-4821b2b63f0e.png",
+              "fit": "cover",
+              "focus_y": 100,
+              "clip_path": "path('M 299.29 159.45 L 0 159.45 L 0 0 L 299.29 0 L 299.29 159.45 Z')",
+              "decorative": true,
+              "name": "top_corner_accent",
+              "is_icon": false
             }
           ]
         }
       ]
     },
     {
-      "id": "comparison_chart_panels_pv",
-      "description": "Repeated side-by-side panels, each combining an arched backdrop, centered heading, line chart, bordered summary surface, and explanatory copy.",
+      "id": "summary_card_pv",
+      "description": "Wide rounded summary card layered over the primary image, containing a short descriptive paragraph and supporting bullet list.",
       "variants": [
         {
-          "id": "comparison_chart_panels_pv",
-          "description": "Repeated side-by-side panels, each combining an arched backdrop, centered heading, line chart, bordered summary surface, and explanatory copy.",
+          "id": "summary_card_pv",
+          "description": "Wide rounded summary card layered over the primary image, containing a short descriptive paragraph and supporting bullet list.",
           "position": {
-            "x": 43.33,
-            "y": 181.67
+            "x": 746,
+            "y": 105.11
           },
           "elements": [
             {
-              "type": "flex",
+              "type": "group",
               "position": {
                 "x": 0,
                 "y": 0
               },
               "size": {
-                "width": 1193.3400000000001,
-                "height": 596.67
+                "width": 491.24,
+                "height": 268.23
               },
-              "direction": "row",
-              "justify_content": "center",
-              "gap": 33.34,
               "children": [
                 {
-                  "type": "group",
-                  "size": {
-                    "width": 580,
-                    "height": 596.67
+                  "type": "image",
+                  "position": {
+                    "x": 0,
+                    "y": 0
                   },
-                  "children": [
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 0
-                      },
-                      "size": {
-                        "width": 580,
-                        "height": 596.67
-                      },
-                      "data": "static/Freeform_3-74ce846299fa.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "panel_backdrop",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 49.879999999999995,
-                        "y": 77.53
-                      },
-                      "size": {
-                        "width": 480.24,
-                        "height": 32.8
-                      },
-                      "font": {
-                        "size": 31.11,
-                        "family": "Tinos Bold",
-                        "color": "#03362D",
-                        "bold": true,
-                        "underline": false,
-                        "line_height": 0.96,
-                        "letter_spacing": -0.99
-                      },
-                      "alignment": {
-                        "horizontal": "center",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Weekday Screen Time",
-                          "font": {
-                            "size": 31.11,
-                            "family": "Tinos Bold",
-                            "color": "#03362D",
-                            "bold": true,
-                            "underline": false,
-                            "line_height": 0.96,
-                            "letter_spacing": -0.99
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "panel_heading",
-                      "max_length": 30,
-                      "min_length": 15
-                    },
-                    {
-                      "type": "chart",
-                      "position": {
-                        "x": 66.37,
-                        "y": 137.37
-                      },
-                      "size": {
-                        "width": 436.4,
-                        "height": 215.92
-                      },
-                      "chart_type": "line",
-                      "text_color": "#03362D",
-                      "colors": [
-                        "#03362D"
-                      ],
-                      "x_axis": true,
-                      "y_axis": true,
-                      "axis_color": "#46685F",
-                      "categories": [
-                        "Jan",
-                        "Feb",
-                        "Mar",
-                        "Apr"
-                      ],
-                      "series": [
-                        {
-                          "name": "Weekday Screen Time",
-                          "values": [
-                            8,
-                            18,
-                            20,
-                            33
-                          ]
-                        }
-                      ],
-                      "legend": false,
-                      "x_axis_grid": false,
-                      "y_axis_grid": true,
-                      "grid_color": "#C7D3C0",
-                      "decorative": false,
-                      "name": "panel_chart",
-                      "rotation": 0
-                    },
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 356.6600000000001
-                      },
-                      "size": {
-                        "width": 580,
-                        "height": 137.36
-                      },
-                      "data": "static/Freeform_17-a50009bea43e.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "summary_card_surface",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 38.45,
-                        "y": 393.72
-                      },
-                      "size": {
-                        "width": 503.11,
-                        "height": 80.4
-                      },
-                      "font": {
-                        "size": 14.22,
-                        "family": "DM Sans",
-                        "color": "#000000",
-                        "line_height": 1.44
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Weekday smartphone use is relatively structured because students divide their time between classes, assignments, communication, and limited entertainment. Educational app usage is noticeably higher during weekdays.",
-                          "font": {
-                            "size": 14.22,
-                            "family": "DM Sans",
-                            "color": "#000000",
-                            "line_height": 1.44
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "summary_description",
-                      "max_length": 266,
-                      "min_length": 133
-                    }
-                  ],
-                  "name": "chart_panel_1"
+                  "size": {
+                    "width": 491.24,
+                    "height": 268.23
+                  },
+                  "data": "static/Freeform_6-359e6e40d3db.svg",
+                  "fit": "fill",
+                  "decorative": true,
+                  "name": "summary_card_surface",
+                  "is_icon": false
                 },
                 {
-                  "type": "group",
-                  "size": {
-                    "width": 580.0000000000001,
-                    "height": 596.67
+                  "type": "flex",
+                  "position": {
+                    "x": 24.870000000000005,
+                    "y": 45.760000000000005
                   },
+                  "size": {
+                    "width": 441.4999999999999,
+                    "height": 174.7
+                  },
+                  "direction": "column",
+                  "align_items": "flex-start",
+                  "gap": 19.71,
                   "children": [
                     {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 0
-                      },
-                      "size": {
-                        "width": 580,
-                        "height": 596.67
-                      },
-                      "data": "static/Freeform_3-74ce846299fa.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "panel_backdrop",
-                      "is_icon": false
-                    },
-                    {
                       "type": "text",
-                      "position": {
-                        "x": 48.629999999999995,
-                        "y": 77.53
-                      },
                       "size": {
-                        "width": 482.74,
-                        "height": 32.8
+                        "width": 441.5,
+                        "height": 88.83
                       },
                       "font": {
-                        "size": 31.11,
-                        "family": "Tinos Bold",
-                        "color": "#03362D",
-                        "bold": true,
-                        "underline": false,
-                        "line_height": 0.96,
-                        "letter_spacing": -0.99
+                        "size": 16,
+                        "family": "DM Sans",
+                        "color": "#000000",
+                        "line_height": 1.44
                       },
                       "alignment": {
-                        "horizontal": "center",
+                        "horizontal": "justify",
                         "vertical": "top"
                       },
                       "runs": [
                         {
-                          "text": "Weekend Screen Time",
+                          "text": "Smartphone usage data shows that entertainment-related applications receive the majority of daily of attention, while educational activities occupy a much more smaller portion of screen time.",
                           "font": {
-                            "size": 31.11,
-                            "family": "Tinos Bold",
-                            "color": "#03362D",
-                            "bold": true,
-                            "underline": false,
-                            "line_height": 0.96,
-                            "letter_spacing": -0.99
+                            "size": 16,
+                            "family": "DM Sans",
+                            "color": "#000000",
+                            "line_height": 1.44
                           }
                         }
                       ],
                       "decorative": false,
-                      "name": "panel_heading",
-                      "max_length": 30,
-                      "min_length": 15
-                    },
-                    {
-                      "type": "chart",
-                      "position": {
-                        "x": 86.05,
-                        "y": 146.98
-                      },
-                      "size": {
-                        "width": 423.46,
-                        "height": 209.62
-                      },
-                      "chart_type": "line",
-                      "text_color": "#03362D",
-                      "colors": [
-                        "#03362D"
-                      ],
-                      "x_axis": true,
-                      "y_axis": true,
-                      "axis_color": "#46685F",
-                      "categories": [
-                        "Jan",
-                        "Feb",
-                        "Mar",
-                        "Apr"
-                      ],
-                      "series": [
-                        {
-                          "name": "Weekend Screen Time",
-                          "values": [
-                            15,
-                            18,
-                            35,
-                            33
-                          ]
-                        }
-                      ],
-                      "legend": false,
-                      "x_axis_grid": false,
-                      "y_axis_grid": true,
-                      "grid_color": "#C7D3C0",
-                      "decorative": false,
-                      "name": "panel_chart",
-                      "rotation": 0
-                    },
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 356.6600000000001
-                      },
-                      "size": {
-                        "width": 580,
-                        "height": 137.36
-                      },
-                      "data": "static/Freeform_17-a50009bea43e.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "summary_card_surface",
-                      "is_icon": false
+                      "name": "summary_description",
+                      "max_length": 191,
+                      "min_length": 95
                     },
                     {
                       "type": "text",
-                      "position": {
-                        "x": 38.440000000000055,
-                        "y": 393.72
-                      },
                       "size": {
-                        "width": 503.11,
-                        "height": 80.4
+                        "width": 441.5,
+                        "height": 66.16
                       },
                       "font": {
-                        "size": 14.22,
+                        "size": 16,
                         "family": "DM Sans",
                         "color": "#000000",
                         "line_height": 1.44
@@ -24486,9 +24248,9 @@
                       },
                       "runs": [
                         {
-                          "text": "Weekend usage increases significantly, especially for social media and video streaming. Students spend less time on educational apps and more time on relaxation, entertainment, and social interaction.",
+                          "text": "• Social media is the largest usage category.\n• Peak usage occurs during evening hours.\n• Educational app usage is concentrated before exams.",
                           "font": {
-                            "size": 14.22,
+                            "size": 16,
                             "family": "DM Sans",
                             "color": "#000000",
                             "line_height": 1.44
@@ -24496,73 +24258,53 @@
                         }
                       ],
                       "decorative": false,
-                      "name": "summary_description",
-                      "max_length": 266,
-                      "min_length": 133
+                      "name": "summary_bullets",
+                      "max_length": 141,
+                      "min_length": 70
                     }
                   ],
-                  "name": "chart_panel_2"
+                  "name": "summary_text_stack",
+                  "max_children": 2,
+                  "min_children": 2
                 }
               ],
-              "name": "chart_panels",
-              "max_children": 2,
-              "min_children": 1
+              "name": "summary_card_group"
             }
           ]
         }
       ]
     },
     {
-      "id": "top_title_pv",
-      "description": "Large centered display title positioned independently above the repeated chart-panel collection with generous surrounding whitespace.",
+      "id": "secondary_image_region_pv",
+      "description": "Partially cropped supporting content image positioned at the lower-right edge with an irregular stepped silhouette.",
       "variants": [
         {
-          "id": "top_title_pv",
-          "description": "Large centered display title positioned independently above the repeated chart-panel collection with generous surrounding whitespace.",
+          "id": "secondary_image_region_pv",
+          "description": "Partially cropped supporting content image positioned at the lower-right edge with an irregular stepped silhouette.",
           "position": {
-            "x": 209.16,
-            "y": 54
+            "x": 1023.23,
+            "y": 436.84
           },
           "elements": [
             {
-              "type": "text",
+              "type": "image",
               "position": {
                 "x": 0,
                 "y": 0
               },
               "size": {
-                "width": 861.66,
-                "height": 79.47
+                "width": 400.18,
+                "height": 361.77
               },
-              "font": {
-                "size": 75.55,
-                "family": "Tinos",
-                "color": "#03362D",
-                "underline": false,
-                "line_height": 0.96,
-                "letter_spacing": -4.98
-              },
-              "alignment": {
-                "horizontal": "center",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Weekend Usage",
-                  "font": {
-                    "size": 75.55,
-                    "family": "Tinos",
-                    "color": "#03362D",
-                    "underline": false,
-                    "line_height": 0.96,
-                    "letter_spacing": -4.98
-                  }
-                }
-              ],
+              "data": "/static/images/replaceable_template_image.png",
+              "fit": "cover",
+              "focus_x": 100,
+              "focus_y": 16.11,
+              "crop_scale": 1.63024,
+              "clip_path": "path('M 0 34.17 L 0 150.76 C 0 169.56 15.28 184.85 34.17 184.85 L 72.34 184.85 C 91.22 184.85 106.51 200.13 106.51 219.02 L 106.51 327.6 C 106.51 346.49 121.79 361.77 140.68 361.77 L 226.78 361.77 C 235.34 361.77 243.66 358.49 249.98 352.73 L 389.22 223.9 C 396.18 217.42 400.18 208.37 400.18 198.85 L 400.18 34.17 C 400.1 15.28 384.82 0 365.93 0 L 34.17 0 C 15.28 0 0 15.28 0 34.17 Z')",
               "decorative": false,
-              "name": "top_title",
-              "max_length": 22,
-              "min_length": 11
+              "name": "secondary_image",
+              "is_icon": false
             }
           ]
         }
@@ -46214,14 +45956,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 81
+                "height": 99
               },
               "rotation": 0,
               "font": {
                 "size": 44,
                 "family": "Tinos",
                 "color": "#03362D",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -46235,7 +45977,7 @@
                     "size": 44,
                     "family": "Tinos",
                     "color": "#03362D",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -46249,7 +45991,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 129
+                "y": 147
               },
               "size": {
                 "width": 696,
@@ -46291,7 +46033,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 300
+            "y": 318
           },
           "elements": [
             {
@@ -46652,14 +46394,14 @@
               },
               "size": {
                 "width": 720,
-                "height": 102
+                "height": 126
               },
               "rotation": 0,
               "font": {
                 "size": 56,
                 "family": "Tinos",
                 "color": "#03362D",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -46673,7 +46415,7 @@
                     "size": 56,
                     "family": "Tinos",
                     "color": "#03362D",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -46687,7 +46429,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 114
+                "y": 138
               },
               "size": {
                 "width": 720,
@@ -46729,7 +46471,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 285
+            "y": 309
           },
           "elements": [
             {
@@ -46761,14 +46503,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 22
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Tinos",
                 "color": "#FFFFFF",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -46782,7 +46524,7 @@
                     "size": 22,
                     "family": "Tinos",
                     "color": "#FFFFFF",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -46899,14 +46641,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 22
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Tinos",
                 "color": "#FFFFFF",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -46920,7 +46662,7 @@
                     "size": 22,
                     "family": "Tinos",
                     "color": "#FFFFFF",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -47037,14 +46779,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 22
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Tinos",
                 "color": "#FFFFFF",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -47058,7 +46800,7 @@
                     "size": 22,
                     "family": "Tinos",
                     "color": "#FFFFFF",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -47265,14 +47007,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 35
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Tinos",
                 "color": "#03362D",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -47286,7 +47028,7 @@
                     "size": 36,
                     "family": "Tinos",
                     "color": "#03362D",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -47904,14 +47646,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 49
+                "height": 60
               },
               "rotation": 0,
               "font": {
                 "size": 52,
                 "family": "Tinos",
                 "color": "#03362D",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -47925,7 +47667,7 @@
                     "size": 52,
                     "family": "Tinos",
                     "color": "#03362D",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -47942,7 +47684,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 145
+            "y": 156
           },
           "elements": [
             {
@@ -47953,7 +47695,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 258
+                "height": 380
               },
               "fill": {
                 "color": "#D5E0D0",
@@ -47974,7 +47716,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 258
+                "height": 380
               },
               "fill": {
                 "color": "#285F20",
@@ -47991,18 +47733,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 66
               },
               "size": {
                 "width": 80,
-                "height": 74
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Tinos",
                 "color": "#285F20",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -48016,7 +47758,7 @@
                     "size": 80,
                     "family": "Tinos",
                     "color": "#285F20",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -48030,18 +47772,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 132
               },
               "size": {
                 "width": 624,
-                "height": 72
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Tinos",
                 "color": "#03362D",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -48052,10 +47794,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Tinos",
                     "color": "#03362D",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -48069,7 +47811,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 162
+                "y": 258
               },
               "size": {
                 "width": 624,
@@ -48108,7 +47850,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 194
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -48320,14 +48062,14 @@
               },
               "size": {
                 "width": 752,
-                "height": 88
+                "height": 108
               },
               "rotation": 0,
               "font": {
                 "size": 48,
                 "family": "Tinos",
                 "color": "#03362D",
-                "line_height": 0.89,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -48341,7 +48083,7 @@
                     "size": 48,
                     "family": "Tinos",
                     "color": "#03362D",
-                    "line_height": 0.89,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -48355,7 +48097,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 100
+                "y": 120
               },
               "size": {
                 "width": 752,
@@ -48871,8 +48613,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 868.67,
-            "y": 43.5
+            "x": 880.67,
+            "y": 59.33
           },
           "elements": [
             {
@@ -48882,8 +48624,8 @@
                 "y": 0
               },
               "size": {
-                "width": 356,
-                "height": 633
+                "width": 336,
+                "height": 597
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -48991,12 +48733,12 @@
       ]
     },
     {
-      "id": "title_with_comparison_chart_panels_9843_pv07",
-      "description": "Presenter avatar video version: Centered title above a repeated side-by-side collection of arched chart panels with aligned bordered summary cards and shared footer scaffolding.",
+      "id": "asymmetric_headline_with_layered_images_and_summary_card_5736_pv07",
+      "description": "Presenter avatar video version: Asymmetric editorial layout pairing a large lower-left headline with layered right-side photography, an overlapping summary card, and a decorative corner accent.",
       "components": [
         {
-          "id": "slide_background_pv",
-          "description": "Full-canvas neutral background providing the fixed base surface behind every title, chart panel, and summary card.",
+          "id": "background_surface_pv",
+          "description": "Full-canvas neutral background surface supporting all editorial content, imagery, and decorative treatments across the composition.",
           "position": {
             "x": 0,
             "y": 0
@@ -49031,366 +48773,11 @@
           ]
         },
         {
-          "id": "comparison_chart_panels_pv",
-          "description": "Repeated side-by-side panels, each combining an arched backdrop, centered heading, line chart, bordered summary surface, and explanatory copy.",
+          "id": "top_corner_accent_pv",
+          "description": "Flowing abstract accent cropped along the upper-left corner, providing fixed visual framing without carrying replaceable content.",
           "position": {
-            "x": 43.33,
-            "y": 181.67
-          },
-          "elements": [
-            {
-              "type": "flex",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 1193.3400000000001,
-                "height": 596.67
-              },
-              "direction": "row",
-              "justify_content": "center",
-              "gap": 33.34,
-              "children": [
-                {
-                  "type": "group",
-                  "size": {
-                    "width": 580,
-                    "height": 596.67
-                  },
-                  "children": [
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 0
-                      },
-                      "size": {
-                        "width": 580,
-                        "height": 596.67
-                      },
-                      "data": "static/Freeform_3-74ce846299fa.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "panel_backdrop",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 49.879999999999995,
-                        "y": 77.53
-                      },
-                      "size": {
-                        "width": 480.24,
-                        "height": 32.8
-                      },
-                      "font": {
-                        "size": 31.11,
-                        "family": "Tinos Bold",
-                        "color": "#03362D",
-                        "bold": true,
-                        "underline": false,
-                        "line_height": 0.96,
-                        "letter_spacing": -0.99
-                      },
-                      "alignment": {
-                        "horizontal": "center",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Weekday Screen Time",
-                          "font": {
-                            "size": 31.11,
-                            "family": "Tinos Bold",
-                            "color": "#03362D",
-                            "bold": true,
-                            "underline": false,
-                            "line_height": 0.96,
-                            "letter_spacing": -0.99
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "panel_heading",
-                      "max_length": 30,
-                      "min_length": 15
-                    },
-                    {
-                      "type": "chart",
-                      "position": {
-                        "x": 66.37,
-                        "y": 137.37
-                      },
-                      "size": {
-                        "width": 436.4,
-                        "height": 215.92
-                      },
-                      "chart_type": "line",
-                      "text_color": "#03362D",
-                      "colors": [
-                        "#03362D"
-                      ],
-                      "x_axis": true,
-                      "y_axis": true,
-                      "axis_color": "#46685F",
-                      "categories": [
-                        "Jan",
-                        "Feb",
-                        "Mar",
-                        "Apr"
-                      ],
-                      "series": [
-                        {
-                          "name": "Weekday Screen Time",
-                          "values": [
-                            8,
-                            18,
-                            20,
-                            33
-                          ]
-                        }
-                      ],
-                      "legend": false,
-                      "x_axis_grid": false,
-                      "y_axis_grid": true,
-                      "grid_color": "#C7D3C0",
-                      "decorative": false,
-                      "name": "panel_chart",
-                      "rotation": 0
-                    },
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 356.6600000000001
-                      },
-                      "size": {
-                        "width": 580,
-                        "height": 137.36
-                      },
-                      "data": "static/Freeform_17-a50009bea43e.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "summary_card_surface",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 38.45,
-                        "y": 393.72
-                      },
-                      "size": {
-                        "width": 503.11,
-                        "height": 80.4
-                      },
-                      "font": {
-                        "size": 14.22,
-                        "family": "DM Sans",
-                        "color": "#000000",
-                        "line_height": 1.44
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Weekday smartphone use is relatively structured because students divide their time between classes, assignments, communication, and limited entertainment. Educational app usage is noticeably higher during weekdays.",
-                          "font": {
-                            "size": 14.22,
-                            "family": "DM Sans",
-                            "color": "#000000",
-                            "line_height": 1.44
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "summary_description",
-                      "max_length": 266,
-                      "min_length": 133
-                    }
-                  ],
-                  "name": "chart_panel_1"
-                },
-                {
-                  "type": "group",
-                  "size": {
-                    "width": 580.0000000000001,
-                    "height": 596.67
-                  },
-                  "children": [
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 0
-                      },
-                      "size": {
-                        "width": 580,
-                        "height": 596.67
-                      },
-                      "data": "static/Freeform_3-74ce846299fa.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "panel_backdrop",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 48.629999999999995,
-                        "y": 77.53
-                      },
-                      "size": {
-                        "width": 482.74,
-                        "height": 32.8
-                      },
-                      "font": {
-                        "size": 31.11,
-                        "family": "Tinos Bold",
-                        "color": "#03362D",
-                        "bold": true,
-                        "underline": false,
-                        "line_height": 0.96,
-                        "letter_spacing": -0.99
-                      },
-                      "alignment": {
-                        "horizontal": "center",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Weekend Screen Time",
-                          "font": {
-                            "size": 31.11,
-                            "family": "Tinos Bold",
-                            "color": "#03362D",
-                            "bold": true,
-                            "underline": false,
-                            "line_height": 0.96,
-                            "letter_spacing": -0.99
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "panel_heading",
-                      "max_length": 30,
-                      "min_length": 15
-                    },
-                    {
-                      "type": "chart",
-                      "position": {
-                        "x": 86.05,
-                        "y": 146.98
-                      },
-                      "size": {
-                        "width": 423.46,
-                        "height": 209.62
-                      },
-                      "chart_type": "line",
-                      "text_color": "#03362D",
-                      "colors": [
-                        "#03362D"
-                      ],
-                      "x_axis": true,
-                      "y_axis": true,
-                      "axis_color": "#46685F",
-                      "categories": [
-                        "Jan",
-                        "Feb",
-                        "Mar",
-                        "Apr"
-                      ],
-                      "series": [
-                        {
-                          "name": "Weekend Screen Time",
-                          "values": [
-                            15,
-                            18,
-                            35,
-                            33
-                          ]
-                        }
-                      ],
-                      "legend": false,
-                      "x_axis_grid": false,
-                      "y_axis_grid": true,
-                      "grid_color": "#C7D3C0",
-                      "decorative": false,
-                      "name": "panel_chart",
-                      "rotation": 0
-                    },
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 356.6600000000001
-                      },
-                      "size": {
-                        "width": 580,
-                        "height": 137.36
-                      },
-                      "data": "static/Freeform_17-a50009bea43e.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "summary_card_surface",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 38.440000000000055,
-                        "y": 393.72
-                      },
-                      "size": {
-                        "width": 503.11,
-                        "height": 80.4
-                      },
-                      "font": {
-                        "size": 14.22,
-                        "family": "DM Sans",
-                        "color": "#000000",
-                        "line_height": 1.44
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Weekend usage increases significantly, especially for social media and video streaming. Students spend less time on educational apps and more time on relaxation, entertainment, and social interaction.",
-                          "font": {
-                            "size": 14.22,
-                            "family": "DM Sans",
-                            "color": "#000000",
-                            "line_height": 1.44
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "summary_description",
-                      "max_length": 266,
-                      "min_length": 133
-                    }
-                  ],
-                  "name": "chart_panel_2"
-                }
-              ],
-              "name": "chart_panels",
-              "max_children": 2,
-              "min_children": 1
-            }
-          ]
-        },
-        {
-          "id": "video_placeholder",
-          "description": "Avatar video placeholder",
-          "position": {
-            "x": 589.0,
-            "y": 538.16
+            "x": 0,
+            "y": -7.73
           },
           "elements": [
             {
@@ -49400,8 +48787,38 @@
                 "y": 0
               },
               "size": {
-                "width": 102,
-                "height": 182
+                "width": 299.29,
+                "height": 159.45
+              },
+              "flip_h": true,
+              "flip_v": true,
+              "data": "static/Freeform_2-4821b2b63f0e.png",
+              "fit": "cover",
+              "focus_y": 100,
+              "clip_path": "path('M 299.29 159.45 L 0 159.45 L 0 0 L 299.29 0 L 299.29 159.45 Z')",
+              "decorative": true,
+              "name": "top_corner_accent",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 738.09,
+            "y": 330.95
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 173,
+                "height": 308
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -49413,11 +48830,164 @@
           ]
         },
         {
-          "id": "top_title_pv",
-          "description": "Large centered display title positioned independently above the repeated chart-panel collection with generous surrounding whitespace.",
+          "id": "summary_card_pv",
+          "description": "Wide rounded summary card layered over the primary image, containing a short descriptive paragraph and supporting bullet list.",
           "position": {
-            "x": 209.16,
-            "y": 54
+            "x": 746,
+            "y": 105.11
+          },
+          "elements": [
+            {
+              "type": "group",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 491.24,
+                "height": 268.23
+              },
+              "children": [
+                {
+                  "type": "image",
+                  "position": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "size": {
+                    "width": 491.24,
+                    "height": 268.23
+                  },
+                  "data": "static/Freeform_6-359e6e40d3db.svg",
+                  "fit": "fill",
+                  "decorative": true,
+                  "name": "summary_card_surface",
+                  "is_icon": false
+                },
+                {
+                  "type": "flex",
+                  "position": {
+                    "x": 24.870000000000005,
+                    "y": 45.760000000000005
+                  },
+                  "size": {
+                    "width": 441.4999999999999,
+                    "height": 174.7
+                  },
+                  "direction": "column",
+                  "align_items": "flex-start",
+                  "gap": 19.71,
+                  "children": [
+                    {
+                      "type": "text",
+                      "size": {
+                        "width": 441.5,
+                        "height": 88.83
+                      },
+                      "font": {
+                        "size": 16,
+                        "family": "DM Sans",
+                        "color": "#000000",
+                        "line_height": 1.44
+                      },
+                      "alignment": {
+                        "horizontal": "justify",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Smartphone usage data shows that entertainment-related applications receive the majority of daily of attention, while educational activities occupy a much more smaller portion of screen time.",
+                          "font": {
+                            "size": 16,
+                            "family": "DM Sans",
+                            "color": "#000000",
+                            "line_height": 1.44
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "summary_description",
+                      "max_length": 191,
+                      "min_length": 95
+                    },
+                    {
+                      "type": "text",
+                      "size": {
+                        "width": 441.5,
+                        "height": 66.16
+                      },
+                      "font": {
+                        "size": 16,
+                        "family": "DM Sans",
+                        "color": "#000000",
+                        "line_height": 1.44
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "• Social media is the largest usage category.\n• Peak usage occurs during evening hours.\n• Educational app usage is concentrated before exams.",
+                          "font": {
+                            "size": 16,
+                            "family": "DM Sans",
+                            "color": "#000000",
+                            "line_height": 1.44
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "summary_bullets",
+                      "max_length": 141,
+                      "min_length": 70
+                    }
+                  ],
+                  "name": "summary_text_stack",
+                  "max_children": 2,
+                  "min_children": 2
+                }
+              ],
+              "name": "summary_card_group"
+            }
+          ]
+        },
+        {
+          "id": "secondary_image_region_pv",
+          "description": "Partially cropped supporting content image positioned at the lower-right edge with an irregular stepped silhouette.",
+          "position": {
+            "x": 1023.23,
+            "y": 436.84
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 400.18,
+                "height": 361.77
+              },
+              "data": "/static/images/replaceable_template_image.png",
+              "fit": "cover",
+              "focus_x": 100,
+              "focus_y": 16.11,
+              "crop_scale": 1.63024,
+              "clip_path": "path('M 0 34.17 L 0 150.76 C 0 169.56 15.28 184.85 34.17 184.85 L 72.34 184.85 C 91.22 184.85 106.51 200.13 106.51 219.02 L 106.51 327.6 C 106.51 346.49 121.79 361.77 140.68 361.77 L 226.78 361.77 C 235.34 361.77 243.66 358.49 249.98 352.73 L 389.22 223.9 C 396.18 217.42 400.18 208.37 400.18 198.85 L 400.18 34.17 C 400.1 15.28 384.82 0 365.93 0 L 34.17 0 C 15.28 0 0 15.28 0 34.17 Z')",
+              "decorative": false,
+              "name": "secondary_image",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "headline_block_pv",
+          "description": "Large multiline serif headline anchored in the lower-left quadrant, balancing the image-led composition on the right.",
+          "position": {
+            "x": 43.33,
+            "y": 370.67
           },
           "elements": [
             {
@@ -49427,8 +48997,8 @@
                 "y": 0
               },
               "size": {
-                "width": 861.66,
-                "height": 79.47
+                "width": 556.52,
+                "height": 295.47
               },
               "font": {
                 "size": 75.55,
@@ -49439,12 +49009,12 @@
                 "letter_spacing": -4.98
               },
               "alignment": {
-                "horizontal": "center",
+                "horizontal": "left",
                 "vertical": "top"
               },
               "runs": [
                 {
-                  "text": "Weekend Usage",
+                  "text": "Students spend more time on social and video apps than on educational apps.",
                   "font": {
                     "size": 75.55,
                     "family": "Tinos",
@@ -49456,9 +49026,9 @@
                 }
               ],
               "decorative": false,
-              "name": "top_title",
-              "max_length": 22,
-              "min_length": 11
+              "name": "headline",
+              "max_length": 75,
+              "min_length": 37
             }
           ]
         }

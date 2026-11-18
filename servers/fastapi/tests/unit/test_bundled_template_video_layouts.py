@@ -12,7 +12,7 @@ from services.slide_video_service import find_video_placeholder
 
 TEMPLATES_ROOT = Path(__file__).resolve().parents[4] / "templates"
 TEMPLATE_IDS = sorted(p.parent.name for p in TEMPLATES_ROOT.glob("*/template.json"))
-NEW_PER_TEMPLATE = {**{t: 7 for t in TEMPLATE_IDS}, "momentum": 3}
+NEW_PER_TEMPLATE = {**{t: 7 for t in TEMPLATE_IDS}, "momentum": 5}
 _NEW_ID = re.compile(r"_pv\d\d$")
 
 

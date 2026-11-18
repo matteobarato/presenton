@@ -15708,7 +15708,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 264
+                "height": 380
               },
               "fill": {
                 "color": "#1DA1F2",
@@ -15729,7 +15729,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 264
+                "height": 380
               },
               "fill": {
                 "color": "#155F99",
@@ -15746,7 +15746,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 71
               },
               "size": {
                 "width": 80,
@@ -15785,15 +15785,15 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 138
               },
               "size": {
                 "width": 624,
-                "height": 89
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "DM Sans Bold",
                 "color": "#000000",
                 "line_height": 1.11,
@@ -15807,7 +15807,7 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "DM Sans Bold",
                     "color": "#000000",
                     "line_height": 1.11,
@@ -15824,7 +15824,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 179
+                "y": 264
               },
               "size": {
                 "width": 624,
@@ -15863,7 +15863,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 205
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -16731,12 +16731,12 @@
       ]
     },
     {
-      "id": "background_layer_pv",
-      "description": "Full-slide atmospheric background with a dark field and subtle blue glow accent near the bottom edge.",
+      "id": "layered_background_pv",
+      "description": "Full-slide decorative backdrop with dark upper field, subtle overlays, and a clean lower band anchoring the composition.",
       "variants": [
         {
-          "id": "background_layer_pv",
-          "description": "Full-slide atmospheric background with a dark field and subtle blue glow accent near the bottom edge.",
+          "id": "layered_background_pv",
+          "description": "Full-slide decorative backdrop with dark upper field, subtle overlays, and a clean lower band anchoring the composition.",
           "position": {
             "x": 0,
             "y": 0
@@ -16746,32 +16746,123 @@
               "type": "image",
               "position": {
                 "x": -12.33,
-                "y": -10.79
+                "y": -29.27
               },
               "size": {
                 "width": 1304.66,
-                "height": 738.69
+                "height": 608.43
               },
-              "data": "static/freeform_3-eac87b3b9ab0.svg",
+              "data": "static/freeform_3-aea2ce21dee0.svg",
               "fit": "fill",
               "decorative": true,
               "name": "background_field",
               "is_icon": false
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": -994.93,
+                "y": 244.08
+              },
+              "size": {
+                "width": 1855.46,
+                "height": 818.09
+              },
+              "rotation": -59.52,
+              "child": {
+                "type": "image",
+                "position": {
+                  "x": -282.18,
+                  "y": -16.45
+                },
+                "size": {
+                  "width": 2137.64,
+                  "height": 839.5
+                },
+                "flip_v": true,
+                "opacity": 0.19999,
+                "data": "static/image6-16889f6f3a56.png",
+                "fit": "fill",
+                "clip_path": "path('M 282.18 823.05 L 2137.6399 823.05 L 2137.6399 4.96 L 282.18 4.96 L 282.18 823.05 Z')",
+                "decorative": true,
+                "name": "soft_background_overlay",
+                "is_icon": false
+              }
             }
           ]
         }
       ]
     },
     {
-      "id": "header_area_pv",
-      "description": "Small italic slide heading placed in the upper-left corner above the agenda entries.",
+      "id": "curved_image_panel_pv",
+      "description": "Large curved photo panel positioned along the lower edge with a fixed white arc frame for emphasis.",
       "variants": [
         {
-          "id": "header_area_pv",
-          "description": "Small italic slide heading placed in the upper-left corner above the agenda entries.",
+          "id": "curved_image_panel_pv",
+          "description": "Large curved photo panel positioned along the lower edge with a fixed white arc frame for emphasis.",
           "position": {
-            "x": 49.23,
-            "y": 75.33
+            "x": 0,
+            "y": 274.94
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 446.22,
+                "height": 446.22
+              },
+              "data": "static/freeform_8-c34af73bed7d.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "curved_image_frame",
+              "is_icon": false
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 5.86
+              },
+              "size": {
+                "width": 439.2,
+                "height": 439.2
+              },
+              "child": {
+                "type": "image",
+                "position": {
+                  "x": -109.69,
+                  "y": 0
+                },
+                "size": {
+                  "width": 658.59,
+                  "height": 439.2
+                },
+                "data": "/static/images/replaceable_template_image.png",
+                "fit": "fill",
+                "clip_path": "path('M 109.69 0 L 109.69 439.2 L 548.89 439.2 C 548.89 196.6738 352.2162 0 109.69 0 Z')",
+                "decorative": false,
+                "name": "curved_primary_image",
+                "is_icon": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "headline_text_block_pv",
+      "description": "Main text area aligned on the dark field with a large headline and compact supporting copy beneath.",
+      "variants": [
+        {
+          "id": "headline_text_block_pv",
+          "description": "Main text area aligned on the dark field with a large headline and compact supporting copy beneath.",
+          "position": {
+            "x": 559.26,
+            "y": 203.57
           },
           "elements": [
             {
@@ -16781,12 +16872,12 @@
                 "y": 0
               },
               "size": {
-                "width": 1143.91,
-                "height": 52.91
+                "width": 543.32,
+                "height": 104.91
               },
               "font": {
                 "size": 47.16,
-                "family": "Playfair Display Semi-Bold Italics",
+                "family": "Playfair Display Bold Italics",
                 "color": "#FFFFFF",
                 "bold": true,
                 "italic": true,
@@ -16799,10 +16890,10 @@
               },
               "runs": [
                 {
-                  "text": "Agenda",
+                  "text": "Environmental Performance",
                   "font": {
                     "size": 47.16,
-                    "family": "Playfair Display Semi-Bold Italics",
+                    "family": "Playfair Display Bold Italics",
                     "color": "#FFFFFF",
                     "bold": true,
                     "italic": true,
@@ -16812,145 +16903,49 @@
                 }
               ],
               "decorative": false,
-              "name": "slide_heading",
-              "max_length": 52,
-              "min_length": 3,
+              "name": "headline",
+              "max_length": 39,
+              "min_length": 15,
               "rotation": 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "agenda_items_pv",
-      "description": "Vertical agenda column using large indices, black underline accents, and short labels aligned beside each entry.",
-      "variants": [
-        {
-          "id": "agenda_items_pv",
-          "description": "Vertical agenda column using large indices, black underline accents, and short labels aligned beside each entry.",
-          "position": {
-            "x": 128.16,
-            "y": 160.07
-          },
-          "elements": [
+            },
             {
-              "type": "grid",
-              "name": "agenda_items_grid",
+              "type": "text",
               "position": {
-                "x": 0,
-                "y": 0
+                "x": 0.67,
+                "y": 137.27
               },
               "size": {
-                "width": 1038.74,
-                "height": 497.15
+                "width": 544.4,
+                "height": 131.8
               },
-              "rows": 4,
-              "align_items": "stretch",
-              "justify_items": "stretch",
-              "children": [
+              "font": {
+                "size": 19.55,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "letter_spacing": 0.28
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
                 {
-                  "type": "group",
-                  "size": {
-                    "width": 440.39,
-                    "height": 105
-                  },
-                  "children": [
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 3.31,
-                        "y": 1.37
-                      },
-                      "size": {
-                        "width": 167.86,
-                        "height": 125.43
-                      },
-                      "font": {
-                        "size": 109.8,
-                        "family": "DM Sans Bold",
-                        "color": "#FFFFFF",
-                        "bold": true,
-                        "line_height": 1.11,
-                        "letter_spacing": 1.64
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "01",
-                          "font": {
-                            "size": 109.8,
-                            "family": "DM Sans Bold",
-                            "color": "#FFFFFF",
-                            "bold": true,
-                            "line_height": 1.11,
-                            "letter_spacing": 1.64
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "agenda_index",
-                      "max_length": 2,
-                      "min_length": 1,
-                      "rotation": 0
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 187.59,
-                        "y": 20.31
-                      },
-                      "size": {
-                        "width": 257.79,
-                        "height": 105.63
-                      },
-                      "font": {
-                        "size": 23.59,
-                        "family": "DM Sans",
-                        "color": "#FFFFFF",
-                        "line_height": 1.19,
-                        "letter_spacing": 0.35
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Executive Summary",
-                          "font": {
-                            "size": 23.59,
-                            "family": "DM Sans",
-                            "color": "#FFFFFF",
-                            "line_height": 1.19,
-                            "letter_spacing": 0.35
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "agenda_label",
-                      "max_length": 65,
-                      "min_length": 6,
-                      "rotation": 0
-                    }
-                  ],
-                  "name": "agenda_entry",
-                  "position": {
-                    "x": 0,
-                    "y": 0
-                  },
-                  "__presenton_manual_position": true,
-                  "rotation": 0
+                  "text": "Protecting the planet through responsible operations and measurable environmental progress.",
+                  "font": {
+                    "size": 19.55,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "letter_spacing": 0.28
+                  }
                 }
               ],
-              "max_children": 8,
-              "min_children": 2,
-              "columns": 2,
-              "rotation": 0,
-              "row_gap": 0,
-              "gap": 12
+              "decorative": false,
+              "name": "supporting_text",
+              "max_length": 220,
+              "min_length": 46,
+              "rotation": 0
             }
           ]
         }
@@ -32940,7 +32935,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 264
+                "height": 380
               },
               "fill": {
                 "color": "#1DA1F2",
@@ -32961,7 +32956,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 264
+                "height": 380
               },
               "fill": {
                 "color": "#155F99",
@@ -32978,7 +32973,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 71
               },
               "size": {
                 "width": 80,
@@ -33017,15 +33012,15 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 138
               },
               "size": {
                 "width": 624,
-                "height": 89
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "DM Sans Bold",
                 "color": "#000000",
                 "line_height": 1.11,
@@ -33039,7 +33034,7 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "DM Sans Bold",
                     "color": "#000000",
                     "line_height": 1.11,
@@ -33056,7 +33051,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 179
+                "y": 264
               },
               "size": {
                 "width": 624,
@@ -33095,7 +33090,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 205
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -33785,8 +33780,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 290.78,
-            "y": 110.21
+            "x": 560,
+            "y": 118.43
           },
           "elements": [
             {
@@ -33796,8 +33791,8 @@
                 "y": 0
               },
               "size": {
-                "width": 343,
-                "height": 610
+                "width": 336,
+                "height": 597
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -34176,12 +34171,12 @@
       ]
     },
     {
-      "id": "title_with_numbered_list_in_two_columns_pv07",
-      "description": "Presenter avatar video version: Layout with a title at the top and two to eight numbered heading-and-description items distributed across two balanced columns.",
+      "id": "large_title_with_curved_side_image_pv07",
+      "description": "Presenter avatar video version: Split layout with a large curved image panel on one side and an oversized title with a short description on the other.",
       "components": [
         {
-          "id": "background_layer_pv",
-          "description": "Full-slide atmospheric background with a dark field and subtle blue glow accent near the bottom edge.",
+          "id": "layered_background_pv",
+          "description": "Full-slide decorative backdrop with dark upper field, subtle overlays, and a clean lower band anchoring the composition.",
           "position": {
             "x": 0,
             "y": 0
@@ -34191,17 +34186,48 @@
               "type": "image",
               "position": {
                 "x": -12.33,
-                "y": -10.79
+                "y": -29.27
               },
               "size": {
                 "width": 1304.66,
-                "height": 738.69
+                "height": 608.43
               },
-              "data": "static/freeform_3-eac87b3b9ab0.svg",
+              "data": "static/freeform_3-aea2ce21dee0.svg",
               "fit": "fill",
               "decorative": true,
               "name": "background_field",
               "is_icon": false
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": -994.93,
+                "y": 244.08
+              },
+              "size": {
+                "width": 1855.46,
+                "height": 818.09
+              },
+              "rotation": -59.52,
+              "child": {
+                "type": "image",
+                "position": {
+                  "x": -282.18,
+                  "y": -16.45
+                },
+                "size": {
+                  "width": 2137.64,
+                  "height": 839.5
+                },
+                "flip_v": true,
+                "opacity": 0.19999,
+                "data": "static/image6-16889f6f3a56.png",
+                "fit": "fill",
+                "clip_path": "path('M 282.18 823.05 L 2137.6399 823.05 L 2137.6399 4.96 L 282.18 4.96 L 282.18 823.05 Z')",
+                "decorative": true,
+                "name": "soft_background_overlay",
+                "is_icon": false
+              }
             }
           ]
         },
@@ -34209,8 +34235,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 290.78,
-            "y": 110.21
+            "x": 200,
+            "y": 24
           },
           "elements": [
             {
@@ -34220,8 +34246,8 @@
                 "y": 0
               },
               "size": {
-                "width": 343,
-                "height": 610
+                "width": 360,
+                "height": 640
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -34233,11 +34259,65 @@
           ]
         },
         {
-          "id": "header_area_pv",
-          "description": "Small italic slide heading placed in the upper-left corner above the agenda entries.",
+          "id": "curved_image_panel_pv",
+          "description": "Large curved photo panel positioned along the lower edge with a fixed white arc frame for emphasis.",
           "position": {
-            "x": 49.23,
-            "y": 75.33
+            "x": 0,
+            "y": 274.94
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 446.22,
+                "height": 446.22
+              },
+              "data": "static/freeform_8-c34af73bed7d.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "curved_image_frame",
+              "is_icon": false
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 5.86
+              },
+              "size": {
+                "width": 439.2,
+                "height": 439.2
+              },
+              "child": {
+                "type": "image",
+                "position": {
+                  "x": -109.69,
+                  "y": 0
+                },
+                "size": {
+                  "width": 658.59,
+                  "height": 439.2
+                },
+                "data": "/static/images/replaceable_template_image.png",
+                "fit": "fill",
+                "clip_path": "path('M 109.69 0 L 109.69 439.2 L 548.89 439.2 C 548.89 196.6738 352.2162 0 109.69 0 Z')",
+                "decorative": false,
+                "name": "curved_primary_image",
+                "is_icon": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "headline_text_block_pv",
+          "description": "Main text area aligned on the dark field with a large headline and compact supporting copy beneath.",
+          "position": {
+            "x": 559.26,
+            "y": 203.57
           },
           "elements": [
             {
@@ -34247,12 +34327,12 @@
                 "y": 0
               },
               "size": {
-                "width": 1143.91,
-                "height": 52.91
+                "width": 543.32,
+                "height": 104.91
               },
               "font": {
                 "size": 47.16,
-                "family": "Playfair Display Semi-Bold Italics",
+                "family": "Playfair Display Bold Italics",
                 "color": "#FFFFFF",
                 "bold": true,
                 "italic": true,
@@ -34265,10 +34345,10 @@
               },
               "runs": [
                 {
-                  "text": "Agenda",
+                  "text": "Environmental Performance",
                   "font": {
                     "size": 47.16,
-                    "family": "Playfair Display Semi-Bold Italics",
+                    "family": "Playfair Display Bold Italics",
                     "color": "#FFFFFF",
                     "bold": true,
                     "italic": true,
@@ -34278,139 +34358,49 @@
                 }
               ],
               "decorative": false,
-              "name": "slide_heading",
-              "max_length": 52,
-              "min_length": 3,
+              "name": "headline",
+              "max_length": 39,
+              "min_length": 15,
               "rotation": 0
-            }
-          ]
-        },
-        {
-          "id": "agenda_items_pv",
-          "description": "Vertical agenda column using large indices, black underline accents, and short labels aligned beside each entry.",
-          "position": {
-            "x": 128.16,
-            "y": 160.07
-          },
-          "elements": [
+            },
             {
-              "type": "grid",
-              "name": "agenda_items_grid",
+              "type": "text",
               "position": {
-                "x": 0,
-                "y": 0
+                "x": 0.67,
+                "y": 137.27
               },
               "size": {
-                "width": 1038.74,
-                "height": 497.15
+                "width": 544.4,
+                "height": 131.8
               },
-              "rows": 4,
-              "align_items": "stretch",
-              "justify_items": "stretch",
-              "children": [
+              "font": {
+                "size": 19.55,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "letter_spacing": 0.28
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
                 {
-                  "type": "group",
-                  "size": {
-                    "width": 440.39,
-                    "height": 105
-                  },
-                  "children": [
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 3.31,
-                        "y": 1.37
-                      },
-                      "size": {
-                        "width": 167.86,
-                        "height": 125.43
-                      },
-                      "font": {
-                        "size": 109.8,
-                        "family": "DM Sans Bold",
-                        "color": "#FFFFFF",
-                        "bold": true,
-                        "line_height": 1.11,
-                        "letter_spacing": 1.64
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "01",
-                          "font": {
-                            "size": 109.8,
-                            "family": "DM Sans Bold",
-                            "color": "#FFFFFF",
-                            "bold": true,
-                            "line_height": 1.11,
-                            "letter_spacing": 1.64
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "agenda_index",
-                      "max_length": 2,
-                      "min_length": 1,
-                      "rotation": 0
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 187.59,
-                        "y": 20.31
-                      },
-                      "size": {
-                        "width": 257.79,
-                        "height": 105.63
-                      },
-                      "font": {
-                        "size": 23.59,
-                        "family": "DM Sans",
-                        "color": "#FFFFFF",
-                        "line_height": 1.19,
-                        "letter_spacing": 0.35
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Executive Summary",
-                          "font": {
-                            "size": 23.59,
-                            "family": "DM Sans",
-                            "color": "#FFFFFF",
-                            "line_height": 1.19,
-                            "letter_spacing": 0.35
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "agenda_label",
-                      "max_length": 65,
-                      "min_length": 6,
-                      "rotation": 0
-                    }
-                  ],
-                  "name": "agenda_entry",
-                  "position": {
-                    "x": 0,
-                    "y": 0
-                  },
-                  "__presenton_manual_position": true,
-                  "rotation": 0
+                  "text": "Protecting the planet through responsible operations and measurable environmental progress.",
+                  "font": {
+                    "size": 19.55,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "letter_spacing": 0.28
+                  }
                 }
               ],
-              "max_children": 8,
-              "min_children": 2,
-              "columns": 2,
-              "rotation": 0,
-              "row_gap": 0,
-              "gap": 12
+              "decorative": false,
+              "name": "supporting_text",
+              "max_length": 220,
+              "min_length": 46,
+              "rotation": 0
             }
           ]
         }

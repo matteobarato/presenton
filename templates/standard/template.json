@@ -8007,14 +8007,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 77
+                "height": 99
               },
               "rotation": 0,
               "font": {
                 "size": 44,
                 "family": "Playfair Display",
                 "color": "#111827",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -8028,7 +8028,7 @@
                     "size": 44,
                     "family": "Playfair Display",
                     "color": "#111827",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -8042,7 +8042,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 123
+                "y": 145
               },
               "size": {
                 "width": 696,
@@ -8090,7 +8090,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 290
+            "y": 312
           },
           "elements": [
             {
@@ -8403,7 +8403,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 277
+            "y": 305
           },
           "elements": [
             {
@@ -8435,14 +8435,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 21
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Playfair Display",
                 "color": "#000000",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -8456,7 +8456,7 @@
                     "size": 22,
                     "family": "Playfair Display",
                     "color": "#000000",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -8573,14 +8573,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 21
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Playfair Display",
                 "color": "#000000",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -8594,7 +8594,7 @@
                     "size": 22,
                     "family": "Playfair Display",
                     "color": "#000000",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -8711,14 +8711,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 21
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Playfair Display",
                 "color": "#000000",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -8732,7 +8732,7 @@
                     "size": 22,
                     "family": "Playfair Display",
                     "color": "#000000",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -8881,14 +8881,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 33
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Playfair Display",
                 "color": "#111827",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -8902,7 +8902,7 @@
                     "size": 36,
                     "family": "Playfair Display",
                     "color": "#111827",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -9480,14 +9480,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 47
+                "height": 60
               },
               "rotation": 0,
               "font": {
                 "size": 52,
                 "family": "Playfair Display",
                 "color": "#111827",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -9501,7 +9501,7 @@
                     "size": 52,
                     "family": "Playfair Display",
                     "color": "#111827",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -9524,7 +9524,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 143
+            "y": 156
           },
           "elements": [
             {
@@ -9535,7 +9535,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 251
+                "height": 380
               },
               "fill": {
                 "color": "#F3F4F6",
@@ -9556,7 +9556,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 251
+                "height": 380
               },
               "fill": {
                 "color": "#3182BD",
@@ -9573,18 +9573,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 68
               },
               "size": {
                 "width": 80,
-                "height": 70
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Playfair Display",
                 "color": "#3182BD",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -9598,7 +9598,7 @@
                     "size": 80,
                     "family": "Playfair Display",
                     "color": "#3182BD",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -9612,18 +9612,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 134
               },
               "size": {
                 "width": 624,
-                "height": 69
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Playfair Display",
                 "color": "#111827",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -9634,10 +9634,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Playfair Display",
                     "color": "#111827",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -9651,7 +9651,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 159
+                "y": 260
               },
               "size": {
                 "width": 624,
@@ -9690,7 +9690,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 189
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -19093,14 +19093,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 77
+                "height": 99
               },
               "rotation": 0,
               "font": {
                 "size": 44,
                 "family": "Playfair Display",
                 "color": "#111827",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -19114,7 +19114,7 @@
                     "size": 44,
                     "family": "Playfair Display",
                     "color": "#111827",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -19128,7 +19128,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 123
+                "y": 145
               },
               "size": {
                 "width": 696,
@@ -19170,7 +19170,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 290
+            "y": 312
           },
           "elements": [
             {
@@ -19531,14 +19531,14 @@
               },
               "size": {
                 "width": 720,
-                "height": 98
+                "height": 126
               },
               "rotation": 0,
               "font": {
                 "size": 56,
                 "family": "Playfair Display",
                 "color": "#111827",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -19552,7 +19552,7 @@
                     "size": 56,
                     "family": "Playfair Display",
                     "color": "#111827",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -19566,7 +19566,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 110
+                "y": 138
               },
               "size": {
                 "width": 720,
@@ -19608,7 +19608,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 277
+            "y": 305
           },
           "elements": [
             {
@@ -19640,14 +19640,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 21
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Playfair Display",
                 "color": "#000000",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -19661,7 +19661,7 @@
                     "size": 22,
                     "family": "Playfair Display",
                     "color": "#000000",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -19778,14 +19778,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 21
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Playfair Display",
                 "color": "#000000",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -19799,7 +19799,7 @@
                     "size": 22,
                     "family": "Playfair Display",
                     "color": "#000000",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -19916,14 +19916,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 21
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Playfair Display",
                 "color": "#000000",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -19937,7 +19937,7 @@
                     "size": 22,
                     "family": "Playfair Display",
                     "color": "#000000",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -20144,14 +20144,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 33
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Playfair Display",
                 "color": "#111827",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -20165,7 +20165,7 @@
                     "size": 36,
                     "family": "Playfair Display",
                     "color": "#111827",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -20783,14 +20783,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 47
+                "height": 60
               },
               "rotation": 0,
               "font": {
                 "size": 52,
                 "family": "Playfair Display",
                 "color": "#111827",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -20804,7 +20804,7 @@
                     "size": 52,
                     "family": "Playfair Display",
                     "color": "#111827",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -20821,7 +20821,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 143
+            "y": 156
           },
           "elements": [
             {
@@ -20832,7 +20832,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 251
+                "height": 380
               },
               "fill": {
                 "color": "#F3F4F6",
@@ -20853,7 +20853,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 251
+                "height": 380
               },
               "fill": {
                 "color": "#3182BD",
@@ -20870,18 +20870,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 68
               },
               "size": {
                 "width": 80,
-                "height": 70
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Playfair Display",
                 "color": "#3182BD",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -20895,7 +20895,7 @@
                     "size": 80,
                     "family": "Playfair Display",
                     "color": "#3182BD",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -20909,18 +20909,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 134
               },
               "size": {
                 "width": 624,
-                "height": 69
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Playfair Display",
                 "color": "#111827",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -20931,10 +20931,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Playfair Display",
                     "color": "#111827",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -20948,7 +20948,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 159
+                "y": 260
               },
               "size": {
                 "width": 624,
@@ -20987,7 +20987,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 189
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -21199,14 +21199,14 @@
               },
               "size": {
                 "width": 752,
-                "height": 84
+                "height": 108
               },
               "rotation": 0,
               "font": {
                 "size": 48,
                 "family": "Playfair Display",
                 "color": "#111827",
-                "line_height": 0.85,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -21220,7 +21220,7 @@
                     "size": 48,
                     "family": "Playfair Display",
                     "color": "#111827",
-                    "line_height": 0.85,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -21234,7 +21234,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 96
+                "y": 120
               },
               "size": {
                 "width": 752,
@@ -21848,8 +21848,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 495.5,
-            "y": 205.18
+            "x": 16,
+            "y": 309.37
           },
           "elements": [
             {
@@ -21859,8 +21859,8 @@
                 "y": 0
               },
               "size": {
-                "width": 289,
-                "height": 515
+                "width": 168,
+                "height": 299
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -22100,8 +22100,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 140.0,
-            "y": 40.0
+            "x": 288,
+            "y": 16
           },
           "elements": [
             {
@@ -22111,8 +22111,8 @@
                 "y": 0
               },
               "size": {
-                "width": 360,
-                "height": 640
+                "width": 168,
+                "height": 299
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",

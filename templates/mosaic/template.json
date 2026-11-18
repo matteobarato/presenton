@@ -26147,14 +26147,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 77
+                "height": 86
               },
               "rotation": 0,
               "font": {
                 "size": 38,
                 "family": "Montserrat Medium",
                 "color": "#000000",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -26168,7 +26168,7 @@
                     "size": 38,
                     "family": "Montserrat Medium",
                     "color": "#000000",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -26182,7 +26182,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 122
+                "y": 131
               },
               "size": {
                 "width": 696,
@@ -26230,7 +26230,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 315
+            "y": 324
           },
           "elements": [
             {
@@ -26543,7 +26543,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 221
+            "y": 225
           },
           "elements": [
             {
@@ -26575,14 +26575,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat Medium",
                 "color": "#FFFFFF",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -26596,7 +26596,7 @@
                     "size": 22,
                     "family": "Montserrat Medium",
                     "color": "#FFFFFF",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -26713,14 +26713,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat Medium",
                 "color": "#FFFFFF",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -26734,7 +26734,7 @@
                     "size": 22,
                     "family": "Montserrat Medium",
                     "color": "#FFFFFF",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -26851,14 +26851,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat Medium",
                 "color": "#FFFFFF",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -26872,7 +26872,7 @@
                     "size": 22,
                     "family": "Montserrat Medium",
                     "color": "#FFFFFF",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -27021,14 +27021,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 38
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Montserrat Medium",
                 "color": "#000000",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -27042,7 +27042,7 @@
                     "size": 36,
                     "family": "Montserrat Medium",
                     "color": "#000000",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -27620,14 +27620,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 40
+                "height": 44
               },
               "rotation": 0,
               "font": {
                 "size": 38,
                 "family": "Montserrat Medium",
                 "color": "#000000",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -27641,7 +27641,7 @@
                     "size": 38,
                     "family": "Montserrat Medium",
                     "color": "#000000",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -27664,7 +27664,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 136
+            "y": 140
           },
           "elements": [
             {
@@ -27675,7 +27675,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 258
+                "height": 380
               },
               "fill": {
                 "color": "#FBFBFB",
@@ -27696,7 +27696,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 258
+                "height": 380
               },
               "fill": {
                 "color": "#1A1919",
@@ -27713,18 +27713,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 70
               },
               "size": {
                 "width": 80,
-                "height": 81
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Montserrat Medium",
                 "color": "#1A1919",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -27738,7 +27738,7 @@
                     "size": 80,
                     "family": "Montserrat Medium",
                     "color": "#1A1919",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -27752,18 +27752,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 136
               },
               "size": {
                 "width": 624,
-                "height": 79
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Montserrat Medium",
                 "color": "#1A1919",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -27774,10 +27774,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Montserrat Medium",
                     "color": "#1A1919",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -27791,7 +27791,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 169
+                "y": 262
               },
               "size": {
                 "width": 624,
@@ -27830,7 +27830,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 197
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -28572,347 +28572,6 @@
                 }
               ],
               "name": "title_stack",
-              "max_children": 2,
-              "min_children": 2
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "contact_pill_row_pv",
-      "description": "A centered horizontal collection of compact purple pill backgrounds with aligned light contact values, positioned between the summary copy and image.",
-      "variants": [
-        {
-          "id": "contact_pill_row_pv",
-          "description": "A centered horizontal collection of compact purple pill backgrounds with aligned light contact values, positioned between the summary copy and image.",
-          "position": {
-            "x": 346.21,
-            "y": 294.31
-          },
-          "elements": [
-            {
-              "type": "flex",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 559.8,
-                "height": 23.6
-              },
-              "direction": "row",
-              "justify_content": "center",
-              "gap": 18.76,
-              "children": [
-                {
-                  "type": "group",
-                  "size": {
-                    "width": 173.91000000000003,
-                    "height": 23.6
-                  },
-                  "children": [
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 0
-                      },
-                      "size": {
-                        "width": 173.91,
-                        "height": 23.6
-                      },
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "static/Freeform_3-fdabebee5e92.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "contact_pill_background",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 11.680000000000007,
-                        "y": 2.4699999999999704
-                      },
-                      "size": {
-                        "width": 159.56,
-                        "height": 17.33
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 13.33,
-                        "family": "Montserrat",
-                        "color": "#FBFBFB",
-                        "line_height": 1.3,
-                        "letter_spacing": 0.13
-                      },
-                      "alignment": {
-                        "horizontal": "center",
-                        "vertical": "middle"
-                      },
-                      "runs": [
-                        {
-                          "text": " hello@company.com",
-                          "font": {
-                            "size": 13.33,
-                            "family": "Montserrat",
-                            "color": "#FBFBFB",
-                            "line_height": 1.3,
-                            "letter_spacing": 0.13
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "contact_value",
-                      "max_length": 17,
-                      "min_length": 8
-                    }
-                  ],
-                  "name": "contact_pill_1"
-                },
-                {
-                  "type": "group",
-                  "size": {
-                    "width": 174.45000000000005,
-                    "height": 23.6
-                  },
-                  "children": [
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 0
-                      },
-                      "size": {
-                        "width": 173.91,
-                        "height": 23.6
-                      },
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "static/Freeform_3-fdabebee5e92.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "contact_pill_background",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 14.889999999999986,
-                        "y": 2.4699999999999704
-                      },
-                      "size": {
-                        "width": 159.56,
-                        "height": 17.33
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 13.33,
-                        "family": "Montserrat",
-                        "color": "#FBFBFB",
-                        "line_height": 1.3,
-                        "letter_spacing": 0.13
-                      },
-                      "alignment": {
-                        "horizontal": "center",
-                        "vertical": "middle"
-                      },
-                      "runs": [
-                        {
-                          "text": " www.company.com",
-                          "font": {
-                            "size": 13.33,
-                            "family": "Montserrat",
-                            "color": "#FBFBFB",
-                            "line_height": 1.3,
-                            "letter_spacing": 0.13
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "contact_value",
-                      "max_length": 17,
-                      "min_length": 8
-                    }
-                  ],
-                  "name": "contact_pill_2"
-                },
-                {
-                  "type": "group",
-                  "size": {
-                    "width": 173.90999999999997,
-                    "height": 23.6
-                  },
-                  "children": [
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 0
-                      },
-                      "size": {
-                        "width": 173.91,
-                        "height": 23.6
-                      },
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "static/Freeform_3-fdabebee5e92.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "contact_pill_background",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 18,
-                        "y": 2.4699999999999704
-                      },
-                      "size": {
-                        "width": 134.82,
-                        "height": 17.33
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 13.33,
-                        "family": "Montserrat",
-                        "color": "#FBFBFB",
-                        "line_height": 1.3,
-                        "letter_spacing": 0.13
-                      },
-                      "alignment": {
-                        "horizontal": "center",
-                        "vertical": "middle"
-                      },
-                      "runs": [
-                        {
-                          "text": "+977 988776526711",
-                          "font": {
-                            "size": 13.33,
-                            "family": "Montserrat",
-                            "color": "#FBFBFB",
-                            "line_height": 1.3,
-                            "letter_spacing": 0.13
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "contact_value",
-                      "max_length": 17,
-                      "min_length": 8
-                    }
-                  ],
-                  "name": "contact_pill_3"
-                }
-              ],
-              "name": "contact_pills",
-              "max_children": 3,
-              "min_children": 2
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "centered_closing_copy_pv",
-      "description": "A large centered multiline heading and compact supporting description form the primary copy block in the upper slide area.",
-      "variants": [
-        {
-          "id": "centered_closing_copy_pv",
-          "description": "A large centered multiline heading and compact supporting description form the primary copy block in the upper slide area.",
-          "position": {
-            "x": 151.56,
-            "y": 110.31
-          },
-          "elements": [
-            {
-              "type": "flex",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 976.8800000000001,
-                "height": 152.8
-              },
-              "direction": "column",
-              "align_items": "center",
-              "gap": 10.45,
-              "children": [
-                {
-                  "type": "text",
-                  "size": {
-                    "width": 976.88,
-                    "height": 125.02
-                  },
-                  "rotation": 0,
-                  "font": {
-                    "size": 62.2,
-                    "family": "Montserrat Medium",
-                    "color": "#1A1919",
-                    "bold": false,
-                    "line_height": 0.98
-                  },
-                  "alignment": {
-                    "horizontal": "center",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "Thank you for reviewing our marketing performance report",
-                      "font": {
-                        "size": 62.2,
-                        "family": "Montserrat Medium",
-                        "color": "#1A1919",
-                        "bold": false,
-                        "line_height": 0.98
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "closing_heading",
-                  "max_length": 56,
-                  "min_length": 28
-                },
-                {
-                  "type": "text",
-                  "size": {
-                    "width": 584.36,
-                    "height": 17.33
-                  },
-                  "rotation": 0,
-                  "font": {
-                    "size": 13.33,
-                    "family": "Montserrat",
-                    "color": "#1A1919",
-                    "line_height": 1.3,
-                    "letter_spacing": 0.13
-                  },
-                  "alignment": {
-                    "horizontal": "center",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "Insights that inform smarter decisions, stronger campaigns, and sustainable growth.",
-                      "font": {
-                        "size": 13.33,
-                        "family": "Montserrat",
-                        "color": "#1A1919",
-                        "line_height": 1.3,
-                        "letter_spacing": 0.13
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "supporting_description",
-                  "max_length": 83,
-                  "min_length": 41
-                }
-              ],
-              "name": "closing_copy_stack",
               "max_children": 2,
               "min_children": 2
             }
@@ -54817,14 +54476,14 @@
               },
               "size": {
                 "width": 696,
-                "height": 77
+                "height": 86
               },
               "rotation": 0,
               "font": {
                 "size": 38,
                 "family": "Montserrat Medium",
                 "color": "#000000",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -54838,7 +54497,7 @@
                     "size": 38,
                     "family": "Montserrat Medium",
                     "color": "#000000",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -54852,7 +54511,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 122
+                "y": 131
               },
               "size": {
                 "width": 696,
@@ -54894,7 +54553,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 315
+            "y": 324
           },
           "elements": [
             {
@@ -55255,14 +54914,14 @@
               },
               "size": {
                 "width": 720,
-                "height": 40
+                "height": 44
               },
               "rotation": 0,
               "font": {
                 "size": 38,
                 "family": "Montserrat Medium",
                 "color": "#000000",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -55276,7 +54935,7 @@
                     "size": 38,
                     "family": "Montserrat Medium",
                     "color": "#000000",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -55290,7 +54949,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 52
+                "y": 56
               },
               "size": {
                 "width": 720,
@@ -55332,7 +54991,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 221
+            "y": 225
           },
           "elements": [
             {
@@ -55364,14 +55023,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat Medium",
                 "color": "#FFFFFF",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -55385,7 +55044,7 @@
                     "size": 22,
                     "family": "Montserrat Medium",
                     "color": "#FFFFFF",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -55502,14 +55161,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat Medium",
                 "color": "#FFFFFF",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -55523,7 +55182,7 @@
                     "size": 22,
                     "family": "Montserrat Medium",
                     "color": "#FFFFFF",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -55640,14 +55299,14 @@
               },
               "size": {
                 "width": 52,
-                "height": 24
+                "height": 27
               },
               "rotation": 0,
               "font": {
                 "size": 22,
                 "family": "Montserrat Medium",
                 "color": "#FFFFFF",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -55661,7 +55320,7 @@
                     "size": 22,
                     "family": "Montserrat Medium",
                     "color": "#FFFFFF",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -55868,14 +55527,14 @@
               },
               "size": {
                 "width": 1152,
-                "height": 38
+                "height": 42
               },
               "rotation": 0,
               "font": {
                 "size": 36,
                 "family": "Montserrat Medium",
                 "color": "#000000",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -55889,7 +55548,7 @@
                     "size": 36,
                     "family": "Montserrat Medium",
                     "color": "#000000",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -56507,14 +56166,14 @@
               },
               "size": {
                 "width": 740,
-                "height": 40
+                "height": 44
               },
               "rotation": 0,
               "font": {
                 "size": 38,
                 "family": "Montserrat Medium",
                 "color": "#000000",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -56528,7 +56187,7 @@
                     "size": 38,
                     "family": "Montserrat Medium",
                     "color": "#000000",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -56545,7 +56204,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 136
+            "y": 140
           },
           "elements": [
             {
@@ -56556,7 +56215,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 258
+                "height": 380
               },
               "fill": {
                 "color": "#FBFBFB",
@@ -56577,7 +56236,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 258
+                "height": 380
               },
               "fill": {
                 "color": "#1A1919",
@@ -56594,18 +56253,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 8
+                "y": 70
               },
               "size": {
                 "width": 80,
-                "height": 81
+                "height": 90
               },
               "rotation": 0,
               "font": {
                 "size": 80,
                 "family": "Montserrat Medium",
                 "color": "#1A1919",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": true
               },
               "alignment": {
@@ -56619,7 +56278,7 @@
                     "size": 80,
                     "family": "Montserrat Medium",
                     "color": "#1A1919",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": true
                   }
                 }
@@ -56633,18 +56292,18 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 136
               },
               "size": {
                 "width": 624,
-                "height": 79
+                "height": 102
               },
               "rotation": 0,
               "font": {
-                "size": 26,
+                "size": 30,
                 "family": "Montserrat Medium",
                 "color": "#1A1919",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -56655,10 +56314,10 @@
                 {
                   "text": "Working this way changed how our whole team plans and delivers.",
                   "font": {
-                    "size": 26,
+                    "size": 30,
                     "family": "Montserrat Medium",
                     "color": "#1A1919",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -56672,7 +56331,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 169
+                "y": 262
               },
               "size": {
                 "width": 624,
@@ -56711,7 +56370,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 197
+                "y": 290
               },
               "size": {
                 "width": 624,
@@ -56923,14 +56582,14 @@
               },
               "size": {
                 "width": 752,
-                "height": 40
+                "height": 44
               },
               "rotation": 0,
               "font": {
                 "size": 38,
                 "family": "Montserrat Medium",
                 "color": "#000000",
-                "line_height": 0.98,
+                "line_height": 1.1,
                 "bold": false
               },
               "alignment": {
@@ -56944,7 +56603,7 @@
                     "size": 38,
                     "family": "Montserrat Medium",
                     "color": "#000000",
-                    "line_height": 0.98,
+                    "line_height": 1.1,
                     "bold": false
                   }
                 }
@@ -56958,7 +56617,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 52
+                "y": 56
               },
               "size": {
                 "width": 752,
@@ -57419,8 +57078,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 460.88,
-            "y": 47.86
+            "x": 542.67,
+            "y": 310.67
           },
           "elements": [
             {
@@ -57430,8 +57089,8 @@
                 "y": 0
               },
               "size": {
-                "width": 360,
-                "height": 640
+                "width": 192,
+                "height": 341
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -57680,236 +57339,74 @@
       ]
     },
     {
-      "id": "centered_closing_copy_with_contact_pills_and_wide_image_7668_pv07",
-      "description": "Presenter avatar video version: Centered closing copy sits above a repeated contact-pill row and a wide rounded content image spanning the lower slide.",
+      "id": "video_left_title_points_alt_pv07",
+      "description": "Presenter avatar video framed on the left with a headline, short explanation and three key points on the right. Use when a narrator or avatar introduces a topic, team or initiative on camera.",
       "components": [
         {
-          "id": "contact_pill_row_pv",
-          "description": "A centered horizontal collection of compact purple pill backgrounds with aligned light contact values, positioned between the summary copy and image.",
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
           "position": {
-            "x": 346.21,
-            "y": 294.31
+            "x": 0,
+            "y": 0
           },
           "elements": [
             {
-              "type": "flex",
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#7C6AF4",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "video_frame_accent_pv",
+          "description": "Offset accent panel framing the portrait video from behind.",
+          "position": {
+            "x": 876,
+            "y": 124
+          },
+          "elements": [
+            {
+              "type": "container",
               "position": {
                 "x": 0,
                 "y": 0
               },
               "size": {
-                "width": 559.8,
-                "height": 23.6
+                "width": 288,
+                "height": 512
               },
-              "direction": "row",
-              "justify_content": "center",
-              "gap": 18.76,
-              "children": [
-                {
-                  "type": "group",
-                  "size": {
-                    "width": 173.91000000000003,
-                    "height": 23.6
-                  },
-                  "children": [
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 0
-                      },
-                      "size": {
-                        "width": 173.91,
-                        "height": 23.6
-                      },
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "static/Freeform_3-fdabebee5e92.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "contact_pill_background",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 11.680000000000007,
-                        "y": 2.4699999999999704
-                      },
-                      "size": {
-                        "width": 159.56,
-                        "height": 17.33
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 13.33,
-                        "family": "Montserrat",
-                        "color": "#FBFBFB",
-                        "line_height": 1.3,
-                        "letter_spacing": 0.13
-                      },
-                      "alignment": {
-                        "horizontal": "center",
-                        "vertical": "middle"
-                      },
-                      "runs": [
-                        {
-                          "text": " hello@company.com",
-                          "font": {
-                            "size": 13.33,
-                            "family": "Montserrat",
-                            "color": "#FBFBFB",
-                            "line_height": 1.3,
-                            "letter_spacing": 0.13
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "contact_value",
-                      "max_length": 17,
-                      "min_length": 8
-                    }
-                  ],
-                  "name": "contact_pill_1"
-                },
-                {
-                  "type": "group",
-                  "size": {
-                    "width": 174.45000000000005,
-                    "height": 23.6
-                  },
-                  "children": [
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 0
-                      },
-                      "size": {
-                        "width": 173.91,
-                        "height": 23.6
-                      },
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "static/Freeform_3-fdabebee5e92.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "contact_pill_background",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 14.889999999999986,
-                        "y": 2.4699999999999704
-                      },
-                      "size": {
-                        "width": 159.56,
-                        "height": 17.33
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 13.33,
-                        "family": "Montserrat",
-                        "color": "#FBFBFB",
-                        "line_height": 1.3,
-                        "letter_spacing": 0.13
-                      },
-                      "alignment": {
-                        "horizontal": "center",
-                        "vertical": "middle"
-                      },
-                      "runs": [
-                        {
-                          "text": " www.company.com",
-                          "font": {
-                            "size": 13.33,
-                            "family": "Montserrat",
-                            "color": "#FBFBFB",
-                            "line_height": 1.3,
-                            "letter_spacing": 0.13
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "contact_value",
-                      "max_length": 17,
-                      "min_length": 8
-                    }
-                  ],
-                  "name": "contact_pill_2"
-                },
-                {
-                  "type": "group",
-                  "size": {
-                    "width": 173.90999999999997,
-                    "height": 23.6
-                  },
-                  "children": [
-                    {
-                      "type": "image",
-                      "position": {
-                        "x": 0,
-                        "y": 0
-                      },
-                      "size": {
-                        "width": 173.91,
-                        "height": 23.6
-                      },
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "static/Freeform_3-fdabebee5e92.svg",
-                      "fit": "fill",
-                      "decorative": true,
-                      "name": "contact_pill_background",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "text",
-                      "position": {
-                        "x": 18,
-                        "y": 2.4699999999999704
-                      },
-                      "size": {
-                        "width": 134.82,
-                        "height": 17.33
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 13.33,
-                        "family": "Montserrat",
-                        "color": "#FBFBFB",
-                        "line_height": 1.3,
-                        "letter_spacing": 0.13
-                      },
-                      "alignment": {
-                        "horizontal": "center",
-                        "vertical": "middle"
-                      },
-                      "runs": [
-                        {
-                          "text": "+977 988776526711",
-                          "font": {
-                            "size": 13.33,
-                            "family": "Montserrat",
-                            "color": "#FBFBFB",
-                            "line_height": 1.3,
-                            "letter_spacing": 0.13
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "contact_value",
-                      "max_length": 17,
-                      "min_length": 8
-                    }
-                  ],
-                  "name": "contact_pill_3"
-                }
-              ],
-              "name": "contact_pills",
-              "max_children": 3,
-              "min_children": 2
+              "fill": {
+                "color": "#1A1919",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 8,
+                "tr": 8,
+                "bl": 8,
+                "br": 8
+              }
             }
           ]
         },
@@ -57917,8 +57414,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 556.37,
-            "y": 366.16
+            "x": 896,
+            "y": 104
           },
           "elements": [
             {
@@ -57928,8 +57425,8 @@
                 "y": 0
               },
               "size": {
-                "width": 168,
-                "height": 298
+                "width": 288,
+                "height": 512
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -57941,101 +57438,438 @@
           ]
         },
         {
-          "id": "centered_closing_copy_pv",
-          "description": "A large centered multiline heading and compact supporting description form the primary copy block in the upper slide area.",
+          "id": "title_body_block_pv",
+          "description": "Eyebrow label, headline and supporting paragraph.",
           "position": {
-            "x": 151.56,
-            "y": 110.31
+            "x": 64,
+            "y": 96
           },
           "elements": [
             {
-              "type": "flex",
+              "type": "text",
               "position": {
                 "x": 0,
                 "y": 0
               },
               "size": {
-                "width": 976.8800000000001,
-                "height": 152.8
+                "width": 696,
+                "height": 21
               },
-              "direction": "column",
-              "align_items": "center",
-              "gap": 10.45,
-              "children": [
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#1A1919",
+                "line_height": 1.3,
+                "bold": true,
+                "letter_spacing": 1.2
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
                 {
-                  "type": "text",
-                  "size": {
-                    "width": 976.88,
-                    "height": 125.02
-                  },
-                  "rotation": 0,
+                  "text": "MEET YOUR PRESENTER",
                   "font": {
-                    "size": 62.2,
-                    "family": "Montserrat Medium",
-                    "color": "#1A1919",
-                    "bold": false,
-                    "line_height": 0.98
-                  },
-                  "alignment": {
-                    "horizontal": "center",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "Thank you for reviewing our marketing performance report",
-                      "font": {
-                        "size": 62.2,
-                        "family": "Montserrat Medium",
-                        "color": "#1A1919",
-                        "bold": false,
-                        "line_height": 0.98
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "closing_heading",
-                  "max_length": 56,
-                  "min_length": 28
-                },
-                {
-                  "type": "text",
-                  "size": {
-                    "width": 584.36,
-                    "height": 17.33
-                  },
-                  "rotation": 0,
-                  "font": {
-                    "size": 13.33,
+                    "size": 14,
                     "family": "Montserrat",
                     "color": "#1A1919",
                     "line_height": 1.3,
-                    "letter_spacing": 0.13
-                  },
-                  "alignment": {
-                    "horizontal": "center",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "Insights that inform smarter decisions, stronger campaigns, and sustainable growth.",
-                      "font": {
-                        "size": 13.33,
-                        "family": "Montserrat",
-                        "color": "#1A1919",
-                        "line_height": 1.3,
-                        "letter_spacing": 0.13
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "supporting_description",
-                  "max_length": 83,
-                  "min_length": 41
+                    "bold": true,
+                    "letter_spacing": 1.2
+                  }
                 }
               ],
-              "name": "closing_copy_stack",
-              "max_children": 2,
-              "min_children": 2
+              "decorative": false,
+              "name": "eyebrow_label",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 33
+              },
+              "size": {
+                "width": 696,
+                "height": 86
+              },
+              "rotation": 0,
+              "font": {
+                "size": 38,
+                "family": "Montserrat Medium",
+                "color": "#000000",
+                "line_height": 1.1,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "A clear message from the person behind it",
+                  "font": {
+                    "size": 38,
+                    "family": "Montserrat Medium",
+                    "color": "#000000",
+                    "line_height": 1.1,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 12,
+              "max_length": 48
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 131
+              },
+              "size": {
+                "width": 696,
+                "height": 73
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.3,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Your presenter walks the audience through the idea in their own voice, so the key message lands in seconds.",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.3,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "intro_text",
+              "min_length": 40,
+              "max_length": 150
+            }
+          ]
+        },
+        {
+          "id": "key_points_list_pv",
+          "description": "Three stacked key points with markers.",
+          "position": {
+            "x": 64,
+            "y": 324
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 6.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#1A1919",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 0.0
+              },
+              "size": {
+                "width": 670,
+                "height": 23
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.3,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Clear goals",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.3,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 25.0
+              },
+              "size": {
+                "width": 670,
+                "height": 21
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.3,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Everyone knows what we are aiming for.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.3,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 68.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#1A1919",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 62.0
+              },
+              "size": {
+                "width": 670,
+                "height": 23
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.3,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Shared context",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.3,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 87.0
+              },
+              "size": {
+                "width": 670,
+                "height": 21
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.3,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The background behind each decision.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.3,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 130.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#1A1919",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 124.0
+              },
+              "size": {
+                "width": 670,
+                "height": 23
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.3,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Next steps",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.3,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 149.0
+              },
+              "size": {
+                "width": 670,
+                "height": 21
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.3,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What happens right after this slide.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.3,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_text",
+              "min_length": 12,
+              "max_length": 64
             }
           ]
         }

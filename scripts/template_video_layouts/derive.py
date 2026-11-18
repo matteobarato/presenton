@@ -10,7 +10,13 @@ from .archetypes import placeholder_component
 STAGE_W, STAGE_H = 1280, 720
 MIN_IMAGE_AREA = 100_000
 MAX_PLACEHOLDER_WIDTH = 360
+MIN_PLACEHOLDER_WIDTH = 160
+SEARCH_STEP = 8
 PORTRAIT = 16 / 9
+# Elements a presenter video must not cover.
+CONTENT_TYPES = frozenset({"text", "chart", "table", "infographic", "gauge", "progress_bar", "vertical_funnel"})
+# Laid out at render time: the box is what counts, the children's stored positions say nothing.
+LAID_OUT_TYPES = frozenset({"flex", "grid"})
 
 
 def _is_candidate(el: Any) -> bool:
@@ -42,13 +48,89 @@ def _has_placeholder(layout: dict) -> bool:
     )
 
 
-def _portrait_box(old_w: float, old_h: float) -> tuple[int, int]:
-    w = min(MAX_PLACEHOLDER_WIDTH, old_w)
-    h = w * PORTRAIT
-    if h > old_h:
-        h = old_h
-        w = h / PORTRAIT
-    return round(w), round(h)
+def _content_boxes(value: Any, offset: tuple[float, float] = (0.0, 0.0)):
+    """Stage boxes (x, y, w, h) of content elements; nested positions are relative to their parent."""
+    if isinstance(value, dict):
+        pos = value.get("position") if isinstance(value.get("position"), dict) else {}
+        x, y = offset[0] + (pos.get("x") or 0), offset[1] + (pos.get("y") or 0)
+        size = value.get("size")
+        has_box = isinstance(size, dict) and size.get("width") and size.get("height")
+        if has_box and value.get("type") in CONTENT_TYPES | LAID_OUT_TYPES:
+            yield (x, y, size["width"], size["height"])
+            if value.get("type") in LAID_OUT_TYPES:
+                return
+        for child in value.values():
+            yield from _content_boxes(child, (x, y))
+    elif isinstance(value, list):
+        for child in value:
+            yield from _content_boxes(child, offset)
+
+
+def _panel_boxes(components: list[dict]):
+    """Boxes of visible filled panels, which hide whatever sits beneath their layer.
+    Slide-sized backdrops are left out: they are a wash, not a card."""
+    for comp in components:
+        for el, (x, y) in _with_offsets(comp.get("elements", []), (comp["position"]["x"], comp["position"]["y"])):
+            size, fill = el.get("size"), el.get("fill")
+            if not isinstance(fill, dict):
+                continue
+            if el.get("type") == "vector" and el.get("points"):
+                xs = [p.get("x", 0) for p in el["points"] if isinstance(p, dict)]
+                ys = [p.get("y", 0) for p in el["points"] if isinstance(p, dict)]
+                if not xs or not ys:
+                    continue
+                x, y = x + min(xs), y + min(ys)
+                w, h = max(xs) - min(xs), max(ys) - min(ys)
+            elif el.get("type") == "container" and isinstance(size, dict):
+                w, h = size.get("width") or 0, size.get("height") or 0
+            else:
+                continue
+            if (fill.get("opacity", 1) or 0) >= 0.3 and w and h and not (w >= 1000 and h >= 600):
+                yield (x, y, w, h)
+
+
+def _with_offsets(value: Any, offset: tuple[float, float]):
+    if isinstance(value, dict):
+        pos = value.get("position") if isinstance(value.get("position"), dict) else {}
+        x, y = offset[0] + (pos.get("x") or 0), offset[1] + (pos.get("y") or 0)
+        yield value, (x, y)
+        for child in value.values():
+            yield from _with_offsets(child, (x, y))
+    elif isinstance(value, list):
+        for child in value:
+            yield from _with_offsets(child, offset)
+
+
+def _overlaps(blockers: list[tuple], box: tuple[float, float, float, float]) -> bool:
+    bx, by, bw, bh = box
+    return any(
+        min(bx + bw, cx + cw) - max(bx, cx) > 1 and min(by + bh, cy + ch) - max(by, cy) > 1
+        for cx, cy, cw, ch in blockers
+    )
+
+
+def _place(blockers: list[tuple], area: tuple[float, float, float, float]) -> tuple[float, float, int, int] | None:
+    """The largest portrait box inside `area` that covers no content, nearest the area's centre."""
+    left, top, width, height = area
+    widths = range(min(MAX_PLACEHOLDER_WIDTH, int(width)), MIN_PLACEHOLDER_WIDTH - 1, -24)
+    for w in widths:
+        h = round(w * PORTRAIT)
+        if h > height:
+            continue
+        best = None
+        x = left
+        while x + w <= left + width + 0.01:
+            y = top
+            while y + h <= top + height + 0.01:
+                if not _overlaps(blockers, (x, y, w, h)):
+                    dist = abs(x + w / 2 - (left + width / 2)) + abs(y + h / 2 - (top + height / 2))
+                    if best is None or dist < best[0]:
+                        best = (dist, x, y)
+                y += SEARCH_STEP
+            x += SEARCH_STEP
+        if best:
+            return best[1], best[2], w, h
+    return None
 
 
 def derive_layouts(template: dict[str, Any], count: int, start: int) -> list[dict]:
@@ -67,7 +149,10 @@ def derive_layouts(template: dict[str, Any], count: int, start: int) -> list[dic
     candidates.sort(key=lambda c: -c[0])
 
     out = []
-    for n, (_, layout, (ci, ei, image)) in enumerate(candidates[:count], start):
+    for _, layout, (ci, ei, image) in candidates:
+        if len(out) == count:
+            break
+        n = start + len(out)
         new = copy.deepcopy(layout)
         comp = new["components"][ci]
         # The part of the image that is on the stage: a bleeding image must not pull the placeholder off it.
@@ -75,10 +160,12 @@ def derive_layouts(template: dict[str, Any], count: int, start: int) -> list[dic
         top = max(0, comp["position"]["y"] + image["position"]["y"])
         right = min(STAGE_W, comp["position"]["x"] + image["position"]["x"] + image["size"]["width"])
         bottom = min(STAGE_H, comp["position"]["y"] + image["position"]["y"] + image["size"]["height"])
-        w, h = _portrait_box(right - left, bottom - top)
-        x = left + (right - left - w) / 2
-        y = top + (bottom - top - h) / 2
         del comp["elements"][ei]
+        blockers = list(_content_boxes(new["components"])) + list(_panel_boxes(new["components"][ci + 1 :]))
+        spot = _place(blockers, (left, top, right - left, bottom - top))
+        if spot is None:
+            continue  # the avatar would sit on top of text or a chart: not a layout worth offering
+        x, y, w, h = spot
         holder = placeholder_component(round(x, 2), round(y, 2), w, h)
         # The placeholder takes the image's place in the layering, just above the component it left.
         insert_at = ci + 1 if comp["elements"] else ci
