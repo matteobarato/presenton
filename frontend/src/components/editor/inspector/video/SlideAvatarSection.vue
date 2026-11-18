@@ -48,13 +48,13 @@ function picked(e: Event) {
 </script>
 
 <template>
-  <section class="flex flex-col gap-2" aria-label="Avatar video" :data-chip="chip" data-testid="slide-avatar">
+  <section class="flex flex-col gap-2.5 rounded-card border border-white/[0.06] p-3" aria-label="Slide avatar video" :data-chip="chip" data-testid="slide-avatar">
     <div class="flex items-center gap-2">
-      <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Avatar video</h3>
+      <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Slide {{ n }}</h3>
       <AvatarChip :kind="chip" class="ml-auto" />
     </div>
 
-    <label class="flex items-start gap-2.5 rounded-card border border-white/[0.06] p-2.5 text-[11px] text-muted">
+    <label class="flex items-start gap-2.5 text-[11px] leading-[1.5] text-muted">
       <Switch
         :model-value="hasPlaceholder"
         :disabled="busy"
@@ -87,15 +87,20 @@ function picked(e: Event) {
       </Button>
     </div>
 
+    <p
+      v-else-if="!video"
+      class="rounded-card bg-black/15 px-2.5 py-2 text-[11px] leading-[1.5] text-muted"
+      data-testid="slide-no-video"
+    >
+      No video yet. Generate one from the deck portrait and this slide's narration, or upload your own.
+    </p>
+
     <div v-if="plan?.state === 'queued' || plan?.state === 'generating'" class="flex flex-col gap-1" role="status">
       <Progress :model-value="progress" aria-label="Avatar generation progress" />
       <span class="text-[11px] text-muted">{{ task?.message || 'Generating avatar…' }}</span>
     </div>
 
-    <div class="grid grid-cols-2 gap-2">
-      <Button size="sm" variant="outline" :disabled="busy" @click="input?.click()">
-        <Upload class="size-3.5" aria-hidden="true" />{{ video ? 'Replace video' : 'Upload video' }}
-      </Button>
+    <div class="grid grid-cols-1 gap-2">
       <Button
         size="sm"
         variant="secondary"
@@ -104,6 +109,9 @@ function picked(e: Event) {
         @click="requestGenerate([slide.index])"
       >
         <Video class="size-3.5" aria-hidden="true" />Generate avatar
+      </Button>
+      <Button size="sm" variant="outline" :disabled="busy" @click="input?.click()">
+        <Upload class="size-3.5" aria-hidden="true" />{{ video ? 'Replace video' : 'Upload video' }}
       </Button>
     </div>
     <!-- A slide's own blockers (placeholder, narration) are explained above; this is for deck-wide ones. -->

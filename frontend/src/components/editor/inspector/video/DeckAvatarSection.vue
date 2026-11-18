@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, useTemplateRef } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 import { ChevronDown } from 'lucide-vue-next'
 import type { Presentation, Slide } from '@/api/types'
 import SlideView from '@/render/SlideView.vue'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { injectDeckNarration } from '../narration/useDeckNarration'
 import BubblePlacer from './BubblePlacer.vue'
 import PortraitCard from './PortraitCard.vue'
@@ -22,19 +21,27 @@ const {
   placeholderSlides,
   deckRunBlocker,
   requestGenerate,
-  running,
-  progress,
-  task,
   taskError,
 } = injectDeckAvatars()
 
 // Per-viewer convenience; useLocalStorage falls back to memory when storage is unavailable.
 const open = useLocalStorage('presenton.editor.deck-avatars-open', true)
+const root = useTemplateRef<HTMLElement>('root')
+/** Opens the section and brings the portrait picker into view (the overview's "Missing portrait" fix). */
+async function revealPortrait() {
+  open.value = true
+  await nextTick()
+  const el = root.value?.querySelector<HTMLElement>('[aria-label="Presenter portrait"]')
+  el?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
+  el?.querySelector<HTMLElement>('button')?.focus()
+}
+defineExpose({ revealPortrait })
+
 const summary = computed(() => [languageName.value, `${eligibleSlides.value.length}/${placeholderSlides.value.length} ready`].filter(Boolean).join(' · '))
 </script>
 
 <template>
-  <section class="flex flex-col rounded-card border border-white/[0.06]" aria-label="Whole deck avatars">
+  <section ref="root" class="flex flex-col rounded-card border border-white/[0.06]" aria-label="Whole deck avatars">
     <button
       type="button"
       class="flex min-h-11 items-center gap-2 rounded-card px-3 text-left transition-colors duration-200 hover:bg-white/[0.03]"
@@ -46,11 +53,6 @@ const summary = computed(() => [languageName.value, `${eligibleSlides.value.leng
       <span class="min-w-0 flex-1 truncate text-right text-[11px] text-muted">{{ summary }}</span>
       <ChevronDown class="size-3.5 flex-none text-muted transition-transform duration-200" :class="open && 'rotate-180'" aria-hidden="true" />
     </button>
-
-    <div v-if="running" class="flex flex-col gap-1 px-3 pb-3" role="status">
-      <Progress :model-value="progress" aria-label="Avatar generation progress" />
-      <span class="text-[11px] text-muted">{{ task?.message || 'Generating avatars…' }}</span>
-    </div>
 
     <div v-show="open" id="deck-avatars-body" class="flex flex-col gap-5 border-t border-white/[0.06] p-3">
       <p class="text-[11px] text-muted" data-testid="avatar-language">

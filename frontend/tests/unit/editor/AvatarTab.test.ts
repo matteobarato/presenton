@@ -307,13 +307,6 @@ describe('AvatarTab: avatars for the whole deck', () => {
 })
 
 describe('AvatarTab: layout and shared state', () => {
-  it('renders this slide before the whole deck', async () => {
-    const { wrapper } = await mountTab()
-    const root = wrapper.find('section[aria-label="Avatar"]')
-    const sections = [...root.element.children].map((e) => e.getAttribute('data-testid') ?? e.getAttribute('aria-label'))
-    expect(sections).toEqual(['slide-avatar', 'Whole deck avatars'])
-  })
-
   it('has no speech controls', async () => {
     const { wrapper } = await mountTab()
     expect(wrapper.find('[data-testid="slide-voice"]').exists()).toBe(false)
@@ -371,3 +364,75 @@ describe('AvatarTab: layout and shared state', () => {
     expect(wrapper.findAll('[aria-label="Avatar generation progress"]')).toHaveLength(1)
   })
 })
+
+describe('AvatarTab: overview', () => {
+  const overview = (w: VueWrapper) => w.find('[data-testid="avatar-overview"]')
+  const cell = (w: VueWrapper, row: string, col: 'deck' | 'slide') => w.find(`[data-testid="overview-${row}-${col}"]`)
+
+  it('leads the tab, ahead of this slide and the whole deck', async () => {
+    const { wrapper } = await mountTab()
+    const root = wrapper.find('section[aria-label="Avatar"]')
+    const sections = [...root.element.children].map((e) => e.getAttribute('data-testid') ?? e.getAttribute('aria-label'))
+    expect(sections.slice(0, 3)).toEqual(['avatar-overview', 'slide-avatar', 'Whole deck avatars'])
+  })
+
+  it('states up front that avatar generation is available', async () => {
+    const { wrapper } = await mountTab()
+    const cap = overview(wrapper).find('[data-testid="avatar-capability"]')
+    expect(cap.attributes('data-state')).toBe('on')
+    expect(overview(wrapper).text()).toContain('lip-synced')
+  })
+
+  it('says how to turn generation on when the server is not configured, and that uploads still work', async () => {
+    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: false, portrait: null, videos: [] })
+    const { wrapper } = await mountTab()
+    expect(overview(wrapper).find('[data-testid="avatar-capability"]').attributes('data-state')).toBe('off')
+    expect(overview(wrapper).text()).toContain('HEYGEN_API_KEY')
+    expect(overview(wrapper).text()).toContain('upload')
+  })
+
+  it('puts the deck and this slide side by side, headed with the names of the sections below', async () => {
+    const { wrapper } = await mountTab()
+    const heads = overview(wrapper).findAll('thead th').map((t) => t.text())
+    expect(heads).toContain('Deck')
+    expect(heads).toContain('Slide 1')
+    expect(cell(wrapper, 'portrait', 'deck').text()).toContain('Added')
+    expect(cell(wrapper, 'narration', 'slide').text()).toContain('Ready')
+    expect(cell(wrapper, 'placeholder', 'deck').text()).toContain('2/3')
+    await show(wrapper, 2)
+    expect(overview(wrapper).findAll('thead th').map((t) => t.text())).toContain('Slide 3')
+    expect(cell(wrapper, 'placeholder', 'slide').text()).toContain('Off')
+  })
+
+  it('turns a missing slide requirement into a one-click fix', async () => {
+    const { wrapper } = await mountTab(2)
+    await cell(wrapper, 'placeholder', 'slide').find('button').trigger('click')
+    await flushPromises()
+    expect(m.addPlaceholder).toHaveBeenCalled()
+  })
+
+  it('opens the footer Voice tab from a narration fix', async () => {
+    const { useEditorStore } = await import('@/stores/editor')
+    const { wrapper } = await mountTab(2)
+    await cell(wrapper, 'narration', 'slide').find('button').trigger('click')
+    expect(useEditorStore().footerOpen).toBe(true)
+    expect(useEditorStore().footerTab).toBe('voice')
+  })
+
+  it('opens the portrait settings from a missing-portrait fix', async () => {
+    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait: null, videos: [] })
+    const { wrapper } = await mountTab()
+    localStorage.setItem('presenton.editor.deck-avatars-open', 'false')
+    await cell(wrapper, 'portrait', 'deck').find('button').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('#deck-avatars-body').attributes('style') ?? '').not.toContain('display: none')
+  })
+
+  it('offers both ways to add a video on a slide without one', async () => {
+    const { wrapper } = await mountTab()
+    expect(avatar(wrapper).text()).toContain('No video yet')
+    expect(button(avatar(wrapper) as never, 'Generate avatar').exists()).toBe(true)
+    expect(button(avatar(wrapper) as never, 'Upload video').exists()).toBe(true)
+  })
+})
+
