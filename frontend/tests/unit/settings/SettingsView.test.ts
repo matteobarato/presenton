@@ -22,6 +22,7 @@ vi.mock('@/api/auth', () => ({ getAuthStatus: vi.fn(), logout }))
 vi.mock('@/api/next-routes', () => ({ getRuntimeConfig: vi.fn().mockResolvedValue({ configured: true, config: {}, generationMode: 'both' }) }))
 vi.mock('vue-sonner', () => ({ toast: { error: vi.fn(), warning: vi.fn(), success: vi.fn() } }))
 
+const SIDEBAR_ITEMS = 'nav[aria-label="Settings sections"] button'
 const stub = { template: '<div />' }
 const FAKE_KEY = 'sk-test-fake'
 const ADMIN_CONFIG: ProviderConfig = {
@@ -80,7 +81,7 @@ describe('SettingsView', () => {
     getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
     const w = await mountAt('/settings/text')
 
-    const tabs = w.findAll('[role="tablist"] [role="tab"]')
+    const tabs = w.findAll(SIDEBAR_ITEMS)
     expect(tabs.map((t) => t.text())).toEqual([
       expect.stringContaining('Text'),
       expect.stringContaining('Images'),
@@ -106,10 +107,10 @@ describe('SettingsView', () => {
     getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
     const w = await mountAt('/settings/text')
     setField('OPENAI_MODEL', 'gpt-4.1-mini')
-    await w.findAll('[role="tab"]')[1]!.trigger('click')
+    await w.findAll(SIDEBAR_ITEMS)[1]!.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.params.section).toBe('images')
-    expect(w.findAll('[role="tab"]')[1]!.attributes('aria-selected')).toBe('true')
+    expect(w.findAll(SIDEBAR_ITEMS)[1]!.attributes('aria-current')).toBe('page')
     expect(w.text()).toContain('Discard')
     expect(w.text()).toContain('OpenAI (gpt-4.1-mini)')
   })
@@ -194,11 +195,11 @@ describe('SettingsView', () => {
     getProviderSettings.mockResolvedValueOnce(ADMIN_CONFIG)
     const w = await mountAt('/settings/text')
     expect(w.get('[role="alert"]').text()).toContain('Server exploded')
-    expect(w.find('[role="tablist"]').exists()).toBe(false)
+    expect(w.find('nav[aria-label="Settings sections"]').exists()).toBe(false)
     await w.findAll('button').find((b) => b.text() === 'Retry')!.trigger('click')
     await flushPromises()
     expect(getProviderSettings).toHaveBeenCalledTimes(2)
-    expect(w.find('[role="tablist"]').exists()).toBe(true)
+    expect(w.find('nav[aria-label="Settings sections"]').exists()).toBe(true)
     expect(w.text()).toContain('OpenAI (gpt-4.1)')
   })
 

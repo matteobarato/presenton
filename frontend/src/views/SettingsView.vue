@@ -104,7 +104,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
     <div v-else class="flex gap-8 max-[760px]:flex-col max-[760px]:gap-5">
       <SettingsSidebar :section="section" :config="readOnlyMode ? runtimeConfig : draft" @select="go" />
 
-      <div class="min-w-0 flex-1" role="tabpanel" :aria-label="TITLES[section]">
+      <div class="min-w-0 flex-1">
         <h2 class="mb-5 text-[16px] font-medium text-[#e4ecf0]">{{ TITLES[section] }}</h2>
         <AccountSection v-if="section === 'account'" />
         <ReadOnlySummary v-else-if="readOnlyMode" :mode="readOnlyMode" :config="runtimeConfig" />
