@@ -4,10 +4,10 @@ import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import AccountSection from '@/components/settings/AccountSection.vue'
 import ImagesSection from '@/components/settings/ImagesSection.vue'
 import ReadOnlySummary from '@/components/settings/ReadOnlySummary.vue'
-import SectionPlaceholder from '@/components/settings/SectionPlaceholder.vue'
 import SettingsSaveBar from '@/components/settings/SettingsSaveBar.vue'
 import SettingsSidebar from '@/components/settings/SettingsSidebar.vue'
 import TextSection from '@/components/settings/TextSection.vue'
+import WebSearchSection from '@/components/settings/WebSearchSection.vue'
 import PageHeader from '@/components/shell/PageHeader.vue'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -23,11 +23,10 @@ const TITLES: Record<SettingsSection, string> = {
   'web-search': 'Web search',
   account: 'Account',
 }
-// Replaced by the real section components in later tasks.
 const EDITORS: Record<Exclude<SettingsSection, 'account'>, Component> = {
   text: TextSection,
   images: ImagesSection,
-  'web-search': SectionPlaceholder,
+  'web-search': WebSearchSection,
 }
 const LEAVE_PROMPT = 'You have unsaved changes. Leave without saving?'
 

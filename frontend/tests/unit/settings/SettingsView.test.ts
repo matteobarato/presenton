@@ -7,7 +7,7 @@ import type { ProviderConfig } from '@/settings/types'
 import { useSessionStore } from '@/stores/session'
 import SettingsView from '@/views/SettingsView.vue'
 import ImagesSection from '@/components/settings/ImagesSection.vue'
-import SectionPlaceholder from '@/components/settings/SectionPlaceholder.vue'
+import WebSearchSection from '@/components/settings/WebSearchSection.vue'
 import TextSection from '@/components/settings/TextSection.vue'
 
 const getProviderSettings = vi.hoisted(() => vi.fn<() => Promise<ProviderConfig>>())
@@ -55,7 +55,7 @@ async function mountAt(path: string): Promise<VueWrapper> {
 }
 
 function setField(field: string, value: unknown) {
-  const editor = [TextSection, ImagesSection, SectionPlaceholder].map((c) => wrapper!.findComponent(c)).find((c) => c.exists())
+  const editor = [TextSection, ImagesSection, WebSearchSection].map((c) => wrapper!.findComponent(c)).find((c) => c.exists())
   editor!.vm.$emit('set', field, value)
 }
 
@@ -95,7 +95,6 @@ describe('SettingsView', () => {
     expect(w.text()).toContain('Pexels')
     expect(w.text()).toContain('Web search disabled')
     expect(w.findComponent(TextSection).exists()).toBe(true)
-    expect(w.text()).not.toContain('Coming in this slice')
     expect(w.find('button[type="button"]').exists()).toBe(true)
     expect(w.text()).not.toContain('Discard')
 
@@ -184,13 +183,23 @@ describe('SettingsView', () => {
     expect(getProviderSettings).not.toHaveBeenCalled()
   })
 
+  it('renders the web search editor and marks the draft dirty on a toggle', async () => {
+    signIn('admin')
+    getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
+    const w = await mountAt('/settings/web-search')
+    expect(w.findComponent(WebSearchSection).exists()).toBe(true)
+    expect(w.text()).not.toContain('Discard')
+    await w.get('[role="switch"]').trigger('click')
+    await flushPromises()
+    expect(w.text()).toContain('Discard')
+  })
+
   it('shows the locked message when the admin endpoint answers 403', async () => {
     signIn('admin', { LLM: 'openai', OPENAI_MODEL: 'gpt-4.1' })
     getProviderSettings.mockRejectedValue(new ApiError('Forbidden', 403, { detail: 'Forbidden' }))
     const w = await mountAt('/settings/images')
     expect(w.text()).toContain('Provider settings are locked by this deployment.')
     expect(w.find('input').exists()).toBe(false)
-    expect(w.text()).not.toContain('Coming in this slice')
   })
 
   it('shows a destructive alert with Retry on a load error, and Retry calls the API again', async () => {
