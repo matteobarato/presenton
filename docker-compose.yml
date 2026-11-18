@@ -13,6 +13,8 @@ services:
     volumes:
       - ./app_data:/app_data
       - ./servers/fastapi/templates:/app/servers/fastapi/templates:ro
+      # Bundled templates, read on every startup; mounted so edits apply on restart.
+      - ./templates:/app/templates:ro
       - ./secrets:/secrets
     environment:
       - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium

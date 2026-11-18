@@ -20,7 +20,7 @@ const stageEl = ref<HTMLElement | null>(null)
 const { data: presentation } = usePresentation(toRef(props, 'presentationId'), useEditorFetchGate())
 // The slide's editing state is provided by EditorView, so the inspector shares it.
 // The slide's avatar video shows in its placeholder on the canvas.
-const { src: videoSrc } = useSlideVideo(() => props.presentationId, () => props.slide?.index)
+const { src: videoSrc } = useSlideVideo(() => props.presentationId, () => props.slide?.id)
 const smart = computed(() => !!props.slide && slideKind(props.slide) === 'smart')
 
 // Ease zoom steps, but only around a zoom change: during panel animations the slide must

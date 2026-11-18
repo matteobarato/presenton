@@ -253,6 +253,9 @@ class Image(BaseModel):  # Konva Image
     border_radius: Optional[BorderRadius] = None
     clip_path: Optional[str] = None
     color: Optional[str] = None
+    # Marks the slot an avatar video plays in (services/slide_video_service.py),
+    # so a template layout can place one.
+    video_placeholder: Optional[bool] = None
 
     # Schema
     decorative: bool

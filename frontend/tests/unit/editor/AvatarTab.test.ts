@@ -196,7 +196,7 @@ describe('AvatarTab: avatar of the active slide', () => {
       presentation_id: 'p1',
       generation_available: true,
       portrait,
-      videos: [{ slide_index: 0, source: 'upload', stale: false, original_filename: 'clip.mp4' }],
+      videos: [{ slide_index: 0, slide_id: 's0', source: 'upload', stale: false, original_filename: 'clip.mp4' }],
     })
     const { wrapper } = await mountTab()
     expect(avatar(wrapper).text()).toContain('clip.mp4')

@@ -49,7 +49,7 @@ const rows = computed(() =>
     totalSlides: props.totalSlides,
     placeholderCount: placeholderSlides.value.length,
     eligibleCount: eligibleSlides.value.length,
-    videoCount: placeholderSlides.value.filter((s) => videoBySlide.value.has(s.index)).length,
+    videoCount: placeholderSlides.value.filter((s) => videoBySlide.value.has(s.id)).length,
     slide: props.slide && { chip: chipOf(props.slide), narration: stateOf(props.slide), hasPlaceholder: hasVideoPlaceholder(props.slide) },
   }),
 )

@@ -15,7 +15,7 @@ const sorted = computed(() => [...props.slides].sort((a, b) => a.index - b.index
 const size = (b?: number | null) => (b ? `${(b / 1048576).toFixed(1)} MB` : null)
 const duration = (s?: number | null) => (s ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}` : null)
 function stats(s: Slide) {
-  const v = videoBySlide.value.get(s.index)
+  const v = videoBySlide.value.get(s.id)
   return v ? [duration(v.duration_seconds), size(v.size_bytes), v.format?.toUpperCase()].filter(Boolean).join(' · ') : 'No video'
 }
 function select(s: Slide) {
@@ -37,8 +37,8 @@ function select(s: Slide) {
           @click="select(s)"
         >
           <video
-            v-if="videoBySlide.get(s.index)?.url"
-            :src="`${videoBySlide.get(s.index)!.url}#t=0.1`"
+            v-if="videoBySlide.get(s.id)?.url"
+            :src="`${videoBySlide.get(s.id)!.url}#t=0.1`"
             muted
             playsinline
             preload="metadata"

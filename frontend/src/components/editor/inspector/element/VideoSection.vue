@@ -8,7 +8,7 @@ import SlideAvatarSection from '../video/SlideAvatarSection.vue'
 /** The avatar placeholder's video, previewed. Shows this slide's card state with its generate and upload buttons. */
 const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 
-const { video, src, isPending } = useSlideVideo(() => props.presentationId, () => props.slide?.index)
+const { video, src, isPending } = useSlideVideo(() => props.presentationId, () => props.slide?.id)
 const name = computed(() =>
   video.value ? video.value.original_filename || (video.value.source === 'heygen' ? 'Generated avatar' : 'Uploaded video') : null,
 )

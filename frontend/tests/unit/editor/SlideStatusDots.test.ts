@@ -61,7 +61,7 @@ describe('SlideStatusDots', () => {
   })
 
   it('shows ready narration and an avatar dot', async () => {
-    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait, videos: [{ slide_index: 0 }] })
+    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait, videos: [{ slide_index: 0, slide_id: 's0' }] })
     const w = await mountDots(0)
     await vi.waitFor(() => expect(w.find('[aria-label="Narration ready"]').exists()).toBe(true))
     await vi.waitFor(() => expect(w.find('[aria-label="Avatar video"]').exists()).toBe(true))

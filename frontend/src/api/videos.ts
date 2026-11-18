@@ -113,28 +113,32 @@ export function slidePlans(task: Pick<AsyncTask, 'data'> | null | undefined): Av
   return Array.isArray(slides) ? (slides as AvatarSlidePlan[]) : []
 }
 
-/** A slide's video (by slide index) and its playable same-origin src, from the deck's shared videos query. */
-export function useSlideVideo(presentationId: MaybeRefOrGetter<string>, slideIndex: MaybeRefOrGetter<number | null | undefined>) {
+/**
+ * A slide's video and its playable same-origin src, from the deck's shared videos query. Matched by
+ * slide id: a video belongs to its slide row, while the cached `slide_index` goes stale as soon as a
+ * slide is added, removed or moved.
+ */
+export function useSlideVideo(presentationId: MaybeRefOrGetter<string>, slideId: MaybeRefOrGetter<string | null | undefined>) {
   const query = useQuery({
     queryKey: () => videoKeys.all(toValue(presentationId)),
     queryFn: () => getVideos(toValue(presentationId)),
   })
   const video = computed(() => {
-    const index = toValue(slideIndex)
-    return index == null ? undefined : (query.data.value?.videos ?? []).find((v) => v.slide_index === index)
+    const id = toValue(slideId)
+    return id ? (query.data.value?.videos ?? []).find((v) => v.slide_id === id) : undefined
   })
   const src = computed(() => (video.value?.url ? audioSrc({ url: video.value.url }) : null))
   return { video, src, isPending: query.isPending }
 }
 
-/** Playable src of every slide's video, by slide index, from the deck's shared videos query. */
+/** Playable src of every slide's video, by slide id, from the deck's shared videos query. */
 export function useDeckVideoSrcs(presentationId: MaybeRefOrGetter<string>) {
   const query = useQuery({
     queryKey: () => videoKeys.all(toValue(presentationId)),
     queryFn: () => getVideos(toValue(presentationId)),
   })
-  return (slideIndex: number | null | undefined): string | null => {
-    const video = (query.data.value?.videos ?? []).find((v) => v.slide_index === slideIndex)
+  return (slideId: string | null | undefined): string | null => {
+    const video = slideId ? (query.data.value?.videos ?? []).find((v) => v.slide_id === slideId) : undefined
     return video?.url ? audioSrc({ url: video.url }) : null
   }
 }

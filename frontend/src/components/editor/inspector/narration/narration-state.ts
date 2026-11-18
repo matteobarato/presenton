@@ -5,11 +5,15 @@ export type NarrationState = 'missing' | 'ready' | 'stale' | 'translated'
 
 const normalise = (s: string | null | undefined) => (s ?? '').replace(/\s+/g, ' ').trim()
 
-/** The audio entry for a slide. The backend keys entries by `slide_index` (= `slide.index`), with `slide_id` as a fallback. */
+/**
+ * The audio entry for a slide: by `slide_id` first, since a cached `slide_index` goes stale when a
+ * slide is added, removed or moved; by index only for an entry without an id.
+ */
 export function audioForSlide(slide: Slide, audios: readonly TtsAudio[] | undefined): TtsAudio | undefined {
   if (!audios) return undefined
   return (
-    audios.find((a) => a.slide_index === slide.index) ?? (slide.id ? audios.find((a) => a.slide_id === slide.id) : undefined)
+    (slide.id ? audios.find((a) => a.slide_id === slide.id) : undefined) ??
+    audios.find((a) => !a.slide_id && a.slide_index === slide.index)
   )
 }
 

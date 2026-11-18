@@ -27,7 +27,7 @@ const narrationDot = computed(() => {
   if (narration.value === 'stale') return { label: 'Narration out of date', tone: 'bg-danger-text' }
   return null
 })
-const hasVideo = computed(() => Boolean(videos.value?.videos?.some((v) => v.slide_index === props.slideIndex)))
+const hasVideo = computed(() => Boolean(slide.value?.id && videos.value?.videos?.some((v) => v.slide_id === slide.value?.id)))
 </script>
 
 <template>

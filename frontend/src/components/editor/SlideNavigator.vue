@@ -128,7 +128,7 @@ watch(
                   :slide="element"
                   :theme="presentation?.theme"
                   :fonts="presentation?.fonts"
-                  :video-src="videoSrcFor(element.index)"
+                  :video-src="videoSrcFor(element.id)"
                   fit="width"
                   lazy
                   class="pointer-events-none overflow-hidden rounded-[3px]"

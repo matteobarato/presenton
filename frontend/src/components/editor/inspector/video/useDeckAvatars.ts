@@ -18,6 +18,7 @@ import {
   uploadSlideVideo,
   videoKeys,
   type AvatarSlidePlan,
+  type SlideVideo,
 } from '@/api/videos'
 import { useAsyncTask } from '@/composables/useAsyncTask'
 import { failToast, type DeckNarration } from '../narration/useDeckNarration'
@@ -43,9 +44,11 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
   })
 
   const slides = computed(() => [...presentation.value.slides].sort((a, b) => a.index - b.index))
-  const videoBySlide = computed(() => new Map((videos.value?.videos ?? []).map((v) => [v.slide_index, v])))
+  // Keyed by slide id, not index: these are server snapshots, and a slide added, removed or moved
+  // since shifts every index after it.
+  const videoBySlide = computed(() => new Map<string | undefined, SlideVideo>((videos.value?.videos ?? []).map((v) => [v.slide_id, v])))
   const previewReason = computed(
-    () => new Map((preview.value?.slides ?? []).map((s) => [s.slide_index as number, (s.reason as string | undefined) ?? null])),
+    () => new Map<string | undefined, string | null>((preview.value?.slides ?? []).map((s) => [s.slide_id as string, (s.reason as string | undefined) ?? null])),
   )
 
   // Generation task
@@ -72,7 +75,7 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
     }
   })
   const plans = computed<AvatarSlidePlan[]>(() => (task.value?.data ? slidePlans(task.value) : slidePlans(generation.value)))
-  const planBySlide = computed(() => new Map(plans.value.map((p) => [p.slide_index, p])))
+  const planBySlide = computed(() => new Map<string | undefined, AvatarSlidePlan>(plans.value.map((p) => [p.slide_id, p])))
   const doneCount = computed(() => plans.value.filter((p) => p.state === 'done').length)
   watch(doneCount, (now, before) => {
     if (running.value && now > before) void refreshVideos()
@@ -84,11 +87,11 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
 
   const chipOf = (s: Slide): AvatarChipKind =>
     chipFor({
-      plan: planBySlide.value.get(s.index),
+      plan: planBySlide.value.get(s.id),
       hasPlaceholder: hasVideoPlaceholder(s),
       narration: narration.stateOf(s),
-      video: videoBySlide.value.get(s.index),
-      previewReason: previewReason.value.get(s.index),
+      video: videoBySlide.value.get(s.id),
+      previewReason: previewReason.value.get(s.id),
     })
 
   /** Why no avatar can be generated at all right now, or null. */
