@@ -4,7 +4,7 @@ import type { Ref } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { QueryClient, useQuery, VueQueryPlugin } from '@tanstack/vue-query'
 import { ApiError } from '@/api/errors'
-import NarrationTab from '@/components/editor/inspector/NarrationTab.vue'
+import VoiceTab from '@/components/editor/inspector/VoiceTab.vue'
 import { narrationState } from '@/components/editor/inspector/narration/narration-state'
 
 const m = vi.hoisted(() => ({
@@ -78,7 +78,7 @@ let queryClient: QueryClient
 async function mountTab(active = 0) {
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
-  const wrapper = mount(NarrationTab, {
+  const wrapper = mount(VoiceTab, {
     props: { presentationId: 'p1', presentation: presentation as never, activeSlide: presentation.slides[active] as never },
     global: { plugins: [[VueQueryPlugin, { queryClient }]] },
     attachTo: document.body,
@@ -146,70 +146,30 @@ describe('narrationState', () => {
   })
 })
 
-describe('NarrationTab: the active slide', () => {
+describe('VoiceTab: the active slide', () => {
   it('shows only the active slide', async () => {
     const { wrapper } = await mountTab()
     expect(wrapper.find('[data-testid="narration-slide"]').text()).toBe('Slide 1 of 3')
-    expect(wrapper.findAll('textarea')).toHaveLength(1)
+    expect(wrapper.findAll('textarea')).toHaveLength(0)
     expect(wrapper.findAll('[data-testid="slide-voice"]')).toHaveLength(1)
     expect(wrapper.findAll('[role="switch"]')).toHaveLength(1)
     await show(wrapper, 2)
     expect(wrapper.find('[data-testid="narration-slide"]').text()).toBe('Slide 3 of 3')
   })
 
-  it('autosaves the active slide note, flushing when the slide changes', async () => {
-    const { wrapper } = await mountTab()
-    const box = () => wrapper.find('textarea[aria-label="Speaker note for slide 1"]')
-    await box().setValue('Hello again')
-    await flushPromises()
-    expect(m.updateSpeakerNotes).not.toHaveBeenCalled()
-    await show(wrapper, 1)
-    expect(m.updateSpeakerNotes).toHaveBeenCalledTimes(1)
-    expect(m.updateSpeakerNotes).toHaveBeenCalledWith('p1', [{ slide_index: 0, speaker_note: 'Hello again' }])
-    expect((wrapper.find('textarea[aria-label="Speaker note for slide 2"]').element as HTMLTextAreaElement).value).toBe('Edited note')
-  })
-
-  it('autosaves after 800 ms and flushes on unmount', async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true })
-    const { wrapper } = await mountTab()
-    await wrapper.find('textarea').setValue('first')
-    await flushPromises()
-    await vi.advanceTimersByTimeAsync(799)
-    expect(m.updateSpeakerNotes).not.toHaveBeenCalled()
-    await vi.advanceTimersByTimeAsync(1)
-    expect(m.updateSpeakerNotes).toHaveBeenCalledWith('p1', [{ slide_index: 0, speaker_note: 'first' }])
-    await wrapper.find('textarea').setValue('second')
-    await flushPromises()
-    wrapper.unmount()
-    await flushPromises()
-    expect(m.updateSpeakerNotes).toHaveBeenLastCalledWith('p1', [{ slide_index: 0, speaker_note: 'second' }])
-    vi.useRealTimers()
-  })
-
-  it('a refetch does not overwrite a dirty draft', async () => {
-    const { wrapper } = await mountTab()
-    await wrapper.find('textarea').setValue('my typing')
-    await flushPromises()
-    await wrapper.setProps({ activeSlide: { ...presentation.slides[0]!, speaker_note: 'from the server' } as never })
-    expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('my typing')
-  })
-
-  it('makes the note read-only while the deck is generating', async () => {
+  it('disables Generate all notes while the deck is generating', async () => {
     const { useEditorStore } = await import('@/stores/editor')
     useEditorStore().generating = true
     const { wrapper } = await mountTab()
-    expect(wrapper.find('textarea').attributes('readonly')).toBeDefined()
     expect(button(wrapper, 'Generate all notes').attributes('disabled')).toBeDefined()
-    expect(button(wrapper, 'Rewrite with AI').attributes('disabled')).toBeDefined()
   })
 
-  it("writes this slide's note with AI", async () => {
-    m.generateSpeakerNotes.mockResolvedValue({ ...presentation, slides: [slide(0, 'A fresh note'), ...presentation.slides.slice(1)] })
+  it('lays the sections out as columns', async () => {
     const { wrapper } = await mountTab()
-    await button(wrapper, 'Rewrite with AI').trigger('click')
-    await flushPromises()
-    expect(m.generateSpeakerNotes).toHaveBeenCalledWith('p1', { slide_indexes: [0], regenerate: true })
-    expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('A fresh note')
+    const columns = wrapper.find('[data-testid="voice-columns"]')
+    expect(columns.exists()).toBe(true)
+    const sections = [...columns.element.children].map((e) => e.getAttribute('data-testid') ?? e.getAttribute('aria-label'))
+    expect(sections).toEqual(['slide-voice', 'slide-avatar', 'Whole deck'])
   })
 
   it('shows the voice of the active slide: up to date, out of date or missing', async () => {
@@ -229,13 +189,10 @@ describe('NarrationTab: the active slide', () => {
     expect(button(wrapper, 'Generate audio').exists()).toBe(true)
   })
 
-  it('regenerates the audio of the active slide only, after saving its note', async () => {
+  it('regenerates the audio of the active slide only', async () => {
     const { wrapper } = await mountTab(1)
-    await wrapper.find('textarea').setValue('Edited again')
     await button(wrapper, 'Regenerate audio').trigger('click')
     await flushPromises()
-    expect(m.updateSpeakerNotes).toHaveBeenCalledWith('p1', [{ slide_index: 1, speaker_note: 'Edited again' }])
-    expect(m.updateSpeakerNotes.mock.invocationCallOrder[0]).toBeLessThan(m.generateTtsAsync.mock.invocationCallOrder[0]!)
     expect(m.generateTtsAsync).toHaveBeenCalledWith('p1', { language: 'en-US', slide_indexes: [1], regenerate: true })
   })
 
@@ -253,7 +210,7 @@ describe('NarrationTab: the active slide', () => {
   })
 })
 
-describe('NarrationTab: whole deck', () => {
+describe('VoiceTab: whole deck', () => {
   it('generates notes for all slides and refreshes the presentation', async () => {
     const { wrapper, invalidate } = await mountTab()
     await button(wrapper, 'Generate all notes').trigger('click')
@@ -339,7 +296,7 @@ describe('NarrationTab: whole deck', () => {
   })
 })
 
-describe('NarrationTab: avatar of the active slide', () => {
+describe('VoiceTab: avatar of the active slide', () => {
   it('toggles the placeholder and refetches the presentation', async () => {
     const { wrapper, invalidate } = await mountTab()
     const toggle = () => wrapper.find('[role="switch"]')
@@ -433,7 +390,7 @@ describe('NarrationTab: avatar of the active slide', () => {
   })
 })
 
-describe('NarrationTab: avatars for the whole deck', () => {
+describe('VoiceTab: avatars for the whole deck', () => {
   const generateAll = (w: VueWrapper) => button(w, 'Generate avatars')
 
   it('is disabled with a reason when there is no portrait', async () => {

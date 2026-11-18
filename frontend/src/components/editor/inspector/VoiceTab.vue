@@ -9,7 +9,7 @@ import SlideAvatarSection from './video/SlideAvatarSection.vue'
 import { provideDeckAvatars, useDeckAvatars } from './video/useDeckAvatars'
 
 /**
- * Narration and avatar video of the active slide, with the deck-wide settings below.
+ * Narration and avatar video of the active slide, with the deck-wide settings, side by side in the footer.
  * One instance of each deck state (TTS task, avatar run) is shared by every section.
  */
 const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
@@ -26,17 +26,21 @@ const { confirming, pendingIndices, generate } = avatars
 </script>
 
 <template>
-  <section class="flex flex-col gap-5 px-5 pt-5 pb-[18px] max-[1279px]:px-4" aria-label="Narration">
+  <section class="@container flex flex-col gap-3 px-4 py-3" aria-label="Voice">
     <template v-if="activeSlide">
       <p class="text-[11px] font-semibold tracking-wide text-muted uppercase tabular-nums" data-testid="narration-slide">
         Slide {{ activeSlide.index + 1 }} <span class="font-normal normal-case">of {{ presentation.slides.length }}</span>
       </p>
-      <SlideVoiceSection :presentation-id="presentationId" :slide="activeSlide" />
-      <SlideAvatarSection :slide="activeSlide" />
     </template>
     <p v-else class="text-[12px] text-muted">Select a slide to edit its narration.</p>
 
-    <DeckNarrationSection :presentation-id="presentationId" :presentation="presentation" :active-slide="activeSlide" />
+    <div data-testid="voice-columns" class="grid items-start gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3">
+      <template v-if="activeSlide">
+        <SlideVoiceSection :slide="activeSlide" />
+        <SlideAvatarSection :slide="activeSlide" />
+      </template>
+      <DeckNarrationSection :presentation-id="presentationId" :presentation="presentation" :active-slide="activeSlide" />
+    </div>
 
     <GenerateAvatarsDialog
       v-model:open="confirming"

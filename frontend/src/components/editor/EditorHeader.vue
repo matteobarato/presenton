@@ -30,7 +30,7 @@ import { deletePresentation, duplicatePresentation, presentationKeys } from '@/a
 import type { Presentation } from '@/api/types'
 import { useSlideMutations } from '@/composables/useSlideMutations'
 import { cn } from '@/lib/utils'
-import { slideKey, useEditorStore, type InspectorTabId } from '@/stores/editor'
+import { slideKey, useEditorStore } from '@/stores/editor'
 
 const props = defineProps<{ presentation: Presentation }>()
 
@@ -64,11 +64,6 @@ function commitTitle() {
 async function focusTitle() {
   await nextTick()
   setTimeout(() => titleInput.value?.select(), 0)
-}
-
-function openInspector(tab: InspectorTabId) {
-  editor.inspectorTab = tab
-  editor.inspectorOpen = true
 }
 
 const duplicating = ref(false)
@@ -200,7 +195,7 @@ const iconBtn =
               <SkipBack class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Present from beginning
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem @select="openInspector('narration')">
+            <DropdownMenuItem @select="editor.openFooter('voice')">
               <AudioLines class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Narration and avatars
             </DropdownMenuItem>
             <DropdownMenuItem @select="editor.exportOpen = true">

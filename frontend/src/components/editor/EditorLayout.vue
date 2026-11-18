@@ -95,7 +95,7 @@ onMounted(() => {
       <Sheet v-else v-model:open="inspectorDrawer">
         <SheetContent side="right" class="w-[min(340px,calc(100vw-24px))]">
           <SheetTitle class="sr-only">Inspector</SheetTitle>
-          <SheetDescription class="sr-only">Design and narration tools</SheetDescription>
+          <SheetDescription class="sr-only">Layers, insert and design tools</SheetDescription>
           <slot name="inspector" />
         </SheetContent>
       </Sheet>
