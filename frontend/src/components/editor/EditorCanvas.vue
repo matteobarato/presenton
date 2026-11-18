@@ -8,12 +8,15 @@ import SlideView from '@/render/SlideView.vue'
 import { slideKind } from '@/render/slide-kind'
 import { useEditorStore } from '@/stores/editor'
 import FloatingToolbar from './FloatingToolbar.vue'
+import FloatingElementEditor from './canvas/floating/FloatingElementEditor.vue'
 import EditableSlide from './canvas/EditableSlide.vue'
 import SelectionAnnouncer from './canvas/SelectionAnnouncer.vue'
 
 const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 
 const editor = useEditorStore()
+const scrollerEl = ref<HTMLElement | null>(null)
+const stageEl = ref<HTMLElement | null>(null)
 const { data: presentation } = usePresentation(toRef(props, 'presentationId'), useEditorFetchGate())
 // The slide's editing state is provided by EditorView, so the inspector shares it.
 // The slide's avatar video shows in its placeholder on the canvas.
@@ -48,11 +51,12 @@ const slideWidth = computed(() => {
   >
     <div class="absolute top-2.5 left-1/2 z-30 -translate-x-1/2 max-[760px]:top-2 max-[450px]:top-[7px]"><FloatingToolbar /></div>
     <div
+      ref="scrollerEl"
       class="flex min-h-0 w-full flex-1 [container-type:size] rounded-[11px]"
       :class="editor.zoom > 1 ? 'overflow-auto' : 'overflow-visible'"
     >
       <!-- margin:auto centres safely: a zoomed-in slide scrolls instead of clipping its left edge -->
-      <div v-if="slide" class="relative m-auto shrink-0" :class="zooming && 'zoom-easing'" :style="{ width: slideWidth }">
+      <div v-if="slide" ref="stageEl" class="relative m-auto shrink-0" :class="zooming && 'zoom-easing'" :style="{ width: slideWidth }">
         <Transition name="slide-change" mode="out-in">
           <!-- the key remounts the slide per switch, so `rendered` fires for every switch -->
           <EditableSlide
@@ -77,6 +81,14 @@ const slideWidth = computed(() => {
       <p v-else class="m-auto text-[12px] text-muted">No slides yet.</p>
     </div>
     <slot name="status" />
+    <FloatingElementEditor
+      v-if="presentation"
+      :stage="stageEl"
+      :scroller="scrollerEl"
+      :presentation="presentation"
+      :presentation-id="presentationId"
+      :slide="slide"
+    />
     <SelectionAnnouncer />
   </section>
 </template>

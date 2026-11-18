@@ -37,6 +37,8 @@ export const useEditorStore = defineStore('editor', () => {
   const slideSelectionActive = ref(false)
   // One-shot: set by an insert right before it selects what it added, so the Insert tab stays up.
   const insertSelectionPending = ref(false)
+  // Raised for the tick in which Escape closes a floating-bar panel, so the slide's Esc keeps the selection.
+  const panelEscapeGuard = ref(false)
 
   /** Ask AI has its own panel, docked right of the inspector (a drawer on narrow screens). */
   function openAsk() {
@@ -76,6 +78,7 @@ export const useEditorStore = defineStore('editor', () => {
     deckBusy.value = 0
     slideSelectionActive.value = false
     insertSelectionPending.value = false
+    panelEscapeGuard.value = false
   }
 
   return {
@@ -94,6 +97,7 @@ export const useEditorStore = defineStore('editor', () => {
     addSlideRequested,
     slideSelectionActive,
     insertSelectionPending,
+    panelEscapeGuard,
     openAsk,
     toggleAsk,
     openInsert,

@@ -18,6 +18,7 @@ import {
   type OpResult,
 } from '@/slide-editor/ops'
 import { useEditingActions } from '@/slide-editor/useEditingActions'
+import { useEditorStore } from '@/stores/editor'
 import type { SlideEditing } from '@/slide-editor/useSlideEditing'
 
 function isEditableTarget(el: EventTarget | null): boolean {
@@ -46,6 +47,7 @@ const ARROWS: Record<string, [number, number]> = {
  */
 export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<boolean> = true) {
   const clipboard = useClipboard()
+  const editor = useEditorStore()
 
   function usable(target: EventTarget | null): boolean {
     return toValue(active) && ctx.enabled.value && !ctx.inlineEdit.value && !isEditableTarget(target)
@@ -133,7 +135,8 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
       e.preventDefault()
       ctx.requestInlineEdit(target)
     } else if (e.key === 'Escape') {
-      if (!sel) return
+      // The floating bar's Esc just closed a panel: this one is spent.
+      if (!sel || editor.panelEscapeGuard) return
       e.preventDefault()
       ctx.select(null)
     }
