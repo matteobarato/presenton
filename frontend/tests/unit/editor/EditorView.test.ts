@@ -134,7 +134,7 @@ describe('EditorView', () => {
 
   it('builds the inspector tabs from inspectorTabs', async () => {
     const w = await mountAt('/p/p1')
-    const tabs = w.findAll('[role="tab"]')
+    const tabs = w.findAll('[role="tablist"][aria-label="Inspector sections"] [role="tab"]')
     expect(tabs.map((t) => t.attributes('title'))).toEqual(inspectorTabs.map((t) => t.label))
   })
 

@@ -120,7 +120,7 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
               <EditorStatusBar :position="activeIndex + 1" :total="slides.length" :label="slideLabel(activeSlide)" />
             </template>
           </EditorCanvas>
-          <SpeakerNotes :presentation-id="id" :slide="activeSlide" />
+          <SpeakerNotes :presentation-id="id" :presentation="presentation" :slide="activeSlide" />
         </div>
 
         <template #inspector><Inspector /></template>

@@ -86,10 +86,14 @@
 .disclosure[data-state=open] { grid-template-rows: 1fr; opacity: 1; }
 .disclosure > * { min-height: 0; overflow: hidden; }
 
+/* The footer body animates its height; dragging its handle must track the pointer without easing. */
+.footer-body { transition: height 300ms var(--ease); }
+.footer-body[data-dragging=true] { transition: none; }
+
 /* Zoom eases between steps; only while zooming, so the slide tracks panel animations frame by frame. */
 .zoom-easing { transition: width 260ms var(--ease); }
 
 @media (prefers-reduced-motion: reduce) {
-  .panel-collapse, .panel-collapse-inner, .chat-drawer, .disclosure, .zoom-easing { transition-duration: 0ms; }
+  .panel-collapse, .panel-collapse-inner, .chat-drawer, .disclosure, .footer-body, .zoom-easing { transition-duration: 0ms; }
   .panel-collapse[data-state=closed] .panel-collapse-inner { translate: none; }
 }
