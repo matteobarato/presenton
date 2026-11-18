@@ -24,7 +24,7 @@ function mountWith(ctx: SlideEditing) {
     defineComponent({
       setup() {
         provide(SLIDE_EDITING_KEY, ctx)
-        // ElementTab's root carries this attribute in the app.
+        // the inspector tab root carries this attribute in the app.
         return () => h('div', { 'data-inline-edit-ignore': 'true' }, [h(TextSection, { presentation })])
       },
     }),

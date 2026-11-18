@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
-import type { LayerNode } from '@/slide-editor/layerTree'
+import { normalizeSelection, sameSelection, type LayerNode } from '@/slide-editor/layerTree'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import LayerRow from './LayerRow.vue'
 
@@ -26,6 +26,12 @@ const rows = computed<Row[]>(() => {
   walk(props.nodes, 0)
   return out
 })
+
+/** The row for what is selected on the slide (a one-element component's element counts as the component). */
+function isSelected(node: LayerNode): boolean {
+  const sel = ctx.selection.value
+  return !!sel && sameSelection(normalizeSelection(ctx.ui.value, sel), node.selection)
+}
 
 function toggle(key: string, open?: boolean) {
   const next = new Set(expanded.value)
@@ -71,6 +77,7 @@ onBeforeUnmount(() => {
         :depth="row.depth"
         :expandable="row.node.children.length > 0"
         :expanded="expanded.has(row.node.key)"
+        :selected="isSelected(row.node)"
         @toggle="toggle(row.node.key)"
         @select="select(row.node)"
         @hover="hover(row.node, $event)"

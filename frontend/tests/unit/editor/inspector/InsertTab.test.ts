@@ -100,15 +100,6 @@ describe('InsertTab', () => {
     expect(ctx.select).toHaveBeenCalledWith({ kind: 'component', componentIndex: 2 })
   })
 
-  it('marks its selection as insert-made right before selecting it', async () => {
-    const { ctx, click } = mountTab()
-    const editor = useEditorStore()
-    let pendingAtSelect: boolean | undefined
-    ctx.select.mockImplementation(() => (pendingAtSelect = editor.insertSelectionPending))
-    await click('Insert Title')
-    expect(pendingAtSelect).toBe(true)
-  })
-
   it('clears its selection when the edit is refused', async () => {
     const { ctx, click } = mountTab()
     ctx.select.mockImplementation((s: Selection) => (ctx.selection.value = s))

@@ -16,7 +16,6 @@ import Inspector from '@/components/editor/Inspector.vue'
 import SlideNavigator from '@/components/editor/SlideNavigator.vue'
 import SpeakerNotes from '@/components/editor/SpeakerNotes.vue'
 import { slideLabel } from '@/lib/slide-label'
-import { useElementTabAutoSwitch } from '@/composables/useElementTabAutoSwitch'
 import { useSelectionScope } from '@/composables/useSelectionScope'
 import { useSlideEditing } from '@/slide-editor/useSlideEditing'
 import { useEditorShortcuts } from '@/composables/useEditorShortcuts'
@@ -74,9 +73,8 @@ watch(
 
 const activeIndex = computed(() => Math.max(0, slides.value.findIndex((s) => slideKey(s) === editor.activeSlideId)))
 const activeSlide = computed(() => slides.value[activeIndex.value] ?? null)
-// Provides the slide's editing state to the canvas and the inspector's Element tab.
+// Provides the slide's editing state to the canvas and the inspector.
 const editing = useSlideEditing(id, activeSlide)
-useElementTabAutoSwitch(editing)
 useSelectionScope(editing)
 const notFound = computed(() => error.value instanceof ApiError && error.value.status === 404)
 

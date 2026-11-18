@@ -10,14 +10,12 @@ import {
 import type { RawUi } from '@/slide-editor/model'
 import { insertContent, type InsertRequest } from '@/slide-editor/ops'
 import type { SlideEditing } from '@/slide-editor/useSlideEditing'
-import { useEditorStore } from '@/stores/editor'
 
 /** Where an insert goes when it was started earlier (the image picker): that slide and its ui then. */
 export type InsertTarget = { slideId: string; ui: RawUi }
 
 /** Inserts into the active slide as one undoable commit, then selects what was added. */
 export function useInsert(ctx: SlideEditing, theme: ComputedRef<TemplateTheme>) {
-  const editor = useEditorStore()
   /**
    * Commits an open inline edit and captures the active slide with its ui, both synchronously:
    * the commit puts the edited ui in the draft before its first await, so the capture includes it.
@@ -44,8 +42,6 @@ export function useInsert(ctx: SlideEditing, theme: ComputedRef<TemplateTheme>) 
     // Only the active slide's selection can point at the new content.
     const selected = target.slideId === ctx.slideId.value
     if (selected) {
-      // Keeps the Insert tab up (see useElementTabAutoSwitch).
-      editor.insertSelectionPending = true
       ctx.select(next.selection)
     }
     const ok = await saved
