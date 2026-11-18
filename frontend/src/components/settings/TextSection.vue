@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import AdvancedTextSettings from '@/components/settings/AdvancedTextSettings.vue'
 import ProviderFields from '@/components/settings/ProviderFields.vue'
 import ProviderPicker from '@/components/settings/ProviderPicker.vue'
 import SignInProviderNotice from '@/components/settings/SignInProviderNotice.vue'
@@ -69,6 +70,7 @@ function pick(value: string) {
         <SignInProviderNotice />
       </div>
       <ProviderFields v-if="row" :row="row" :config="config" @set="(f, v) => emit('set', f, v)" />
+      <AdvancedTextSettings v-if="row" :config="config" @set="(f, v) => emit('set', f, v)" />
     </template>
   </div>
 </template>

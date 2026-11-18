@@ -8,8 +8,16 @@ import type { ProviderConfig } from '@/settings/types'
 const listOpenAiCompatibleModels = vi.hoisted(() => vi.fn<(p: { url: string; apiKey: string }) => Promise<string[]>>())
 const listGoogleModels = vi.hoisted(() => vi.fn())
 const listAnthropicModels = vi.hoisted(() => vi.fn())
+const getGenerationDefaults = vi.hoisted(() => vi.fn())
+const listOpenRouterProviders = vi.hoisted(() => vi.fn())
 const toastError = vi.hoisted(() => vi.fn())
-vi.mock('@/api/providerModels', () => ({ listOpenAiCompatibleModels, listGoogleModels, listAnthropicModels }))
+vi.mock('@/api/providerModels', () => ({
+  listOpenAiCompatibleModels,
+  listGoogleModels,
+  listAnthropicModels,
+  getGenerationDefaults,
+  listOpenRouterProviders,
+}))
 vi.mock('vue-sonner', () => ({ toast: { error: toastError } }))
 
 const FAKE_KEY = 'sk-test-fake'
@@ -17,6 +25,9 @@ let wrapper: VueWrapper | null = null
 
 beforeEach(() => {
   listOpenAiCompatibleModels.mockReset()
+  getGenerationDefaults.mockReset()
+  getGenerationDefaults.mockResolvedValue({ defaultMaxOutputTokens: 8192 })
+  listOpenRouterProviders.mockReset()
   toastError.mockReset()
 })
 afterEach(() => {
@@ -104,6 +115,20 @@ describe('TextSection', () => {
     expect(check().attributes('disabled')).toBeUndefined()
   })
 
+  it('renders the advanced settings for key-based providers and forwards their changes', async () => {
+    const w = mountSection({ LLM: 'openai' })
+    await flushPromises()
+    expect(w.text()).toContain('Advanced text-provider settings')
+    expect(w.emitted('set')).toBeUndefined()
+    await w.get('input[type="number"]').setValue('4096')
+    expect(w.emitted('set')).toEqual([['LLM_MAX_OUTPUT_TOKENS', '4096']])
+  })
+
+  it('shows no advanced settings until a provider is chosen', () => {
+    const w = mountSection({})
+    expect(w.text()).not.toContain('Advanced text-provider settings')
+  })
+
   it('shows the key label, placeholder and Get an API key link from the row', () => {
     const w = mountSection({ LLM: 'openai' })
     expect(w.text()).toContain('OpenAI API key')
@@ -116,7 +141,8 @@ describe('TextSection', () => {
   it('marks optional keys and uses the row placeholder', () => {
     const w = mountSection({ LLM: 'litellm' })
     expect(w.text()).toContain('LiteLLM API key (optional)')
-    expect(w.text().match(/\(optional\)/g)).toHaveLength(1)
+    // The advanced panel carries its own "(optional)" in its summary.
+    expect(w.text().replace(/Advanced text-provider settings \(optional\)/, '').match(/\(optional\)/g)).toHaveLength(1)
     expect(w.get('input[type="password"]').attributes('placeholder')).toBe('Optional if your proxy does not require auth')
     expect(w.find('a[href*="google.com"]').exists()).toBe(false)
   })
@@ -228,6 +254,17 @@ describe('TextSection', () => {
       expect(w.find('button[role="combobox"]').exists()).toBe(false)
       expect(w.get('a').attributes('href')!.startsWith('http://backend.test:5001/settings')).toBe(true)
       expect(w.get('img').attributes('src')).toBe('/providers/openai.png')
+    })
+
+    it('does not render the advanced settings for the read-only sign-in cards', async () => {
+      for (const config of [{ LLM: 'codex', CODEX_MODEL: 'gpt-5' }, { LLM: 'presenton', PRESENTON_EMAIL: 'a@b.test' }]) {
+        const w = mountSection(config)
+        await flushPromises()
+        expect(w.text()).not.toContain('Advanced text-provider settings')
+        expect(getGenerationDefaults).not.toHaveBeenCalled()
+        w.unmount()
+        wrapper = null
+      }
     })
 
     it('shows Presenton Cloud with the account email only', () => {
