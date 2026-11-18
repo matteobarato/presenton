@@ -4,24 +4,14 @@ import { Crop, ImageIcon, Maximize2, Minimize2 } from 'lucide-vue-next'
 import ImagePickerDialog from '@/components/editor/canvas/ImagePickerDialog.vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { resolveAssetUrl } from '@/render/legacy/lib/template-v2-json-to-html'
-import { useSelectedElement } from '@/slide-editor/useSelectedElement'
-import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import { useImageControls } from './useImageControls'
 
-const ctx = useSlideEditingContext()
 const pickerOpen = ref(false)
 const focusOpen = ref(false)
 
-const { element, patch: patchElement } = useSelectedElement(ctx)
+const { element, fit, isIcon, focusX, focusY, replaceImage: onPick, setFit, setFocus: applyFocus } = useImageControls()
 
-const clamp = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : 50)
-// As the renderer reads it: cover, fill, else contain. A fill image has neither button pressed.
-const fit = computed<'cover' | 'contain' | 'fill'>(() => {
-  const raw = element.value?.fit
-  return raw === 'cover' || raw === 'fill' ? raw : 'contain'
-})
 const FIT_NAMES = { cover: 'Cover', contain: 'Contain', fill: 'Fill' } as const
-// An icon renders as a colour mask of its picture: a photo would show as a silhouette.
-const isIcon = computed(() => !!(element.value?.isIcon ?? element.value?.is_icon))
 const previewSrc = computed(() => {
   const data = element.value?.data
   return typeof data === 'string' && data ? resolveAssetUrl(data) : null
@@ -31,8 +21,6 @@ const previewStyle = computed(() => ({
   objectFit: fit.value,
   objectPosition: `${focusX.value}% ${focusY.value}%`,
 }))
-const focusX = computed(() => clamp(element.value?.focus_x))
-const focusY = computed(() => clamp(element.value?.focus_y))
 
 const FITS = [
   { value: 'cover', label: 'Cover', icon: Maximize2 },
@@ -43,18 +31,8 @@ const NAMES = ['top', 'center', 'bottom']
 const NAMES_X = ['left', 'center', 'right']
 const focusName = (row: number, col: number) => (row === 1 && col === 1 ? 'center' : `${NAMES[row]} ${NAMES_X[col]}`.replace('center ', '').replace(' center', ''))
 
-function patch(label: string, change: Record<string, unknown>) {
-  patchElement(label, (el) => ({ ...el, ...change }))
-}
-function onPick(src: string) {
-  // A new picture starts centred and uncropped, as in the old editor.
-  patch('Replace image', { data: src, focus_x: 50, focus_y: 50, crop_scale: null })
-}
-function setFit(value: 'cover' | 'contain') {
-  if (value !== fit.value) patch('Image fit', { fit: value })
-}
 function setFocus(x: number, y: number) {
-  patch('Crop focus', { focus_x: x, focus_y: y })
+  applyFocus(x, y)
   focusOpen.value = false
 }
 
