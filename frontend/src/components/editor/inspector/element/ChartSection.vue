@@ -7,12 +7,10 @@ import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
 import SegmentedControl from '@/components/editor/inspector/controls/SegmentedControl.vue'
 import ToggleRow from '@/components/editor/inspector/controls/ToggleRow.vue'
 import { field, label, section, segment } from '@/components/editor/inspector/controls/styles'
-import { getElementAtSelection, type ElementSelection, type RawElement } from '@/slide-editor/model'
-import { dataRoot } from '@/slide-editor/dataRoot'
+import type { ElementSelection } from '@/slide-editor/model'
 import {
   axesApply,
   chartGrid,
-  chartTypeOptions,
   defaultLegendVisible,
   isRadial,
   readChart,
@@ -26,28 +24,18 @@ import { useSelectedElement } from '@/slide-editor/useSelectedElement'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import ChartColorSwatches from './ChartColorSwatches.vue'
 import ChartDataDialog from './ChartDataDialog.vue'
+import { useChartControls } from './useChartControls'
 
 const props = defineProps<{ presentation: Presentation }>()
 
-const ctx = useSlideEditingContext()
-const { patch } = useSelectedElement(ctx)
+const { root, raw, chart, type, options, apply } = useChartControls()
 const palette = computed(() => themePalette(props.presentation))
 const colourChoices = computed(() => [...new Set([...palette.value, ...CHART_SYSTEM_COLORS.map((c) => `#${c.toLowerCase()}`)])])
-
-/** The chart (it can sit inside a selected component); never the default `[0]` target. */
-const root = computed<ElementSelection | null>(() => dataRoot(ctx.ui.value, ctx.selection.value, 'chart'))
-const raw = computed<RawElement | null>(() => (ctx.ui.value && root.value ? getElementAtSelection(ctx.ui.value, root.value) : null))
-const chart = computed<ChartElement | null>(() => (raw.value ? readChart(raw.value) : null))
+const { patch } = useSelectedElement(useSlideEditingContext())
 
 /** Whether the Edit data dialog is open. */
 const dataOpen = ref(false)
 defineExpose({ dataOpen })
-
-function apply(name: string, next: (c: ChartElement) => ChartElement) {
-  const at = root.value
-  if (!at) return
-  patch(name, (el) => writeChart(el, next(readChart(el))), at)
-}
 
 const grid = computed(() => (chart.value ? chartGrid(chart.value) : { categories: [], series: [] }))
 const MINI_ROWS = 4
@@ -70,8 +58,6 @@ const empty = computed(() => {
   return len(r.categories) === 0 && len(r.data) === 0 && !hasSeries
 })
 
-const type = computed(() => chart.value?.chart_type ?? 'bar')
-const options = computed(() => chartTypeOptions(type.value))
 const axes = computed(() => axesApply(type.value))
 const radial = computed(() => isRadial(type.value))
 
