@@ -27,20 +27,6 @@ watch(
   },
 )
 
-// Legacy Azure configs used a deployment name and a base URL; fold them into the model and endpoint-only setup.
-watch(
-  () => [props.provider, text('AZURE_OPENAI_BASE_URL'), text('AZURE_OPENAI_DEPLOYMENT'), text('AZURE_OPENAI_MODEL')],
-  () => {
-    if (props.provider !== 'azure') return
-    if (has('AZURE_OPENAI_DEPLOYMENT') && !has('AZURE_OPENAI_MODEL')) {
-      emit('set', 'AZURE_OPENAI_MODEL', text('AZURE_OPENAI_DEPLOYMENT'))
-    }
-    if (has('AZURE_OPENAI_BASE_URL')) emit('set', 'AZURE_OPENAI_BASE_URL', '')
-    if (has('AZURE_OPENAI_DEPLOYMENT')) emit('set', 'AZURE_OPENAI_DEPLOYMENT', '')
-  },
-  { immediate: true },
-)
-
 const keyField = computed(() => (props.provider === 'vertex' ? 'VERTEX_API_KEY' : 'AZURE_OPENAI_API_KEY'))
 const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API key' : 'Azure OpenAI API key'))
 </script>

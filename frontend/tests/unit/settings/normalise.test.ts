@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { normaliseConfig } from '@/settings/normalise'
+import { migrateLegacyAzure, normaliseConfig } from '@/settings/normalise'
 import type { ProviderConfig } from '@/settings/types'
 
 const loose = (patch: Record<string, unknown>) => patch as ProviderConfig
@@ -102,5 +102,41 @@ describe('normaliseConfig', () => {
     const out = normaliseConfig(input)
     expect(out).not.toBe(input)
     expect(input).toEqual(snapshot)
+  })
+})
+
+describe('migrateLegacyAzure', () => {
+  it('uses the deployment as the model when no model is set, and blanks the legacy fields', () => {
+    const out = migrateLegacyAzure(loose({ AZURE_OPENAI_DEPLOYMENT: 'dep', AZURE_OPENAI_BASE_URL: 'https://legacy.test' }))
+    expect(out.AZURE_OPENAI_MODEL).toBe('dep')
+    expect(out.AZURE_OPENAI_DEPLOYMENT).toBe('')
+    expect(out.AZURE_OPENAI_BASE_URL).toBe('')
+  })
+
+  it('treats a blank model as unset', () => {
+    expect(migrateLegacyAzure(loose({ AZURE_OPENAI_DEPLOYMENT: 'dep', AZURE_OPENAI_MODEL: '  ' })).AZURE_OPENAI_MODEL).toBe('dep')
+  })
+
+  it('keeps an existing model', () => {
+    const out = migrateLegacyAzure(loose({ AZURE_OPENAI_DEPLOYMENT: 'dep', AZURE_OPENAI_MODEL: 'gpt-x' }))
+    expect(out.AZURE_OPENAI_MODEL).toBe('gpt-x')
+    expect(out.AZURE_OPENAI_DEPLOYMENT).toBe('')
+  })
+
+  it('blanks a lone legacy base URL without touching the model', () => {
+    const out = migrateLegacyAzure(loose({ AZURE_OPENAI_BASE_URL: 'https://legacy.test', AZURE_OPENAI_MODEL: 'gpt-x' }))
+    expect(out).toEqual({ AZURE_OPENAI_BASE_URL: '', AZURE_OPENAI_MODEL: 'gpt-x' })
+  })
+
+  it('leaves configs without legacy values untouched', () => {
+    const config = loose({ LLM: 'azure', AZURE_OPENAI_MODEL: 'gpt-x', AZURE_OPENAI_DEPLOYMENT: '' })
+    expect(migrateLegacyAzure(config)).toEqual(config)
+  })
+
+  it('does not mutate its input', () => {
+    const config = loose({ AZURE_OPENAI_DEPLOYMENT: 'dep', AZURE_OPENAI_BASE_URL: 'https://legacy.test' })
+    const snapshot = JSON.parse(JSON.stringify(config))
+    migrateLegacyAzure(config)
+    expect(config).toEqual(snapshot)
   })
 })

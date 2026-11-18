@@ -95,24 +95,24 @@ watch(
       </summary>
       <div class="grid gap-4">
         <SecretInput
-      :model-value="text('BEDROCK_AWS_SESSION_TOKEN')"
-      label="AWS Session Token"
-      placeholder="Optional"
-      @update:model-value="emit('set', 'BEDROCK_AWS_SESSION_TOKEN', $event)"
-    />
+          :model-value="text('BEDROCK_AWS_SESSION_TOKEN')"
+          label="AWS Session Token"
+          placeholder="Optional"
+          @update:model-value="emit('set', 'BEDROCK_AWS_SESSION_TOKEN', $event)"
+        />
         <div class="min-w-0">
-      <label for="bedrock-profile-name" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">AWS Profile Name</label>
-      <Input
-        id="bedrock-profile-name"
-        type="text"
-        autocomplete="off"
-        autocapitalize="off"
-        spellcheck="false"
-        placeholder="Optional"
-        :model-value="text('BEDROCK_PROFILE_NAME')"
-        @update:model-value="emit('set', 'BEDROCK_PROFILE_NAME', String($event))"
-      />
-    </div>
+          <label for="bedrock-profile-name" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">AWS Profile Name</label>
+          <Input
+            id="bedrock-profile-name"
+            type="text"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="Optional"
+            :model-value="text('BEDROCK_PROFILE_NAME')"
+            @update:model-value="emit('set', 'BEDROCK_PROFILE_NAME', String($event))"
+          />
+        </div>
       </div>
     </details>
   </div>

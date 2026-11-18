@@ -23,6 +23,27 @@ function parseOptionalBool(value: unknown): boolean | undefined {
   return undefined
 }
 
+function hasText(value: unknown): boolean {
+  return typeof value === 'string' && value.trim() !== ''
+}
+
+// Ported from servers/nextjs/components/VertexAzureManualFields.tsx (mount-time effect), as a pure transform.
+/**
+ * Folds legacy Azure OpenAI fields into the current ones: a deployment name becomes the model when no
+ * model is set, and the legacy base URL / deployment are blanked (the old form sent `''` so the server
+ * clears them). Returns a new object; the input is never mutated.
+ */
+export function migrateLegacyAzure(config: ProviderConfig): ProviderConfig {
+  const hasDeployment = hasText(config.AZURE_OPENAI_DEPLOYMENT)
+  const hasBaseUrl = hasText(config.AZURE_OPENAI_BASE_URL)
+  if (!hasDeployment && !hasBaseUrl) return config
+  const out: ProviderConfig = { ...config }
+  if (hasDeployment && !hasText(config.AZURE_OPENAI_MODEL)) out.AZURE_OPENAI_MODEL = config.AZURE_OPENAI_DEPLOYMENT
+  if (hasBaseUrl) out.AZURE_OPENAI_BASE_URL = ''
+  if (hasDeployment) out.AZURE_OPENAI_DEPLOYMENT = ''
+  return out
+}
+
 export function normaliseConfig(config: ProviderConfig): ProviderConfig {
   const out: Record<string, unknown> = { ...config }
 

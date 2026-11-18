@@ -64,6 +64,23 @@ describe('useSettingsDraft', () => {
     expect(d.dirty.value).toBe(false)
   })
 
+  it('migrates legacy Azure fields on load without making the draft dirty', async () => {
+    const d = setup({
+      ...base(),
+      LLM: 'azure',
+      AZURE_OPENAI_DEPLOYMENT: 'my-deployment',
+      AZURE_OPENAI_BASE_URL: 'https://legacy.test',
+    })
+    expect(d.dirty.value).toBe(false)
+    expect(d.draft.value.AZURE_OPENAI_MODEL).toBe('my-deployment')
+    expect(d.original.value.AZURE_OPENAI_MODEL).toBe('my-deployment')
+    d.set('AZURE_OPENAI_MODEL', 'other')
+    expect(d.dirty.value).toBe(true)
+    d.discard()
+    expect(d.draft.value.AZURE_OPENAI_MODEL).toBe('my-deployment')
+    expect(d.dirty.value).toBe(false)
+  })
+
   it('set makes dirty and discard restores', () => {
     const d = setup()
     d.set('OPENAI_MODEL', 'gpt-5')

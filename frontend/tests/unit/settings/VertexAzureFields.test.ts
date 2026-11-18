@@ -113,26 +113,10 @@ describe('VertexAzureFields: Azure', () => {
     expect(w.text()).not.toContain('Project ID')
   })
 
-  it('migrates a legacy deployment name into the model and clears the legacy fields', () => {
-    const w = make('azure', {
-      AZURE_OPENAI_DEPLOYMENT: 'my-deployment',
-      AZURE_OPENAI_BASE_URL: 'https://legacy.test',
-    })
-    expect(w.emitted('set')).toEqual([
-      ['AZURE_OPENAI_MODEL', 'my-deployment'],
-      ['AZURE_OPENAI_BASE_URL', ''],
-      ['AZURE_OPENAI_DEPLOYMENT', ''],
-    ])
-  })
-
-  it('does not overwrite an existing model during migration', () => {
-    const w = make('azure', { AZURE_OPENAI_DEPLOYMENT: 'dep', AZURE_OPENAI_MODEL: 'gpt-x' })
-    expect(w.emitted('set')).toEqual([['AZURE_OPENAI_DEPLOYMENT', '']])
-  })
-
-  it('emits nothing on mount when there is no legacy data, and nothing for Vertex', () => {
-    expect(make('azure', { AZURE_OPENAI_MODEL: 'gpt-x' }).emitted('set')).toBeUndefined()
+  it('emits nothing on mount, even with legacy Azure values', () => {
+    const legacy = { AZURE_OPENAI_DEPLOYMENT: 'my-deployment', AZURE_OPENAI_BASE_URL: 'https://legacy.test' }
+    expect(make('azure', legacy).emitted('set')).toBeUndefined()
     wrapper?.unmount()
-    expect(make('vertex', { AZURE_OPENAI_DEPLOYMENT: 'dep' }).emitted('set')).toBeUndefined()
+    expect(make('vertex', legacy).emitted('set')).toBeUndefined()
   })
 })

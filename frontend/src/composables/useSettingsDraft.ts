@@ -3,7 +3,7 @@ import { toast } from 'vue-sonner'
 import { ApiError, BackendUnreachableError, extractApiErrorMessage } from '@/api/errors'
 import { checkStockImageKey, listOllamaModels } from '@/api/providerModels'
 import { getCodexAuthStatus, getPresentonLinkStatus, saveProviderSettings } from '@/api/providerSettings'
-import { normaliseConfig } from '@/settings/normalise'
+import { migrateLegacyAzure, normaliseConfig } from '@/settings/normalise'
 import { OAUTH_MANAGED_FIELDS, type ProviderConfig, type SettingsSection } from '@/settings/types'
 import { validateConfig } from '@/settings/validate'
 import { useSessionStore } from '@/stores/session'
@@ -77,7 +77,8 @@ export function useSettingsDraft(): {
   const dirty = computed(() => !deepEqual(comparable(draft.value), comparable(original.value)))
 
   function load(config: ProviderConfig): void {
-    original.value = stripManaged(config)
+    // Legacy Azure fields are migrated into both copies, so loading never makes the draft dirty.
+    original.value = migrateLegacyAzure(stripManaged(config))
     draft.value = clone(original.value)
   }
 
