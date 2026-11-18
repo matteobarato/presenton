@@ -7,6 +7,7 @@ import type { ProviderConfig } from '@/settings/types'
 import { useSessionStore } from '@/stores/session'
 import SettingsView from '@/views/SettingsView.vue'
 import SectionPlaceholder from '@/components/settings/SectionPlaceholder.vue'
+import TextSection from '@/components/settings/TextSection.vue'
 
 const getProviderSettings = vi.hoisted(() => vi.fn<() => Promise<ProviderConfig>>())
 const saveProviderSettings = vi.hoisted(() => vi.fn<(c: ProviderConfig) => Promise<ProviderConfig>>())
@@ -53,7 +54,8 @@ async function mountAt(path: string): Promise<VueWrapper> {
 }
 
 function setField(field: string, value: unknown) {
-  wrapper!.findComponent(SectionPlaceholder).vm.$emit('set', field, value)
+  const text = wrapper!.findComponent(TextSection)
+  ;(text.exists() ? text : wrapper!.findComponent(SectionPlaceholder)).vm.$emit('set', field, value)
 }
 
 function signIn(role: string | undefined, runtimeConfig: Record<string, unknown> = {}) {
@@ -91,7 +93,8 @@ describe('SettingsView', () => {
     expect(w.text()).toContain('OpenAI (gpt-4.1)')
     expect(w.text()).toContain('Pexels')
     expect(w.text()).toContain('Web search disabled')
-    expect(w.text()).toContain('Coming in this slice')
+    expect(w.findComponent(TextSection).exists()).toBe(true)
+    expect(w.text()).not.toContain('Coming in this slice')
     expect(w.find('button[type="button"]').exists()).toBe(true)
     expect(w.text()).not.toContain('Discard')
 

@@ -6,6 +6,7 @@ import ReadOnlySummary from '@/components/settings/ReadOnlySummary.vue'
 import SectionPlaceholder from '@/components/settings/SectionPlaceholder.vue'
 import SettingsSaveBar from '@/components/settings/SettingsSaveBar.vue'
 import SettingsSidebar from '@/components/settings/SettingsSidebar.vue'
+import TextSection from '@/components/settings/TextSection.vue'
 import PageHeader from '@/components/shell/PageHeader.vue'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -23,7 +24,7 @@ const TITLES: Record<SettingsSection, string> = {
 }
 // Replaced by the real section components in later tasks.
 const EDITORS: Record<Exclude<SettingsSection, 'account'>, Component> = {
-  text: SectionPlaceholder,
+  text: TextSection,
   images: SectionPlaceholder,
   'web-search': SectionPlaceholder,
 }
