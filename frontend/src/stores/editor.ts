@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { FOOTER_DEFAULT_HEIGHT } from '@/components/editor/footerHeight'
 
-export type InspectorTabId = 'layers' | 'insert' | 'design'
+export type InspectorTabId = 'layers' | 'insert' | 'design' | 'avatar'
 export type FooterTab = 'notes' | 'voice'
 
 /** Stable key of a slide; slides mid-stream may not have an id yet. */
