@@ -36,6 +36,8 @@ const barRef = ref<InstanceType<typeof ContextBar> | null>(null)
 const docked = useMediaQuery('(max-width: 760px)')
 
 const MARGIN = 8
+// A docked bar sits this far above the bottom edge of the canvas, clear of the status row.
+const DOCK_BOTTOM = 8
 // The slide tools float over the top of the canvas; the bar never goes under them.
 const TOP_INSET = 54
 // Until it is measured the bar is assumed to be about this big.
@@ -95,7 +97,7 @@ const placed = computed(() => {
   const bar = { width: barSize.width.value || FALLBACK_BAR.width, height: barSize.height.value || FALLBACK_BAR.height }
   const viewport = { width: layerBox.width.value, height: layerBox.height.value }
   if (docked.value) {
-    return { x: (viewport.width - bar.width) / 2, y: viewport.height - bar.height - MARGIN, placement: 'dock' as const }
+    return { x: (viewport.width - bar.width) / 2, y: viewport.height - bar.height - DOCK_BOTTOM, placement: 'dock' as const }
   }
   if (!t) return null
   // Placed in the area under the slide tools: shift the target up by the inset and the result back down.
