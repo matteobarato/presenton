@@ -1,26 +1,22 @@
 import { computed, getCurrentScope, onScopeDispose, ref, watch, type ComputedRef, type Ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import {
+  animationKeys,
   deleteAnimation,
   generateAnimations,
   generateAnimationsAsync,
   getAnimations,
   putAnimation,
 } from '@/api/animations'
-import type { AnimationTween, AsyncTask, Slide, SlideAnimation } from '@/api/types'
+import { presentationKeys } from '@/api/presentations'
+import type { AnimationTween, AsyncTask, Presentation, Slide, SlideAnimation } from '@/api/types'
 import type { EffectId } from '@/motion/effects'
 import { applyEffect, applyPreset as presetTweens, constrainTween, type PresetId } from '@/motion/plan'
 import { slideKey } from '@/stores/editor'
 
 export const ANIMATION_SAVE_DELAY_MS = 600
 
-/**
- * Its own root (not under `['presentation', id]`): invalidating the deck must not refetch animations,
- * which renders the composition server-side.
- */
-export const animationKeys = {
-  one: (id: string) => ['animations', id] as const,
-}
+export { animationKeys }
 
 type AnimationsData = { slides: SlideAnimation[] }
 
@@ -68,7 +64,12 @@ export function useSlideAnimation(
   const queryClient = useQueryClient()
   const query = useAnimations(presentationId)
 
-  const animation = computed(() => query.data.value?.slides.find((s) => s.index === slide.value.index))
+  // By slide id first: after a reorder/add/delete the cached indexes are stale until the refetch lands.
+  const animation = computed(() => {
+    const slides = query.data.value?.slides
+    const id = slide.value.id
+    return id ? slides?.find((s) => s.slide_id === id) : slides?.find((s) => s.index === slide.value.index)
+  })
   const editable = computed(() => {
     const a = animation.value
     return Boolean(a && a.status !== 'unsupported' && a.targets.length > 0)
@@ -91,9 +92,10 @@ export function useSlideAnimation(
     })
   }
 
+  /** The slide's current index, from the deck (the animations cache may predate a reorder). */
   function resolveIndex(job: SaveJob): number {
-    const data = queryClient.getQueryData<AnimationsData>(animationKeys.one(job.presentationId))
-    return data?.slides.find((s) => s.slide_id === job.slideId)?.index ?? job.fallbackIndex
+    const deck = queryClient.getQueryData<Presentation>(presentationKeys.one(job.presentationId))
+    return deck?.slides.find((s) => s.id === job.slideId)?.index ?? job.fallbackIndex
   }
 
   const isCurrent = (job: { key: string; presentationId: string }) =>
@@ -139,7 +141,7 @@ export function useSlideAnimation(
       presentationId: presentationId.value,
       slideId: a.slide_id,
       key: slideKey(slide.value),
-      fallbackIndex: a.index,
+      fallbackIndex: slide.value.index,
       tweens: copy(next),
       seq: ++seq,
     }
@@ -170,7 +172,7 @@ export function useSlideAnimation(
     generating.value = true
     error.value = null
     try {
-      const res = await generateAnimations(id, { slide_indexes: [a.index], force: opts.force ?? false })
+      const res = await generateAnimations(id, { slide_indexes: [slide.value.index], force: opts.force ?? false })
       writeEntries(id, res.slides)
       const mine = res.slides.find((s) => s.slide_id === a.slide_id)
       if (mine && isCurrent({ key, presentationId: id })) {
@@ -202,7 +204,7 @@ export function useSlideAnimation(
     error.value = null
     saving.value++
     try {
-      await deleteAnimation(id, a.index)
+      await deleteAnimation(id, slide.value.index)
       await queryClient.invalidateQueries({ queryKey: animationKeys.one(id) })
     } catch (e) {
       if (isCurrent({ key, presentationId: id })) error.value = message(e, 'Could not clear the animation.')

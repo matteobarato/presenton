@@ -11,8 +11,12 @@ const api = vi.hoisted(() => ({
   putAnimation: vi.fn(),
   deleteAnimation: vi.fn(),
 }))
-vi.mock('@/api/animations', () => api)
+vi.mock('@/api/animations', async (importActual) => ({
+  ...(await importActual<typeof import('@/api/animations')>()),
+  ...api,
+}))
 
+import { presentationKeys } from '@/api/presentations'
 import { animationKeys, ANIMATION_SAVE_DELAY_MS, useSlideAnimation } from '@/composables/useSlideAnimation'
 
 const tween = (target: string, over: Partial<AnimationTween> = {}): AnimationTween => ({
@@ -38,7 +42,7 @@ const entry = (index: number, over: Partial<SlideAnimation> = {}): SlideAnimatio
   ...over,
 })
 
-const slideOf = (index: number) => ({ id: `s${index}`, index, content: {}, layout: 'x:a' }) as unknown as Slide
+const slideOf = (n: number, index = n) => ({ id: `s${n}`, index, content: {}, layout: 'x:a' }) as unknown as Slide
 
 let qc: QueryClient
 let slide = ref<Slide>(slideOf(0))
@@ -217,6 +221,30 @@ describe('useSlideAnimation', () => {
     expect(anim.dirty.value).toBe(false)
     await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
     expect(api.putAnimation).not.toHaveBeenCalled()
+  })
+
+  it('after a reorder the stale cache is matched by slide id and the edit PUTs to the current index', async () => {
+    // Deck order is now s1, s0; the animations cache still holds the old order.
+    qc.setQueryData(presentationKeys.one('p1'), { id: 'p1', slides: [slideOf(1, 0), slideOf(0, 1)] })
+    slide.value = slideOf(1, 0)
+    const { anim } = setup([entry(0, { tweens: [tween('e0')] }), entry(1, { tweens: [tween('e1')] })])
+    await nextTick()
+    expect(anim.animation.value?.slide_id).toBe('s1')
+    expect(anim.draft.value).toEqual([tween('e1')])
+    anim.setEffect('e0', 'fade')
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(api.putAnimation).toHaveBeenCalledTimes(1)
+    expect(api.putAnimation.mock.calls[0]![1]).toBe(0)
+  })
+
+  it('generate after a reorder asks for the slide at its current index', async () => {
+    qc.setQueryData(presentationKeys.one('p1'), { id: 'p1', slides: [slideOf(1, 0), slideOf(0, 1)] })
+    slide.value = slideOf(0, 1)
+    api.generateAnimations.mockResolvedValue({ slides: [entry(0, { index: 1, tweens: [tween('e1')] })] })
+    const { anim } = setup()
+    await anim.generate()
+    expect(api.generateAnimations).toHaveBeenCalledWith('p1', { slide_indexes: [1], force: false })
+    expect(anim.draft.value).toEqual([tween('e1')])
   })
 
   it('generateAll flushes a dirty draft, then starts the async task', async () => {

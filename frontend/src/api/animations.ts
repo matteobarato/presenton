@@ -1,6 +1,14 @@
 import { api, unwrap } from './client'
 import type { AnimationTween, AsyncTask, SlideAnimation } from './types'
 
+/**
+ * Its own root (not under `['presentation', id]`): invalidating the deck must not refetch animations,
+ * which renders the composition server-side.
+ */
+export const animationKeys = {
+  one: (id: string) => ['animations', id] as const,
+}
+
 export type GenerateAnimationsBody = { slide_indexes?: number[]; force?: boolean }
 
 export function getAnimations(id: string): Promise<{ slides: SlideAnimation[] }> {

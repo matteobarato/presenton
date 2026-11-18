@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import { toast } from '@/components/ui/sonner'
+import { animationKeys } from '@/api/animations'
 import { getPresentation, presentationKeys, updatePresentation } from '@/api/presentations'
 import type { Presentation, Slide } from '@/api/types'
 import { slideKey, useEditorStore } from '@/stores/editor'
@@ -97,6 +98,9 @@ export function deckTemplateId(slides: Slide[]): string {
  * the slide already back, does nothing. `theme` is always resent: the endpoint
  * resets it to null when omitted.
  */
+/** Saves that add, remove or move slides (their undo/redo share the label). */
+const STRUCTURAL_LABELS = new Set(['Reorder slides', 'Delete slide', 'Add slide', 'Duplicate slide'])
+
 export function useSlideMutations(presentationId: Ref<string>) {
   const queryClient = useQueryClient()
   const history = useHistoryStore()
@@ -137,6 +141,8 @@ export function useSlideMutations(presentationId: Ref<string>) {
           title: snapshot.title || undefined,
           theme: snapshot.theme ?? undefined,
         })
+        // Slide indexes moved: the animations cache (selected and PUT by index) must be refetched.
+        if (STRUCTURAL_LABELS.has(label)) void queryClient.invalidateQueries({ queryKey: animationKeys.one(deckId) })
       } catch (error) {
         toast.error(`Could not ${label.toLowerCase()}`, { description: error instanceof Error ? error.message : undefined })
         try {

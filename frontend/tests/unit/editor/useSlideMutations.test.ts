@@ -4,6 +4,7 @@ import { QueryClient } from '@tanstack/vue-query'
 import { ref } from 'vue'
 import type { Presentation } from '@/api/types'
 import { presentationKeys } from '@/api/presentations'
+import { animationKeys } from '@/api/animations'
 
 const state = vi.hoisted(() => ({ client: null as unknown }))
 vi.mock('@tanstack/vue-query', async (importActual) => ({
@@ -57,6 +58,27 @@ describe('useSlideMutations', () => {
     ])
     expect(body.theme).toEqual({ color: 'red' })
     expect(cached().slides.map((s) => s.id)).toEqual(['b', 'c', 'a'])
+  })
+
+  it('structural edits invalidate the animations query once saved', async () => {
+    const animState = () => qc.getQueryState(animationKeys.one('p1'))?.isInvalidated
+    const seed = () => qc.setQueryData(animationKeys.one('p1'), { slides: [] })
+    const m = useSlideMutations(ref('p1'))
+    seed()
+    await m.reorder(0, 2)
+    expect(animState()).toBe(true)
+    seed()
+    await m.duplicateSlide('a')
+    expect(animState()).toBe(true)
+    seed()
+    await m.addSlide(0, null)
+    expect(animState()).toBe(true)
+    seed()
+    await m.removeSlide('b')
+    expect(animState()).toBe(true)
+    seed()
+    await m.rename('New title')
+    expect(animState()).toBe(false)
   })
 
   it('shows the optimistic change immediately while an earlier PATCH is pending', async () => {
