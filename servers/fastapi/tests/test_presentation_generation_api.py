@@ -389,3 +389,175 @@ class TestPresentationGenerationAPI:
                     "template": "general",
                 }
             )
+
+
+# ---------------------------------------------------------------------------
+# `animate`: plan entrance animations once the slides are saved
+# ---------------------------------------------------------------------------
+
+
+def _run_generation_with_animate(animate, resolve_mock, *, async_status=None):
+    from unittest.mock import Mock
+
+    from api.v1.ppt.endpoints import presentation as presentation_endpoint
+    from models.presentation_and_path import PresentationAndPath
+    from models.presentation_structure_model import PresentationStructureModel
+    from models.sql.template_v2 import TemplateV2
+    from tests.conftest import FakeAsyncSession as RecordingSession
+
+    request = GeneratePresentationRequest(
+        content="Create a two-slide deck about renewable energy.",
+        n_slides=2,
+        language="English",
+        export_as="pptx",
+        template="general",
+        animate=animate,
+    )
+    presentation_id = uuid.uuid4()
+    template = TemplateV2(
+        id="general",
+        name="General",
+        layouts={
+            "layouts": [
+                {
+                    "id": "template-layout-1",
+                    "description": "Hero layout",
+                    "components": [
+                        {
+                            "id": "hero",
+                            "description": "Hero content",
+                            "elements": [
+                                {
+                                    "type": "text",
+                                    "decorative": False,
+                                    "name": "headline",
+                                    "runs": [{"text": "Original headline"}],
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ]
+        },
+        is_default=True,
+    )
+    session = RecordingSession(get_results={"general": template})
+    order = []
+
+    async def fake_outline_stream(*_args, **_kwargs):
+        yield '{"slides":[{"content":"## Intro"},{"content":"## Action Plan"}]}'
+
+    original_commit = session.commit
+
+    async def recording_commit():
+        order.append(("commit", len(session.added_all)))
+        await original_commit()
+
+    session.commit = recording_commit
+
+    async def fake_export(*_args, **_kwargs):
+        order.append(("export", None))
+        return PresentationAndPath(
+            presentation_id=presentation_id, path="/tmp/generated/deck.pptx"
+        )
+
+    async def tracking_resolve(*args, **kwargs):
+        order.append(("resolve", None))
+        return await resolve_mock(*args, **kwargs)
+
+    with patch.object(
+        presentation_endpoint.MEM0_PRESENTATION_MEMORY_SERVICE,
+        "store_generation_context",
+        new=AsyncMock(),
+    ), patch.object(
+        presentation_endpoint.MEM0_PRESENTATION_MEMORY_SERVICE,
+        "store_generated_outlines",
+        new=AsyncMock(),
+    ), patch.object(
+        presentation_endpoint, "generate_ppt_outline", side_effect=fake_outline_stream
+    ), patch.object(
+        presentation_endpoint,
+        "generate_presentation_structure",
+        new=AsyncMock(return_value=PresentationStructureModel(slides=[0, 0])),
+    ), patch.object(
+        presentation_endpoint,
+        "get_slide_content_from_type_and_outline",
+        new=AsyncMock(return_value={"hero": {"headline": "Intro"}}),
+    ), patch.object(
+        presentation_endpoint,
+        "process_slide_and_fetch_assets",
+        new=AsyncMock(return_value=[]),
+    ), patch.object(
+        presentation_endpoint, "get_images_directory", return_value="/tmp"
+    ), patch.object(
+        presentation_endpoint, "ImageGenerationService", return_value=Mock()
+    ), patch.object(
+        presentation_endpoint, "_apply_speaker_notes", new=AsyncMock(return_value=[])
+    ), patch.object(
+        presentation_endpoint, "export_presentation", new=fake_export
+    ), patch.object(
+        presentation_endpoint, "resolve_slide_animations", new=tracking_resolve
+    ), patch.object(
+        presentation_endpoint.CONCURRENT_SERVICE, "run_task", new=Mock()
+    ), patch.object(
+        presentation_endpoint,
+        "random",
+        new=Mock(randint=Mock(return_value=0)),
+    ):
+        response = asyncio.run(
+            presentation_endpoint.generate_presentation_handler(
+                request=request,
+                presentation_id=presentation_id,
+                async_status=async_status,
+                export_cookie_header="presenton_session=abc",
+                sql_session=session,
+            )
+        )
+    return response, presentation_id, order
+
+
+def test_animate_defaults_to_false():
+    assert GeneratePresentationRequest(content="x").animate is False
+
+
+def test_generate_with_animate_calls_resolve():
+    resolve = AsyncMock(return_value={})
+
+    response, presentation_id, order = _run_generation_with_animate(True, resolve)
+
+    assert response.path == "/tmp/generated/deck.pptx"
+    resolve.assert_awaited_once()
+    args = resolve.await_args.args
+    presentation = args[1]
+    assert presentation.id == presentation_id
+    assert args[2] == "presenton_session=abc"
+    # Planned only once the slides are saved, and before the export.
+    events = [name for name, _ in order]
+    first_slides_commit = next(
+        i for i, (name, added) in enumerate(order) if name == "commit" and added == 2
+    )
+    assert first_slides_commit < events.index("resolve") < events.index("export")
+
+
+def test_generate_without_animate_does_not():
+    resolve = AsyncMock(return_value={})
+
+    response, _, order = _run_generation_with_animate(False, resolve)
+
+    assert response.path == "/tmp/generated/deck.pptx"
+    resolve.assert_not_awaited()
+    assert "resolve" not in [name for name, _ in order]
+
+
+def test_generate_survives_resolve_failure():
+    from enums.async_task_status import AsyncTaskStatus
+
+    resolve = AsyncMock(side_effect=RuntimeError("composition unavailable"))
+    task = AsyncTaskModel(type="presentation.generate", status="pending", data={})
+
+    response, _, order = _run_generation_with_animate(True, resolve, async_status=task)
+
+    assert response.path == "/tmp/generated/deck.pptx"
+    resolve.assert_awaited_once()
+    assert "export" in [name for name, _ in order]
+    assert task.status == AsyncTaskStatus.COMPLETED

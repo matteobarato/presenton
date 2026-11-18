@@ -27,7 +27,6 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import inspect
-import json
 import logging
 import math
 import os
@@ -60,8 +59,10 @@ from services.slide_video_service import (
 )
 # Moved to the slide animation service; re-exported for callers and tests.
 from services.slide_animation_service import (  # noqa: F401
+    LEGACY_PLAN_CACHE_FILENAME,
     AnimatedVideoUnavailableError,
     _fetch_video_composition,
+    resolve_slide_animations,
 )
 from services.speaker_note_tts_service import (
     SpeakerNoteAudioGenerationResult,
@@ -96,7 +97,6 @@ from utils.hyperframes_runner import (
 )
 from utils.llm_calls.generate_slide_animations import (
     SlideTween,
-    generate_slide_animations,
     slide_animation_end_seconds,
 )
 from utils.pdf_to_images import PdfRenderError, render_pdf_to_pngs_async
@@ -164,7 +164,6 @@ _PRESENTER_MORPH_SECONDS = 0.8
 # An avatar is lip-synced to its narration, so lengths further apart than
 # this suggest it was made from a different take.
 _AVATAR_DURATION_TOLERANCE_SECONDS = 0.5
-_ANIMATION_PLAN_CACHE_FILENAME = "animation-plans.json"
 
 
 class PresentationVideoConfigurationError(RuntimeError):
@@ -1149,81 +1148,51 @@ def build_composition_slides(
 
 
 def _animation_cache_path(presentation_id: uuid.UUID) -> str:
+    """The legacy per-deck plan cache; only read (by the animation service) and deleted."""
     return os.path.join(
-        get_videos_directory(), str(presentation_id), _ANIMATION_PLAN_CACHE_FILENAME
+        get_videos_directory(), str(presentation_id), LEGACY_PLAN_CACHE_FILENAME
     )
 
 
-def _load_animation_cache(path: str) -> dict[str, Any]:
-    try:
-        with open(path, "r", encoding="utf-8") as handle:
-            data = json.load(handle)
-    except (OSError, ValueError):
-        return {}
-    return data if isinstance(data, dict) else {}
-
-
-def _save_animation_cache(path: str, data: dict[str, Any]) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    temporary = f"{path}.{uuid.uuid4().hex}.tmp"
-    try:
-        with open(temporary, "w", encoding="utf-8") as handle:
-            json.dump(data, handle)
-        os.replace(temporary, path)
-    except OSError:
-        LOGGER.warning("Could not save slide animation plans to %s", path, exc_info=True)
-        remove_file(temporary)
-
-
-async def _resolve_animation_plans(
+async def _stored_animation_plans(
     *,
+    sql_session: AsyncSession,
     presentation: PresentationModel,
+    cookie_header: Optional[str],
+    composition: dict[str, Any],
     animated: Sequence[tuple[int, Any, str, Sequence[dict[str, Any]]]],
-    slide_count: int,
     on_progress: Optional[ProgressCallback],
 ) -> dict[int, list[SlideTween]]:
-    """Animation plans for `(position, slide_id, html, elements)`, cached per slide.
+    """Tweens by position for `(position, slide_id, html, elements)`.
 
-    A plan is reused for as long as the slide's rendered HTML is unchanged,
-    so re-rendering a video after a narration edit costs no LLM calls.
+    Plans are stored on the slides, so only missing or stale ones are planned
+    and hand-edited (`user`) plans are used as they are.
     """
-    cache_path = _animation_cache_path(presentation.id)
-    cache = _load_animation_cache(cache_path)
-    plans: dict[int, list[SlideTween]] = {}
-    missing: list[tuple[int, Sequence[dict[str, Any]]]] = []
-    hashes: dict[int, tuple[str, str]] = {}
 
-    for position, slide_id, html, elements in animated:
-        html_hash = hashlib.sha256(html.encode("utf-8")).hexdigest()
-        key = str(slide_id)
-        hashes[position] = (key, html_hash)
-        cached = cache.get(key)
-        if isinstance(cached, dict) and cached.get("html_hash") == html_hash:
-            try:
-                plans[position] = [
-                    SlideTween.from_dict(item) for item in cached.get("tweens") or []
-                ]
-                continue
-            except (KeyError, TypeError, ValueError):
-                pass
-        missing.append((position, elements))
-
-    await _emit_progress(on_progress, "animation-plan", len(plans), len(animated))
-    if missing:
-        generated = await generate_slide_animations(
-            slides=missing,
-            slide_count=slide_count,
-            deck_title=presentation.title or "",
+    async def _plan_progress(event: dict[str, Any]) -> None:
+        await _emit_progress(
+            on_progress, "animation-plan", event["done"], event["total"]
         )
-        for position, tweens in generated.items():
-            plans[position] = tweens
-            key, html_hash = hashes[position]
-            cache[key] = {
-                "html_hash": html_hash,
-                "tweens": [tween.to_dict() for tween in tweens],
-            }
-        _save_animation_cache(cache_path, cache)
-    await _emit_progress(on_progress, "animation-plan", len(animated), len(animated))
+
+    stored = await resolve_slide_animations(
+        sql_session,
+        presentation,
+        cookie_header,
+        on_progress=_plan_progress,
+        composition=composition,
+    )
+    plans: dict[int, list[SlideTween]] = {}
+    for position, slide_id, _html, _elements in animated:
+        plan = stored.get(slide_id)
+        if plan is None:
+            continue
+        try:
+            plans[position] = [SlideTween.from_dict(item) for item in plan["tweens"]]
+        except (KeyError, TypeError, ValueError, AttributeError):
+            LOGGER.warning(
+                "Stored animation plan for slide %s is malformed; not animating it",
+                slide_id,
+            )
     return plans
 
 
@@ -1445,6 +1414,7 @@ async def _render_over_avatar_clip(
 
 async def _render_animated_clip(
     *,
+    sql_session: AsyncSession,
     presentation: PresentationModel,
     ordered_slides: Sequence[SlideModel],
     timings: Sequence[SlideTiming],
@@ -1481,10 +1451,12 @@ async def _render_animated_clip(
             "None of this presentation's slides can be animated"
         )
 
-    plans = await _resolve_animation_plans(
+    plans = await _stored_animation_plans(
+        sql_session=sql_session,
         presentation=presentation,
+        cookie_header=cookie_header,
+        composition=composition,
         animated=animated,
-        slide_count=len(ordered_slides),
         on_progress=on_progress,
     )
 
@@ -1912,6 +1884,7 @@ async def generate_presentation_video(
             if opts.animate:
                 try:
                     animated_render = await _render_animated_clip(
+                        sql_session=sql_session,
                         presentation=presentation,
                         ordered_slides=ordered_slides,
                         timings=timings,

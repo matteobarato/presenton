@@ -44,6 +44,10 @@ class GeneratePresentationRequest(BaseModel):
     trigger_webhook: bool = Field(
         default=False, description="Whether to trigger subscribed webhooks"
     )
+    animate: bool = Field(
+        default=False,
+        description="Whether to plan each slide's entrance animation after generation",
+    )
 
 
 class GenerateSmartPresentationRequest(BaseModel):
