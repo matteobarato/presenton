@@ -1,4 +1,16 @@
-import type { BarItem } from '../barItems'
+import { Square } from 'lucide-vue-next'
+import ShapeSection from '@/components/editor/inspector/element/ShapeSection.vue'
+import type { BarContext, BarItem } from '../barItems'
+import ShapeFill from '../controls/ShapeFill.vue'
+import ShapeStroke from '../controls/ShapeStroke.vue'
+import { framed } from '../panelFrame'
 
-// Per-kind quick controls and panels for the floating element bar; the common tail is added by barFor().
-export const shapeBar: BarItem[] = []
+const ShapePanel = framed(ShapeSection)
+const presentationProps = (c: BarContext) => ({ presentation: c.presentation })
+
+/** Fill and stroke colour, and a panel with the full Shape section (opacity, width, dash, corners, curve). */
+export const shapeBar: BarItem[] = [
+  { type: 'custom', id: 'fill-color', component: ShapeFill, props: presentationProps },
+  { type: 'custom', id: 'stroke-color', component: ShapeStroke, props: presentationProps },
+  { type: 'panel', id: 'shape', label: 'Shape', icon: Square, component: ShapePanel, props: presentationProps },
+]

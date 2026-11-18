@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { Presentation } from '@/api/types'
 import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
 import NumberField from '@/components/editor/inspector/controls/NumberField.vue'
@@ -7,66 +6,12 @@ import SegmentedControl from '@/components/editor/inspector/controls/SegmentedCo
 import SliderField from '@/components/editor/inspector/controls/SliderField.vue'
 import { label, muted, section } from '@/components/editor/inspector/controls/styles'
 import ToggleRow from '@/components/editor/inspector/controls/ToggleRow.vue'
-import {
-  DEFAULT_FILL,
-  DEFAULT_STROKE,
-  readShapeStyle,
-  setCornerRadius,
-  setCurve,
-  setDash,
-  setFill,
-  setStroke,
-  type DashStyle,
-} from '@/slide-editor/elementStyle'
-import type { ElementSelection } from '@/slide-editor/model'
-import { themePalette } from '@/slide-editor/themePalette'
-import { useSelectedElement } from '@/slide-editor/useSelectedElement'
-import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import { useShapeControls } from './useShapeControls'
 
 const props = defineProps<{ presentation: Presentation }>()
 
-const { element, patch, capture } = useSelectedElement(useSlideEditingContext())
-const style = computed(() => (element.value ? readShapeStyle(element.value) : null))
-const palette = computed(() => themePalette(props.presentation))
-
-// The target at the moment a colour popover opened or a number field took focus:
-// the commit lands there even if the selection moves before it fires.
-let anchor: ElementSelection | null = null
-// Consumed by the commit it was held for; survives selection changes in between (blur commits arrive after the click).
-const hold = () => (anchor = capture())
-const at = () => {
-  const held = anchor ?? undefined
-  anchor = null
-  return held
-}
-
-// Turning Fill/Stroke back on restores what the element had when it was turned off.
-const lastFill = new Map<string, { color: string; opacity: number }>()
-const lastStroke = new Map<string, { color: string; opacity: number; width: number }>()
-const keyOf = () => JSON.stringify(capture())
-
-function toggleFill(on: boolean) {
-  const s = style.value
-  if (!s) return
-  if (!on) lastFill.set(keyOf(), s.fill)
-  const restored = lastFill.get(keyOf()) ?? DEFAULT_FILL
-  patch('Fill', (el) => setFill(el, on ? restored : null))
-}
-function toggleStroke(on: boolean) {
-  const s = style.value
-  if (!s) return
-  if (!on) lastStroke.set(keyOf(), { color: s.stroke.color, opacity: s.stroke.opacity, width: s.stroke.width })
-  const restored = lastStroke.get(keyOf()) ?? DEFAULT_STROKE
-  patch('Stroke', (el) => setStroke(el, on ? restored : null))
-}
-
-const fillColor = (color: string | null) => color && patch('Fill', (el) => setFill(el, { ...readShapeStyle(el).fill, color }), at())
-const fillOpacity = (percent: number) => patch('Fill', (el) => setFill(el, { ...readShapeStyle(el).fill, opacity: percent / 100 }), at())
-const strokeColor = (color: string | null) => color && patch('Stroke', (el) => setStroke(el, { color }), at())
-const strokeWidth = (width: number) => patch('Stroke', (el) => setStroke(el, { width }), at())
-const strokeDash = (dash: string) => patch('Stroke', (el) => setDash(el, dash as DashStyle))
-const cornerRadius = (r: number) => patch('Corner radius', (el) => setCornerRadius(el, r), at())
-const curve = (mode: string) => patch('Curve', (el) => setCurve(el, mode as 'none' | 'smooth'))
+const { style, palette, hold, toggleFill, toggleStroke, fillColor, fillOpacity, strokeColor, strokeWidth, strokeDash, cornerRadius, curve } =
+  useShapeControls(() => props.presentation)
 
 const DASHES = [
   { value: 'solid', label: 'Solid' },
