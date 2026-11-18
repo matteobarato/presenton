@@ -19,6 +19,9 @@ export const useSessionStore = defineStore('session', () => {
     }
   }
 
+  /** Re-fetch the runtime config (after settings change). A failed fetch keeps the previous value. */
+  const refreshRuntime = loadRuntime
+
   /** Adopt a fresh status (after login, or when the backend comes back). */
   function applyStatus(status: AuthStatus): void {
     user.value = status.authenticated ? status.user : null
@@ -59,5 +62,5 @@ export const useSessionStore = defineStore('session', () => {
     }
   }
 
-  return { user, setupRequired, runtime, ready, load, applyStatus, clearUser, signOut }
+  return { user, setupRequired, runtime, ready, load, refreshRuntime, applyStatus, clearUser, signOut }
 })
