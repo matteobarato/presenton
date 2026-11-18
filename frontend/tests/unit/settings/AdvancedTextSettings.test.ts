@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { defineComponent, h, ref } from 'vue'
 import AdvancedTextSettings from '@/components/settings/AdvancedTextSettings.vue'
 import type { ProviderConfig } from '@/settings/types'
 
@@ -28,14 +29,17 @@ beforeEach(() => {
   getGenerationDefaults.mockResolvedValue({ defaultMaxOutputTokens: 16384 })
   listOpenRouterProviders.mockResolvedValue([])
 })
+const extra: VueWrapper[] = []
 afterEach(() => {
   vi.useRealTimers()
+  for (const w of extra.splice(0)) w.unmount()
   wrapper?.unmount()
   wrapper = null
   document.body.innerHTML = ''
 })
 
 async function make(config: ProviderConfig = { LLM: 'openai' }) {
+  if (wrapper) extra.push(wrapper)
   wrapper = mount(AdvancedTextSettings, { attachTo: document.body, props: { config } })
   await flushPromises()
   return wrapper
@@ -286,6 +290,74 @@ describe('AdvancedTextSettings: OpenRouter routing', () => {
       ['OPENROUTER_PROVIDER_ORDER', ['b', 'a', 'c']],
       ['OPENROUTER_PROVIDER_ORDER', ['a', 'b']],
     ])
+  })
+
+  it('keeps the loaded list and starts no new fetch when an unrelated field changes', async () => {
+    listOpenRouterProviders.mockResolvedValue(['anthropic', 'openai'])
+    const config = { ...OPENROUTER }
+    const w = await make(config)
+    await needButton(w, 'Load providers').trigger('click')
+    await flushPromises()
+    await w.setProps({ config: { ...config, OPENROUTER_PROVIDER_ORDER: ['openai'] } })
+    await w.setProps({ config: { ...config, OPENROUTER_PROVIDER_ORDER: ['openai'], LLM_MAX_OUTPUT_TOKENS: 100 } })
+    expect(button(w, 'Add anthropic')).toBeDefined()
+    expect(button(w, 'Load providers')?.attributes('disabled')).toBeUndefined()
+    expect(listOpenRouterProviders).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps an in-flight provider list when an unrelated field changes', async () => {
+    const d = deferred<string[]>()
+    listOpenRouterProviders.mockReturnValue(d.promise)
+    const w = await make(OPENROUTER)
+    await needButton(w, 'Load providers').trigger('click')
+    await w.setProps({ config: { ...OPENROUTER, LLM_MAX_OUTPUT_TOKENS: 100 } })
+    d.resolve(['anthropic'])
+    await flushPromises()
+    expect(button(w, 'Add anthropic')).toBeDefined()
+  })
+
+  it.each([
+    ['model', { OPENROUTER_MODEL: 'other/model' }],
+    ['key', { OPENROUTER_API_KEY: 'sk-test-other' }],
+    ['base URL', { OPENROUTER_BASE_URL: 'https://or.test/api' }],
+  ])('drops the loaded list when the %s changes', async (_name, change) => {
+    listOpenRouterProviders.mockResolvedValue(['anthropic'])
+    const w = await make(OPENROUTER)
+    await needButton(w, 'Load providers').trigger('click')
+    await flushPromises()
+    expect(button(w, 'Add anthropic')).toBeDefined()
+    await w.setProps({ config: { ...OPENROUTER, ...change } })
+    expect(button(w, 'Add anthropic')).toBeUndefined()
+  })
+
+  it('keeps the remaining chips after adding one when set is applied to the config like the draft does', async () => {
+    listOpenRouterProviders.mockResolvedValue(['anthropic', 'openai', 'google'])
+    const Harness = defineComponent({
+      setup() {
+        const config = ref<ProviderConfig>({ ...OPENROUTER })
+        const set = (field: string, value: unknown) => {
+          config.value = { ...config.value, [field]: value } as ProviderConfig
+        }
+        return () => h(AdvancedTextSettings, { config: config.value, onSet: set })
+      },
+    })
+    if (wrapper) extra.push(wrapper)
+    const w = mount(Harness, { attachTo: document.body })
+    wrapper = w as unknown as VueWrapper
+    await flushPromises()
+    await needButton(w as unknown as VueWrapper, 'Load providers').trigger('click')
+    await flushPromises()
+    await needButton(w as unknown as VueWrapper, 'Add anthropic').trigger('click')
+    await flushPromises()
+    const v = w as unknown as VueWrapper
+    expect(button(v, 'Add anthropic')).toBeUndefined()
+    expect(button(v, 'Add openai')).toBeDefined()
+    expect(button(v, 'Add google')).toBeDefined()
+    expect(v.text()).toContain('anthropic')
+    await needButton(v, 'Add openai').trigger('click')
+    await flushPromises()
+    expect(button(v, 'Add google')).toBeDefined()
+    expect(listOpenRouterProviders).toHaveBeenCalledTimes(1)
   })
 
   it('ignores a provider list that arrives after the key changed', async () => {

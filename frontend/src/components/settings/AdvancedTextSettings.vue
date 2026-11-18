@@ -177,7 +177,7 @@ function resetProviders(): void {
 }
 
 // A list fetched for another model, key or base URL says nothing about this one.
-watch(providerInputs, resetProviders, { deep: true })
+watch(() => providerInputs.value.join('\u0000'), resetProviders)
 
 async function loadProviders(): Promise<void> {
   const [model, apiKey, baseUrl] = providerInputs.value
@@ -268,9 +268,9 @@ onBeforeUnmount(() => {
         </Button>
       </div>
 
-      <section class="grid min-w-0 gap-4" aria-labelledby="advanced-generation-heading">
+      <section class="grid min-w-0 gap-4" :aria-labelledby="id('generation-heading')">
         <div>
-          <h4 id="advanced-generation-heading" class="text-[12px] font-semibold text-[#dbe7ef]">Generation controls</h4>
+          <h4 :id="id('generation-heading')" class="text-[12px] font-semibold text-[#dbe7ef]">Generation controls</h4>
           <p :class="helpClass" class="!mt-1">Set an output limit and control reasoning for supported models.</p>
         </div>
 
@@ -319,10 +319,10 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <section v-if="llm === 'openrouter'" class="grid min-w-0 gap-4" aria-labelledby="advanced-routing-heading">
+      <section v-if="llm === 'openrouter'" class="grid min-w-0 gap-4" :aria-labelledby="id('routing-heading')">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h4 id="advanced-routing-heading" class="text-[12px] font-semibold text-[#dbe7ef]">OpenRouter routing</h4>
+            <h4 :id="id('routing-heading')" class="text-[12px] font-semibold text-[#dbe7ef]">OpenRouter routing</h4>
             <p :class="helpClass" class="!mt-1">Leave the order empty to let OpenRouter route automatically.</p>
           </div>
           <Button type="button" size="sm" variant="secondary" :disabled="providersLoading" @click="loadProviders">
