@@ -1,0 +1,42 @@
+import { api, unwrap } from './client'
+import type { AnimationTween, AsyncTask, SlideAnimation } from './types'
+
+export type GenerateAnimationsBody = { slide_indexes?: number[]; force?: boolean }
+
+export function getAnimations(id: string): Promise<{ slides: SlideAnimation[] }> {
+  return unwrap(api.GET('/api/v1/ppt/presentation/{id}/animations', { params: { path: { id } } })) as Promise<{
+    slides: SlideAnimation[]
+  }>
+}
+
+export function generateAnimations(
+  id: string,
+  body: GenerateAnimationsBody = {},
+): Promise<{ slides: SlideAnimation[] }> {
+  return unwrap(
+    api.POST('/api/v1/ppt/presentation/{id}/animations', { params: { path: { id } }, body: body as never }),
+  ) as Promise<{ slides: SlideAnimation[] }>
+}
+
+export function generateAnimationsAsync(id: string, body: GenerateAnimationsBody = {}): Promise<AsyncTask> {
+  return unwrap(
+    api.POST('/api/v1/ppt/presentation/{id}/animations/async', { params: { path: { id } }, body: body as never }),
+  ) as Promise<AsyncTask>
+}
+
+export function putAnimation(id: string, slideIndex: number, tweens: AnimationTween[]): Promise<SlideAnimation> {
+  return unwrap(
+    api.PUT('/api/v1/ppt/presentation/{id}/animations/{slide_index}', {
+      params: { path: { id, slide_index: slideIndex } },
+      body: { tweens } as never,
+    }),
+  ) as Promise<SlideAnimation>
+}
+
+export async function deleteAnimation(id: string, slideIndex: number): Promise<void> {
+  await unwrap(
+    api.DELETE('/api/v1/ppt/presentation/{id}/animations/{slide_index}', {
+      params: { path: { id, slide_index: slideIndex } },
+    }),
+  )
+}
