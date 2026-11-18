@@ -254,13 +254,15 @@ async def resolve_slide_animations(
     slide_ids: Optional[Iterable[uuid.UUID]] = None,
     force: bool = False,
     on_progress: Optional[ProgressCallback] = None,
+    composition: Optional[dict[str, Any]] = None,
 ) -> dict[uuid.UUID, dict[str, Any]]:
     """Plan missing and stale slides (all in scope with `force`) and store them.
 
     Returns the stored plan of every in-scope slide that has one. Composition
     fetch errors propagate; an LLM failure becomes a `fallback` plan.
     """
-    composition = await _fetch_video_composition(presentation.id, cookie_header)
+    if composition is None:
+        composition = await _fetch_video_composition(presentation.id, cookie_header)
     entries = {
         str(entry.get("id")): entry
         for entry in composition.get("slides") or []
