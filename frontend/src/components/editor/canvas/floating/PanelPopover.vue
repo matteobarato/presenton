@@ -16,6 +16,12 @@ const props = defineProps<{
 }>()
 defineEmits<{ 'update:open': [open: boolean] }>()
 
+// Colour pickers, selects and dialogs opened from a panel portal out of it; a click in them is not "outside".
+function keepForNestedLayer(e: Event) {
+  const target = (e as CustomEvent<{ originalEvent?: Event }>).detail?.originalEvent?.target as HTMLElement | null
+  if (target?.closest?.('[data-reka-popper-content-wrapper], [role="dialog"], [role="listbox"]')) e.preventDefault()
+}
+
 const panelProps = computed(() => props.item.props?.(props.context) ?? {})
 
 // Panel buttons and fields must not drive the slide's keyboard shortcuts (nudge, delete, enter-to-edit)
@@ -49,6 +55,8 @@ function guardKeys(e: KeyboardEvent) {
       class="max-h-[min(70vh,520px)] w-[300px] max-w-[calc(100vw-16px)] overflow-y-auto"
       :aria-label="item.label"
       data-inline-edit-ignore="true"
+      data-floating-panel
+      @interact-outside="keepForNestedLayer"
       @open-auto-focus.prevent
       @close-auto-focus.prevent
       @keydown="guardKeys"

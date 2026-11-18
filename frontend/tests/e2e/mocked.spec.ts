@@ -813,19 +813,19 @@ test.describe('layout and infographic editing (mocked)', () => {
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 
-  // needs rewrite for floating editor: the Contains drill-down is no longer reachable from the Element tab.
-  test.fixme('Layout: a container fill changes in one PATCH and Ctrl+Z restores it', async ({ page }) => {
+  test('Layout: a container fill changes in one PATCH and Ctrl+Z restores it', async ({ page }) => {
     const { patches, unexpected } = await open(page)
     await select(page, [200, 190], 'Layout')
-    // The Contains list drills from the flex into its first container.
+    // The Arrange panel's Contains list drills from the flex into its first container; the panel stays open.
+    await page.getByRole('button', { name: 'Arrange', exact: true }).click()
     await page.getByRole('button', { name: 'Container', exact: true }).first().click()
     const fill = page.getByRole('button', { name: 'Fill colour', exact: true })
     await expect(fill).toBeVisible()
     const cardFill = (patch: { slides: PatchedSlide[] } | undefined) =>
       (layoutElementOf(patch, 'cards')?.children?.[0] as { fill?: { color?: string } } | undefined)?.fill?.color
     await fill.click()
-    const swatch = page.getByRole('button', { name: /^#[0-9a-f]{6}$/i }).first()
-    const hex = (await swatch.getAttribute('aria-label'))!.toLowerCase()
+    const swatch = page.getByRole('button', { name: /^Colour #[0-9a-f]{6}$/i }).first()
+    const hex = (await swatch.getAttribute('aria-label'))!.replace('Colour ', '').toLowerCase()
     expect(hex).not.toBe('#4a6ff3')
     await swatch.click()
     // Only the forward change is compared case-insensitively (the picker's case is its own).

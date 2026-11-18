@@ -118,7 +118,23 @@ const style = computed(() => ({
 // One popover at a time; it belongs to the selection it was opened for and to the idle (no gesture) bar.
 const openPanel = ref<string | null>(null)
 const selectionKey = computed(() => JSON.stringify(ctx.selection.value))
-watch(selectionKey, () => (openPanel.value = null))
+// A selection change made from inside the open panel (Contains drill-down, Bring forward) keeps the panel
+// open when the new selection still offers it; any other change (canvas click, Layers row) closes it.
+let lastPanelClick = 0
+useEventListener(
+  window,
+  'click',
+  (e: MouseEvent) => {
+    if ((e.target as HTMLElement | null)?.closest?.('[data-floating-panel]')) lastPanelClick = performance.now()
+  },
+  { capture: true },
+)
+watch(selectionKey, () => {
+  const id = openPanel.value
+  const fromPanel = performance.now() - lastPanelClick < 400
+  const stillOffered = items.value.some((i) => i.type === 'panel' && i.id === id)
+  if (!(fromPanel && stillOffered)) openPanel.value = null
+})
 watch(visible, (v) => {
   if (!v) openPanel.value = null
 })
