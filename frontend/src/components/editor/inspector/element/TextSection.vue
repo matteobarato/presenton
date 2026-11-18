@@ -1,210 +1,18 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Italic, Palette, Type, Underline } from 'lucide-vue-next'
-import type { Presentation } from '@/api/types'
-import { resolvePresentationTheme } from '@/render/legacy/lib/template-theme'
-import { localFontOptionsFromUnknown } from '@/render/legacy/components/slide-editor/text/local-fonts'
-import { rawFont } from '@/render/legacy/components/slide-editor/text/template-v2-text'
-import { asRecord, getElementAtSelection, readArray, updateElementInUi, withHash, type ElementSelection, type RawElement } from '@/slide-editor/model'
-import { setCellAlignment, setCellFont, setTableAlignment, setTableFont, tableCellAt, type TableCellRef } from '@/slide-editor/tableOps'
-import { themePalette } from '@/slide-editor/themePalette'
-import { useEditingActions } from '@/slide-editor/useEditingActions'
-import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import { Palette, Type } from 'lucide-vue-next'
+import { field, label, muted, section, segment, segmentOn } from '@/components/editor/inspector/controls/styles'
+import { MARKS, useTextControls, type TextControlsProps } from './useTextControls'
 
-const props = defineProps<{
-  presentation: Presentation
-  /** Edits a table: the cell's text, or the whole table when no cell is selected. */
-  target?: { kind: 'table'; root: ElementSelection; cell: TableCellRef | null }
-}>()
+const props = defineProps<TextControlsProps>()
 
-const LINE_HEIGHTS = [1, 1.15, 1.5, 2]
-const ALL_ALIGNS = [
-  { value: 'left', label: 'Align left', icon: AlignLeft },
-  { value: 'center', label: 'Align center', icon: AlignCenter },
-  { value: 'right', label: 'Align right', icon: AlignRight },
-  { value: 'justify', label: 'Justify', icon: AlignJustify },
-] as const
-type Align = (typeof ALL_ALIGNS)[number]['value']
-const MARKS = [
-  { mark: 'bold', label: 'Bold', title: 'Bold (Ctrl+B)', icon: Bold },
-  { mark: 'italic', label: 'Italic', title: 'Italic (Ctrl+I)', icon: Italic },
-  { mark: 'underline', label: 'Underline', title: 'Underline (Ctrl+U)', icon: Underline },
-] as const
+// The state and actions are shared with the floating bar's quick controls.
+const { element, family, size, color, lineHeight, alignment, isOn, families, palette, lineHeights, aligns: ALIGNS, setFamily, setSize, toggle, setColor, setAlign, setLineHeight } =
+  useTextControls(props)
 
-const ctx = useSlideEditingContext()
-// Table cells have no justify.
-const ALIGNS = computed(() => (props.target ? ALL_ALIGNS.filter((a) => a.value !== 'justify') : ALL_ALIGNS))
-const actions = useEditingActions(ctx)
-
-/** The text element edited: the selected element, or the lone text element of a selected component. */
-const target = computed<ElementSelection | null>(() => {
-  if (props.target) return props.target.root
-  const sel = ctx.selection.value
-  if (!sel || sel.kind === 'multi-component') return null
-  return sel.kind === 'element' ? sel : { kind: 'element', componentIndex: sel.componentIndex, elementPath: [0] }
-})
-const element = computed<RawElement | null>(() => {
-  const ui = ctx.ui.value
-  return ui && target.value ? getElementAtSelection(ui, target.value) : null
-})
-
-// The Tiptap editor's state is not reactive; bump a counter on every transaction.
-const tick = ref(0)
-const editor = computed(() => ctx.inlineEditor?.value ?? null)
-let detach: (() => void) | null = null
-watch(
-  editor,
-  (instance) => {
-    detach?.()
-    detach = null
-    if (!instance) return
-    const bump = () => (tick.value += 1)
-    instance.on('transaction', bump)
-    detach = () => instance.off('transaction', bump)
-  },
-  { immediate: true },
-)
-onBeforeUnmount(() => detach?.())
-
-/** The text element: for a table cell, the cell's font laid over the table's base font. */
-const textSource = computed<RawElement | null>(() => {
-  const el = element.value
-  const cell = props.target?.cell
-  if (!el || !cell) return el
-  const own = tableCellAt(el, cell)
-  return { ...el, font: { ...asRecord(el.font), ...asRecord(own?.font) }, alignment: { horizontal: own?.alignment } }
-})
-const font = computed(() => (textSource.value ? rawFont(textSource.value) : null))
-const textStyleAttrs = computed(() => {
-  void tick.value
-  return (editor.value?.getAttributes('textStyle') ?? {}) as Record<string, unknown>
-})
-const alignment = computed<Align>(() => {
-  void tick.value
-  const value = editor.value?.getAttributes('paragraph').textAlign ?? asRecord(textSource.value?.alignment)?.horizontal
-  return value === 'center' || value === 'right' || value === 'justify' ? value : 'left'
-})
-const family = computed(() => (textStyleAttrs.value.fontFamily as string | undefined) ?? font.value?.family ?? '')
-const size = computed(() => (textStyleAttrs.value.fontSize as number | undefined) ?? font.value?.size ?? 18)
-const color = computed(() => {
-  const c = withHash((textStyleAttrs.value.color as string | undefined) ?? font.value?.color ?? '')
-  return c && /^#[0-9a-f]{6}$/i.test(c) ? c.toLowerCase() : '#111827'
-})
-const lineHeight = computed(() => (textStyleAttrs.value.lineHeight as number | undefined) ?? font.value?.lineHeight ?? 1.15)
-function isOn(mark: 'bold' | 'italic' | 'underline') {
-  void tick.value
-  return editor.value ? editor.value.isActive(mark) : !!font.value?.[mark]
-}
-
-const theme = computed(() => resolvePresentationTheme(props.presentation))
-const families = computed(() => {
-  const list = new Set<string>()
-  if (family.value) list.add(family.value)
-  for (const option of localFontOptionsFromUnknown((props.presentation as { fonts?: unknown }).fonts)) list.add(option.family)
-  const themeFont = theme.value.fonts?.textFont?.name
-  if (themeFont) list.add(themeFont)
-  return [...list]
-})
-const palette = computed(() => themePalette(props.presentation))
-const lineHeights = computed(() => (LINE_HEIGHTS.includes(lineHeight.value) ? LINE_HEIGHTS : [lineHeight.value, ...LINE_HEIGHTS]))
-
-type FontPatch = Partial<Record<'family' | 'size' | 'color' | 'bold' | 'italic' | 'underline' | 'line_height', string | number | boolean>>
-
-/** Text-list items are a string, a run array, or { font, runs }; patch the font of every run. */
-function patchListItem(item: unknown, fontPatch: FontPatch): unknown {
-  const patchRun = (run: unknown) => ({ ...(asRecord(run) ?? {}), font: { ...(asRecord(asRecord(run)?.font) ?? {}), ...fontPatch } })
-  if (typeof item === 'string' || typeof item === 'number') return [{ text: String(item), font: { ...fontPatch } }]
-  if (Array.isArray(item)) return item.map(patchRun)
-  const record = asRecord(item)
-  if (!record) return item
-  const runs = readArray(record.runs)
-  return { ...record, font: { ...(asRecord(record.font) ?? {}), ...fontPatch }, ...(runs.length > 0 ? { runs: runs.map(patchRun) } : {}) }
-}
-
-/** A table: one cell, or (no cell) the base font and every cell. */
-function patchTable(el: RawElement, cell: TableCellRef | null, fontPatch: FontPatch, horizontal?: Align) {
-  const align = horizontal === 'left' || horizontal === 'center' || horizontal === 'right' ? horizontal : null
-  let next = el
-  if (Object.keys(fontPatch).length > 0) next = cell ? setCellFont(next, cell, fontPatch) : setTableFont(next, fontPatch)
-  if (align) next = cell ? setCellAlignment(next, cell, align) : setTableAlignment(next, align)
-  return next
-}
-
-/** No inline editor: patch the element font and every run, plus the alignment, in one commit. */
-function patchElement(fontPatch: FontPatch, horizontal?: Align) {
-  const sel = target.value
-  if (!ctx.ui.value || !sel) return
-  const table = props.target
-  // Built on the live ui (see useEditingActions.run); only reached with no Tiptap editor to drive.
-  void actions.run('Text style', (ui) => {
-    if (!getElementAtSelection(ui, sel)) return null
-    const next = updateElementInUi(ui, sel, (el) => {
-      if (table) return patchTable(el, table.cell, fontPatch, horizontal)
-      const runs = readArray(el.runs)
-      const items = readArray(el.items)
-      return {
-        ...el,
-        font: { ...(asRecord(el.font) ?? {}), ...fontPatch },
-        ...(horizontal ? { alignment: { ...(asRecord(el.alignment) ?? {}), horizontal } } : {}),
-        ...(el.type === 'text-list' && items.length > 0 ? { items: items.map((item) => patchListItem(item, fontPatch)) } : {}),
-        ...(runs.length > 0
-          ? { runs: runs.map((run) => ({ ...(asRecord(run) ?? {}), font: { ...(asRecord(asRecord(run)?.font) ?? {}), ...fontPatch } })) }
-          : {}),
-      }
-    })
-    return { ui: next, selection: ctx.selection.value }
-  })
-}
-
-function setFamily(event: Event) {
-  const value = (event.target as HTMLSelectElement).value
-  if (!value) return
-  if (editor.value) editor.value.chain().focus().setMark('textStyle', { fontFamily: value }).run()
-  else patchElement({ family: value })
-}
 function commitSize(event: Event) {
   const input = event.target as HTMLInputElement
-  const n = Number(input.value)
-  if (input.value.trim() === '' || !Number.isFinite(n) || n <= 0) {
-    input.value = String(size.value)
-    return
-  }
-  const fontSize = Math.min(200, Math.max(8, Math.round(n)))
-  if (editor.value) editor.value.chain().focus().setMark('textStyle', { fontSize }).run()
-  else patchElement({ size: fontSize })
+  if (!setSize(input.value)) input.value = String(size.value)
 }
-function toggle(mark: 'bold' | 'italic' | 'underline') {
-  const e = editor.value
-  if (!e) return patchElement({ [mark]: !font.value?.[mark] })
-  const chain = e.chain().focus()
-  if (mark === 'bold') chain.toggleBold().run()
-  else if (mark === 'italic') chain.toggleItalic().run()
-  else chain.toggleUnderline().run()
-}
-function setColor(value: string) {
-  if (!/^#[0-9a-f]{6}$/i.test(value)) return
-  if (editor.value) editor.value.chain().focus().setColor(value).run()
-  else patchElement({ color: value })
-}
-function setAlign(value: Align) {
-  if (editor.value) editor.value.chain().focus().setTextAlign(value).run()
-  else patchElement({}, value)
-}
-function setLineHeight(event: Event) {
-  const n = Number((event.target as HTMLSelectElement).value)
-  if (!Number.isFinite(n)) return
-  if (editor.value) editor.value.chain().focus().setMark('textStyle', { lineHeight: n }).run()
-  else patchElement({ line_height: n })
-}
-
-const section = 'border-t border-line py-[18px] min-[1600px]:py-[22px]'
-const label = 'mb-3 flex items-center justify-between text-[10px] font-medium text-[#d0d7dc] min-[1600px]:text-[11px]'
-const muted = 'truncate pl-2 text-[9px] font-normal text-[#9aa9b0]'
-const field =
-  'flex h-[34px] min-w-0 items-center gap-2.5 rounded-control border border-white/[0.06] bg-field px-2.5 text-[10px] text-[#dce3e7] focus-within:border-accent/60'
-const segment =
-  'grid h-9 flex-1 place-items-center rounded-control border border-white/[0.05] bg-field text-[#909fa7] hover:bg-[#303a3f] hover:text-[#d9e6ed]'
-const segmentOn = '!border-accent/50 !bg-[#303c42] !text-[#c4e4f4]'
 
 defineExpose({ families })
 </script>
@@ -222,7 +30,7 @@ defineExpose({ families })
           aria-label="Font family"
           class="h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-[#dce3e7] outline-none"
           :value="family"
-          @change="setFamily"
+          @change="setFamily(($event.target as HTMLSelectElement).value)"
         >
           <option v-for="f in families" :key="f" :value="f" class="bg-field">{{ f }}</option>
         </select>
@@ -315,7 +123,7 @@ defineExpose({ families })
           aria-label="Line height"
           class="h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-[#dce3e7] outline-none"
           :value="String(lineHeight)"
-          @change="setLineHeight"
+          @change="setLineHeight(Number(($event.target as HTMLSelectElement).value))"
         >
           <option v-for="h in lineHeights" :key="h" :value="String(h)" class="bg-field">{{ h }}</option>
         </select>
