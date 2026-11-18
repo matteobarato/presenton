@@ -58,6 +58,11 @@ from services.slide_video_service import (
     resolve_bubble,
     resolve_slide_actors,
 )
+# Moved to the slide animation service; re-exported for callers and tests.
+from services.slide_animation_service import (  # noqa: F401
+    AnimatedVideoUnavailableError,
+    _fetch_video_composition,
+)
 from services.speaker_note_tts_service import (
     SpeakerNoteAudioGenerationResult,
     generate_speaker_note_audios,
@@ -65,7 +70,7 @@ from services.speaker_note_tts_service import (
 )
 from utils.asset_directory_utils import app_data_file_url, get_videos_directory
 from utils.datetime_utils import get_current_utc_datetime
-from utils.export_utils import export_presentation, get_next_app_url
+from utils.export_utils import export_presentation
 from utils.ffmpeg_utils import (
     FFmpegProgress,
     FFmpegRuntimeError,
@@ -160,7 +165,6 @@ _PRESENTER_MORPH_SECONDS = 0.8
 # this suggest it was made from a different take.
 _AVATAR_DURATION_TOLERANCE_SECONDS = 0.5
 _ANIMATION_PLAN_CACHE_FILENAME = "animation-plans.json"
-_COMPOSITION_FETCH_TIMEOUT_SECONDS = 120.0
 
 
 class PresentationVideoConfigurationError(RuntimeError):
@@ -174,10 +178,6 @@ class PresentationVideoRenderError(RuntimeError):
 class AvatarLayersUnavailableError(RuntimeError):
     """Raised when the slide content over an avatar cannot be rendered apart;
     the avatar is then drawn over the whole slide."""
-
-
-class AnimatedVideoUnavailableError(RuntimeError):
-    """Raised when an animated render cannot be made; the still render is used."""
 
 
 @dataclass
@@ -1225,24 +1225,6 @@ async def _resolve_animation_plans(
         _save_animation_cache(cache_path, cache)
     await _emit_progress(on_progress, "animation-plan", len(animated), len(animated))
     return plans
-
-
-async def _fetch_video_composition(
-    presentation_id: uuid.UUID, cookie_header: Optional[str]
-) -> dict[str, Any]:
-    url = f"{get_next_app_url().rstrip('/')}/api/video-composition/{presentation_id}"
-    headers = {"x-export-cookie": cookie_header} if cookie_header else {}
-    async with httpx.AsyncClient(timeout=_COMPOSITION_FETCH_TIMEOUT_SECONDS) as client:
-        response = await client.get(url, headers=headers)
-    if response.status_code != 200:
-        raise AnimatedVideoUnavailableError(
-            f"Slide HTML for the animated video could not be loaded "
-            f"(HTTP {response.status_code})"
-        )
-    data = response.json()
-    if not isinstance(data, dict) or not isinstance(data.get("slides"), list):
-        raise AnimatedVideoUnavailableError("Slide HTML response was malformed")
-    return data
 
 
 async def _render_slide_pages(
