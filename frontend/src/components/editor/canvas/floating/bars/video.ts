@@ -5,7 +5,7 @@ import { framed } from '../panelFrame'
 
 const VideoPanel = framed(VideoSection)
 
-/** The video placeholder has no quick edit (uploading and generating live in the Narration tab); one panel previews the slide's video. */
+/** The video placeholder has no quick edit (uploading and generating live in the Voice tab); one panel previews the slide's video. */
 export const videoBar: BarItem[] = [
   {
     type: 'panel',

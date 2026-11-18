@@ -13,7 +13,7 @@ import { audioForSlide, narrationState, type NarrationState } from './narration-
 export const failToast = (e: unknown) => toast.error(e instanceof Error ? e.message : 'Something went wrong')
 
 /**
- * Deck narration state shared by the per-slide and deck-wide parts of the Narration tab:
+ * Deck narration state shared by the per-slide and deck-wide parts of the Voice tab:
  * the language, the recorded audio, and the one TTS task (it resumes after a reload).
  */
 export function useDeckNarration(presentationId: Ref<string>, presentation: Ref<Presentation>) {

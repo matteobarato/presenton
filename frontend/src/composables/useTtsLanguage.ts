@@ -32,7 +32,7 @@ function matchDeckLanguage(list: TtsLanguage[], deckLanguage: string | null | un
 }
 
 /**
- * The one narration language of a deck, shared by the Narration tab, the video tab, the MP4 export,
+ * The one narration language of a deck, shared by the Voice tab, the video tab, the MP4 export,
  * the slide status dots and the narrated preview.
  *
  * Order: the language chosen for this deck; else the deck's own `language` matched against the TTS

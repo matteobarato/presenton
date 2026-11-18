@@ -12,7 +12,7 @@ const props = defineProps<{ presentationId: string; slideIndex: number }>()
 
 const idRef = computed(() => props.presentationId)
 const { data: presentation } = usePresentation(idRef, useEditorFetchGate())
-// The Narration tab sets the language; the shared helper makes this react to it.
+// The Voice tab sets the language; the shared helper makes this react to it.
 const { language } = useTtsLanguage(idRef, presentation)
 const { data: tts } = useTts(idRef, language)
 const { data: videos } = useQuery({ queryKey: () => videoKeys.all(idRef.value), queryFn: () => getVideos(idRef.value) })

@@ -78,8 +78,8 @@ test.describe('mocked backend', () => {
     await page.keyboard.press('ArrowDown')
     await expect(thumbnails.nth(1)).toHaveAttribute('aria-current', 'true')
 
-    await page.getByRole('tab', { name: 'Narration' }).click()
-    // The Narration tab follows the active slide.
+    // The footer's Voice tab (the sidebar no longer has a Narration tab) follows the active slide.
+    await page.getByRole('tab', { name: 'Voice' }).click()
     await expect(page.getByTestId('narration-slide')).toHaveText('Slide 2 of 3')
     const voice = page.getByTestId('slide-voice')
     await thumbnails.first().click()
@@ -415,8 +415,8 @@ test.describe('on-slide editing (mocked)', () => {
       const list = page.getByRole('tablist', { name: 'Inspector sections' })
       await expect(list).toBeVisible()
       const tabs = list.getByRole('tab')
-      await expect(tabs).toHaveCount(4)
-      for (const name of ['Layers', 'Insert', 'Design', 'Narration']) {
+      await expect(tabs).toHaveCount(3)
+      for (const name of ['Layers', 'Insert', 'Design']) {
         await page.getByRole('tab', { name }).click()
         await expect(page.getByRole('tab', { name })).toHaveAttribute('aria-selected', 'true')
         const fit = await list.evaluate((el) => {

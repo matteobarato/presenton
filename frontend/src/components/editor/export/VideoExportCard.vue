@@ -93,7 +93,7 @@ async function remove() {
   }
 }
 
-// Follow the narration language (it may settle after the list loads, or change in the Narration tab).
+// Follow the narration language (it may settle after the list loads, or change in the Voice tab).
 watch(ttsLanguage, (code) => {
   if (code) form.language = code
 })
