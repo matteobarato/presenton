@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { useSessionStore } from '@/stores/session'
 
 const session = useSessionStore()
-const router = useRouter()
-
-async function signOut() {
-  await session.signOut().catch(() => {})
-  await router.push({ name: 'login' })
-}
+// Signing out is the parent's job: it owns the unsaved-changes prompt that must run first.
+const emit = defineEmits<{ 'sign-out': [] }>()
 </script>
 
 <template>
@@ -24,6 +19,6 @@ async function signOut() {
         <dd class="mt-1.5 text-[13px] font-medium text-[#dbe7ef]">{{ session.user.role }}</dd>
       </div>
     </dl>
-    <Button variant="secondary" @click="signOut">Sign out</Button>
+    <Button variant="secondary" @click="emit('sign-out')">Sign out</Button>
   </div>
 </template>

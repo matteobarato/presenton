@@ -42,6 +42,11 @@ const section = computed<SettingsSection>(() => {
 })
 const readOnlyMode = computed(() => (access.mode.value === 'locked' || access.mode.value === 'managed' ? access.mode.value : null))
 const runtimeConfig = computed(() => session.runtime?.config ?? {})
+// Only the stored email string (never a token) reaches the editor; the draft itself stays stripped.
+const accountEmail = computed(() => {
+  const email = access.config.value?.PRESENTON_EMAIL
+  return typeof email === 'string' && email.trim() ? email : undefined
+})
 
 // The access composable owns loading; the draft is seeded whenever the config arrives.
 watch(
@@ -54,6 +59,14 @@ watch(
 
 function go(next: SettingsSection) {
   void router.push({ name: 'settings', params: { section: next } })
+}
+
+// Sign-out discards the draft first, so declining the prompt keeps the user signed in and the keys hidden.
+async function onSignOut() {
+  if (dirty.value && !window.confirm(LEAVE_PROMPT)) return
+  discard()
+  await session.signOut().catch(() => {})
+  await router.push({ name: 'login' })
 }
 
 async function onSave() {
@@ -107,11 +120,11 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
 
       <div class="min-w-0 flex-1">
         <h2 class="mb-5 text-[16px] font-medium text-[#e4ecf0]">{{ TITLES[section] }}</h2>
-        <AccountSection v-if="section === 'account'" />
+        <AccountSection v-if="section === 'account'" @sign-out="onSignOut" />
         <ReadOnlySummary v-else-if="readOnlyMode" :mode="readOnlyMode" :config="runtimeConfig" />
         <template v-else>
           <fieldset :disabled="saving" class="m-0 min-w-0 border-0 p-0">
-            <component :is="EDITORS[section]" :config="draft" @set="set" />
+            <component :is="EDITORS[section]" :config="draft" :account-email="accountEmail" @set="set" />
           </fieldset>
           <SettingsSaveBar :dirty="dirty" :saving="saving" @save="onSave" @discard="discard" />
         </template>

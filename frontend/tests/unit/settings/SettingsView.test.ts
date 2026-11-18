@@ -247,6 +247,76 @@ describe('SettingsView', () => {
     expect(router.currentRoute.value.name).toBe('login')
   })
 
+  it('keeps the dirty draft and stays signed in when sign out is declined', async () => {
+    signIn('admin')
+    getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const w = await mountAt('/settings/text')
+    setField('OPENAI_MODEL', 'gpt-4.1-mini')
+    await router.push('/settings/account')
+    await flushPromises()
+    await w.findAll('button').find((b) => b.text() === 'Sign out')!.trigger('click')
+    await flushPromises()
+    expect(confirm).toHaveBeenCalledWith('You have unsaved changes. Leave without saving?')
+    expect(logout).not.toHaveBeenCalled()
+    expect(router.currentRoute.value.name).toBe('settings')
+    expect(w.text()).toContain('Sign out')
+  })
+
+  it('discards the draft and signs out without a second prompt when confirmed', async () => {
+    signIn('admin')
+    getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const w = await mountAt('/settings/text')
+    setField('OPENAI_MODEL', 'gpt-4.1-mini')
+    await router.push('/settings/account')
+    await flushPromises()
+    await w.findAll('button').find((b) => b.text() === 'Sign out')!.trigger('click')
+    await flushPromises()
+    expect(confirm).toHaveBeenCalledTimes(1)
+    expect(logout).toHaveBeenCalledTimes(1)
+    expect(router.currentRoute.value.name).toBe('login')
+  })
+
+  it('signs out without prompting when nothing changed', async () => {
+    signIn('admin')
+    getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const w = await mountAt('/settings/account')
+    await w.findAll('button').find((b) => b.text() === 'Sign out')!.trigger('click')
+    await flushPromises()
+    expect(confirm).not.toHaveBeenCalled()
+    expect(logout).toHaveBeenCalledTimes(1)
+    expect(router.currentRoute.value.name).toBe('login')
+  })
+
+  it('shows the Presenton account email without any token, and never PUTs OAuth fields', async () => {
+    signIn('admin')
+    getProviderSettings.mockResolvedValue({
+      LLM: 'presenton',
+      PRESENTON_EMAIL: 'a@b.test',
+      PRESENTON_CONNECTED: true,
+      CODEX_ACCESS_TOKEN: 'codex-tok-fake',
+      CODEX_REFRESH_TOKEN: 'codex-refresh-fake',
+    })
+    saveProviderSettings.mockImplementation(async (c) => c)
+    const w = await mountAt('/settings/text')
+    expect(w.text()).toContain('a@b.test')
+    expect(w.html()).not.toContain('codex-tok-fake')
+    expect(w.html()).not.toContain('codex-refresh-fake')
+
+    setField('LLM', 'openai')
+    setField('OPENAI_API_KEY', FAKE_KEY)
+    setField('OPENAI_MODEL', 'gpt-4.1')
+    setField('DISABLE_IMAGE_GENERATION', true)
+    await flushPromises()
+    await w.findAll('button').find((b) => b.text() === 'Save')!.trigger('click')
+    await flushPromises()
+    expect(saveProviderSettings).toHaveBeenCalledTimes(1)
+    const keys = Object.keys(saveProviderSettings.mock.calls[0]![0])
+    expect(keys.filter((k) => /^(PRESENTON_|CODEX_)/.test(k))).toEqual([])
+  })
+
   it('shows the account section in every mode', async () => {
     signIn('member')
     const w = await mountAt('/settings/account')

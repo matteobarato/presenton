@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button'
 import { DEFAULT_OLLAMA_URL, SIGN_IN_PROVIDERS, TEXT_PROVIDERS, textProvider } from '@/settings/providers'
 import type { ProviderConfig } from '@/settings/types'
 
-const props = defineProps<{ config: ProviderConfig }>()
+// `accountEmail` is the read-only Presenton Cloud account label; the draft itself never carries it.
+const props = defineProps<{ config: ProviderConfig; accountEmail?: string }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
 
 const OPTIONS = TEXT_PROVIDERS.map(({ value, label, description, icon }) => ({ value, label, description, icon }))
@@ -27,7 +28,7 @@ const readOnly = computed(() => signIn.value !== undefined && !switching.value)
 // Only ever a label, never a credential: the model for ChatGPT, the account email for Presenton Cloud.
 const detail = computed(() => {
   const model = signIn.value?.modelField ? props.config[signIn.value.modelField] : undefined
-  const email = llm.value === 'presenton' ? props.config.PRESENTON_EMAIL : undefined
+  const email = llm.value === 'presenton' ? (props.accountEmail ?? props.config.PRESENTON_EMAIL) : undefined
   const shown = typeof model === 'string' && model.trim() ? model : typeof email === 'string' && email.trim() ? email : ''
   return shown || 'Connected account'
 })

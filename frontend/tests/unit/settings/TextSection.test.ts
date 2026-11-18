@@ -276,6 +276,17 @@ describe('TextSection', () => {
       expect(w.find('input').exists()).toBe(false)
     })
 
+    it('shows the accountEmail prop for Presenton Cloud, and ignores it for other providers', () => {
+      const w = mountSection({ LLM: 'presenton' })
+      expect(w.text()).toContain('Connected account')
+      wrapper!.unmount()
+      wrapper = mount(TextSection, { attachTo: document.body, props: { config: { LLM: 'presenton' }, accountEmail: 'a@b.test' } })
+      expect(wrapper.text()).toContain('a@b.test')
+      wrapper.unmount()
+      wrapper = mount(TextSection, { attachTo: document.body, props: { config: { LLM: 'codex', CODEX_MODEL: 'gpt-5' }, accountEmail: 'a@b.test' } })
+      expect(wrapper.text()).not.toContain('a@b.test')
+    })
+
     it('falls back to "Connected account" without an email', () => {
       const w = mountSection({ LLM: 'presenton', PRESENTON_EMAIL: null })
       expect(w.text()).toContain('Connected account')
