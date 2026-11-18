@@ -14137,6 +14137,3148 @@
           ]
         }
       ]
+    },
+    {
+      "id": "full_bleed_canvas_pv",
+      "description": "Plain full-slide background in the template's own color.",
+      "variants": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#F8F7FB",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_frame_accent_pv",
+      "description": "Offset accent panel framing the portrait video from behind.",
+      "variants": [
+        {
+          "id": "video_frame_accent_pv",
+          "description": "Offset accent panel framing the portrait video from behind.",
+          "position": {
+            "x": 116,
+            "y": 124
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 8,
+                "tr": 8,
+                "bl": 8,
+                "br": 8
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_placeholder",
+      "description": "Avatar video placeholder",
+      "variants": [
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 96,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_body_block_pv",
+      "description": "Eyebrow label, headline and supporting paragraph.",
+      "variants": [
+        {
+          "id": "title_body_block_pv",
+          "description": "Eyebrow label, headline and supporting paragraph.",
+          "position": {
+            "x": 520,
+            "y": 96
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 696,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#8554EB",
+                "line_height": 1.4,
+                "bold": true,
+                "letter_spacing": 1.2
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "MEET YOUR PRESENTER",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#8554EB",
+                    "line_height": 1.4,
+                    "bold": true,
+                    "letter_spacing": 1.2
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "eyebrow_label",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 34
+              },
+              "size": {
+                "width": 696,
+                "height": 90
+              },
+              "rotation": 0,
+              "font": {
+                "size": 44,
+                "family": "Anton",
+                "color": "#000000",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "A clear message from the person behind it",
+                  "font": {
+                    "size": 44,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 12,
+              "max_length": 48
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 136
+              },
+              "size": {
+                "width": 696,
+                "height": 42
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Your presenter walks the audience through the idea in their own voice, so the key message lands in seconds.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "intro_text",
+              "min_length": 40,
+              "max_length": 150
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "key_points_list_pv",
+      "description": "Three stacked key points with markers.",
+      "variants": [
+        {
+          "id": "key_points_list_pv",
+          "description": "Three stacked key points with markers.",
+          "position": {
+            "x": 520,
+            "y": 298
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 6.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 0.0
+              },
+              "size": {
+                "width": 670,
+                "height": 25
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Clear goals",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 27.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Everyone knows what we are aiming for.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 71.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 65.0
+              },
+              "size": {
+                "width": 670,
+                "height": 25
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Shared context",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 92.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The background behind each decision.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 136.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 130.0
+              },
+              "size": {
+                "width": 670,
+                "height": 25
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Next steps",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 157.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What happens right after this slide.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_text",
+              "min_length": 12,
+              "max_length": 64
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "numbered_steps_list_pv",
+      "description": "Three numbered steps.",
+      "variants": [
+        {
+          "id": "numbered_steps_list_pv",
+          "description": "Three numbered steps.",
+          "position": {
+            "x": 64,
+            "y": 266
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 12.0
+              },
+              "size": {
+                "width": 52,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "Anton",
+                "color": "#FFFFFF",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "1",
+                  "font": {
+                    "size": 22,
+                    "family": "Anton",
+                    "color": "#FFFFFF",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 0.0
+              },
+              "size": {
+                "width": 640,
+                "height": 30
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Plan",
+                  "font": {
+                    "size": 20,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 32.0
+              },
+              "size": {
+                "width": 640,
+                "height": 23
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Agree on scope and owners.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_text",
+              "min_length": 12,
+              "max_length": 60
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 79.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 91.0
+              },
+              "size": {
+                "width": 52,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "Anton",
+                "color": "#FFFFFF",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "2",
+                  "font": {
+                    "size": 22,
+                    "family": "Anton",
+                    "color": "#FFFFFF",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 79.0
+              },
+              "size": {
+                "width": 640,
+                "height": 30
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Build",
+                  "font": {
+                    "size": 20,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 111.0
+              },
+              "size": {
+                "width": 640,
+                "height": 23
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Ship in small, reviewed pieces.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_text",
+              "min_length": 12,
+              "max_length": 60
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 158.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 170.0
+              },
+              "size": {
+                "width": 52,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "Anton",
+                "color": "#FFFFFF",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "3",
+                  "font": {
+                    "size": 22,
+                    "family": "Anton",
+                    "color": "#FFFFFF",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 158.0
+              },
+              "size": {
+                "width": 640,
+                "height": 30
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Review",
+                  "font": {
+                    "size": 20,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 190.0
+              },
+              "size": {
+                "width": 640,
+                "height": 23
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Check results and adjust.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_text",
+              "min_length": 12,
+              "max_length": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_card_panel_pv",
+      "description": "Card panel holding the portrait video.",
+      "variants": [
+        {
+          "id": "video_card_panel_pv",
+          "description": "Card panel holding the portrait video.",
+          "position": {
+            "x": 852,
+            "y": 64
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 352,
+                "height": 592
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "centered_title_pv",
+      "description": "Centered headline above the video.",
+      "variants": [
+        {
+          "id": "centered_title_pv",
+          "description": "Centered headline above the video.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 64,
+                "y": 28
+              },
+              "size": {
+                "width": 1152,
+                "height": 38
+              },
+              "rotation": 0,
+              "font": {
+                "size": 36,
+                "family": "Anton",
+                "color": "#000000",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Meet the voice behind the numbers",
+                  "font": {
+                    "size": 36,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 12,
+              "max_length": 48
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "callout_1_pv",
+      "description": "Left callout card.",
+      "variants": [
+        {
+          "id": "callout_1_pv",
+          "description": "Left callout card.",
+          "position": {
+            "x": 64,
+            "y": 150
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 135
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 135
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Focus",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_1_title",
+              "min_length": 5,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 52
+              },
+              "size": {
+                "width": 336,
+                "height": 65
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "One idea per slide, said plainly.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_1_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "callout_2_pv",
+      "description": "Left callout card.",
+      "variants": [
+        {
+          "id": "callout_2_pv",
+          "description": "Left callout card.",
+          "position": {
+            "x": 64,
+            "y": 370
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 135
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 135
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Proof",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_2_title",
+              "min_length": 5,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 52
+              },
+              "size": {
+                "width": 336,
+                "height": 65
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "A fact or number that backs it up.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_2_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "callout_3_pv",
+      "description": "Right callout card.",
+      "variants": [
+        {
+          "id": "callout_3_pv",
+          "description": "Right callout card.",
+          "position": {
+            "x": 840,
+            "y": 150
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 135
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 135
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Context",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_3_title",
+              "min_length": 6,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 52
+              },
+              "size": {
+                "width": 336,
+                "height": 65
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Why it matters right now.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_3_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "callout_4_pv",
+      "description": "Right callout card.",
+      "variants": [
+        {
+          "id": "callout_4_pv",
+          "description": "Right callout card.",
+          "position": {
+            "x": 840,
+            "y": 370
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 135
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 135
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Action",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_4_title",
+              "min_length": 6,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 52
+              },
+              "size": {
+                "width": 336,
+                "height": 65
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What we ask the audience to do.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_4_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "large_title_block_pv",
+      "description": "Large title.",
+      "variants": [
+        {
+          "id": "large_title_block_pv",
+          "description": "Large title.",
+          "position": {
+            "x": 64,
+            "y": 64
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 740,
+                "height": 54
+              },
+              "rotation": 0,
+              "font": {
+                "size": 52,
+                "family": "Anton",
+                "color": "#000000",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "In their words",
+                  "font": {
+                    "size": 52,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 6,
+              "max_length": 24
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "framed_quote_panel_pv",
+      "description": "Card with accent edge, quote and attribution.",
+      "variants": [
+        {
+          "id": "framed_quote_panel_pv",
+          "description": "Card with accent edge, quote and attribution.",
+          "position": {
+            "x": 64,
+            "y": 150
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 740,
+                "height": 262
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 8,
+                "height": 262
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 4,
+                "tr": 4,
+                "bl": 4,
+                "br": 4
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 8
+              },
+              "size": {
+                "width": 80,
+                "height": 82
+              },
+              "rotation": 0,
+              "font": {
+                "size": 80,
+                "family": "Anton",
+                "color": "#8554EB",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "“",
+                  "font": {
+                    "size": 80,
+                    "family": "Anton",
+                    "color": "#8554EB",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_mark_accent",
+              "min_length": 1,
+              "max_length": 1
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 70
+              },
+              "size": {
+                "width": 624,
+                "height": 80
+              },
+              "rotation": 0,
+              "font": {
+                "size": 26,
+                "family": "Anton",
+                "color": "#000000",
+                "line_height": 1.0,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Working this way changed how our whole team plans and delivers.",
+                  "font": {
+                    "size": 26,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "line_height": 1.0,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_body_text",
+              "min_length": 30,
+              "max_length": 110
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 170
+              },
+              "size": {
+                "width": 624,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Jordan Lee",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_author_text",
+              "min_length": 4,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 200
+              },
+              "size": {
+                "width": 624,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Head of Operations",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_author_role",
+              "min_length": 6,
+              "max_length": 36
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_side_band_pv",
+      "description": "Full-height accent band behind the video.",
+      "variants": [
+        {
+          "id": "video_side_band_pv",
+          "description": "Full-height accent band behind the video.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 400,
+                "height": 720
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 0,
+                "tr": 0,
+                "bl": 0,
+                "br": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "takeaway_cards_pv",
+      "description": "Three takeaway cards.",
+      "variants": [
+        {
+          "id": "takeaway_cards_pv",
+          "description": "Three takeaway cards.",
+          "position": {
+            "x": 464,
+            "y": 400
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Simple",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_1_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 54
+              },
+              "size": {
+                "width": 192,
+                "height": 61
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Keep the message short.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_1_text",
+              "min_length": 12,
+              "max_length": 56
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 260,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 260,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 280,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Visual",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_2_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 280,
+                "y": 54
+              },
+              "size": {
+                "width": 192,
+                "height": 61
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Show it, then say it.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_2_text",
+              "min_length": 12,
+              "max_length": 56
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 520,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 520,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 540,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Actionable",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_3_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 540,
+                "y": 54
+              },
+              "size": {
+                "width": 192,
+                "height": 61
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "End with one clear next step.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_3_text",
+              "min_length": 12,
+              "max_length": 56
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decorative_background_pv",
+      "description": "Full slide background with pale right panel and subtle ornamental accents near the lower-left edge.",
+      "variants": [
+        {
+          "id": "decorative_background_pv",
+          "description": "Full slide background with pale right panel and subtle ornamental accents near the lower-left edge.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 705,
+                "y": 0
+              },
+              "size": {
+                "width": 575,
+                "height": 720
+              },
+              "fill": {
+                "color": "#F7F5FA",
+                "opacity": 1
+              }
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": -668,
+                "y": 580
+              },
+              "size": {
+                "width": 1018,
+                "height": 997
+              },
+              "opacity": 0.28,
+              "data": "static/image2-f9ab39ea57ed.png",
+              "fit": "fill",
+              "clip_path": "path('M 0 0 L 1017.57 0 L 1017.57 997.22 L 0 997.22 L 0 0 Z')",
+              "decorative": true,
+              "name": "lower_shadow_accent",
+              "is_icon": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "headline_block_pv",
+      "description": "Upper-left title area containing a large condensed headline and compact explanatory subtitle.",
+      "variants": [
+        {
+          "id": "headline_block_pv",
+          "description": "Upper-left title area containing a large condensed headline and compact explanatory subtitle.",
+          "position": {
+            "x": 53,
+            "y": 51
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 681,
+                "height": 125
+              },
+              "font": {
+                "size": 56,
+                "family": "Anton",
+                "color": "#000000",
+                "bold": false,
+                "line_height": 1.09,
+                "letter_spacing": -0.55
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Chart Title Projects complet successfully each month.",
+                  "font": {
+                    "size": 56,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "bold": false,
+                    "line_height": 1.09,
+                    "letter_spacing": -0.55
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_headline",
+              "max_length": 49,
+              "min_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 134
+              },
+              "size": {
+                "width": 681.52,
+                "height": 110.21
+              },
+              "rotation": 0,
+              "font": {
+                "size": 17.8,
+                "family": "Montserrat Medium",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.4,
+                "letter_spacing": 0.11
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "This metric provides insights into overall project progress, team performance, and the effectiveness of task management processes.",
+                  "font": {
+                    "size": 17.8,
+                    "family": "Montserrat Medium",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.4,
+                    "letter_spacing": 0.11
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "supporting_statement",
+              "max_length": 271,
+              "min_length": 69
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "content_cards_grid_pv",
+      "description": "Lower-left grid of reusable text cards, each with a heading and a descriptive paragraph.",
+      "variants": [
+        {
+          "id": "content_cards_grid_pv",
+          "description": "Lower-left grid of reusable text cards, each with a heading and a descriptive paragraph.",
+          "position": {
+            "x": 53,
+            "y": 339
+          },
+          "elements": [
+            {
+              "type": "grid",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 587,
+                "height": 284
+              },
+              "columns": 2,
+              "rows": 2,
+              "column_gap": 76,
+              "row_gap": 48,
+              "align_items": "stretch",
+              "justify_items": "stretch",
+              "children": [
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "size": {
+                    "width": 255,
+                    "height": 77
+                  },
+                  "children": [
+                    {
+                      "type": "flex",
+                      "position": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "direction": "column",
+                      "align_items": "stretch",
+                      "justify_content": "flex-start",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "size": {
+                            "width": 255,
+                            "height": 31
+                          },
+                          "font": {
+                            "size": 21.3,
+                            "family": "Montserrat Bold",
+                            "color": "#000000",
+                            "bold": true,
+                            "line_height": 1.5,
+                            "letter_spacing": 0.12
+                          },
+                          "alignment": {
+                            "horizontal": "left",
+                            "vertical": "top"
+                          },
+                          "runs": [
+                            {
+                              "text": "Marketing",
+                              "font": {
+                                "size": 21.3,
+                                "family": "Montserrat Bold",
+                                "color": "#000000",
+                                "bold": true,
+                                "line_height": 1.5,
+                                "letter_spacing": 0.12
+                              }
+                            }
+                          ],
+                          "decorative": false,
+                          "name": "card_heading",
+                          "max_length": 9,
+                          "min_length": 5
+                        },
+                        {
+                          "type": "text",
+                          "size": {
+                            "width": 255,
+                            "height": 77
+                          },
+                          "font": {
+                            "size": 14.2,
+                            "family": "Montserrat",
+                            "color": "#000000",
+                            "line_height": 1.4,
+                            "letter_spacing": 0.08
+                          },
+                          "alignment": {
+                            "horizontal": "left",
+                            "vertical": "top"
+                          },
+                          "runs": [
+                            {
+                              "text": "Without proper is a analytics and reporting tools, educators cannot easily identify are learning trends, measure outcomes.",
+                              "font": {
+                                "size": 14.2,
+                                "family": "Montserrat",
+                                "color": "#000000",
+                                "line_height": 1.4,
+                                "letter_spacing": 0.08
+                              }
+                            }
+                          ],
+                          "decorative": false,
+                          "name": "card_description",
+                          "max_length": 122,
+                          "min_length": 61
+                        }
+                      ],
+                      "name": "card_text_stack",
+                      "max_children": 4,
+                      "min_children": 1
+                    }
+                  ],
+                  "name": "card_lists_grid"
+                }
+              ],
+              "name": "cards_grid",
+              "max_children": 4,
+              "min_children": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chart_panel_pv",
+      "description": "Right-side visualization area with a large pie chart centered within the pale panel.",
+      "variants": [
+        {
+          "id": "chart_panel_pv",
+          "description": "Right-side visualization area with a large pie chart centered within the pale panel.",
+          "position": {
+            "x": 760,
+            "y": 218
+          },
+          "elements": [
+            {
+              "type": "chart",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 465,
+                "height": 425
+              },
+              "chart_type": "pie",
+              "title_color": "#000000",
+              "colors": [
+                "#5F50A2",
+                "#A687EB",
+                "#8650ED",
+                "#9085B9"
+              ],
+              "x_axis": false,
+              "y_axis": false,
+              "categories": [
+                "Sales",
+                "Finance",
+                "Marketing",
+                "Hr"
+              ],
+              "series": [
+                {
+                  "name": "Share",
+                  "values": [
+                    55,
+                    25,
+                    15,
+                    5
+                  ]
+                }
+              ],
+              "data_labels": "outside",
+              "legend": false,
+              "decorative": false,
+              "name": "main_pie_chart"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "footer_marker_pv",
+      "description": "Small footer label and page value aligned to the lower-right corner.",
+      "variants": [
+        {
+          "id": "footer_marker_pv",
+          "description": "Small footer label and page value aligned to the lower-right corner.",
+          "position": {
+            "x": 1127,
+            "y": 655
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 61,
+                "height": 18
+              },
+              "font": {
+                "size": 14.2,
+                "family": "Montserrat Bold",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.4,
+                "letter_spacing": 0.08
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Page",
+                  "font": {
+                    "size": 14.2,
+                    "family": "Montserrat Bold",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.4,
+                    "letter_spacing": 0.08
+                  }
+                }
+              ],
+              "decorative": true,
+              "name": "footer_label",
+              "max_length": 4,
+              "min_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 55,
+                "y": 0
+              },
+              "size": {
+                "width": 32,
+                "height": 18
+              },
+              "font": {
+                "size": 14.2,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "letter_spacing": 0.08
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "13",
+                  "font": {
+                    "size": 14.2,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "letter_spacing": 0.08
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "footer_value",
+              "max_length": 2,
+              "min_length": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "centered_header_pv",
+      "description": "A large centered title with supporting centered subtitle establishes the slide topic before the visual sections.",
+      "variants": [
+        {
+          "id": "centered_header_pv",
+          "description": "A large centered title with supporting centered subtitle establishes the slide topic before the visual sections.",
+          "position": {
+            "x": 53,
+            "y": 51
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 1160,
+                "height": 124
+              },
+              "font": {
+                "size": 48,
+                "family": "Anton",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.09,
+                "letter_spacing": -0.55
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Chart emote work and digital transformation continue to expand.",
+                  "font": {
+                    "size": 48,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.09,
+                    "letter_spacing": -0.55
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_heading",
+              "max_length": 100,
+              "min_length": 32
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 136
+              },
+              "size": {
+                "width": 1160,
+                "height": 82.08
+              },
+              "rotation": 0,
+              "font": {
+                "size": 17.78,
+                "family": "Montserrat Medium",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.4,
+                "letter_spacing": 0.11
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The company managed over 500 weekly tasks using spreadsheets and emails,resulting in delays\nand communication issues.",
+                  "font": {
+                    "size": 17.78,
+                    "family": "Montserrat Medium",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.4,
+                    "letter_spacing": 0.11
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "supporting_subtitle",
+              "max_length": 330,
+              "min_length": 59
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "left_chart_panel_pv",
+      "description": "A standalone chart region occupies the lower left area and compares categories with vertical bars.",
+      "variants": [
+        {
+          "id": "left_chart_panel_pv",
+          "description": "A standalone chart region occupies the lower left area and compares categories with vertical bars.",
+          "position": {
+            "x": 66,
+            "y": 305
+          },
+          "elements": [
+            {
+              "type": "chart",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 362,
+                "height": 337
+              },
+              "chart_type": "bar",
+              "title_color": "#000000",
+              "colors": [
+                "#8554EB"
+              ],
+              "x_axis": true,
+              "y_axis": true,
+              "axis_color": "#333333",
+              "categories": [
+                "Sales",
+                "Finance",
+                "Marketing",
+                "HR"
+              ],
+              "series": [
+                {
+                  "name": "Value",
+                  "values": [
+                    78,
+                    60,
+                    45,
+                    30
+                  ]
+                }
+              ],
+              "legend": false,
+              "x_axis_grid": false,
+              "y_axis_grid": true,
+              "grid_color": "#ECECEC",
+              "decorative": false,
+              "name": "category_bar_chart"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "right_cards_grid_pv",
+      "description": "A grid of rounded text cards presents short repeated callouts aligned in the lower right section.",
+      "variants": [
+        {
+          "id": "right_cards_grid_pv",
+          "description": "A grid of rounded text cards presents short repeated callouts aligned in the lower right section.",
+          "position": {
+            "x": 566,
+            "y": 292
+          },
+          "elements": [
+            {
+              "type": "grid",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 647,
+                "height": 362
+              },
+              "columns": 2,
+              "rows": 2,
+              "column_gap": 54,
+              "row_gap": 26,
+              "align_items": "stretch",
+              "justify_items": "stretch",
+              "children": [
+                {
+                  "type": "container",
+                  "size": {
+                    "width": 296,
+                    "height": 168
+                  },
+                  "fill": {
+                    "color": "#F7F6FB",
+                    "opacity": 1
+                  },
+                  "border_radius": {
+                    "tl": 38,
+                    "tr": 38,
+                    "bl": 38,
+                    "br": 38
+                  },
+                  "padding": {
+                    "top": 24,
+                    "right": 28,
+                    "bottom": 24,
+                    "left": 28
+                  },
+                  "child": {
+                    "type": "flex",
+                    "direction": "column",
+                    "align_items": "center",
+                    "justify_content": "center",
+                    "gap": 9,
+                    "children": [
+                      {
+                        "type": "text",
+                        "size": {
+                          "width": 240,
+                          "height": 31
+                        },
+                        "font": {
+                          "size": 21.33,
+                          "family": "Montserrat Bold",
+                          "color": "#000000",
+                          "bold": true,
+                          "line_height": 1.5,
+                          "letter_spacing": 0.12
+                        },
+                        "alignment": {
+                          "horizontal": "center",
+                          "vertical": "top"
+                        },
+                        "runs": [
+                          {
+                            "text": "Marketing",
+                            "font": {
+                              "size": 21.33,
+                              "family": "Montserrat Bold",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.5,
+                              "letter_spacing": 0.12
+                            }
+                          }
+                        ],
+                        "decorative": false,
+                        "name": "card_title",
+                        "max_length": 9,
+                        "min_length": 5
+                      },
+                      {
+                        "type": "text",
+                        "position": {
+                          "x": 0,
+                          "y": 40
+                        },
+                        "size": {
+                          "width": 250,
+                          "height": 80.27
+                        },
+                        "rotation": 0,
+                        "font": {
+                          "size": 14.22,
+                          "family": "Montserrat",
+                          "color": "#000000",
+                          "line_height": 1.4,
+                          "letter_spacing": 0.08
+                        },
+                        "alignment": {
+                          "horizontal": "center",
+                          "vertical": "top"
+                        },
+                        "runs": [
+                          {
+                            "text": "Without proper is a analytics and reporting tools, educators cannot easily identify are learning trends, measure outcomes.",
+                            "font": {
+                              "size": 14.22,
+                              "family": "Montserrat",
+                              "color": "#000000",
+                              "line_height": 1.4,
+                              "letter_spacing": 0.08
+                            }
+                          }
+                        ],
+                        "decorative": false,
+                        "name": "card_title",
+                        "max_length": 9,
+                        "min_length": 5
+                      }
+                    ],
+                    "name": "card_text_stack",
+                    "max_children": 2,
+                    "min_children": 2
+                  }
+                }
+              ],
+              "name": "callout_card_grid",
+              "max_children": 4,
+              "min_children": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "footer_pagination_pv",
+      "description": "Small page label and page value are positioned at the bottom right as persistent footer information.",
+      "variants": [
+        {
+          "id": "footer_pagination_pv",
+          "description": "Small page label and page value are positioned at the bottom right as persistent footer information.",
+          "position": {
+            "x": 1140,
+            "y": 655
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 61,
+                "height": 18
+              },
+              "font": {
+                "size": 14.22,
+                "family": "Montserrat Bold",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.4,
+                "letter_spacing": 0.08
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Page",
+                  "font": {
+                    "size": 14.22,
+                    "family": "Montserrat Bold",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.4,
+                    "letter_spacing": 0.08
+                  }
+                }
+              ],
+              "decorative": true,
+              "name": "footer_label",
+              "max_length": 4,
+              "min_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 55,
+                "y": 0
+              },
+              "size": {
+                "width": 32,
+                "height": 18
+              },
+              "font": {
+                "size": 14.22,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "letter_spacing": 0.08
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "16",
+                  "font": {
+                    "size": 14.22,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "letter_spacing": 0.08
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "footer_value",
+              "max_length": 2,
+              "min_length": 1
+            }
+          ]
+        }
+      ]
     }
   ],
   "layouts": [
@@ -28180,6 +31322,3584 @@
               "decorative": false,
               "name": "supporting_illustration",
               "is_icon": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_left_title_points_pv01",
+      "description": "Presenter avatar video framed on the left with a headline, short explanation and three key points on the right. Use when a narrator or avatar introduces a topic, team or initiative on camera.",
+      "components": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#F8F7FB",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "video_frame_accent_pv",
+          "description": "Offset accent panel framing the portrait video from behind.",
+          "position": {
+            "x": 116,
+            "y": 124
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 8,
+                "tr": 8,
+                "bl": 8,
+                "br": 8
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 96,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "title_body_block_pv",
+          "description": "Eyebrow label, headline and supporting paragraph.",
+          "position": {
+            "x": 520,
+            "y": 96
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 696,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#8554EB",
+                "line_height": 1.4,
+                "bold": true,
+                "letter_spacing": 1.2
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "MEET YOUR PRESENTER",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#8554EB",
+                    "line_height": 1.4,
+                    "bold": true,
+                    "letter_spacing": 1.2
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "eyebrow_label",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 34
+              },
+              "size": {
+                "width": 696,
+                "height": 90
+              },
+              "rotation": 0,
+              "font": {
+                "size": 44,
+                "family": "Anton",
+                "color": "#000000",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "A clear message from the person behind it",
+                  "font": {
+                    "size": 44,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 12,
+              "max_length": 48
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 136
+              },
+              "size": {
+                "width": 696,
+                "height": 42
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Your presenter walks the audience through the idea in their own voice, so the key message lands in seconds.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "intro_text",
+              "min_length": 40,
+              "max_length": 150
+            }
+          ]
+        },
+        {
+          "id": "key_points_list_pv",
+          "description": "Three stacked key points with markers.",
+          "position": {
+            "x": 520,
+            "y": 298
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 6.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 0.0
+              },
+              "size": {
+                "width": 670,
+                "height": 25
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Clear goals",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 27.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Everyone knows what we are aiming for.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 71.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 65.0
+              },
+              "size": {
+                "width": 670,
+                "height": 25
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Shared context",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 92.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The background behind each decision.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 136.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 130.0
+              },
+              "size": {
+                "width": 670,
+                "height": 25
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Next steps",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 157.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What happens right after this slide.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_text",
+              "min_length": 12,
+              "max_length": 64
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_steps_video_right_pv02",
+      "description": "Explainer with a bold headline, short summary and three numbered steps on the left and a presenter avatar video in a card panel on the right. Use for process or how-it-works narration.",
+      "components": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#F8F7FB",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "title_body_block_pv",
+          "description": "Headline and short summary.",
+          "position": {
+            "x": 64,
+            "y": 64
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 720,
+                "height": 112
+              },
+              "rotation": 0,
+              "font": {
+                "size": 55,
+                "family": "Anton",
+                "color": "#000000",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "How we work",
+                  "font": {
+                    "size": 55,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 8,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 124
+              },
+              "size": {
+                "width": 720,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Three steps that take an idea from first draft to delivery.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "intro_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        },
+        {
+          "id": "numbered_steps_list_pv",
+          "description": "Three numbered steps.",
+          "position": {
+            "x": 64,
+            "y": 266
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 12.0
+              },
+              "size": {
+                "width": 52,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "Anton",
+                "color": "#FFFFFF",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "1",
+                  "font": {
+                    "size": 22,
+                    "family": "Anton",
+                    "color": "#FFFFFF",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 0.0
+              },
+              "size": {
+                "width": 640,
+                "height": 30
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Plan",
+                  "font": {
+                    "size": 20,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 32.0
+              },
+              "size": {
+                "width": 640,
+                "height": 23
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Agree on scope and owners.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_text",
+              "min_length": 12,
+              "max_length": 60
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 79.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 91.0
+              },
+              "size": {
+                "width": 52,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "Anton",
+                "color": "#FFFFFF",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "2",
+                  "font": {
+                    "size": 22,
+                    "family": "Anton",
+                    "color": "#FFFFFF",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 79.0
+              },
+              "size": {
+                "width": 640,
+                "height": 30
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Build",
+                  "font": {
+                    "size": 20,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 111.0
+              },
+              "size": {
+                "width": 640,
+                "height": 23
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Ship in small, reviewed pieces.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_text",
+              "min_length": 12,
+              "max_length": 60
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 158.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 170.0
+              },
+              "size": {
+                "width": 52,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "Anton",
+                "color": "#FFFFFF",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "3",
+                  "font": {
+                    "size": 22,
+                    "family": "Anton",
+                    "color": "#FFFFFF",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 158.0
+              },
+              "size": {
+                "width": 640,
+                "height": 30
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Review",
+                  "font": {
+                    "size": 20,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 190.0
+              },
+              "size": {
+                "width": 640,
+                "height": 23
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Check results and adjust.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_text",
+              "min_length": 12,
+              "max_length": 60
+            }
+          ]
+        },
+        {
+          "id": "video_card_panel_pv",
+          "description": "Card panel holding the portrait video.",
+          "position": {
+            "x": 852,
+            "y": 64
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 352,
+                "height": 592
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 884,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "centered_video_side_callouts_pv03",
+      "description": "Spotlight slide with a centered presenter avatar video between callout cards on the left and right and a headline above. Use to feature a speaker with supporting points.",
+      "components": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#F8F7FB",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "centered_title_pv",
+          "description": "Centered headline above the video.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 64,
+                "y": 28
+              },
+              "size": {
+                "width": 1152,
+                "height": 38
+              },
+              "rotation": 0,
+              "font": {
+                "size": 36,
+                "family": "Anton",
+                "color": "#000000",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Meet the voice behind the numbers",
+                  "font": {
+                    "size": 36,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 12,
+              "max_length": 48
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 496,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "callout_1_pv",
+          "description": "Left callout card.",
+          "position": {
+            "x": 64,
+            "y": 150
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 135
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 135
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Focus",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_1_title",
+              "min_length": 5,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 52
+              },
+              "size": {
+                "width": 336,
+                "height": 65
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "One idea per slide, said plainly.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_1_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        },
+        {
+          "id": "callout_2_pv",
+          "description": "Left callout card.",
+          "position": {
+            "x": 64,
+            "y": 370
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 135
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 135
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Proof",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_2_title",
+              "min_length": 5,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 52
+              },
+              "size": {
+                "width": 336,
+                "height": 65
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "A fact or number that backs it up.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_2_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        },
+        {
+          "id": "callout_3_pv",
+          "description": "Right callout card.",
+          "position": {
+            "x": 840,
+            "y": 150
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 135
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 135
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Context",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_3_title",
+              "min_length": 6,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 52
+              },
+              "size": {
+                "width": 336,
+                "height": 65
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Why it matters right now.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_3_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        },
+        {
+          "id": "callout_4_pv",
+          "description": "Right callout card.",
+          "position": {
+            "x": 840,
+            "y": 370
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 135
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 135
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Action",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_4_title",
+              "min_length": 6,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 52
+              },
+              "size": {
+                "width": 336,
+                "height": 65
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What we ask the audience to do.",
+                  "font": {
+                    "size": 15,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_4_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quote_panel_video_pv04",
+      "description": "Testimonial or leadership message with a large title, a quote panel and a presenter avatar video on the right. Use for a quote delivered on camera.",
+      "components": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#F8F7FB",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "large_title_block_pv",
+          "description": "Large title.",
+          "position": {
+            "x": 64,
+            "y": 64
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 740,
+                "height": 54
+              },
+              "rotation": 0,
+              "font": {
+                "size": 52,
+                "family": "Anton",
+                "color": "#000000",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "In their words",
+                  "font": {
+                    "size": 52,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 6,
+              "max_length": 24
+            }
+          ]
+        },
+        {
+          "id": "framed_quote_panel_pv",
+          "description": "Card with accent edge, quote and attribution.",
+          "position": {
+            "x": 64,
+            "y": 150
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 740,
+                "height": 262
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 8,
+                "height": 262
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 4,
+                "tr": 4,
+                "bl": 4,
+                "br": 4
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 8
+              },
+              "size": {
+                "width": 80,
+                "height": 82
+              },
+              "rotation": 0,
+              "font": {
+                "size": 80,
+                "family": "Anton",
+                "color": "#8554EB",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "“",
+                  "font": {
+                    "size": 80,
+                    "family": "Anton",
+                    "color": "#8554EB",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_mark_accent",
+              "min_length": 1,
+              "max_length": 1
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 70
+              },
+              "size": {
+                "width": 624,
+                "height": 80
+              },
+              "rotation": 0,
+              "font": {
+                "size": 26,
+                "family": "Anton",
+                "color": "#000000",
+                "line_height": 1.0,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Working this way changed how our whole team plans and delivers.",
+                  "font": {
+                    "size": 26,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "line_height": 1.0,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_body_text",
+              "min_length": 30,
+              "max_length": 110
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 170
+              },
+              "size": {
+                "width": 624,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Jordan Lee",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_author_text",
+              "min_length": 4,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 200
+              },
+              "size": {
+                "width": 624,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Head of Operations",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_author_role",
+              "min_length": 6,
+              "max_length": 36
+            }
+          ]
+        },
+        {
+          "id": "video_frame_accent_pv",
+          "description": "Offset accent panel behind the video.",
+          "position": {
+            "x": 920,
+            "y": 124
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 8,
+                "tr": 8,
+                "bl": 8,
+                "br": 8
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 900,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_band_title_cards_pv05",
+      "description": "Overview with a full-height accent band on the left holding a presenter avatar video, plus a title, short intro and three takeaway cards. Use for summaries narrated on camera.",
+      "components": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#F8F7FB",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "video_side_band_pv",
+          "description": "Full-height accent band behind the video.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 400,
+                "height": 720
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 0,
+                "tr": 0,
+                "bl": 0,
+                "br": 0
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 56,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "title_body_block_pv",
+          "description": "Title and intro.",
+          "position": {
+            "x": 464,
+            "y": 96
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 752,
+                "height": 98
+              },
+              "rotation": 0,
+              "font": {
+                "size": 48,
+                "family": "Anton",
+                "color": "#000000",
+                "line_height": 1.0,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What to remember",
+                  "font": {
+                    "size": 48,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "line_height": 1.0,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 8,
+              "max_length": 32
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 110
+              },
+              "size": {
+                "width": 752,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Three takeaways from the presenter, in the order they come up.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "intro_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        },
+        {
+          "id": "takeaway_cards_pv",
+          "description": "Three takeaway cards.",
+          "position": {
+            "x": 464,
+            "y": 400
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Simple",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_1_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 54
+              },
+              "size": {
+                "width": 192,
+                "height": 61
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Keep the message short.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_1_text",
+              "min_length": 12,
+              "max_length": 56
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 260,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 260,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 280,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Visual",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_2_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 280,
+                "y": 54
+              },
+              "size": {
+                "width": 192,
+                "height": 61
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Show it, then say it.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_2_text",
+              "min_length": 12,
+              "max_length": 56
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 520,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#F0EEF8",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 520,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#8554EB",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 540,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 28
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Actionable",
+                  "font": {
+                    "size": 18,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_3_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 540,
+                "y": 54
+              },
+              "size": {
+                "width": 192,
+                "height": 61
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "End with one clear next step.",
+                  "font": {
+                    "size": 14,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_3_text",
+              "min_length": 12,
+              "max_length": 56
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_cards_chart_panel_9233_pv06",
+      "description": "Presenter avatar video version: Split slide with a headline and text card grid on the left, plus a large chart region in a pale right panel.",
+      "components": [
+        {
+          "id": "decorative_background_pv",
+          "description": "Full slide background with pale right panel and subtle ornamental accents near the lower-left edge.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 705,
+                "y": 0
+              },
+              "size": {
+                "width": 575,
+                "height": 720
+              },
+              "fill": {
+                "color": "#F7F5FA",
+                "opacity": 1
+              }
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": -668,
+                "y": 580
+              },
+              "size": {
+                "width": 1018,
+                "height": 997
+              },
+              "opacity": 0.28,
+              "data": "static/image2-f9ab39ea57ed.png",
+              "fit": "fill",
+              "clip_path": "path('M 0 0 L 1017.57 0 L 1017.57 997.22 L 0 997.22 L 0 0 Z')",
+              "decorative": true,
+              "name": "lower_shadow_accent",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 175.5,
+            "y": 623.0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 55,
+                "height": 97
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "headline_block_pv",
+          "description": "Upper-left title area containing a large condensed headline and compact explanatory subtitle.",
+          "position": {
+            "x": 53,
+            "y": 51
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 681,
+                "height": 125
+              },
+              "font": {
+                "size": 56,
+                "family": "Anton",
+                "color": "#000000",
+                "bold": false,
+                "line_height": 1.09,
+                "letter_spacing": -0.55
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Chart Title Projects complet successfully each month.",
+                  "font": {
+                    "size": 56,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "bold": false,
+                    "line_height": 1.09,
+                    "letter_spacing": -0.55
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_headline",
+              "max_length": 49,
+              "min_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 134
+              },
+              "size": {
+                "width": 681.52,
+                "height": 110.21
+              },
+              "rotation": 0,
+              "font": {
+                "size": 17.8,
+                "family": "Montserrat Medium",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.4,
+                "letter_spacing": 0.11
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "This metric provides insights into overall project progress, team performance, and the effectiveness of task management processes.",
+                  "font": {
+                    "size": 17.8,
+                    "family": "Montserrat Medium",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.4,
+                    "letter_spacing": 0.11
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "supporting_statement",
+              "max_length": 271,
+              "min_length": 69
+            }
+          ]
+        },
+        {
+          "id": "content_cards_grid_pv",
+          "description": "Lower-left grid of reusable text cards, each with a heading and a descriptive paragraph.",
+          "position": {
+            "x": 53,
+            "y": 339
+          },
+          "elements": [
+            {
+              "type": "grid",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 587,
+                "height": 284
+              },
+              "columns": 2,
+              "rows": 2,
+              "column_gap": 76,
+              "row_gap": 48,
+              "align_items": "stretch",
+              "justify_items": "stretch",
+              "children": [
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "size": {
+                    "width": 255,
+                    "height": 77
+                  },
+                  "children": [
+                    {
+                      "type": "flex",
+                      "position": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "direction": "column",
+                      "align_items": "stretch",
+                      "justify_content": "flex-start",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "size": {
+                            "width": 255,
+                            "height": 31
+                          },
+                          "font": {
+                            "size": 21.3,
+                            "family": "Montserrat Bold",
+                            "color": "#000000",
+                            "bold": true,
+                            "line_height": 1.5,
+                            "letter_spacing": 0.12
+                          },
+                          "alignment": {
+                            "horizontal": "left",
+                            "vertical": "top"
+                          },
+                          "runs": [
+                            {
+                              "text": "Marketing",
+                              "font": {
+                                "size": 21.3,
+                                "family": "Montserrat Bold",
+                                "color": "#000000",
+                                "bold": true,
+                                "line_height": 1.5,
+                                "letter_spacing": 0.12
+                              }
+                            }
+                          ],
+                          "decorative": false,
+                          "name": "card_heading",
+                          "max_length": 9,
+                          "min_length": 5
+                        },
+                        {
+                          "type": "text",
+                          "size": {
+                            "width": 255,
+                            "height": 77
+                          },
+                          "font": {
+                            "size": 14.2,
+                            "family": "Montserrat",
+                            "color": "#000000",
+                            "line_height": 1.4,
+                            "letter_spacing": 0.08
+                          },
+                          "alignment": {
+                            "horizontal": "left",
+                            "vertical": "top"
+                          },
+                          "runs": [
+                            {
+                              "text": "Without proper is a analytics and reporting tools, educators cannot easily identify are learning trends, measure outcomes.",
+                              "font": {
+                                "size": 14.2,
+                                "family": "Montserrat",
+                                "color": "#000000",
+                                "line_height": 1.4,
+                                "letter_spacing": 0.08
+                              }
+                            }
+                          ],
+                          "decorative": false,
+                          "name": "card_description",
+                          "max_length": 122,
+                          "min_length": 61
+                        }
+                      ],
+                      "name": "card_text_stack",
+                      "max_children": 4,
+                      "min_children": 1
+                    }
+                  ],
+                  "name": "card_lists_grid"
+                }
+              ],
+              "name": "cards_grid",
+              "max_children": 4,
+              "min_children": 1
+            }
+          ]
+        },
+        {
+          "id": "chart_panel_pv",
+          "description": "Right-side visualization area with a large pie chart centered within the pale panel.",
+          "position": {
+            "x": 760,
+            "y": 218
+          },
+          "elements": [
+            {
+              "type": "chart",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 465,
+                "height": 425
+              },
+              "chart_type": "pie",
+              "title_color": "#000000",
+              "colors": [
+                "#5F50A2",
+                "#A687EB",
+                "#8650ED",
+                "#9085B9"
+              ],
+              "x_axis": false,
+              "y_axis": false,
+              "categories": [
+                "Sales",
+                "Finance",
+                "Marketing",
+                "Hr"
+              ],
+              "series": [
+                {
+                  "name": "Share",
+                  "values": [
+                    55,
+                    25,
+                    15,
+                    5
+                  ]
+                }
+              ],
+              "data_labels": "outside",
+              "legend": false,
+              "decorative": false,
+              "name": "main_pie_chart"
+            }
+          ]
+        },
+        {
+          "id": "footer_marker_pv",
+          "description": "Small footer label and page value aligned to the lower-right corner.",
+          "position": {
+            "x": 1127,
+            "y": 655
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 61,
+                "height": 18
+              },
+              "font": {
+                "size": 14.2,
+                "family": "Montserrat Bold",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.4,
+                "letter_spacing": 0.08
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Page",
+                  "font": {
+                    "size": 14.2,
+                    "family": "Montserrat Bold",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.4,
+                    "letter_spacing": 0.08
+                  }
+                }
+              ],
+              "decorative": true,
+              "name": "footer_label",
+              "max_length": 4,
+              "min_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 55,
+                "y": 0
+              },
+              "size": {
+                "width": 32,
+                "height": 18
+              },
+              "font": {
+                "size": 14.2,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "letter_spacing": 0.08
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "13",
+                  "font": {
+                    "size": 14.2,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "letter_spacing": 0.08
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "footer_value",
+              "max_length": 2,
+              "min_length": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_chart_cards_footer_3693_pv07",
+      "description": "Presenter avatar video version: A centered headline area sits above a left chart and right card grid, with subtle corner accents and footer pagination.",
+      "components": [
+        {
+          "id": "decorative_background_pv",
+          "description": "Subtle oversized corner accents provide a soft visual frame behind the main slide content.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 735,
+                "y": -855
+              },
+              "size": {
+                "width": 1018,
+                "height": 997
+              },
+              "data": "static/image2-f9ab39ea57ed.png",
+              "fit": "fill",
+              "clip_path": "path('M 0 0 L 1017.57 0 L 1017.57 997.22 L 0 997.22 L 0 0 Z')",
+              "decorative": true,
+              "name": "upper_corner_accent",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 184.5,
+            "y": 649.0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 40,
+                "height": 71
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "centered_header_pv",
+          "description": "A large centered title with supporting centered subtitle establishes the slide topic before the visual sections.",
+          "position": {
+            "x": 53,
+            "y": 51
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 1160,
+                "height": 124
+              },
+              "font": {
+                "size": 48,
+                "family": "Anton",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.09,
+                "letter_spacing": -0.55
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Chart emote work and digital transformation continue to expand.",
+                  "font": {
+                    "size": 48,
+                    "family": "Anton",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.09,
+                    "letter_spacing": -0.55
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_heading",
+              "max_length": 100,
+              "min_length": 32
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 136
+              },
+              "size": {
+                "width": 1160,
+                "height": 82.08
+              },
+              "rotation": 0,
+              "font": {
+                "size": 17.78,
+                "family": "Montserrat Medium",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.4,
+                "letter_spacing": 0.11
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The company managed over 500 weekly tasks using spreadsheets and emails,resulting in delays\nand communication issues.",
+                  "font": {
+                    "size": 17.78,
+                    "family": "Montserrat Medium",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.4,
+                    "letter_spacing": 0.11
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "supporting_subtitle",
+              "max_length": 330,
+              "min_length": 59
+            }
+          ]
+        },
+        {
+          "id": "left_chart_panel_pv",
+          "description": "A standalone chart region occupies the lower left area and compares categories with vertical bars.",
+          "position": {
+            "x": 66,
+            "y": 305
+          },
+          "elements": [
+            {
+              "type": "chart",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 362,
+                "height": 337
+              },
+              "chart_type": "bar",
+              "title_color": "#000000",
+              "colors": [
+                "#8554EB"
+              ],
+              "x_axis": true,
+              "y_axis": true,
+              "axis_color": "#333333",
+              "categories": [
+                "Sales",
+                "Finance",
+                "Marketing",
+                "HR"
+              ],
+              "series": [
+                {
+                  "name": "Value",
+                  "values": [
+                    78,
+                    60,
+                    45,
+                    30
+                  ]
+                }
+              ],
+              "legend": false,
+              "x_axis_grid": false,
+              "y_axis_grid": true,
+              "grid_color": "#ECECEC",
+              "decorative": false,
+              "name": "category_bar_chart"
+            }
+          ]
+        },
+        {
+          "id": "right_cards_grid_pv",
+          "description": "A grid of rounded text cards presents short repeated callouts aligned in the lower right section.",
+          "position": {
+            "x": 566,
+            "y": 292
+          },
+          "elements": [
+            {
+              "type": "grid",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 647,
+                "height": 362
+              },
+              "columns": 2,
+              "rows": 2,
+              "column_gap": 54,
+              "row_gap": 26,
+              "align_items": "stretch",
+              "justify_items": "stretch",
+              "children": [
+                {
+                  "type": "container",
+                  "size": {
+                    "width": 296,
+                    "height": 168
+                  },
+                  "fill": {
+                    "color": "#F7F6FB",
+                    "opacity": 1
+                  },
+                  "border_radius": {
+                    "tl": 38,
+                    "tr": 38,
+                    "bl": 38,
+                    "br": 38
+                  },
+                  "padding": {
+                    "top": 24,
+                    "right": 28,
+                    "bottom": 24,
+                    "left": 28
+                  },
+                  "child": {
+                    "type": "flex",
+                    "direction": "column",
+                    "align_items": "center",
+                    "justify_content": "center",
+                    "gap": 9,
+                    "children": [
+                      {
+                        "type": "text",
+                        "size": {
+                          "width": 240,
+                          "height": 31
+                        },
+                        "font": {
+                          "size": 21.33,
+                          "family": "Montserrat Bold",
+                          "color": "#000000",
+                          "bold": true,
+                          "line_height": 1.5,
+                          "letter_spacing": 0.12
+                        },
+                        "alignment": {
+                          "horizontal": "center",
+                          "vertical": "top"
+                        },
+                        "runs": [
+                          {
+                            "text": "Marketing",
+                            "font": {
+                              "size": 21.33,
+                              "family": "Montserrat Bold",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.5,
+                              "letter_spacing": 0.12
+                            }
+                          }
+                        ],
+                        "decorative": false,
+                        "name": "card_title",
+                        "max_length": 9,
+                        "min_length": 5
+                      },
+                      {
+                        "type": "text",
+                        "position": {
+                          "x": 0,
+                          "y": 40
+                        },
+                        "size": {
+                          "width": 250,
+                          "height": 80.27
+                        },
+                        "rotation": 0,
+                        "font": {
+                          "size": 14.22,
+                          "family": "Montserrat",
+                          "color": "#000000",
+                          "line_height": 1.4,
+                          "letter_spacing": 0.08
+                        },
+                        "alignment": {
+                          "horizontal": "center",
+                          "vertical": "top"
+                        },
+                        "runs": [
+                          {
+                            "text": "Without proper is a analytics and reporting tools, educators cannot easily identify are learning trends, measure outcomes.",
+                            "font": {
+                              "size": 14.22,
+                              "family": "Montserrat",
+                              "color": "#000000",
+                              "line_height": 1.4,
+                              "letter_spacing": 0.08
+                            }
+                          }
+                        ],
+                        "decorative": false,
+                        "name": "card_title",
+                        "max_length": 9,
+                        "min_length": 5
+                      }
+                    ],
+                    "name": "card_text_stack",
+                    "max_children": 2,
+                    "min_children": 2
+                  }
+                }
+              ],
+              "name": "callout_card_grid",
+              "max_children": 4,
+              "min_children": 1
+            }
+          ]
+        },
+        {
+          "id": "footer_pagination_pv",
+          "description": "Small page label and page value are positioned at the bottom right as persistent footer information.",
+          "position": {
+            "x": 1140,
+            "y": 655
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 61,
+                "height": 18
+              },
+              "font": {
+                "size": 14.22,
+                "family": "Montserrat Bold",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.4,
+                "letter_spacing": 0.08
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Page",
+                  "font": {
+                    "size": 14.22,
+                    "family": "Montserrat Bold",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.4,
+                    "letter_spacing": 0.08
+                  }
+                }
+              ],
+              "decorative": true,
+              "name": "footer_label",
+              "max_length": 4,
+              "min_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 55,
+                "y": 0
+              },
+              "size": {
+                "width": 32,
+                "height": 18
+              },
+              "font": {
+                "size": 14.22,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.4,
+                "letter_spacing": 0.08
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "16",
+                  "font": {
+                    "size": 14.22,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.4,
+                    "letter_spacing": 0.08
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "footer_value",
+              "max_length": 2,
+              "min_length": 1
             }
           ]
         }

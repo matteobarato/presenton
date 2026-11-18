@@ -14005,6 +14005,2956 @@
           ]
         }
       ]
+    },
+    {
+      "id": "full_bleed_canvas_pv",
+      "description": "Plain full-slide background in the template's own color.",
+      "variants": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#1D242D",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_frame_accent_pv",
+      "description": "Offset accent panel framing the portrait video from behind.",
+      "variants": [
+        {
+          "id": "video_frame_accent_pv",
+          "description": "Offset accent panel framing the portrait video from behind.",
+          "position": {
+            "x": 116,
+            "y": 124
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 8,
+                "tr": 8,
+                "bl": 8,
+                "br": 8
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_placeholder",
+      "description": "Avatar video placeholder",
+      "variants": [
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 96,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_body_block_pv",
+      "description": "Eyebrow label, headline and supporting paragraph.",
+      "variants": [
+        {
+          "id": "title_body_block_pv",
+          "description": "Eyebrow label, headline and supporting paragraph.",
+          "position": {
+            "x": 520,
+            "y": 96
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 696,
+                "height": 19
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true,
+                "letter_spacing": 1.2
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "MEET YOUR PRESENTER",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true,
+                    "letter_spacing": 1.2
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "eyebrow_label",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 31
+              },
+              "size": {
+                "width": 696,
+                "height": 94
+              },
+              "rotation": 0,
+              "font": {
+                "size": 41,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "A clear message from the person behind it",
+                  "font": {
+                    "size": 41,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 12,
+              "max_length": 48
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 137
+              },
+              "size": {
+                "width": 696,
+                "height": 63
+              },
+              "rotation": 0,
+              "font": {
+                "size": 17,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Your presenter walks the audience through the idea in their own voice, so the key message lands in seconds.",
+                  "font": {
+                    "size": 17,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "intro_text",
+              "min_length": 40,
+              "max_length": 150
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "key_points_list_pv",
+      "description": "Three stacked key points with markers.",
+      "variants": [
+        {
+          "id": "key_points_list_pv",
+          "description": "Three stacked key points with markers.",
+          "position": {
+            "x": 520,
+            "y": 320
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 6.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 0.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Clear goals",
+                  "font": {
+                    "size": 16,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 24.0
+              },
+              "size": {
+                "width": 670,
+                "height": 19
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Everyone knows what we are aiming for.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 65.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 59.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Shared context",
+                  "font": {
+                    "size": 16,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 83.0
+              },
+              "size": {
+                "width": 670,
+                "height": 19
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The background behind each decision.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 124.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 118.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Next steps",
+                  "font": {
+                    "size": 16,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 142.0
+              },
+              "size": {
+                "width": 670,
+                "height": 19
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What happens right after this slide.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_text",
+              "min_length": 12,
+              "max_length": 64
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "numbered_steps_list_pv",
+      "description": "Three numbered steps.",
+      "variants": [
+        {
+          "id": "numbered_steps_list_pv",
+          "description": "Three numbered steps.",
+          "position": {
+            "x": 64,
+            "y": 223
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 12.0
+              },
+              "size": {
+                "width": 52,
+                "height": 27
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "1",
+                  "font": {
+                    "size": 22,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 0.0
+              },
+              "size": {
+                "width": 640,
+                "height": 26
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Plan",
+                  "font": {
+                    "size": 20,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 28.0
+              },
+              "size": {
+                "width": 640,
+                "height": 20
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Agree on scope and owners.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_text",
+              "min_length": 12,
+              "max_length": 60
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 76.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 88.0
+              },
+              "size": {
+                "width": 52,
+                "height": 27
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "2",
+                  "font": {
+                    "size": 22,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 76.0
+              },
+              "size": {
+                "width": 640,
+                "height": 26
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Build",
+                  "font": {
+                    "size": 20,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 104.0
+              },
+              "size": {
+                "width": 640,
+                "height": 20
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Ship in small, reviewed pieces.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_text",
+              "min_length": 12,
+              "max_length": 60
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 152.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 164.0
+              },
+              "size": {
+                "width": 52,
+                "height": 27
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "3",
+                  "font": {
+                    "size": 22,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 152.0
+              },
+              "size": {
+                "width": 640,
+                "height": 26
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Review",
+                  "font": {
+                    "size": 20,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 180.0
+              },
+              "size": {
+                "width": 640,
+                "height": 20
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Check results and adjust.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_text",
+              "min_length": 12,
+              "max_length": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_card_panel_pv",
+      "description": "Card panel holding the portrait video.",
+      "variants": [
+        {
+          "id": "video_card_panel_pv",
+          "description": "Card panel holding the portrait video.",
+          "position": {
+            "x": 852,
+            "y": 64
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 352,
+                "height": 592
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "centered_title_pv",
+      "description": "Centered headline above the video.",
+      "variants": [
+        {
+          "id": "centered_title_pv",
+          "description": "Centered headline above the video.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 64,
+                "y": 28
+              },
+              "size": {
+                "width": 1152,
+                "height": 42
+              },
+              "rotation": 0,
+              "font": {
+                "size": 36,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Meet the voice behind the numbers",
+                  "font": {
+                    "size": 36,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 12,
+              "max_length": 48
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "callout_1_pv",
+      "description": "Left callout card.",
+      "variants": [
+        {
+          "id": "callout_1_pv",
+          "description": "Left callout card.",
+          "position": {
+            "x": 64,
+            "y": 150
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 122
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 122
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Focus",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_1_title",
+              "min_length": 5,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 48
+              },
+              "size": {
+                "width": 336,
+                "height": 56
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "One idea per slide, said plainly.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_1_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "callout_2_pv",
+      "description": "Left callout card.",
+      "variants": [
+        {
+          "id": "callout_2_pv",
+          "description": "Left callout card.",
+          "position": {
+            "x": 64,
+            "y": 370
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 122
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 122
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Proof",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_2_title",
+              "min_length": 5,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 48
+              },
+              "size": {
+                "width": 336,
+                "height": 56
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "A fact or number that backs it up.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_2_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "callout_3_pv",
+      "description": "Right callout card.",
+      "variants": [
+        {
+          "id": "callout_3_pv",
+          "description": "Right callout card.",
+          "position": {
+            "x": 840,
+            "y": 150
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 122
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 122
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Context",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_3_title",
+              "min_length": 6,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 48
+              },
+              "size": {
+                "width": 336,
+                "height": 56
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Why it matters right now.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_3_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "callout_4_pv",
+      "description": "Right callout card.",
+      "variants": [
+        {
+          "id": "callout_4_pv",
+          "description": "Right callout card.",
+          "position": {
+            "x": 840,
+            "y": 370
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 122
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 122
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Action",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_4_title",
+              "min_length": 6,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 48
+              },
+              "size": {
+                "width": 336,
+                "height": 56
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What we ask the audience to do.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_4_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "large_title_block_pv",
+      "description": "Large title.",
+      "variants": [
+        {
+          "id": "large_title_block_pv",
+          "description": "Large title.",
+          "position": {
+            "x": 64,
+            "y": 64
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 740,
+                "height": 48
+              },
+              "rotation": 0,
+              "font": {
+                "size": 41,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "In their words",
+                  "font": {
+                    "size": 41,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 6,
+              "max_length": 24
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "framed_quote_panel_pv",
+      "description": "Card with accent edge, quote and attribution.",
+      "variants": [
+        {
+          "id": "framed_quote_panel_pv",
+          "description": "Card with accent edge, quote and attribution.",
+          "position": {
+            "x": 64,
+            "y": 144
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 740,
+                "height": 264
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 8,
+                "height": 264
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 4,
+                "tr": 4,
+                "bl": 4,
+                "br": 4
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 8
+              },
+              "size": {
+                "width": 80,
+                "height": 91
+              },
+              "rotation": 0,
+              "font": {
+                "size": 80,
+                "family": "DM Sans Bold",
+                "color": "#155F99",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "“",
+                  "font": {
+                    "size": 80,
+                    "family": "DM Sans Bold",
+                    "color": "#155F99",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_mark_accent",
+              "min_length": 1,
+              "max_length": 1
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 70
+              },
+              "size": {
+                "width": 624,
+                "height": 89
+              },
+              "rotation": 0,
+              "font": {
+                "size": 26,
+                "family": "DM Sans Bold",
+                "color": "#000000",
+                "line_height": 1.11,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Working this way changed how our whole team plans and delivers.",
+                  "font": {
+                    "size": 26,
+                    "family": "DM Sans Bold",
+                    "color": "#000000",
+                    "line_height": 1.11,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_body_text",
+              "min_length": 30,
+              "max_length": 110
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 179
+              },
+              "size": {
+                "width": 624,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Jordan Lee",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_author_text",
+              "min_length": 4,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 205
+              },
+              "size": {
+                "width": 624,
+                "height": 19
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Head of Operations",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_author_role",
+              "min_length": 6,
+              "max_length": 36
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_side_band_pv",
+      "description": "Full-height accent band behind the video.",
+      "variants": [
+        {
+          "id": "video_side_band_pv",
+          "description": "Full-height accent band behind the video.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 400,
+                "height": 720
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 0,
+                "tr": 0,
+                "bl": 0,
+                "br": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "takeaway_cards_pv",
+      "description": "Three takeaway cards.",
+      "variants": [
+        {
+          "id": "takeaway_cards_pv",
+          "description": "Three takeaway cards.",
+          "position": {
+            "x": 464,
+            "y": 400
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Simple",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_1_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 50
+              },
+              "size": {
+                "width": 192,
+                "height": 52
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Keep the message short.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_1_text",
+              "min_length": 12,
+              "max_length": 56
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 260,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 260,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 280,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Visual",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_2_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 280,
+                "y": 50
+              },
+              "size": {
+                "width": 192,
+                "height": 52
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Show it, then say it.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_2_text",
+              "min_length": 12,
+              "max_length": 56
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 520,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 520,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 540,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Actionable",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_3_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 540,
+                "y": 50
+              },
+              "size": {
+                "width": 192,
+                "height": 52
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "End with one clear next step.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_3_text",
+              "min_length": 12,
+              "max_length": 56
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "background_canvas_pv",
+      "description": "Full-slide dark canvas with subtle bottom gradient and fixed atmospheric treatment supporting the cover composition.",
+      "variants": [
+        {
+          "id": "background_canvas_pv",
+          "description": "Full-slide dark canvas with subtle bottom gradient and fixed atmospheric treatment supporting the cover composition.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": -5.18,
+                "y": -18.69
+              },
+              "size": {
+                "width": 1304.66,
+                "height": 738.69
+              },
+              "data": "static/freeform_3-eac87b3b9ab0.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "background_shape",
+              "is_icon": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cover_title_stack_pv",
+      "description": "Large stacked title area with bold heading, italic accent line, and supporting statement aligned to the left.",
+      "variants": [
+        {
+          "id": "cover_title_stack_pv",
+          "description": "Large stacked title area with bold heading, italic accent line, and supporting statement aligned to the left.",
+          "position": {
+            "x": 81.45,
+            "y": 223.56
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 472.77,
+                "height": 60.13
+              },
+              "font": {
+                "size": 53.32,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1.11,
+                "letter_spacing": 0.79
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "ESG Performance",
+                  "font": {
+                    "size": 53.32,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1.11,
+                    "letter_spacing": 0.79
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_heading",
+              "max_length": 15,
+              "min_length": 8
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0.08,
+                "y": 54.85
+              },
+              "size": {
+                "width": 428.24,
+                "height": 116.94
+              },
+              "font": {
+                "size": 59.76,
+                "family": "Playfair Display Semi-Bold Italics",
+                "color": "#FFFFFF",
+                "bold": true,
+                "italic": true,
+                "line_height": 0.95,
+                "letter_spacing": 0.89
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Annual Report 2026",
+                  "font": {
+                    "size": 59.76,
+                    "family": "Playfair Display Semi-Bold Italics",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "italic": true,
+                    "line_height": 0.95,
+                    "letter_spacing": 0.89
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "accent_heading",
+              "max_length": 28,
+              "min_length": 9
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 202.38
+              },
+              "size": {
+                "width": 456.74,
+                "height": 141.77
+              },
+              "font": {
+                "size": 19.59,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "letter_spacing": 0.29
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Driving Sustainable Growth Through Responsible Leadership\n",
+                  "font": {
+                    "size": 19.59,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "letter_spacing": 0.29
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "supporting_statement",
+              "max_length": 220,
+              "min_length": 29,
+              "rotation": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "right_image_collage_pv",
+      "description": "Overlapping rounded image collage with thin outline accents positioned opposite the title for strong visual emphasis.",
+      "variants": [
+        {
+          "id": "right_image_collage_pv",
+          "description": "Overlapping rounded image collage with thin outline accents positioned opposite the title for strong visual emphasis.",
+          "position": {
+            "x": 618.07,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 326.81
+              },
+              "size": {
+                "width": 671.88,
+                "height": 332.71
+              },
+              "data": "static/freeform_7-a20cd002a6e5.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "wide_outline_accent",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 195.97,
+                "y": -28.43
+              },
+              "size": {
+                "width": 475.91,
+                "height": 391.76
+              },
+              "data": "static/freeform_10-4b343a8f6dd6.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "upper_outline_accent",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 36,
+                "y": 368.93
+              },
+              "size": {
+                "width": 585.79,
+                "height": 289.49
+              },
+              "data": "static/freeform_17-249f8fb76642.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "landscape_image_frame",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 207.2,
+                "y": 58.59
+              },
+              "size": {
+                "width": 414.59,
+                "height": 341.07
+              },
+              "data": "static/freeform_20-683d921055a8.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "portrait_image_frame",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 35.26,
+                "y": 368.93
+              },
+              "size": {
+                "width": 203.58,
+                "height": 284.13
+              },
+              "data": "/static/images/replaceable_template_image.png",
+              "fit": "cover",
+              "border_radius": {
+                "tl": 25.72,
+                "tr": 25.72,
+                "bl": 25.72,
+                "br": 25.72
+              },
+              "decorative": false,
+              "name": "supporting_cover_image",
+              "is_icon": false,
+              "rotation": 0
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 207.18,
+                "y": 58.59
+              },
+              "size": {
+                "width": 408.41,
+                "height": 592.91
+              },
+              "data": "/static/images/replaceable_template_image.png",
+              "fit": "cover",
+              "border_radius": {
+                "tl": 15.33,
+                "tr": 15.33,
+                "bl": 15.33,
+                "br": 15.33
+              },
+              "decorative": false,
+              "name": "main_cover_image",
+              "is_icon": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "footer_profile_callout_pv",
+      "description": "Rounded footer callout combines a small profile image with compact metadata near the lower edge.",
+      "variants": [
+        {
+          "id": "footer_profile_callout_pv",
+          "description": "Rounded footer callout combines a small profile image with compact metadata near the lower edge.",
+          "position": {
+            "x": 0,
+            "y": 598.69
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": -72.21,
+                "y": 0
+              },
+              "size": {
+                "width": 297.15,
+                "height": 61.34
+              },
+              "data": "static/freeform_14-304eff937d6d.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "callout_background",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 42.01,
+                "y": 12.02
+              },
+              "size": {
+                "width": 37.29,
+                "height": 37.29
+              },
+              "data": "/static/images/replaceable_template_image.png",
+              "fit": "cover",
+              "clip_path": "path('M 18.645 0 C 8.3476 0 0 8.3476 0 18.645 C 0 28.9424 8.3476 37.29 18.645 37.29 C 28.9424 37.29 37.29 28.9424 37.29 18.645 C 37.29 8.3476 28.9424 0 18.645 0 Z')",
+              "decorative": false,
+              "name": "profile_photo",
+              "is_icon": false
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 88.12,
+                "y": 15.35
+              },
+              "size": {
+                "width": 99.37,
+                "height": 18.86
+              },
+              "font": {
+                "size": 17.87,
+                "family": "DM Sans",
+                "color": "#D9D9D9",
+                "line_height": 1.04
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "John Doe",
+                  "font": {
+                    "size": 17.87,
+                    "family": "DM Sans",
+                    "color": "#D9D9D9",
+                    "line_height": 1.04
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "profile_name",
+              "max_length": 11,
+              "min_length": 4
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 88.79,
+                "y": 33.74
+              },
+              "size": {
+                "width": 103.6,
+                "height": 13.33
+              },
+              "font": {
+                "size": 12.45,
+                "family": "DM Sans",
+                "color": "#D9D9D9",
+                "line_height": 1.04
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "December 2025",
+                  "font": {
+                    "size": 12.45,
+                    "family": "DM Sans",
+                    "color": "#D9D9D9",
+                    "line_height": 1.04
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "profile_metadata",
+              "max_length": 16,
+              "min_length": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "background_layer_pv",
+      "description": "Full-slide atmospheric background with a dark field and subtle blue glow accent near the bottom edge.",
+      "variants": [
+        {
+          "id": "background_layer_pv",
+          "description": "Full-slide atmospheric background with a dark field and subtle blue glow accent near the bottom edge.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": -12.33,
+                "y": -10.79
+              },
+              "size": {
+                "width": 1304.66,
+                "height": 738.69
+              },
+              "data": "static/freeform_3-eac87b3b9ab0.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "background_field",
+              "is_icon": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "header_area_pv",
+      "description": "Small italic slide heading placed in the upper-left corner above the agenda entries.",
+      "variants": [
+        {
+          "id": "header_area_pv",
+          "description": "Small italic slide heading placed in the upper-left corner above the agenda entries.",
+          "position": {
+            "x": 49.23,
+            "y": 75.33
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 1143.91,
+                "height": 52.91
+              },
+              "font": {
+                "size": 47.16,
+                "family": "Playfair Display Semi-Bold Italics",
+                "color": "#FFFFFF",
+                "bold": true,
+                "italic": true,
+                "line_height": 1.11,
+                "letter_spacing": 0.7
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Agenda",
+                  "font": {
+                    "size": 47.16,
+                    "family": "Playfair Display Semi-Bold Italics",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "italic": true,
+                    "line_height": 1.11,
+                    "letter_spacing": 0.7
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "slide_heading",
+              "max_length": 52,
+              "min_length": 3,
+              "rotation": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "agenda_items_pv",
+      "description": "Vertical agenda column using large indices, black underline accents, and short labels aligned beside each entry.",
+      "variants": [
+        {
+          "id": "agenda_items_pv",
+          "description": "Vertical agenda column using large indices, black underline accents, and short labels aligned beside each entry.",
+          "position": {
+            "x": 128.16,
+            "y": 160.07
+          },
+          "elements": [
+            {
+              "type": "grid",
+              "name": "agenda_items_grid",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 1038.74,
+                "height": 497.15
+              },
+              "rows": 4,
+              "align_items": "stretch",
+              "justify_items": "stretch",
+              "children": [
+                {
+                  "type": "group",
+                  "size": {
+                    "width": 440.39,
+                    "height": 105
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 3.31,
+                        "y": 1.37
+                      },
+                      "size": {
+                        "width": 167.86,
+                        "height": 125.43
+                      },
+                      "font": {
+                        "size": 109.8,
+                        "family": "DM Sans Bold",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.11,
+                        "letter_spacing": 1.64
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "01",
+                          "font": {
+                            "size": 109.8,
+                            "family": "DM Sans Bold",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.11,
+                            "letter_spacing": 1.64
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "agenda_index",
+                      "max_length": 2,
+                      "min_length": 1,
+                      "rotation": 0
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 187.59,
+                        "y": 20.31
+                      },
+                      "size": {
+                        "width": 257.79,
+                        "height": 105.63
+                      },
+                      "font": {
+                        "size": 23.59,
+                        "family": "DM Sans",
+                        "color": "#FFFFFF",
+                        "line_height": 1.19,
+                        "letter_spacing": 0.35
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Executive Summary",
+                          "font": {
+                            "size": 23.59,
+                            "family": "DM Sans",
+                            "color": "#FFFFFF",
+                            "line_height": 1.19,
+                            "letter_spacing": 0.35
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "agenda_label",
+                      "max_length": 65,
+                      "min_length": 6,
+                      "rotation": 0
+                    }
+                  ],
+                  "name": "agenda_entry",
+                  "position": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "__presenton_manual_position": true,
+                  "rotation": 0
+                }
+              ],
+              "max_children": 8,
+              "min_children": 2,
+              "columns": 2,
+              "rotation": 0,
+              "row_gap": 0,
+              "gap": 12
+            }
+          ]
+        }
+      ]
     }
   ],
   "layouts": [
@@ -28090,6 +31040,3377 @@
                 }
               ],
               "name": "timeline_items"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_left_title_points_pv01",
+      "description": "Presenter avatar video framed on the left with a headline, short explanation and three key points on the right. Use when a narrator or avatar introduces a topic, team or initiative on camera.",
+      "components": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#1D242D",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "video_frame_accent_pv",
+          "description": "Offset accent panel framing the portrait video from behind.",
+          "position": {
+            "x": 116,
+            "y": 124
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 8,
+                "tr": 8,
+                "bl": 8,
+                "br": 8
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 96,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "title_body_block_pv",
+          "description": "Eyebrow label, headline and supporting paragraph.",
+          "position": {
+            "x": 520,
+            "y": 96
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 696,
+                "height": 19
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true,
+                "letter_spacing": 1.2
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "MEET YOUR PRESENTER",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true,
+                    "letter_spacing": 1.2
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "eyebrow_label",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 31
+              },
+              "size": {
+                "width": 696,
+                "height": 94
+              },
+              "rotation": 0,
+              "font": {
+                "size": 41,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "A clear message from the person behind it",
+                  "font": {
+                    "size": 41,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 12,
+              "max_length": 48
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 137
+              },
+              "size": {
+                "width": 696,
+                "height": 63
+              },
+              "rotation": 0,
+              "font": {
+                "size": 17,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Your presenter walks the audience through the idea in their own voice, so the key message lands in seconds.",
+                  "font": {
+                    "size": 17,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "intro_text",
+              "min_length": 40,
+              "max_length": 150
+            }
+          ]
+        },
+        {
+          "id": "key_points_list_pv",
+          "description": "Three stacked key points with markers.",
+          "position": {
+            "x": 520,
+            "y": 320
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 6.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 0.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Clear goals",
+                  "font": {
+                    "size": 16,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 24.0
+              },
+              "size": {
+                "width": 670,
+                "height": 19
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Everyone knows what we are aiming for.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 65.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 59.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Shared context",
+                  "font": {
+                    "size": 16,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 83.0
+              },
+              "size": {
+                "width": 670,
+                "height": 19
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The background behind each decision.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 124.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 118.0
+              },
+              "size": {
+                "width": 670,
+                "height": 22
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Next steps",
+                  "font": {
+                    "size": 16,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 142.0
+              },
+              "size": {
+                "width": 670,
+                "height": 19
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What happens right after this slide.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_text",
+              "min_length": 12,
+              "max_length": 64
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_steps_video_right_pv02",
+      "description": "Explainer with a bold headline, short summary and three numbered steps on the left and a presenter avatar video in a card panel on the right. Use for process or how-it-works narration.",
+      "components": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#1D242D",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "title_body_block_pv",
+          "description": "Headline and short summary.",
+          "position": {
+            "x": 64,
+            "y": 64
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 720,
+                "height": 48
+              },
+              "rotation": 0,
+              "font": {
+                "size": 41,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "How we work",
+                  "font": {
+                    "size": 41,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 8,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 60
+              },
+              "size": {
+                "width": 720,
+                "height": 43
+              },
+              "rotation": 0,
+              "font": {
+                "size": 17,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Three steps that take an idea from first draft to delivery.",
+                  "font": {
+                    "size": 17,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "intro_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        },
+        {
+          "id": "numbered_steps_list_pv",
+          "description": "Three numbered steps.",
+          "position": {
+            "x": 64,
+            "y": 223
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 12.0
+              },
+              "size": {
+                "width": 52,
+                "height": 27
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "1",
+                  "font": {
+                    "size": 22,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 0.0
+              },
+              "size": {
+                "width": 640,
+                "height": 26
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Plan",
+                  "font": {
+                    "size": 20,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 28.0
+              },
+              "size": {
+                "width": 640,
+                "height": 20
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Agree on scope and owners.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_1_text",
+              "min_length": 12,
+              "max_length": 60
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 76.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 88.0
+              },
+              "size": {
+                "width": 52,
+                "height": 27
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "2",
+                  "font": {
+                    "size": 22,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 76.0
+              },
+              "size": {
+                "width": 640,
+                "height": 26
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Build",
+                  "font": {
+                    "size": 20,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 104.0
+              },
+              "size": {
+                "width": 640,
+                "height": 20
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Ship in small, reviewed pieces.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_2_text",
+              "min_length": 12,
+              "max_length": 60
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 152.0
+              },
+              "size": {
+                "width": 52,
+                "height": 52
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 26,
+                "tr": 26,
+                "bl": 26,
+                "br": 26
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 164.0
+              },
+              "size": {
+                "width": 52,
+                "height": 27
+              },
+              "rotation": 0,
+              "font": {
+                "size": 22,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "3",
+                  "font": {
+                    "size": 22,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_number",
+              "min_length": 1,
+              "max_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 152.0
+              },
+              "size": {
+                "width": 640,
+                "height": 26
+              },
+              "rotation": 0,
+              "font": {
+                "size": 20,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Review",
+                  "font": {
+                    "size": 20,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_title",
+              "min_length": 3,
+              "max_length": 22
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 72,
+                "y": 180.0
+              },
+              "size": {
+                "width": 640,
+                "height": 20
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Check results and adjust.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "step_3_text",
+              "min_length": 12,
+              "max_length": 60
+            }
+          ]
+        },
+        {
+          "id": "video_card_panel_pv",
+          "description": "Card panel holding the portrait video.",
+          "position": {
+            "x": 852,
+            "y": 64
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 352,
+                "height": 592
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 884,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "centered_video_side_callouts_pv03",
+      "description": "Spotlight slide with a centered presenter avatar video between callout cards on the left and right and a headline above. Use to feature a speaker with supporting points.",
+      "components": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#1D242D",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "centered_title_pv",
+          "description": "Centered headline above the video.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 64,
+                "y": 28
+              },
+              "size": {
+                "width": 1152,
+                "height": 42
+              },
+              "rotation": 0,
+              "font": {
+                "size": 36,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Meet the voice behind the numbers",
+                  "font": {
+                    "size": 36,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 12,
+              "max_length": 48
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 496,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "callout_1_pv",
+          "description": "Left callout card.",
+          "position": {
+            "x": 64,
+            "y": 150
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 122
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 122
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Focus",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_1_title",
+              "min_length": 5,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 48
+              },
+              "size": {
+                "width": 336,
+                "height": 56
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "One idea per slide, said plainly.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_1_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        },
+        {
+          "id": "callout_2_pv",
+          "description": "Left callout card.",
+          "position": {
+            "x": 64,
+            "y": 370
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 122
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 122
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Proof",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_2_title",
+              "min_length": 5,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 48
+              },
+              "size": {
+                "width": 336,
+                "height": 56
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "A fact or number that backs it up.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_2_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        },
+        {
+          "id": "callout_3_pv",
+          "description": "Right callout card.",
+          "position": {
+            "x": 840,
+            "y": 150
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 122
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 122
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Context",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_3_title",
+              "min_length": 6,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 48
+              },
+              "size": {
+                "width": 336,
+                "height": 56
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Why it matters right now.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_3_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        },
+        {
+          "id": "callout_4_pv",
+          "description": "Right callout card.",
+          "position": {
+            "x": 840,
+            "y": 370
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 376,
+                "height": 122
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 6,
+                "height": 122
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 18
+              },
+              "size": {
+                "width": 336,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Action",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_4_title",
+              "min_length": 6,
+              "max_length": 26
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 48
+              },
+              "size": {
+                "width": 336,
+                "height": 56
+              },
+              "rotation": 0,
+              "font": {
+                "size": 15,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What we ask the audience to do.",
+                  "font": {
+                    "size": 15,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "callout_4_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quote_panel_video_pv04",
+      "description": "Testimonial or leadership message with a large title, a quote panel and a presenter avatar video on the right. Use for a quote delivered on camera.",
+      "components": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#1D242D",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "large_title_block_pv",
+          "description": "Large title.",
+          "position": {
+            "x": 64,
+            "y": 64
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 740,
+                "height": 48
+              },
+              "rotation": 0,
+              "font": {
+                "size": 41,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "In their words",
+                  "font": {
+                    "size": 41,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 6,
+              "max_length": 24
+            }
+          ]
+        },
+        {
+          "id": "framed_quote_panel_pv",
+          "description": "Card with accent edge, quote and attribution.",
+          "position": {
+            "x": 64,
+            "y": 144
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 740,
+                "height": 264
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 8,
+                "height": 264
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 4,
+                "tr": 4,
+                "bl": 4,
+                "br": 4
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 8
+              },
+              "size": {
+                "width": 80,
+                "height": 91
+              },
+              "rotation": 0,
+              "font": {
+                "size": 80,
+                "family": "DM Sans Bold",
+                "color": "#155F99",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "“",
+                  "font": {
+                    "size": 80,
+                    "family": "DM Sans Bold",
+                    "color": "#155F99",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_mark_accent",
+              "min_length": 1,
+              "max_length": 1
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 70
+              },
+              "size": {
+                "width": 624,
+                "height": 89
+              },
+              "rotation": 0,
+              "font": {
+                "size": 26,
+                "family": "DM Sans Bold",
+                "color": "#000000",
+                "line_height": 1.11,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Working this way changed how our whole team plans and delivers.",
+                  "font": {
+                    "size": 26,
+                    "family": "DM Sans Bold",
+                    "color": "#000000",
+                    "line_height": 1.11,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_body_text",
+              "min_length": 30,
+              "max_length": 110
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 179
+              },
+              "size": {
+                "width": 624,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Jordan Lee",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_author_text",
+              "min_length": 4,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 56,
+                "y": 205
+              },
+              "size": {
+                "width": 624,
+                "height": 19
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Head of Operations",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_author_role",
+              "min_length": 6,
+              "max_length": 36
+            }
+          ]
+        },
+        {
+          "id": "video_frame_accent_pv",
+          "description": "Offset accent panel behind the video.",
+          "position": {
+            "x": 920,
+            "y": 124
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 8,
+                "tr": 8,
+                "bl": 8,
+                "br": 8
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 900,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_band_title_cards_pv05",
+      "description": "Overview with a full-height accent band on the left holding a presenter avatar video, plus a title, short intro and three takeaway cards. Use for summaries narrated on camera.",
+      "components": [
+        {
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#1D242D",
+                "opacity": 1
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "video_side_band_pv",
+          "description": "Full-height accent band behind the video.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 400,
+                "height": 720
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 0,
+                "tr": 0,
+                "bl": 0,
+                "br": 0
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 56,
+            "y": 104
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 512
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "title_body_block_pv",
+          "description": "Title and intro.",
+          "position": {
+            "x": 464,
+            "y": 96
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 752,
+                "height": 48
+              },
+              "rotation": 0,
+              "font": {
+                "size": 41,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "line_height": 1.11,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What to remember",
+                  "font": {
+                    "size": 41,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "line_height": 1.11,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 8,
+              "max_length": 32
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 60
+              },
+              "size": {
+                "width": 752,
+                "height": 43
+              },
+              "rotation": 0,
+              "font": {
+                "size": 17,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Three takeaways from the presenter, in the order they come up.",
+                  "font": {
+                    "size": 17,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "intro_text",
+              "min_length": 24,
+              "max_length": 90
+            }
+          ]
+        },
+        {
+          "id": "takeaway_cards_pv",
+          "description": "Three takeaway cards.",
+          "position": {
+            "x": 464,
+            "y": 400
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Simple",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_1_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 20,
+                "y": 50
+              },
+              "size": {
+                "width": 192,
+                "height": 52
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Keep the message short.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_1_text",
+              "min_length": 12,
+              "max_length": 56
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 260,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 260,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 280,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Visual",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_2_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 280,
+                "y": 50
+              },
+              "size": {
+                "width": 192,
+                "height": 52
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Show it, then say it.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_2_text",
+              "min_length": 12,
+              "max_length": 56
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 520,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 220
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 520,
+                "y": 0
+              },
+              "size": {
+                "width": 232,
+                "height": 6
+              },
+              "fill": {
+                "color": "#155F99",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 3,
+                "tr": 3,
+                "bl": 3,
+                "br": 3
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 540,
+                "y": 20
+              },
+              "size": {
+                "width": 192,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 18,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Actionable",
+                  "font": {
+                    "size": 18,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_3_title",
+              "min_length": 4,
+              "max_length": 14
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 540,
+                "y": 50
+              },
+              "size": {
+                "width": 192,
+                "height": 52
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.19,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "End with one clear next step.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.19,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "card_3_text",
+              "min_length": 12,
+              "max_length": 56
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_slide_with_image_collage_and_footer_pv06",
+      "description": "Presenter avatar video version: Full-slide layout with a large title and subtitle stack on the left, an overlapping image collage on the right, and a compact footer callout.",
+      "components": [
+        {
+          "id": "background_canvas_pv",
+          "description": "Full-slide dark canvas with subtle bottom gradient and fixed atmospheric treatment supporting the cover composition.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": -5.18,
+                "y": -18.69
+              },
+              "size": {
+                "width": 1304.66,
+                "height": 738.69
+              },
+              "data": "static/freeform_3-eac87b3b9ab0.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "background_shape",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 290.78,
+            "y": 110.21
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 343,
+                "height": 610
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "cover_title_stack_pv",
+          "description": "Large stacked title area with bold heading, italic accent line, and supporting statement aligned to the left.",
+          "position": {
+            "x": 81.45,
+            "y": 223.56
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 472.77,
+                "height": 60.13
+              },
+              "font": {
+                "size": 53.32,
+                "family": "DM Sans Bold",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1.11,
+                "letter_spacing": 0.79
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "ESG Performance",
+                  "font": {
+                    "size": 53.32,
+                    "family": "DM Sans Bold",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1.11,
+                    "letter_spacing": 0.79
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_heading",
+              "max_length": 15,
+              "min_length": 8
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0.08,
+                "y": 54.85
+              },
+              "size": {
+                "width": 428.24,
+                "height": 116.94
+              },
+              "font": {
+                "size": 59.76,
+                "family": "Playfair Display Semi-Bold Italics",
+                "color": "#FFFFFF",
+                "bold": true,
+                "italic": true,
+                "line_height": 0.95,
+                "letter_spacing": 0.89
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Annual Report 2026",
+                  "font": {
+                    "size": 59.76,
+                    "family": "Playfair Display Semi-Bold Italics",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "italic": true,
+                    "line_height": 0.95,
+                    "letter_spacing": 0.89
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "accent_heading",
+              "max_length": 28,
+              "min_length": 9
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 202.38
+              },
+              "size": {
+                "width": 456.74,
+                "height": 141.77
+              },
+              "font": {
+                "size": 19.59,
+                "family": "DM Sans",
+                "color": "#FFFFFF",
+                "line_height": 1.19,
+                "letter_spacing": 0.29
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Driving Sustainable Growth Through Responsible Leadership\n",
+                  "font": {
+                    "size": 19.59,
+                    "family": "DM Sans",
+                    "color": "#FFFFFF",
+                    "line_height": 1.19,
+                    "letter_spacing": 0.29
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "supporting_statement",
+              "max_length": 220,
+              "min_length": 29,
+              "rotation": 0
+            }
+          ]
+        },
+        {
+          "id": "right_image_collage_pv",
+          "description": "Overlapping rounded image collage with thin outline accents positioned opposite the title for strong visual emphasis.",
+          "position": {
+            "x": 618.07,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 326.81
+              },
+              "size": {
+                "width": 671.88,
+                "height": 332.71
+              },
+              "data": "static/freeform_7-a20cd002a6e5.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "wide_outline_accent",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 195.97,
+                "y": -28.43
+              },
+              "size": {
+                "width": 475.91,
+                "height": 391.76
+              },
+              "data": "static/freeform_10-4b343a8f6dd6.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "upper_outline_accent",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 36,
+                "y": 368.93
+              },
+              "size": {
+                "width": 585.79,
+                "height": 289.49
+              },
+              "data": "static/freeform_17-249f8fb76642.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "landscape_image_frame",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 207.2,
+                "y": 58.59
+              },
+              "size": {
+                "width": 414.59,
+                "height": 341.07
+              },
+              "data": "static/freeform_20-683d921055a8.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "portrait_image_frame",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 35.26,
+                "y": 368.93
+              },
+              "size": {
+                "width": 203.58,
+                "height": 284.13
+              },
+              "data": "/static/images/replaceable_template_image.png",
+              "fit": "cover",
+              "border_radius": {
+                "tl": 25.72,
+                "tr": 25.72,
+                "bl": 25.72,
+                "br": 25.72
+              },
+              "decorative": false,
+              "name": "supporting_cover_image",
+              "is_icon": false,
+              "rotation": 0
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 207.18,
+                "y": 58.59
+              },
+              "size": {
+                "width": 408.41,
+                "height": 592.91
+              },
+              "data": "/static/images/replaceable_template_image.png",
+              "fit": "cover",
+              "border_radius": {
+                "tl": 15.33,
+                "tr": 15.33,
+                "bl": 15.33,
+                "br": 15.33
+              },
+              "decorative": false,
+              "name": "main_cover_image",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "footer_profile_callout_pv",
+          "description": "Rounded footer callout combines a small profile image with compact metadata near the lower edge.",
+          "position": {
+            "x": 0,
+            "y": 598.69
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": -72.21,
+                "y": 0
+              },
+              "size": {
+                "width": 297.15,
+                "height": 61.34
+              },
+              "data": "static/freeform_14-304eff937d6d.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "callout_background",
+              "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 42.01,
+                "y": 12.02
+              },
+              "size": {
+                "width": 37.29,
+                "height": 37.29
+              },
+              "data": "/static/images/replaceable_template_image.png",
+              "fit": "cover",
+              "clip_path": "path('M 18.645 0 C 8.3476 0 0 8.3476 0 18.645 C 0 28.9424 8.3476 37.29 18.645 37.29 C 28.9424 37.29 37.29 28.9424 37.29 18.645 C 37.29 8.3476 28.9424 0 18.645 0 Z')",
+              "decorative": false,
+              "name": "profile_photo",
+              "is_icon": false
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 88.12,
+                "y": 15.35
+              },
+              "size": {
+                "width": 99.37,
+                "height": 18.86
+              },
+              "font": {
+                "size": 17.87,
+                "family": "DM Sans",
+                "color": "#D9D9D9",
+                "line_height": 1.04
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "John Doe",
+                  "font": {
+                    "size": 17.87,
+                    "family": "DM Sans",
+                    "color": "#D9D9D9",
+                    "line_height": 1.04
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "profile_name",
+              "max_length": 11,
+              "min_length": 4
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 88.79,
+                "y": 33.74
+              },
+              "size": {
+                "width": 103.6,
+                "height": 13.33
+              },
+              "font": {
+                "size": 12.45,
+                "family": "DM Sans",
+                "color": "#D9D9D9",
+                "line_height": 1.04
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "December 2025",
+                  "font": {
+                    "size": 12.45,
+                    "family": "DM Sans",
+                    "color": "#D9D9D9",
+                    "line_height": 1.04
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "profile_metadata",
+              "max_length": 16,
+              "min_length": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_with_numbered_list_in_two_columns_pv07",
+      "description": "Presenter avatar video version: Layout with a title at the top and two to eight numbered heading-and-description items distributed across two balanced columns.",
+      "components": [
+        {
+          "id": "background_layer_pv",
+          "description": "Full-slide atmospheric background with a dark field and subtle blue glow accent near the bottom edge.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": -12.33,
+                "y": -10.79
+              },
+              "size": {
+                "width": 1304.66,
+                "height": 738.69
+              },
+              "data": "static/freeform_3-eac87b3b9ab0.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "background_field",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 290.78,
+            "y": 110.21
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 343,
+                "height": 610
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "header_area_pv",
+          "description": "Small italic slide heading placed in the upper-left corner above the agenda entries.",
+          "position": {
+            "x": 49.23,
+            "y": 75.33
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 1143.91,
+                "height": 52.91
+              },
+              "font": {
+                "size": 47.16,
+                "family": "Playfair Display Semi-Bold Italics",
+                "color": "#FFFFFF",
+                "bold": true,
+                "italic": true,
+                "line_height": 1.11,
+                "letter_spacing": 0.7
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Agenda",
+                  "font": {
+                    "size": 47.16,
+                    "family": "Playfair Display Semi-Bold Italics",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "italic": true,
+                    "line_height": 1.11,
+                    "letter_spacing": 0.7
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "slide_heading",
+              "max_length": 52,
+              "min_length": 3,
+              "rotation": 0
+            }
+          ]
+        },
+        {
+          "id": "agenda_items_pv",
+          "description": "Vertical agenda column using large indices, black underline accents, and short labels aligned beside each entry.",
+          "position": {
+            "x": 128.16,
+            "y": 160.07
+          },
+          "elements": [
+            {
+              "type": "grid",
+              "name": "agenda_items_grid",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 1038.74,
+                "height": 497.15
+              },
+              "rows": 4,
+              "align_items": "stretch",
+              "justify_items": "stretch",
+              "children": [
+                {
+                  "type": "group",
+                  "size": {
+                    "width": 440.39,
+                    "height": 105
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 3.31,
+                        "y": 1.37
+                      },
+                      "size": {
+                        "width": 167.86,
+                        "height": 125.43
+                      },
+                      "font": {
+                        "size": 109.8,
+                        "family": "DM Sans Bold",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.11,
+                        "letter_spacing": 1.64
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "01",
+                          "font": {
+                            "size": 109.8,
+                            "family": "DM Sans Bold",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.11,
+                            "letter_spacing": 1.64
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "agenda_index",
+                      "max_length": 2,
+                      "min_length": 1,
+                      "rotation": 0
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 187.59,
+                        "y": 20.31
+                      },
+                      "size": {
+                        "width": 257.79,
+                        "height": 105.63
+                      },
+                      "font": {
+                        "size": 23.59,
+                        "family": "DM Sans",
+                        "color": "#FFFFFF",
+                        "line_height": 1.19,
+                        "letter_spacing": 0.35
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Executive Summary",
+                          "font": {
+                            "size": 23.59,
+                            "family": "DM Sans",
+                            "color": "#FFFFFF",
+                            "line_height": 1.19,
+                            "letter_spacing": 0.35
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "agenda_label",
+                      "max_length": 65,
+                      "min_length": 6,
+                      "rotation": 0
+                    }
+                  ],
+                  "name": "agenda_entry",
+                  "position": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "__presenton_manual_position": true,
+                  "rotation": 0
+                }
+              ],
+              "max_children": 8,
+              "min_children": 2,
+              "columns": 2,
+              "rotation": 0,
+              "row_gap": 0,
+              "gap": 12
             }
           ]
         }

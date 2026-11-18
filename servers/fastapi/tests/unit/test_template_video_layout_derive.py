@@ -76,3 +76,13 @@ def test_originals_untouched_and_no_candidates_returns_empty():
 
 def test_fewer_candidates_than_requested_returns_what_exists():
     assert len(derive_layouts(_template(), 5, 1)) == 2  # icon + tiny + text-only are skipped
+
+
+def test_placeholder_stays_on_stage_when_the_image_bleeds_off_it():
+    template = {"layouts": [_layout("bleed_1", "Bleeding image", _image(700, 900, position={"x": -150, "y": -80}))]}
+    layout = derive_layouts(template, 1, 1)[0]
+    comp = next(c for c in layout["components"] if c["id"] == "video_placeholder")
+    el = comp["elements"][0]
+    x, y = comp["position"]["x"] + el["position"]["x"], comp["position"]["y"] + el["position"]["y"]
+    assert x >= 0 and y >= 0
+    assert x + el["size"]["width"] <= 1280 and y + el["size"]["height"] <= 720

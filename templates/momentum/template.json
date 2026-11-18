@@ -16731,6 +16731,2317 @@
           ]
         }
       ]
+    },
+    {
+      "id": "title_description_block_pv",
+      "description": "A large bold headline and concise explanatory paragraph occupy the left content region.",
+      "variants": [
+        {
+          "id": "title_description_block_pv",
+          "description": "A large bold headline and concise explanatory paragraph occupy the left content region.",
+          "position": {
+            "x": 56.67,
+            "y": 273.17
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 455,
+                "height": 158
+              },
+              "font": {
+                "size": 86,
+                "family": "Arial",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 0.92,
+                "letter_spacing": -4
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Immediate\nAction Plan",
+                  "font": {
+                    "size": 86,
+                    "family": "Arial",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 0.92,
+                    "letter_spacing": -4
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "max_length": 22,
+              "min_length": 11
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 162.92
+              },
+              "size": {
+                "width": 434.23,
+                "height": 60.56
+              },
+              "font": {
+                "size": 16,
+                "family": "Arial",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.1
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The next steps outline the immediate priorities that will help us improve sales performance, strengthen customer relationships, and achieve our strategic business goals.",
+                  "font": {
+                    "size": 16,
+                    "family": "Arial",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "supporting_description",
+              "max_length": 170,
+              "min_length": 85
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "curved_timeline_cards_pv",
+      "description": "Milestone circles follow a curved path and connect with horizontal rules to right-side information cards.",
+      "variants": [
+        {
+          "id": "curved_timeline_cards_pv",
+          "description": "Milestone circles follow a curved path and connect with horizontal rules to right-side information cards.",
+          "position": {
+            "x": 460,
+            "y": 69.5
+          },
+          "elements": [
+            {
+              "type": "group",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 683.1,
+                "height": 584
+              },
+              "children": [
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "size": {
+                    "width": 683.1,
+                    "height": 95
+                  },
+                  "children": [
+                    {
+                      "type": "vector",
+                      "shape": "ellipse",
+                      "points": [
+                        {
+                          "x": 0.4,
+                          "y": 16.94
+                        },
+                        {
+                          "x": 79.94,
+                          "y": 96.48
+                        }
+                      ],
+                      "closed": true,
+                      "fill": {
+                        "color": "#1D3FB7",
+                        "opacity": 1
+                      },
+                      "stroke": {
+                        "color": "#FFFFFF",
+                        "width": 2.6
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 11.95,
+                        "y": 23.08
+                      },
+                      "size": {
+                        "width": 56.43,
+                        "height": 61.84
+                      },
+                      "font": {
+                        "size": 26.66,
+                        "family": "Arial",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.4
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "1",
+                          "font": {
+                            "size": 26.66,
+                            "family": "Arial",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.4
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "timeline_marker_label",
+                      "max_length": 1,
+                      "min_length": 1
+                    },
+                    {
+                      "type": "vector",
+                      "points": [
+                        {
+                          "x": 75.07,
+                          "y": 55.79
+                        },
+                        {
+                          "x": 131.44,
+                          "y": 55.79
+                        }
+                      ],
+                      "closed": false,
+                      "stroke": {
+                        "color": "#1A3DB3",
+                        "width": 1.78
+                      }
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 133.01,
+                        "y": 0.06
+                      },
+                      "size": {
+                        "width": 550.07,
+                        "height": 94.58
+                      },
+                      "fill": {
+                        "color": "#F4F6FB",
+                        "opacity": 1
+                      },
+                      "border_radius": {
+                        "tl": 3,
+                        "tr": 3,
+                        "bl": 3,
+                        "br": 3
+                      },
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 550.07,
+                          "height": 94.58
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 17.41,
+                              "y": 9.52
+                            },
+                            "size": {
+                              "width": 515.25,
+                              "height": 22.07
+                            },
+                            "font": {
+                              "size": 17.77,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Optimize Lead Generation",
+                                "font": {
+                                  "size": 17.77,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "bold": true,
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_title",
+                            "max_length": 24,
+                            "min_length": 12
+                          },
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 17.41,
+                              "y": 35.68
+                            },
+                            "size": {
+                              "width": 515.25,
+                              "height": 48.38
+                            },
+                            "font": {
+                              "size": 12.44,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Enhance lead generation by implementing targeted marketing campaigns, improving lead qualification processes, and leveraging data analytics to attract high-quality prospects with greater conversion potential.",
+                                "font": {
+                                  "size": 12.44,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_body",
+                            "max_length": 208,
+                            "min_length": 104
+                          }
+                        ],
+                        "name": "timeline_card_content"
+                      }
+                    }
+                  ],
+                  "name": "timeline_item_top"
+                },
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 53.58,
+                    "y": 122.37
+                  },
+                  "size": {
+                    "width": 629.5,
+                    "height": 95
+                  },
+                  "children": [
+                    {
+                      "type": "vector",
+                      "shape": "ellipse",
+                      "points": [
+                        {
+                          "x": 0,
+                          "y": 14.54
+                        },
+                        {
+                          "x": 79.54,
+                          "y": 94.08
+                        }
+                      ],
+                      "closed": true,
+                      "fill": {
+                        "color": "#1D3FB7",
+                        "opacity": 1
+                      },
+                      "stroke": {
+                        "color": "#FFFFFF",
+                        "width": 2.6
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 11.56,
+                        "y": 20.69
+                      },
+                      "size": {
+                        "width": 56.43,
+                        "height": 61.84
+                      },
+                      "font": {
+                        "size": 26.66,
+                        "family": "Arial",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.4
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "2",
+                          "font": {
+                            "size": 26.66,
+                            "family": "Arial",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.4
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "timeline_marker_label",
+                      "max_length": 1,
+                      "min_length": 1
+                    },
+                    {
+                      "type": "vector",
+                      "points": [
+                        {
+                          "x": 75.21,
+                          "y": 54.23
+                        },
+                        {
+                          "x": 145.07,
+                          "y": 54.23
+                        }
+                      ],
+                      "closed": false,
+                      "stroke": {
+                        "color": "#1A3DB3",
+                        "width": 1.33
+                      }
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 145.07,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 484.42,
+                        "height": 94.58
+                      },
+                      "fill": {
+                        "color": "#F4F6FB",
+                        "opacity": 1
+                      },
+                      "border_radius": {
+                        "tl": 3,
+                        "tr": 3,
+                        "bl": 3,
+                        "br": 3
+                      },
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 484.42,
+                          "height": 94.58
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 10.1,
+                              "y": 17.53
+                            },
+                            "size": {
+                              "width": 439.14,
+                              "height": 22.07
+                            },
+                            "font": {
+                              "size": 17.77,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Optimize Lead Generation",
+                                "font": {
+                                  "size": 17.77,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "bold": true,
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_title",
+                            "max_length": 24,
+                            "min_length": 12
+                          },
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 10.1,
+                              "y": 43.69
+                            },
+                            "size": {
+                              "width": 439.14,
+                              "height": 32.38
+                            },
+                            "font": {
+                              "size": 12.44,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Enhance lead generation by implementing targeted marketing campaigns, improving lead qualification",
+                                "font": {
+                                  "size": 12.44,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_body",
+                            "max_length": 99,
+                            "min_length": 50
+                          }
+                        ],
+                        "name": "timeline_card_content"
+                      }
+                    }
+                  ],
+                  "name": "timeline_item_upper"
+                },
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 71.89,
+                    "y": 244.69
+                  },
+                  "size": {
+                    "width": 611.2,
+                    "height": 95
+                  },
+                  "children": [
+                    {
+                      "type": "vector",
+                      "shape": "ellipse",
+                      "points": [
+                        {
+                          "x": 0,
+                          "y": 12.21
+                        },
+                        {
+                          "x": 79.54,
+                          "y": 91.75
+                        }
+                      ],
+                      "closed": true,
+                      "fill": {
+                        "color": "#1D3FB7",
+                        "opacity": 1
+                      },
+                      "stroke": {
+                        "color": "#FFFFFF",
+                        "width": 2.6
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 11.55,
+                        "y": 18.35
+                      },
+                      "size": {
+                        "width": 56.43,
+                        "height": 61.84
+                      },
+                      "font": {
+                        "size": 26.66,
+                        "family": "Arial",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.4
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "3",
+                          "font": {
+                            "size": 26.66,
+                            "family": "Arial",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.4
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "timeline_marker_label",
+                      "max_length": 1,
+                      "min_length": 1
+                    },
+                    {
+                      "type": "vector",
+                      "points": [
+                        {
+                          "x": 69.73,
+                          "y": 51.89
+                        },
+                        {
+                          "x": 148.86,
+                          "y": 51.89
+                        }
+                      ],
+                      "closed": false,
+                      "stroke": {
+                        "color": "#1A3DB3",
+                        "width": 1.33
+                      }
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 148.86,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 462.33,
+                        "height": 94.58
+                      },
+                      "fill": {
+                        "color": "#F4F6FB",
+                        "opacity": 1
+                      },
+                      "border_radius": {
+                        "tl": 3,
+                        "tr": 3,
+                        "bl": 3,
+                        "br": 3
+                      },
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 462.33,
+                          "height": 94.58
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 14.97,
+                              "y": 17.52
+                            },
+                            "size": {
+                              "width": 370.22,
+                              "height": 22.07
+                            },
+                            "font": {
+                              "size": 17.77,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Optimize Lead Generation",
+                                "font": {
+                                  "size": 17.77,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "bold": true,
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_title",
+                            "max_length": 24,
+                            "min_length": 12
+                          },
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 14.97,
+                              "y": 43.68
+                            },
+                            "size": {
+                              "width": 372.55,
+                              "height": 32.38
+                            },
+                            "font": {
+                              "size": 12.44,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Enhance lead generation by implementing targeted marketing campaigns, improving lead qualification",
+                                "font": {
+                                  "size": 12.44,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_body",
+                            "max_length": 99,
+                            "min_length": 50
+                          }
+                        ],
+                        "name": "timeline_card_content"
+                      }
+                    }
+                  ],
+                  "name": "timeline_item_middle"
+                },
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 53.58,
+                    "y": 367.01
+                  },
+                  "size": {
+                    "width": 629.5,
+                    "height": 95
+                  },
+                  "children": [
+                    {
+                      "type": "vector",
+                      "shape": "ellipse",
+                      "points": [
+                        {
+                          "x": 0,
+                          "y": 9.86
+                        },
+                        {
+                          "x": 79.54,
+                          "y": 89.4
+                        }
+                      ],
+                      "closed": true,
+                      "fill": {
+                        "color": "#1D3FB7",
+                        "opacity": 1
+                      },
+                      "stroke": {
+                        "color": "#FFFFFF",
+                        "width": 2.6
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 11.56,
+                        "y": 16
+                      },
+                      "size": {
+                        "width": 56.43,
+                        "height": 61.84
+                      },
+                      "font": {
+                        "size": 26.66,
+                        "family": "Arial",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.4
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "4",
+                          "font": {
+                            "size": 26.66,
+                            "family": "Arial",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.4
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "timeline_marker_label",
+                      "max_length": 1,
+                      "min_length": 1
+                    },
+                    {
+                      "type": "vector",
+                      "points": [
+                        {
+                          "x": 75.21,
+                          "y": 48.21
+                        },
+                        {
+                          "x": 145.07,
+                          "y": 48.21
+                        }
+                      ],
+                      "closed": false,
+                      "stroke": {
+                        "color": "#1A3DB3",
+                        "width": 1.33
+                      }
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 143.57,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 485.93,
+                        "height": 94.58
+                      },
+                      "fill": {
+                        "color": "#F4F6FB",
+                        "opacity": 1
+                      },
+                      "border_radius": {
+                        "tl": 3,
+                        "tr": 3,
+                        "bl": 3,
+                        "br": 3
+                      },
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 485.93,
+                          "height": 94.58
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 11.6,
+                              "y": 17.52
+                            },
+                            "size": {
+                              "width": 439.14,
+                              "height": 22.07
+                            },
+                            "font": {
+                              "size": 17.77,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Optimize Lead Generation",
+                                "font": {
+                                  "size": 17.77,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "bold": true,
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_title",
+                            "max_length": 24,
+                            "min_length": 12
+                          },
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 11.6,
+                              "y": 43.68
+                            },
+                            "size": {
+                              "width": 413.45,
+                              "height": 32.38
+                            },
+                            "font": {
+                              "size": 12.44,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Enhance lead generation by implementing targeted marketing campaigns, improving lead qualification",
+                                "font": {
+                                  "size": 12.44,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_body",
+                            "max_length": 99,
+                            "min_length": 50
+                          }
+                        ],
+                        "name": "timeline_card_content"
+                      }
+                    }
+                  ],
+                  "name": "timeline_item_lower"
+                },
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 0,
+                    "y": 489.32
+                  },
+                  "size": {
+                    "width": 683.1,
+                    "height": 95
+                  },
+                  "children": [
+                    {
+                      "type": "vector",
+                      "shape": "ellipse",
+                      "points": [
+                        {
+                          "x": 0.4,
+                          "y": 7.52
+                        },
+                        {
+                          "x": 79.94,
+                          "y": 87.06
+                        }
+                      ],
+                      "closed": true,
+                      "fill": {
+                        "color": "#1D3FB7",
+                        "opacity": 1
+                      },
+                      "stroke": {
+                        "color": "#FFFFFF",
+                        "width": 2.6
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 11.95,
+                        "y": 13.67
+                      },
+                      "size": {
+                        "width": 56.43,
+                        "height": 61.84
+                      },
+                      "font": {
+                        "size": 26.66,
+                        "family": "Arial",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.4
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "5",
+                          "font": {
+                            "size": 26.66,
+                            "family": "Arial",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.4
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "timeline_marker_label",
+                      "max_length": 1,
+                      "min_length": 1
+                    },
+                    {
+                      "type": "vector",
+                      "points": [
+                        {
+                          "x": 75.07,
+                          "y": 47.21
+                        },
+                        {
+                          "x": 131.44,
+                          "y": 47.21
+                        }
+                      ],
+                      "closed": false,
+                      "stroke": {
+                        "color": "#1A3DB3",
+                        "width": 1.78
+                      }
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 133.01,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 550.07,
+                        "height": 94.58
+                      },
+                      "fill": {
+                        "color": "#F4F6FB",
+                        "opacity": 1
+                      },
+                      "border_radius": {
+                        "tl": 3,
+                        "tr": 3,
+                        "bl": 3,
+                        "br": 3
+                      },
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 550.07,
+                          "height": 94.58
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 17.41,
+                              "y": 9.52
+                            },
+                            "size": {
+                              "width": 515.25,
+                              "height": 22.07
+                            },
+                            "font": {
+                              "size": 17.77,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Optimize Lead Generation",
+                                "font": {
+                                  "size": 17.77,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "bold": true,
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_title",
+                            "max_length": 24,
+                            "min_length": 12
+                          },
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 17.41,
+                              "y": 35.68
+                            },
+                            "size": {
+                              "width": 515.25,
+                              "height": 48.38
+                            },
+                            "font": {
+                              "size": 12.44,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Enhance lead generation by implementing targeted marketing campaigns, improving lead qualification processes, and leveraging data analytics to attract high-quality prospects with greater conversion potential.",
+                                "font": {
+                                  "size": 12.44,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_body",
+                            "max_length": 208,
+                            "min_length": 104
+                          }
+                        ],
+                        "name": "timeline_card_content"
+                      }
+                    }
+                  ],
+                  "name": "timeline_item_bottom"
+                }
+              ],
+              "name": "timeline_items_group"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "footer_page_marker_pv",
+      "description": "A small slide index marker is positioned in the lower right corner as fixed navigation detail.",
+      "variants": [
+        {
+          "id": "footer_page_marker_pv",
+          "description": "A small slide index marker is positioned in the lower right corner as fixed navigation detail.",
+          "position": {
+            "x": 1224.21,
+            "y": 660.93
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 18.16,
+                "height": 18.05
+              },
+              "font": {
+                "size": 14.21,
+                "family": "Arial",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.25
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "26",
+                  "font": {
+                    "size": 14.21,
+                    "family": "Arial",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.25
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "page_marker",
+              "max_length": 2,
+              "min_length": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "corner_accent_background_pv",
+      "description": "Decorative curved image accents positioned in opposite corners to frame the otherwise open slide background.",
+      "variants": [
+        {
+          "id": "corner_accent_background_pv",
+          "description": "Decorative curved image accents positioned in opposite corners to frame the otherwise open slide background.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 1028.07,
+                "y": -245.69
+              },
+              "size": {
+                "width": 206.18,
+                "height": 603.24
+              },
+              "rotation": 127.45,
+              "child": {
+                "type": "image",
+                "position": {
+                  "x": -1185.64,
+                  "y": 0
+                },
+                "size": {
+                  "width": 1463.94,
+                  "height": 823.47
+                },
+                "data": "static/image3-28baa466293d.png",
+                "fit": "fill",
+                "clip_path": "path('M 1185.64 0 L 1391.82 0 L 1391.82 603.2399 L 1185.64 603.2399 L 1185.64 0 Z')",
+                "decorative": true,
+                "name": "top_corner_accent",
+                "is_icon": false
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": -39.98,
+                "y": 479.08
+              },
+              "size": {
+                "width": 270.04,
+                "height": 516.82
+              },
+              "rotation": 110.61,
+              "child": {
+                "type": "image",
+                "position": {
+                  "x": -779.13,
+                  "y": -124.46
+                },
+                "size": {
+                  "width": 1140.06,
+                  "height": 641.28
+                },
+                "data": "static/image3-28baa466293d.png",
+                "fit": "fill",
+                "clip_path": "path('M 779.13 124.46 L 1049.17 124.46 L 1049.17 641.28 L 779.13 641.28 L 779.13 124.46 Z')",
+                "decorative": true,
+                "name": "bottom_corner_accent",
+                "is_icon": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "large_title_block_pv",
+      "description": "Oversized headline text sits on the left and overlaps the top edge of the quote region.",
+      "variants": [
+        {
+          "id": "large_title_block_pv",
+          "description": "Oversized headline text sits on the left and overlaps the top edge of the quote region.",
+          "position": {
+            "x": 56.67,
+            "y": 132
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 839.79,
+                "height": 160
+              },
+              "rotation": 0,
+              "font": {
+                "size": 88.88,
+                "family": "Lato Heavy",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 0.9,
+                "letter_spacing": -5.95
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Inspirational Quote",
+                  "font": {
+                    "size": 88.88,
+                    "family": "Lato Heavy",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 0.9,
+                    "letter_spacing": -5.95
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "max_length": 20,
+              "min_length": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "framed_quote_panel_pv",
+      "description": "A pale framed quote panel spans the lower center with a decorative quote mark and author line.",
+      "variants": [
+        {
+          "id": "framed_quote_panel_pv",
+          "description": "A pale framed quote panel spans the lower center with a decorative quote mark and author line.",
+          "position": {
+            "x": 56.67,
+            "y": 279.58
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 97.74,
+                "y": 11.89
+              },
+              "size": {
+                "width": 675.96,
+                "height": 334.8
+              },
+              "data": "static/freeform_6-3a1e52f1b7cb.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "quote_panel_outline",
+              "is_icon": false
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 3.88
+              },
+              "size": {
+                "width": 122.82,
+                "height": 174
+              },
+              "font": {
+                "size": 177.78,
+                "family": "Anton",
+                "color": "#1A3DB3",
+                "line_height": 0.9,
+                "letter_spacing": -11.91
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "“",
+                  "font": {
+                    "size": 177.78,
+                    "family": "Anton",
+                    "color": "#1A3DB3",
+                    "line_height": 0.9,
+                    "letter_spacing": -11.91
+                  }
+                }
+              ],
+              "decorative": true,
+              "name": "quote_mark_accent",
+              "max_length": 1,
+              "min_length": 1
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 155.27,
+                "y": 100.43
+              },
+              "size": {
+                "width": 413.1,
+                "height": 103.82
+              },
+              "rotation": 0,
+              "font": {
+                "size": 23.1,
+                "family": "Lato",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.41
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Sales are contingent upon the attitude of the salesperson not the attitude of the prospect.",
+                  "font": {
+                    "size": 23.1,
+                    "family": "Lato",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.41
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_body_text",
+              "max_length": 91,
+              "min_length": 46
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 275.66,
+                "y": 206.78
+              },
+              "size": {
+                "width": 330,
+                "height": 34
+              },
+              "font": {
+                "size": 23.1,
+                "family": "Lato Bold",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.29,
+                "letter_spacing": 0.41
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "William Clement Stone",
+                  "font": {
+                    "size": 23.1,
+                    "family": "Lato Bold",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.29,
+                    "letter_spacing": 0.41
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_author_text",
+              "max_length": 21,
+              "min_length": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "right_portrait_image_pv",
+      "description": "Large cropped portrait positioned on the right, visually overlapping the quote panel and extending to the bottom edge.",
+      "variants": [
+        {
+          "id": "right_portrait_image_pv",
+          "description": "Large cropped portrait positioned on the right, visually overlapping the quote panel and extending to the bottom edge.",
+          "position": {
+            "x": 560.25,
+            "y": 181.87
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 77.46,
+                "y": 95.46
+              },
+              "size": {
+                "width": 372.28,
+                "height": 389.57
+              },
+              "rotation": 0,
+              "data": "/static/images/replaceable_template_image.png",
+              "fit": "cover",
+              "clip_path": "path('M 15.3332 0 L 548.0868 0 C 556.5547 0 563.42 6.8653 563.42 15.3332 L 563.42 548.0868 C 563.42 556.5547 556.5547 563.42 548.0868 563.42 L 15.3332 563.42 C 6.8653 563.42 0 556.5547 0 548.0868 L 0 15.3332 C 0 6.8653 6.8653 0 15.3332 0 Z')",
+              "decorative": false,
+              "name": "portrait_photo",
+              "is_icon": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "centered_header_pv",
+      "description": "Large centered heading with a short subtitle placed directly underneath in the upper slide area.",
+      "variants": [
+        {
+          "id": "centered_header_pv",
+          "description": "Large centered heading with a short subtitle placed directly underneath in the upper slide area.",
+          "position": {
+            "x": 290,
+            "y": 49.36
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": -18.19,
+                "y": 0
+              },
+              "size": {
+                "width": 814.81,
+                "height": 86
+              },
+              "rotation": 0,
+              "font": {
+                "size": 88.88,
+                "family": "Lato Heavy",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 0.9,
+                "letter_spacing": -5.95
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Market Analysis",
+                  "font": {
+                    "size": 88.88,
+                    "family": "Lato Heavy",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 0.9,
+                    "letter_spacing": -5.95
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "slide_title",
+              "max_length": 20,
+              "min_length": 8
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 41.73,
+                "y": 105.79
+              },
+              "size": {
+                "width": 620.61,
+                "height": 40.56
+              },
+              "font": {
+                "size": 16,
+                "family": "Lato",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.28
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The market continues to evolve due to changing consumer preferences, technological advancements, and increasing digital adoption.",
+                  "font": {
+                    "size": 16,
+                    "family": "Lato",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.28
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "slide_subtitle",
+              "max_length": 87,
+              "min_length": 65
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "circular_metric_infographic_pv",
+      "description": "Overlapping circular metric visual on the left with centered labels and horizontal connectors toward related explanations.",
+      "variants": [
+        {
+          "id": "circular_metric_infographic_pv",
+          "description": "Overlapping circular metric visual on the left with centered labels and horizontal connectors toward related explanations.",
+          "position": {
+            "x": 56.67,
+            "y": 234.48
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 82.5,
+                "y": 60.93
+              },
+              "size": {
+                "width": 300,
+                "height": 22
+              },
+              "font": {
+                "size": 17.78,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Online Purchase Preference",
+                  "font": {
+                    "size": 17.78,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "outer_metric_label",
+              "max_length": 26,
+              "min_length": 13
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 162.25,
+                "y": 82.48
+              },
+              "size": {
+                "width": 142.17,
+                "height": 24.62
+              },
+              "font": {
+                "size": 23.11,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "68%",
+                  "font": {
+                    "size": 23.11,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "outer_metric_value",
+              "max_length": 3,
+              "min_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 133,
+                "y": 202.5
+              },
+              "size": {
+                "width": 200,
+                "height": 22
+              },
+              "font": {
+                "size": 17.78,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Online Sales Growth",
+                  "font": {
+                    "size": 17.78,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "middle_metric_label",
+              "max_length": 19,
+              "min_length": 10
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 143.54,
+                "y": 227.09
+              },
+              "size": {
+                "width": 179.57,
+                "height": 24.62
+              },
+              "font": {
+                "size": 23.11,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "+32%",
+                  "font": {
+                    "size": 23.11,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "middle_metric_value",
+              "max_length": 4,
+              "min_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 162.25,
+                "y": 347.1
+              },
+              "size": {
+                "width": 142.17,
+                "height": 18.89
+              },
+              "font": {
+                "size": 17.78,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Market Growth",
+                  "font": {
+                    "size": 17.78,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "inner_metric_label",
+              "max_length": 13,
+              "min_length": 7
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 162.25,
+                "y": 371.69
+              },
+              "size": {
+                "width": 142.17,
+                "height": 24.62
+              },
+              "font": {
+                "size": 23.11,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "+18%",
+                  "font": {
+                    "size": 23.11,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "inner_metric_value",
+              "max_length": 4,
+              "min_length": 2
+            },
+            {
+              "type": "vector",
+              "points": [
+                {
+                  "x": 285.28,
+                  "y": 90
+                },
+                {
+                  "x": 523.33,
+                  "y": 90
+                }
+              ],
+              "closed": false,
+              "opacity": 1,
+              "stroke": {
+                "color": "#1A3DB3",
+                "width": 1.33
+              }
+            },
+            {
+              "type": "vector",
+              "points": [
+                {
+                  "x": 285.28,
+                  "y": 228.73
+                },
+                {
+                  "x": 523.33,
+                  "y": 228.73
+                }
+              ],
+              "closed": false,
+              "opacity": 1,
+              "stroke": {
+                "color": "#1A3DB3",
+                "width": 1.33
+              }
+            },
+            {
+              "type": "vector",
+              "points": [
+                {
+                  "x": 296.2,
+                  "y": 365.32
+                },
+                {
+                  "x": 534.25,
+                  "y": 365.32
+                }
+              ],
+              "closed": false,
+              "opacity": 1,
+              "stroke": {
+                "color": "#1A3DB3",
+                "width": 1.33
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stacked_explanation_sections_pv",
+      "description": "Vertically stacked explanatory text sections aligned to the right of the circular metric visual.",
+      "variants": [
+        {
+          "id": "stacked_explanation_sections_pv",
+          "description": "Vertically stacked explanatory text sections aligned to the right of the circular metric visual.",
+          "position": {
+            "x": 597.14,
+            "y": 314.74
+          },
+          "elements": [
+            {
+              "type": "flex",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 625.94,
+                "height": 346.59
+              },
+              "direction": "column",
+              "align_items": "flex-start",
+              "justify_content": "flex-start",
+              "gap": 64.23,
+              "children": [
+                {
+                  "type": "group",
+                  "size": {
+                    "width": 625.94,
+                    "height": 70.01
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 385.63,
+                        "height": 24.62
+                      },
+                      "font": {
+                        "size": 23.11,
+                        "family": "Lato Heavy",
+                        "color": "#2E3545",
+                        "bold": true,
+                        "line_height": 1
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Consumer Buying Trends",
+                          "font": {
+                            "size": 23.11,
+                            "family": "Lato Heavy",
+                            "color": "#2E3545",
+                            "bold": true,
+                            "line_height": 1
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_heading",
+                      "max_length": 33,
+                      "min_length": 11
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 33.96
+                      },
+                      "size": {
+                        "width": 625.94,
+                        "height": 36.05
+                      },
+                      "font": {
+                        "size": 14.22,
+                        "family": "Lato",
+                        "color": "#000000",
+                        "line_height": 1.29,
+                        "letter_spacing": 0.25
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Customers increasingly prefer convenient, personalized, and digital-first shopping experiences, emphasizing the importance of omnichannel sales strategies and customer engagement.",
+                          "font": {
+                            "size": 14.22,
+                            "family": "Lato",
+                            "color": "#000000",
+                            "line_height": 1.29,
+                            "letter_spacing": 0.25
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_body",
+                      "max_length": 96,
+                      "min_length": 77
+                    }
+                  ],
+                  "name": "explanation_section"
+                },
+                {
+                  "type": "group",
+                  "size": {
+                    "width": 625.94,
+                    "height": 70.01
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 385.63,
+                        "height": 24.62
+                      },
+                      "font": {
+                        "size": 23.11,
+                        "family": "Lato Heavy",
+                        "color": "#2E3545",
+                        "bold": true,
+                        "line_height": 1
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Consumer Buying Trends",
+                          "font": {
+                            "size": 23.11,
+                            "family": "Lato Heavy",
+                            "color": "#2E3545",
+                            "bold": true,
+                            "line_height": 1
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_heading",
+                      "max_length": 33,
+                      "min_length": 11
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 33.96
+                      },
+                      "size": {
+                        "width": 625.94,
+                        "height": 36.05
+                      },
+                      "font": {
+                        "size": 14.22,
+                        "family": "Lato",
+                        "color": "#000000",
+                        "line_height": 1.29,
+                        "letter_spacing": 0.25
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Customers increasingly prefer convenient, personalized, and digital-first shopping experiences, emphasizing the importance of omnichannel sales strategies and customer engagement.",
+                          "font": {
+                            "size": 14.22,
+                            "family": "Lato",
+                            "color": "#000000",
+                            "line_height": 1.29,
+                            "letter_spacing": 0.25
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_body",
+                      "max_length": 96,
+                      "min_length": 77
+                    }
+                  ],
+                  "name": "explanation_section"
+                },
+                {
+                  "type": "group",
+                  "size": {
+                    "width": 625.94,
+                    "height": 70.01
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 385.63,
+                        "height": 24.62
+                      },
+                      "font": {
+                        "size": 23.11,
+                        "family": "Lato Heavy",
+                        "color": "#2E3545",
+                        "bold": true,
+                        "line_height": 1
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Consumer Buying Trends",
+                          "font": {
+                            "size": 23.11,
+                            "family": "Lato Heavy",
+                            "color": "#2E3545",
+                            "bold": true,
+                            "line_height": 1
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_heading",
+                      "max_length": 33,
+                      "min_length": 11
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 33.96
+                      },
+                      "size": {
+                        "width": 625.94,
+                        "height": 36.05
+                      },
+                      "font": {
+                        "size": 14.22,
+                        "family": "Lato",
+                        "color": "#000000",
+                        "line_height": 1.29,
+                        "letter_spacing": 0.25
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Customers increasingly prefer convenient, personalized, and digital-first shopping experiences, emphasizing the importance of omnichannel sales strategies and customer engagement.",
+                          "font": {
+                            "size": 14.22,
+                            "family": "Lato",
+                            "color": "#000000",
+                            "line_height": 1.29,
+                            "letter_spacing": 0.25
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_body",
+                      "max_length": 96,
+                      "min_length": 77
+                    }
+                  ],
+                  "name": "explanation_section"
+                }
+              ],
+              "name": "section_stack",
+              "max_children": 3,
+              "min_children": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "footer_marker_pv",
+      "description": "Small pagination marker positioned near the lower slide edge.",
+      "variants": [
+        {
+          "id": "footer_marker_pv",
+          "description": "Small pagination marker positioned near the lower slide edge.",
+          "position": {
+            "x": 1224.21,
+            "y": 660.26
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 18.16,
+                "height": 16.88
+              },
+              "font": {
+                "size": 12.44,
+                "family": "Lato",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.22
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "18",
+                  "font": {
+                    "size": 12.44,
+                    "family": "Lato",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.22
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "page_marker",
+              "max_length": 2,
+              "min_length": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decorative_corner_accent_pv",
+      "description": "Abstract image accent clipped along the upper corner to frame the slide without carrying content.",
+      "variants": [
+        {
+          "id": "decorative_corner_accent_pv",
+          "description": "Abstract image accent clipped along the upper corner to frame the slide without carrying content.",
+          "position": {
+            "x": 1184.63,
+            "y": -97.24
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 205.13,
+                "height": 436.44
+              },
+              "rotation": -17.6,
+              "child": {
+                "type": "image",
+                "position": {
+                  "x": -1093.46,
+                  "y": -383.7
+                },
+                "size": {
+                  "width": 1457.99,
+                  "height": 820.14
+                },
+                "data": "static/image3-28baa466293d.png",
+                "fit": "fill",
+                "clip_path": "path('M 1093.46 383.7 L 1298.59 383.7 L 1298.59 820.1399 L 1093.46 820.1399 L 1093.46 383.7 Z')",
+                "decorative": true,
+                "name": "corner_accent",
+                "is_icon": false
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "layouts": [
@@ -34553,6 +36864,2392 @@
               "name": "page_marker",
               "max_length": 2,
               "min_length": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_timeline_cards_26_8744_pv01",
+      "description": "Presenter avatar video version: Dynamic roadmap for mapping milestones along a curved progression, suited to future plans, transformation phases, or product evolution.",
+      "components": [
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 127.5,
+            "y": 40.0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 360,
+                "height": 640
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "title_description_block_pv",
+          "description": "A large bold headline and concise explanatory paragraph occupy the left content region.",
+          "position": {
+            "x": 56.67,
+            "y": 273.17
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 455,
+                "height": 158
+              },
+              "font": {
+                "size": 86,
+                "family": "Arial",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 0.92,
+                "letter_spacing": -4
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Immediate\nAction Plan",
+                  "font": {
+                    "size": 86,
+                    "family": "Arial",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 0.92,
+                    "letter_spacing": -4
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "max_length": 22,
+              "min_length": 11
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 162.92
+              },
+              "size": {
+                "width": 434.23,
+                "height": 60.56
+              },
+              "font": {
+                "size": 16,
+                "family": "Arial",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.1
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The next steps outline the immediate priorities that will help us improve sales performance, strengthen customer relationships, and achieve our strategic business goals.",
+                  "font": {
+                    "size": 16,
+                    "family": "Arial",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "supporting_description",
+              "max_length": 170,
+              "min_length": 85
+            }
+          ]
+        },
+        {
+          "id": "curved_timeline_cards_pv",
+          "description": "Milestone circles follow a curved path and connect with horizontal rules to right-side information cards.",
+          "position": {
+            "x": 460,
+            "y": 69.5
+          },
+          "elements": [
+            {
+              "type": "group",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 683.1,
+                "height": 584
+              },
+              "children": [
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "size": {
+                    "width": 683.1,
+                    "height": 95
+                  },
+                  "children": [
+                    {
+                      "type": "vector",
+                      "shape": "ellipse",
+                      "points": [
+                        {
+                          "x": 0.4,
+                          "y": 16.94
+                        },
+                        {
+                          "x": 79.94,
+                          "y": 96.48
+                        }
+                      ],
+                      "closed": true,
+                      "fill": {
+                        "color": "#1D3FB7",
+                        "opacity": 1
+                      },
+                      "stroke": {
+                        "color": "#FFFFFF",
+                        "width": 2.6
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 11.95,
+                        "y": 23.08
+                      },
+                      "size": {
+                        "width": 56.43,
+                        "height": 61.84
+                      },
+                      "font": {
+                        "size": 26.66,
+                        "family": "Arial",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.4
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "1",
+                          "font": {
+                            "size": 26.66,
+                            "family": "Arial",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.4
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "timeline_marker_label",
+                      "max_length": 1,
+                      "min_length": 1
+                    },
+                    {
+                      "type": "vector",
+                      "points": [
+                        {
+                          "x": 75.07,
+                          "y": 55.79
+                        },
+                        {
+                          "x": 131.44,
+                          "y": 55.79
+                        }
+                      ],
+                      "closed": false,
+                      "stroke": {
+                        "color": "#1A3DB3",
+                        "width": 1.78
+                      }
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 133.01,
+                        "y": 0.06
+                      },
+                      "size": {
+                        "width": 550.07,
+                        "height": 94.58
+                      },
+                      "fill": {
+                        "color": "#F4F6FB",
+                        "opacity": 1
+                      },
+                      "border_radius": {
+                        "tl": 3,
+                        "tr": 3,
+                        "bl": 3,
+                        "br": 3
+                      },
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 550.07,
+                          "height": 94.58
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 17.41,
+                              "y": 9.52
+                            },
+                            "size": {
+                              "width": 515.25,
+                              "height": 22.07
+                            },
+                            "font": {
+                              "size": 17.77,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Optimize Lead Generation",
+                                "font": {
+                                  "size": 17.77,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "bold": true,
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_title",
+                            "max_length": 24,
+                            "min_length": 12
+                          },
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 17.41,
+                              "y": 35.68
+                            },
+                            "size": {
+                              "width": 515.25,
+                              "height": 48.38
+                            },
+                            "font": {
+                              "size": 12.44,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Enhance lead generation by implementing targeted marketing campaigns, improving lead qualification processes, and leveraging data analytics to attract high-quality prospects with greater conversion potential.",
+                                "font": {
+                                  "size": 12.44,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_body",
+                            "max_length": 208,
+                            "min_length": 104
+                          }
+                        ],
+                        "name": "timeline_card_content"
+                      }
+                    }
+                  ],
+                  "name": "timeline_item_top"
+                },
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 53.58,
+                    "y": 122.37
+                  },
+                  "size": {
+                    "width": 629.5,
+                    "height": 95
+                  },
+                  "children": [
+                    {
+                      "type": "vector",
+                      "shape": "ellipse",
+                      "points": [
+                        {
+                          "x": 0,
+                          "y": 14.54
+                        },
+                        {
+                          "x": 79.54,
+                          "y": 94.08
+                        }
+                      ],
+                      "closed": true,
+                      "fill": {
+                        "color": "#1D3FB7",
+                        "opacity": 1
+                      },
+                      "stroke": {
+                        "color": "#FFFFFF",
+                        "width": 2.6
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 11.56,
+                        "y": 20.69
+                      },
+                      "size": {
+                        "width": 56.43,
+                        "height": 61.84
+                      },
+                      "font": {
+                        "size": 26.66,
+                        "family": "Arial",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.4
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "2",
+                          "font": {
+                            "size": 26.66,
+                            "family": "Arial",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.4
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "timeline_marker_label",
+                      "max_length": 1,
+                      "min_length": 1
+                    },
+                    {
+                      "type": "vector",
+                      "points": [
+                        {
+                          "x": 75.21,
+                          "y": 54.23
+                        },
+                        {
+                          "x": 145.07,
+                          "y": 54.23
+                        }
+                      ],
+                      "closed": false,
+                      "stroke": {
+                        "color": "#1A3DB3",
+                        "width": 1.33
+                      }
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 145.07,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 484.42,
+                        "height": 94.58
+                      },
+                      "fill": {
+                        "color": "#F4F6FB",
+                        "opacity": 1
+                      },
+                      "border_radius": {
+                        "tl": 3,
+                        "tr": 3,
+                        "bl": 3,
+                        "br": 3
+                      },
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 484.42,
+                          "height": 94.58
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 10.1,
+                              "y": 17.53
+                            },
+                            "size": {
+                              "width": 439.14,
+                              "height": 22.07
+                            },
+                            "font": {
+                              "size": 17.77,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Optimize Lead Generation",
+                                "font": {
+                                  "size": 17.77,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "bold": true,
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_title",
+                            "max_length": 24,
+                            "min_length": 12
+                          },
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 10.1,
+                              "y": 43.69
+                            },
+                            "size": {
+                              "width": 439.14,
+                              "height": 32.38
+                            },
+                            "font": {
+                              "size": 12.44,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Enhance lead generation by implementing targeted marketing campaigns, improving lead qualification",
+                                "font": {
+                                  "size": 12.44,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_body",
+                            "max_length": 99,
+                            "min_length": 50
+                          }
+                        ],
+                        "name": "timeline_card_content"
+                      }
+                    }
+                  ],
+                  "name": "timeline_item_upper"
+                },
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 71.89,
+                    "y": 244.69
+                  },
+                  "size": {
+                    "width": 611.2,
+                    "height": 95
+                  },
+                  "children": [
+                    {
+                      "type": "vector",
+                      "shape": "ellipse",
+                      "points": [
+                        {
+                          "x": 0,
+                          "y": 12.21
+                        },
+                        {
+                          "x": 79.54,
+                          "y": 91.75
+                        }
+                      ],
+                      "closed": true,
+                      "fill": {
+                        "color": "#1D3FB7",
+                        "opacity": 1
+                      },
+                      "stroke": {
+                        "color": "#FFFFFF",
+                        "width": 2.6
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 11.55,
+                        "y": 18.35
+                      },
+                      "size": {
+                        "width": 56.43,
+                        "height": 61.84
+                      },
+                      "font": {
+                        "size": 26.66,
+                        "family": "Arial",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.4
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "3",
+                          "font": {
+                            "size": 26.66,
+                            "family": "Arial",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.4
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "timeline_marker_label",
+                      "max_length": 1,
+                      "min_length": 1
+                    },
+                    {
+                      "type": "vector",
+                      "points": [
+                        {
+                          "x": 69.73,
+                          "y": 51.89
+                        },
+                        {
+                          "x": 148.86,
+                          "y": 51.89
+                        }
+                      ],
+                      "closed": false,
+                      "stroke": {
+                        "color": "#1A3DB3",
+                        "width": 1.33
+                      }
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 148.86,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 462.33,
+                        "height": 94.58
+                      },
+                      "fill": {
+                        "color": "#F4F6FB",
+                        "opacity": 1
+                      },
+                      "border_radius": {
+                        "tl": 3,
+                        "tr": 3,
+                        "bl": 3,
+                        "br": 3
+                      },
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 462.33,
+                          "height": 94.58
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 14.97,
+                              "y": 17.52
+                            },
+                            "size": {
+                              "width": 370.22,
+                              "height": 22.07
+                            },
+                            "font": {
+                              "size": 17.77,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Optimize Lead Generation",
+                                "font": {
+                                  "size": 17.77,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "bold": true,
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_title",
+                            "max_length": 24,
+                            "min_length": 12
+                          },
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 14.97,
+                              "y": 43.68
+                            },
+                            "size": {
+                              "width": 372.55,
+                              "height": 32.38
+                            },
+                            "font": {
+                              "size": 12.44,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Enhance lead generation by implementing targeted marketing campaigns, improving lead qualification",
+                                "font": {
+                                  "size": 12.44,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_body",
+                            "max_length": 99,
+                            "min_length": 50
+                          }
+                        ],
+                        "name": "timeline_card_content"
+                      }
+                    }
+                  ],
+                  "name": "timeline_item_middle"
+                },
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 53.58,
+                    "y": 367.01
+                  },
+                  "size": {
+                    "width": 629.5,
+                    "height": 95
+                  },
+                  "children": [
+                    {
+                      "type": "vector",
+                      "shape": "ellipse",
+                      "points": [
+                        {
+                          "x": 0,
+                          "y": 9.86
+                        },
+                        {
+                          "x": 79.54,
+                          "y": 89.4
+                        }
+                      ],
+                      "closed": true,
+                      "fill": {
+                        "color": "#1D3FB7",
+                        "opacity": 1
+                      },
+                      "stroke": {
+                        "color": "#FFFFFF",
+                        "width": 2.6
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 11.56,
+                        "y": 16
+                      },
+                      "size": {
+                        "width": 56.43,
+                        "height": 61.84
+                      },
+                      "font": {
+                        "size": 26.66,
+                        "family": "Arial",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.4
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "4",
+                          "font": {
+                            "size": 26.66,
+                            "family": "Arial",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.4
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "timeline_marker_label",
+                      "max_length": 1,
+                      "min_length": 1
+                    },
+                    {
+                      "type": "vector",
+                      "points": [
+                        {
+                          "x": 75.21,
+                          "y": 48.21
+                        },
+                        {
+                          "x": 145.07,
+                          "y": 48.21
+                        }
+                      ],
+                      "closed": false,
+                      "stroke": {
+                        "color": "#1A3DB3",
+                        "width": 1.33
+                      }
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 143.57,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 485.93,
+                        "height": 94.58
+                      },
+                      "fill": {
+                        "color": "#F4F6FB",
+                        "opacity": 1
+                      },
+                      "border_radius": {
+                        "tl": 3,
+                        "tr": 3,
+                        "bl": 3,
+                        "br": 3
+                      },
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 485.93,
+                          "height": 94.58
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 11.6,
+                              "y": 17.52
+                            },
+                            "size": {
+                              "width": 439.14,
+                              "height": 22.07
+                            },
+                            "font": {
+                              "size": 17.77,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Optimize Lead Generation",
+                                "font": {
+                                  "size": 17.77,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "bold": true,
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_title",
+                            "max_length": 24,
+                            "min_length": 12
+                          },
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 11.6,
+                              "y": 43.68
+                            },
+                            "size": {
+                              "width": 413.45,
+                              "height": 32.38
+                            },
+                            "font": {
+                              "size": 12.44,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Enhance lead generation by implementing targeted marketing campaigns, improving lead qualification",
+                                "font": {
+                                  "size": 12.44,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_body",
+                            "max_length": 99,
+                            "min_length": 50
+                          }
+                        ],
+                        "name": "timeline_card_content"
+                      }
+                    }
+                  ],
+                  "name": "timeline_item_lower"
+                },
+                {
+                  "type": "group",
+                  "position": {
+                    "x": 0,
+                    "y": 489.32
+                  },
+                  "size": {
+                    "width": 683.1,
+                    "height": 95
+                  },
+                  "children": [
+                    {
+                      "type": "vector",
+                      "shape": "ellipse",
+                      "points": [
+                        {
+                          "x": 0.4,
+                          "y": 7.52
+                        },
+                        {
+                          "x": 79.94,
+                          "y": 87.06
+                        }
+                      ],
+                      "closed": true,
+                      "fill": {
+                        "color": "#1D3FB7",
+                        "opacity": 1
+                      },
+                      "stroke": {
+                        "color": "#FFFFFF",
+                        "width": 2.6
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 11.95,
+                        "y": 13.67
+                      },
+                      "size": {
+                        "width": 56.43,
+                        "height": 61.84
+                      },
+                      "font": {
+                        "size": 26.66,
+                        "family": "Arial",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.4
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "5",
+                          "font": {
+                            "size": 26.66,
+                            "family": "Arial",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.4
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "timeline_marker_label",
+                      "max_length": 1,
+                      "min_length": 1
+                    },
+                    {
+                      "type": "vector",
+                      "points": [
+                        {
+                          "x": 75.07,
+                          "y": 47.21
+                        },
+                        {
+                          "x": 131.44,
+                          "y": 47.21
+                        }
+                      ],
+                      "closed": false,
+                      "stroke": {
+                        "color": "#1A3DB3",
+                        "width": 1.78
+                      }
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 133.01,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 550.07,
+                        "height": 94.58
+                      },
+                      "fill": {
+                        "color": "#F4F6FB",
+                        "opacity": 1
+                      },
+                      "border_radius": {
+                        "tl": 3,
+                        "tr": 3,
+                        "bl": 3,
+                        "br": 3
+                      },
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 550.07,
+                          "height": 94.58
+                        },
+                        "children": [
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 17.41,
+                              "y": 9.52
+                            },
+                            "size": {
+                              "width": 515.25,
+                              "height": 22.07
+                            },
+                            "font": {
+                              "size": 17.77,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "bold": true,
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Optimize Lead Generation",
+                                "font": {
+                                  "size": 17.77,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "bold": true,
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_title",
+                            "max_length": 24,
+                            "min_length": 12
+                          },
+                          {
+                            "type": "text",
+                            "position": {
+                              "x": 17.41,
+                              "y": 35.68
+                            },
+                            "size": {
+                              "width": 515.25,
+                              "height": 48.38
+                            },
+                            "font": {
+                              "size": 12.44,
+                              "family": "Arial",
+                              "color": "#000000",
+                              "line_height": 1.29,
+                              "letter_spacing": 0
+                            },
+                            "alignment": {
+                              "horizontal": "left",
+                              "vertical": "top"
+                            },
+                            "runs": [
+                              {
+                                "text": "Enhance lead generation by implementing targeted marketing campaigns, improving lead qualification processes, and leveraging data analytics to attract high-quality prospects with greater conversion potential.",
+                                "font": {
+                                  "size": 12.44,
+                                  "family": "Arial",
+                                  "color": "#000000",
+                                  "line_height": 1.29,
+                                  "letter_spacing": 0
+                                }
+                              }
+                            ],
+                            "decorative": false,
+                            "name": "card_body",
+                            "max_length": 208,
+                            "min_length": 104
+                          }
+                        ],
+                        "name": "timeline_card_content"
+                      }
+                    }
+                  ],
+                  "name": "timeline_item_bottom"
+                }
+              ],
+              "name": "timeline_items_group"
+            }
+          ]
+        },
+        {
+          "id": "footer_page_marker_pv",
+          "description": "A small slide index marker is positioned in the lower right corner as fixed navigation detail.",
+          "position": {
+            "x": 1224.21,
+            "y": 660.93
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 18.16,
+                "height": 18.05
+              },
+              "font": {
+                "size": 14.21,
+                "family": "Arial",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.25
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "26",
+                  "font": {
+                    "size": 14.21,
+                    "family": "Arial",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.25
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "page_marker",
+              "max_length": 2,
+              "min_length": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_quote_with_portrait_3397_pv02",
+      "description": "Presenter avatar video version: Testimonial or leadership quote slide featuring a prominent statement, clear attribution, and an expressive portrait for human-centered storytelling.",
+      "components": [
+        {
+          "id": "corner_accent_background_pv",
+          "description": "Decorative curved image accents positioned in opposite corners to frame the otherwise open slide background.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 1028.07,
+                "y": -245.69
+              },
+              "size": {
+                "width": 206.18,
+                "height": 603.24
+              },
+              "rotation": 127.45,
+              "child": {
+                "type": "image",
+                "position": {
+                  "x": -1185.64,
+                  "y": 0
+                },
+                "size": {
+                  "width": 1463.94,
+                  "height": 823.47
+                },
+                "data": "static/image3-28baa466293d.png",
+                "fit": "fill",
+                "clip_path": "path('M 1185.64 0 L 1391.82 0 L 1391.82 603.2399 L 1185.64 603.2399 L 1185.64 0 Z')",
+                "decorative": true,
+                "name": "top_corner_accent",
+                "is_icon": false
+              }
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": -39.98,
+                "y": 479.08
+              },
+              "size": {
+                "width": 270.04,
+                "height": 516.82
+              },
+              "rotation": 110.61,
+              "child": {
+                "type": "image",
+                "position": {
+                  "x": -779.13,
+                  "y": -124.46
+                },
+                "size": {
+                  "width": 1140.06,
+                  "height": 641.28
+                },
+                "data": "static/image3-28baa466293d.png",
+                "fit": "fill",
+                "clip_path": "path('M 779.13 124.46 L 1049.17 124.46 L 1049.17 641.28 L 779.13 641.28 L 779.13 124.46 Z')",
+                "decorative": true,
+                "name": "bottom_corner_accent",
+                "is_icon": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "large_title_block_pv",
+          "description": "Oversized headline text sits on the left and overlaps the top edge of the quote region.",
+          "position": {
+            "x": 56.67,
+            "y": 132
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 839.79,
+                "height": 160
+              },
+              "rotation": 0,
+              "font": {
+                "size": 88.88,
+                "family": "Lato Heavy",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 0.9,
+                "letter_spacing": -5.95
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Inspirational Quote",
+                  "font": {
+                    "size": 88.88,
+                    "family": "Lato Heavy",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 0.9,
+                    "letter_spacing": -5.95
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "max_length": 20,
+              "min_length": 10
+            }
+          ]
+        },
+        {
+          "id": "framed_quote_panel_pv",
+          "description": "A pale framed quote panel spans the lower center with a decorative quote mark and author line.",
+          "position": {
+            "x": 56.67,
+            "y": 279.58
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 97.74,
+                "y": 11.89
+              },
+              "size": {
+                "width": 675.96,
+                "height": 334.8
+              },
+              "data": "static/freeform_6-3a1e52f1b7cb.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "quote_panel_outline",
+              "is_icon": false
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 3.88
+              },
+              "size": {
+                "width": 122.82,
+                "height": 174
+              },
+              "font": {
+                "size": 177.78,
+                "family": "Anton",
+                "color": "#1A3DB3",
+                "line_height": 0.9,
+                "letter_spacing": -11.91
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "“",
+                  "font": {
+                    "size": 177.78,
+                    "family": "Anton",
+                    "color": "#1A3DB3",
+                    "line_height": 0.9,
+                    "letter_spacing": -11.91
+                  }
+                }
+              ],
+              "decorative": true,
+              "name": "quote_mark_accent",
+              "max_length": 1,
+              "min_length": 1
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 155.27,
+                "y": 100.43
+              },
+              "size": {
+                "width": 413.1,
+                "height": 103.82
+              },
+              "rotation": 0,
+              "font": {
+                "size": 23.1,
+                "family": "Lato",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.41
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Sales are contingent upon the attitude of the salesperson not the attitude of the prospect.",
+                  "font": {
+                    "size": 23.1,
+                    "family": "Lato",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.41
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_body_text",
+              "max_length": 91,
+              "min_length": 46
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 275.66,
+                "y": 206.78
+              },
+              "size": {
+                "width": 330,
+                "height": 34
+              },
+              "font": {
+                "size": 23.1,
+                "family": "Lato Bold",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 1.29,
+                "letter_spacing": 0.41
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "William Clement Stone",
+                  "font": {
+                    "size": 23.1,
+                    "family": "Lato Bold",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 1.29,
+                    "letter_spacing": 0.41
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "quote_author_text",
+              "max_length": 21,
+              "min_length": 11
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 484.55,
+            "y": 279.55
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 189,
+                "height": 336
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "right_portrait_image_pv",
+          "description": "Large cropped portrait positioned on the right, visually overlapping the quote panel and extending to the bottom edge.",
+          "position": {
+            "x": 560.25,
+            "y": 181.87
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 77.46,
+                "y": 95.46
+              },
+              "size": {
+                "width": 372.28,
+                "height": 389.57
+              },
+              "rotation": 0,
+              "data": "/static/images/replaceable_template_image.png",
+              "fit": "cover",
+              "clip_path": "path('M 15.3332 0 L 548.0868 0 C 556.5547 0 563.42 6.8653 563.42 15.3332 L 563.42 548.0868 C 563.42 556.5547 556.5547 563.42 548.0868 563.42 L 15.3332 563.42 C 6.8653 563.42 0 556.5547 0 548.0868 L 0 15.3332 C 0 6.8653 6.8653 0 15.3332 0 Z')",
+              "decorative": false,
+              "name": "portrait_photo",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "footer_page_marker_pv",
+          "description": "Small page marker text placed at the lower-right corner as fixed navigation detail.",
+          "position": {
+            "x": 1224.21,
+            "y": 660.26
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 18.16,
+                "height": 16.88
+              },
+              "font": {
+                "size": 12.44,
+                "family": "Lato",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.22
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "19",
+                  "font": {
+                    "size": 12.44,
+                    "family": "Lato",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.22
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "page_marker",
+              "max_length": 2,
+              "min_length": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_infographic_sections_6705_pv03",
+      "description": "Presenter avatar video version: Infographic explainer for showing how one central metric or concept connects to several supporting themes, drivers, or outcomes.",
+      "components": [
+        {
+          "id": "centered_header_pv",
+          "description": "Large centered heading with a short subtitle placed directly underneath in the upper slide area.",
+          "position": {
+            "x": 290,
+            "y": 49.36
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": -18.19,
+                "y": 0
+              },
+              "size": {
+                "width": 814.81,
+                "height": 86
+              },
+              "rotation": 0,
+              "font": {
+                "size": 88.88,
+                "family": "Lato Heavy",
+                "color": "#000000",
+                "bold": true,
+                "line_height": 0.9,
+                "letter_spacing": -5.95
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Market Analysis",
+                  "font": {
+                    "size": 88.88,
+                    "family": "Lato Heavy",
+                    "color": "#000000",
+                    "bold": true,
+                    "line_height": 0.9,
+                    "letter_spacing": -5.95
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "slide_title",
+              "max_length": 20,
+              "min_length": 8
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 41.73,
+                "y": 105.79
+              },
+              "size": {
+                "width": 620.61,
+                "height": 40.56
+              },
+              "font": {
+                "size": 16,
+                "family": "Lato",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.28
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The market continues to evolve due to changing consumer preferences, technological advancements, and increasing digital adoption.",
+                  "font": {
+                    "size": 16,
+                    "family": "Lato",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.28
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "slide_subtitle",
+              "max_length": 87,
+              "min_length": 65
+            }
+          ]
+        },
+        {
+          "id": "circular_metric_infographic_pv",
+          "description": "Overlapping circular metric visual on the left with centered labels and horizontal connectors toward related explanations.",
+          "position": {
+            "x": 56.67,
+            "y": 234.48
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 82.5,
+                "y": 60.93
+              },
+              "size": {
+                "width": 300,
+                "height": 22
+              },
+              "font": {
+                "size": 17.78,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Online Purchase Preference",
+                  "font": {
+                    "size": 17.78,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "outer_metric_label",
+              "max_length": 26,
+              "min_length": 13
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 162.25,
+                "y": 82.48
+              },
+              "size": {
+                "width": 142.17,
+                "height": 24.62
+              },
+              "font": {
+                "size": 23.11,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "68%",
+                  "font": {
+                    "size": 23.11,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "outer_metric_value",
+              "max_length": 3,
+              "min_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 133,
+                "y": 202.5
+              },
+              "size": {
+                "width": 200,
+                "height": 22
+              },
+              "font": {
+                "size": 17.78,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Online Sales Growth",
+                  "font": {
+                    "size": 17.78,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "middle_metric_label",
+              "max_length": 19,
+              "min_length": 10
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 143.54,
+                "y": 227.09
+              },
+              "size": {
+                "width": 179.57,
+                "height": 24.62
+              },
+              "font": {
+                "size": 23.11,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "+32%",
+                  "font": {
+                    "size": 23.11,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "middle_metric_value",
+              "max_length": 4,
+              "min_length": 2
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 162.25,
+                "y": 347.1
+              },
+              "size": {
+                "width": 142.17,
+                "height": 18.89
+              },
+              "font": {
+                "size": 17.78,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Market Growth",
+                  "font": {
+                    "size": 17.78,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "inner_metric_label",
+              "max_length": 13,
+              "min_length": 7
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 162.25,
+                "y": 371.69
+              },
+              "size": {
+                "width": 142.17,
+                "height": 24.62
+              },
+              "font": {
+                "size": 23.11,
+                "family": "Lato Heavy",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "+18%",
+                  "font": {
+                    "size": 23.11,
+                    "family": "Lato Heavy",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "inner_metric_value",
+              "max_length": 4,
+              "min_length": 2
+            },
+            {
+              "type": "vector",
+              "points": [
+                {
+                  "x": 285.28,
+                  "y": 90
+                },
+                {
+                  "x": 523.33,
+                  "y": 90
+                }
+              ],
+              "closed": false,
+              "opacity": 1,
+              "stroke": {
+                "color": "#1A3DB3",
+                "width": 1.33
+              }
+            },
+            {
+              "type": "vector",
+              "points": [
+                {
+                  "x": 285.28,
+                  "y": 228.73
+                },
+                {
+                  "x": 523.33,
+                  "y": 228.73
+                }
+              ],
+              "closed": false,
+              "opacity": 1,
+              "stroke": {
+                "color": "#1A3DB3",
+                "width": 1.33
+              }
+            },
+            {
+              "type": "vector",
+              "points": [
+                {
+                  "x": 296.2,
+                  "y": 365.32
+                },
+                {
+                  "x": 534.25,
+                  "y": 365.32
+                }
+              ],
+              "closed": false,
+              "opacity": 1,
+              "stroke": {
+                "color": "#1A3DB3",
+                "width": 1.33
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 158.5,
+            "y": 234.31
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 263,
+                "height": 467
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "stacked_explanation_sections_pv",
+          "description": "Vertically stacked explanatory text sections aligned to the right of the circular metric visual.",
+          "position": {
+            "x": 597.14,
+            "y": 314.74
+          },
+          "elements": [
+            {
+              "type": "flex",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 625.94,
+                "height": 346.59
+              },
+              "direction": "column",
+              "align_items": "flex-start",
+              "justify_content": "flex-start",
+              "gap": 64.23,
+              "children": [
+                {
+                  "type": "group",
+                  "size": {
+                    "width": 625.94,
+                    "height": 70.01
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 385.63,
+                        "height": 24.62
+                      },
+                      "font": {
+                        "size": 23.11,
+                        "family": "Lato Heavy",
+                        "color": "#2E3545",
+                        "bold": true,
+                        "line_height": 1
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Consumer Buying Trends",
+                          "font": {
+                            "size": 23.11,
+                            "family": "Lato Heavy",
+                            "color": "#2E3545",
+                            "bold": true,
+                            "line_height": 1
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_heading",
+                      "max_length": 33,
+                      "min_length": 11
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 33.96
+                      },
+                      "size": {
+                        "width": 625.94,
+                        "height": 36.05
+                      },
+                      "font": {
+                        "size": 14.22,
+                        "family": "Lato",
+                        "color": "#000000",
+                        "line_height": 1.29,
+                        "letter_spacing": 0.25
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Customers increasingly prefer convenient, personalized, and digital-first shopping experiences, emphasizing the importance of omnichannel sales strategies and customer engagement.",
+                          "font": {
+                            "size": 14.22,
+                            "family": "Lato",
+                            "color": "#000000",
+                            "line_height": 1.29,
+                            "letter_spacing": 0.25
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_body",
+                      "max_length": 96,
+                      "min_length": 77
+                    }
+                  ],
+                  "name": "explanation_section"
+                },
+                {
+                  "type": "group",
+                  "size": {
+                    "width": 625.94,
+                    "height": 70.01
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 385.63,
+                        "height": 24.62
+                      },
+                      "font": {
+                        "size": 23.11,
+                        "family": "Lato Heavy",
+                        "color": "#2E3545",
+                        "bold": true,
+                        "line_height": 1
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Consumer Buying Trends",
+                          "font": {
+                            "size": 23.11,
+                            "family": "Lato Heavy",
+                            "color": "#2E3545",
+                            "bold": true,
+                            "line_height": 1
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_heading",
+                      "max_length": 33,
+                      "min_length": 11
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 33.96
+                      },
+                      "size": {
+                        "width": 625.94,
+                        "height": 36.05
+                      },
+                      "font": {
+                        "size": 14.22,
+                        "family": "Lato",
+                        "color": "#000000",
+                        "line_height": 1.29,
+                        "letter_spacing": 0.25
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Customers increasingly prefer convenient, personalized, and digital-first shopping experiences, emphasizing the importance of omnichannel sales strategies and customer engagement.",
+                          "font": {
+                            "size": 14.22,
+                            "family": "Lato",
+                            "color": "#000000",
+                            "line_height": 1.29,
+                            "letter_spacing": 0.25
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_body",
+                      "max_length": 96,
+                      "min_length": 77
+                    }
+                  ],
+                  "name": "explanation_section"
+                },
+                {
+                  "type": "group",
+                  "size": {
+                    "width": 625.94,
+                    "height": 70.01
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 385.63,
+                        "height": 24.62
+                      },
+                      "font": {
+                        "size": 23.11,
+                        "family": "Lato Heavy",
+                        "color": "#2E3545",
+                        "bold": true,
+                        "line_height": 1
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Consumer Buying Trends",
+                          "font": {
+                            "size": 23.11,
+                            "family": "Lato Heavy",
+                            "color": "#2E3545",
+                            "bold": true,
+                            "line_height": 1
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_heading",
+                      "max_length": 33,
+                      "min_length": 11
+                    },
+                    {
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 33.96
+                      },
+                      "size": {
+                        "width": 625.94,
+                        "height": 36.05
+                      },
+                      "font": {
+                        "size": 14.22,
+                        "family": "Lato",
+                        "color": "#000000",
+                        "line_height": 1.29,
+                        "letter_spacing": 0.25
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Customers increasingly prefer convenient, personalized, and digital-first shopping experiences, emphasizing the importance of omnichannel sales strategies and customer engagement.",
+                          "font": {
+                            "size": 14.22,
+                            "family": "Lato",
+                            "color": "#000000",
+                            "line_height": 1.29,
+                            "letter_spacing": 0.25
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "section_body",
+                      "max_length": 96,
+                      "min_length": 77
+                    }
+                  ],
+                  "name": "explanation_section"
+                }
+              ],
+              "name": "section_stack",
+              "max_children": 3,
+              "min_children": 3
+            }
+          ]
+        },
+        {
+          "id": "footer_marker_pv",
+          "description": "Small pagination marker positioned near the lower slide edge.",
+          "position": {
+            "x": 1224.21,
+            "y": 660.26
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 18.16,
+                "height": 16.88
+              },
+              "font": {
+                "size": 12.44,
+                "family": "Lato",
+                "color": "#000000",
+                "line_height": 1.29,
+                "letter_spacing": 0.22
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "18",
+                  "font": {
+                    "size": 12.44,
+                    "family": "Lato",
+                    "color": "#000000",
+                    "line_height": 1.29,
+                    "letter_spacing": 0.22
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "page_marker",
+              "max_length": 2,
+              "min_length": 1
+            }
+          ]
+        },
+        {
+          "id": "decorative_corner_accent_pv",
+          "description": "Abstract image accent clipped along the upper corner to frame the slide without carrying content.",
+          "position": {
+            "x": 1184.63,
+            "y": -97.24
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 205.13,
+                "height": 436.44
+              },
+              "rotation": -17.6,
+              "child": {
+                "type": "image",
+                "position": {
+                  "x": -1093.46,
+                  "y": -383.7
+                },
+                "size": {
+                  "width": 1457.99,
+                  "height": 820.14
+                },
+                "data": "static/image3-28baa466293d.png",
+                "fit": "fill",
+                "clip_path": "path('M 1093.46 383.7 L 1298.59 383.7 L 1298.59 820.1399 L 1093.46 820.1399 L 1093.46 383.7 Z')",
+                "decorative": true,
+                "name": "corner_accent",
+                "is_icon": false
+              }
             }
           ]
         }

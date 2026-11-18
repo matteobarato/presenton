@@ -7,6 +7,7 @@ from typing import Any
 
 from .archetypes import placeholder_component
 
+STAGE_W, STAGE_H = 1280, 720
 MIN_IMAGE_AREA = 100_000
 MAX_PLACEHOLDER_WIDTH = 360
 PORTRAIT = 16 / 9
@@ -69,9 +70,14 @@ def derive_layouts(template: dict[str, Any], count: int, start: int) -> list[dic
     for n, (_, layout, (ci, ei, image)) in enumerate(candidates[:count], start):
         new = copy.deepcopy(layout)
         comp = new["components"][ci]
-        w, h = _portrait_box(image["size"]["width"], image["size"]["height"])
-        x = comp["position"]["x"] + image["position"]["x"] + (image["size"]["width"] - w) / 2
-        y = comp["position"]["y"] + image["position"]["y"] + (image["size"]["height"] - h) / 2
+        # The part of the image that is on the stage: a bleeding image must not pull the placeholder off it.
+        left = max(0, comp["position"]["x"] + image["position"]["x"])
+        top = max(0, comp["position"]["y"] + image["position"]["y"])
+        right = min(STAGE_W, comp["position"]["x"] + image["position"]["x"] + image["size"]["width"])
+        bottom = min(STAGE_H, comp["position"]["y"] + image["position"]["y"] + image["size"]["height"])
+        w, h = _portrait_box(right - left, bottom - top)
+        x = left + (right - left - w) / 2
+        y = top + (bottom - top - h) / 2
         del comp["elements"][ei]
         holder = placeholder_component(round(x, 2), round(y, 2), w, h)
         # The placeholder takes the image's place in the layering, just above the component it left.

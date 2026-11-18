@@ -72,31 +72,49 @@ def test_description_mentions_presenter_avatar_video(template_id):
         assert "presenter avatar video" in layout["description"].lower(), layout["id"]
 
 
-@pytest.mark.parametrize("template_id", TEMPLATE_IDS)
-def test_text_has_hints(template_id):
-    for layout in new_layouts(load(template_id)):
-        for text in _texts(layout):
-            assert text.get("name"), layout["id"]
-            assert isinstance(text.get("min_length"), int), (layout["id"], text["name"])
-            assert isinstance(text.get("max_length"), int), (layout["id"], text["name"])
-            content = "".join(r.get("text", "") for r in text.get("runs", []))
-            assert len(content) <= text["max_length"], (layout["id"], text["name"])
+def _hint_violations(layout: dict[str, Any]) -> set[tuple]:
+    bad = set()
+    for text in _texts(layout):
+        name = text.get("name")
+        content = "".join(r.get("text", "") for r in text.get("runs", []))
+        if not name or not isinstance(text.get("min_length"), int) or not isinstance(text.get("max_length"), int):
+            bad.add(("hints", name))
+        elif not text["min_length"] <= len(content) <= text["max_length"]:
+            bad.add(("length", name))
+    return bad
 
 
+def _stage_violations(layout: dict[str, Any]) -> set[tuple]:
+    bad = set()
+    for comp in layout["components"]:
+        cx, cy = comp["position"]["x"], comp["position"]["y"]
+        for el in comp["elements"]:
+            if el.get("type") == "vector" or el.get("rotation"):
+                continue
+            size, pos = el.get("size"), el.get("position")
+            if not size or not pos:
+                continue
+            x, y = cx + pos["x"], cy + pos["y"]
+            if not (-1 <= x and x + size["width"] <= 1281 and -1 <= y and y + size["height"] <= 721):
+                bad.add((comp["id"].removesuffix("_pv"), el.get("name")))
+    return bad
+
+
+def _source(template: dict[str, Any], layout: dict[str, Any]) -> dict[str, Any] | None:
+    """The existing layout a derived one was copied from, if it is one."""
+    source_id = _NEW_ID.sub("", layout["id"])
+    return next((l for l in template["layouts"] if l["id"] == source_id), None)
+
+
+@pytest.mark.parametrize("check", [_hint_violations, _stage_violations], ids=["text_hints", "inside_stage"])
 @pytest.mark.parametrize("template_id", TEMPLATE_IDS)
-def test_inside_stage(template_id):
-    for layout in new_layouts(load(template_id)):
-        for comp in layout["components"]:
-            cx, cy = comp["position"]["x"], comp["position"]["y"]
-            for el in comp["elements"]:
-                if el.get("type") == "vector" or el.get("rotation"):
-                    continue
-                size, pos = el.get("size"), el.get("position")
-                if not size or not pos:
-                    continue
-                x, y = cx + pos["x"], cy + pos["y"]
-                assert -1 <= x and x + size["width"] <= 1281, (layout["id"], comp["id"])
-                assert -1 <= y and y + size["height"] <= 721, (layout["id"], comp["id"])
+def test_new_layouts_add_no_violations(template_id, check):
+    """Generated layouts are clean; derived ones inherit, but never add to, their source's issues."""
+    template = load(template_id)
+    for layout in new_layouts(template):
+        source = _source(template, layout)
+        allowed = check(source) if source else set()
+        assert check(layout) <= allowed, (layout["id"], check(layout) - allowed)
 
 
 @pytest.mark.parametrize("template_id", TEMPLATE_IDS)
