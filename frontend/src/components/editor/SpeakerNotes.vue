@@ -10,9 +10,9 @@ defineProps<{ presentationId: string; slide: Slide | null }>()
 const editor = useEditorStore()
 // Mounted on first open, then kept: the body animates its height instead of popping, and the
 // canvas above (and its slide) shrinks with it.
-const mounted = ref(editor.notesOpen)
+const mounted = ref(editor.footerOpen)
 watch(
-  () => editor.notesOpen,
+  () => editor.footerOpen,
   (open) => {
     if (open) mounted.value = true
   },
@@ -24,16 +24,16 @@ watch(
     <button
       type="button"
       class="flex w-full items-center gap-2 text-[11px] text-[#c5cdd1] hover:text-white"
-      :aria-expanded="editor.notesOpen"
+      :aria-expanded="editor.footerOpen"
       aria-controls="speaker-notes-body"
-      @click="editor.notesOpen = !editor.notesOpen"
+      @click="editor.footerOpen = !editor.footerOpen"
     >
       <MessageSquare class="size-3.5 text-[#919fa7]" aria-hidden="true" />
       <span>Speaker notes</span>
-      <ChevronDown class="size-3.5 transition-transform duration-200" :class="editor.notesOpen && 'rotate-180'" aria-hidden="true" />
+      <ChevronDown class="size-3.5 transition-transform duration-200" :class="editor.footerOpen && 'rotate-180'" aria-hidden="true" />
       <span class="ml-auto text-[9px] text-[#97a3aa] max-[1279px]:hidden">Only you can see these</span>
     </button>
-    <div id="speaker-notes-body" class="disclosure" :data-state="editor.notesOpen ? 'open' : 'closed'" :inert="!editor.notesOpen">
+    <div id="speaker-notes-body" class="disclosure" :data-state="editor.footerOpen ? 'open' : 'closed'" :inert="!editor.footerOpen">
       <div>
         <div class="pt-2.5">
           <NotesStrip v-if="mounted && slide" :presentation-id="presentationId" :slide="slide" />

@@ -1,7 +1,9 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { FOOTER_DEFAULT_HEIGHT } from '@/components/editor/footerHeight'
 
 export type InspectorTabId = 'layers' | 'insert' | 'design' | 'narration'
+export type FooterTab = 'notes' | 'voice'
 
 /** Stable key of a slide; slides mid-stream may not have an id yet. */
 export const slideKey = (s: { id?: string | null; index: number }) => s.id ?? `index-${s.index}`
@@ -29,7 +31,10 @@ export const useEditorStore = defineStore('editor', () => {
   const chatOpen = ref(false)
   const inspectorTab = ref<InspectorTabId>('design')
   const zoom = ref(1)
-  const notesOpen = ref(false)
+  // The tabbed Notes | Voice footer under the slide; height is the raw body px (clamped where it is rendered).
+  const footerOpen = ref(false)
+  const footerTab = ref<FooterTab>('notes')
+  const footerHeight = ref(FOOTER_DEFAULT_HEIGHT)
   const exportOpen = ref(false)
   // Bumped by Cmd/Ctrl+Enter; the navigator opens its layout picker.
   const addSlideRequested = ref(0)
@@ -45,6 +50,10 @@ export const useEditorStore = defineStore('editor', () => {
   function openInsert() {
     inspectorTab.value = 'insert'
     inspectorOpen.value = true
+  }
+  function openFooter(tab: FooterTab) {
+    footerTab.value = tab
+    footerOpen.value = true
   }
   function toggleAsk() {
     chatOpen.value = !chatOpen.value
@@ -88,7 +97,9 @@ export const useEditorStore = defineStore('editor', () => {
     inspectorOpen,
     inspectorTab,
     zoom,
-    notesOpen,
+    footerOpen,
+    footerTab,
+    footerHeight,
     navigatorVisible,
     exportOpen,
     addSlideRequested,
@@ -97,6 +108,7 @@ export const useEditorStore = defineStore('editor', () => {
     openAsk,
     toggleAsk,
     openInsert,
+    openFooter,
     chatOpen,
     select,
     next,
