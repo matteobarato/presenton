@@ -65,7 +65,7 @@ test.describe('mocked backend', () => {
 
     await page.goto('/')
     await expect(page.getByTestId('deck')).toHaveCount(2)
-    await expect(page.getByRole('link', { name: 'Settings (classic app)' })).toHaveAttribute('href', '/settings')
+    await expect(page.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings/text')
 
     await page.getByRole('link', { name: 'Open Quarterly Review' }).click()
     await expect(page).toHaveURL(`/p/${DECK_ID}`)

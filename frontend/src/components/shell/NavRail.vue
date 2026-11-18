@@ -13,6 +13,7 @@ const active = 'bg-[#222b30] text-[#c2e5f5]'
 const libraryActive = computed(() => route.name === 'library' || route.name === 'editor')
 const newActive = computed(() => route.name === 'new' || route.name === 'outline')
 const templatesActive = computed(() => route.name === 'templates' || route.name === 'template')
+const settingsActive = computed(() => route.name === 'settings')
 </script>
 
 <template>
@@ -38,9 +39,9 @@ const templatesActive = computed(() => route.name === 'templates' || route.name 
       <RouterLink :to="{ name: 'templates' }" :class="[link, templatesActive && active]" :aria-current="templatesActive ? 'page' : undefined">
         <LayoutTemplate class="size-[19px] stroke-[1.5]" aria-hidden="true" />Templates
       </RouterLink>
-      <a href="/settings" target="_blank" rel="noopener" aria-label="Settings (classic app)" :class="link">
+      <RouterLink :to="{ name: 'settings', params: { section: 'text' } }" :class="[link, settingsActive && active]" :aria-current="settingsActive ? 'page' : undefined">
         <Settings2 class="size-[19px] stroke-[1.5]" aria-hidden="true" />Settings
-      </a>
+      </RouterLink>
     </div>
 
     <div class="mt-auto flex w-full flex-col items-center gap-[25px] px-2 max-[760px]:px-[5px]">

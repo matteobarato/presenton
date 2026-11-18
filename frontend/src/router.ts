@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type Router } from 'vue-router'
 import { safeNext } from '@/lib/safe-next'
+import { SETTINGS_SECTIONS } from '@/settings/types'
 import { useSessionStore } from '@/stores/session'
 
 declare module 'vue-router' {
@@ -21,6 +22,17 @@ export const router = createRouter({
     { path: '/p/:id/present', name: 'present', component: () => import('@/views/PresentView.vue'), meta: { layout: 'bare' } },
     { path: '/templates', name: 'templates', component: () => import('@/views/TemplatesView.vue'), meta: { layout: 'app' } },
     { path: '/templates/:id', name: 'template', component: () => import('@/views/TemplateDetailView.vue'), meta: { layout: 'app' } },
+    { path: '/settings', redirect: '/settings/text' },
+    {
+      path: '/settings/:section',
+      name: 'settings',
+      component: () => import('@/views/SettingsView.vue'),
+      meta: { layout: 'app' },
+      beforeEnter: (to) =>
+        (SETTINGS_SECTIONS as string[]).includes(String(to.params.section))
+          ? true
+          : { name: 'settings', params: { section: 'text' } },
+    },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue'), meta: { layout: 'app' } },
   ],
 })

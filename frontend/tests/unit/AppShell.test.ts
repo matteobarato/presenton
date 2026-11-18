@@ -21,6 +21,7 @@ async function mountShell(path = '/') {
       { path: '/p/:id', name: 'editor', component: view },
       { path: '/templates', name: 'templates', component: view },
       { path: '/templates/:id', name: 'template', component: view },
+      { path: '/settings/:section', name: 'settings', component: view },
       { path: '/login', name: 'login', component: view },
     ],
   })
@@ -71,7 +72,7 @@ describe('AppShell', () => {
     const nav = wrapper.get('nav[aria-label="Main"]')
     expect(nav.get('a[href="/"]:not([aria-label])').text()).toBe('Library')
     expect(nav.get('a[href="/new"]').text()).toBe('New')
-    expect(nav.find('[aria-label="Settings (classic app)"]').exists()).toBe(true)
+    expect(nav.get('a[href="/settings/text"]').text()).toBe('Settings')
     expect(nav.find('button[aria-label="Account menu"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('page')
   })
@@ -84,10 +85,13 @@ describe('AppShell', () => {
     expect(wrapper.get('nav[aria-label="Main"] a[href="/new"]').attributes('aria-current')).toBeUndefined()
   })
 
-  it('opens Settings in a new tab', async () => {
-    const wrapper = await mountShell()
-    const settings = wrapper.get('a[aria-label="Settings (classic app)"]')
-    expect(settings.attributes('href')).toBe('/settings')
-    expect(settings.attributes('target')).toBe('_blank')
+  it('links Settings inside the app and marks it current on settings routes', async () => {
+    const wrapper = await mountShell('/settings/images')
+    const settings = wrapper.get('nav[aria-label="Main"] a[href="/settings/text"]')
+    expect(settings.text()).toBe('Settings')
+    expect(settings.attributes('target')).toBeUndefined()
+    expect(settings.attributes('aria-label')).toBeUndefined()
+    expect(settings.attributes('aria-current')).toBe('page')
+    expect(wrapper.find('[aria-label="Settings (classic app)"]').exists()).toBe(false)
   })
 })

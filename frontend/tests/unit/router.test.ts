@@ -12,6 +12,7 @@ describe('router', () => {
     expect(router.resolve({ name: 'present', params: { id: 'x' } }).path).toBe('/p/x/present')
     expect(router.resolve({ name: 'templates' }).path).toBe('/templates')
     expect(router.resolve({ name: 'template', params: { id: 'x' } }).path).toBe('/templates/x')
+    expect(router.resolve({ name: 'settings', params: { section: 'text' } }).path).toBe('/settings/text')
     expect(router.resolve('/nope/nothing').name).toBe('not-found')
   })
 
@@ -25,8 +26,21 @@ describe('router', () => {
     for (const name of ['login', 'setup', 'present']) {
       expect(router.resolve({ name, params: { id: 'x' } }).meta.layout).toBe('bare')
     }
-    for (const name of ['library', 'new', 'outline', 'editor', 'templates', 'template', 'not-found']) {
-      expect(router.resolve({ name, params: { id: 'x' } }).meta.layout).toBe('app')
+    for (const name of ['library', 'new', 'outline', 'editor', 'templates', 'template', 'settings', 'not-found']) {
+      expect(router.resolve({ name, params: { id: 'x', section: 'text' } }).meta.layout).toBe('app')
     }
+  })
+
+  it('redirects /settings and unknown sections to /settings/text', async () => {
+    // beforeEnter runs on entering the record, so start each case from outside it.
+    const visit = async (path: string) => {
+      await router.push('/templates')
+      await router.push(path)
+      return router.currentRoute.value.fullPath
+    }
+    expect(await visit('/settings')).toBe('/settings/text')
+    expect(await visit('/settings/images')).toBe('/settings/images')
+    expect(await visit('/settings/bogus')).toBe('/settings/text')
+    expect(await visit('/settings/web-search')).toBe('/settings/web-search')
   })
 })
