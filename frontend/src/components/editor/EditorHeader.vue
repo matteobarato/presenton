@@ -4,6 +4,7 @@ import { RouterLink, useRouter } from 'vue-router'
 import { useIsMutating, useQueryClient } from '@tanstack/vue-query'
 import {
   AudioLines,
+  UserRound,
   ChevronDown,
   ChevronRight,
   CloudCheck,
@@ -196,7 +197,10 @@ const iconBtn =
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem @select="editor.openFooter('voice')">
-              <AudioLines class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Narration and avatars
+              <AudioLines class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Narration
+            </DropdownMenuItem>
+            <DropdownMenuItem @select="editor.openAvatar()">
+              <UserRound class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Avatars
             </DropdownMenuItem>
             <DropdownMenuItem @select="editor.exportOpen = true">
               <Download class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Export PPTX, PDF or video…

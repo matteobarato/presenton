@@ -27,3 +27,15 @@ describe('editor store footer', () => {
     expect(editor.footerTab).toBe('notes')
   })
 })
+
+describe('editor store inspector', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+
+  it('openAvatar selects the Avatar tab and opens a closed inspector', () => {
+    const editor = useEditorStore()
+    editor.inspectorOpen = false
+    editor.openAvatar()
+    expect(editor.inspectorTab).toBe('avatar')
+    expect(editor.inspectorOpen).toBe(true)
+  })
+})

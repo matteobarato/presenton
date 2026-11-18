@@ -87,6 +87,11 @@ test.describe('mocked backend', () => {
     await thumbnails.nth(2).click()
     await expect(voice).toHaveAttribute('data-state', 'missing')
 
+    // Avatar video options are in the sidebar's Avatar tab, never in the footer.
+    await expect(page.getByTestId('slide-avatar')).toHaveCount(0)
+    await page.getByRole('tab', { name: 'Avatar' }).click()
+    await expect(page.getByTestId('slide-avatar')).toBeVisible()
+
     // Present starts from the selected slide (the third).
     await page.locator('header').getByRole('link', { name: 'Present' }).click()
     await expect(page).toHaveURL(`/p/${DECK_ID}/present?from=2`)
@@ -415,8 +420,8 @@ test.describe('on-slide editing (mocked)', () => {
       const list = page.getByRole('tablist', { name: 'Inspector sections' })
       await expect(list).toBeVisible()
       const tabs = list.getByRole('tab')
-      await expect(tabs).toHaveCount(3)
-      for (const name of ['Layers', 'Insert', 'Design']) {
+      await expect(tabs).toHaveCount(4)
+      for (const name of ['Layers', 'Insert', 'Design', 'Avatar']) {
         await page.getByRole('tab', { name }).click()
         await expect(page.getByRole('tab', { name })).toHaveAttribute('aria-selected', 'true')
         const fit = await list.evaluate((el) => {

@@ -4,7 +4,7 @@ import { Film } from 'lucide-vue-next'
 import type { Slide } from '@/api/types'
 import { useSlideVideo } from '@/api/videos'
 
-/** The avatar placeholder's video, previewed. Uploading and generating stay in the Voice tab. */
+/** The avatar placeholder's video, previewed. Uploading and generating stay in the Avatar tab. */
 const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 
 const { video, src, isPending } = useSlideVideo(() => props.presentationId, () => props.slide?.index)
@@ -36,7 +36,7 @@ const name = computed(() =>
     >
       <Film class="size-5" aria-hidden="true" />
       <span v-if="isPending">Loading video…</span>
-      <span v-else>No video on this slide yet. Upload or generate one in the Voice tab.</span>
+      <span v-else>No video on this slide yet. Upload or generate one in the Avatar tab.</span>
     </div>
   </div>
 </template>
