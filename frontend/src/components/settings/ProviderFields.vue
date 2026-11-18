@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, toRef, watch, type Component } from 'vue'
 import { Loader2 } from 'lucide-vue-next'
+import BedrockFields from '@/components/settings/BedrockFields.vue'
 import ModelCombobox from '@/components/settings/ModelCombobox.vue'
 import SecretInput from '@/components/settings/SecretInput.vue'
+import VertexAzureFields from '@/components/settings/VertexAzureFields.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useModelDiscovery } from '@/composables/useModelDiscovery'
@@ -12,10 +14,14 @@ import type { ProviderConfig } from '@/settings/types'
 const props = defineProps<{ row: TextProviderRow; config: ProviderConfig }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
 
-// Rows with `fields` use a dedicated component (props `{ row, config }`, emit `set`).
-// Tasks 10-11 register theirs here with one line per row; until then those rows render nothing.
-const DEDICATED: Partial<Record<NonNullable<TextProviderRow['fields']>, Component>> = {}
-const dedicated = computed(() => (props.row.fields ? DEDICATED[props.row.fields] : undefined))
+// Rows with `fields` use a dedicated component; each entry maps the row to that component's props
+// (every one emits `set: [field, value]`). Task 11 registers `ollama` with one line here.
+type DedicatedEntry = (row: TextProviderRow, config: ProviderConfig) => { component: Component; props: Record<string, unknown> }
+const DEDICATED: Partial<Record<NonNullable<TextProviderRow['fields']>, DedicatedEntry>> = {
+  'vertex-azure': (row, config) => ({ component: VertexAzureFields, props: { provider: row.value, config } }),
+  bedrock: (_row, config) => ({ component: BedrockFields, props: { config } }),
+}
+const dedicated = computed(() => (props.row.fields ? DEDICATED[props.row.fields]?.(props.row, props.config) : undefined))
 
 const { models, checked, loading, check } = useModelDiscovery({
   row: toRef(props, 'row'),
@@ -48,7 +54,15 @@ watch(
 </script>
 
 <template>
-  <component :is="dedicated" v-if="row.fields" :row="row" :config="config" @set="(f: string, v: unknown) => emit('set', f, v)" />
+  <template v-if="row.fields">
+    <component
+      :is="dedicated.component"
+      v-if="dedicated"
+      :key="row.value"
+      v-bind="dedicated.props"
+      @set="(f: string, v: unknown) => emit('set', f, v)"
+    />
+  </template>
 
   <div v-else class="grid gap-4">
     <div v-if="row.keyField" class="min-w-0">

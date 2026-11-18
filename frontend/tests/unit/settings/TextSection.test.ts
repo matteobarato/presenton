@@ -145,13 +145,24 @@ describe('TextSection', () => {
     expect((set.get('details').element as HTMLDetailsElement).open).toBe(true)
   })
 
-  it('renders nothing for the dedicated-field providers until their components land', () => {
-    for (const LLM of ['ollama', 'vertex', 'azure', 'bedrock']) {
+  it('renders the dedicated components for vertex, azure and bedrock', () => {
+    const expected: Record<string, string> = {
+      vertex: 'Vertex AI API key',
+      azure: 'Azure endpoint',
+      bedrock: 'AWS Access Key ID',
+    }
+    for (const [LLM, label] of Object.entries(expected)) {
       const w = mountSection({ LLM })
-      expect(w.find('input').exists()).toBe(false)
+      expect(w.text()).toContain(label)
       expect(w.text()).not.toContain('Check models')
       w.unmount()
     }
+  })
+
+  it('still renders nothing for ollama until its component lands', () => {
+    const w = mountSection({ LLM: 'ollama' })
+    expect(w.find('input').exists()).toBe(false)
+    expect(w.text()).not.toContain('Check models')
   })
 
   describe('model discovery', () => {

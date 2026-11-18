@@ -1,0 +1,169 @@
+<script setup lang="ts">
+// Ported from servers/nextjs/components/VertexAzureManualFields.tsx
+import { computed, ref, watch } from 'vue'
+import SecretInput from '@/components/settings/SecretInput.vue'
+import { Input } from '@/components/ui/input'
+import type { ProviderConfig } from '@/settings/types'
+
+const props = defineProps<{ provider: 'vertex' | 'azure'; config: ProviderConfig }>()
+const emit = defineEmits<{ set: [field: string, value: unknown] }>()
+
+function text(field: string): string {
+  const value = props.config[field]
+  return typeof value === 'string' ? value : ''
+}
+function has(field: string): boolean {
+  return text(field).trim() !== ''
+}
+
+const hasAdvancedContent = () => has('VERTEX_PROJECT') || has('VERTEX_LOCATION') || has('VERTEX_BASE_URL')
+
+// Starts open when it already has a value, and opens when one arrives later; the user can still toggle it.
+const advancedOpen = ref(hasAdvancedContent())
+watch(
+  () => [text('VERTEX_PROJECT'), text('VERTEX_LOCATION'), text('VERTEX_BASE_URL')],
+  () => {
+    if (hasAdvancedContent()) advancedOpen.value = true
+  },
+)
+
+// Legacy Azure configs used a deployment name and a base URL; fold them into the model and endpoint-only setup.
+watch(
+  () => [props.provider, text('AZURE_OPENAI_BASE_URL'), text('AZURE_OPENAI_DEPLOYMENT'), text('AZURE_OPENAI_MODEL')],
+  () => {
+    if (props.provider !== 'azure') return
+    if (has('AZURE_OPENAI_DEPLOYMENT') && !has('AZURE_OPENAI_MODEL')) {
+      emit('set', 'AZURE_OPENAI_MODEL', text('AZURE_OPENAI_DEPLOYMENT'))
+    }
+    if (has('AZURE_OPENAI_BASE_URL')) emit('set', 'AZURE_OPENAI_BASE_URL', '')
+    if (has('AZURE_OPENAI_DEPLOYMENT')) emit('set', 'AZURE_OPENAI_DEPLOYMENT', '')
+  },
+  { immediate: true },
+)
+
+const keyField = computed(() => (props.provider === 'vertex' ? 'VERTEX_API_KEY' : 'AZURE_OPENAI_API_KEY'))
+const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API key' : 'Azure OpenAI API key'))
+</script>
+
+<template>
+  <div class="grid min-w-0 gap-4">
+    <SecretInput
+      :id="`${provider}-api-key`"
+      :model-value="text(keyField)"
+      :label="keyLabel"
+      :placeholder="`Enter your ${keyLabel}`"
+      @update:model-value="emit('set', keyField, $event)"
+    />
+
+    <template v-if="provider === 'vertex'">
+      <div class="min-w-0">
+        <label for="vertex-model" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Model</label>
+        <Input
+          id="vertex-model"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="e.g. gemini-2.5-flash"
+          :model-value="text('VERTEX_MODEL')"
+          @update:model-value="emit('set', 'VERTEX_MODEL', String($event))"
+        />
+      </div>
+
+      <details
+        class="min-w-0"
+        :open="advancedOpen"
+        @toggle="advancedOpen = ($event.target as HTMLDetailsElement).open"
+      >
+        <summary
+          class="mb-2 cursor-pointer text-[12px] font-medium text-[#dbe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          Advanced settings
+        </summary>
+        <div class="grid gap-4">
+          <div class="min-w-0">
+            <label for="vertex-project" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Project ID</label>
+            <Input
+              id="vertex-project"
+              type="text"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="Optional"
+              :model-value="text('VERTEX_PROJECT')"
+              @update:model-value="emit('set', 'VERTEX_PROJECT', String($event))"
+            />
+          </div>
+          <div class="min-w-0">
+            <label for="vertex-location" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Region</label>
+            <Input
+              id="vertex-location"
+              type="text"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="e.g. us-central1"
+              :model-value="text('VERTEX_LOCATION')"
+              @update:model-value="emit('set', 'VERTEX_LOCATION', String($event))"
+            />
+          </div>
+          <div class="min-w-0">
+            <label for="vertex-base-url" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Custom endpoint</label>
+            <Input
+              id="vertex-base-url"
+              type="text"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="Optional"
+              :model-value="text('VERTEX_BASE_URL')"
+              @update:model-value="emit('set', 'VERTEX_BASE_URL', String($event))"
+            />
+          </div>
+        </div>
+      </details>
+    </template>
+
+    <template v-else>
+      <div class="min-w-0">
+        <label for="azure-endpoint" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Azure endpoint</label>
+        <Input
+          id="azure-endpoint"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="https://your-resource.openai.azure.com"
+          :model-value="text('AZURE_OPENAI_ENDPOINT')"
+          @update:model-value="emit('set', 'AZURE_OPENAI_ENDPOINT', String($event))"
+        />
+      </div>
+      <div class="min-w-0">
+        <label for="azure-model" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Model name</label>
+        <Input
+          id="azure-model"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="e.g. gpt-5.4-mini"
+          :model-value="text('AZURE_OPENAI_MODEL')"
+          @update:model-value="emit('set', 'AZURE_OPENAI_MODEL', String($event))"
+        />
+      </div>
+      <div class="min-w-0">
+        <label for="azure-api-version" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">API version</label>
+        <Input
+          id="azure-api-version"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="e.g. 2024-12-01-preview"
+          :model-value="text('AZURE_OPENAI_API_VERSION')"
+          @update:model-value="emit('set', 'AZURE_OPENAI_API_VERSION', String($event))"
+        />
+      </div>
+    </template>
+  </div>
+</template>
