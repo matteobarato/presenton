@@ -6,7 +6,6 @@ import NumberField from '@/components/editor/inspector/controls/NumberField.vue'
 import { field, label, section } from '@/components/editor/inspector/controls/styles'
 import {
   addItem,
-  infographicGroup,
   itemStats,
   readColors,
   readMeter,
@@ -17,24 +16,18 @@ import {
   setTextColor,
   type Meter,
 } from '@/slide-editor/infographicOps'
-import { dataRoot } from '@/slide-editor/dataRoot'
 import { getElementAtSelection, updateElementInUi, type ElementSelection, type RawElement } from '@/slide-editor/model'
 import { themePalette } from '@/slide-editor/themePalette'
 import { useEditingActions } from '@/slide-editor/useEditingActions'
-import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 
 import InfographicItemsDialog from './InfographicItemsDialog.vue'
+import { useInfographicControls } from './useInfographicControls'
 
 const props = defineProps<{ presentation: Presentation }>()
 
-const ctx = useSlideEditingContext()
+const { ctx, root, raw, group } = useInfographicControls()
 const actions = useEditingActions(ctx)
 const palette = computed(() => themePalette(props.presentation))
-
-/** The infographic (it can sit inside a selected component). */
-const root = computed<ElementSelection | null>(() => dataRoot(ctx.ui.value, ctx.selection.value, 'infographic'))
-const raw = computed<RawElement | null>(() => (ctx.ui.value && root.value ? getElementAtSelection(ctx.ui.value, root.value) : null))
-const group = computed(() => (raw.value ? infographicGroup(raw.value) : null))
 const meter = computed(() => (raw.value ? readMeter(raw.value) : null))
 const colours = computed(() => (raw.value ? readColors(raw.value) : []))
 const textColour = computed(() => (raw.value ? readTextColor(raw.value) : null))
