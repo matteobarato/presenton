@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { reactive } from 'vue'
 import { ArrowLeftRight } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
 import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
@@ -8,42 +8,12 @@ import NumberField from '@/components/editor/inspector/controls/NumberField.vue'
 import SegmentedControl from '@/components/editor/inspector/controls/SegmentedControl.vue'
 import { field, label, section, segment } from '@/components/editor/inspector/controls/styles'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import {
-  VECTOR_MARKERS,
-  readMarkers,
-  readShapeStyle,
-  setDash,
-  setMarkers,
-  setStroke,
-  swapMarkers,
-  type DashStyle,
-  type VectorMarker,
-} from '@/slide-editor/elementStyle'
-import type { ElementSelection } from '@/slide-editor/model'
-import { themePalette } from '@/slide-editor/themePalette'
-import { useSelectedElement } from '@/slide-editor/useSelectedElement'
-import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import { VECTOR_MARKERS, type VectorMarker } from '@/slide-editor/elementStyle'
+import { useShapeControls } from './useShapeControls'
 
 const props = defineProps<{ presentation: Presentation }>()
 
-const { element, patch, capture } = useSelectedElement(useSlideEditingContext())
-const style = computed(() => (element.value ? readShapeStyle(element.value) : null))
-const markers = computed(() => (element.value ? readMarkers(element.value) : null))
-const palette = computed(() => themePalette(props.presentation))
-
-// The target when a colour popover opened or a number field took focus (see ShapeSection).
-let anchor: ElementSelection | null = null
-// Consumed by the commit it was held for; survives selection changes in between (blur commits arrive after the click).
-const hold = () => (anchor = capture())
-const at = () => {
-  const held = anchor ?? undefined
-  anchor = null
-  return held
-}
-
-const color = (value: string | null) => value && patch('Stroke', (el) => setStroke(el, { color: value }), at())
-const width = (value: number) => patch('Stroke', (el) => setStroke(el, { width: value }), at())
-const dash = (value: string) => patch('Stroke', (el) => setDash(el, value as DashStyle))
+const { style, markers, palette, hold, strokeColor: color, strokeWidth: width, strokeDash: dash, setMarker, swap } = useShapeControls(() => props.presentation)
 
 const ENDS = [
   { side: 'start', label: 'Start' },
@@ -54,12 +24,8 @@ const labelOf = (marker: VectorMarker) => VECTOR_MARKERS.find((m) => m.value ===
 
 function pick(side: 'start' | 'end', marker: VectorMarker) {
   open[side] = false
-  patch('Line ends', (el) => {
-    const current = readMarkers(el)
-    return side === 'start' ? setMarkers(el, marker, current.end) : setMarkers(el, current.start, marker)
-  })
+  setMarker(side, marker)
 }
-const swap = () => patch('Line ends', swapMarkers)
 
 const DASHES = [
   { value: 'solid', label: 'Solid' },
