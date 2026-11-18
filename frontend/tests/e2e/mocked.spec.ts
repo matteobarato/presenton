@@ -871,3 +871,188 @@ test.describe('layout and infographic editing (mocked)', () => {
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 })
+
+// --- Settings ----------------------------------------------------------------------------------
+
+const ADMIN_CONFIG = {
+  LLM: 'openai',
+  OPENAI_API_KEY: 'sk-test-fake',
+  OPENAI_MODEL: 'gpt-4.1',
+  DISABLE_IMAGE_GENERATION: true,
+  WEB_GROUNDING: false,
+}
+const PROVIDER_SETTINGS = '/api/v1/admin/provider-settings'
+
+test.describe('settings (mocked)', () => {
+  /** Serves the admin provider settings and records every PUT body and every runtime-config request. */
+  async function settingsApi(page: Page, overrides: Record<string, Handler> = {}) {
+    const puts: Record<string, unknown>[] = []
+    const requests = { providerSettings: 0, runtimeConfig: 0 }
+    const unexpected = await mockApi(page, {
+      'GET /api/runtime-config': (route) => {
+        requests.runtimeConfig += 1
+        return json({ configured: true, config: { PRESENTATION_GENERATION_MODE: 'standard' } })(route)
+      },
+      [`GET ${PROVIDER_SETTINGS}`]: (route) => {
+        requests.providerSettings += 1
+        return json(ADMIN_CONFIG)(route)
+      },
+      [`PUT ${PROVIDER_SETTINGS}`]: (route) => {
+        const body = route.request().postDataJSON() as Record<string, unknown>
+        puts.push(body)
+        return json(body)(route)
+      },
+      'POST /api/v1/ppt/anthropic/models/available': json(['claude-sonnet-4-20250514', 'claude-haiku-4-5']),
+      // The Advanced panel asks for the token default of the current provider.
+      'POST /api/v1/ppt/generation/defaults': json({ default_max_output_tokens: 8192 }),
+      ...overrides,
+    })
+    return { puts, requests, unexpected }
+  }
+
+  async function pickAnthropic(page: Page) {
+    await page.getByRole('combobox', { name: 'Text provider' }).click()
+    await page.getByRole('option', { name: /^Anthropic/ }).click()
+  }
+
+  const toast = (page: Page, title: string) => page.locator('[data-sonner-toast]').filter({ hasText: title })
+
+  test('rail Settings link opens the in-app settings page', async ({ page }) => {
+    const { unexpected } = await settingsApi(page)
+    const popups: unknown[] = []
+    page.context().on('page', (p) => popups.push(p.url()))
+
+    await page.goto('/')
+    await expect(page.getByTestId('deck')).toHaveCount(2)
+    await page.getByRole('link', { name: 'Settings' }).click()
+
+    await expect(page).toHaveURL('/settings/text')
+    await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).locator('[aria-current="page"]')).toHaveText('Settings')
+    await expect(page.getByRole('heading', { name: 'Settings', level: 1 })).toBeVisible()
+    await expect(page.getByRole('combobox', { name: 'Text provider' })).toBeVisible()
+    expect(popups).toEqual([])
+    expect(page.context().pages()).toHaveLength(1)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('admin switches to Anthropic and saves', async ({ page }) => {
+    const { puts, requests, unexpected } = await settingsApi(page)
+    await page.goto('/settings/text')
+    await expect(page.getByRole('combobox', { name: 'Text provider' })).toBeVisible()
+    const runtimeBefore = requests.runtimeConfig
+    expect(runtimeBefore).toBeGreaterThan(0)
+
+    await pickAnthropic(page)
+    await page.getByLabel('Anthropic API key').fill('sk-ant-test-fake')
+    await page.getByRole('button', { name: 'Check models' }).click()
+
+    await page.getByRole('combobox', { name: /Anthropic model ID/ }).click()
+    await page.getByRole('option', { name: 'claude-sonnet-4-20250514' }).click()
+    await expect(page.getByRole('combobox', { name: /Anthropic model ID/ })).toContainText('claude-sonnet-4-20250514')
+
+    await expect(page.getByText('You have unsaved changes.')).toBeVisible()
+    await page.getByRole('button', { name: 'Save', exact: true }).click()
+
+    await expect(toast(page, 'Settings saved')).toBeVisible()
+    await expect(page.getByText('You have unsaved changes.')).toHaveCount(0)
+    await expect.poll(() => requests.runtimeConfig).toBeGreaterThan(runtimeBefore)
+
+    expect(puts).toHaveLength(1)
+    const body = puts[0]!
+    expect(body).toMatchObject({
+      LLM: 'anthropic',
+      ANTHROPIC_API_KEY: 'sk-ant-test-fake',
+      ANTHROPIC_MODEL: 'claude-sonnet-4-20250514',
+    })
+    expect(Object.keys(body).filter((k) => /^(CODEX_|PRESENTON_)/.test(k))).toEqual([])
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('admin save with a missing key shows the validation toast and sends no request', async ({ page }) => {
+    const { puts, unexpected } = await settingsApi(page)
+    await page.goto('/settings/text')
+    await pickAnthropic(page)
+    await page.getByRole('button', { name: 'Save', exact: true }).click()
+
+    const message = toast(page, 'Cannot save settings')
+    await expect(message).toBeVisible()
+    await expect(message).toContainText('Anthropic API key is required.')
+    expect(puts).toHaveLength(0)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('regular user sees the read-only summary', async ({ page }) => {
+    const { requests, unexpected } = await settingsApi(page, {
+      'GET /api/v1/auth/status': json({ configured: true, authenticated: true, username: 'e2e', role: 'user' }),
+      'GET /api/runtime-config': json({
+        configured: true,
+        config: { LLM: 'openai', OPENAI_MODEL: 'gpt-4.1', OPENAI_API_KEY: '__configured__' },
+      }),
+    })
+    await page.goto('/settings/text')
+
+    const card = page.locator('section.workspace-card')
+    await expect(card.getByText('An administrator manages these settings.')).toBeVisible()
+    await expect(card.locator('input')).toHaveCount(0)
+    await expect(page.locator('body')).not.toContainText('__configured__')
+    expect(requests.providerSettings).toBe(0)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('locked deployment shows the locked message', async ({ page }) => {
+    const { unexpected } = await settingsApi(page, {
+      [`GET ${PROVIDER_SETTINGS}`]: json({ detail: 'Forbidden' }, 403),
+    })
+    await page.goto('/settings/text')
+    await expect(page.getByText('Provider settings are locked by this deployment.')).toBeVisible()
+    await expect(page.locator('section.workspace-card input')).toHaveCount(0)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('leaving with unsaved changes asks for confirmation', async ({ page }) => {
+    const { unexpected } = await settingsApi(page)
+    const prompts: string[] = []
+    let accept = false
+    page.on('dialog', (dialog) => {
+      prompts.push(dialog.message())
+      return accept ? dialog.accept() : dialog.dismiss()
+    })
+
+    await page.goto('/settings/text')
+    await pickAnthropic(page)
+    await page.getByLabel('Anthropic API key').fill('sk-ant-test-fake')
+    await expect(page.getByText('You have unsaved changes.')).toBeVisible()
+
+    const library = page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Library' })
+    await library.click()
+    await expect.poll(() => prompts.length).toBe(1)
+    expect(prompts[0]).toContain('unsaved changes')
+    await expect(page).toHaveURL('/settings/text')
+    await expect(page.getByLabel('Anthropic API key')).toHaveValue('sk-ant-test-fake')
+
+    accept = true
+    await library.click()
+    await expect(page).toHaveURL('/')
+    expect(prompts).toHaveLength(2)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('a failed save keeps the draft', async ({ page }) => {
+    const { unexpected } = await settingsApi(page, {
+      [`PUT ${PROVIDER_SETTINGS}`]: json({ detail: 'Database is down' }, 500),
+    })
+    await page.goto('/settings/text')
+    await pickAnthropic(page)
+    await page.getByLabel('Anthropic API key').fill('sk-ant-test-fake')
+    // Checking models selects the preferred model, so the draft is valid and the PUT is sent.
+    await page.getByRole('button', { name: 'Check models' }).click()
+    await expect(page.getByRole('combobox', { name: /Anthropic model ID/ })).toContainText('claude-sonnet-4-20250514')
+    await page.getByRole('button', { name: 'Save', exact: true }).click()
+
+    await expect(toast(page, 'Could not save settings')).toBeVisible()
+    await expect(page.getByText('You have unsaved changes.')).toBeVisible()
+    await expect(page.getByLabel('Anthropic API key')).toHaveValue('sk-ant-test-fake')
+    await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled()
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+})

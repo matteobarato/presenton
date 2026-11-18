@@ -12,9 +12,9 @@ PPTX/PDF/MP4 export), and present mode with a narrated preview.
 
 - **Template-based generation only.** There is no Smart mode in the create screen and no
   `slide/edit-html`. Smart slides in existing decks still render, but get no smart-specific features.
-- Out of scope until later phases: direct on-slide editing (Phase 2); settings and providers, admin,
-  template management, fonts, community and onboarding (Phase 3). The nav rail's **Settings (classic app)**
-  link opens the old app's `/settings` in a new tab.
+- Out of scope until later phases: direct on-slide editing (Phase 2); admin, template management, fonts,
+  community and onboarding (Phase 3). Settings and providers are now native at `/settings/:section`
+  (`text`, `images`, `web-search`, `account`); the nav rail's **Settings** link opens it in-app.
 
 The design spec is `docs/superpowers/specs/2026-11-06-vue-frontend-phase1-design.md`.
 
