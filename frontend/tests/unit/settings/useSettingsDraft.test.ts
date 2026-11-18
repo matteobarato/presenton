@@ -110,6 +110,114 @@ describe('useSettingsDraft', () => {
     expect(d.dirty.value).toBe(true)
   })
 
+  describe('dirty tracking', () => {
+    it('web search toggled on then off against absent keys is clean', () => {
+      const d = setup()
+      d.set('WEB_GROUNDING', true)
+      d.set('WEB_SEARCH_PROVIDER', 'auto')
+      expect(d.dirty.value).toBe(true)
+      d.set('WEB_GROUNDING', false)
+      expect(d.dirty.value).toBe(false)
+    })
+
+    it('a chosen web search provider stays dirty when web search is off', () => {
+      const d = setup()
+      d.set('WEB_GROUNDING', false)
+      d.set('WEB_SEARCH_PROVIDER', 'tavily')
+      expect(d.dirty.value).toBe(true)
+    })
+
+    it('images toggled off then on against an absent key is clean', () => {
+      const d = setup({ LLM: 'openai', OPENAI_API_KEY: KEY, OPENAI_MODEL: 'm' })
+      d.set('DISABLE_IMAGE_GENERATION', true)
+      expect(d.dirty.value).toBe(true)
+      d.set('DISABLE_IMAGE_GENERATION', false)
+      expect(d.dirty.value).toBe(false)
+    })
+
+    it('a true flag against a stored false stays dirty', () => {
+      const d = setup({ ...base(), WEB_GROUNDING: false })
+      d.set('WEB_GROUNDING', true)
+      expect(d.dirty.value).toBe(true)
+    })
+
+    it('an empty provider order (reset or last chip removed) equals an absent one', () => {
+      const d = setup({ LLM: 'openrouter', OPENROUTER_API_KEY: KEY })
+      d.set('OPENROUTER_PROVIDER_ORDER', ['a'])
+      expect(d.dirty.value).toBe(true)
+      d.set('OPENROUTER_PROVIDER_ORDER', [])
+      expect(d.dirty.value).toBe(false)
+    })
+
+    it('a numeric token limit equals the same limit retyped as a string', () => {
+      const d = setup({ ...base(), LLM_MAX_OUTPUT_TOKENS: 4096 })
+      d.set('LLM_MAX_OUTPUT_TOKENS', '4096')
+      expect(d.dirty.value).toBe(false)
+      d.set('LLM_MAX_OUTPUT_TOKENS', '4097')
+      expect(d.dirty.value).toBe(true)
+    })
+
+    it('a stored null equals an empty string', () => {
+      const d = setup({ ...base(), OPENAI_URL: null as unknown as string })
+      d.set('OPENAI_URL', '')
+      expect(d.dirty.value).toBe(false)
+      d.set('OPENAI_URL', 'x')
+      expect(d.dirty.value).toBe(true)
+    })
+
+    it('still treats a changed value and a reordered array as dirty', () => {
+      const d = setup({ ...base(), OPENROUTER_PROVIDER_ORDER: ['a', 'b'] })
+      d.set('OPENROUTER_PROVIDER_ORDER', ['b', 'a'])
+      expect(d.dirty.value).toBe(true)
+      d.set('OPENROUTER_PROVIDER_ORDER', ['a', 'b'])
+      d.set('OPENAI_MODEL', 'other')
+      expect(d.dirty.value).toBe(true)
+    })
+  })
+
+  describe('load normalisation', () => {
+    it('normalises string booleans in both copies without making the draft dirty', () => {
+      const d = setup({ LLM: 'openai', OPENAI_API_KEY: KEY, DISABLE_IMAGE_GENERATION: 'false' as unknown as boolean, WEB_GROUNDING: 'true' as unknown as boolean })
+      expect(d.draft.value.DISABLE_IMAGE_GENERATION).toBe(false)
+      expect(d.original.value.DISABLE_IMAGE_GENERATION).toBe(false)
+      expect(d.draft.value.WEB_GROUNDING).toBe(true)
+      expect(d.dirty.value).toBe(false)
+    })
+
+    it('is idempotent', () => {
+      const d = setup({ ...base(), LLM_MAX_OUTPUT_TOKENS: '2048' as unknown as number, OPENROUTER_PROVIDER_ORDER: 'a, b' as unknown as string[] })
+      const first = JSON.parse(JSON.stringify(d.draft.value))
+      d.load(d.draft.value)
+      expect(d.draft.value).toEqual(first)
+      expect(d.dirty.value).toBe(false)
+    })
+
+    it('sends the same body for an already-normalised config', async () => {
+      const stored: ProviderConfig = { LLM: 'openai', OPENAI_API_KEY: KEY, OPENAI_MODEL: 'm', IMAGE_PROVIDER: 'dall-e-3', DISABLE_IMAGE_GENERATION: false }
+      const d = setup(stored)
+      d.set('OPENAI_MODEL', 'm2')
+      await d.save()
+      expect(saveProviderSettings.mock.calls[0][0]).toEqual({
+        ...stored,
+        OPENAI_MODEL: 'm2',
+        LLM_GENERATION_PROFILE: '',
+        LLM_REASONING_BUDGET_TOKENS: '',
+      })
+    })
+  })
+
+  it('redacts a secret that is a prefix of a longer secret without leaving the tail', async () => {
+    const short = 'sk-test-abc'
+    const long = 'sk-test-abcdef'
+    saveProviderSettings.mockRejectedValue(new ApiError('boom', 500, { detail: `rejected ${long}` }))
+    const d = setup({ LLM: 'openai', OPENAI_API_KEY: short, OPENAI_MODEL: 'm', IMAGE_PROVIDER: 'pexels', PEXELS_API_KEY: long, DISABLE_IMAGE_GENERATION: true })
+    expect(await d.save()).toEqual({ ok: false })
+    const text = toastText()
+    expect(text).not.toContain('def')
+    expect(text).not.toContain(long)
+    expect(text).toContain('[redacted]')
+  })
+
   it('save success sends a normalised body without OAuth fields, refreshes runtime and is clean', async () => {
     const d = setup()
     d.set('OPENAI_MODEL', 'gpt-5')

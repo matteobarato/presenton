@@ -24,12 +24,26 @@ function stripManaged(config: ProviderConfig): ProviderConfig {
   return out
 }
 
-/** Drops `undefined` and `''` values so "typed then deleted" compares equal to "never set". */
+// On/off switches whose absent key means "off". Tri-state OpenRouter flags are excluded: for them
+// "unset" and an explicit `false` are different settings.
+const OFF_BY_DEFAULT_FLAGS = ['DISABLE_IMAGE_GENERATION', 'WEB_GROUNDING']
+
+/**
+ * The form of a config used for dirty tracking: normalised, with `undefined`, `null`, `''`, `[]` and an
+ * `false` off-switch dropped, so "typed then deleted" or "switched on then off" compares equal to "never set".
+ */
 function comparable(config: ProviderConfig): Record<string, unknown> {
+  const normalised = normaliseConfig(config)
+  const webSearchOff = !normalised.WEB_GROUNDING
   const out: Record<string, unknown> = {}
-  for (const key of Object.keys(config).sort()) {
-    const value = config[key]
-    if (value !== undefined && value !== '') out[key] = value
+  for (const key of Object.keys(normalised).sort()) {
+    const value = normalised[key]
+    if (value === undefined || value === null || value === '') continue
+    if (Array.isArray(value) && value.length === 0) continue
+    if (value === false && OFF_BY_DEFAULT_FLAGS.includes(key)) continue
+    // Turning web search on picks "auto"; with it off again that default is not a change.
+    if (webSearchOff && key === 'WEB_SEARCH_PROVIDER' && String(value).toLowerCase() === 'auto') continue
+    out[key] = value
   }
   return out
 }
@@ -46,12 +60,16 @@ function deepEqual(a: unknown, b: unknown): boolean {
 
 /** Error text for a toast, with every secret in the draft masked. */
 function redactSecrets(message: string, config: ProviderConfig): string {
-  let out = message
+  const secrets: string[] = []
   for (const [field, value] of Object.entries(config)) {
     if (!SECRET_FIELD.test(field) || typeof value !== 'string') continue
     const secret = value.trim()
-    if (secret.length >= MIN_SECRET_LENGTH) out = out.split(secret).join('[redacted]')
+    if (secret.length >= MIN_SECRET_LENGTH) secrets.push(secret)
   }
+  // Longest first, so a secret that is a prefix of another cannot leave the longer one's tail visible.
+  secrets.sort((a, b) => b.length - a.length)
+  let out = message
+  for (const secret of secrets) out = out.split(secret).join('[redacted]')
   return out
 }
 
@@ -77,8 +95,9 @@ export function useSettingsDraft(): {
   const dirty = computed(() => !deepEqual(comparable(draft.value), comparable(original.value)))
 
   function load(config: ProviderConfig): void {
-    // Legacy Azure fields are migrated into both copies, so loading never makes the draft dirty.
-    original.value = migrateLegacyAzure(stripManaged(config))
+    // Migration and normalisation (string booleans, numeric limits) apply to both copies, so loading never
+    // makes the draft dirty. `normaliseConfig` is idempotent, so the saved body is unchanged.
+    original.value = normaliseConfig(migrateLegacyAzure(stripManaged(config)))
     draft.value = clone(original.value)
   }
 
