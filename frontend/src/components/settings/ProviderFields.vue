@@ -2,6 +2,7 @@
 import { computed, ref, toRef, watch, type Component } from 'vue'
 import { Loader2 } from 'lucide-vue-next'
 import BedrockFields from '@/components/settings/BedrockFields.vue'
+import OllamaFields from '@/components/settings/OllamaFields.vue'
 import ModelCombobox from '@/components/settings/ModelCombobox.vue'
 import SecretInput from '@/components/settings/SecretInput.vue'
 import VertexAzureFields from '@/components/settings/VertexAzureFields.vue'
@@ -15,11 +16,12 @@ const props = defineProps<{ row: TextProviderRow; config: ProviderConfig }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
 
 // Rows with `fields` use a dedicated component; each entry maps the row to that component's props
-// (every one emits `set: [field, value]`). Task 11 registers `ollama` with one line here.
+// (every one emits `set: [field, value]`).
 type DedicatedEntry = (row: TextProviderRow, config: ProviderConfig) => { component: Component; props: Record<string, unknown> }
 const DEDICATED: Partial<Record<NonNullable<TextProviderRow['fields']>, DedicatedEntry>> = {
   'vertex-azure': (row, config) => ({ component: VertexAzureFields, props: { provider: row.value, config } }),
   bedrock: (_row, config) => ({ component: BedrockFields, props: { config } }),
+  ollama: (_row, config) => ({ component: OllamaFields, props: { config } }),
 }
 const dedicated = computed(() => (props.row.fields ? DEDICATED[props.row.fields]?.(props.row, props.config) : undefined))
 

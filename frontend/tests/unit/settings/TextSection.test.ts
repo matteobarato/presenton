@@ -159,10 +159,10 @@ describe('TextSection', () => {
     }
   })
 
-  it('still renders nothing for ollama until its component lands', () => {
+  it('renders the Ollama fields for ollama', () => {
     const w = mountSection({ LLM: 'ollama' })
-    expect(w.find('input').exists()).toBe(false)
-    expect(w.text()).not.toContain('Check models')
+    expect(w.find('#ollama-url').exists()).toBe(true)
+    expect(button(w, 'Check models')).toBeTruthy()
   })
 
   describe('model discovery', () => {
