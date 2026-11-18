@@ -1,3 +1,4 @@
+// Ported from servers/nextjs/app/(presentation-generator)/(dashboard)/settings/SettingPage.tsx (getCodexAuthStatus, getPresentonLinkStatus)
 import { requestJson } from './client'
 import type { ProviderConfig } from '@/settings/types'
 
@@ -12,7 +13,6 @@ export function saveProviderSettings(config: ProviderConfig): Promise<ProviderCo
   })
 }
 
-// Ported from servers/nextjs/app/(presentation-generator)/(dashboard)/settings/SettingPage.tsx
 /** The ChatGPT (Codex) auth status string, or `''` when it cannot be read. */
 export async function getCodexAuthStatus(): Promise<string> {
   try {
@@ -23,7 +23,6 @@ export async function getCodexAuthStatus(): Promise<string> {
   }
 }
 
-// Ported from servers/nextjs/app/(presentation-generator)/(dashboard)/settings/SettingPage.tsx
 /** Whether this install is linked to a Presenton Cloud account; `false` on any failure. */
 export async function getPresentonLinkStatus(): Promise<boolean> {
   try {

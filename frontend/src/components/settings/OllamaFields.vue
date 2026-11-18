@@ -130,7 +130,7 @@ async function check(select?: string): Promise<void> {
     const message = messageOf(error, CONNECT_FALLBACK)
     checkError.value = message
     emit('set', MODEL_FIELD, '')
-    toast.error('Could not connect to Ollama', { description: `${message} You can enter a model ID manually.` })
+    toast.error('Could not connect to Ollama', { description: `${message} Check the URL and try again.` })
   } finally {
     if (id === requestId) loading.value = false
   }

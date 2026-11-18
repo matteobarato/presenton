@@ -147,7 +147,7 @@ describe('OllamaFields', () => {
     listReachableOllamaModels.mockRejectedValue(new Error('connection refused'))
     const w = await checked({ OLLAMA_URL: 'http://x:1', OLLAMA_MODEL: 'llama3:8b' })
     expect(toastError).toHaveBeenCalledWith('Could not connect to Ollama', {
-      description: 'connection refused. You can enter a model ID manually.',
+      description: 'connection refused. Check the URL and try again.',
     })
     expect(w.emitted('set')).toEqual([['OLLAMA_MODEL', '']])
     expect(modelSelect(w)).toBeNull()

@@ -424,7 +424,6 @@ export const WEB_SEARCH_PROVIDERS: WebSearchProviderRow[] = [
     apiKeyField: 'BRAVE_SEARCH_API_KEY',
     apiKeyLabel: 'Brave Search API key',
   },
-  // },
 ]
 
 export const DALLE_3_QUALITY_OPTIONS = [
