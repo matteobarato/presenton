@@ -1,9 +1,9 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { FOOTER_DEFAULT_HEIGHT } from '@/components/editor/footerHeight'
 
-export type InspectorTabId = 'layers' | 'insert' | 'design' | 'avatar'
-export type FooterTab = 'notes' | 'voice'
+export type InspectorTabId = 'layers' | 'insert' | 'design' | 'avatar' | 'motion'
+export type FooterTab = 'notes' | 'voice' | 'motion'
 
 /** Stable key of a slide; slides mid-stream may not have an id yet. */
 export const slideKey = (s: { id?: string | null; index: number }) => s.id ?? `index-${s.index}`
@@ -42,6 +42,18 @@ export const useEditorStore = defineStore('editor', () => {
   const slideSelectionActive = ref(false)
   // Raised for the tick in which Escape closes a floating-bar panel, so the slide's Esc keeps the selection.
   const panelEscapeGuard = ref(false)
+  // Motion editor: the selected element id and the preview time (null = slide restored).
+  const motionTarget = ref<string | null>(null)
+  const motionTime = ref<number | null>(null)
+  // Both belong to the slide they were picked on.
+  watch(
+    activeSlideId,
+    () => {
+      motionTarget.value = null
+      motionTime.value = null
+    },
+    { flush: 'sync' },
+  )
 
   /** Ask AI has its own panel, docked right of the inspector (a drawer on narrow screens). */
   function openAsk() {
@@ -89,6 +101,8 @@ export const useEditorStore = defineStore('editor', () => {
     deckBusy.value = 0
     slideSelectionActive.value = false
     panelEscapeGuard.value = false
+    motionTarget.value = null
+    motionTime.value = null
   }
 
   return {
@@ -109,6 +123,8 @@ export const useEditorStore = defineStore('editor', () => {
     addSlideRequested,
     slideSelectionActive,
     panelEscapeGuard,
+    motionTarget,
+    motionTime,
     openAsk,
     toggleAsk,
     openInsert,
