@@ -3,8 +3,9 @@ import { computed, ref, watch } from 'vue'
 import { Palette } from 'lucide-vue-next'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { active, tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
-import { useEditorStore } from '@/stores/editor'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import { guardKeys } from '../guardKeys'
+import { usePopoverEscapeGuard } from '../usePopoverEscapeGuard'
 
 // Bar colour control: a swatch opens a small palette popover (theme colours, a custom picker, optionally "none").
 // Presentational: the owner commits through `pick` / `none`, holding the target on `open`.
@@ -12,7 +13,6 @@ const props = defineProps<{ label: string; value: string | null; palette: string
 const emit = defineEmits<{ open: []; pick: [value: string]; none: [] }>()
 
 const ctx = useSlideEditingContext()
-const editor = useEditorStore()
 
 const HEX = /^#[0-9a-f]{6}$/i
 const current = computed(() => (props.value && HEX.test(props.value) ? props.value.toLowerCase() : null))
@@ -22,11 +22,8 @@ const open = ref(false)
 watch(open, (isOpen) => isOpen && emit('open'))
 // A popover belongs to the selection it was opened for.
 watch(() => JSON.stringify(ctx.selection.value), () => (open.value = false))
-// Escape closes the popover first; it may unmount before the slide's Esc handler runs, so guard that handler.
-function onEscape() {
-  editor.panelEscapeGuard = true
-  setTimeout(() => (editor.panelEscapeGuard = false), 0)
-}
+// Escape closes the popover first, then (next press) deselects.
+usePopoverEscapeGuard(open)
 function pick(value: string) {
   emit('pick', value)
   open.value = false
@@ -63,7 +60,7 @@ function none() {
       data-inline-edit-ignore="true"
       @open-auto-focus.prevent
       @close-auto-focus.prevent
-      @escape-key-down="onEscape"
+      @keydown="guardKeys"
     >
       <div class="flex max-w-[220px] flex-wrap items-center gap-2.5">
         <button

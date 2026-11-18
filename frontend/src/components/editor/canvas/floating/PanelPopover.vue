@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { active, tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
 import type { BarContext, BarItem } from './barItems'
+import { guardKeys } from './guardKeys'
 
 type PanelItem = Extract<BarItem, { type: 'panel' }>
 
@@ -23,15 +24,6 @@ function keepForNestedLayer(e: Event) {
 }
 
 const panelProps = computed(() => props.item.props?.(props.context) ?? {})
-
-// Panel buttons and fields must not drive the slide's keyboard shortcuts (nudge, delete, enter-to-edit)
-// or leave a focused button to the inline editor; typing in fields is unaffected.
-const SHORTCUT_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ' ', 'Delete', 'Backspace'])
-function guardKeys(e: KeyboardEvent) {
-  const el = e.target as HTMLElement | null
-  if (el?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el?.tagName ?? '')) return
-  if (SHORTCUT_KEYS.has(e.key)) e.stopPropagation()
-}
 </script>
 
 <template>

@@ -36,8 +36,10 @@ const barRef = ref<InstanceType<typeof ContextBar> | null>(null)
 const docked = useMediaQuery('(max-width: 760px)')
 
 const MARGIN = 8
-// A docked bar sits this far above the bottom edge of the canvas, clear of the status row.
-const DOCK_BOTTOM = 8
+// A docked bar sits above the status row: its height (26px, 8px canvas padding when docked) plus 8px of air.
+const DOCK_BOTTOM = 42
+// The rotate handle sits below the selection (24px stem + 6px handle + 8px air); a half-turn puts it above.
+const GAP_ROTATED = 44
 // The slide tools float over the top of the canvas; the bar never goes under them.
 const TOP_INSET = 54
 // Until it is measured the bar is assumed to be about this big.
@@ -50,7 +52,7 @@ useEventListener(() => props.scroller, 'scroll', () => stageBox.update(), { pass
 // The canvas resizing can recentre a stage that kept its size (it is height-bound), so re-measure it too.
 watch([layerBox.width, layerBox.height, layerBox.left, layerBox.top], () => stageBox.update(), { flush: 'post' })
 const barEl = computed<HTMLElement | null>(() => (barRef.value?.$el as HTMLElement | undefined) ?? null)
-const barSize = useElementSize(barEl)
+const barSize = useElementSize(barEl, undefined, { box: 'border-box' })
 
 const kind = computed(() => toolbarKind(ctx.ui.value, ctx.selection.value))
 const items = computed(() => barFor(kind.value))
@@ -73,6 +75,16 @@ const slideBounds = computed<Rect | null>(() => {
   const right = Math.max(...boxes.map((b) => b.x + b.width))
   const bottom = Math.max(...boxes.map((b) => b.y + b.height))
   return { x: left, y: top, width: right - left, height: bottom - top }
+})
+
+/** True when the selected frame's rotate handle ends up above it (a rotation between 90 and 270 degrees). */
+const handleAbove = computed(() => {
+  const ui = ctx.ui.value
+  if (!ui || !ctx.selection.value) return false
+  const frames = selectionFrames(ui, ctx.selection.value)
+  if (frames.length !== 1) return false
+  const deg = (((frames[0]!.rotation % 360) + 360) % 360)
+  return deg >= 90 && deg <= 270
 })
 
 const visible = computed(
@@ -106,6 +118,7 @@ const placed = computed(() => {
     viewport: { width: viewport.width, height: viewport.height - TOP_INSET },
     bar,
     margin: MARGIN,
+    ...(handleAbove.value ? { gapAbove: GAP_ROTATED } : {}),
   })
   return { x: r.x, y: r.y + TOP_INSET, placement: r.placement }
 })

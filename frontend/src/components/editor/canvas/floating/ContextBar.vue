@@ -2,6 +2,7 @@
 import { nextTick, onMounted, onUpdated, ref } from 'vue'
 import { active, container, divider, tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
 import type { BarContext, BarItem } from './barItems'
+import { guardKeys } from './guardKeys'
 import PanelPopover from './PanelPopover.vue'
 import { TAIL_IDS } from './tail'
 
@@ -55,9 +56,9 @@ function onKeydown(e: KeyboardEvent) {
     e.stopPropagation()
     return
   }
-  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Home' && e.key !== 'End') return
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Home' && e.key !== 'End') return guardKeys(e)
   // Fields in the bar keep their own caret keys.
-  if (!(e.target instanceof HTMLButtonElement)) return
+  if (!(e.target instanceof HTMLButtonElement)) return guardKeys(e)
   e.preventDefault()
   e.stopPropagation()
   const els = focusables()

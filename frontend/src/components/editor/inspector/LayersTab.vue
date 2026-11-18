@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Presentation, Slide } from '@/api/types'
 import { layerTree } from '@/slide-editor/layerTree'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import LayerTree from './element/LayerTree.vue'
 
-defineProps<{ presentationId?: string; presentation?: Presentation; activeSlide?: Slide | null }>()
+// Inspector hands every tab the presentation and slide; the layer list needs neither, so keep them off the root element.
+defineOptions({ inheritAttrs: false })
 
 const ctx = useSlideEditingContext()
 const layers = computed(() => (ctx.enabled.value ? layerTree(ctx.ui.value) : []))

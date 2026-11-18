@@ -5,23 +5,20 @@ import type { Presentation } from '@/api/types'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { active, tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
 import { useTextControls } from '@/components/editor/inspector/element/useTextControls'
-import { useEditorStore } from '@/stores/editor'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import { guardKeys } from '../guardKeys'
+import { usePopoverEscapeGuard } from '../usePopoverEscapeGuard'
 
 // Bar control: text colour. A swatch opens a small palette popover (theme colours + a custom picker).
 const props = defineProps<{ presentation: Presentation }>()
 const { color, palette, setColor } = useTextControls(props)
 const ctx = useSlideEditingContext()
-const editor = useEditorStore()
 
 const open = ref(false)
 // A popover belongs to the selection it was opened for.
 watch(() => JSON.stringify(ctx.selection.value), () => (open.value = false))
-// Escape closes the popover first; it may unmount before the slide's Esc handler runs, so guard that handler.
-function onEscape() {
-  editor.panelEscapeGuard = true
-  setTimeout(() => (editor.panelEscapeGuard = false), 0)
-}
+// Escape closes the popover first, then (next press) deselects.
+usePopoverEscapeGuard(open)
 </script>
 
 <template>
@@ -46,7 +43,7 @@ function onEscape() {
       data-inline-edit-ignore="true"
       @open-auto-focus.prevent
       @close-auto-focus.prevent
-      @escape-key-down="onEscape"
+      @keydown="guardKeys"
     >
       <div class="flex max-w-[220px] flex-wrap items-center gap-2.5">
         <button

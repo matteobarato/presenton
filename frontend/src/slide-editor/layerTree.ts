@@ -10,7 +10,7 @@ import {
   type Selection,
 } from '@/slide-editor/model'
 
-/** One row of the Element tab's layer list: something on the slide that can be selected. */
+/** One row of the Layers tab's list: something on the slide that can be selected. */
 export interface LayerNode {
   /** Stable key for this position in the tree. */
   key: string

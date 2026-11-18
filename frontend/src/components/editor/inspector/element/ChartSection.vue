@@ -15,7 +15,6 @@ import {
   isRadial,
   readChart,
   setChartField,
-  setChartType,
   setDataLabels,
   writeChart,
 } from '@/slide-editor/chartOps'
@@ -28,7 +27,7 @@ import { useChartControls } from './useChartControls'
 
 const props = defineProps<{ presentation: Presentation }>()
 
-const { root, raw, chart, type, options, apply } = useChartControls()
+const { root, raw, chart, type, options, apply, changeType } = useChartControls()
 const palette = computed(() => themePalette(props.presentation))
 const colourChoices = computed(() => [...new Set([...palette.value, ...CHART_SYSTEM_COLORS.map((c) => `#${c.toLowerCase()}`)])])
 const { patch } = useSelectedElement(useSlideEditingContext())
@@ -162,7 +161,7 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
           aria-label="Chart type"
           class="h-full w-full min-w-0 bg-transparent text-[10px] text-[#dce3e7] outline-none"
           :value="type"
-          @change="apply('Chart type', (c) => setChartType(c, ($event.target as HTMLSelectElement).value as ChartElement['chart_type']))"
+          @change="changeType(($event.target as HTMLSelectElement).value as ChartElement['chart_type'])"
         >
           <option v-for="o in options" :key="o.value" :value="o.value" class="bg-[#232b2f]">{{ o.label }}</option>
         </select>
