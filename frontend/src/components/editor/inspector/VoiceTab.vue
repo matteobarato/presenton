@@ -1,28 +1,20 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { Presentation, Slide } from '@/api/types'
 import DeckNarrationSection from './narration/DeckNarrationSection.vue'
 import SlideVoiceSection from './narration/SlideVoiceSection.vue'
-import { provideDeckNarration, useDeckNarration } from './narration/useDeckNarration'
+import { injectDeckNarration } from './narration/useDeckNarration'
 import GenerateAvatarsDialog from './video/GenerateAvatarsDialog.vue'
 import SlideAvatarSection from './video/SlideAvatarSection.vue'
-import { provideDeckAvatars, useDeckAvatars } from './video/useDeckAvatars'
+import { injectDeckAvatars } from './video/useDeckAvatars'
 
 /**
  * Narration and avatar video of the active slide, with the deck-wide settings, side by side in the footer.
- * One instance of each deck state (TTS task, avatar run) is shared by every section.
+ * The deck state (TTS task, avatar run) is provided by DeckStateProvider and shared with the Avatar tab.
  */
-const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
+defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
 
-const idRef = computed(() => props.presentationId)
-const deck = computed(() => props.presentation)
-const narration = useDeckNarration(idRef, deck)
-provideDeckNarration(narration)
-const avatars = useDeckAvatars(idRef, deck, narration)
-provideDeckAvatars(avatars)
-
-const { language } = narration
-const { confirming, pendingIndices, generate } = avatars
+const { language } = injectDeckNarration()
+const { confirming, pendingIndices, generate } = injectDeckAvatars()
 </script>
 
 <template>

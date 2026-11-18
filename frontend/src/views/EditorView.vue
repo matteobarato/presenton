@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import EditorCanvas from '@/components/editor/EditorCanvas.vue'
 import EditorHeader from '@/components/editor/EditorHeader.vue'
 import EditorLayout from '@/components/editor/EditorLayout.vue'
+import DeckStateProvider from '@/components/editor/DeckStateProvider.vue'
 import ChatPanel from '@/components/editor/chat/ChatPanel.vue'
 import EditorStatusBar from '@/components/editor/EditorStatusBar.vue'
 import ExportDialog from '@/components/editor/ExportDialog.vue'
@@ -103,6 +104,7 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
     </div>
 
     <template v-else>
+      <DeckStateProvider :presentation-id="id" :presentation="presentation">
       <EditorLayout>
         <template #header><EditorHeader :presentation="presentation" /></template>
         <template #navigator><SlideNavigator :presentation-id="id" :slides="slides" /></template>
@@ -126,6 +128,7 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
         <template #inspector><Inspector /></template>
         <template #chat><ChatPanel :presentation-id="id" :presentation="presentation" :active-slide="activeSlide" /></template>
       </EditorLayout>
+      </DeckStateProvider>
       <ExportDialog :presentation="presentation" />
     </template>
   </div>

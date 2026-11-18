@@ -5,6 +5,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { QueryClient, useQuery, VueQueryPlugin } from '@tanstack/vue-query'
 import { ApiError } from '@/api/errors'
 import VoiceTab from '@/components/editor/inspector/VoiceTab.vue'
+import { deckHost } from './helpers/deckHost'
 import { narrationState } from '@/components/editor/inspector/narration/narration-state'
 
 const m = vi.hoisted(() => ({
@@ -78,7 +79,7 @@ let queryClient: QueryClient
 async function mountTab(active = 0) {
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
-  const wrapper = mount(VoiceTab, {
+  const wrapper = mount(deckHost(VoiceTab), {
     props: { presentationId: 'p1', presentation: presentation as never, activeSlide: presentation.slides[active] as never },
     global: { plugins: [[VueQueryPlugin, { queryClient }]] },
     attachTo: document.body,
