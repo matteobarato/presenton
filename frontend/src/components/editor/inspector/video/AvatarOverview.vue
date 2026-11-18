@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import { Check, Circle, Loader, TriangleAlert } from 'lucide-vue-next'
 import type { Slide } from '@/api/types'
 import { useEditorStore } from '@/stores/editor'
@@ -18,6 +19,8 @@ const props = defineProps<{ slide: Slide | null; totalSlides: number }>()
 const emit = defineEmits<{ 'add-portrait': [] }>()
 
 const editor = useEditorStore()
+// Below 1050px the inspector is a modal drawer (see EditorLayout); it would cover the footer a fix opens.
+const inDrawer = useMediaQuery('(max-width: 1050px)')
 const { stateOf } = injectDeckNarration()
 const { videos, videoBySlide, placeholderSlides, eligibleSlides, chipOf, busy, running, progress, task, togglePlaceholder } = injectDeckAvatars()
 
@@ -52,7 +55,10 @@ const rows = computed(() =>
 )
 
 function run(action: CellAction) {
-  if (action === 'open-voice') editor.openFooter('voice')
+  if (action === 'open-voice') {
+    editor.openFooter('voice')
+    if (inDrawer.value) editor.inspectorOpen = false
+  }
   else if (action === 'add-portrait') emit('add-portrait')
   else if (props.slide) togglePlaceholder(props.slide, true)
 }

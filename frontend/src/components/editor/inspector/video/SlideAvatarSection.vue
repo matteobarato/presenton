@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { Film, Trash2, Upload, Video } from 'lucide-vue-next'
 import type { Slide } from '@/api/types'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { Switch } from '@/components/ui/switch'
 import { injectDeckNarration } from '../narration/useDeckNarration'
 import AvatarChip from './AvatarChip.vue'
@@ -21,8 +20,6 @@ const {
   blockerFor,
   deckBlocker,
   busy: busySet,
-  progress,
-  task,
   togglePlaceholder,
   uploadVideo,
   removeVideo,
@@ -94,11 +91,6 @@ function picked(e: Event) {
     >
       No video yet. Generate one from the deck portrait and this slide's narration, or upload your own.
     </p>
-
-    <div v-if="plan?.state === 'queued' || plan?.state === 'generating'" class="flex flex-col gap-1" role="status">
-      <Progress :model-value="progress" aria-label="Avatar generation progress" />
-      <span class="text-[11px] text-muted">{{ task?.message || 'Generating avatar…' }}</span>
-    </div>
 
     <div class="grid grid-cols-1 gap-2">
       <Button

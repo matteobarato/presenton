@@ -60,6 +60,11 @@ vi.mock('@/api/videos', async (orig) => ({
   startAvatarGeneration: m.startAvatarGeneration,
 }))
 vi.mock('@/api/playback', async (orig) => ({ ...(await orig<typeof import('@/api/playback')>()), getPlayback: m.getPlayback }))
+const media = vi.hoisted(() => ({ narrow: { value: false } as { value: boolean } }))
+vi.mock('@vueuse/core', async (orig) => {
+  const { computed } = await import('vue')
+  return { ...(await orig<typeof import('@vueuse/core')>()), useMediaQuery: () => computed(() => media.narrow.value) }
+})
 vi.mock('@/render/SlideView.vue', () => ({ default: { template: '<div data-testid="slide-view" />' } }))
 
 const placeholderUi = { components: [{ elements: [{ type: 'image', video_placeholder: true }] }] }
@@ -99,6 +104,7 @@ const show = async (w: VueWrapper, index: number) => {
 }
 
 beforeEach(() => {
+  media.narrow.value = false
   setActivePinia(createPinia())
   Object.values(m).forEach((f) => f.mockReset())
   localStorage.clear()
@@ -433,6 +439,36 @@ describe('AvatarTab: overview', () => {
     expect(avatar(wrapper).text()).toContain('No video yet')
     expect(button(avatar(wrapper) as never, 'Generate avatar').exists()).toBe(true)
     expect(button(avatar(wrapper) as never, 'Upload video').exists()).toBe(true)
+  })
+
+  it('closes the inspector drawer when a fix opens the footer, so the footer is visible', async () => {
+    media.narrow.value = true
+    const { useEditorStore } = await import('@/stores/editor')
+    const editor = useEditorStore()
+    editor.inspectorOpen = true
+    const { wrapper } = await mountTab(2)
+    await cell(wrapper, 'narration', 'slide').find('button').trigger('click')
+    expect(editor.footerTab).toBe('voice')
+    expect(editor.inspectorOpen).toBe(false)
+  })
+
+  it('keeps the docked inspector open when a fix opens the footer', async () => {
+    const { useEditorStore } = await import('@/stores/editor')
+    const editor = useEditorStore()
+    editor.inspectorOpen = true
+    const { wrapper } = await mountTab(2)
+    await cell(wrapper, 'narration', 'slide').find('button').trigger('click')
+    expect(editor.inspectorOpen).toBe(true)
+  })
+
+  it('shows one progress bar while the active slide is the one generating', async () => {
+    m.getAvatarGeneration.mockResolvedValue({ id: 'g9', status: 'pending', data: { slides: [] } })
+    m.getTask.mockResolvedValue({ id: 'g9', status: 'pending', data: { slides: [{ slide_index: 0, slide_id: 's0', state: 'generating' }] } })
+    const { wrapper } = await mountTab(0)
+    await vi.waitFor(() => expect(m.getTask).toHaveBeenCalledWith('g9'))
+    await flushPromises()
+    expect(avatar(wrapper).attributes('data-chip')).toBe('generating')
+    expect(wrapper.findAll('[aria-label="Avatar generation progress"]')).toHaveLength(1)
   })
 })
 
