@@ -98,7 +98,7 @@ def test_layouts_fit_the_stage_and_text_fits_its_box(template_id):
                     names.append(el["name"])
                     assert el["min_length"] <= len("".join(r["text"] for r in el["runs"])) <= el["max_length"]
                     font = el["font"]
-                    lines = math.ceil(el["max_length"] * 0.55 * font["size"] / w)
+                    lines = math.ceil(el["max_length"] * 0.63 * font["size"] / w)
                     assert lines * font["size"] * font["line_height"] <= h + 1, (layout["id"], el["name"])
         assert len(names) == len(set(names)), layout["id"]
 
@@ -117,3 +117,18 @@ def test_mirror_flips_the_layout_horizontally_and_stays_on_stage():
         right_edge = comp["position"]["x"] + max(e["position"]["x"] + e["size"]["width"] for e in comp["elements"] if e["type"] != "vector") if any(e["type"] != "vector" for e in comp["elements"]) else 0
         assert comp["position"]["x"] >= -0.5 and right_edge <= 1280.5, comp["id"]
     assert left["components"][2]["position"]["x"] == 96  # the original is not mutated
+
+
+@pytest.mark.parametrize("template_id", IDS)
+def test_card_stands_apart_from_accent_and_background(template_id):
+    from scripts.template_video_layouts.style import contrast as c
+
+    style = extract_style(json.loads((REPO / "templates" / template_id / "template.json").read_text()))
+    assert c(style.card, style.accent) >= 1.5, (style.card, style.accent)
+    assert c(style.card, style.background) >= 1.03, (style.card, style.background)
+
+
+def test_centered_layout_backs_its_video():
+    centered = archetypes("swift")[2]
+    ids = [c["id"] for c in centered["components"]]
+    assert ids.index("video_backing") == ids.index("video_placeholder") - 1

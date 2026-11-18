@@ -14576,7 +14576,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 223
+            "y": 269
           },
           "elements": [
             {
@@ -15084,6 +15084,43 @@
               "name": "main_title",
               "min_length": 12,
               "max_length": 48
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_backing_pv",
+      "description": "Panel behind the video, so an empty slot still looks designed.",
+      "variants": [
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
             }
           ]
         }
@@ -15746,7 +15783,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 71
+                "y": 54
               },
               "size": {
                 "width": 80,
@@ -15785,11 +15822,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 138
+                "y": 121
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 136
               },
               "rotation": 0,
               "font": {
@@ -15824,7 +15861,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 264
+                "y": 281
               },
               "size": {
                 "width": 624,
@@ -15863,7 +15900,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 307
               },
               "size": {
                 "width": 624,
@@ -16342,6 +16379,25 @@
               "decorative": true,
               "name": "background_shape",
               "is_icon": false
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": -901.99,
+                "y": 110.43
+              },
+              "size": {
+                "width": 1826.55,
+                "height": 988.62
+              },
+              "rotation": -4.88,
+              "opacity": 0.7,
+              "data": "static/image1-615fb2b5b0f5.png",
+              "fit": "fill",
+              "clip_path": "path('M 0 0 L 1826.55 0 L 1826.55 988.62 L 0 988.62 L 0 0 Z')",
+              "decorative": true,
+              "name": "background_gradient_accent",
+              "is_icon": false
             }
           ]
         }
@@ -16582,28 +16638,6 @@
               "name": "supporting_cover_image",
               "is_icon": false,
               "rotation": 0
-            },
-            {
-              "type": "image",
-              "position": {
-                "x": 207.18,
-                "y": 58.59
-              },
-              "size": {
-                "width": 408.41,
-                "height": 592.91
-              },
-              "data": "/static/images/replaceable_template_image.png",
-              "fit": "cover",
-              "border_radius": {
-                "tl": 15.33,
-                "tr": 15.33,
-                "bl": 15.33,
-                "br": 15.33
-              },
-              "decorative": false,
-              "name": "main_cover_image",
-              "is_icon": false
             }
           ]
         }
@@ -16731,12 +16765,12 @@
       ]
     },
     {
-      "id": "layered_background_pv",
-      "description": "Full-slide decorative backdrop with dark upper field, subtle overlays, and a clean lower band anchoring the composition.",
+      "id": "background_visuals_pv",
+      "description": "Full-slide dark backdrop with a soft abstract glow anchored near the lower left edge.",
       "variants": [
         {
-          "id": "layered_background_pv",
-          "description": "Full-slide decorative backdrop with dark upper field, subtle overlays, and a clean lower band anchoring the composition.",
+          "id": "background_visuals_pv",
+          "description": "Full-slide dark backdrop with a soft abstract glow anchored near the lower left edge.",
           "position": {
             "x": 0,
             "y": 0
@@ -16746,108 +16780,36 @@
               "type": "image",
               "position": {
                 "x": -12.33,
-                "y": -29.27
+                "y": -10.79
               },
               "size": {
                 "width": 1304.66,
-                "height": 608.43
+                "height": 738.69
               },
-              "data": "static/freeform_3-aea2ce21dee0.svg",
+              "data": "static/freeform_3-eac87b3b9ab0.svg",
               "fit": "fill",
               "decorative": true,
-              "name": "background_field",
+              "name": "background_base",
               "is_icon": false
             },
-            {
-              "type": "container",
-              "position": {
-                "x": -994.93,
-                "y": 244.08
-              },
-              "size": {
-                "width": 1855.46,
-                "height": 818.09
-              },
-              "rotation": -59.52,
-              "child": {
-                "type": "image",
-                "position": {
-                  "x": -282.18,
-                  "y": -16.45
-                },
-                "size": {
-                  "width": 2137.64,
-                  "height": 839.5
-                },
-                "flip_v": true,
-                "opacity": 0.19999,
-                "data": "static/image6-16889f6f3a56.png",
-                "fit": "fill",
-                "clip_path": "path('M 282.18 823.05 L 2137.6399 823.05 L 2137.6399 4.96 L 282.18 4.96 L 282.18 823.05 Z')",
-                "decorative": true,
-                "name": "soft_background_overlay",
-                "is_icon": false
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "curved_image_panel_pv",
-      "description": "Large curved photo panel positioned along the lower edge with a fixed white arc frame for emphasis.",
-      "variants": [
-        {
-          "id": "curved_image_panel_pv",
-          "description": "Large curved photo panel positioned along the lower edge with a fixed white arc frame for emphasis.",
-          "position": {
-            "x": 0,
-            "y": 274.94
-          },
-          "elements": [
             {
               "type": "image",
               "position": {
-                "x": 0,
-                "y": 0
+                "x": -901.99,
+                "y": 110.43
               },
               "size": {
-                "width": 446.22,
-                "height": 446.22
+                "width": 1826.55,
+                "height": 988.62
               },
-              "data": "static/freeform_8-c34af73bed7d.svg",
+              "rotation": -4.88,
+              "opacity": 0.7,
+              "data": "static/image1-615fb2b5b0f5.png",
               "fit": "fill",
+              "clip_path": "path('M 0 0 L 1826.55 0 L 1826.55 988.62 L 0 988.62 L 0 0 Z')",
               "decorative": true,
-              "name": "curved_image_frame",
+              "name": "background_glow",
               "is_icon": false
-            },
-            {
-              "type": "container",
-              "position": {
-                "x": 0,
-                "y": 5.86
-              },
-              "size": {
-                "width": 439.2,
-                "height": 439.2
-              },
-              "child": {
-                "type": "image",
-                "position": {
-                  "x": -109.69,
-                  "y": 0
-                },
-                "size": {
-                  "width": 658.59,
-                  "height": 439.2
-                },
-                "data": "/static/images/replaceable_template_image.png",
-                "fit": "fill",
-                "clip_path": "path('M 109.69 0 L 109.69 439.2 L 548.89 439.2 C 548.89 196.6738 352.2162 0 109.69 0 Z')",
-                "decorative": false,
-                "name": "curved_primary_image",
-                "is_icon": false
-              }
             }
           ]
         }
@@ -16855,14 +16817,14 @@
     },
     {
       "id": "headline_text_block_pv",
-      "description": "Main text area aligned on the dark field with a large headline and compact supporting copy beneath.",
+      "description": "Top-left text block with a prominent display heading and short supporting subtitle beneath it.",
       "variants": [
         {
           "id": "headline_text_block_pv",
-          "description": "Main text area aligned on the dark field with a large headline and compact supporting copy beneath.",
+          "description": "Top-left text block with a prominent display heading and short supporting subtitle beneath it.",
           "position": {
-            "x": 559.26,
-            "y": 203.57
+            "x": 79.07,
+            "y": 93.75
           },
           "elements": [
             {
@@ -16872,12 +16834,12 @@
                 "y": 0
               },
               "size": {
-                "width": 543.32,
-                "height": 104.91
+                "width": 648.6,
+                "height": 52.91
               },
               "font": {
-                "size": 47.16,
-                "family": "Playfair Display Bold Italics",
+                "size": 47.11,
+                "family": "Playfair Display Semi-Bold Italics",
                 "color": "#FFFFFF",
                 "bold": true,
                 "italic": true,
@@ -16890,10 +16852,10 @@
               },
               "runs": [
                 {
-                  "text": "Environmental Performance",
+                  "text": "ESG Report Highlights",
                   "font": {
-                    "size": 47.16,
-                    "family": "Playfair Display Bold Italics",
+                    "size": 47.11,
+                    "family": "Playfair Display Semi-Bold Italics",
                     "color": "#FFFFFF",
                     "bold": true,
                     "italic": true,
@@ -16903,27 +16865,27 @@
                 }
               ],
               "decorative": false,
-              "name": "headline",
-              "max_length": 39,
-              "min_length": 15,
+              "name": "slide_title",
+              "max_length": 30,
+              "min_length": 11,
               "rotation": 0
             },
             {
               "type": "text",
               "position": {
-                "x": 0.67,
-                "y": 137.27
+                "x": 1.9,
+                "y": 79.72
               },
               "size": {
-                "width": 544.4,
-                "height": 131.8
+                "width": 642.47,
+                "height": 114.46
               },
               "font": {
-                "size": 19.55,
+                "size": 16.92,
                 "family": "DM Sans",
                 "color": "#FFFFFF",
-                "line_height": 1.11,
-                "letter_spacing": 0.28
+                "line_height": 1.19,
+                "letter_spacing": 0.25
               },
               "alignment": {
                 "horizontal": "left",
@@ -16931,21 +16893,291 @@
               },
               "runs": [
                 {
-                  "text": "Protecting the planet through responsible operations and measurable environmental progress.",
+                  "text": "Key elements that define our approach to sustainable business and responsible growth.",
                   "font": {
-                    "size": 19.55,
+                    "size": 16.92,
                     "family": "DM Sans",
                     "color": "#FFFFFF",
-                    "line_height": 1.11,
-                    "letter_spacing": 0.28
+                    "line_height": 1.19,
+                    "letter_spacing": 0.25
                   }
                 }
               ],
               "decorative": false,
-              "name": "supporting_text",
-              "max_length": 220,
-              "min_length": 46,
+              "name": "slide_subtitle",
+              "max_length": 230,
+              "min_length": 43,
               "rotation": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "right_image_panel_pv",
+      "description": "Tall rounded image area positioned on the right with a subtle offset accent shadow.",
+      "variants": [
+        {
+          "id": "right_image_panel_pv",
+          "description": "Tall rounded image area positioned on the right with a subtle offset accent shadow.",
+          "position": {
+            "x": 821.22,
+            "y": 90.42
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 6.66,
+                "y": 6.66
+              },
+              "size": {
+                "width": 370.46,
+                "height": 557.58
+              },
+              "data": "static/freeform_7-9f3a942686b7.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "image_panel_accent",
+              "is_icon": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bottom_callout_cards_pv",
+      "description": "Stacked rows of rounded callout cards with short labels on the left and line icons on the right.",
+      "variants": [
+        {
+          "id": "bottom_callout_cards_pv",
+          "description": "Stacked rows of rounded callout cards with short labels on the left and line icons on the right.",
+          "position": {
+            "x": 78.23,
+            "y": 454.09
+          },
+          "elements": [
+            {
+              "type": "flex",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 632.71,
+                "height": 193.91
+              },
+              "direction": "column",
+              "wrap": false,
+              "align_items": "flex-start",
+              "justify_content": "flex-start",
+              "gap": 6.65,
+              "row_gap": 6.65,
+              "children": [
+                {
+                  "type": "flex",
+                  "direction": "row",
+                  "wrap": false,
+                  "align_items": "flex-start",
+                  "justify_content": "flex-start",
+                  "gap": 5.5,
+                  "column_gap": 5.5,
+                  "children": [
+                    {
+                      "type": "group",
+                      "size": {
+                        "width": 311.14,
+                        "height": 93.63
+                      },
+                      "children": [
+                        {
+                          "type": "image",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          },
+                          "size": {
+                            "width": 311.14,
+                            "height": 93.63
+                          },
+                          "data": "static/freeform_14-549f7c1b88ef.svg",
+                          "fit": "fill",
+                          "decorative": true,
+                          "name": "callout_card_background",
+                          "is_icon": false
+                        },
+                        {
+                          "type": "text",
+                          "position": {
+                            "x": 11.93,
+                            "y": 23.51
+                          },
+                          "size": {
+                            "width": 227.09,
+                            "height": 51.18
+                          },
+                          "font": {
+                            "size": 16.92,
+                            "family": "DM Sans",
+                            "color": "#FFFFFF",
+                            "line_height": 1.19,
+                            "letter_spacing": 0.25
+                          },
+                          "alignment": {
+                            "horizontal": "left",
+                            "vertical": "top"
+                          },
+                          "runs": [
+                            {
+                              "text": "Reducing carbon emissions, improving energy.",
+                              "font": {
+                                "size": 16.92,
+                                "family": "DM Sans",
+                                "color": "#FFFFFF",
+                                "line_height": 1.19,
+                                "letter_spacing": 0.25
+                              }
+                            }
+                          ],
+                          "decorative": false,
+                          "name": "callout_text",
+                          "max_length": 54,
+                          "min_length": 22,
+                          "rotation": 0
+                        },
+                        {
+                          "type": "image",
+                          "position": {
+                            "x": 251.34,
+                            "y": 25.74
+                          },
+                          "size": {
+                            "width": 47.78,
+                            "height": 49.2
+                          },
+                          "opacity": 0.75,
+                          "data": "/static/icons/placeholder.svg",
+                          "fit": "fill",
+                          "clip_path": "",
+                          "color": "#C9EAF9",
+                          "decorative": false,
+                          "name": "callout_icon",
+                          "is_icon": true,
+                          "icon_type": "thin",
+                          "rotation": 0
+                        }
+                      ],
+                      "name": "callout_card"
+                    }
+                  ],
+                  "name": "callout_card_row",
+                  "max_children": 2,
+                  "min_children": 1
+                },
+                {
+                  "type": "flex",
+                  "direction": "row",
+                  "wrap": false,
+                  "align_items": "flex-start",
+                  "justify_content": "flex-start",
+                  "gap": 6.5,
+                  "column_gap": 6.5,
+                  "children": [
+                    {
+                      "type": "group",
+                      "size": {
+                        "width": 205.5,
+                        "height": 93.63
+                      },
+                      "children": [
+                        {
+                          "type": "image",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          },
+                          "size": {
+                            "width": 205.5,
+                            "height": 93.63
+                          },
+                          "data": "static/freeform_17-89b9975edf67.svg",
+                          "fit": "fill",
+                          "decorative": true,
+                          "name": "callout_card_background",
+                          "is_icon": false
+                        },
+                        {
+                          "type": "text",
+                          "position": {
+                            "x": 10.02,
+                            "y": 25.91
+                          },
+                          "size": {
+                            "width": 133.09,
+                            "height": 45.67
+                          },
+                          "font": {
+                            "size": 16.92,
+                            "family": "DM Sans",
+                            "color": "#FFFFFF",
+                            "line_height": 1.19,
+                            "letter_spacing": 0.25
+                          },
+                          "alignment": {
+                            "horizontal": "left",
+                            "vertical": "top"
+                          },
+                          "runs": [
+                            {
+                              "text": "Promoting ethical leadership.",
+                              "font": {
+                                "size": 16.92,
+                                "family": "DM Sans",
+                                "color": "#FFFFFF",
+                                "line_height": 1.19,
+                                "letter_spacing": 0.25
+                              }
+                            }
+                          ],
+                          "decorative": false,
+                          "name": "callout_text",
+                          "max_length": 25,
+                          "min_length": 15,
+                          "rotation": 0
+                        },
+                        {
+                          "type": "image",
+                          "position": {
+                            "x": 147.33,
+                            "y": 26.82
+                          },
+                          "size": {
+                            "width": 47.84,
+                            "height": 49.36
+                          },
+                          "opacity": 0.75,
+                          "data": "/static/icons/placeholder.svg",
+                          "fit": "fill",
+                          "clip_path": "path('M 0 0 L 40.9699 0 L 40.9699 49.36 L 0 49.36 L 0 0 Z')",
+                          "color": "#C9EAF9",
+                          "decorative": false,
+                          "name": "callout_icon",
+                          "is_icon": true,
+                          "icon_type": "thin",
+                          "rotation": 0
+                        }
+                      ],
+                      "name": "callout_card"
+                    }
+                  ],
+                  "name": "callout_card_row",
+                  "max_children": 3,
+                  "min_children": 1
+                }
+              ],
+              "name": "callout_card_rows",
+              "max_children": 2,
+              "min_children": 1
             }
           ]
         }
@@ -31634,7 +31866,7 @@
               },
               "size": {
                 "width": 720,
-                "height": 48
+                "height": 94
               },
               "rotation": 0,
               "font": {
@@ -31669,7 +31901,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 60
+                "y": 106
               },
               "size": {
                 "width": 720,
@@ -31711,7 +31943,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 223
+            "y": 269
           },
           "elements": [
             {
@@ -32277,6 +32509,37 @@
               "name": "main_title",
               "min_length": 12,
               "max_length": 48
+            }
+          ]
+        },
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
             }
           ]
         },
@@ -32973,7 +33236,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 71
+                "y": 54
               },
               "size": {
                 "width": 80,
@@ -33012,11 +33275,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 138
+                "y": 121
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 136
               },
               "rotation": 0,
               "font": {
@@ -33051,7 +33314,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 264
+                "y": 281
               },
               "size": {
                 "width": 624,
@@ -33090,7 +33353,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 307
               },
               "size": {
                 "width": 624,
@@ -33302,7 +33565,7 @@
               },
               "size": {
                 "width": 752,
-                "height": 48
+                "height": 94
               },
               "rotation": 0,
               "font": {
@@ -33337,7 +33600,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 60
+                "y": 106
               },
               "size": {
                 "width": 752,
@@ -33773,33 +34036,25 @@
               "decorative": true,
               "name": "background_shape",
               "is_icon": false
-            }
-          ]
-        },
-        {
-          "id": "video_placeholder",
-          "description": "Avatar video placeholder",
-          "position": {
-            "x": 560,
-            "y": 118.43
-          },
-          "elements": [
+            },
             {
               "type": "image",
               "position": {
-                "x": 0,
-                "y": 0
+                "x": -901.99,
+                "y": 110.43
               },
               "size": {
-                "width": 336,
-                "height": 597
+                "width": 1826.55,
+                "height": 988.62
               },
-              "data": "/static/images/video-placeholder.png",
-              "fit": "cover",
+              "rotation": -4.88,
+              "opacity": 0.7,
+              "data": "static/image1-615fb2b5b0f5.png",
+              "fit": "fill",
+              "clip_path": "path('M 0 0 L 1826.55 0 L 1826.55 988.62 L 0 988.62 L 0 0 Z')",
               "decorative": true,
-              "name": "avatar_video",
-              "is_icon": false,
-              "video_placeholder": true
+              "name": "background_gradient_accent",
+              "is_icon": false
             }
           ]
         },
@@ -34028,28 +34283,64 @@
               "name": "supporting_cover_image",
               "is_icon": false,
               "rotation": 0
-            },
+            }
+          ]
+        },
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 861.46,
+            "y": 65.54
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 336,
+                "height": 579
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 873.46,
+            "y": 77.54
+          },
+          "elements": [
             {
               "type": "image",
               "position": {
-                "x": 207.18,
-                "y": 58.59
+                "x": 0,
+                "y": 0
               },
               "size": {
-                "width": 408.41,
-                "height": 592.91
+                "width": 312,
+                "height": 555
               },
-              "data": "/static/images/replaceable_template_image.png",
+              "data": "/static/images/video-placeholder.png",
               "fit": "cover",
-              "border_radius": {
-                "tl": 15.33,
-                "tr": 15.33,
-                "bl": 15.33,
-                "br": 15.33
-              },
-              "decorative": false,
-              "name": "main_cover_image",
-              "is_icon": false
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
             }
           ]
         },
@@ -34171,12 +34462,12 @@
       ]
     },
     {
-      "id": "large_title_with_curved_side_image_pv07",
-      "description": "Presenter avatar video version: Split layout with a large curved image panel on one side and an oversized title with a short description on the other.",
+      "id": "title_with_side_image_and_bottom_callout_cards_pv07",
+      "description": "Presenter avatar video version: Layout with a title block at the upper left, a large image panel on the right, and a row of compact heading-and-description cards across the bottom.",
       "components": [
         {
-          "id": "layered_background_pv",
-          "description": "Full-slide decorative backdrop with dark upper field, subtle overlays, and a clean lower band anchoring the composition.",
+          "id": "background_visuals_pv",
+          "description": "Full-slide dark backdrop with a soft abstract glow anchored near the lower left edge.",
           "position": {
             "x": 0,
             "y": 0
@@ -34186,138 +34477,45 @@
               "type": "image",
               "position": {
                 "x": -12.33,
-                "y": -29.27
+                "y": -10.79
               },
               "size": {
                 "width": 1304.66,
-                "height": 608.43
+                "height": 738.69
               },
-              "data": "static/freeform_3-aea2ce21dee0.svg",
+              "data": "static/freeform_3-eac87b3b9ab0.svg",
               "fit": "fill",
               "decorative": true,
-              "name": "background_field",
+              "name": "background_base",
               "is_icon": false
             },
             {
-              "type": "container",
-              "position": {
-                "x": -994.93,
-                "y": 244.08
-              },
-              "size": {
-                "width": 1855.46,
-                "height": 818.09
-              },
-              "rotation": -59.52,
-              "child": {
-                "type": "image",
-                "position": {
-                  "x": -282.18,
-                  "y": -16.45
-                },
-                "size": {
-                  "width": 2137.64,
-                  "height": 839.5
-                },
-                "flip_v": true,
-                "opacity": 0.19999,
-                "data": "static/image6-16889f6f3a56.png",
-                "fit": "fill",
-                "clip_path": "path('M 282.18 823.05 L 2137.6399 823.05 L 2137.6399 4.96 L 282.18 4.96 L 282.18 823.05 Z')",
-                "decorative": true,
-                "name": "soft_background_overlay",
-                "is_icon": false
-              }
-            }
-          ]
-        },
-        {
-          "id": "video_placeholder",
-          "description": "Avatar video placeholder",
-          "position": {
-            "x": 200,
-            "y": 24
-          },
-          "elements": [
-            {
               "type": "image",
               "position": {
-                "x": 0,
-                "y": 0
+                "x": -901.99,
+                "y": 110.43
               },
               "size": {
-                "width": 360,
-                "height": 640
+                "width": 1826.55,
+                "height": 988.62
               },
-              "data": "/static/images/video-placeholder.png",
-              "fit": "cover",
-              "decorative": true,
-              "name": "avatar_video",
-              "is_icon": false,
-              "video_placeholder": true
-            }
-          ]
-        },
-        {
-          "id": "curved_image_panel_pv",
-          "description": "Large curved photo panel positioned along the lower edge with a fixed white arc frame for emphasis.",
-          "position": {
-            "x": 0,
-            "y": 274.94
-          },
-          "elements": [
-            {
-              "type": "image",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 446.22,
-                "height": 446.22
-              },
-              "data": "static/freeform_8-c34af73bed7d.svg",
+              "rotation": -4.88,
+              "opacity": 0.7,
+              "data": "static/image1-615fb2b5b0f5.png",
               "fit": "fill",
+              "clip_path": "path('M 0 0 L 1826.55 0 L 1826.55 988.62 L 0 988.62 L 0 0 Z')",
               "decorative": true,
-              "name": "curved_image_frame",
+              "name": "background_glow",
               "is_icon": false
-            },
-            {
-              "type": "container",
-              "position": {
-                "x": 0,
-                "y": 5.86
-              },
-              "size": {
-                "width": 439.2,
-                "height": 439.2
-              },
-              "child": {
-                "type": "image",
-                "position": {
-                  "x": -109.69,
-                  "y": 0
-                },
-                "size": {
-                  "width": 658.59,
-                  "height": 439.2
-                },
-                "data": "/static/images/replaceable_template_image.png",
-                "fit": "fill",
-                "clip_path": "path('M 109.69 0 L 109.69 439.2 L 548.89 439.2 C 548.89 196.6738 352.2162 0 109.69 0 Z')",
-                "decorative": false,
-                "name": "curved_primary_image",
-                "is_icon": false
-              }
             }
           ]
         },
         {
           "id": "headline_text_block_pv",
-          "description": "Main text area aligned on the dark field with a large headline and compact supporting copy beneath.",
+          "description": "Top-left text block with a prominent display heading and short supporting subtitle beneath it.",
           "position": {
-            "x": 559.26,
-            "y": 203.57
+            "x": 79.07,
+            "y": 93.75
           },
           "elements": [
             {
@@ -34327,12 +34525,12 @@
                 "y": 0
               },
               "size": {
-                "width": 543.32,
-                "height": 104.91
+                "width": 648.6,
+                "height": 52.91
               },
               "font": {
-                "size": 47.16,
-                "family": "Playfair Display Bold Italics",
+                "size": 47.11,
+                "family": "Playfair Display Semi-Bold Italics",
                 "color": "#FFFFFF",
                 "bold": true,
                 "italic": true,
@@ -34345,10 +34543,10 @@
               },
               "runs": [
                 {
-                  "text": "Environmental Performance",
+                  "text": "ESG Report Highlights",
                   "font": {
-                    "size": 47.16,
-                    "family": "Playfair Display Bold Italics",
+                    "size": 47.11,
+                    "family": "Playfair Display Semi-Bold Italics",
                     "color": "#FFFFFF",
                     "bold": true,
                     "italic": true,
@@ -34358,27 +34556,27 @@
                 }
               ],
               "decorative": false,
-              "name": "headline",
-              "max_length": 39,
-              "min_length": 15,
+              "name": "slide_title",
+              "max_length": 30,
+              "min_length": 11,
               "rotation": 0
             },
             {
               "type": "text",
               "position": {
-                "x": 0.67,
-                "y": 137.27
+                "x": 1.9,
+                "y": 79.72
               },
               "size": {
-                "width": 544.4,
-                "height": 131.8
+                "width": 642.47,
+                "height": 114.46
               },
               "font": {
-                "size": 19.55,
+                "size": 16.92,
                 "family": "DM Sans",
                 "color": "#FFFFFF",
-                "line_height": 1.11,
-                "letter_spacing": 0.28
+                "line_height": 1.19,
+                "letter_spacing": 0.25
               },
               "alignment": {
                 "horizontal": "left",
@@ -34386,21 +34584,337 @@
               },
               "runs": [
                 {
-                  "text": "Protecting the planet through responsible operations and measurable environmental progress.",
+                  "text": "Key elements that define our approach to sustainable business and responsible growth.",
                   "font": {
-                    "size": 19.55,
+                    "size": 16.92,
                     "family": "DM Sans",
                     "color": "#FFFFFF",
-                    "line_height": 1.11,
-                    "letter_spacing": 0.28
+                    "line_height": 1.19,
+                    "letter_spacing": 0.25
                   }
                 }
               ],
               "decorative": false,
-              "name": "supporting_text",
-              "max_length": 220,
-              "min_length": 46,
+              "name": "slide_subtitle",
+              "max_length": 230,
+              "min_length": 43,
               "rotation": 0
+            }
+          ]
+        },
+        {
+          "id": "right_image_panel_pv",
+          "description": "Tall rounded image area positioned on the right with a subtle offset accent shadow.",
+          "position": {
+            "x": 821.22,
+            "y": 90.42
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 6.66,
+                "y": 6.66
+              },
+              "size": {
+                "width": 370.46,
+                "height": 557.58
+              },
+              "data": "static/freeform_7-9f3a942686b7.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "image_panel_accent",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 845.45,
+            "y": 92.21
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 322,
+                "height": 554
+              },
+              "fill": {
+                "color": "#1DA1F2",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 857.45,
+            "y": 104.21
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 298,
+                "height": 530
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "bottom_callout_cards_pv",
+          "description": "Stacked rows of rounded callout cards with short labels on the left and line icons on the right.",
+          "position": {
+            "x": 78.23,
+            "y": 454.09
+          },
+          "elements": [
+            {
+              "type": "flex",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 632.71,
+                "height": 193.91
+              },
+              "direction": "column",
+              "wrap": false,
+              "align_items": "flex-start",
+              "justify_content": "flex-start",
+              "gap": 6.65,
+              "row_gap": 6.65,
+              "children": [
+                {
+                  "type": "flex",
+                  "direction": "row",
+                  "wrap": false,
+                  "align_items": "flex-start",
+                  "justify_content": "flex-start",
+                  "gap": 5.5,
+                  "column_gap": 5.5,
+                  "children": [
+                    {
+                      "type": "group",
+                      "size": {
+                        "width": 311.14,
+                        "height": 93.63
+                      },
+                      "children": [
+                        {
+                          "type": "image",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          },
+                          "size": {
+                            "width": 311.14,
+                            "height": 93.63
+                          },
+                          "data": "static/freeform_14-549f7c1b88ef.svg",
+                          "fit": "fill",
+                          "decorative": true,
+                          "name": "callout_card_background",
+                          "is_icon": false
+                        },
+                        {
+                          "type": "text",
+                          "position": {
+                            "x": 11.93,
+                            "y": 23.51
+                          },
+                          "size": {
+                            "width": 227.09,
+                            "height": 51.18
+                          },
+                          "font": {
+                            "size": 16.92,
+                            "family": "DM Sans",
+                            "color": "#FFFFFF",
+                            "line_height": 1.19,
+                            "letter_spacing": 0.25
+                          },
+                          "alignment": {
+                            "horizontal": "left",
+                            "vertical": "top"
+                          },
+                          "runs": [
+                            {
+                              "text": "Reducing carbon emissions, improving energy.",
+                              "font": {
+                                "size": 16.92,
+                                "family": "DM Sans",
+                                "color": "#FFFFFF",
+                                "line_height": 1.19,
+                                "letter_spacing": 0.25
+                              }
+                            }
+                          ],
+                          "decorative": false,
+                          "name": "callout_text",
+                          "max_length": 54,
+                          "min_length": 22,
+                          "rotation": 0
+                        },
+                        {
+                          "type": "image",
+                          "position": {
+                            "x": 251.34,
+                            "y": 25.74
+                          },
+                          "size": {
+                            "width": 47.78,
+                            "height": 49.2
+                          },
+                          "opacity": 0.75,
+                          "data": "/static/icons/placeholder.svg",
+                          "fit": "fill",
+                          "clip_path": "",
+                          "color": "#C9EAF9",
+                          "decorative": false,
+                          "name": "callout_icon",
+                          "is_icon": true,
+                          "icon_type": "thin",
+                          "rotation": 0
+                        }
+                      ],
+                      "name": "callout_card"
+                    }
+                  ],
+                  "name": "callout_card_row",
+                  "max_children": 2,
+                  "min_children": 1
+                },
+                {
+                  "type": "flex",
+                  "direction": "row",
+                  "wrap": false,
+                  "align_items": "flex-start",
+                  "justify_content": "flex-start",
+                  "gap": 6.5,
+                  "column_gap": 6.5,
+                  "children": [
+                    {
+                      "type": "group",
+                      "size": {
+                        "width": 205.5,
+                        "height": 93.63
+                      },
+                      "children": [
+                        {
+                          "type": "image",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          },
+                          "size": {
+                            "width": 205.5,
+                            "height": 93.63
+                          },
+                          "data": "static/freeform_17-89b9975edf67.svg",
+                          "fit": "fill",
+                          "decorative": true,
+                          "name": "callout_card_background",
+                          "is_icon": false
+                        },
+                        {
+                          "type": "text",
+                          "position": {
+                            "x": 10.02,
+                            "y": 25.91
+                          },
+                          "size": {
+                            "width": 133.09,
+                            "height": 45.67
+                          },
+                          "font": {
+                            "size": 16.92,
+                            "family": "DM Sans",
+                            "color": "#FFFFFF",
+                            "line_height": 1.19,
+                            "letter_spacing": 0.25
+                          },
+                          "alignment": {
+                            "horizontal": "left",
+                            "vertical": "top"
+                          },
+                          "runs": [
+                            {
+                              "text": "Promoting ethical leadership.",
+                              "font": {
+                                "size": 16.92,
+                                "family": "DM Sans",
+                                "color": "#FFFFFF",
+                                "line_height": 1.19,
+                                "letter_spacing": 0.25
+                              }
+                            }
+                          ],
+                          "decorative": false,
+                          "name": "callout_text",
+                          "max_length": 25,
+                          "min_length": 15,
+                          "rotation": 0
+                        },
+                        {
+                          "type": "image",
+                          "position": {
+                            "x": 147.33,
+                            "y": 26.82
+                          },
+                          "size": {
+                            "width": 47.84,
+                            "height": 49.36
+                          },
+                          "opacity": 0.75,
+                          "data": "/static/icons/placeholder.svg",
+                          "fit": "fill",
+                          "clip_path": "path('M 0 0 L 40.9699 0 L 40.9699 49.36 L 0 49.36 L 0 0 Z')",
+                          "color": "#C9EAF9",
+                          "decorative": false,
+                          "name": "callout_icon",
+                          "is_icon": true,
+                          "icon_type": "thin",
+                          "rotation": 0
+                        }
+                      ],
+                      "name": "callout_card"
+                    }
+                  ],
+                  "name": "callout_card_row",
+                  "max_children": 3,
+                  "min_children": 1
+                }
+              ],
+              "name": "callout_card_rows",
+              "max_children": 2,
+              "min_children": 1
             }
           ]
         }

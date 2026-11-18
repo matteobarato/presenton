@@ -11742,7 +11742,7 @@
                 "height": 592
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -11812,6 +11812,43 @@
       ]
     },
     {
+      "id": "video_backing_pv",
+      "description": "Panel behind the video, so an empty slot still looks designed.",
+      "variants": [
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#141414",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "callout_1_pv",
       "description": "Left callout card.",
       "variants": [
@@ -11834,7 +11871,7 @@
                 "height": 141
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -11879,7 +11916,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -11893,7 +11930,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -11918,7 +11955,7 @@
               "font": {
                 "size": 15,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -11932,7 +11969,7 @@
                   "font": {
                     "size": 15,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -11970,7 +12007,7 @@
                 "height": 141
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -12015,7 +12052,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -12029,7 +12066,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -12054,7 +12091,7 @@
               "font": {
                 "size": 15,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -12068,7 +12105,7 @@
                   "font": {
                     "size": 15,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -12106,7 +12143,7 @@
                 "height": 141
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -12151,7 +12188,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -12165,7 +12202,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -12190,7 +12227,7 @@
               "font": {
                 "size": 15,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -12204,7 +12241,7 @@
                   "font": {
                     "size": 15,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -12242,7 +12279,7 @@
                 "height": 141
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -12287,7 +12324,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -12301,7 +12338,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -12326,7 +12363,7 @@
               "font": {
                 "size": 15,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -12340,7 +12377,7 @@
                   "font": {
                     "size": 15,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -12375,7 +12412,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 65
+                "height": 127
               },
               "rotation": 0,
               "font": {
@@ -12419,7 +12456,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 161
+            "y": 223
           },
           "elements": [
             {
@@ -12430,10 +12467,10 @@
               },
               "size": {
                 "width": 740,
-                "height": 380
+                "height": 394
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -12451,7 +12488,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 380
+                "height": 394
               },
               "fill": {
                 "color": "#C24D12",
@@ -12468,7 +12505,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 59
+                "y": 48
               },
               "size": {
                 "width": 80,
@@ -12507,11 +12544,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 133
+                "y": 122
               },
               "size": {
                 "width": 624,
-                "height": 110
+                "height": 146
               },
               "rotation": 0,
               "font": {
@@ -12546,7 +12583,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 267
+                "y": 292
               },
               "size": {
                 "width": 624,
@@ -12556,7 +12593,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -12570,7 +12607,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -12585,7 +12622,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 298
+                "y": 323
               },
               "size": {
                 "width": 624,
@@ -12595,7 +12632,7 @@
               "font": {
                 "size": 14,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -12609,7 +12646,7 @@
                   "font": {
                     "size": 14,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -12684,7 +12721,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -12729,7 +12766,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -12743,7 +12780,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -12768,7 +12805,7 @@
               "font": {
                 "size": 14,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -12782,7 +12819,7 @@
                   "font": {
                     "size": 14,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -12804,7 +12841,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -12849,7 +12886,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -12863,7 +12900,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -12888,7 +12925,7 @@
               "font": {
                 "size": 14,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -12902,7 +12939,7 @@
                   "font": {
                     "size": 14,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -12924,7 +12961,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -12969,7 +13006,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -12983,7 +13020,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -13008,7 +13045,7 @@
               "font": {
                 "size": 14,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -13022,7 +13059,7 @@
                   "font": {
                     "size": 14,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -13032,6 +13069,39 @@
               "name": "card_3_text",
               "min_length": 12,
               "max_length": 56
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "full_bleed_background_pv",
+      "description": "Full slide decorative image backdrop with dark upper area and warm textured glow along the bottom edge.",
+      "variants": [
+        {
+          "id": "full_bleed_background_pv",
+          "description": "Full slide decorative image backdrop with dark upper area and warm textured glow along the bottom edge.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": -601.63,
+                "y": -664.37
+              },
+              "size": {
+                "width": 2483.25,
+                "height": 1396.84
+              },
+              "data": "static/image6-67ec4cfdc5cc.jpeg",
+              "fit": "fill",
+              "clip_path": "path('M 601.63 664.37 L 1881.63 664.37 L 1881.63 1384.37 L 601.63 1384.37 L 601.63 664.37 Z')",
+              "decorative": true,
+              "name": "background_texture",
+              "is_icon": false
             }
           ]
         }
@@ -13089,44 +13159,6 @@
               "name": "primary_title",
               "max_length": 60,
               "min_length": 6
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "left_image_panel_pv",
-      "description": "Large rounded-corner image panel occupying the lower-left content area beneath the heading.",
-      "variants": [
-        {
-          "id": "left_image_panel_pv",
-          "description": "Large rounded-corner image panel occupying the lower-left content area beneath the heading.",
-          "position": {
-            "x": 72,
-            "y": 236.51
-          },
-          "elements": [
-            {
-              "type": "image",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 744.29,
-                "height": 411.49
-              },
-              "data": "/static/images/replaceable_template_image.png",
-              "fit": "cover",
-              "border_radius": {
-                "tl": 8.88,
-                "tr": 8.88,
-                "bl": 8.88,
-                "br": 8.88
-              },
-              "decorative": false,
-              "name": "feature_photo",
-              "is_icon": false
             }
           ]
         }
@@ -13266,57 +13298,163 @@
     },
     {
       "id": "full_bleed_backdrop_pv",
-      "description": "Full-slide decorative background combining a black base with a cropped warm textured image accent along the bottom edge.",
+      "description": "Full slide image layer providing the dark background texture and warm lower gradient accent.",
       "variants": [
         {
           "id": "full_bleed_backdrop_pv",
-          "description": "Full-slide decorative background combining a black base with a cropped warm textured image accent along the bottom edge.",
+          "description": "Full slide image layer providing the dark background texture and warm lower gradient accent.",
           "position": {
             "x": 0,
             "y": 0
           },
           "elements": [
             {
-              "type": "vector",
-              "shape": "polygon",
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 720
-                },
-                {
-                  "x": 0,
-                  "y": 720
-                }
-              ],
-              "closed": true,
-              "fill": {
-                "color": "#000000",
-                "opacity": 1
-              }
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 1280,
+                "height": 720
+              },
+              "data": "static/image4-677532a3decf.jpeg",
+              "fit": "fill",
+              "clip_path": "path('M 0 0 L 1280 0 L 1280 720 L 0 720 L 0 0 Z')",
+              "decorative": true,
+              "name": "backdrop_image",
+              "is_icon": false
             }
           ]
         }
       ]
     },
     {
-      "id": "centered_text_stack_pv",
-      "description": "Centered vertical text block with a large two-line headline and smaller supporting copy beneath it.",
+      "id": "left_text_stack_part_1_pv",
+      "description": "Ungrouped component element",
       "variants": [
         {
-          "id": "centered_text_stack_pv",
-          "description": "Centered vertical text block with a large two-line headline and smaller supporting copy beneath it.",
+          "id": "left_text_stack_part_1_pv",
+          "description": "Ungrouped component element",
           "position": {
-            "x": 320,
-            "y": 200
+            "x": 62.9,
+            "y": 95.13
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 349.21,
+                "height": 248.09
+              },
+              "rotation": 0,
+              "font": {
+                "size": 64,
+                "family": "Montserrat Medium",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1.25,
+                "letter_spacing": -0.64
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "12+ TOOLS,\nONE FIX",
+                  "font": {
+                    "size": 64,
+                    "family": "Montserrat Medium",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1.25,
+                    "letter_spacing": -0.64
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "primary_heading",
+              "max_length": 24,
+              "min_length": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "left_text_stack_part_2_pv",
+      "description": "Ungrouped component element",
+      "variants": [
+        {
+          "id": "left_text_stack_part_2_pv",
+          "description": "Ungrouped component element",
+          "position": {
+            "x": 64.9,
+            "y": 350.22
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 324.3,
+                "height": 275
+              },
+              "rotation": 0,
+              "font": {
+                "size": 21.33,
+                "family": "Montserrat",
+                "color": "#FFFFFF",
+                "line_height": 1.5,
+                "letter_spacing": -0.21
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Rippling unifies payroll, benefits, device ,apps and compliance",
+                  "font": {
+                    "size": 21.33,
+                    "family": "Montserrat",
+                    "color": "#FFFFFF",
+                    "bold": false,
+                    "italic": false,
+                    "underline": false,
+                    "line_height": 1.5,
+                    "letter_spacing": -0.21,
+                    "opacity": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "primary_heading",
+              "max_length": 211,
+              "min_length": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "right_item_stack_pv",
+      "description": "Right-side column of three repeated text summaries, each pairing a short heading with multiline body copy.",
+      "variants": [
+        {
+          "id": "right_item_stack_pv",
+          "description": "Right-side column of three repeated text summaries, each pairing a short heading with multiline body copy.",
+          "position": {
+            "x": 928,
+            "y": 97
           },
           "elements": [
             {
@@ -13326,94 +13464,108 @@
                 "y": 0
               },
               "size": {
-                "width": 640,
-                "height": 230
+                "width": 280,
+                "height": 536
               },
               "direction": "column",
-              "wrap": false,
-              "align_items": "center",
-              "justify_content": "flex-start",
-              "gap": 6,
+              "justify_content": "center",
+              "gap": 54,
               "children": [
                 {
-                  "type": "text",
+                  "type": "flex",
                   "size": {
-                    "width": 630,
-                    "height": 160
+                    "width": 280,
+                    "height": 134
                   },
-                  "font": {
-                    "size": 64,
-                    "family": "Montserrat Medium",
-                    "color": "#FFFFFF",
-                    "bold": true,
-                    "line_height": 1.25,
-                    "letter_spacing": -0.64
-                  },
-                  "alignment": {
-                    "horizontal": "center",
-                    "vertical": "top"
-                  },
-                  "runs": [
+                  "direction": "column",
+                  "align_items": "flex-start",
+                  "justify_content": "flex-start",
+                  "gap": 6,
+                  "children": [
                     {
-                      "text": "WHAT COMES NEXT?",
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 254.74,
+                        "height": 22
+                      },
+                      "rotation": 0,
                       "font": {
-                        "size": 64,
+                        "size": 21.33,
                         "family": "Montserrat Medium",
                         "color": "#FFFFFF",
                         "bold": true,
-                        "line_height": 1.25,
-                        "letter_spacing": -0.64
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "headline_text",
-                  "max_length": 29,
-                  "min_length": 8
-                },
-                {
-                  "type": "text",
-                  "position": {
-                    "x": 0,
-                    "y": 166
-                  },
-                  "size": {
-                    "width": 640,
-                    "height": 131.03
-                  },
-                  "rotation": 0,
-                  "font": {
-                    "size": 21.33,
-                    "family": "Montserrat",
-                    "color": "#FFFFFF",
-                    "line_height": 1.5,
-                    "letter_spacing": -0.21
-                  },
-                  "alignment": {
-                    "horizontal": "center",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et",
-                      "font": {
-                        "size": 21.33,
-                        "family": "Montserrat",
-                        "color": "#FFFFFF",
-                        "line_height": 1.5,
+                        "line_height": 1.01,
                         "letter_spacing": -0.21
-                      }
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Payroll",
+                          "font": {
+                            "size": 21.33,
+                            "family": "Montserrat Medium",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.01,
+                            "letter_spacing": -0.21
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "item_heading",
+                      "max_length": 7,
+                      "min_length": 4
+                    },
+                    {
+                      "type": "text",
+                      "size": {
+                        "width": 277,
+                        "height": 105
+                      },
+                      "font": {
+                        "size": 17.78,
+                        "family": "Montserrat",
+                        "color": "#E6E6E6",
+                        "line_height": 1.5,
+                        "letter_spacing": -0.18
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Run payroll across 50 states and 100 countries with automated tax calculation and filling.",
+                          "font": {
+                            "size": 17.78,
+                            "family": "Montserrat",
+                            "color": "#E6E6E6",
+                            "line_height": 1.5,
+                            "letter_spacing": -0.18
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "item_heading",
+                      "max_length": 7,
+                      "min_length": 4
                     }
                   ],
-                  "decorative": false,
-                  "name": "supporting_text",
-                  "max_length": 216,
-                  "min_length": 52
+                  "name": "summary_item_top",
+                  "max_children": 2,
+                  "min_children": 2
                 }
               ],
-              "name": "centered_copy_group",
-              "max_children": 2,
-              "min_children": 2
+              "name": "summary_column",
+              "max_children": 3,
+              "min_children": 1
             }
           ]
         }
@@ -25206,7 +25358,7 @@
                 "height": 592
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -25338,6 +25490,37 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#141414",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
@@ -25383,7 +25566,7 @@
                 "height": 141
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -25428,7 +25611,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -25442,7 +25625,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -25467,7 +25650,7 @@
               "font": {
                 "size": 15,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -25481,7 +25664,7 @@
                   "font": {
                     "size": 15,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -25513,7 +25696,7 @@
                 "height": 141
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -25558,7 +25741,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -25572,7 +25755,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -25597,7 +25780,7 @@
               "font": {
                 "size": 15,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -25611,7 +25794,7 @@
                   "font": {
                     "size": 15,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -25643,7 +25826,7 @@
                 "height": 141
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -25688,7 +25871,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -25702,7 +25885,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -25727,7 +25910,7 @@
               "font": {
                 "size": 15,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -25741,7 +25924,7 @@
                   "font": {
                     "size": 15,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -25773,7 +25956,7 @@
                 "height": 141
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -25818,7 +26001,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -25832,7 +26015,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -25857,7 +26040,7 @@
               "font": {
                 "size": 15,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -25871,7 +26054,7 @@
                   "font": {
                     "size": 15,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -25943,7 +26126,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 65
+                "height": 127
               },
               "rotation": 0,
               "font": {
@@ -25981,7 +26164,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 161
+            "y": 223
           },
           "elements": [
             {
@@ -25992,10 +26175,10 @@
               },
               "size": {
                 "width": 740,
-                "height": 380
+                "height": 394
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -26013,7 +26196,7 @@
               },
               "size": {
                 "width": 8,
-                "height": 380
+                "height": 394
               },
               "fill": {
                 "color": "#C24D12",
@@ -26030,7 +26213,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 59
+                "y": 48
               },
               "size": {
                 "width": 80,
@@ -26069,11 +26252,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 133
+                "y": 122
               },
               "size": {
                 "width": 624,
-                "height": 110
+                "height": 146
               },
               "rotation": 0,
               "font": {
@@ -26108,7 +26291,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 267
+                "y": 292
               },
               "size": {
                 "width": 624,
@@ -26118,7 +26301,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -26132,7 +26315,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -26147,7 +26330,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 298
+                "y": 323
               },
               "size": {
                 "width": 624,
@@ -26157,7 +26340,7 @@
               "font": {
                 "size": 14,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -26171,7 +26354,7 @@
                   "font": {
                     "size": 14,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -26450,7 +26633,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -26495,7 +26678,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -26509,7 +26692,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -26534,7 +26717,7 @@
               "font": {
                 "size": 14,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -26548,7 +26731,7 @@
                   "font": {
                     "size": 14,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -26570,7 +26753,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -26615,7 +26798,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -26629,7 +26812,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -26654,7 +26837,7 @@
               "font": {
                 "size": 14,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -26668,7 +26851,7 @@
                   "font": {
                     "size": 14,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -26690,7 +26873,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#C24D12",
+                "color": "#141414",
                 "opacity": 1
               },
               "border_radius": {
@@ -26735,7 +26918,7 @@
               "font": {
                 "size": 18,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": true
               },
@@ -26749,7 +26932,7 @@
                   "font": {
                     "size": 18,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": true
                   }
@@ -26774,7 +26957,7 @@
               "font": {
                 "size": 14,
                 "family": "Montserrat",
-                "color": "#FFFFFF",
+                "color": "#D9D9D9",
                 "line_height": 1.5,
                 "bold": false
               },
@@ -26788,7 +26971,7 @@
                   "font": {
                     "size": 14,
                     "family": "Montserrat",
-                    "color": "#FFFFFF",
+                    "color": "#D9D9D9",
                     "line_height": 1.5,
                     "bold": false
                   }
@@ -26808,29 +26991,29 @@
       "description": "Presenter avatar video version: Dark full-bleed background with large title, rounded photo panel, and stacked text callouts on the right.",
       "components": [
         {
-          "id": "video_placeholder",
-          "description": "Avatar video placeholder",
+          "id": "full_bleed_background_pv",
+          "description": "Full slide decorative image backdrop with dark upper area and warm textured glow along the bottom edge.",
           "position": {
-            "x": 504,
-            "y": 240
+            "x": 0,
+            "y": 0
           },
           "elements": [
             {
               "type": "image",
               "position": {
-                "x": 0,
-                "y": 0
+                "x": -601.63,
+                "y": -664.37
               },
               "size": {
-                "width": 264,
-                "height": 469
+                "width": 2483.25,
+                "height": 1396.84
               },
-              "data": "/static/images/video-placeholder.png",
-              "fit": "cover",
+              "data": "static/image6-67ec4cfdc5cc.jpeg",
+              "fit": "fill",
+              "clip_path": "path('M 601.63 664.37 L 1881.63 664.37 L 1881.63 1384.37 L 601.63 1384.37 L 601.63 664.37 Z')",
               "decorative": true,
-              "name": "avatar_video",
-              "is_icon": false,
-              "video_placeholder": true
+              "name": "background_texture",
+              "is_icon": false
             }
           ]
         },
@@ -26886,11 +27069,42 @@
           ]
         },
         {
-          "id": "left_image_panel_pv",
-          "description": "Large rounded-corner image panel occupying the lower-left content area beneath the heading.",
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
           "position": {
-            "x": 72,
-            "y": 236.51
+            "x": 324.14,
+            "y": 238.25
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 240,
+                "height": 408
+              },
+              "fill": {
+                "color": "#141414",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 336.14,
+            "y": 250.25
           },
           "elements": [
             {
@@ -26900,20 +27114,15 @@
                 "y": 0
               },
               "size": {
-                "width": 744.29,
-                "height": 411.49
+                "width": 216,
+                "height": 384
               },
-              "data": "/static/images/replaceable_template_image.png",
+              "data": "/static/images/video-placeholder.png",
               "fit": "cover",
-              "border_radius": {
-                "tl": 8.88,
-                "tr": 8.88,
-                "bl": 8.88,
-                "br": 8.88
-              },
-              "decorative": false,
-              "name": "feature_photo",
-              "is_icon": false
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
             }
           ]
         },
@@ -27046,52 +27255,15 @@
       ]
     },
     {
-      "id": "closing_title_description_1992_pv07",
-      "description": "Presenter avatar video version: A dark full-bleed slide with a warm textured lower glow and a centered headline with supporting text.",
+      "id": "left_text_center_image_right_text_2105_pv07",
+      "description": "Presenter avatar video version: Dark full-bleed layout with a left text stack, centered visual asset, and stacked explanatory text blocks on the right.",
       "components": [
         {
           "id": "full_bleed_backdrop_pv",
-          "description": "Full-slide decorative background combining a black base with a cropped warm textured image accent along the bottom edge.",
+          "description": "Full slide image layer providing the dark background texture and warm lower gradient accent.",
           "position": {
             "x": 0,
             "y": 0
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 720
-                },
-                {
-                  "x": 0,
-                  "y": 720
-                }
-              ],
-              "closed": true,
-              "fill": {
-                "color": "#000000",
-                "opacity": 1
-              }
-            }
-          ]
-        },
-        {
-          "id": "video_placeholder",
-          "description": "Avatar video placeholder",
-          "position": {
-            "x": 8,
-            "y": 80
           },
           "elements": [
             {
@@ -27101,8 +27273,170 @@
                 "y": 0
               },
               "size": {
-                "width": 312,
-                "height": 555
+                "width": 1280,
+                "height": 720
+              },
+              "data": "static/image4-677532a3decf.jpeg",
+              "fit": "fill",
+              "clip_path": "path('M 0 0 L 1280 0 L 1280 720 L 0 720 L 0 0 Z')",
+              "decorative": true,
+              "name": "backdrop_image",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "left_text_stack_part_1_pv",
+          "description": "Ungrouped component element",
+          "position": {
+            "x": 62.9,
+            "y": 95.13
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 349.21,
+                "height": 248.09
+              },
+              "rotation": 0,
+              "font": {
+                "size": 64,
+                "family": "Montserrat Medium",
+                "color": "#FFFFFF",
+                "bold": true,
+                "line_height": 1.25,
+                "letter_spacing": -0.64
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "12+ TOOLS,\nONE FIX",
+                  "font": {
+                    "size": 64,
+                    "family": "Montserrat Medium",
+                    "color": "#FFFFFF",
+                    "bold": true,
+                    "line_height": 1.25,
+                    "letter_spacing": -0.64
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "primary_heading",
+              "max_length": 24,
+              "min_length": 9
+            }
+          ]
+        },
+        {
+          "id": "left_text_stack_part_2_pv",
+          "description": "Ungrouped component element",
+          "position": {
+            "x": 64.9,
+            "y": 350.22
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 324.3,
+                "height": 275
+              },
+              "rotation": 0,
+              "font": {
+                "size": 21.33,
+                "family": "Montserrat",
+                "color": "#FFFFFF",
+                "line_height": 1.5,
+                "letter_spacing": -0.21
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Rippling unifies payroll, benefits, device ,apps and compliance",
+                  "font": {
+                    "size": 21.33,
+                    "family": "Montserrat",
+                    "color": "#FFFFFF",
+                    "bold": false,
+                    "italic": false,
+                    "underline": false,
+                    "line_height": 1.5,
+                    "letter_spacing": -0.21,
+                    "opacity": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "primary_heading",
+              "max_length": 211,
+              "min_length": 9
+            }
+          ]
+        },
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 521.5,
+            "y": 116.0
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 493
+              },
+              "fill": {
+                "color": "#141414",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 533.5,
+            "y": 128.0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 264,
+                "height": 469
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -27114,11 +27448,11 @@
           ]
         },
         {
-          "id": "centered_text_stack_pv",
-          "description": "Centered vertical text block with a large two-line headline and smaller supporting copy beneath it.",
+          "id": "right_item_stack_pv",
+          "description": "Right-side column of three repeated text summaries, each pairing a short heading with multiline body copy.",
           "position": {
-            "x": 320,
-            "y": 200
+            "x": 928,
+            "y": 97
           },
           "elements": [
             {
@@ -27128,94 +27462,108 @@
                 "y": 0
               },
               "size": {
-                "width": 640,
-                "height": 230
+                "width": 280,
+                "height": 536
               },
               "direction": "column",
-              "wrap": false,
-              "align_items": "center",
-              "justify_content": "flex-start",
-              "gap": 6,
+              "justify_content": "center",
+              "gap": 54,
               "children": [
                 {
-                  "type": "text",
+                  "type": "flex",
                   "size": {
-                    "width": 630,
-                    "height": 160
+                    "width": 280,
+                    "height": 134
                   },
-                  "font": {
-                    "size": 64,
-                    "family": "Montserrat Medium",
-                    "color": "#FFFFFF",
-                    "bold": true,
-                    "line_height": 1.25,
-                    "letter_spacing": -0.64
-                  },
-                  "alignment": {
-                    "horizontal": "center",
-                    "vertical": "top"
-                  },
-                  "runs": [
+                  "direction": "column",
+                  "align_items": "flex-start",
+                  "justify_content": "flex-start",
+                  "gap": 6,
+                  "children": [
                     {
-                      "text": "WHAT COMES NEXT?",
+                      "type": "text",
+                      "position": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 254.74,
+                        "height": 22
+                      },
+                      "rotation": 0,
                       "font": {
-                        "size": 64,
+                        "size": 21.33,
                         "family": "Montserrat Medium",
                         "color": "#FFFFFF",
                         "bold": true,
-                        "line_height": 1.25,
-                        "letter_spacing": -0.64
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "headline_text",
-                  "max_length": 29,
-                  "min_length": 8
-                },
-                {
-                  "type": "text",
-                  "position": {
-                    "x": 0,
-                    "y": 166
-                  },
-                  "size": {
-                    "width": 640,
-                    "height": 131.03
-                  },
-                  "rotation": 0,
-                  "font": {
-                    "size": 21.33,
-                    "family": "Montserrat",
-                    "color": "#FFFFFF",
-                    "line_height": 1.5,
-                    "letter_spacing": -0.21
-                  },
-                  "alignment": {
-                    "horizontal": "center",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et",
-                      "font": {
-                        "size": 21.33,
-                        "family": "Montserrat",
-                        "color": "#FFFFFF",
-                        "line_height": 1.5,
+                        "line_height": 1.01,
                         "letter_spacing": -0.21
-                      }
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Payroll",
+                          "font": {
+                            "size": 21.33,
+                            "family": "Montserrat Medium",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.01,
+                            "letter_spacing": -0.21
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "item_heading",
+                      "max_length": 7,
+                      "min_length": 4
+                    },
+                    {
+                      "type": "text",
+                      "size": {
+                        "width": 277,
+                        "height": 105
+                      },
+                      "font": {
+                        "size": 17.78,
+                        "family": "Montserrat",
+                        "color": "#E6E6E6",
+                        "line_height": 1.5,
+                        "letter_spacing": -0.18
+                      },
+                      "alignment": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "runs": [
+                        {
+                          "text": "Run payroll across 50 states and 100 countries with automated tax calculation and filling.",
+                          "font": {
+                            "size": 17.78,
+                            "family": "Montserrat",
+                            "color": "#E6E6E6",
+                            "line_height": 1.5,
+                            "letter_spacing": -0.18
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "item_heading",
+                      "max_length": 7,
+                      "min_length": 4
                     }
                   ],
-                  "decorative": false,
-                  "name": "supporting_text",
-                  "max_length": 216,
-                  "min_length": 52
+                  "name": "summary_item_top",
+                  "max_children": 2,
+                  "min_children": 2
                 }
               ],
-              "name": "centered_copy_group",
-              "max_children": 2,
-              "min_children": 2
+              "name": "summary_column",
+              "max_children": 3,
+              "min_children": 1
             }
           ]
         }

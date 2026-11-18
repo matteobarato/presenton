@@ -15,7 +15,7 @@ from .style import TemplateStyle, contrast, readable_on
 
 STAGE_W, STAGE_H = 1280, 720
 PH_W, PH_H = 288, 512
-CHAR_W = 0.55  # average glyph width as a fraction of the font size
+CHAR_W = 0.63  # average glyph width as a fraction of the font size, with slack for word wrap
 
 
 def placeholder_component(x: float, y: float, w: int = PH_W, h: int = PH_H) -> dict:
@@ -229,6 +229,8 @@ def _centered(style: TemplateStyle, n: int) -> dict:
     comps = [
         _background(style),
         _component("centered_title", "Centered headline above the video.", 0, 0, [title]),
+        _component("video_backing", "Panel behind the video, so an empty slot still looks designed.", 480, 88,
+                   [_rect(0, 0, PH_W + 32, PH_H + 32, style.card, 14)]),
         placeholder_component(496, 104),
     ]
     left = [("Focus", "One idea per slide, said plainly."), ("Proof", "A fact or number that backs it up.")]

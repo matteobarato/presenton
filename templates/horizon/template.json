@@ -25850,7 +25850,7 @@
               },
               "size": {
                 "width": 696,
-                "height": 47
+                "height": 70
               },
               "rotation": 0,
               "font": {
@@ -25894,7 +25894,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 312
+            "y": 335
           },
           "elements": [
             {
@@ -26721,6 +26721,43 @@
       ]
     },
     {
+      "id": "video_backing_pv",
+      "description": "Panel behind the video, so an empty slot still looks designed.",
+      "variants": [
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#F0DFCC",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "callout_1_pv",
       "description": "Left callout card.",
       "variants": [
@@ -27284,7 +27321,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 60
+                "height": 117
               },
               "rotation": 0,
               "font": {
@@ -27328,7 +27365,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 156
+            "y": 213
           },
           "elements": [
             {
@@ -27377,7 +27414,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 68
+                "y": 52
               },
               "size": {
                 "width": 80,
@@ -27416,11 +27453,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 134
+                "y": 118
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
@@ -27455,7 +27492,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 260
+                "y": 276
               },
               "size": {
                 "width": 624,
@@ -27494,7 +27531,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 306
               },
               "size": {
                 "width": 624,
@@ -55414,7 +55451,7 @@
               },
               "size": {
                 "width": 696,
-                "height": 47
+                "height": 70
               },
               "rotation": 0,
               "font": {
@@ -55452,7 +55489,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 312
+            "y": 335
           },
           "elements": [
             {
@@ -56460,6 +56497,37 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#F0DFCC",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
@@ -57065,7 +57133,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 60
+                "height": 117
               },
               "rotation": 0,
               "font": {
@@ -57103,7 +57171,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 156
+            "y": 213
           },
           "elements": [
             {
@@ -57152,7 +57220,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 68
+                "y": 52
               },
               "size": {
                 "width": 80,
@@ -57191,11 +57259,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 134
+                "y": 118
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
@@ -57230,7 +57298,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 260
+                "y": 276
               },
               "size": {
                 "width": 624,
@@ -57269,7 +57337,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 306
               },
               "size": {
                 "width": 624,
@@ -58062,11 +58130,42 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 644.08,
+            "y": 8
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 493
+              },
+              "fill": {
+                "color": "#F0DFCC",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 674.12,
-            "y": 80
+            "x": 656.08,
+            "y": 20
           },
           "elements": [
             {
@@ -58076,8 +58175,8 @@
                 "y": 0
               },
               "size": {
-                "width": 312,
-                "height": 555
+                "width": 264,
+                "height": 469
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -59001,11 +59100,42 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 919.08,
+            "y": 174.72
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 266,
+                "height": 454
+              },
+              "fill": {
+                "color": "#F0DFCC",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 918.82,
-            "y": 163.45
+            "x": 931.08,
+            "y": 186.72
           },
           "elements": [
             {
@@ -59015,8 +59145,8 @@
                 "y": 0
               },
               "size": {
-                "width": 264,
-                "height": 469
+                "width": 242,
+                "height": 430
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",

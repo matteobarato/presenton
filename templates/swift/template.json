@@ -9811,7 +9811,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 260
+            "y": 278
           },
           "elements": [
             {
@@ -10255,7 +10255,7 @@
                 "height": 592
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -10325,6 +10325,43 @@
       ]
     },
     {
+      "id": "video_backing_pv",
+      "description": "Panel behind the video, so an empty slot still looks designed.",
+      "variants": [
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#ECEDEE",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "callout_1_pv",
       "description": "Left callout card.",
       "variants": [
@@ -10347,7 +10384,7 @@
                 "height": 128
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -10392,7 +10429,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -10406,7 +10443,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -10431,7 +10468,7 @@
               "font": {
                 "size": 15,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -10445,7 +10482,7 @@
                   "font": {
                     "size": 15,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -10483,7 +10520,7 @@
                 "height": 128
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -10528,7 +10565,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -10542,7 +10579,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -10567,7 +10604,7 @@
               "font": {
                 "size": 15,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -10581,7 +10618,7 @@
                   "font": {
                     "size": 15,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -10619,7 +10656,7 @@
                 "height": 128
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -10664,7 +10701,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -10678,7 +10715,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -10703,7 +10740,7 @@
               "font": {
                 "size": 15,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -10717,7 +10754,7 @@
                   "font": {
                     "size": 15,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -10755,7 +10792,7 @@
                 "height": 128
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -10800,7 +10837,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -10814,7 +10851,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -10839,7 +10876,7 @@
               "font": {
                 "size": 15,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -10853,7 +10890,7 @@
                   "font": {
                     "size": 15,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -10946,7 +10983,7 @@
                 "height": 380
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -10981,7 +11018,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 54
               },
               "size": {
                 "width": 80,
@@ -11020,17 +11057,17 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 136
+                "y": 120
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
                 "size": 30,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#111827",
                 "line_height": 1.1,
                 "bold": false
               },
@@ -11044,7 +11081,7 @@
                   "font": {
                     "size": 30,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#111827",
                     "line_height": 1.1,
                     "bold": false
                   }
@@ -11059,7 +11096,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 262
+                "y": 278
               },
               "size": {
                 "width": 624,
@@ -11069,7 +11106,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -11083,7 +11120,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -11098,7 +11135,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 306
               },
               "size": {
                 "width": 624,
@@ -11108,7 +11145,7 @@
               "font": {
                 "size": 14,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -11122,7 +11159,7 @@
                   "font": {
                     "size": 14,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -11197,7 +11234,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -11242,7 +11279,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -11256,7 +11293,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -11281,7 +11318,7 @@
               "font": {
                 "size": 14,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -11295,7 +11332,7 @@
                   "font": {
                     "size": 14,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -11317,7 +11354,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -11362,7 +11399,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -11376,7 +11413,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -11401,7 +11438,7 @@
               "font": {
                 "size": 14,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -11415,7 +11452,7 @@
                   "font": {
                     "size": 14,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -11437,7 +11474,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -11482,7 +11519,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -11496,7 +11533,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -11521,7 +11558,7 @@
               "font": {
                 "size": 14,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -11535,7 +11572,7 @@
                   "font": {
                     "size": 14,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -21943,7 +21980,7 @@
               },
               "size": {
                 "width": 720,
-                "height": 20
+                "height": 38
               },
               "rotation": 0,
               "font": {
@@ -21981,7 +22018,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 260
+            "y": 278
           },
           "elements": [
             {
@@ -22419,7 +22456,7 @@
                 "height": 592
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -22551,6 +22588,37 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#ECEDEE",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
@@ -22596,7 +22664,7 @@
                 "height": 128
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -22641,7 +22709,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -22655,7 +22723,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -22680,7 +22748,7 @@
               "font": {
                 "size": 15,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -22694,7 +22762,7 @@
                   "font": {
                     "size": 15,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -22726,7 +22794,7 @@
                 "height": 128
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -22771,7 +22839,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -22785,7 +22853,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -22810,7 +22878,7 @@
               "font": {
                 "size": 15,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -22824,7 +22892,7 @@
                   "font": {
                     "size": 15,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -22856,7 +22924,7 @@
                 "height": 128
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -22901,7 +22969,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -22915,7 +22983,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -22940,7 +23008,7 @@
               "font": {
                 "size": 15,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -22954,7 +23022,7 @@
                   "font": {
                     "size": 15,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -22986,7 +23054,7 @@
                 "height": 128
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -23031,7 +23099,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -23045,7 +23113,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -23070,7 +23138,7 @@
               "font": {
                 "size": 15,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -23084,7 +23152,7 @@
                   "font": {
                     "size": 15,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -23208,7 +23276,7 @@
                 "height": 380
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -23243,7 +23311,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 54
               },
               "size": {
                 "width": 80,
@@ -23282,17 +23350,17 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 136
+                "y": 120
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
                 "size": 30,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#111827",
                 "line_height": 1.1,
                 "bold": false
               },
@@ -23306,7 +23374,7 @@
                   "font": {
                     "size": 30,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#111827",
                     "line_height": 1.1,
                     "bold": false
                   }
@@ -23321,7 +23389,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 262
+                "y": 278
               },
               "size": {
                 "width": 624,
@@ -23331,7 +23399,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -23345,7 +23413,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -23360,7 +23428,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 306
               },
               "size": {
                 "width": 624,
@@ -23370,7 +23438,7 @@
               "font": {
                 "size": 14,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -23384,7 +23452,7 @@
                   "font": {
                     "size": 14,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -23611,7 +23679,7 @@
               },
               "size": {
                 "width": 752,
-                "height": 20
+                "height": 38
               },
               "rotation": 0,
               "font": {
@@ -23663,7 +23731,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -23708,7 +23776,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -23722,7 +23790,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -23747,7 +23815,7 @@
               "font": {
                 "size": 14,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -23761,7 +23829,7 @@
                   "font": {
                     "size": 14,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -23783,7 +23851,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -23828,7 +23896,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -23842,7 +23910,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -23867,7 +23935,7 @@
               "font": {
                 "size": 14,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -23881,7 +23949,7 @@
                   "font": {
                     "size": 14,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -23903,7 +23971,7 @@
                 "height": 220
               },
               "fill": {
-                "color": "#111827",
+                "color": "#ECEDEE",
                 "opacity": 1
               },
               "border_radius": {
@@ -23948,7 +24016,7 @@
               "font": {
                 "size": 18,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": true
               },
@@ -23962,7 +24030,7 @@
                   "font": {
                     "size": 18,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": true
                   }
@@ -23987,7 +24055,7 @@
               "font": {
                 "size": 14,
                 "family": "Albert Sans",
-                "color": "#FFFFFF",
+                "color": "#000000",
                 "line_height": 1.28,
                 "bold": false
               },
@@ -24001,7 +24069,7 @@
                   "font": {
                     "size": 14,
                     "family": "Albert Sans",
-                    "color": "#FFFFFF",
+                    "color": "#000000",
                     "line_height": 1.28,
                     "bold": false
                   }
@@ -24059,11 +24127,42 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 905.6,
+            "y": 13.5
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 288,
+                "height": 493
+              },
+              "fill": {
+                "color": "#ECEDEE",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 907.2,
-            "y": 0
+            "x": 917.6,
+            "y": 25.5
           },
           "elements": [
             {
@@ -24073,8 +24172,8 @@
                 "y": 0
               },
               "size": {
-                "width": 288,
-                "height": 512
+                "width": 264,
+                "height": 469
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",

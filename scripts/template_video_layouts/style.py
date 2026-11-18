@@ -25,6 +25,13 @@ def contrast(a: str, b: str) -> float:
     return (la + 0.05) / (lb + 0.05)
 
 
+def mix(a: str, b: str, t: float) -> str:
+    """`a` moved `t` of the way towards `b`."""
+    ca = [int(a[i : i + 2], 16) for i in (1, 3, 5)]
+    cb = [int(b[i : i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(x + (y - x) * t):02X}" for x, y in zip(ca, cb))
+
+
 def readable_on(color: str) -> str:
     return WHITE if contrast(WHITE, color) >= contrast(BLACK, color) else BLACK
 
@@ -156,8 +163,10 @@ def extract_style(template: dict[str, Any]) -> TemplateStyle:
         accent = fills[0] if fills else heading_font["color"]
 
     card = _hex(colors.get("card")) or WHITE
-    if card == background:
-        card = accent
+    # A card must stand apart from the slide and from the accent drawn on it; when the
+    # theme's does not, tint the background towards its text instead.
+    if contrast(card, background) < 1.03 or contrast(card, accent) < 1.5:
+        card = mix(background, heading_font["color"], 0.08)
     return TemplateStyle(
         background=background,
         accent=accent,

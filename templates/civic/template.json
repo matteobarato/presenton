@@ -25320,7 +25320,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 201
+            "y": 264
           },
           "elements": [
             {
@@ -25828,6 +25828,43 @@
               "name": "main_title",
               "min_length": 12,
               "max_length": 48
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "video_backing_pv",
+      "description": "Panel behind the video, so an empty slot still looks designed.",
+      "variants": [
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#DDDDDD",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
             }
           ]
         }
@@ -26490,7 +26527,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 73
+                "y": 57
               },
               "size": {
                 "width": 80,
@@ -26529,11 +26566,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 139
+                "y": 123
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
@@ -26568,7 +26605,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 265
+                "y": 281
               },
               "size": {
                 "width": 624,
@@ -26607,7 +26644,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 289
+                "y": 305
               },
               "size": {
                 "width": 624,
@@ -27060,15 +27097,57 @@
       ]
     },
     {
-      "id": "title_block_pv",
-      "description": "Large left-aligned headline with a compact descriptive subtitle directly beneath, forming the primary editable cover message.",
+      "id": "slide_background_pv",
+      "description": "Full-slide light gray background establishes a neutral canvas behind the asymmetrical photography and right-aligned editorial copy.",
       "variants": [
         {
-          "id": "title_block_pv",
-          "description": "Large left-aligned headline with a compact descriptive subtitle directly beneath, forming the primary editable cover message.",
+          "id": "slide_background_pv",
+          "description": "Full-slide light gray background establishes a neutral canvas behind the asymmetrical photography and right-aligned editorial copy.",
           "position": {
-            "x": 43.33,
-            "y": 224.35
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true,
+              "fill": {
+                "color": "#ECECEC"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "captioned_inset_photo_pv",
+      "description": "Captioned square photograph fills the lower central notch, with a small folded-corner accent integrated into its frame.",
+      "variants": [
+        {
+          "id": "captioned_inset_photo_pv",
+          "description": "Captioned square photograph fills the lower central notch, with a small folded-corner accent integrated into its frame.",
+          "position": {
+            "x": 462.8,
+            "y": 321.29
           },
           "elements": [
             {
@@ -27078,62 +27157,26 @@
                 "y": 0
               },
               "size": {
-                "width": 731.03,
-                "height": 371.74
+                "width": 318.19,
+                "height": 354.41
               },
               "direction": "column",
               "align_items": "flex-start",
-              "gap": 14.81,
+              "gap": 16.68,
               "children": [
                 {
                   "type": "text",
                   "size": {
-                    "width": 731.03,
-                    "height": 147.73
-                  },
-                  "rotation": 0,
-                  "font": {
-                    "size": 75.56,
-                    "family": "Arimo Bold",
-                    "color": "#000000",
-                    "bold": false,
-                    "line_height": 0.93,
-                    "letter_spacing": -3.39
-                  },
-                  "alignment": {
-                    "horizontal": "left",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "BEHAVIORAL INSIGHTS",
-                      "font": {
-                        "size": 75.56,
-                        "family": "Arimo Bold",
-                        "color": "#000000",
-                        "bold": false,
-                        "line_height": 0.93,
-                        "letter_spacing": -3.39
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "title",
-                  "max_length": 27,
-                  "min_length": 9
-                },
-                {
-                  "type": "text",
-                  "size": {
-                    "width": 691.63,
-                    "height": 209.2
+                    "width": 318.19,
+                    "height": 19.52
                   },
                   "rotation": 0,
                   "font": {
                     "size": 16,
-                    "family": "Montserrat",
+                    "family": "Montserrat Semi-Bold",
                     "color": "#000000",
-                    "line_height": 1
+                    "bold": false,
+                    "line_height": 1.23
                   },
                   "alignment": {
                     "horizontal": "left",
@@ -27141,22 +27184,97 @@
                   },
                   "runs": [
                     {
-                      "text": "Designing Government Around How People Actually Behave.",
+                      "text": "UNDERSTANDING BEHAVIOR PUBLIC",
                       "font": {
                         "size": 16,
-                        "family": "Montserrat",
+                        "family": "Montserrat Semi-Bold",
                         "color": "#000000",
-                        "line_height": 1
+                        "bold": false,
+                        "line_height": 1.23
                       }
                     }
                   ],
                   "decorative": false,
-                  "name": "subtitle",
-                  "max_length": 754,
-                  "min_length": 27
+                  "name": "image_heading",
+                  "max_length": 30,
+                  "min_length": 14
+                },
+                {
+                  "type": "group",
+                  "size": {
+                    "width": 318.19,
+                    "height": 318.21
+                  },
+                  "children": [
+                    {
+                      "type": "image",
+                      "position": {
+                        "x": 0,
+                        "y": 0.009999999999990905
+                      },
+                      "size": {
+                        "width": 318.19,
+                        "height": 318.2
+                      },
+                      "rotation": 0,
+                      "flip_h": false,
+                      "data": "/static/images/replaceable_template_image.png",
+                      "fit": "cover",
+                      "focus_x": 50,
+                      "clip_path": "path('M 208.95 0 L 39.82 0 C 17.83 0 0 17.83 0 39.82 L 0 278.38 C 0 300.37 17.83 318.2 39.82 318.2 L 278.37 318.2 C 300.36 318.2 318.19 300.37 318.19 278.38 L 318.19 117.43 C 318.19 107.63 314.58 98.18 308.05 90.88 L 238.62 13.27 C 231.07 4.83 220.28 0 208.95 0 Z')",
+                      "decorative": false,
+                      "name": "secondary_image",
+                      "is_icon": false
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 290.96999999999997,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 27.22,
+                        "height": 28.43
+                      },
+                      "rotation": -180,
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 27.22,
+                          "height": 28.43
+                        },
+                        "children": [
+                          {
+                            "type": "image",
+                            "position": {
+                              "x": 0,
+                              "y": 0
+                            },
+                            "size": {
+                              "width": 27.22,
+                              "height": 28.43
+                            },
+                            "rotation": 0,
+                            "flip_h": false,
+                            "data": "static/Freeform_7-2a11bd12715a.svg",
+                            "fit": "fill",
+                            "decorative": true,
+                            "name": "corner_accent",
+                            "is_icon": false
+                          }
+                        ],
+                        "name": "Group 6"
+                      }
+                    }
+                  ],
+                  "name": "inset_photo_frame"
                 }
               ],
-              "name": "title_block",
+              "name": "captioned_inset_photo",
               "max_children": 2,
               "min_children": 2
             }
@@ -27165,303 +27283,122 @@
       ]
     },
     {
-      "id": "metadata_footer_pv",
-      "description": "Bottom-aligned collection of evenly spaced metadata pairs, each combining a bold editable label with a smaller editable value.",
+      "id": "right_headline_pv",
+      "description": "Large bold headline forms an independent right-aligned block in the open upper-right area of the slide.",
       "variants": [
         {
-          "id": "metadata_footer_pv",
-          "description": "Bottom-aligned collection of evenly spaced metadata pairs, each combining a bold editable label with a smaller editable value.",
+          "id": "right_headline_pv",
+          "description": "Large bold headline forms an independent right-aligned block in the open upper-right area of the slide.",
           "position": {
-            "x": 43.33,
-            "y": 639.16
+            "x": 796.2,
+            "y": 159.07
           },
           "elements": [
             {
-              "type": "group",
+              "type": "text",
               "position": {
                 "x": 0,
                 "y": 0
               },
               "size": {
-                "width": 1100.0300000000002,
-                "height": 37.51
+                "width": 440.15,
+                "height": 89.56
               },
-              "children": [
+              "rotation": 0,
+              "font": {
+                "size": 44.44,
+                "family": "Arimo Bold",
+                "color": "#000000",
+                "bold": false,
+                "line_height": 0.97,
+                "letter_spacing": -1.78
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
                 {
-                  "type": "flex",
-                  "position": {
-                    "x": 0,
-                    "y": 0
-                  },
-                  "size": {
-                    "width": 301.35,
-                    "height": 37.51
-                  },
-                  "direction": "column",
-                  "align_items": "flex-start",
-                  "gap": 9.51,
-                  "children": [
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 301.35,
-                        "height": 14.84
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 14.22,
-                        "family": "Montserrat Bold",
-                        "color": "#000000",
-                        "bold": false,
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Presented By:",
-                          "font": {
-                            "size": 14.22,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_label",
-                      "max_length": 30,
-                      "min_length": 6
-                    },
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 282.76,
-                        "height": 13.16
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 12.44,
-                        "family": "Montserrat",
-                        "color": "#000000",
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Aarav Sharma",
-                          "font": {
-                            "size": 12.44,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_value",
-                      "max_length": 33,
-                      "min_length": 6
-                    }
-                  ],
-                  "name": "metadata_item_1",
-                  "max_children": 2,
-                  "min_children": 2
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 341.22,
-                    "y": 0
-                  },
-                  "size": {
-                    "width": 405.58,
-                    "height": 37.51
-                  },
-                  "direction": "column",
-                  "align_items": "flex-start",
-                  "gap": 9.51,
-                  "children": [
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 405.58,
-                        "height": 14.84
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 14.22,
-                        "family": "Montserrat Bold",
-                        "color": "#000000",
-                        "bold": false,
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Department/Faculty:",
-                          "font": {
-                            "size": 14.22,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_label",
-                      "max_length": 30,
-                      "min_length": 6
-                    },
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 386.99,
-                        "height": 13.16
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 12.44,
-                        "family": "Montserrat",
-                        "color": "#000000",
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Department of Public Administration",
-                          "font": {
-                            "size": 12.44,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_value",
-                      "max_length": 33,
-                      "min_length": 6
-                    }
-                  ],
-                  "name": "metadata_item_2",
-                  "max_children": 2,
-                  "min_children": 2
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 786.67,
-                    "y": 0
-                  },
-                  "size": {
-                    "width": 313.3600000000001,
-                    "height": 37.51
-                  },
-                  "direction": "column",
-                  "align_items": "flex-start",
-                  "gap": 9.51,
-                  "children": [
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 301.35,
-                        "height": 14.84
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 14.22,
-                        "family": "Montserrat Bold",
-                        "color": "#000000",
-                        "bold": false,
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Institution:",
-                          "font": {
-                            "size": 14.22,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_label",
-                      "max_length": 30,
-                      "min_length": 6
-                    },
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 313.36,
-                        "height": 13.16
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 12.44,
-                        "family": "Montserrat",
-                        "color": "#000000",
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Public Administ University",
-                          "font": {
-                            "size": 12.44,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_value",
-                      "max_length": 33,
-                      "min_length": 6
-                    }
-                  ],
-                  "name": "metadata_item_3",
-                  "max_children": 2,
-                  "min_children": 2
+                  "text": "UNDERSTANDING BEHAVIORAL PUBLIC",
+                  "font": {
+                    "size": 44.44,
+                    "family": "Arimo Bold",
+                    "color": "#000000",
+                    "bold": false,
+                    "line_height": 0.97,
+                    "letter_spacing": -1.78
+                  }
                 }
               ],
-              "name": "metadata_items"
+              "decorative": false,
+              "name": "title",
+              "max_length": 31,
+              "min_length": 15
             }
           ]
         }
       ]
     },
     {
-      "id": "top_marker_pv",
-      "description": "Small centered text marker near the upper edge, intended for replaceable date or comparable contextual metadata.",
+      "id": "right_summary_pv",
+      "description": "Compact explanatory summary forms a separate right-aligned text block beside the lower portion of the inset photograph.",
       "variants": [
         {
-          "id": "top_marker_pv",
-          "description": "Small centered text marker near the upper edge, intended for replaceable date or comparable contextual metadata.",
+          "id": "right_summary_pv",
+          "description": "Compact explanatory summary forms a separate right-aligned text block beside the lower portion of the inset photograph.",
+          "position": {
+            "x": 808.49,
+            "y": 458.41
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 428.18,
+                "height": 215.63
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.23
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Behavioral public administration applies insights from psychology, behavioral economics, sociology, and public administration to understand.",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.23
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "summary",
+              "max_length": 391,
+              "min_length": 70
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "top_metadata_pv",
+      "description": "Small centered metadata marker sits independently along the upper edge above the main visual and text regions.",
+      "variants": [
+        {
+          "id": "top_metadata_pv",
+          "description": "Small centered metadata marker sits independently along the upper edge above the main visual and text regions.",
           "position": {
             "x": 518.67,
             "y": 41.33
@@ -27511,565 +27448,105 @@
       ]
     },
     {
-      "id": "diagonal_image_text_cards_pv",
-      "description": "Repeated image, heading, and description cards progress diagonally from upper left to lower right across the slide.",
+      "id": "background_pv",
+      "description": "Full-slide abstract neutral background with soft geometric forms providing fixed visual texture behind all foreground editorial content.",
       "variants": [
         {
-          "id": "diagonal_image_text_cards_pv",
-          "description": "Repeated image, heading, and description cards progress diagonally from upper left to lower right across the slide.",
+          "id": "background_pv",
+          "description": "Full-slide abstract neutral background with soft geometric forms providing fixed visual texture behind all foreground editorial content.",
           "position": {
-            "x": 44.41,
-            "y": 94.67
+            "x": 0,
+            "y": 0
           },
           "elements": [
             {
-              "type": "group",
+              "type": "image",
               "position": {
                 "x": 0,
                 "y": 0
               },
               "size": {
-                "width": 1180.1499999999999,
-                "height": 581.27
+                "width": 1280,
+                "height": 720
               },
-              "children": [
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 0,
-                    "y": 0
-                  },
-                  "size": {
-                    "width": 280.83000000000004,
-                    "height": 133.62
-                  },
-                  "direction": "row",
-                  "align_items": "flex-start",
-                  "gap": 17.25,
-                  "children": [
-                    {
-                      "type": "image",
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "/static/images/replaceable_template_image.png",
-                      "fit": "cover",
-                      "focus_y": 50,
-                      "decorative": false,
-                      "name": "card_image",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "flex",
-                      "direction": "column",
-                      "align_items": "flex-start",
-                      "gap": 20.31,
-                      "children": [
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 136.34,
-                            "height": 38.85
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 16,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "U",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "nderstanding Behavioral",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_heading",
-                          "max_length": 16,
-                          "min_length": 8
-                        },
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 63.01
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 10.67,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "I",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "t recognizes that citizens may not always behave in completely rational or predictable ways.",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_description",
-                          "max_length": 65,
-                          "min_length": 32
-                        }
-                      ],
-                      "name": "card_copy",
-                      "max_children": 2,
-                      "min_children": 2
-                    }
-                  ],
-                  "name": "image_card_1",
-                  "max_children": 2,
-                  "min_children": 2
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 309.54999999999995,
-                    "y": 147.83999999999997
-                  },
-                  "size": {
-                    "width": 271.10999999999996,
-                    "height": 133.46
-                  },
-                  "direction": "row",
-                  "align_items": "flex-start",
-                  "gap": 17.33,
-                  "children": [
-                    {
-                      "type": "image",
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "/static/images/replaceable_template_image.png",
-                      "fit": "cover",
-                      "focus_y": 50,
-                      "decorative": false,
-                      "name": "card_image",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "flex",
-                      "direction": "column",
-                      "align_items": "flex-start",
-                      "gap": 39.63,
-                      "children": [
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 38.69
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 16,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "Challeng",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "es in Public Policy",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_heading",
-                          "max_length": 16,
-                          "min_length": 8
-                        },
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 50.35
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 10.67,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "Fac",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "tors such as limited attention, complex procedures, habits, social influence.",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_description",
-                          "max_length": 65,
-                          "min_length": 32
-                        }
-                      ],
-                      "name": "card_copy",
-                      "max_children": 2,
-                      "min_children": 2
-                    }
-                  ],
-                  "name": "image_card_2",
-                  "max_children": 2,
-                  "min_children": 2
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 609.38,
-                    "y": 295.52
-                  },
-                  "size": {
-                    "width": 271.0300000000001,
-                    "height": 133.46
-                  },
-                  "direction": "row",
-                  "align_items": "flex-start",
-                  "gap": 17.25,
-                  "children": [
-                    {
-                      "type": "image",
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "/static/images/replaceable_template_image.png",
-                      "fit": "cover",
-                      "focus_y": 50,
-                      "decorative": false,
-                      "name": "card_image",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "flex",
-                      "direction": "column",
-                      "align_items": "flex-start",
-                      "gap": 20.3,
-                      "children": [
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 58.02
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 16,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "Beha",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "vioral Tools for Government",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_heading",
-                          "max_length": 16,
-                          "min_length": 8
-                        },
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 50.35
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 10.67,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "The",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "se include simplifying procedures, providing timely reminders",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_description",
-                          "max_length": 65,
-                          "min_length": 32
-                        }
-                      ],
-                      "name": "card_copy",
-                      "max_children": 2,
-                      "min_children": 2
-                    }
-                  ],
-                  "name": "image_card_3",
-                  "max_children": 2,
-                  "min_children": 2
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 909.12,
-                    "y": 447.81
-                  },
-                  "size": {
-                    "width": 271.03,
-                    "height": 133.46
-                  },
-                  "direction": "row",
-                  "align_items": "flex-start",
-                  "gap": 17.29,
-                  "children": [
-                    {
-                      "type": "image",
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "/static/images/replaceable_template_image.png",
-                      "fit": "cover",
-                      "focus_x": 50,
-                      "decorative": false,
-                      "name": "card_image",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "flex",
-                      "direction": "column",
-                      "align_items": "flex-start",
-                      "gap": 20.3,
-                      "children": [
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 38.69
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 16,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "M",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "easuring Impact",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_heading",
-                          "max_length": 16,
-                          "min_length": 8
-                        },
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 63.01
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 10.67,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "Gove",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "rnments can measure indicators such as participation rates, completion rates, compliance.",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_description",
-                          "max_length": 65,
-                          "min_length": 32
-                        }
-                      ],
-                      "name": "card_copy",
-                      "max_children": 2,
-                      "min_children": 2
-                    }
-                  ],
-                  "name": "image_card_4",
-                  "max_children": 2,
-                  "min_children": 2
-                }
-              ],
-              "name": "image_cards"
+              "rotation": 0,
+              "flip_h": false,
+              "data": "static/Freeform_2-3cf933db0555.jpg",
+              "fit": "cover",
+              "focus_y": 50,
+              "decorative": true,
+              "name": "background",
+              "is_icon": false
             }
           ]
         }
       ]
     },
     {
-      "id": "summary_title_block_pv",
-      "description": "Large lower-left title paired with a short introductory summary directly above it, forming the primary message block.",
+      "id": "top_marker_pv",
+      "description": "Small centered metadata marker positioned near the upper edge, visually independent from the main title and image.",
       "variants": [
         {
-          "id": "summary_title_block_pv",
-          "description": "Large lower-left title paired with a short introductory summary directly above it, forming the primary message block.",
+          "id": "top_marker_pv",
+          "description": "Small centered metadata marker positioned near the upper edge, visually independent from the main title and image.",
           "position": {
-            "x": 44.41,
-            "y": 523.22
+            "x": 518.67,
+            "y": 41.33
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 242.67,
+                "height": 13.16
+              },
+              "rotation": 0,
+              "font": {
+                "size": 12.44,
+                "family": "Montserrat Semi-Bold",
+                "color": "#000000",
+                "bold": false,
+                "line_height": 1
+              },
+              "alignment": {
+                "horizontal": "center",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "August 18, 2026",
+                  "font": {
+                    "size": 12.44,
+                    "family": "Montserrat Semi-Bold",
+                    "color": "#000000",
+                    "bold": false,
+                    "line_height": 1
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "top_marker",
+              "max_length": 28,
+              "min_length": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "title_block_pv",
+      "description": "Prominent left-aligned headline with a closely spaced supporting subtitle, forming the slide’s primary editorial introduction.",
+      "variants": [
+        {
+          "id": "title_block_pv",
+          "description": "Prominent left-aligned headline with a closely spaced supporting subtitle, forming the slide’s primary editorial introduction.",
+          "position": {
+            "x": 40,
+            "y": 283.78
           },
           "elements": [
             {
@@ -28079,50 +27556,17 @@
                 "y": 0
               },
               "size": {
-                "width": 454.07000000000005,
-                "height": 153.86
+                "width": 642.72,
+                "height": 128.25
               },
               "direction": "column",
               "align_items": "flex-start",
-              "gap": 6,
+              "gap": 19.17,
               "children": [
                 {
                   "type": "text",
                   "size": {
-                    "width": 454.07,
-                    "height": 58.3
-                  },
-                  "rotation": 0,
-                  "font": {
-                    "size": 16,
-                    "family": "Montserrat",
-                    "color": "#000000",
-                    "line_height": 1.23
-                  },
-                  "alignment": {
-                    "horizontal": "left",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "Governments should build behavioral research capacity, simplify services, test interventions positive results.",
-                      "font": {
-                        "size": 16,
-                        "family": "Montserrat",
-                        "color": "#000000",
-                        "line_height": 1.23
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "summary_description",
-                  "max_length": 103,
-                  "min_length": 55
-                },
-                {
-                  "type": "text",
-                  "size": {
-                    "width": 344.25,
+                    "width": 613.33,
                     "height": 89.56
                   },
                   "rotation": 0,
@@ -28140,7 +27584,7 @@
                   },
                   "runs": [
                     {
-                      "text": "AGENDA GRID FOR PUBLIC",
+                      "text": "APPLYING BEHAVIORAL INSIGHTS IN GOVERNMENT",
                       "font": {
                         "size": 44.44,
                         "family": "Arimo Bold",
@@ -28152,14 +27596,100 @@
                     }
                   ],
                   "decorative": false,
-                  "name": "slide_title",
-                  "max_length": 22,
-                  "min_length": 11
+                  "name": "title",
+                  "max_length": 42,
+                  "min_length": 21
+                },
+                {
+                  "type": "text",
+                  "size": {
+                    "width": 642.72,
+                    "height": 19.52
+                  },
+                  "rotation": 0,
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.23
+                  },
+                  "alignment": {
+                    "horizontal": "left",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "Turning behavioral theory into practical public-sector interventions.",
+                      "font": {
+                        "size": 16,
+                        "family": "Montserrat",
+                        "color": "#000000",
+                        "line_height": 1.23
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "subtitle",
+                  "max_length": 69,
+                  "min_length": 34
                 }
               ],
-              "name": "summary_title_block",
+              "name": "title_block",
               "max_children": 2,
               "min_children": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "summary_copy_pv",
+      "description": "Compact explanatory paragraph aligned in the lower-right quadrant beneath the capsule image as secondary supporting content.",
+      "variants": [
+        {
+          "id": "summary_copy_pv",
+          "description": "Compact explanatory paragraph aligned in the lower-right quadrant beneath the capsule image as secondary supporting content.",
+          "position": {
+            "x": 736.33,
+            "y": 603.15
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 503.67,
+                "height": 103.89
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14.22,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.23
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Behavioral insights become valuable when they are translated from theory into practical changes in government policies, procedures, and public services. Instead of simply asking citizens to change their behavior.",
+                  "font": {
+                    "size": 14.22,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.23
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "summary_description",
+              "max_length": 259,
+              "min_length": 106
             }
           ]
         }
@@ -53470,7 +53000,7 @@
               },
               "size": {
                 "width": 720,
-                "height": 51
+                "height": 99
               },
               "rotation": 0,
               "font": {
@@ -53505,11 +53035,11 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 63
+                "y": 111
               },
               "size": {
                 "width": 720,
-                "height": 18
+                "height": 33
               },
               "rotation": 0,
               "font": {
@@ -53547,7 +53077,7 @@
           "description": "Three numbered steps.",
           "position": {
             "x": 64,
-            "y": 201
+            "y": 264
           },
           "elements": [
             {
@@ -54113,6 +53643,37 @@
               "name": "main_title",
               "min_length": 12,
               "max_length": 48
+            }
+          ]
+        },
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#DDDDDD",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
             }
           ]
         },
@@ -54809,7 +54370,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 73
+                "y": 57
               },
               "size": {
                 "width": 80,
@@ -54848,11 +54409,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 139
+                "y": 123
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
@@ -54887,7 +54448,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 265
+                "y": 281
               },
               "size": {
                 "width": 624,
@@ -54926,7 +54487,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 289
+                "y": 305
               },
               "size": {
                 "width": 624,
@@ -55177,7 +54738,7 @@
               },
               "size": {
                 "width": 752,
-                "height": 18
+                "height": 33
               },
               "rotation": 0,
               "font": {
@@ -55583,15 +55144,82 @@
       ]
     },
     {
-      "id": "abstract_arch_background_with_title_and_metadata_footer_9851_pv06",
-      "description": "Presenter avatar video version: Minimal cover layout with abstract full-bleed artwork, a left-aligned title block, centered top marker, and aligned footer metadata pairs.",
+      "id": "asymmetrical_photo_collage_with_right_copy_8684_pv06",
+      "description": "Presenter avatar video version: Asymmetrical editorial layout with a dominant clipped photograph, captioned inset image, top metadata, and separated right-aligned headline and summary.",
       "components": [
+        {
+          "id": "slide_background_pv",
+          "description": "Full-slide light gray background establishes a neutral canvas behind the asymmetrical photography and right-aligned editorial copy.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true,
+              "fill": {
+                "color": "#ECECEC"
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 147.33,
+            "y": 120.18
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 312,
+                "height": 536
+              },
+              "fill": {
+                "color": "#DDDDDD",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
         {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 776,
-            "y": 0
+            "x": 159.33,
+            "y": 132.18
           },
           "elements": [
             {
@@ -55601,8 +55229,8 @@
                 "y": 0
               },
               "size": {
-                "width": 360,
-                "height": 640
+                "width": 288,
+                "height": 512
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -55614,11 +55242,11 @@
           ]
         },
         {
-          "id": "title_block_pv",
-          "description": "Large left-aligned headline with a compact descriptive subtitle directly beneath, forming the primary editable cover message.",
+          "id": "captioned_inset_photo_pv",
+          "description": "Captioned square photograph fills the lower central notch, with a small folded-corner accent integrated into its frame.",
           "position": {
-            "x": 43.33,
-            "y": 224.35
+            "x": 462.8,
+            "y": 321.29
           },
           "elements": [
             {
@@ -55628,62 +55256,26 @@
                 "y": 0
               },
               "size": {
-                "width": 731.03,
-                "height": 371.74
+                "width": 318.19,
+                "height": 354.41
               },
               "direction": "column",
               "align_items": "flex-start",
-              "gap": 14.81,
+              "gap": 16.68,
               "children": [
                 {
                   "type": "text",
                   "size": {
-                    "width": 731.03,
-                    "height": 147.73
-                  },
-                  "rotation": 0,
-                  "font": {
-                    "size": 75.56,
-                    "family": "Arimo Bold",
-                    "color": "#000000",
-                    "bold": false,
-                    "line_height": 0.93,
-                    "letter_spacing": -3.39
-                  },
-                  "alignment": {
-                    "horizontal": "left",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "BEHAVIORAL INSIGHTS",
-                      "font": {
-                        "size": 75.56,
-                        "family": "Arimo Bold",
-                        "color": "#000000",
-                        "bold": false,
-                        "line_height": 0.93,
-                        "letter_spacing": -3.39
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "title",
-                  "max_length": 27,
-                  "min_length": 9
-                },
-                {
-                  "type": "text",
-                  "size": {
-                    "width": 691.63,
-                    "height": 209.2
+                    "width": 318.19,
+                    "height": 19.52
                   },
                   "rotation": 0,
                   "font": {
                     "size": 16,
-                    "family": "Montserrat",
+                    "family": "Montserrat Semi-Bold",
                     "color": "#000000",
-                    "line_height": 1
+                    "bold": false,
+                    "line_height": 1.23
                   },
                   "alignment": {
                     "horizontal": "left",
@@ -55691,315 +55283,203 @@
                   },
                   "runs": [
                     {
-                      "text": "Designing Government Around How People Actually Behave.",
+                      "text": "UNDERSTANDING BEHAVIOR PUBLIC",
                       "font": {
                         "size": 16,
-                        "family": "Montserrat",
+                        "family": "Montserrat Semi-Bold",
                         "color": "#000000",
-                        "line_height": 1
+                        "bold": false,
+                        "line_height": 1.23
                       }
                     }
                   ],
                   "decorative": false,
-                  "name": "subtitle",
-                  "max_length": 754,
-                  "min_length": 27
+                  "name": "image_heading",
+                  "max_length": 30,
+                  "min_length": 14
+                },
+                {
+                  "type": "group",
+                  "size": {
+                    "width": 318.19,
+                    "height": 318.21
+                  },
+                  "children": [
+                    {
+                      "type": "image",
+                      "position": {
+                        "x": 0,
+                        "y": 0.009999999999990905
+                      },
+                      "size": {
+                        "width": 318.19,
+                        "height": 318.2
+                      },
+                      "rotation": 0,
+                      "flip_h": false,
+                      "data": "/static/images/replaceable_template_image.png",
+                      "fit": "cover",
+                      "focus_x": 50,
+                      "clip_path": "path('M 208.95 0 L 39.82 0 C 17.83 0 0 17.83 0 39.82 L 0 278.38 C 0 300.37 17.83 318.2 39.82 318.2 L 278.37 318.2 C 300.36 318.2 318.19 300.37 318.19 278.38 L 318.19 117.43 C 318.19 107.63 314.58 98.18 308.05 90.88 L 238.62 13.27 C 231.07 4.83 220.28 0 208.95 0 Z')",
+                      "decorative": false,
+                      "name": "secondary_image",
+                      "is_icon": false
+                    },
+                    {
+                      "type": "container",
+                      "position": {
+                        "x": 290.96999999999997,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 27.22,
+                        "height": 28.43
+                      },
+                      "rotation": -180,
+                      "child": {
+                        "type": "group",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        },
+                        "size": {
+                          "width": 27.22,
+                          "height": 28.43
+                        },
+                        "children": [
+                          {
+                            "type": "image",
+                            "position": {
+                              "x": 0,
+                              "y": 0
+                            },
+                            "size": {
+                              "width": 27.22,
+                              "height": 28.43
+                            },
+                            "rotation": 0,
+                            "flip_h": false,
+                            "data": "static/Freeform_7-2a11bd12715a.svg",
+                            "fit": "fill",
+                            "decorative": true,
+                            "name": "corner_accent",
+                            "is_icon": false
+                          }
+                        ],
+                        "name": "Group 6"
+                      }
+                    }
+                  ],
+                  "name": "inset_photo_frame"
                 }
               ],
-              "name": "title_block",
+              "name": "captioned_inset_photo",
               "max_children": 2,
               "min_children": 2
             }
           ]
         },
         {
-          "id": "metadata_footer_pv",
-          "description": "Bottom-aligned collection of evenly spaced metadata pairs, each combining a bold editable label with a smaller editable value.",
+          "id": "right_headline_pv",
+          "description": "Large bold headline forms an independent right-aligned block in the open upper-right area of the slide.",
           "position": {
-            "x": 43.33,
-            "y": 639.16
+            "x": 796.2,
+            "y": 159.07
           },
           "elements": [
             {
-              "type": "group",
+              "type": "text",
               "position": {
                 "x": 0,
                 "y": 0
               },
               "size": {
-                "width": 1100.0300000000002,
-                "height": 37.51
+                "width": 440.15,
+                "height": 89.56
               },
-              "children": [
+              "rotation": 0,
+              "font": {
+                "size": 44.44,
+                "family": "Arimo Bold",
+                "color": "#000000",
+                "bold": false,
+                "line_height": 0.97,
+                "letter_spacing": -1.78
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
                 {
-                  "type": "flex",
-                  "position": {
-                    "x": 0,
-                    "y": 0
-                  },
-                  "size": {
-                    "width": 301.35,
-                    "height": 37.51
-                  },
-                  "direction": "column",
-                  "align_items": "flex-start",
-                  "gap": 9.51,
-                  "children": [
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 301.35,
-                        "height": 14.84
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 14.22,
-                        "family": "Montserrat Bold",
-                        "color": "#000000",
-                        "bold": false,
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Presented By:",
-                          "font": {
-                            "size": 14.22,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_label",
-                      "max_length": 30,
-                      "min_length": 6
-                    },
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 282.76,
-                        "height": 13.16
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 12.44,
-                        "family": "Montserrat",
-                        "color": "#000000",
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Aarav Sharma",
-                          "font": {
-                            "size": 12.44,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_value",
-                      "max_length": 33,
-                      "min_length": 6
-                    }
-                  ],
-                  "name": "metadata_item_1",
-                  "max_children": 2,
-                  "min_children": 2
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 341.22,
-                    "y": 0
-                  },
-                  "size": {
-                    "width": 405.58,
-                    "height": 37.51
-                  },
-                  "direction": "column",
-                  "align_items": "flex-start",
-                  "gap": 9.51,
-                  "children": [
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 405.58,
-                        "height": 14.84
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 14.22,
-                        "family": "Montserrat Bold",
-                        "color": "#000000",
-                        "bold": false,
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Department/Faculty:",
-                          "font": {
-                            "size": 14.22,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_label",
-                      "max_length": 30,
-                      "min_length": 6
-                    },
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 386.99,
-                        "height": 13.16
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 12.44,
-                        "family": "Montserrat",
-                        "color": "#000000",
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Department of Public Administration",
-                          "font": {
-                            "size": 12.44,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_value",
-                      "max_length": 33,
-                      "min_length": 6
-                    }
-                  ],
-                  "name": "metadata_item_2",
-                  "max_children": 2,
-                  "min_children": 2
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 786.67,
-                    "y": 0
-                  },
-                  "size": {
-                    "width": 313.3600000000001,
-                    "height": 37.51
-                  },
-                  "direction": "column",
-                  "align_items": "flex-start",
-                  "gap": 9.51,
-                  "children": [
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 301.35,
-                        "height": 14.84
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 14.22,
-                        "family": "Montserrat Bold",
-                        "color": "#000000",
-                        "bold": false,
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Institution:",
-                          "font": {
-                            "size": 14.22,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_label",
-                      "max_length": 30,
-                      "min_length": 6
-                    },
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 313.36,
-                        "height": 13.16
-                      },
-                      "rotation": 0,
-                      "font": {
-                        "size": 12.44,
-                        "family": "Montserrat",
-                        "color": "#000000",
-                        "line_height": 1
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Public Administ University",
-                          "font": {
-                            "size": 12.44,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "metadata_value",
-                      "max_length": 33,
-                      "min_length": 6
-                    }
-                  ],
-                  "name": "metadata_item_3",
-                  "max_children": 2,
-                  "min_children": 2
+                  "text": "UNDERSTANDING BEHAVIORAL PUBLIC",
+                  "font": {
+                    "size": 44.44,
+                    "family": "Arimo Bold",
+                    "color": "#000000",
+                    "bold": false,
+                    "line_height": 0.97,
+                    "letter_spacing": -1.78
+                  }
                 }
               ],
-              "name": "metadata_items"
+              "decorative": false,
+              "name": "title",
+              "max_length": 31,
+              "min_length": 15
             }
           ]
         },
         {
-          "id": "top_marker_pv",
-          "description": "Small centered text marker near the upper edge, intended for replaceable date or comparable contextual metadata.",
+          "id": "right_summary_pv",
+          "description": "Compact explanatory summary forms a separate right-aligned text block beside the lower portion of the inset photograph.",
+          "position": {
+            "x": 808.49,
+            "y": 458.41
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 428.18,
+                "height": 215.63
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.23
+              },
+              "alignment": {
+                "horizontal": "right",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Behavioral public administration applies insights from psychology, behavioral economics, sociology, and public administration to understand.",
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.23
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "summary",
+              "max_length": 391,
+              "min_length": 70
+            }
+          ]
+        },
+        {
+          "id": "top_metadata_pv",
+          "description": "Small centered metadata marker sits independently along the upper edge above the main visual and text regions.",
           "position": {
             "x": 518.67,
             "y": 41.33
@@ -56049,15 +55529,15 @@
       ]
     },
     {
-      "id": "diagonal_image_text_cards_with_summary_6734_pv07",
-      "description": "Presenter avatar video version: Editorial slide with a centered top marker, diagonal image-and-text card sequence, and a large summary block anchored at lower left.",
+      "id": "editorial_cover_with_capsule_image_and_summary_6927_pv07",
+      "description": "Presenter avatar video version: Editorial cover layout with an abstract background, centered top marker, left title block, capsule photograph, and lower-right summary copy.",
       "components": [
         {
-          "id": "video_placeholder",
-          "description": "Avatar video placeholder",
+          "id": "background_pv",
+          "description": "Full-slide abstract neutral background with soft geometric forms providing fixed visual texture behind all foreground editorial content.",
           "position": {
-            "x": 928,
-            "y": 24
+            "x": 0,
+            "y": 0
           },
           "elements": [
             {
@@ -56067,8 +55547,68 @@
                 "y": 0
               },
               "size": {
-                "width": 288,
-                "height": 512
+                "width": 1280,
+                "height": 720
+              },
+              "rotation": 0,
+              "flip_h": false,
+              "data": "static/Freeform_2-3cf933db0555.jpg",
+              "fit": "cover",
+              "focus_y": 50,
+              "decorative": true,
+              "name": "background",
+              "is_icon": false
+            }
+          ]
+        },
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 907.6,
+            "y": 118.69
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 168,
+                "height": 280
+              },
+              "fill": {
+                "color": "#DDDDDD",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 919.6,
+            "y": 130.69
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 144,
+                "height": 256
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -56080,651 +55620,8 @@
           ]
         },
         {
-          "id": "diagonal_image_text_cards_pv",
-          "description": "Repeated image, heading, and description cards progress diagonally from upper left to lower right across the slide.",
-          "position": {
-            "x": 44.41,
-            "y": 94.67
-          },
-          "elements": [
-            {
-              "type": "group",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 1180.1499999999999,
-                "height": 581.27
-              },
-              "children": [
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 0,
-                    "y": 0
-                  },
-                  "size": {
-                    "width": 280.83000000000004,
-                    "height": 133.62
-                  },
-                  "direction": "row",
-                  "align_items": "flex-start",
-                  "gap": 17.25,
-                  "children": [
-                    {
-                      "type": "image",
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "/static/images/replaceable_template_image.png",
-                      "fit": "cover",
-                      "focus_y": 50,
-                      "decorative": false,
-                      "name": "card_image",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "flex",
-                      "direction": "column",
-                      "align_items": "flex-start",
-                      "gap": 20.31,
-                      "children": [
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 136.34,
-                            "height": 38.85
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 16,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "U",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "nderstanding Behavioral",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_heading",
-                          "max_length": 16,
-                          "min_length": 8
-                        },
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 63.01
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 10.67,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "I",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "t recognizes that citizens may not always behave in completely rational or predictable ways.",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_description",
-                          "max_length": 65,
-                          "min_length": 32
-                        }
-                      ],
-                      "name": "card_copy",
-                      "max_children": 2,
-                      "min_children": 2
-                    }
-                  ],
-                  "name": "image_card_1",
-                  "max_children": 2,
-                  "min_children": 2
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 309.54999999999995,
-                    "y": 147.83999999999997
-                  },
-                  "size": {
-                    "width": 271.10999999999996,
-                    "height": 133.46
-                  },
-                  "direction": "row",
-                  "align_items": "flex-start",
-                  "gap": 17.33,
-                  "children": [
-                    {
-                      "type": "image",
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "/static/images/replaceable_template_image.png",
-                      "fit": "cover",
-                      "focus_y": 50,
-                      "decorative": false,
-                      "name": "card_image",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "flex",
-                      "direction": "column",
-                      "align_items": "flex-start",
-                      "gap": 39.63,
-                      "children": [
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 38.69
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 16,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "Challeng",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "es in Public Policy",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_heading",
-                          "max_length": 16,
-                          "min_length": 8
-                        },
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 50.35
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 10.67,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "Fac",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "tors such as limited attention, complex procedures, habits, social influence.",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_description",
-                          "max_length": 65,
-                          "min_length": 32
-                        }
-                      ],
-                      "name": "card_copy",
-                      "max_children": 2,
-                      "min_children": 2
-                    }
-                  ],
-                  "name": "image_card_2",
-                  "max_children": 2,
-                  "min_children": 2
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 609.38,
-                    "y": 295.52
-                  },
-                  "size": {
-                    "width": 271.0300000000001,
-                    "height": 133.46
-                  },
-                  "direction": "row",
-                  "align_items": "flex-start",
-                  "gap": 17.25,
-                  "children": [
-                    {
-                      "type": "image",
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "/static/images/replaceable_template_image.png",
-                      "fit": "cover",
-                      "focus_y": 50,
-                      "decorative": false,
-                      "name": "card_image",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "flex",
-                      "direction": "column",
-                      "align_items": "flex-start",
-                      "gap": 20.3,
-                      "children": [
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 58.02
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 16,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "Beha",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "vioral Tools for Government",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_heading",
-                          "max_length": 16,
-                          "min_length": 8
-                        },
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 50.35
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 10.67,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "The",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "se include simplifying procedures, providing timely reminders",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_description",
-                          "max_length": 65,
-                          "min_length": 32
-                        }
-                      ],
-                      "name": "card_copy",
-                      "max_children": 2,
-                      "min_children": 2
-                    }
-                  ],
-                  "name": "image_card_3",
-                  "max_children": 2,
-                  "min_children": 2
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 909.12,
-                    "y": 447.81
-                  },
-                  "size": {
-                    "width": 271.03,
-                    "height": 133.46
-                  },
-                  "direction": "row",
-                  "align_items": "flex-start",
-                  "gap": 17.29,
-                  "children": [
-                    {
-                      "type": "image",
-                      "rotation": 0,
-                      "flip_h": false,
-                      "data": "/static/images/replaceable_template_image.png",
-                      "fit": "cover",
-                      "focus_x": 50,
-                      "decorative": false,
-                      "name": "card_image",
-                      "is_icon": false
-                    },
-                    {
-                      "type": "flex",
-                      "direction": "column",
-                      "align_items": "flex-start",
-                      "gap": 20.3,
-                      "children": [
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 38.69
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 16,
-                            "family": "Montserrat Bold",
-                            "color": "#000000",
-                            "bold": false,
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "M",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "easuring Impact",
-                              "font": {
-                                "size": 16,
-                                "family": "Montserrat Bold",
-                                "color": "#000000",
-                                "bold": false,
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_heading",
-                          "max_length": 16,
-                          "min_length": 8
-                        },
-                        {
-                          "type": "text",
-                          "size": {
-                            "width": 126.5,
-                            "height": 63.01
-                          },
-                          "rotation": 0,
-                          "font": {
-                            "size": 10.67,
-                            "family": "Montserrat",
-                            "color": "#000000",
-                            "line_height": 1.23
-                          },
-                          "alignment": {
-                            "horizontal": "left",
-                            "vertical": "top"
-                          },
-                          "runs": [
-                            {
-                              "text": "Gove",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "line_height": 1.23
-                              }
-                            },
-                            {
-                              "text": "rnments can measure indicators such as participation rates, completion rates, compliance.",
-                              "font": {
-                                "size": 10.67,
-                                "family": "Montserrat",
-                                "color": "#000000",
-                                "underline": false,
-                                "line_height": 1.23
-                              }
-                            }
-                          ],
-                          "decorative": false,
-                          "name": "card_description",
-                          "max_length": 65,
-                          "min_length": 32
-                        }
-                      ],
-                      "name": "card_copy",
-                      "max_children": 2,
-                      "min_children": 2
-                    }
-                  ],
-                  "name": "image_card_4",
-                  "max_children": 2,
-                  "min_children": 2
-                }
-              ],
-              "name": "image_cards"
-            }
-          ]
-        },
-        {
-          "id": "summary_title_block_pv",
-          "description": "Large lower-left title paired with a short introductory summary directly above it, forming the primary message block.",
-          "position": {
-            "x": 44.41,
-            "y": 523.22
-          },
-          "elements": [
-            {
-              "type": "flex",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 454.07000000000005,
-                "height": 153.86
-              },
-              "direction": "column",
-              "align_items": "flex-start",
-              "gap": 6,
-              "children": [
-                {
-                  "type": "text",
-                  "size": {
-                    "width": 454.07,
-                    "height": 58.3
-                  },
-                  "rotation": 0,
-                  "font": {
-                    "size": 16,
-                    "family": "Montserrat",
-                    "color": "#000000",
-                    "line_height": 1.23
-                  },
-                  "alignment": {
-                    "horizontal": "left",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "Governments should build behavioral research capacity, simplify services, test interventions positive results.",
-                      "font": {
-                        "size": 16,
-                        "family": "Montserrat",
-                        "color": "#000000",
-                        "line_height": 1.23
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "summary_description",
-                  "max_length": 103,
-                  "min_length": 55
-                },
-                {
-                  "type": "text",
-                  "size": {
-                    "width": 344.25,
-                    "height": 89.56
-                  },
-                  "rotation": 0,
-                  "font": {
-                    "size": 44.44,
-                    "family": "Arimo Bold",
-                    "color": "#000000",
-                    "bold": false,
-                    "line_height": 0.97,
-                    "letter_spacing": -1.78
-                  },
-                  "alignment": {
-                    "horizontal": "left",
-                    "vertical": "top"
-                  },
-                  "runs": [
-                    {
-                      "text": "AGENDA GRID FOR PUBLIC",
-                      "font": {
-                        "size": 44.44,
-                        "family": "Arimo Bold",
-                        "color": "#000000",
-                        "bold": false,
-                        "line_height": 0.97,
-                        "letter_spacing": -1.78
-                      }
-                    }
-                  ],
-                  "decorative": false,
-                  "name": "slide_title",
-                  "max_length": 22,
-                  "min_length": 11
-                }
-              ],
-              "name": "summary_title_block",
-              "max_children": 2,
-              "min_children": 2
-            }
-          ]
-        },
-        {
           "id": "top_marker_pv",
-          "description": "Compact centered metadata marker positioned along the top edge, visually independent from the main content regions.",
+          "description": "Small centered metadata marker positioned near the upper edge, visually independent from the main title and image.",
           "position": {
             "x": 518.67,
             "y": 41.33
@@ -56768,6 +55665,152 @@
               "name": "top_marker",
               "max_length": 28,
               "min_length": 7
+            }
+          ]
+        },
+        {
+          "id": "title_block_pv",
+          "description": "Prominent left-aligned headline with a closely spaced supporting subtitle, forming the slide’s primary editorial introduction.",
+          "position": {
+            "x": 40,
+            "y": 283.78
+          },
+          "elements": [
+            {
+              "type": "flex",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 642.72,
+                "height": 128.25
+              },
+              "direction": "column",
+              "align_items": "flex-start",
+              "gap": 19.17,
+              "children": [
+                {
+                  "type": "text",
+                  "size": {
+                    "width": 613.33,
+                    "height": 89.56
+                  },
+                  "rotation": 0,
+                  "font": {
+                    "size": 44.44,
+                    "family": "Arimo Bold",
+                    "color": "#000000",
+                    "bold": false,
+                    "line_height": 0.97,
+                    "letter_spacing": -1.78
+                  },
+                  "alignment": {
+                    "horizontal": "left",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "APPLYING BEHAVIORAL INSIGHTS IN GOVERNMENT",
+                      "font": {
+                        "size": 44.44,
+                        "family": "Arimo Bold",
+                        "color": "#000000",
+                        "bold": false,
+                        "line_height": 0.97,
+                        "letter_spacing": -1.78
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "title",
+                  "max_length": 42,
+                  "min_length": 21
+                },
+                {
+                  "type": "text",
+                  "size": {
+                    "width": 642.72,
+                    "height": 19.52
+                  },
+                  "rotation": 0,
+                  "font": {
+                    "size": 16,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.23
+                  },
+                  "alignment": {
+                    "horizontal": "left",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "Turning behavioral theory into practical public-sector interventions.",
+                      "font": {
+                        "size": 16,
+                        "family": "Montserrat",
+                        "color": "#000000",
+                        "line_height": 1.23
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "subtitle",
+                  "max_length": 69,
+                  "min_length": 34
+                }
+              ],
+              "name": "title_block",
+              "max_children": 2,
+              "min_children": 2
+            }
+          ]
+        },
+        {
+          "id": "summary_copy_pv",
+          "description": "Compact explanatory paragraph aligned in the lower-right quadrant beneath the capsule image as secondary supporting content.",
+          "position": {
+            "x": 736.33,
+            "y": 603.15
+          },
+          "elements": [
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 503.67,
+                "height": 103.89
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14.22,
+                "family": "Montserrat",
+                "color": "#000000",
+                "line_height": 1.23
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Behavioral insights become valuable when they are translated from theory into practical changes in government policies, procedures, and public services. Instead of simply asking citizens to change their behavior.",
+                  "font": {
+                    "size": 14.22,
+                    "family": "Montserrat",
+                    "color": "#000000",
+                    "line_height": 1.23
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "summary_description",
+              "max_length": 259,
+              "min_length": 106
             }
           ]
         }

@@ -8046,7 +8046,7 @@
               },
               "size": {
                 "width": 696,
-                "height": 47
+                "height": 70
               },
               "rotation": 0,
               "font": {
@@ -8090,7 +8090,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 312
+            "y": 335
           },
           "elements": [
             {
@@ -8917,6 +8917,43 @@
       ]
     },
     {
+      "id": "video_backing_pv",
+      "description": "Panel behind the video, so an empty slot still looks designed.",
+      "variants": [
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#F3F4F6",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "callout_1_pv",
       "description": "Left callout card.",
       "variants": [
@@ -9480,7 +9517,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 60
+                "height": 117
               },
               "rotation": 0,
               "font": {
@@ -9524,7 +9561,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 156
+            "y": 213
           },
           "elements": [
             {
@@ -9573,7 +9610,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 68
+                "y": 52
               },
               "size": {
                 "width": 80,
@@ -9612,11 +9649,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 134
+                "y": 118
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
@@ -9651,7 +9688,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 260
+                "y": 276
               },
               "size": {
                 "width": 624,
@@ -9690,7 +9727,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 306
               },
               "size": {
                 "width": 624,
@@ -10137,392 +10174,6 @@
               "name": "card_3_text",
               "min_length": 12,
               "max_length": 56
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "base_canvas_pv",
-      "description": "Full-slide white canvas provides the neutral foundation behind the upper title and lower visual sections.",
-      "variants": [
-        {
-          "id": "base_canvas_pv",
-          "description": "Full-slide white canvas provides the neutral foundation behind the upper title and lower visual sections.",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#FFFFFF",
-                "opacity": 1
-              },
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 720
-                },
-                {
-                  "x": 0,
-                  "y": 720
-                }
-              ],
-              "closed": true
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "top_title_band_pv",
-      "description": "Upper header area contains a short decorative rule and two separately positioned centered headline lines.",
-      "variants": [
-        {
-          "id": "top_title_band_pv",
-          "description": "Upper header area contains a short decorative rule and two separately positioned centered headline lines.",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#111827",
-                "opacity": 1
-              },
-              "shadow": {
-                "color": "#000000",
-                "opacity": 0
-              },
-              "points": [
-                {
-                  "x": 64,
-                  "y": 24
-                },
-                {
-                  "x": 294,
-                  "y": 24
-                },
-                {
-                  "x": 294,
-                  "y": 27
-                },
-                {
-                  "x": 64,
-                  "y": 27
-                }
-              ],
-              "closed": true,
-              "corner_radii": [
-                0.45,
-                0.45,
-                0.45,
-                0.45
-              ]
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 40,
-                "y": 47
-              },
-              "size": {
-                "width": 1202,
-                "height": 67.19
-              },
-              "font": {
-                "size": 64,
-                "family": "Playfair Display",
-                "color": "#111827",
-                "line_height": 0.84
-              },
-              "alignment": {
-                "horizontal": "center",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Transforming Ideas into",
-                  "font": {
-                    "size": 64,
-                    "family": "Playfair Display",
-                    "color": "#111827",
-                    "line_height": 0.84
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "headline_first_line",
-              "max_length": 23,
-              "min_length": 12
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 40,
-                "y": 114.19
-              },
-              "size": {
-                "width": 1202,
-                "height": 67.19
-              },
-              "font": {
-                "size": 64,
-                "family": "Playfair Display",
-                "color": "#111827",
-                "line_height": 0.84
-              },
-              "alignment": {
-                "horizontal": "center",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Reality",
-                  "font": {
-                    "size": 64,
-                    "family": "Playfair Display",
-                    "color": "#111827",
-                    "line_height": 0.84
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "headline_second_line",
-              "max_length": 7,
-              "min_length": 4
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "lower_image_panel_pv",
-      "description": "Lower portion uses a full-width image with a square translucent overlay to create a muted background area.",
-      "variants": [
-        {
-          "id": "lower_image_panel_pv",
-          "description": "Lower portion uses a full-width image with a square translucent overlay to create a muted background area.",
-          "position": {
-            "x": 0,
-            "y": 205.37
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#FFFFFF",
-                "opacity": 0.6
-              },
-              "shadow": {
-                "color": "#000000",
-                "opacity": 0
-              },
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 514.62
-                },
-                {
-                  "x": 0,
-                  "y": 514.62
-                }
-              ],
-              "closed": true
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "center_info_card_pv",
-      "description": "Centered horizontal card overlays the image area with a left icon block and right-aligned text stack.",
-      "variants": [
-        {
-          "id": "center_info_card_pv",
-          "description": "Centered horizontal card overlays the image area with a left icon block and right-aligned text stack.",
-          "position": {
-            "x": 190,
-            "y": 357.69
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#1B8C2D",
-                "opacity": 1
-              },
-              "shadow": {
-                "color": "#000000",
-                "blur": 90,
-                "opacity": 0.18,
-                "offset_x": 0,
-                "offset_y": 30
-              },
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 900,
-                  "y": 0
-                },
-                {
-                  "x": 900,
-                  "y": 210
-                },
-                {
-                  "x": 0,
-                  "y": 210
-                }
-              ],
-              "closed": true
-            },
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#FFFFFF",
-                "opacity": 1
-              },
-              "shadow": {
-                "color": "#000000",
-                "opacity": 0
-              },
-              "points": [
-                {
-                  "x": 40,
-                  "y": 40
-                },
-                {
-                  "x": 104,
-                  "y": 40
-                },
-                {
-                  "x": 104,
-                  "y": 104
-                },
-                {
-                  "x": 40,
-                  "y": 104
-                }
-              ],
-              "closed": true
-            },
-            {
-              "type": "image",
-              "position": {
-                "x": 44,
-                "y": 44
-              },
-              "size": {
-                "width": 56,
-                "height": 56
-              },
-              "rotation": 0,
-              "opacity": 1,
-              "data": "/static/icons/placeholder.svg",
-              "fit": "fill",
-              "decorative": false,
-              "name": "card_icon",
-              "is_icon": true
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 136,
-                "y": 40
-              },
-              "size": {
-                "width": 726,
-                "height": 34
-              },
-              "font": {
-                "size": 28,
-                "family": "Playfair Display",
-                "color": "#FFFFFF",
-                "line_height": 0.97
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Idea Generation and Validation",
-                  "font": {
-                    "size": 28,
-                    "family": "Playfair Display",
-                    "color": "#FFFFFF",
-                    "line_height": 0.97
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "card_heading",
-              "max_length": 30,
-              "min_length": 15
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 136,
-                "y": 86
-              },
-              "size": {
-                "width": 726,
-                "height": 84
-              },
-              "font": {
-                "size": 16,
-                "family": "Playfair Display",
-                "color": "#FFFFFF",
-                "line_height": 1.4
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-                  "font": {
-                    "size": 16,
-                    "family": "Playfair Display",
-                    "color": "#FFFFFF",
-                    "line_height": 1.4
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "card_body",
-              "max_length": 231,
-              "min_length": 116
             }
           ]
         }
@@ -11150,6 +10801,343 @@
               "name": "four_column_items",
               "max_children": 4,
               "min_children": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "canvas_background_pv",
+      "description": "Full-slide white base layer that provides neutral spacing behind the split content areas.",
+      "variants": [
+        {
+          "id": "canvas_background_pv",
+          "description": "Full-slide white base layer that provides neutral spacing behind the split content areas.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#FFFFFF"
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "right_text_stack_pv",
+      "description": "Right-column headline and supporting paragraph arranged as a vertical content stack with generous spacing.",
+      "variants": [
+        {
+          "id": "right_text_stack_pv",
+          "description": "Right-column headline and supporting paragraph arranged as a vertical content stack with generous spacing.",
+          "position": {
+            "x": 696,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "flex",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 530,
+                "height": 252
+              },
+              "direction": "column",
+              "align_items": "flex-start",
+              "justify_content": "flex-start",
+              "gap": 32,
+              "children": [
+                {
+                  "type": "text",
+                  "size": {
+                    "width": 530,
+                    "height": 136
+                  },
+                  "font": {
+                    "size": 64,
+                    "family": "Playfair Display",
+                    "color": "#111827",
+                    "line_height": 0.85
+                  },
+                  "alignment": {
+                    "horizontal": "left",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "Introduction Our Pitchdeck",
+                      "font": {
+                        "size": 64,
+                        "family": "Playfair Display",
+                        "color": "#111827",
+                        "line_height": 0.85
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "primary_heading",
+                  "max_length": 26,
+                  "min_length": 13
+                },
+                {
+                  "type": "text",
+                  "size": {
+                    "width": 530,
+                    "height": 84
+                  },
+                  "font": {
+                    "size": 16,
+                    "family": "Playfair Display",
+                    "color": "#6B7280",
+                    "line_height": 1.4
+                  },
+                  "alignment": {
+                    "horizontal": "left",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris",
+                      "font": {
+                        "size": 16,
+                        "family": "Playfair Display",
+                        "color": "#6B7280",
+                        "line_height": 1.4
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "supporting_paragraph",
+                  "max_length": 190,
+                  "min_length": 95
+                }
+              ],
+              "name": "intro_text_column",
+              "max_children": 2,
+              "min_children": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "metadata_card_pv",
+      "description": "Outlined horizontal card with a square mark on the left and two text lines aligned beside it.",
+      "variants": [
+        {
+          "id": "metadata_card_pv",
+          "description": "Outlined horizontal card with a square mark on the left and two text lines aligned beside it.",
+          "position": {
+            "x": 696,
+            "y": 379.66
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 400,
+                "height": 90
+              },
+              "fill": {
+                "color": "#FFFFFF"
+              },
+              "stroke": {
+                "color": "#E5E7EB",
+                "width": 1
+              },
+              "shadow": {
+                "color": "#000000",
+                "blur": 24,
+                "opacity": 0.08,
+                "offset_x": 0,
+                "offset_y": 10
+              },
+              "padding": {
+                "top": 13,
+                "right": 21,
+                "bottom": 13,
+                "left": 21
+              },
+              "child": {
+                "type": "flex",
+                "direction": "row",
+                "align_items": "center",
+                "justify_content": "flex-start",
+                "gap": 16,
+                "children": [
+                  {
+                    "type": "container",
+                    "size": {
+                      "width": 64,
+                      "height": 64
+                    },
+                    "alignment": {
+                      "horizontal": "center",
+                      "vertical": "middle"
+                    },
+                    "fill": {
+                      "color": "#1B8C2D"
+                    },
+                    "border_radius": {
+                      "tl": 9.6,
+                      "tr": 9.6,
+                      "bl": 9.6,
+                      "br": 9.6
+                    },
+                    "child": {
+                      "type": "text",
+                      "size": {
+                        "width": 50,
+                        "height": 33
+                      },
+                      "font": {
+                        "size": 22,
+                        "family": "Playfair Display",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.2,
+                        "letter_spacing": 0.55
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "PDT",
+                          "font": {
+                            "size": 22,
+                            "family": "Playfair Display",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.2,
+                            "letter_spacing": 0.55
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "square_mark_text",
+                      "max_length": 3,
+                      "min_length": 2
+                    }
+                  },
+                  {
+                    "type": "flex",
+                    "size": {
+                      "width": 190,
+                      "height": 50
+                    },
+                    "direction": "column",
+                    "align_items": "flex-start",
+                    "justify_content": "center",
+                    "gap": 2,
+                    "children": [
+                      {
+                        "type": "text",
+                        "size": {
+                          "width": 190,
+                          "height": 28
+                        },
+                        "font": {
+                          "size": 22,
+                          "family": "Playfair Display",
+                          "color": "#111827",
+                          "line_height": 1
+                        },
+                        "alignment": {
+                          "horizontal": "left",
+                          "vertical": "middle"
+                        },
+                        "runs": [
+                          {
+                            "text": "Pitch Deck Team",
+                            "font": {
+                              "size": 22,
+                              "family": "Playfair Display",
+                              "color": "#111827",
+                              "line_height": 1
+                            }
+                          }
+                        ],
+                        "decorative": false,
+                        "name": "card_primary_label",
+                        "max_length": 15,
+                        "min_length": 8
+                      },
+                      {
+                        "type": "text",
+                        "size": {
+                          "width": 190,
+                          "height": 19
+                        },
+                        "font": {
+                          "size": 15,
+                          "family": "Playfair Display",
+                          "color": "#1B8C2D",
+                          "line_height": 1
+                        },
+                        "alignment": {
+                          "horizontal": "left",
+                          "vertical": "middle"
+                        },
+                        "runs": [
+                          {
+                            "text": "December 22, 2025",
+                            "font": {
+                              "size": 15,
+                              "family": "Playfair Display",
+                              "color": "#1B8C2D",
+                              "line_height": 1
+                            }
+                          }
+                        ],
+                        "decorative": false,
+                        "name": "card_secondary_label",
+                        "max_length": 17,
+                        "min_length": 9
+                      }
+                    ],
+                    "name": "card_text_column",
+                    "max_children": 2,
+                    "min_children": 2
+                  }
+                ],
+                "name": "card_horizontal_content",
+                "max_children": 2,
+                "min_children": 2
+              }
             }
           ]
         }
@@ -19132,7 +19120,7 @@
               },
               "size": {
                 "width": 696,
-                "height": 47
+                "height": 70
               },
               "rotation": 0,
               "font": {
@@ -19170,7 +19158,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 312
+            "y": 335
           },
           "elements": [
             {
@@ -20178,6 +20166,37 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#F3F4F6",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
@@ -20783,7 +20802,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 60
+                "height": 117
               },
               "rotation": 0,
               "font": {
@@ -20821,7 +20840,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 156
+            "y": 213
           },
           "elements": [
             {
@@ -20870,7 +20889,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 68
+                "y": 52
               },
               "size": {
                 "width": 80,
@@ -20909,11 +20928,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 134
+                "y": 118
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
@@ -20948,7 +20967,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 260
+                "y": 276
               },
               "size": {
                 "width": 624,
@@ -20987,7 +21006,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 306
               },
               "size": {
                 "width": 624,
@@ -21644,402 +21663,7 @@
       ]
     },
     {
-      "id": "title_image_background_center_card_1475_pv06",
-      "description": "Presenter avatar video version: A clean presentation slide with a top title band, full-width muted image backdrop, and centered rectangular information card.",
-      "components": [
-        {
-          "id": "base_canvas_pv",
-          "description": "Full-slide white canvas provides the neutral foundation behind the upper title and lower visual sections.",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#FFFFFF",
-                "opacity": 1
-              },
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 720
-                },
-                {
-                  "x": 0,
-                  "y": 720
-                }
-              ],
-              "closed": true
-            }
-          ]
-        },
-        {
-          "id": "top_title_band_pv",
-          "description": "Upper header area contains a short decorative rule and two separately positioned centered headline lines.",
-          "position": {
-            "x": 0,
-            "y": 0
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#111827",
-                "opacity": 1
-              },
-              "shadow": {
-                "color": "#000000",
-                "opacity": 0
-              },
-              "points": [
-                {
-                  "x": 64,
-                  "y": 24
-                },
-                {
-                  "x": 294,
-                  "y": 24
-                },
-                {
-                  "x": 294,
-                  "y": 27
-                },
-                {
-                  "x": 64,
-                  "y": 27
-                }
-              ],
-              "closed": true,
-              "corner_radii": [
-                0.45,
-                0.45,
-                0.45,
-                0.45
-              ]
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 40,
-                "y": 47
-              },
-              "size": {
-                "width": 1202,
-                "height": 67.19
-              },
-              "font": {
-                "size": 64,
-                "family": "Playfair Display",
-                "color": "#111827",
-                "line_height": 0.84
-              },
-              "alignment": {
-                "horizontal": "center",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Transforming Ideas into",
-                  "font": {
-                    "size": 64,
-                    "family": "Playfair Display",
-                    "color": "#111827",
-                    "line_height": 0.84
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "headline_first_line",
-              "max_length": 23,
-              "min_length": 12
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 40,
-                "y": 114.19
-              },
-              "size": {
-                "width": 1202,
-                "height": 67.19
-              },
-              "font": {
-                "size": 64,
-                "family": "Playfair Display",
-                "color": "#111827",
-                "line_height": 0.84
-              },
-              "alignment": {
-                "horizontal": "center",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Reality",
-                  "font": {
-                    "size": 64,
-                    "family": "Playfair Display",
-                    "color": "#111827",
-                    "line_height": 0.84
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "headline_second_line",
-              "max_length": 7,
-              "min_length": 4
-            }
-          ]
-        },
-        {
-          "id": "lower_image_panel_pv",
-          "description": "Lower portion uses a full-width image with a square translucent overlay to create a muted background area.",
-          "position": {
-            "x": 0,
-            "y": 205.37
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#FFFFFF",
-                "opacity": 0.6
-              },
-              "shadow": {
-                "color": "#000000",
-                "opacity": 0
-              },
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 0
-                },
-                {
-                  "x": 1280,
-                  "y": 514.62
-                },
-                {
-                  "x": 0,
-                  "y": 514.62
-                }
-              ],
-              "closed": true
-            }
-          ]
-        },
-        {
-          "id": "video_placeholder",
-          "description": "Avatar video placeholder",
-          "position": {
-            "x": 16,
-            "y": 309.37
-          },
-          "elements": [
-            {
-              "type": "image",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 168,
-                "height": 299
-              },
-              "data": "/static/images/video-placeholder.png",
-              "fit": "cover",
-              "decorative": true,
-              "name": "avatar_video",
-              "is_icon": false,
-              "video_placeholder": true
-            }
-          ]
-        },
-        {
-          "id": "center_info_card_pv",
-          "description": "Centered horizontal card overlays the image area with a left icon block and right-aligned text stack.",
-          "position": {
-            "x": 190,
-            "y": 357.69
-          },
-          "elements": [
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#1B8C2D",
-                "opacity": 1
-              },
-              "shadow": {
-                "color": "#000000",
-                "blur": 90,
-                "opacity": 0.18,
-                "offset_x": 0,
-                "offset_y": 30
-              },
-              "points": [
-                {
-                  "x": 0,
-                  "y": 0
-                },
-                {
-                  "x": 900,
-                  "y": 0
-                },
-                {
-                  "x": 900,
-                  "y": 210
-                },
-                {
-                  "x": 0,
-                  "y": 210
-                }
-              ],
-              "closed": true
-            },
-            {
-              "type": "vector",
-              "shape": "polygon",
-              "fill": {
-                "color": "#FFFFFF",
-                "opacity": 1
-              },
-              "shadow": {
-                "color": "#000000",
-                "opacity": 0
-              },
-              "points": [
-                {
-                  "x": 40,
-                  "y": 40
-                },
-                {
-                  "x": 104,
-                  "y": 40
-                },
-                {
-                  "x": 104,
-                  "y": 104
-                },
-                {
-                  "x": 40,
-                  "y": 104
-                }
-              ],
-              "closed": true
-            },
-            {
-              "type": "image",
-              "position": {
-                "x": 44,
-                "y": 44
-              },
-              "size": {
-                "width": 56,
-                "height": 56
-              },
-              "rotation": 0,
-              "opacity": 1,
-              "data": "/static/icons/placeholder.svg",
-              "fit": "fill",
-              "decorative": false,
-              "name": "card_icon",
-              "is_icon": true
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 136,
-                "y": 40
-              },
-              "size": {
-                "width": 726,
-                "height": 34
-              },
-              "font": {
-                "size": 28,
-                "family": "Playfair Display",
-                "color": "#FFFFFF",
-                "line_height": 0.97
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Idea Generation and Validation",
-                  "font": {
-                    "size": 28,
-                    "family": "Playfair Display",
-                    "color": "#FFFFFF",
-                    "line_height": 0.97
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "card_heading",
-              "max_length": 30,
-              "min_length": 15
-            },
-            {
-              "type": "text",
-              "position": {
-                "x": 136,
-                "y": 86
-              },
-              "size": {
-                "width": 726,
-                "height": 84
-              },
-              "font": {
-                "size": 16,
-                "family": "Playfair Display",
-                "color": "#FFFFFF",
-                "line_height": 1.4
-              },
-              "alignment": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "runs": [
-                {
-                  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-                  "font": {
-                    "size": 16,
-                    "family": "Playfair Display",
-                    "color": "#FFFFFF",
-                    "line_height": 1.4
-                  }
-                }
-              ],
-              "decorative": false,
-              "name": "card_body",
-              "max_length": 231,
-              "min_length": 116
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "left_image_right_title_strategy_cards_6875_pv07",
+      "id": "left_image_right_title_strategy_cards_6875_pv06",
       "description": "Presenter avatar video version: A split hero slide with a large left visual, oversized heading on the right, and a strategy card panel overlaying the center.",
       "components": [
         {
@@ -22097,11 +21721,42 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 236.0,
+            "y": 40
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 168,
+                "height": 280
+              },
+              "fill": {
+                "color": "#F3F4F6",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 288,
-            "y": 16
+            "x": 248.0,
+            "y": 52
           },
           "elements": [
             {
@@ -22111,8 +21766,8 @@
                 "y": 0
               },
               "size": {
-                "width": 168,
-                "height": 299
+                "width": 144,
+                "height": 256
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -22669,6 +22324,389 @@
               "name": "four_column_items",
               "max_children": 4,
               "min_children": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "left_image_right_cover_text_7212_pv07",
+      "description": "Presenter avatar video version: A split cover layout with a large visual panel on the left and stacked introduction content on the right.",
+      "components": [
+        {
+          "id": "canvas_background_pv",
+          "description": "Full-slide white base layer that provides neutral spacing behind the split content areas.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "vector",
+              "shape": "polygon",
+              "fill": {
+                "color": "#FFFFFF"
+              },
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 0
+                },
+                {
+                  "x": 1280,
+                  "y": 720
+                },
+                {
+                  "x": 0,
+                  "y": 720
+                }
+              ],
+              "closed": true
+            }
+          ]
+        },
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 140.0,
+            "y": 41.5
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 360,
+                "height": 621
+              },
+              "fill": {
+                "color": "#F3F4F6",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "video_placeholder",
+          "description": "Avatar video placeholder",
+          "position": {
+            "x": 152.0,
+            "y": 53.5
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 336,
+                "height": 597
+              },
+              "data": "/static/images/video-placeholder.png",
+              "fit": "cover",
+              "decorative": true,
+              "name": "avatar_video",
+              "is_icon": false,
+              "video_placeholder": true
+            }
+          ]
+        },
+        {
+          "id": "right_text_stack_pv",
+          "description": "Right-column headline and supporting paragraph arranged as a vertical content stack with generous spacing.",
+          "position": {
+            "x": 696,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "flex",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 530,
+                "height": 252
+              },
+              "direction": "column",
+              "align_items": "flex-start",
+              "justify_content": "flex-start",
+              "gap": 32,
+              "children": [
+                {
+                  "type": "text",
+                  "size": {
+                    "width": 530,
+                    "height": 136
+                  },
+                  "font": {
+                    "size": 64,
+                    "family": "Playfair Display",
+                    "color": "#111827",
+                    "line_height": 0.85
+                  },
+                  "alignment": {
+                    "horizontal": "left",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "Introduction Our Pitchdeck",
+                      "font": {
+                        "size": 64,
+                        "family": "Playfair Display",
+                        "color": "#111827",
+                        "line_height": 0.85
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "primary_heading",
+                  "max_length": 26,
+                  "min_length": 13
+                },
+                {
+                  "type": "text",
+                  "size": {
+                    "width": 530,
+                    "height": 84
+                  },
+                  "font": {
+                    "size": 16,
+                    "family": "Playfair Display",
+                    "color": "#6B7280",
+                    "line_height": 1.4
+                  },
+                  "alignment": {
+                    "horizontal": "left",
+                    "vertical": "top"
+                  },
+                  "runs": [
+                    {
+                      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris",
+                      "font": {
+                        "size": 16,
+                        "family": "Playfair Display",
+                        "color": "#6B7280",
+                        "line_height": 1.4
+                      }
+                    }
+                  ],
+                  "decorative": false,
+                  "name": "supporting_paragraph",
+                  "max_length": 190,
+                  "min_length": 95
+                }
+              ],
+              "name": "intro_text_column",
+              "max_children": 2,
+              "min_children": 2
+            }
+          ]
+        },
+        {
+          "id": "metadata_card_pv",
+          "description": "Outlined horizontal card with a square mark on the left and two text lines aligned beside it.",
+          "position": {
+            "x": 696,
+            "y": 379.66
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 400,
+                "height": 90
+              },
+              "fill": {
+                "color": "#FFFFFF"
+              },
+              "stroke": {
+                "color": "#E5E7EB",
+                "width": 1
+              },
+              "shadow": {
+                "color": "#000000",
+                "blur": 24,
+                "opacity": 0.08,
+                "offset_x": 0,
+                "offset_y": 10
+              },
+              "padding": {
+                "top": 13,
+                "right": 21,
+                "bottom": 13,
+                "left": 21
+              },
+              "child": {
+                "type": "flex",
+                "direction": "row",
+                "align_items": "center",
+                "justify_content": "flex-start",
+                "gap": 16,
+                "children": [
+                  {
+                    "type": "container",
+                    "size": {
+                      "width": 64,
+                      "height": 64
+                    },
+                    "alignment": {
+                      "horizontal": "center",
+                      "vertical": "middle"
+                    },
+                    "fill": {
+                      "color": "#1B8C2D"
+                    },
+                    "border_radius": {
+                      "tl": 9.6,
+                      "tr": 9.6,
+                      "bl": 9.6,
+                      "br": 9.6
+                    },
+                    "child": {
+                      "type": "text",
+                      "size": {
+                        "width": 50,
+                        "height": 33
+                      },
+                      "font": {
+                        "size": 22,
+                        "family": "Playfair Display",
+                        "color": "#FFFFFF",
+                        "bold": true,
+                        "line_height": 1.2,
+                        "letter_spacing": 0.55
+                      },
+                      "alignment": {
+                        "horizontal": "center",
+                        "vertical": "middle"
+                      },
+                      "runs": [
+                        {
+                          "text": "PDT",
+                          "font": {
+                            "size": 22,
+                            "family": "Playfair Display",
+                            "color": "#FFFFFF",
+                            "bold": true,
+                            "line_height": 1.2,
+                            "letter_spacing": 0.55
+                          }
+                        }
+                      ],
+                      "decorative": false,
+                      "name": "square_mark_text",
+                      "max_length": 3,
+                      "min_length": 2
+                    }
+                  },
+                  {
+                    "type": "flex",
+                    "size": {
+                      "width": 190,
+                      "height": 50
+                    },
+                    "direction": "column",
+                    "align_items": "flex-start",
+                    "justify_content": "center",
+                    "gap": 2,
+                    "children": [
+                      {
+                        "type": "text",
+                        "size": {
+                          "width": 190,
+                          "height": 28
+                        },
+                        "font": {
+                          "size": 22,
+                          "family": "Playfair Display",
+                          "color": "#111827",
+                          "line_height": 1
+                        },
+                        "alignment": {
+                          "horizontal": "left",
+                          "vertical": "middle"
+                        },
+                        "runs": [
+                          {
+                            "text": "Pitch Deck Team",
+                            "font": {
+                              "size": 22,
+                              "family": "Playfair Display",
+                              "color": "#111827",
+                              "line_height": 1
+                            }
+                          }
+                        ],
+                        "decorative": false,
+                        "name": "card_primary_label",
+                        "max_length": 15,
+                        "min_length": 8
+                      },
+                      {
+                        "type": "text",
+                        "size": {
+                          "width": 190,
+                          "height": 19
+                        },
+                        "font": {
+                          "size": 15,
+                          "family": "Playfair Display",
+                          "color": "#1B8C2D",
+                          "line_height": 1
+                        },
+                        "alignment": {
+                          "horizontal": "left",
+                          "vertical": "middle"
+                        },
+                        "runs": [
+                          {
+                            "text": "December 22, 2025",
+                            "font": {
+                              "size": 15,
+                              "family": "Playfair Display",
+                              "color": "#1B8C2D",
+                              "line_height": 1
+                            }
+                          }
+                        ],
+                        "decorative": false,
+                        "name": "card_secondary_label",
+                        "max_length": 17,
+                        "min_length": 9
+                      }
+                    ],
+                    "name": "card_text_column",
+                    "max_children": 2,
+                    "min_children": 2
+                  }
+                ],
+                "name": "card_horizontal_content",
+                "max_children": 2,
+                "min_children": 2
+              }
             }
           ]
         }

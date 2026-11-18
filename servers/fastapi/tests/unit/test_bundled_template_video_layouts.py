@@ -124,3 +124,51 @@ def test_components_registered(template_id):
     for layout in new_layouts(template):
         for comp in layout["components"]:
             assert comp["id"] in registered, (layout["id"], comp["id"])
+
+
+def _elements(layout: dict[str, Any]) -> list[str]:
+    return sorted(json.dumps(e, sort_keys=True) for c in layout["components"] for e in c["elements"])
+
+
+@pytest.mark.parametrize("template_id", TEMPLATE_IDS)
+def test_derived_layouts_lose_only_the_swapped_content_image(template_id):
+    template = load(template_id)
+    for layout in new_layouts(template):
+        source = _source(template, layout)
+        if source is None:
+            continue
+        added = [
+            json.dumps(e, sort_keys=True)
+            for c in layout["components"]
+            if c["id"] in ("video_placeholder", "video_backing_pv")
+            for e in c["elements"]
+        ]
+        kept = list(_elements(layout))
+        for item in added:
+            kept.remove(item)
+        lost = list(_elements(source))
+        for item in kept:
+            lost.remove(item)  # raises if the derived layout invented something
+        assert len(lost) == 1, (layout["id"], len(lost))
+        assert json.loads(lost[0])["data"].endswith("replaceable_template_image.png"), layout["id"]
+
+
+@pytest.mark.parametrize("template_id", TEMPLATE_IDS)
+def test_no_image_drawn_above_the_placeholder_covers_it(template_id):
+    for layout in new_layouts(load(template_id)):
+        ids = [c["id"] for c in layout["components"]]
+        if "video_placeholder" not in ids:
+            continue
+        holder = layout["components"][ids.index("video_placeholder")]
+        hx, hy = holder["position"]["x"], holder["position"]["y"]
+        hw, hh = holder["elements"][0]["size"]["width"], holder["elements"][0]["size"]["height"]
+        for comp in layout["components"][ids.index("video_placeholder") + 1 :]:
+            for el in comp["elements"]:
+                if el.get("type") != "image" or not el.get("size"):
+                    continue
+                x, y = comp["position"]["x"] + el["position"]["x"], comp["position"]["y"] + el["position"]["y"]
+                w, h = el["size"]["width"], el["size"]["height"]
+                if w >= 1000 and h >= 600:
+                    continue
+                overlap = max(0, min(hx + hw, x + w) - max(hx, x)) * max(0, min(hy + hh, y + h) - max(hy, y))
+                assert overlap < 0.05 * hw * hh, (layout["id"], comp["id"])

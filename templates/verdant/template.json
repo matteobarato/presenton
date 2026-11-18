@@ -21796,7 +21796,7 @@
               },
               "size": {
                 "width": 696,
-                "height": 51
+                "height": 75
               },
               "rotation": 0,
               "font": {
@@ -21840,7 +21840,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 318
+            "y": 342
           },
           "elements": [
             {
@@ -22667,6 +22667,43 @@
       ]
     },
     {
+      "id": "video_backing_pv",
+      "description": "Panel behind the video, so an empty slot still looks designed.",
+      "variants": [
+        {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#D5E0D0",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "callout_1_pv",
       "description": "Left callout card.",
       "variants": [
@@ -23230,7 +23267,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 60
+                "height": 117
               },
               "rotation": 0,
               "font": {
@@ -23274,7 +23311,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 156
+            "y": 213
           },
           "elements": [
             {
@@ -23323,7 +23360,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 66
+                "y": 50
               },
               "size": {
                 "width": 80,
@@ -23362,11 +23399,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 132
+                "y": 116
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
@@ -23401,7 +23438,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 258
+                "y": 274
               },
               "size": {
                 "width": 624,
@@ -23440,7 +23477,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 306
               },
               "size": {
                 "width": 624,
@@ -24104,207 +24141,6 @@
               "name": "body_description",
               "max_length": 812,
               "min_length": 200
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "top_corner_accent_pv",
-      "description": "Flowing abstract accent cropped along the upper-left corner, providing fixed visual framing without carrying replaceable content.",
-      "variants": [
-        {
-          "id": "top_corner_accent_pv",
-          "description": "Flowing abstract accent cropped along the upper-left corner, providing fixed visual framing without carrying replaceable content.",
-          "position": {
-            "x": 0,
-            "y": -7.73
-          },
-          "elements": [
-            {
-              "type": "image",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 299.29,
-                "height": 159.45
-              },
-              "flip_h": true,
-              "flip_v": true,
-              "data": "static/Freeform_2-4821b2b63f0e.png",
-              "fit": "cover",
-              "focus_y": 100,
-              "clip_path": "path('M 299.29 159.45 L 0 159.45 L 0 0 L 299.29 0 L 299.29 159.45 Z')",
-              "decorative": true,
-              "name": "top_corner_accent",
-              "is_icon": false
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "summary_card_pv",
-      "description": "Wide rounded summary card layered over the primary image, containing a short descriptive paragraph and supporting bullet list.",
-      "variants": [
-        {
-          "id": "summary_card_pv",
-          "description": "Wide rounded summary card layered over the primary image, containing a short descriptive paragraph and supporting bullet list.",
-          "position": {
-            "x": 746,
-            "y": 105.11
-          },
-          "elements": [
-            {
-              "type": "group",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 491.24,
-                "height": 268.23
-              },
-              "children": [
-                {
-                  "type": "image",
-                  "position": {
-                    "x": 0,
-                    "y": 0
-                  },
-                  "size": {
-                    "width": 491.24,
-                    "height": 268.23
-                  },
-                  "data": "static/Freeform_6-359e6e40d3db.svg",
-                  "fit": "fill",
-                  "decorative": true,
-                  "name": "summary_card_surface",
-                  "is_icon": false
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 24.870000000000005,
-                    "y": 45.760000000000005
-                  },
-                  "size": {
-                    "width": 441.4999999999999,
-                    "height": 174.7
-                  },
-                  "direction": "column",
-                  "align_items": "flex-start",
-                  "gap": 19.71,
-                  "children": [
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 441.5,
-                        "height": 88.83
-                      },
-                      "font": {
-                        "size": 16,
-                        "family": "DM Sans",
-                        "color": "#000000",
-                        "line_height": 1.44
-                      },
-                      "alignment": {
-                        "horizontal": "justify",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Smartphone usage data shows that entertainment-related applications receive the majority of daily of attention, while educational activities occupy a much more smaller portion of screen time.",
-                          "font": {
-                            "size": 16,
-                            "family": "DM Sans",
-                            "color": "#000000",
-                            "line_height": 1.44
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "summary_description",
-                      "max_length": 191,
-                      "min_length": 95
-                    },
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 441.5,
-                        "height": 66.16
-                      },
-                      "font": {
-                        "size": 16,
-                        "family": "DM Sans",
-                        "color": "#000000",
-                        "line_height": 1.44
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "• Social media is the largest usage category.\n• Peak usage occurs during evening hours.\n• Educational app usage is concentrated before exams.",
-                          "font": {
-                            "size": 16,
-                            "family": "DM Sans",
-                            "color": "#000000",
-                            "line_height": 1.44
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "summary_bullets",
-                      "max_length": 141,
-                      "min_length": 70
-                    }
-                  ],
-                  "name": "summary_text_stack",
-                  "max_children": 2,
-                  "min_children": 2
-                }
-              ],
-              "name": "summary_card_group"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "secondary_image_region_pv",
-      "description": "Partially cropped supporting content image positioned at the lower-right edge with an irregular stepped silhouette.",
-      "variants": [
-        {
-          "id": "secondary_image_region_pv",
-          "description": "Partially cropped supporting content image positioned at the lower-right edge with an irregular stepped silhouette.",
-          "position": {
-            "x": 1023.23,
-            "y": 436.84
-          },
-          "elements": [
-            {
-              "type": "image",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 400.18,
-                "height": 361.77
-              },
-              "data": "/static/images/replaceable_template_image.png",
-              "fit": "cover",
-              "focus_x": 100,
-              "focus_y": 16.11,
-              "crop_scale": 1.63024,
-              "clip_path": "path('M 0 34.17 L 0 150.76 C 0 169.56 15.28 184.85 34.17 184.85 L 72.34 184.85 C 91.22 184.85 106.51 200.13 106.51 219.02 L 106.51 327.6 C 106.51 346.49 121.79 361.77 140.68 361.77 L 226.78 361.77 C 235.34 361.77 243.66 358.49 249.98 352.73 L 389.22 223.9 C 396.18 217.42 400.18 208.37 400.18 198.85 L 400.18 34.17 C 400.1 15.28 384.82 0 365.93 0 L 34.17 0 C 15.28 0 0 15.28 0 34.17 Z')",
-              "decorative": false,
-              "name": "secondary_image",
-              "is_icon": false
             }
           ]
         }
@@ -45995,7 +45831,7 @@
               },
               "size": {
                 "width": 696,
-                "height": 51
+                "height": 75
               },
               "rotation": 0,
               "font": {
@@ -46033,7 +45869,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 520,
-            "y": 318
+            "y": 342
           },
           "elements": [
             {
@@ -47041,6 +46877,37 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#D5E0D0",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
@@ -47646,7 +47513,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 60
+                "height": 117
               },
               "rotation": 0,
               "font": {
@@ -47684,7 +47551,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 64,
-            "y": 156
+            "y": 213
           },
           "elements": [
             {
@@ -47733,7 +47600,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 66
+                "y": 50
               },
               "size": {
                 "width": 80,
@@ -47772,11 +47639,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 132
+                "y": 116
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
@@ -47811,7 +47678,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 258
+                "y": 274
               },
               "size": {
                 "width": 624,
@@ -47850,7 +47717,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 306
               },
               "size": {
                 "width": 624,
@@ -48610,11 +48477,42 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 868.67,
+            "y": 53.0
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 356,
+                "height": 614
+              },
+              "fill": {
+                "color": "#D5E0D0",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
             "x": 880.67,
-            "y": 59.33
+            "y": 65.0
           },
           "elements": [
             {
@@ -48624,8 +48522,8 @@
                 "y": 0
               },
               "size": {
-                "width": 336,
-                "height": 597
+                "width": 332,
+                "height": 590
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -48733,12 +48631,12 @@
       ]
     },
     {
-      "id": "asymmetric_headline_with_layered_images_and_summary_card_5736_pv07",
-      "description": "Presenter avatar video version: Asymmetric editorial layout pairing a large lower-left headline with layered right-side photography, an overlapping summary card, and a decorative corner accent.",
+      "id": "video_left_title_points_alt_pv07",
+      "description": "Presenter avatar video framed on the left with a headline, short explanation and three key points on the right. Use when a narrator or avatar introduces a topic, team or initiative on camera.",
       "components": [
         {
-          "id": "background_surface_pv",
-          "description": "Full-canvas neutral background surface supporting all editorial content, imagery, and decorative treatments across the composition.",
+          "id": "full_bleed_canvas_pv",
+          "description": "Plain full-slide background in the template's own color.",
           "position": {
             "x": 0,
             "y": 0
@@ -48747,6 +48645,10 @@
             {
               "type": "vector",
               "shape": "polygon",
+              "fill": {
+                "color": "#F4F4F4",
+                "opacity": 1
+              },
               "points": [
                 {
                   "x": 0,
@@ -48765,40 +48667,38 @@
                   "y": 720
                 }
               ],
-              "closed": true,
-              "fill": {
-                "color": "#F4F4F4"
-              }
+              "closed": true
             }
           ]
         },
         {
-          "id": "top_corner_accent_pv",
-          "description": "Flowing abstract accent cropped along the upper-left corner, providing fixed visual framing without carrying replaceable content.",
+          "id": "video_frame_accent_pv",
+          "description": "Offset accent panel framing the portrait video from behind.",
           "position": {
-            "x": 0,
-            "y": -7.73
+            "x": 876,
+            "y": 124
           },
           "elements": [
             {
-              "type": "image",
+              "type": "container",
               "position": {
                 "x": 0,
                 "y": 0
               },
               "size": {
-                "width": 299.29,
-                "height": 159.45
+                "width": 288,
+                "height": 512
               },
-              "flip_h": true,
-              "flip_v": true,
-              "data": "static/Freeform_2-4821b2b63f0e.png",
-              "fit": "cover",
-              "focus_y": 100,
-              "clip_path": "path('M 299.29 159.45 L 0 159.45 L 0 0 L 299.29 0 L 299.29 159.45 Z')",
-              "decorative": true,
-              "name": "top_corner_accent",
-              "is_icon": false
+              "fill": {
+                "color": "#285F20",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 8,
+                "tr": 8,
+                "bl": 8,
+                "br": 8
+              }
             }
           ]
         },
@@ -48806,8 +48706,8 @@
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 738.09,
-            "y": 330.95
+            "x": 896,
+            "y": 104
           },
           "elements": [
             {
@@ -48817,8 +48717,8 @@
                 "y": 0
               },
               "size": {
-                "width": 173,
-                "height": 308
+                "width": 288,
+                "height": 512
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -48830,164 +48730,11 @@
           ]
         },
         {
-          "id": "summary_card_pv",
-          "description": "Wide rounded summary card layered over the primary image, containing a short descriptive paragraph and supporting bullet list.",
+          "id": "title_body_block_pv",
+          "description": "Eyebrow label, headline and supporting paragraph.",
           "position": {
-            "x": 746,
-            "y": 105.11
-          },
-          "elements": [
-            {
-              "type": "group",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 491.24,
-                "height": 268.23
-              },
-              "children": [
-                {
-                  "type": "image",
-                  "position": {
-                    "x": 0,
-                    "y": 0
-                  },
-                  "size": {
-                    "width": 491.24,
-                    "height": 268.23
-                  },
-                  "data": "static/Freeform_6-359e6e40d3db.svg",
-                  "fit": "fill",
-                  "decorative": true,
-                  "name": "summary_card_surface",
-                  "is_icon": false
-                },
-                {
-                  "type": "flex",
-                  "position": {
-                    "x": 24.870000000000005,
-                    "y": 45.760000000000005
-                  },
-                  "size": {
-                    "width": 441.4999999999999,
-                    "height": 174.7
-                  },
-                  "direction": "column",
-                  "align_items": "flex-start",
-                  "gap": 19.71,
-                  "children": [
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 441.5,
-                        "height": 88.83
-                      },
-                      "font": {
-                        "size": 16,
-                        "family": "DM Sans",
-                        "color": "#000000",
-                        "line_height": 1.44
-                      },
-                      "alignment": {
-                        "horizontal": "justify",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "Smartphone usage data shows that entertainment-related applications receive the majority of daily of attention, while educational activities occupy a much more smaller portion of screen time.",
-                          "font": {
-                            "size": 16,
-                            "family": "DM Sans",
-                            "color": "#000000",
-                            "line_height": 1.44
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "summary_description",
-                      "max_length": 191,
-                      "min_length": 95
-                    },
-                    {
-                      "type": "text",
-                      "size": {
-                        "width": 441.5,
-                        "height": 66.16
-                      },
-                      "font": {
-                        "size": 16,
-                        "family": "DM Sans",
-                        "color": "#000000",
-                        "line_height": 1.44
-                      },
-                      "alignment": {
-                        "horizontal": "left",
-                        "vertical": "top"
-                      },
-                      "runs": [
-                        {
-                          "text": "• Social media is the largest usage category.\n• Peak usage occurs during evening hours.\n• Educational app usage is concentrated before exams.",
-                          "font": {
-                            "size": 16,
-                            "family": "DM Sans",
-                            "color": "#000000",
-                            "line_height": 1.44
-                          }
-                        }
-                      ],
-                      "decorative": false,
-                      "name": "summary_bullets",
-                      "max_length": 141,
-                      "min_length": 70
-                    }
-                  ],
-                  "name": "summary_text_stack",
-                  "max_children": 2,
-                  "min_children": 2
-                }
-              ],
-              "name": "summary_card_group"
-            }
-          ]
-        },
-        {
-          "id": "secondary_image_region_pv",
-          "description": "Partially cropped supporting content image positioned at the lower-right edge with an irregular stepped silhouette.",
-          "position": {
-            "x": 1023.23,
-            "y": 436.84
-          },
-          "elements": [
-            {
-              "type": "image",
-              "position": {
-                "x": 0,
-                "y": 0
-              },
-              "size": {
-                "width": 400.18,
-                "height": 361.77
-              },
-              "data": "/static/images/replaceable_template_image.png",
-              "fit": "cover",
-              "focus_x": 100,
-              "focus_y": 16.11,
-              "crop_scale": 1.63024,
-              "clip_path": "path('M 0 34.17 L 0 150.76 C 0 169.56 15.28 184.85 34.17 184.85 L 72.34 184.85 C 91.22 184.85 106.51 200.13 106.51 219.02 L 106.51 327.6 C 106.51 346.49 121.79 361.77 140.68 361.77 L 226.78 361.77 C 235.34 361.77 243.66 358.49 249.98 352.73 L 389.22 223.9 C 396.18 217.42 400.18 208.37 400.18 198.85 L 400.18 34.17 C 400.1 15.28 384.82 0 365.93 0 L 34.17 0 C 15.28 0 0 15.28 0 34.17 Z')",
-              "decorative": false,
-              "name": "secondary_image",
-              "is_icon": false
-            }
-          ]
-        },
-        {
-          "id": "headline_block_pv",
-          "description": "Large multiline serif headline anchored in the lower-left quadrant, balancing the image-led composition on the right.",
-          "position": {
-            "x": 43.33,
-            "y": 370.67
+            "x": 64,
+            "y": 96
           },
           "elements": [
             {
@@ -48997,16 +48744,17 @@
                 "y": 0
               },
               "size": {
-                "width": 556.52,
-                "height": 295.47
+                "width": 696,
+                "height": 24
               },
+              "rotation": 0,
               "font": {
-                "size": 75.55,
-                "family": "Tinos",
-                "color": "#03362D",
-                "underline": false,
-                "line_height": 0.96,
-                "letter_spacing": -4.98
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#285F20",
+                "line_height": 1.52,
+                "bold": true,
+                "letter_spacing": 1.2
               },
               "alignment": {
                 "horizontal": "left",
@@ -49014,21 +48762,406 @@
               },
               "runs": [
                 {
-                  "text": "Students spend more time on social and video apps than on educational apps.",
+                  "text": "MEET YOUR PRESENTER",
                   "font": {
-                    "size": 75.55,
-                    "family": "Tinos",
-                    "color": "#03362D",
-                    "underline": false,
-                    "line_height": 0.96,
-                    "letter_spacing": -4.98
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#285F20",
+                    "line_height": 1.52,
+                    "bold": true,
+                    "letter_spacing": 1.2
                   }
                 }
               ],
               "decorative": false,
-              "name": "headline",
-              "max_length": 75,
-              "min_length": 37
+              "name": "eyebrow_label",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 36
+              },
+              "size": {
+                "width": 696,
+                "height": 99
+              },
+              "rotation": 0,
+              "font": {
+                "size": 44,
+                "family": "Tinos",
+                "color": "#03362D",
+                "line_height": 1.1,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "A clear message from the person behind it",
+                  "font": {
+                    "size": 44,
+                    "family": "Tinos",
+                    "color": "#03362D",
+                    "line_height": 1.1,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "main_title",
+              "min_length": 12,
+              "max_length": 48
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 0,
+                "y": 147
+              },
+              "size": {
+                "width": 696,
+                "height": 75
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.52,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Your presenter walks the audience through the idea in their own voice, so the key message lands in seconds.",
+                  "font": {
+                    "size": 16,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.52,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "intro_text",
+              "min_length": 40,
+              "max_length": 150
+            }
+          ]
+        },
+        {
+          "id": "key_points_list_pv",
+          "description": "Three stacked key points with markers.",
+          "position": {
+            "x": 64,
+            "y": 342
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 6.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#285F20",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 0.0
+              },
+              "size": {
+                "width": 670,
+                "height": 27
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.52,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Clear goals",
+                  "font": {
+                    "size": 16,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.52,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 29.0
+              },
+              "size": {
+                "width": 670,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.52,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Everyone knows what we are aiming for.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.52,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_1_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 75.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#285F20",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 69.0
+              },
+              "size": {
+                "width": 670,
+                "height": 27
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.52,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Shared context",
+                  "font": {
+                    "size": 16,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.52,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 98.0
+              },
+              "size": {
+                "width": 670,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.52,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "The background behind each decision.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.52,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_2_text",
+              "min_length": 12,
+              "max_length": 64
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 144.0
+              },
+              "size": {
+                "width": 10,
+                "height": 10
+              },
+              "fill": {
+                "color": "#285F20",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 2,
+                "tr": 2,
+                "bl": 2,
+                "br": 2
+              }
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 138.0
+              },
+              "size": {
+                "width": 670,
+                "height": 27
+              },
+              "rotation": 0,
+              "font": {
+                "size": 16,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.52,
+                "bold": true
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "Next steps",
+                  "font": {
+                    "size": 16,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.52,
+                    "bold": true
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_title",
+              "min_length": 6,
+              "max_length": 28
+            },
+            {
+              "type": "text",
+              "position": {
+                "x": 26,
+                "y": 167.0
+              },
+              "size": {
+                "width": 670,
+                "height": 24
+              },
+              "rotation": 0,
+              "font": {
+                "size": 14,
+                "family": "DM Sans",
+                "color": "#000000",
+                "line_height": 1.52,
+                "bold": false
+              },
+              "alignment": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "runs": [
+                {
+                  "text": "What happens right after this slide.",
+                  "font": {
+                    "size": 14,
+                    "family": "DM Sans",
+                    "color": "#000000",
+                    "line_height": 1.52,
+                    "bold": false
+                  }
+                }
+              ],
+              "decorative": false,
+              "name": "point_3_text",
+              "min_length": 12,
+              "max_length": 64
             }
           ]
         }

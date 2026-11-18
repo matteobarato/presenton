@@ -169,3 +169,40 @@ def test_a_filled_vector_card_in_a_later_layer_blocks_the_placeholder():
     layout = _layout("vector_1", "Vector card above", _image(600, 500), with_text=False)
     layout["components"].append({"id": "card", "description": "c", "position": {"x": 100, "y": 60}, "elements": [card]})
     assert derive_layouts({"layouts": [layout]}, 5, 1) == []
+
+
+def test_decorative_background_art_is_never_taken_for_the_content_image():
+    art = _image(1280, 720, data="/static/images/some_background_texture.png", decorative=True)
+    assert derive_layouts({"layouts": [_layout("art_1", "Texture backdrop", art)]}, 5, 1) == []
+
+
+def test_only_the_replaceable_template_image_is_swapped_and_other_images_survive():
+    layout = _layout("two_1", "Photo and texture", _image(600, 500), with_text=False)
+    layout["components"][0]["elements"].append(
+        _image(1280, 720, data="/static/images/tex.png", decorative=True, position={"x": 0, "y": 0})
+    )
+    out = derive_layouts({"layouts": [layout]}, 1, 1)[0]
+    kept = [e for c in out["components"] for e in c["elements"] if e.get("type") == "image" and not e.get("video_placeholder")]
+    assert [e["data"] for e in kept] == ["/static/images/tex.png"]
+
+
+def test_an_image_in_a_later_layer_blocks_the_placeholder():
+    layout = _layout("covered_img_1", "Photo above", _image(600, 500), with_text=False)
+    layout["components"].append(
+        {"id": "photo", "description": "p", "position": {"x": 100, "y": 60}, "elements": [_image(620, 520, data="/static/images/other_photo.png", position={"x": 0, "y": 0})]}
+    )
+    assert derive_layouts({"layouts": [layout]}, 5, 1) == []
+
+
+def test_placeholder_gets_a_backing_panel_so_an_empty_slot_still_looks_designed():
+    template = {"id": "t", "theme": {"colors": {"card": "#EEEEEE", "background": "#FFFFFF", "primary": "#112233"}},
+                "fonts": {}, **_template()}
+    out = derive_layouts(template, 1, 1)[0]
+    ids = [c["id"] for c in out["components"]]
+    assert ids.index("video_backing_pv") == ids.index("video_placeholder") - 1
+    panel = next(c for c in out["components"] if c["id"] == "video_backing_pv")
+    px, py, pw, ph = _placeholder_box(out)
+    el = panel["elements"][0]
+    bx, by = panel["position"]["x"] + el["position"]["x"], panel["position"]["y"] + el["position"]["y"]
+    assert bx <= px and by <= py and bx + el["size"]["width"] >= px + pw and by + el["size"]["height"] >= py + ph
+    assert 0 <= bx and 0 <= by and bx + el["size"]["width"] <= 1280 and by + el["size"]["height"] <= 720

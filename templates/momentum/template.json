@@ -16892,6 +16892,22 @@
               "is_icon": false
             },
             {
+              "type": "image",
+              "position": {
+                "x": 111.68,
+                "y": 0
+              },
+              "size": {
+                "width": 821.39,
+                "height": 335.95
+              },
+              "data": "static/freeform_8-bf068a5a8090.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "quote_panel_fill",
+              "is_icon": false
+            },
+            {
               "type": "text",
               "position": {
                 "x": 0,
@@ -17013,34 +17029,37 @@
       ]
     },
     {
-      "id": "right_portrait_image_pv",
-      "description": "Large cropped portrait positioned on the right, visually overlapping the quote panel and extending to the bottom edge.",
+      "id": "video_backing_pv",
+      "description": "Panel behind the video, so an empty slot still looks designed.",
       "variants": [
         {
-          "id": "right_portrait_image_pv",
-          "description": "Large cropped portrait positioned on the right, visually overlapping the quote panel and extending to the bottom edge.",
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
           "position": {
-            "x": 560.25,
-            "y": 181.87
+            "x": 721.85,
+            "y": 300.12
           },
           "elements": [
             {
-              "type": "image",
+              "type": "container",
               "position": {
-                "x": 77.46,
-                "y": 95.46
+                "x": 0,
+                "y": 0
               },
               "size": {
-                "width": 372.28,
-                "height": 389.57
+                "width": 204,
+                "height": 344
               },
-              "rotation": 0,
-              "data": "/static/images/replaceable_template_image.png",
-              "fit": "cover",
-              "clip_path": "path('M 15.3332 0 L 548.0868 0 C 556.5547 0 563.42 6.8653 563.42 15.3332 L 563.42 548.0868 C 563.42 556.5547 556.5547 563.42 548.0868 563.42 L 15.3332 563.42 C 6.8653 563.42 0 556.5547 0 548.0868 L 0 15.3332 C 0 6.8653 6.8653 0 15.3332 0 Z')",
-              "decorative": false,
-              "name": "portrait_photo",
-              "is_icon": false
+              "fill": {
+                "color": "#FFFFFF",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
             }
           ]
         }
@@ -17280,7 +17299,7 @@
               },
               "size": {
                 "width": 696,
-                "height": 44
+                "height": 64
               },
               "rotation": 0,
               "font": {
@@ -17324,7 +17343,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 64,
-            "y": 308
+            "y": 328
           },
           "elements": [
             {
@@ -36668,6 +36687,22 @@
               "is_icon": false
             },
             {
+              "type": "image",
+              "position": {
+                "x": 111.68,
+                "y": 0
+              },
+              "size": {
+                "width": 821.39,
+                "height": 335.95
+              },
+              "data": "static/freeform_8-bf068a5a8090.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "quote_panel_fill",
+              "is_icon": false
+            },
+            {
               "type": "text",
               "position": {
                 "x": 0,
@@ -36787,11 +36822,42 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 721.85,
+            "y": 300.12
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 204,
+                "height": 344
+              },
+              "fill": {
+                "color": "#FFFFFF",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 12,
+                "tr": 12,
+                "bl": 12,
+                "br": 12
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
-            "x": 664.35,
-            "y": 295.58
+            "x": 733.85,
+            "y": 312.12
           },
           "elements": [
             {
@@ -36801,8 +36867,8 @@
                 "y": 0
               },
               "size": {
-                "width": 168,
-                "height": 299
+                "width": 180,
+                "height": 320
               },
               "data": "/static/images/video-placeholder.png",
               "fit": "cover",
@@ -36810,34 +36876,6 @@
               "name": "avatar_video",
               "is_icon": false,
               "video_placeholder": true
-            }
-          ]
-        },
-        {
-          "id": "right_portrait_image_pv",
-          "description": "Large cropped portrait positioned on the right, visually overlapping the quote panel and extending to the bottom edge.",
-          "position": {
-            "x": 560.25,
-            "y": 181.87
-          },
-          "elements": [
-            {
-              "type": "image",
-              "position": {
-                "x": 77.46,
-                "y": 95.46
-              },
-              "size": {
-                "width": 372.28,
-                "height": 389.57
-              },
-              "rotation": 0,
-              "data": "/static/images/replaceable_template_image.png",
-              "fit": "cover",
-              "clip_path": "path('M 15.3332 0 L 548.0868 0 C 556.5547 0 563.42 6.8653 563.42 15.3332 L 563.42 548.0868 C 563.42 556.5547 556.5547 563.42 548.0868 563.42 L 15.3332 563.42 C 6.8653 563.42 0 556.5547 0 548.0868 L 0 15.3332 C 0 6.8653 6.8653 0 15.3332 0 Z')",
-              "decorative": false,
-              "name": "portrait_photo",
-              "is_icon": false
             }
           ]
         },
@@ -37086,7 +37124,7 @@
               },
               "size": {
                 "width": 696,
-                "height": 44
+                "height": 64
               },
               "rotation": 0,
               "font": {
@@ -37124,7 +37162,7 @@
           "description": "Three stacked key points with markers.",
           "position": {
             "x": 64,
-            "y": 308
+            "y": 328
           },
           "elements": [
             {
@@ -38132,6 +38170,37 @@
           ]
         },
         {
+          "id": "video_backing_pv",
+          "description": "Panel behind the video, so an empty slot still looks designed.",
+          "position": {
+            "x": 480,
+            "y": 88
+          },
+          "elements": [
+            {
+              "type": "container",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 320,
+                "height": 544
+              },
+              "fill": {
+                "color": "#FFFFFF",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 14,
+                "tr": 14,
+                "bl": 14,
+                "br": 14
+              }
+            }
+          ]
+        },
+        {
           "id": "video_placeholder",
           "description": "Avatar video placeholder",
           "position": {
@@ -38737,7 +38806,7 @@
               },
               "size": {
                 "width": 740,
-                "height": 60
+                "height": 117
               },
               "rotation": 0,
               "font": {
@@ -38775,7 +38844,7 @@
           "description": "Card with accent edge, quote and attribution.",
           "position": {
             "x": 476,
-            "y": 156
+            "y": 213
           },
           "elements": [
             {
@@ -38824,7 +38893,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 70
+                "y": 54
               },
               "size": {
                 "width": 80,
@@ -38863,11 +38932,11 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 136
+                "y": 120
               },
               "size": {
                 "width": 624,
-                "height": 102
+                "height": 134
               },
               "rotation": 0,
               "font": {
@@ -38902,7 +38971,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 262
+                "y": 278
               },
               "size": {
                 "width": 624,
@@ -38941,7 +39010,7 @@
               "type": "text",
               "position": {
                 "x": 56,
-                "y": 290
+                "y": 306
               },
               "size": {
                 "width": 624,

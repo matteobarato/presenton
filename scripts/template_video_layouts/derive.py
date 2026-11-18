@@ -5,13 +5,18 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-from .archetypes import placeholder_component
+from .archetypes import _component, _rect, placeholder_component
+from .style import extract_style
 
 STAGE_W, STAGE_H = 1280, 720
 MIN_IMAGE_AREA = 100_000
 MAX_PLACEHOLDER_WIDTH = 360
-MIN_PLACEHOLDER_WIDTH = 160
+MIN_PLACEHOLDER_WIDTH = 144
 SEARCH_STEP = 8
+PANEL_PAD = 12
+# The only image a layout swaps for the avatar: the stand-in the template ships for content photos.
+# Anything else (textures, gradients, freeform art) is the template's look and stays.
+CONTENT_IMAGE = "replaceable_template_image.png"
 PORTRAIT = 16 / 9
 # Elements a presenter video must not cover.
 CONTENT_TYPES = frozenset({"text", "chart", "table", "infographic", "gauge", "progress_bar", "vertical_funnel"})
@@ -23,6 +28,8 @@ def _is_candidate(el: Any) -> bool:
     if not isinstance(el, dict) or el.get("type") != "image":
         return False
     if el.get("is_icon") or el.get("video_placeholder"):
+        return False
+    if not str(el.get("data", "")).endswith(CONTENT_IMAGE):
         return False
     size = el.get("size") or {}
     return size.get("width", 0) * size.get("height", 0) >= MIN_IMAGE_AREA
@@ -72,6 +79,11 @@ def _panel_boxes(components: list[dict]):
     for comp in components:
         for el, (x, y) in _with_offsets(comp.get("elements", []), (comp["position"]["x"], comp["position"]["y"])):
             size, fill = el.get("size"), el.get("fill")
+            if el.get("type") == "image" and isinstance(size, dict):
+                w, h = size.get("width") or 0, size.get("height") or 0
+                if w and h and not (w >= 1000 and h >= 600):
+                    yield (x, y, w, h)  # a photo above would hide the avatar
+                continue
             if not isinstance(fill, dict):
                 continue
             if el.get("type") == "vector" and el.get("points"):
@@ -110,24 +122,27 @@ def _overlaps(blockers: list[tuple], box: tuple[float, float, float, float]) -> 
 
 
 def _place(blockers: list[tuple], area: tuple[float, float, float, float]) -> tuple[float, float, int, int] | None:
-    """The largest portrait box inside `area` that covers no content, nearest the area's centre."""
+    """The largest portrait box inside `area` that covers no content, nearest the area's centre.
+    Room is kept around it for the backing panel."""
     left, top, width, height = area
+    left, top, width, height = left + PANEL_PAD, top + PANEL_PAD, width - 2 * PANEL_PAD, height - 2 * PANEL_PAD
     widths = range(min(MAX_PLACEHOLDER_WIDTH, int(width)), MIN_PLACEHOLDER_WIDTH - 1, -24)
     for w in widths:
         h = round(w * PORTRAIT)
         if h > height:
             continue
         best = None
-        x = left
-        while x + w <= left + width + 0.01:
-            y = top
-            while y + h <= top + height + 0.01:
-                if not _overlaps(blockers, (x, y, w, h)):
-                    dist = abs(x + w / 2 - (left + width / 2)) + abs(y + h / 2 - (top + height / 2))
+        mid_x, mid_y = left + (width - w) / 2, top + (height - h) / 2
+        xs = sorted({*(left + i * SEARCH_STEP for i in range(int((width - w) // SEARCH_STEP) + 1)), mid_x})
+        ys = sorted({*(top + i * SEARCH_STEP for i in range(int((height - h) // SEARCH_STEP) + 1)), mid_y})
+        for x in xs:
+            for y in ys:
+                if x + w > left + width + 0.01 or y + h > top + height + 0.01:
+                    continue
+                if not _overlaps(blockers, (x - PANEL_PAD, y - PANEL_PAD, w + 2 * PANEL_PAD, h + 2 * PANEL_PAD)):
+                    dist = abs(x - mid_x) + abs(y - mid_y)
                     if best is None or dist < best[0]:
                         best = (dist, x, y)
-                y += SEARCH_STEP
-            x += SEARCH_STEP
         if best:
             return best[1], best[2], w, h
     return None
@@ -136,6 +151,7 @@ def _place(blockers: list[tuple], area: tuple[float, float, float, float]) -> tu
 def derive_layouts(template: dict[str, Any], count: int, start: int) -> list[dict]:
     """Up to `count` layouts, numbered `_pv<start>`…, each a copy of one of the
     template's image layouts with its largest image swapped for the placeholder."""
+    card = extract_style(template).card
     candidates = []
     seen: set[str] = set()
     for layout in template.get("layouts", []):
@@ -167,11 +183,18 @@ def derive_layouts(template: dict[str, Any], count: int, start: int) -> list[dic
             continue  # the avatar would sit on top of text or a chart: not a layout worth offering
         x, y, w, h = spot
         holder = placeholder_component(round(x, 2), round(y, 2), w, h)
+        backing = _component(
+            "video_backing_pv",
+            "Panel behind the video, so an empty slot still looks designed.",
+            round(x - PANEL_PAD, 2),
+            round(y - PANEL_PAD, 2),
+            [_rect(0, 0, w + 2 * PANEL_PAD, h + 2 * PANEL_PAD, card, 12)],
+        )
         # The placeholder takes the image's place in the layering, just above the component it left.
         insert_at = ci + 1 if comp["elements"] else ci
         if not comp["elements"]:
             del new["components"][ci]
-        new["components"].insert(insert_at, holder)
+        new["components"][insert_at:insert_at] = [backing, holder]
         new["id"] = f"{layout['id']}_pv{n:02d}"
         new["description"] = "Presenter avatar video version: " + (layout.get("description") or "")
         out.append(new)
