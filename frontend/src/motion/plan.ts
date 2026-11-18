@@ -19,10 +19,9 @@ export function tweenEffect(t: AnimationTween | undefined): EffectId {
 export function constrainTween(t: AnimationTween, patch: Partial<AnimationTween>): AnimationTween {
   const m = { ...t, ...patch }
   const duration0 = Number.isFinite(m.duration) ? m.duration : 0.6
-  let duration = Math.min(MAX_DURATION, Math.max(MIN_DURATION, duration0))
+  const duration = Math.min(MAX_DURATION, Math.max(MIN_DURATION, duration0))
   let delay = Number.isFinite(m.delay) ? Math.max(0, m.delay) : 0
-  delay = Math.min(delay, MOTION_WINDOW - MIN_DURATION)
-  duration = Math.min(duration, MOTION_WINDOW - delay)
+  delay = Math.min(delay, MOTION_WINDOW - duration)
   return {
     ...m,
     delay: round(delay),
@@ -55,8 +54,9 @@ export function applyPreset(preset: PresetId, targets: PresetTarget[]): Animatio
   }
   list = list.slice(0, MAX_TWEENS)
   const wanted = preset === 'subtle' ? 0 : preset === 'cinematic' ? 0.15 : 0.12
-  // Compress the step so the last tween still fits the motion window.
-  const step = list.length > 1 ? Math.min(wanted, (MOTION_WINDOW - MIN_DURATION) / (list.length - 1)) : 0
+  const dur = preset === 'subtle' ? 0.4 : 0.6
+  // Compress the step so the last tween still ends within the motion window.
+  const step = list.length > 1 ? Math.min(wanted, (MOTION_WINDOW - dur) / (list.length - 1)) : 0
   const riseFrom = effects.find((e) => e.id === 'rise')!.from
   const fadeFrom = effects.find((e) => e.id === 'fade')!.from
   return list.map((t, i) => {
@@ -64,7 +64,7 @@ export function applyPreset(preset: PresetId, targets: PresetTarget[]): Animatio
     const base: AnimationTween = {
       target: t.id,
       from_values: { ...(rise ? riseFrom : fadeFrom) },
-      duration: preset === 'subtle' ? 0.4 : 0.6,
+      duration: dur,
       delay: i * step,
       ease: DEFAULT_EASE,
     }

@@ -46,6 +46,12 @@ describe('constrainTween', () => {
     expect(t.delay + t.duration).toBeLessThanOrEqual(MOTION_WINDOW)
     expect(t.duration).toBeGreaterThanOrEqual(0.2)
   })
+  it('pulls the delay earlier and keeps the duration', () => {
+    const a = constrainTween(tw(), { delay: 2.4, duration: 1.2 })
+    expect([a.delay, a.duration]).toEqual([1.3, 1.2])
+    const b = constrainTween(tw({ duration: 0.6 }), { delay: 2.4 })
+    expect([b.delay, b.duration]).toEqual([1.9, 0.6])
+  })
   it('clamps duration', () => {
     expect(constrainTween(tw(), { duration: 0 }).duration).toBe(0.2)
     expect(constrainTween(tw(), { duration: 99 }).duration).toBe(1.2)
