@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, watch, type Component } from 'vue'
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import AccountSection from '@/components/settings/AccountSection.vue'
+import ImagesSection from '@/components/settings/ImagesSection.vue'
 import ReadOnlySummary from '@/components/settings/ReadOnlySummary.vue'
 import SectionPlaceholder from '@/components/settings/SectionPlaceholder.vue'
 import SettingsSaveBar from '@/components/settings/SettingsSaveBar.vue'
@@ -25,7 +26,7 @@ const TITLES: Record<SettingsSection, string> = {
 // Replaced by the real section components in later tasks.
 const EDITORS: Record<Exclude<SettingsSection, 'account'>, Component> = {
   text: TextSection,
-  images: SectionPlaceholder,
+  images: ImagesSection,
   'web-search': SectionPlaceholder,
 }
 const LEAVE_PROMPT = 'You have unsaved changes. Leave without saving?'

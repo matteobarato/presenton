@@ -6,6 +6,7 @@ import { ApiError } from '@/api/errors'
 import type { ProviderConfig } from '@/settings/types'
 import { useSessionStore } from '@/stores/session'
 import SettingsView from '@/views/SettingsView.vue'
+import ImagesSection from '@/components/settings/ImagesSection.vue'
 import SectionPlaceholder from '@/components/settings/SectionPlaceholder.vue'
 import TextSection from '@/components/settings/TextSection.vue'
 
@@ -54,8 +55,8 @@ async function mountAt(path: string): Promise<VueWrapper> {
 }
 
 function setField(field: string, value: unknown) {
-  const text = wrapper!.findComponent(TextSection)
-  ;(text.exists() ? text : wrapper!.findComponent(SectionPlaceholder)).vm.$emit('set', field, value)
+  const editor = [TextSection, ImagesSection, SectionPlaceholder].map((c) => wrapper!.findComponent(c)).find((c) => c.exists())
+  editor!.vm.$emit('set', field, value)
 }
 
 function signIn(role: string | undefined, runtimeConfig: Record<string, unknown> = {}) {
