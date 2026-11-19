@@ -782,6 +782,8 @@ export interface paths {
         /**
          * Plan Animations Async
          * @description Like `POST /animations`, as a task to poll; `data` has `done` and `total` slides.
+         *
+         *     409 (`detail.task_id`) while another run for this deck is pending.
          */
         post: operations["plan_animations_async_api_v1_ppt_presentation__id__animations_async_post"];
         delete?: never;
@@ -801,6 +803,9 @@ export interface paths {
         /**
          * Put Animation
          * @description Store a hand-edited animation; unknown targets are dropped, values clamped.
+         *
+         *     With `slide_id` / `targets_signature`, 409 when another slide is at this
+         *     index or the slide's elements changed since the edit was made.
          */
         put: operations["put_animation_api_v1_ppt_presentation__id__animations__slide_index__put"];
         post?: never;
@@ -4400,11 +4405,17 @@ export interface components {
             }[];
             /** Targets */
             targets?: components["schemas"]["AnimationTarget"][];
+            /** Targets Signature */
+            targets_signature?: string | null;
         };
         /** SlideAnimationUpdateRequest */
         SlideAnimationUpdateRequest: {
             /** Tweens */
             tweens: components["schemas"]["SlideTweenModel"][];
+            /** Slide Id */
+            slide_id?: string | null;
+            /** Targets Signature */
+            targets_signature?: string | null;
         };
         /** SlideAnimationsRequest */
         SlideAnimationsRequest: {
@@ -6739,6 +6750,13 @@ export interface operations {
                     "application/json": components["schemas"]["AsyncTaskModel"];
                 };
             };
+            /** @description A planning run for this deck is pending */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -6774,6 +6792,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["SlideAnimationEntry"];
                 };
+            };
+            /** @description The slide at this index, or its elements, changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

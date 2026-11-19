@@ -1,5 +1,6 @@
 """Persisted entrance animations of a deck's slides: read, plan, edit, clear."""
 
+import asyncio
 import uuid
 from typing import Any, Optional, Sequence
 
@@ -12,6 +13,7 @@ from fastapi import (
     Response,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 from api.v1.auth.context import (
     get_current_owner_id,
@@ -43,6 +45,34 @@ from utils.datetime_utils import get_current_utc_datetime
 SLIDE_ANIMATIONS_ROUTER = APIRouter(prefix="/presentation", tags=["Presentation"])
 
 ASYNC_TASK_TYPE_ANIMATIONS = "presentation.animations"
+
+# One deck-wide run at a time per deck (same pattern as slide_avatars.py).
+_RUN_LOCKS: dict[uuid.UUID, asyncio.Lock] = {}
+
+
+def _run_lock(presentation_id: uuid.UUID) -> asyncio.Lock:
+    lock = _RUN_LOCKS.get(presentation_id)
+    if lock is None:
+        lock = asyncio.Lock()
+        _RUN_LOCKS[presentation_id] = lock
+    return lock
+
+
+async def _pending_runs(
+    sql_session: AsyncSession, presentation_id: uuid.UUID
+) -> list[AsyncTaskModel]:
+    """The deck's pending planning tasks, newest first (deck matched in Python)."""
+    statement = (
+        select(AsyncTaskModel)
+        .where(AsyncTaskModel.type == ASYNC_TASK_TYPE_ANIMATIONS)
+        .where(AsyncTaskModel.status == AsyncTaskStatus.PENDING)
+        .order_by(AsyncTaskModel.created_at.desc())
+    )
+    return [
+        task
+        for task in await sql_session.scalars(statement)
+        if (task.data or {}).get("presentation_id") == str(presentation_id)
+    ]
 
 
 async def _composition(presentation_id: uuid.UUID, cookie_header: Optional[str]):
@@ -90,6 +120,11 @@ def _slide_entry(
         reset_from_user=bool(stored.get("reset_from_user")) if has_plan else False,
         tweens=list(stored["tweens"]) if has_plan else [],
         targets=targets,
+        targets_signature=(
+            animations.targets_signature(animations._entry_elements(entry))
+            if status != "unsupported"
+            else None
+        ),
     )
 
 
@@ -223,7 +258,11 @@ async def run_animations_task(
         reset_current_owner_id(owner_token)
 
 
-@SLIDE_ANIMATIONS_ROUTER.post("/{id}/animations/async", response_model=AsyncTaskModel)
+@SLIDE_ANIMATIONS_ROUTER.post(
+    "/{id}/animations/async",
+    response_model=AsyncTaskModel,
+    responses={409: {"description": "A planning run for this deck is pending"}},
+)
 async def plan_animations_async(
     id: uuid.UUID,
     request: Request,
@@ -231,23 +270,36 @@ async def plan_animations_async(
     body: Optional[SlideAnimationsRequest] = None,
     sql_session: AsyncSession = Depends(get_async_session),
 ):
-    """Like `POST /animations`, as a task to poll; `data` has `done` and `total` slides."""
+    """Like `POST /animations`, as a task to poll; `data` has `done` and `total` slides.
+
+    409 (`detail.task_id`) while another run for this deck is pending.
+    """
     body = body or SlideAnimationsRequest()
     _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
     slide_ids = _scope(slides, body.slide_indexes)
-    task = AsyncTaskModel(
-        type=ASYNC_TASK_TYPE_ANIMATIONS,
-        status=AsyncTaskStatus.PENDING,
-        message="Queued for animation planning",
-        data={
-            "presentation_id": str(id),
-            "phase": "planning",
-            "done": 0,
-            "total": len(slide_ids) if slide_ids is not None else len(slides),
-        },
-    )
-    sql_session.add(task)
-    await sql_session.commit()
+    async with _run_lock(id):
+        running = await _pending_runs(sql_session, id)
+        if running:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "message": "Motion is already being planned for this deck",
+                    "task_id": running[0].id,
+                },
+            )
+        task = AsyncTaskModel(
+            type=ASYNC_TASK_TYPE_ANIMATIONS,
+            status=AsyncTaskStatus.PENDING,
+            message="Queued for animation planning",
+            data={
+                "presentation_id": str(id),
+                "phase": "planning",
+                "done": 0,
+                "total": len(slide_ids) if slide_ids is not None else len(slides),
+            },
+        )
+        sql_session.add(task)
+        await sql_session.commit()
     await sql_session.refresh(task)
     background_tasks.add_task(
         run_animations_task,
@@ -262,7 +314,11 @@ async def plan_animations_async(
 
 
 @SLIDE_ANIMATIONS_ROUTER.put(
-    "/{id}/animations/{slide_index}", response_model=SlideAnimationEntry
+    "/{id}/animations/{slide_index}",
+    response_model=SlideAnimationEntry,
+    responses={
+        409: {"description": "The slide at this index, or its elements, changed"}
+    },
 )
 async def put_animation(
     id: uuid.UUID,
@@ -271,11 +327,27 @@ async def put_animation(
     request: Request,
     sql_session: AsyncSession = Depends(get_async_session),
 ):
-    """Store a hand-edited animation; unknown targets are dropped, values clamped."""
+    """Store a hand-edited animation; unknown targets are dropped, values clamped.
+
+    With `slide_id` / `targets_signature`, 409 when another slide is at this
+    index or the slide's elements changed since the edit was made.
+    """
     _, slides = await _presentation_with_slides_for_speaker_notes(id, sql_session)
     slide = _slide_at_index(slides, slide_index)
+    if body.slide_id is not None and body.slide_id != slide.id:
+        raise HTTPException(
+            status_code=409,
+            detail="Another slide is at this position now; reload and try again",
+        )
     composition = await _composition(id, build_export_cookie_header(request))
     entry = _entries_by_slide(composition).get(str(slide.id)) or {}
+    if body.targets_signature is not None and body.targets_signature != (
+        animations.targets_signature(animations._entry_elements(entry))
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="The slide's elements changed since this edit was made",
+        )
     try:
         animations.set_user_animation(
             slide, entry, [tween.model_dump() for tween in body.tweens]

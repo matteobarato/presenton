@@ -231,3 +231,57 @@ def test_async_task(tmp_path, monkeypatch):
         assert row.status == "error" and "boom" in row.error["detail"]
 
     run(tmp_path, monkeypatch, body)
+
+
+def test_entry_carries_current_targets_signature(tmp_path, monkeypatch):
+    async def body(env, client):
+        slides = (await client.get(env.url())).json()["slides"]
+        assert slides[0]["targets_signature"] == targets_signature(_elements("e0", "e1"))
+        assert slides[2]["targets_signature"] is None  # unsupported
+
+    run(tmp_path, monkeypatch, body)
+
+
+def test_put_rejects_a_changed_slide_with_409(tmp_path, monkeypatch):
+    tween = {"target": "e0", "from_values": {"opacity": 0.0}, "duration": 0.5, "delay": 0, "ease": "power2.out"}
+
+    async def body(env, client):
+        sig = targets_signature(_elements("e0", "e1"))
+        ok = await client.put(env.url("/0"), json={"tweens": [tween], "slide_id": str(env.ids[0]), "targets_signature": sig})
+        assert ok.status_code == 200, ok.text
+
+        # Another slide sits at this index now (a reorder the client has not seen).
+        moved = await client.put(env.url("/0"), json={"tweens": [tween], "slide_id": str(env.ids[1]), "targets_signature": sig})
+        assert moved.status_code == 409
+        assert "slide" in moved.json()["detail"].lower()
+
+        # The slide's elements changed since the client read them.
+        env.composition[0]["elements"] = _elements("e0", "e1", "e2")
+        stale = await client.put(env.url("/0"), json={"tweens": [tween], "slide_id": str(env.ids[0]), "targets_signature": sig})
+        assert stale.status_code == 409
+        assert "elements" in stale.json()["detail"].lower()
+        async with env.sessions() as s:
+            row = await s.get(SlideModel, env.ids[0])
+        assert row.animation["targets_signature"] == sig  # untouched by the rejected PUTs
+
+        # Both fields are optional: an old client still saves.
+        assert (await client.put(env.url("/0"), json={"tweens": [tween]})).status_code == 200
+
+    run(tmp_path, monkeypatch, body)
+
+
+def test_async_run_is_one_at_a_time(tmp_path, monkeypatch):
+    async def body(env, client):
+        async with env.sessions() as s:
+            s.add(AsyncTaskModel(type="presentation.animations", status="pending", message="m",
+                                 data={"presentation_id": str(env.pid)}))
+            s.add(AsyncTaskModel(type="presentation.animations", status="pending", message="m",
+                                 data={"presentation_id": str(uuid.uuid4())}))
+            await s.commit()
+        r = await client.post(env.url("/async"), json={})
+        assert r.status_code == 409
+        detail = r.json()["detail"]
+        assert detail["task_id"] and "already" in detail["message"]
+        assert env.planned == []
+
+    run(tmp_path, monkeypatch, body)

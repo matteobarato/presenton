@@ -429,3 +429,60 @@ def test_set_user_animation_empty_list_valid():
     assert plan["source"] == "user"
     assert plan["reset_from_user"] is False
     assert slide.animation == plan
+
+
+def test_resolve_skips_slides_edited_while_planning(tmp_path, monkeypatch):
+    """A hand edit committed while the LLM runs is never overwritten by the run."""
+    deck = _Deck(tmp_path, count=3)
+    els = _elements("e0", "e1")
+    entries = [_entry(sid, i, f"<p>{i}</p>", els) for i, sid in enumerate(deck.slide_ids)]
+    old_user = _plan("user", "<p>2 old</p>", _elements("e0"))  # stale_layout user plan
+    asyncio.run(deck.seed({2: old_user}))
+    state = _patch(monkeypatch, tmp_path, deck, entries)
+    edited = _plan("user", "<p>0</p>", els, tweens=[
+        {"target": "e1", "from_values": {"scale": 0.8}, "duration": 0.5, "delay": 0.3, "ease": "sine.out"}
+    ])
+    edited_2 = _plan("user", "<p>2</p>", els)
+    planned_fn = sas.generate_slide_animations
+
+    async def plans_while_user_edits(**kwargs):
+        # Another request (a PUT) commits through its own session mid-run.
+        async with deck.session_maker() as other:
+            first = await other.get(SlideModel, deck.slide_ids[0])
+            first.animation = edited
+            third = await other.get(SlideModel, deck.slide_ids[2])
+            third.animation = edited_2
+            await other.commit()
+        return await planned_fn(**kwargs)
+
+    monkeypatch.setattr(sas, "generate_slide_animations", plans_while_user_edits)
+    progress = []
+
+    plans = deck.resolve(on_progress=progress.append)
+
+    assert sorted(state["planned"]) == [0, 1, 2]
+    stored = asyncio.run(deck.animations())
+    assert stored[0] == edited
+    assert stored[2] == edited_2
+    assert stored[1]["source"] == "llm"
+    assert plans[deck.slide_ids[0]] == edited
+    assert progress[-1] == {"stage": "animation-plan", "done": 3, "total": 3}
+
+
+def test_resolve_keeps_content_rewrite_when_nothing_changed(tmp_path, monkeypatch):
+    """The stale-content user rewrite and legacy adoption still land alongside planned slides."""
+    deck = _Deck(tmp_path, count=2)
+    els = _elements("e0", "e1")
+    entries = [
+        _entry(deck.slide_ids[0], 0, "<p>0 new</p>", els),  # stale_content user: rewritten
+        _entry(deck.slide_ids[1], 1, "<p>1</p>", els),  # missing: planned
+    ]
+    asyncio.run(deck.seed({0: _plan("user", "<p>0</p>", els)}))
+    state = _patch(monkeypatch, tmp_path, deck, entries)
+
+    deck.resolve()
+
+    assert state["planned"] == [1]
+    stored = asyncio.run(deck.animations())
+    assert stored[0]["source"] == "user" and stored[0]["html_hash"] == _hash("<p>0 new</p>")
+    assert stored[1]["source"] == "llm"

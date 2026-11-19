@@ -31,6 +31,9 @@ class SlideAnimationEntry(BaseModel):
     reset_from_user: bool = False
     tweens: list[dict[str, Any]] = Field(default_factory=list)
     targets: list[AnimationTarget] = Field(default_factory=list)
+    # Signature of `targets` as the slide is now (None when unsupported). Send
+    # it back with a PUT so an edit made against older elements is refused.
+    targets_signature: Optional[str] = None
 
 
 class SlideAnimationsResponse(BaseModel):
@@ -45,3 +48,7 @@ class SlideAnimationsRequest(BaseModel):
 
 class SlideAnimationUpdateRequest(BaseModel):
     tweens: list[SlideTweenModel]
+    # Optional guards (409 on mismatch): the slide the edit was made on, and
+    # the `targets_signature` of the entry it was made against.
+    slide_id: Optional[uuid.UUID] = None
+    targets_signature: Optional[str] = None

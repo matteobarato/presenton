@@ -24,6 +24,7 @@ slide has no stored plan and the cached `html_hash` still matches.
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import inspect
 import json
@@ -287,7 +288,10 @@ async def resolve_slide_animations(
             continue
         in_scope.append((position, slide, entry))
 
-    changed = False
+    # Nothing is assigned until the end: the LLM call can take a while, and a
+    # hand edit (PUT) or clear committed meanwhile must not be overwritten.
+    snapshots = {slide.id: copy.deepcopy(slide.animation) for _, slide, _ in in_scope}
+    writes: dict[int, tuple[SlideModel, dict[str, Any]]] = {}
     to_plan: dict[int, tuple[SlideModel, dict[str, Any], bool]] = {}
     for position, slide, entry in in_scope:
         stored = slide.animation
@@ -296,9 +300,7 @@ async def resolve_slide_animations(
                 legacy = _legacy_cache(presentation.id)
             adopted = _adopt_legacy(legacy.get(str(slide.id)), entry)
             if adopted is not None:
-                slide.animation = adopted
-                sql_session.add(slide)
-                changed = True
+                writes[position] = (slide, adopted)
                 continue
 
         status = plan_status(stored, entry)
@@ -310,14 +312,15 @@ async def resolve_slide_animations(
             continue
         elif status == "stale_content" and stored["source"] == "user":
             validated = _validate_stored_tweens(stored["tweens"], entry)
-            slide.animation = _build_plan(
-                source="user",
-                entry=entry,
-                tweens=validated,
-                reset_from_user=previous_reset,
+            writes[position] = (
+                slide,
+                _build_plan(
+                    source="user",
+                    entry=entry,
+                    tweens=validated,
+                    reset_from_user=previous_reset,
+                ),
             )
-            sql_session.add(slide)
-            changed = True
         elif status == "stale_layout" and stored["source"] == "user":
             to_plan[position] = (slide, entry, True)
         else:
@@ -337,19 +340,34 @@ async def resolve_slide_animations(
             tweens = generated.get(position) or []
             elements = _entry_elements(entry)
             is_fallback = bool(tweens) and tweens == fallback_slide_animation(elements)
-            slide.animation = _build_plan(
-                source="fallback" if is_fallback else "llm",
-                entry=entry,
-                tweens=tweens,
-                reset_from_user=reset_from_user,
+            writes[position] = (
+                slide,
+                _build_plan(
+                    source="fallback" if is_fallback else "llm",
+                    entry=entry,
+                    tweens=tweens,
+                    reset_from_user=reset_from_user,
+                ),
             )
+
+    changed = False
+    for position in sorted(writes):
+        slide, plan = writes[position]
+        # Re-read: a slide whose stored animation changed since it was read
+        # (edited or cleared by hand meanwhile) keeps the newer value.
+        await sql_session.refresh(slide, ["animation"])
+        if slide.animation != snapshots[slide.id]:
+            LOGGER.info("slide %s animation changed while planning; kept", slide.id)
+        else:
+            slide.animation = plan
             sql_session.add(slide)
             changed = True
-            done += 1
-            await _emit(on_progress, done, total)
 
     if changed:
         await sql_session.commit()
+    if to_plan:
+        # After the commit: the progress callback writes through its own session.
+        await _emit(on_progress, total, total)
 
     return {
         slide.id: slide.animation
