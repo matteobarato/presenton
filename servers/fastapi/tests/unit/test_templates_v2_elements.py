@@ -690,3 +690,18 @@ def test_text_list_preserves_item_and_marker_gaps():
     assert text_list.type == "text-list"
     assert text_list.gap == 12.5
     assert text_list.marker_gap == 6.25
+
+
+def test_image_keeps_tint():
+    image = Image(
+        **{
+            "type": "image",
+            "decorative": True,
+            "name": "blob",
+            "is_icon": False,
+            "data": "/static/templates/x/blob.svg",
+            "color": "#1A3DB3",
+            "tint": True,
+        }
+    )
+    assert image.model_dump(exclude_none=True)["tint"] is True
