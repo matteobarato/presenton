@@ -3797,7 +3797,7 @@ async def update_presentation(
                     .values(slide_index=slide.index)
                 )
             stored_slide.sqlmodel_update(
-                slide.model_dump(exclude={"id", "presentation"})
+                slide.model_dump(exclude={"id", "presentation", "animation"})
             )
             sql_session.add(stored_slide)
 
@@ -3840,7 +3840,7 @@ async def update_presentation_slide(
 
     stored_slide.sqlmodel_update(
         slide.model_dump(
-            exclude={"id", "presentation", "index"},
+            exclude={"id", "presentation", "index", "animation"},
         )
     )
     sql_session.add(stored_slide)
