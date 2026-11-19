@@ -8,6 +8,17 @@ export type ImageFit = 'cover' | 'contain' | 'fill'
 
 const clamp = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(100, Math.max(0, v)) : 50)
 
+/** The element after swapping its picture: re-centred, uncropped, and no longer a tinted decorative mask. */
+export function replaceImageElement(el: Record<string, any>, src: string): Record<string, any> {
+  const next = { ...el, data: src, focus_x: 50, focus_y: 50, crop_scale: null }
+  // A tinted decorative SVG draws as a colour mask; a swapped-in photo would show as a flat silhouette.
+  if (next.tint) {
+    delete next.tint
+    delete next.color
+  }
+  return next
+}
+
 /** Image state and edits shared by the Image inspector section and the floating bar's quick controls. */
 export function useImageControls() {
   const ctx = useSlideEditingContext()
@@ -40,7 +51,7 @@ export function useImageControls() {
   }
   function replaceImage(src: string) {
     // A new picture starts centred and uncropped, as in the old editor.
-    patch('Replace image', { data: src, focus_x: 50, focus_y: 50, crop_scale: null })
+    patchElement('Replace image', (el) => replaceImageElement(el, src))
   }
   function setFit(value: 'cover' | 'contain') {
     if (value !== fit.value) patch('Image fit', { fit: value })
