@@ -1,4 +1,16 @@
-import { computed, getCurrentScope, onScopeDispose, ref, watch, type ComputedRef, type Ref } from 'vue'
+import {
+  computed,
+  getCurrentScope,
+  hasInjectionContext,
+  inject,
+  onScopeDispose,
+  provide,
+  ref,
+  watch,
+  type ComputedRef,
+  type InjectionKey,
+  type Ref,
+} from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import {
   animationKeys,
@@ -34,20 +46,7 @@ const copy = (tweens: AnimationTween[] | undefined) => (tweens ?? []).map((t) =>
 
 type SaveJob = { presentationId: string; slideId: string; key: string; fallbackIndex: number; tweens: AnimationTween[]; seq: number }
 
-/**
- * The animation plan of one slide: a local draft that drives the preview at once and saves (PUT) 600 ms
- * after the last edit, the way `useNoteDraft` handles speaker notes.
- *
- * - The pending save is a snapshot taken at edit time, so a flush on slide switch writes to the slide the
- *   draft belongs to; its index is resolved by slide id at save time.
- * - A failed save keeps the draft and the pending job, and sets `error`; the next edit or `save()` retries.
- * - A refetch never overwrites a dirty draft.
- * - Unsupported (smart) slides and slides without animatable elements make every edit a no-op: no request.
- */
-export function useSlideAnimation(
-  presentationId: Ref<string>,
-  slide: Ref<Slide>,
-): {
+export interface SlideAnimationApi {
   animation: ComputedRef<SlideAnimation | undefined>
   draft: Ref<AnimationTween[]>
   dirty: ComputedRef<boolean>
@@ -60,7 +59,42 @@ export function useSlideAnimation(
   generateAll(): Promise<AsyncTask>
   clear(): Promise<void>
   save(): Promise<void>
-} {
+}
+
+export const SLIDE_ANIMATION_KEY: InjectionKey<SlideAnimationApi> = Symbol('slide-animation')
+
+/**
+ * The animation plan of one slide: a local draft that drives the preview at once and saves (PUT) 600 ms
+ * after the last edit, the way `useNoteDraft` handles speaker notes.
+ *
+ * - The pending save is a snapshot taken at edit time, so a flush on slide switch writes to the slide the
+ *   draft belongs to; its index is resolved by slide id at save time.
+ * - A failed save keeps the draft and the pending job, and sets `error`; the next edit or `save()` retries.
+ * - A refetch never overwrites a dirty draft.
+ * - Unsupported (smart) slides and slides without animatable elements make every edit a no-op: no request.
+ * - Inside the editor this returns the shared instance its provider built for the active slide (the
+ *   arguments are then ignored); elsewhere it builds its own.
+ */
+export function useSlideAnimation(presentationId: Ref<string>, slide: Ref<Slide>): SlideAnimationApi {
+  return useSlideAnimationContext() ?? createSlideAnimation(presentationId, slide)
+}
+
+/**
+ * The active slide's animation, provided once by the editor (`provideSlideAnimation`) so the Motion tab,
+ * the timeline and the canvas preview share one draft and one pending save. Null outside a provider.
+ */
+export function useSlideAnimationContext(): SlideAnimationApi | null {
+  return hasInjectionContext() ? inject(SLIDE_ANIMATION_KEY, null) : null
+}
+
+/** Builds the active slide's animation state and provides it to descendants. */
+export function provideSlideAnimation(presentationId: Ref<string>, slide: Ref<Slide>): SlideAnimationApi {
+  const api = createSlideAnimation(presentationId, slide)
+  provide(SLIDE_ANIMATION_KEY, api)
+  return api
+}
+
+function createSlideAnimation(presentationId: Ref<string>, slide: Ref<Slide>): SlideAnimationApi {
   const queryClient = useQueryClient()
   const query = useAnimations(presentationId)
 

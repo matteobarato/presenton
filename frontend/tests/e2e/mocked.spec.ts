@@ -423,8 +423,8 @@ test.describe('on-slide editing (mocked)', () => {
       const tabs = list.getByRole('tab')
       await expect(tabs).toHaveCount(5)
       for (const name of ['Layers', 'Insert', 'Design', 'Motion', 'Avatar']) {
-        await page.getByRole('tab', { name }).click()
-        await expect(page.getByRole('tab', { name })).toHaveAttribute('aria-selected', 'true')
+        await list.getByRole('tab', { name }).click()
+        await expect(list.getByRole('tab', { name })).toHaveAttribute('aria-selected', 'true')
         const fit = await list.evaluate((el) => {
           const box = el.getBoundingClientRect()
           return {

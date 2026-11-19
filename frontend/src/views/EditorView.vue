@@ -19,6 +19,8 @@ import SpeakerNotes from '@/components/editor/SpeakerNotes.vue'
 import { slideLabel } from '@/lib/slide-label'
 import { useSelectionScope } from '@/composables/useSelectionScope'
 import { useSlideEditing } from '@/slide-editor/useSlideEditing'
+import { provideSlideAnimation } from '@/composables/useSlideAnimation'
+import type { Slide } from '@/api/types'
 import { useEditorShortcuts } from '@/composables/useEditorShortcuts'
 import { usePresentationStream } from '@/composables/usePresentationStream'
 import { slideKey, useEditorStore } from '@/stores/editor'
@@ -77,6 +79,10 @@ const activeSlide = computed(() => slides.value[activeIndex.value] ?? null)
 // Provides the slide's editing state to the canvas and the inspector.
 const editing = useSlideEditing(id, activeSlide)
 useSelectionScope(editing)
+// One animation draft for the active slide, shared by the Motion tab, the timeline and the canvas preview.
+// No slide → an index no slide has, so no plan is found and every edit is a no-op.
+const NO_SLIDE = { id: null, index: -1 } as unknown as Slide
+provideSlideAnimation(id, computed(() => activeSlide.value ?? NO_SLIDE))
 const notFound = computed(() => error.value instanceof ApiError && error.value.status === 404)
 
 </script>
