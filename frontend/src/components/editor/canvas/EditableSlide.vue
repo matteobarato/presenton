@@ -122,7 +122,8 @@ function stopPreview() {
 }
 function syncPreview() {
   const time = editor.motionTime
-  if (time === null || !previewing.value || !animation || failure.value) return stopPreview()
+  // A stale plan names elements the slide no longer has (ids are positional): never preview it.
+  if (time === null || !previewing.value || !animation || animation.stale?.value || failure.value) return stopPreview()
   if (!preview) {
     const root = host.value?.shadowRoot()
     if (!root) return
@@ -150,6 +151,7 @@ watch(
   { immediate: true },
 )
 watch(() => animation?.draft.value, rebuildPreview, { deep: true })
+watch(() => animation?.stale?.value, rebuildPreview)
 watch(reducedMotion, rebuildPreview)
 watch(slideId, stopPreview)
 // Leaving Motion ends the preview.

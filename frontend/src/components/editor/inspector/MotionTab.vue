@@ -26,7 +26,7 @@ const editor = useEditorStore()
 // No slide → an index no slide has, so the composable finds no plan and every edit is a no-op.
 const NO_SLIDE = { id: null, index: -1 } as unknown as Slide
 const slide = computed(() => props.activeSlide ?? NO_SLIDE)
-const { animation, draft, error, busy, setEffect, patchTween, applyPreset, generate, generateAll, clear } =
+const { animation, draft, error, busy, stale, setEffect, patchTween, applyPreset, generate, generateAll, clear } =
   useSlideAnimation(toRef(props, 'presentationId'), slide)
 
 // Same cache entry as the composable's read: only for its loading and error state.
@@ -53,7 +53,7 @@ const filtered = computed(() => {
   return effects.filter((e) => `${e.name} ${e.detail}`.toLowerCase().includes(q))
 })
 function pick(id: (typeof effects)[number]['id']) {
-  if (selected.value) setEffect(selected.value, id)
+  if (selected.value && !locked.value) setEffect(selected.value, id)
 }
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
 // Capture phase: runs before the editor's global ⌘K (Ask AI), which yields to a prevented event.
@@ -72,7 +72,7 @@ useEventListener(
 
 // Timing and raw values
 function patch(p: Partial<AnimationTween>) {
-  if (selected.value) patchTween(selected.value, p)
+  if (selected.value && !locked.value) patchTween(selected.value, p)
 }
 type FromKey = keyof AnimationTween['from_values']
 // Bounds mirror the backend's ANIMATION_PROPERTIES (generate_slide_animations.py), which clamps to them.
@@ -97,7 +97,7 @@ function setFrom(key: FromKey, neutral: number, value: number) {
 
 function onPreset(event: Event) {
   const el = event.target as HTMLSelectElement
-  if (el.value) applyPreset(el.value as PresetId)
+  if (el.value && !locked.value) applyPreset(el.value as PresetId)
   el.value = ''
 }
 
@@ -124,6 +124,9 @@ function confirmRegenerate() {
 // The deck-wide run is the editor's (shared with the post-generation run), so it outlives this tab.
 const deckRun = useDeckAnimationRun(toRef(props, 'presentationId'))
 const deckRunning = deckRun.running
+// While the deck run plans every slide it would overwrite an edit made meanwhile: nothing edits until it ends.
+const locked = computed(() => deckRunning.value)
+const lockReason = computed(() => (deckRunning.value ? 'Unavailable while motion is planned for every slide' : undefined))
 function runGenerateAll() {
   // `generateAll` saves this slide's pending draft before the deck is planned.
   return deckRun.run(generateAll)
@@ -186,8 +189,20 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
           <h3 class="text-[12px] font-semibold text-[#f6f8f9]">No motion yet</h3>
           <p class="mt-1 text-[10px] leading-[1.6] text-[#a0abb1]">Let AI plan how this slide's elements arrive, or start from a sequence below.</p>
         </div>
-        <Button size="sm" :disabled="busy || deckRunning" @click="runGenerate(false)">
+        <Button size="sm" :disabled="busy || deckRunning" :title="lockReason" @click="runGenerate(false)">
           <Sparkles class="size-3.5" aria-hidden="true" />Generate with AI
+        </Button>
+      </div>
+
+      <div v-else-if="stale" class="flex flex-col items-start gap-3 pb-[18px]" role="status">
+        <div>
+          <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Layout changed — re-plan</h3>
+          <p class="mt-1 text-[10px] leading-[1.6] text-[#a0abb1]">
+            This slide's elements changed since its motion was made, so the plan no longer matches them. Re-plan it to edit motion again.
+          </p>
+        </div>
+        <Button size="sm" :disabled="busy || planning || deckRunning" :title="lockReason" @click="regenerate">
+          <Sparkles class="size-3.5" aria-hidden="true" />Re-plan this slide
         </Button>
       </div>
 
@@ -213,23 +228,25 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
             />
             <kbd class="whitespace-nowrap text-[9px] text-[#b1c3cd]">{{ isMac ? '⌘ K' : 'Ctrl K' }}</kbd>
           </label>
-          <div class="motion-effects grid grid-cols-3 gap-[5px]">
+          <fieldset class="motion-effects grid min-w-0 grid-cols-3 gap-[5px]" :disabled="locked" :title="lockReason">
+            <legend class="sr-only">Effects{{ lockReason ? ` (${lockReason.toLowerCase()})` : '' }}</legend>
             <button
               v-for="e in filtered"
               :key="e.id"
               type="button"
               :aria-pressed="current === e.id"
               :title="e.detail"
-              class="flex flex-col items-center justify-center gap-2 rounded-control border border-transparent px-1 py-[11px] text-[10px] text-[#b9c9d1] hover:bg-[#2d383d] aria-pressed:border-[#829eac] aria-pressed:bg-[#30414b] aria-pressed:text-[#e5f4fc]"
+              class="flex flex-col items-center justify-center gap-2 rounded-control border border-transparent px-1 py-[11px] text-[10px] text-[#b9c9d1] hover:bg-[#2d383d] aria-pressed:border-[#829eac] aria-pressed:bg-[#30414b] aria-pressed:text-[#e5f4fc] disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent"
               @click="pick(e.id)"
             >
               <span class="effect-glyph" :class="`effect-${e.id}`" aria-hidden="true"><i /></span>{{ e.name }}
             </button>
             <p v-if="!filtered.length" class="col-span-full py-[15px] text-[11px] text-[#afbdc5]">No effects found.</p>
-          </div>
+          </fieldset>
         </div>
 
-        <div class="border-y border-line py-[17px]">
+        <fieldset class="min-w-0 border-y border-line py-[17px]" :disabled="locked" :title="lockReason">
+          <legend class="sr-only">Timing{{ lockReason ? ` (${lockReason.toLowerCase()})` : '' }}</legend>
           <div class="mb-3 flex justify-between gap-2 text-[11px] text-[#cfdee6]">
             <span class="truncate">{{ selected ? names.get(selected) : '' }}</span>
             <b class="shrink-0 text-[10px] font-medium text-[#bee3f3]">{{ currentName }}</b>
@@ -281,13 +298,13 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
               </div>
             </div>
           </template>
-        </div>
+        </fieldset>
       </template>
 
-      <div :class="[section, animation.status === 'missing' && 'border-t-0']">
+      <div v-if="!stale" :class="[section, animation.status === 'missing' && 'border-t-0']">
         <h3 :class="sectionLabel">Whole-slide sequence</h3>
         <div :class="field">
-          <select id="motion-preset" aria-label="Sequence preset" :class="select" value="" @change="onPreset">
+          <select id="motion-preset" aria-label="Sequence preset" :class="select" value="" :disabled="locked" :title="lockReason" @change="onPreset">
             <option value="" disabled>Apply a preset…</option>
             <option value="cinematic">Cinematic reveal</option>
             <option value="cascade">Staggered cascade</option>
@@ -299,11 +316,11 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
       </div>
 
       <div class="mt-auto flex flex-col gap-2 pt-5">
-        <Button v-if="animation.status !== 'missing'" variant="secondary" size="sm" :disabled="busy || planning || deckRunning" @click="regenerate">
+        <Button v-if="animation.status !== 'missing' && !stale" variant="secondary" size="sm" :disabled="busy || planning || deckRunning" :title="lockReason" @click="regenerate">
           <Sparkles class="size-3.5" aria-hidden="true" />Regenerate
         </Button>
-        <Button variant="outline" size="sm" :disabled="busy || planning || deckRunning" @click="runGenerateAll">Generate for all slides</Button>
-        <Button v-if="animation.status !== 'missing'" variant="ghost" size="sm" :disabled="busy || planning || deckRunning" @click="clear()">Clear plan</Button>
+        <Button variant="outline" size="sm" :disabled="busy || planning || deckRunning" :title="lockReason" @click="runGenerateAll">Generate for all slides</Button>
+        <Button v-if="animation.status !== 'missing'" variant="ghost" size="sm" :disabled="busy || planning || deckRunning" :title="lockReason" @click="clear()">Clear plan</Button>
       </div>
     </template>
 

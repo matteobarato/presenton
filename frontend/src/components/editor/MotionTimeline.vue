@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue'
 import { useEventListener, useMediaQuery } from '@vueuse/core'
-import { Pause, Play, Plus, RotateCcw } from 'lucide-vue-next'
+import { Pause, Play, Plus, RotateCcw, Sparkles } from 'lucide-vue-next'
 import type { Slide } from '@/api/types'
+import { useDeckAnimationRun } from '@/composables/useDeckAnimationRun'
 import { useSlideAnimation } from '@/composables/useSlideAnimation'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { MOTION_WINDOW, effects } from '@/motion/effects'
 import { targetNames } from '@/motion/names'
 import { tweenEffect } from '@/motion/plan'
@@ -18,12 +21,16 @@ const editor = useEditorStore()
 
 const NO_SLIDE = { id: null, index: -1 } as unknown as Slide
 const slide = computed(() => props.slide ?? NO_SLIDE)
-const { animation, draft, patchTween, setEffect } = useSlideAnimation(toRef(props, 'presentationId'), slide)
+const { animation, draft, busy, stale, patchTween, setEffect, generate } = useSlideAnimation(toRef(props, 'presentationId'), slide)
+// The deck run would overwrite an edit made meanwhile; a stale plan names elements the slide no longer has.
+const deckRunning = useDeckAnimationRun(toRef(props, 'presentationId')).running
+const locked = computed(() => deckRunning.value || stale.value)
+const lockReason = computed(() => (deckRunning.value ? 'Unavailable while motion is planned for every slide' : undefined))
 
 const targets = computed(() => (animation.value?.status === 'unsupported' ? [] : (animation.value?.targets ?? [])))
 const names = computed(() => targetNames(targets.value))
 const tweenFor = (id: string) => draft.value.find((t) => t.target === id)
-const canPlay = computed(() => draft.value.length > 0)
+const canPlay = computed(() => draft.value.length > 0 && !stale.value)
 const TICKS = Array.from({ length: MOTION_WINDOW * 2 + 1 }, (_, i) => i / 2)
 const round1 = (n: number) => Math.round(n * 10) / 10
 const pct = (s: number) => `${(s / MOTION_WINDOW) * 100}%`
@@ -36,6 +43,7 @@ function choose(id: string) {
   if (!inspectorDrawer.value) editor.inspectorOpen = true
 }
 function add(id: string) {
+  if (locked.value) return
   setEffect(id, 'fade')
   choose(id)
 }
@@ -109,7 +117,7 @@ function maxDelay(id: string) {
   return Math.floor((MOTION_WINDOW - d) * 10 + 1e-6) / 10
 }
 function beginDrag(e: PointerEvent, id: string) {
-  if (e.button !== 0) return
+  if (e.button !== 0 || locked.value) return
   const t = tweenFor(id)
   const lane = (e.currentTarget as HTMLElement).parentElement
   const width = lane?.getBoundingClientRect().width ?? 0
@@ -127,12 +135,12 @@ function endDrag() {
   const d = drag.value
   if (!d) return
   drag.value = null
-  if (d.delay !== d.original) patchTween(d.target, { delay: d.delay })
+  if (d.delay !== d.original && !locked.value) patchTween(d.target, { delay: d.delay })
 }
 function nudge(e: KeyboardEvent, id: string) {
   const step = e.key === 'ArrowRight' ? 0.1 : e.key === 'ArrowLeft' ? -0.1 : 0
   const t = tweenFor(id)
-  if (!step || !t) return
+  if (!step || !t || locked.value) return
   e.preventDefault()
   e.stopPropagation()
   editor.motionTarget = id
@@ -145,6 +153,27 @@ function clipStyle(id: string) {
 }
 
 const time = computed(() => editor.motionTime ?? 0)
+// A stale plan is not previewed.
+watch(stale, (on) => {
+  if (on) stop()
+})
+
+// Re-plan a stale slide; a hand-edited plan asks first, as in the Motion tab.
+const replanning = ref(false)
+const confirmOpen = ref(false)
+async function replan() {
+  confirmOpen.value = false
+  replanning.value = true
+  try {
+    await generate({ force: true })
+  } finally {
+    replanning.value = false
+  }
+}
+function askReplan() {
+  if (animation.value?.source === 'user') confirmOpen.value = true
+  else void replan()
+}
 </script>
 
 <template>
@@ -179,6 +208,15 @@ const time = computed(() => editor.motionTime ?? 0)
     <p v-if="!targets.length" class="px-4 pb-3 text-[11px] leading-[1.6] text-muted max-[760px]:px-3">
       {{ animation?.status === 'unsupported' || !props.slide ? "This slide can't be animated." : 'Nothing to animate on this slide.' }}
     </p>
+    <div v-else-if="stale" class="flex items-center justify-between gap-3 px-4 pb-3 max-[760px]:px-3" role="status">
+      <p class="text-[11px] leading-[1.6] text-[#dce3e7]">
+        <b class="font-semibold">Layout changed — re-plan.</b>
+        <span class="text-muted"> This slide's elements changed since its motion was made.</span>
+      </p>
+      <Button size="sm" variant="secondary" :disabled="busy || replanning || deckRunning" :title="lockReason" @click="askReplan">
+        <Sparkles class="size-3.5" aria-hidden="true" />Re-plan
+      </Button>
+    </div>
     <template v-else>
       <div class="motion-ruler" aria-hidden="true">
         <span>ELEMENT</span>
@@ -203,8 +241,9 @@ const time = computed(() => editor.motionTime ?? 0)
               :class="{ 'is-active': editor.motionTarget === t.id }"
               :data-motion-clip="t.id"
               :style="clipStyle(t.id)"
-              :aria-label="`${names.get(t.id)} animation. Drag or use arrow keys to change its start time.`"
-              :title="`${clipName(t.id)} · ${tweenFor(t.id)!.delay.toFixed(1)}s`"
+              :aria-label="`${names.get(t.id)} animation. ${lockReason ?? 'Drag or use arrow keys to change its start time.'}`"
+              :aria-disabled="locked || undefined"
+              :title="lockReason ?? `${clipName(t.id)} · ${tweenFor(t.id)!.delay.toFixed(1)}s`"
               @click="choose(t.id)"
               @pointerdown="beginDrag($event, t.id)"
               @pointermove="moveDrag"
@@ -214,7 +253,15 @@ const time = computed(() => editor.motionTime ?? 0)
             >
               <span>{{ clipName(t.id) }}</span>
             </button>
-            <button v-else type="button" class="motion-add" :aria-label="`Add motion to ${names.get(t.id)}`" @click="add(t.id)">
+            <button
+              v-else
+              type="button"
+              class="motion-add"
+              :aria-label="`Add motion to ${names.get(t.id)}`"
+              :disabled="locked"
+              :title="lockReason"
+              @click="add(t.id)"
+            >
               <Plus class="size-2.5" aria-hidden="true" />Add
             </button>
             <span v-if="editor.motionTime !== null" class="motion-playhead" :style="{ left: pct(time) }" aria-hidden="true" />
@@ -234,8 +281,22 @@ const time = computed(() => editor.motionTime ?? 0)
           @input="scrub(Number(($event.target as HTMLInputElement).value))"
         />
       </div>
-      <p class="motion-help">Drag clips to sequence. Arrow keys fine-tune by 0.1 s. Slide editing pauses while the preview plays.</p>
+      <p v-if="lockReason" class="motion-help">{{ lockReason }}.</p>
+      <p v-else class="motion-help">Drag clips to sequence. Arrow keys fine-tune by 0.1 s. Slide editing pauses while the preview plays.</p>
     </template>
+
+    <Dialog v-model:open="confirmOpen">
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Replace your edits?</DialogTitle>
+          <DialogDescription>You've edited this slide's motion by hand. Regenerating replaces it with a new AI plan.</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="ghost" @click="confirmOpen = false">Cancel</Button>
+          <Button @click="replan">Replace</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </section>
 </template>
 
@@ -273,7 +334,9 @@ const time = computed(() => editor.motionTime ?? 0)
 .motion-clip:active { cursor: grabbing; }
 .motion-clip.is-active { outline: 1px solid #eff8fc; outline-offset: 2px; }
 .motion-add { position: absolute; top: 5px; left: 0; display: inline-flex; height: 18px; align-items: center; gap: 3px; padding: 0 6px; border: 1px dashed #ffffff21; border-radius: 4px; color: #a2b5c0; font-size: 8px; }
-.motion-add:hover { border-color: #829eac; color: #e5f4fc; }
+.motion-add:hover:not(:disabled) { border-color: #829eac; color: #e5f4fc; }
+.motion-add:disabled { opacity: 0.45; cursor: default; }
+.motion-clip[aria-disabled] { cursor: default; }
 .motion-playhead { position: absolute; top: 0; bottom: 0; z-index: 2; width: 1px; background: #f1cc96; pointer-events: none; }
 .motion-scrubber { align-items: center; margin: 7px 0 6px; color: #a2b5c0; font-size: 9px; }
 .motion-scrubber input { width: 100%; height: 12px; margin: 0; accent-color: #f1cc96; cursor: ew-resize; }

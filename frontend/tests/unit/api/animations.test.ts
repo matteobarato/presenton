@@ -71,6 +71,13 @@ describe('animations api', () => {
     expect(c.body).toEqual({ tweens })
   })
 
+  it('putAnimation sends the slide id and targets signature it was made against', async () => {
+    fetchMock.mockImplementation(async () => json({ slide_id: 's', index: 3 }))
+    await putAnimation('p1', 3, [], { slide_id: 's', targets_signature: 'sig' })
+    const c = await lastCall()
+    expect(c.body).toEqual({ tweens: [], slide_id: 's', targets_signature: 'sig' })
+  })
+
   it('deleteAnimation DELETEs the slide path', async () => {
     fetchMock.mockImplementation(async () => new Response(null, { status: 204 }))
     await deleteAnimation('p1', 3)

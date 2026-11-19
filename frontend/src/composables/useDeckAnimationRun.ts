@@ -1,6 +1,7 @@
 import { computed, hasInjectionContext, inject, provide, ref, watch, type ComputedRef, type InjectionKey, type Ref } from 'vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import { animationKeys, generateAnimationsAsync } from '@/api/animations'
+import { ApiError } from '@/api/errors'
 import type { AsyncTask } from '@/api/types'
 import { useAsyncTask } from '@/composables/useAsyncTask'
 import { toast } from '@/components/ui/sonner'
@@ -16,6 +17,13 @@ export interface DeckAnimationRun {
 }
 
 const storageKey = (id: string) => `presenton.task.animations.${id}`
+
+/** The pending run's id from a 409 `{ detail: { task_id } }`, else null. */
+function runningTaskId(e: unknown): string | null {
+  if (!(e instanceof ApiError) || e.status !== 409) return null
+  const detail = (e.body as { detail?: { task_id?: unknown } } | null)?.detail
+  return typeof detail?.task_id === 'string' ? detail.task_id : null
+}
 
 /**
  * The one deck-wide animation planning run ("Generate for all slides", or the run after a generation
@@ -76,6 +84,12 @@ export function createDeckAnimationRun(presentationId: Ref<string>): DeckAnimati
       const task = await (starter ? starter() : generateAnimationsAsync(id, {}))
       if (presentationId.value === id) start(task.id)
     } catch (e) {
+      // A run for this deck is already pending (POST /animations/async answers 409): follow that one.
+      const pendingId = runningTaskId(e)
+      if (pendingId) {
+        if (presentationId.value === id) start(pendingId)
+        return
+      }
       error.value = e instanceof Error && e.message ? e.message : 'Could not start planning the deck.'
     }
   }

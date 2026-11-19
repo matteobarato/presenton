@@ -60,6 +60,8 @@ async function mountAt(path: string) {
 // openapi-fetch calls fetch(Request), so read the URL from either form.
 const requestUrl = (input: unknown) => (input instanceof Request ? input.url : String(input))
 const isPresentationUrl =(url: string) => /\/api\/v1\/ppt\/presentation\/p1(\?|$)/.test(url)
+const animationFetches = () =>
+  (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter((c) => /\/presentation\/p1\/animations(\?|$)/.test(requestUrl(c[0]))).length
 const presentationFetches = () =>
   (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter((c) => isPresentationUrl(requestUrl(c[0]))).length
 
@@ -251,6 +253,29 @@ describe('EditorView', () => {
       await flushPromises()
       expect(api.generateAnimationsAsync).not.toHaveBeenCalled()
       expect(sessionStorage.getItem('presenton.animate.p1')).toBe('1')
+    })
+
+    it('does not read the deck motion while the deck streams in, and reads it once the stream is done', async () => {
+      let release!: () => void
+      api.stream.mockImplementation(async function* () {
+        yield { type: 'generation_metrics', model: 'm' }
+        await new Promise<void>((r) => (release = r))
+        yield { type: 'complete', presentation: deck() }
+      })
+      await mountAt('/p/p1?stream=1')
+      await flushPromises()
+      expect(animationFetches()).toBe(0)
+      const spy = vi.spyOn(lastClient, 'invalidateQueries')
+      release()
+      await flushPromises()
+      // Done: whatever another reader cached mid-stream is stale, and the read runs.
+      expect(spy).toHaveBeenCalledWith({ queryKey: ['animations', 'p1'] })
+      await vi.waitFor(() => expect(animationFetches()).toBeGreaterThan(0))
+    })
+
+    it('reads the deck motion at once when opening a deck without a stream', async () => {
+      await mountAt('/p/p1')
+      await vi.waitFor(() => expect(animationFetches()).toBeGreaterThan(0))
     })
 
     it('does not plan motion when opening a deck without a stream', async () => {

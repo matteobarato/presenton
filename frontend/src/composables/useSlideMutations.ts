@@ -49,6 +49,14 @@ interface QueuedSave {
  */
 const queues = new Map<string, { tail: Promise<void>; waiting: QueuedSave[] }>()
 
+/**
+ * Settles once every deck save queued so far has settled (it never rejects). Index-addressed
+ * requests elsewhere (animations) wait on it, so a reorder still in flight cannot misdirect them.
+ */
+export function deckSaveSettled(deckId: string): Promise<void> {
+  return queues.get(deckId)?.tail ?? Promise.resolve()
+}
+
 /** How `editSlideUi` reports progress and joins history. */
 export interface EditSlideUiOptions {
   /** Called once the edit is in the cache (true) or was refused (false); the save may still be pending. */
@@ -98,9 +106,6 @@ export function deckTemplateId(slides: Slide[]): string {
  * the slide already back, does nothing. `theme` is always resent: the endpoint
  * resets it to null when omitted.
  */
-/** Saves that add, remove or move slides (their undo/redo share the label). */
-const STRUCTURAL_LABELS = new Set(['Reorder slides', 'Delete slide', 'Add slide', 'Duplicate slide'])
-
 export function useSlideMutations(presentationId: Ref<string>) {
   const queryClient = useQueryClient()
   const history = useHistoryStore()
@@ -141,8 +146,9 @@ export function useSlideMutations(presentationId: Ref<string>) {
           title: snapshot.title || undefined,
           theme: snapshot.theme ?? undefined,
         })
-        // Slide indexes moved: the animations cache (selected and PUT by index) must be refetched.
-        if (STRUCTURAL_LABELS.has(label)) void queryClient.invalidateQueries({ queryKey: animationKeys.one(deckId) })
+        // Slides were written: indexes may have moved and element ids (positional) may now point at other
+        // elements, so the animations cache (its targets, statuses and signatures) must be refetched.
+        if (withSlides) void queryClient.invalidateQueries({ queryKey: animationKeys.one(deckId) })
       } catch (error) {
         toast.error(`Could not ${label.toLowerCase()}`, { description: error instanceof Error ? error.message : undefined })
         try {

@@ -22,7 +22,7 @@ const toastError = vi.hoisted(() => vi.fn())
 const toastInfo = vi.hoisted(() => vi.fn())
 vi.mock('@/components/ui/sonner', () => ({ toast: { error: toastError, warning: vi.fn(), info: toastInfo } }))
 
-import { DELETE_NOTICE, useSlideMutations } from '@/composables/useSlideMutations'
+import { DELETE_NOTICE, deckSaveSettled, useSlideMutations } from '@/composables/useSlideMutations'
 import { useHistoryStore } from '@/stores/history'
 
 const slide = (id: string, index: number) => ({ id, index, presentation: 'p1', layout: 'modern:a', layout_group: 'modern', content: {}, properties: null })
@@ -79,6 +79,22 @@ describe('useSlideMutations', () => {
     seed()
     await m.rename('New title')
     expect(animState()).toBe(false)
+  })
+
+  it('deckSaveSettled waits for the deck saves queued so far', async () => {
+    let release!: () => void
+    update.mockImplementationOnce(() => new Promise<void>((r) => (release = r)))
+    const m = useSlideMutations(ref('p1'))
+    const moved = m.reorder(0, 2)
+    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1))
+    let settled = false
+    void deckSaveSettled('p1').then(() => (settled = true))
+    await Promise.resolve()
+    expect(settled).toBe(false)
+    release()
+    await moved
+    await vi.waitFor(() => expect(settled).toBe(true))
+    await expect(deckSaveSettled('other')).resolves.toBeUndefined()
   })
 
   it('shows the optimistic change immediately while an earlier PATCH is pending', async () => {
@@ -289,6 +305,19 @@ describe('useSlideMutations', () => {
       expect(await m.editSlideUi('a', uiB, 'Move')).toBe(true)
       expect(cached().slides[0]!.ui).toEqual(uiB)
       expect(update).toHaveBeenCalledTimes(1)
+    })
+
+    it('an element edit, and its undo, invalidate the animations query once saved', async () => {
+      const animState = () => qc.getQueryState(animationKeys.one('p1'))?.isInvalidated
+      const seed = () => qc.setQueryData(animationKeys.one('p1'), { slides: [] })
+      const m = useSlideMutations(ref('p1'))
+      seed()
+      await m.editSlideUi('a', uiB, 'Delete element')
+      expect(animState()).toBe(true)
+      seed()
+      await useHistoryStore().undo()
+      expect(cached().slides[0]!.ui).toEqual(uiA)
+      expect(animState()).toBe(true)
     })
 
     it('undo restores the previous ui', async () => {

@@ -32,11 +32,19 @@ export function generateAnimationsAsync(id: string, body: GenerateAnimationsBody
   ) as Promise<AsyncTask>
 }
 
-export function putAnimation(id: string, slideIndex: number, tweens: AnimationTween[]): Promise<SlideAnimation> {
+/** What a hand edit was made against; the backend answers 409 when the slide no longer matches. */
+export type AnimationEditGuard = { slide_id: string; targets_signature?: string | null }
+
+export function putAnimation(
+  id: string,
+  slideIndex: number,
+  tweens: AnimationTween[],
+  guard?: AnimationEditGuard,
+): Promise<SlideAnimation> {
   return unwrap(
     api.PUT('/api/v1/ppt/presentation/{id}/animations/{slide_index}', {
       params: { path: { id, slide_index: slideIndex } },
-      body: { tweens } as never,
+      body: { tweens, ...guard } as never,
     }),
   ) as Promise<SlideAnimation>
 }

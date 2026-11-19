@@ -34,6 +34,8 @@ function makeFake(a: SlideAnimation | undefined) {
     dirty: computed(() => false),
     error: ref<string | null>(null),
     busy: computed(() => false),
+    staleRef: ref(a?.status === 'stale_layout'),
+    stale: computed((): boolean => fake.staleRef.value),
     setEffect: vi.fn(),
     patchTween: vi.fn((target: string, patch: Partial<AnimationTween>) => {
       draft.value = draft.value.map((t) => (t.target === target ? constrainTween(t, patch) : t))
@@ -258,5 +260,56 @@ describe('MotionTab', () => {
     button('Clear plan')!.click()
     await flushPromises()
     expect(fake.clear).toHaveBeenCalled()
+  })
+
+  it('a stale layout shows "Layout changed — re-plan" instead of the editor; re-plan asks first for hand edits', async () => {
+    const { w, fake } = await mountTab(entry({ status: 'stale_layout', source: 'user' }))
+    expect(w.text()).toContain('Layout changed — re-plan')
+    expect(w.find('.motion-effects').exists()).toBe(false)
+    expect(w.find('select#motion-preset').exists()).toBe(false)
+    expect(button('Regenerate')).toBeUndefined()
+    button('Re-plan this slide')!.click()
+    await flushPromises()
+    expect(document.body.textContent).toContain('Replace your edits?')
+    button('Replace')!.click()
+    await flushPromises()
+    expect(fake.generate).toHaveBeenCalledWith({ force: true })
+  })
+
+  it('a stale AI plan re-plans without asking', async () => {
+    const { fake } = await mountTab(entry({ status: 'stale_layout' }))
+    button('Re-plan this slide')!.click()
+    await flushPromises()
+    expect(fake.generate).toHaveBeenCalledWith({ force: true })
+  })
+
+  it('a draft naming a missing element is stale too', async () => {
+    const { w, fake } = await mountTab()
+    fake.staleRef.value = true
+    await nextTick()
+    expect(w.text()).toContain('Layout changed — re-plan')
+  })
+
+  it('locks every edit while the deck run plans every slide, and says why', async () => {
+    sessionStorage.setItem('presenton.task.animations.p1', 'task-1')
+    h.getTask.mockResolvedValue({ id: 'task-1', status: 'pending' })
+    const { w, fake } = await mountTab()
+    await vi.waitFor(() => expect(w.text()).toContain('Planning motion for every slide'))
+    const reason = 'Unavailable while motion is planned for every slide'
+    const effects = w.find('fieldset.motion-effects')
+    expect((effects.element as HTMLFieldSetElement).disabled).toBe(true)
+    expect(effects.attributes('title')).toBe(reason)
+    const rise = w.findAll('.motion-effects button').find((b) => b.text() === 'Rise')!
+    expect((rise.element as HTMLButtonElement).matches(':disabled')).toBe(true)
+    const timing = w.findAll('fieldset')[1]!
+    expect((timing.element as HTMLFieldSetElement).disabled).toBe(true)
+    expect((w.find('select#motion-preset').element as HTMLSelectElement).disabled).toBe(true)
+    for (const name of ['Regenerate', 'Generate for all slides', 'Clear plan']) {
+      expect(button(name)!.disabled).toBe(true)
+      expect(button(name)!.title).toBe(reason)
+    }
+    // Enter in the search does not apply an effect either.
+    await w.find('input[aria-label="Search motion effects"]').trigger('keydown', { key: 'Enter' })
+    expect(fake.setEffect).not.toHaveBeenCalled()
   })
 })

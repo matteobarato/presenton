@@ -32,12 +32,13 @@ let rect: ReturnType<typeof stubRect>
 function setup() {
   const slide = ref<Slide>(tpl('a', uiTwoComponents())) as Ref<Slide | null>
   const draft = ref<AnimationTween[]>([tween('e0')])
+  const stale = ref(false)
   let api!: SlideEditing
   wrapper = mount(
     defineComponent({
       setup() {
         api = useSlideEditing(ref('p1'), slide)
-        provide(SLIDE_ANIMATION_KEY, { draft } as never)
+        provide(SLIDE_ANIMATION_KEY, { draft, stale } as never)
         return () => h(EditableSlide, { key: slide.value!.id!, slide: slide.value! })
       },
     }),
@@ -45,7 +46,7 @@ function setup() {
   )
   const editor = useEditorStore()
   editor.activeSlideId = 'a'
-  return { slide, draft, editor, api: () => api, w: wrapper }
+  return { slide, draft, stale, editor, api: () => api, w: wrapper }
 }
 
 const shadow = () => wrapper!.get('[data-template-host]').element.shadowRoot!
@@ -101,6 +102,20 @@ describe('EditableSlide motion preview', () => {
     expect(m.previews).toHaveLength(2)
     expect(m.previews[1]!.tweens).toHaveLength(2)
     expect(m.previews[1]!.seek).toHaveBeenLastCalledWith(0.8)
+  })
+
+  it('never previews a stale plan, and restores the slide when the plan goes stale', async () => {
+    const { editor, stale } = setup()
+    editor.footerTab = 'motion'
+    editor.motionTime = 0.5
+    await flushPromises()
+    expect(m.previews).toHaveLength(1)
+    stale.value = true
+    await nextTick()
+    expect(m.previews[0]!.restore).toHaveBeenCalled()
+    editor.motionTime = 0.9
+    await nextTick()
+    expect(m.previews).toHaveLength(1)
   })
 
   it('restores the slide on slide change', async () => {

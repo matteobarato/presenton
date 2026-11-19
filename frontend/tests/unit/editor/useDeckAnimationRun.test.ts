@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, h, ref } from 'vue'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { useDeckAnimationRun, type DeckAnimationRun } from '@/composables/useDeckAnimationRun'
+import { ApiError } from '@/api/errors'
 
 const m = vi.hoisted(() => ({ getTask: vi.fn(), generateAnimationsAsync: vi.fn() }))
 vi.mock('@/api/tasks', () => ({ getTask: m.getTask }))
@@ -36,6 +37,19 @@ beforeEach(() => {
 })
 
 describe('useDeckAnimationRun', () => {
+  it('a 409 (a run is already pending for this deck) tracks that run instead of failing', async () => {
+    m.generateAnimationsAsync.mockRejectedValue(
+      new ApiError('busy', 409, { detail: { message: 'Motion is already being planned for this deck', task_id: 't7' } }),
+    )
+    m.getTask.mockReturnValue(new Promise(() => {}))
+    const { run } = setup()
+    await run.run()
+    await flushPromises()
+    expect(run.error.value).toBeNull()
+    expect(run.running.value).toBe(true)
+    expect(sessionStorage.getItem(KEY)).toBe('t7')
+  })
+
   it('starts the deck run, tracks it and refreshes the plans when it completes', async () => {
     m.generateAnimationsAsync.mockResolvedValue({ id: 't1', status: 'pending' })
     let finish!: (v: unknown) => void

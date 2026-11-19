@@ -19,7 +19,8 @@ import SpeakerNotes from '@/components/editor/SpeakerNotes.vue'
 import { slideLabel } from '@/lib/slide-label'
 import { useSelectionScope } from '@/composables/useSelectionScope'
 import { useSlideEditing } from '@/slide-editor/useSlideEditing'
-import { provideSlideAnimation } from '@/composables/useSlideAnimation'
+import { animationKeys, provideSlideAnimation } from '@/composables/useSlideAnimation'
+import { useQueryClient } from '@tanstack/vue-query'
 import { provideDeckAnimationRun } from '@/composables/useDeckAnimationRun'
 import { animateFlagKey } from '@/components/create/options'
 import AiProgress from '@/components/shell/AiProgress.vue'
@@ -32,6 +33,7 @@ import { useHistoryStore } from '@/stores/history'
 
 const route = useRoute()
 const router = useRouter()
+const queryClient = useQueryClient()
 const editor = useEditorStore()
 const history = useHistoryStore()
 
@@ -52,6 +54,9 @@ watch(deckRun.running, (running, was) => {
 watch(
   () => stream.status.value,
   (status) => {
+    if (status !== 'done' && status !== 'error') return
+    // Any motion read made while the deck streamed in saw a half-built deck.
+    void queryClient.invalidateQueries({ queryKey: animationKeys.one(id.value) })
     if (status !== 'done') return
     const query = { ...route.query }
     delete query.stream
@@ -110,7 +115,12 @@ useSelectionScope(editing)
 // One animation draft for the active slide, shared by the Motion tab, the timeline and the canvas preview.
 // No slide → an index no slide has, so no plan is found and every edit is a no-op.
 const NO_SLIDE = { id: null, index: -1 } as unknown as Slide
-provideSlideAnimation(id, computed(() => activeSlide.value ?? NO_SLIDE))
+// The motion read renders the whole deck server-side: it waits until the deck has finished streaming in.
+provideSlideAnimation(
+  id,
+  computed(() => activeSlide.value ?? NO_SLIDE),
+  computed(() => !generating.value),
+)
 const notFound = computed(() => error.value instanceof ApiError && error.value.status === 404)
 
 </script>

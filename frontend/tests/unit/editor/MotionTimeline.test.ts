@@ -9,6 +9,13 @@ import MotionTimeline from '@/components/editor/MotionTimeline.vue'
 
 const h = vi.hoisted(() => ({ fake: null as unknown }))
 vi.mock('@/composables/useSlideAnimation', () => ({ useSlideAnimation: () => h.fake }))
+const run = vi.hoisted(() => ({ running: { value: false } }))
+vi.mock('@/composables/useDeckAnimationRun', async () => {
+  const { computed, ref } = await import('vue')
+  const running = ref(false)
+  run.running = running
+  return { useDeckAnimationRun: () => ({ running: computed(() => running.value), error: ref(null), run: vi.fn(), dismiss: vi.fn() }) }
+})
 
 const TARGETS = [
   { id: 'e0', kind: 'title', text: 'Quarterly results for the whole team' },
@@ -31,13 +38,15 @@ function makeFake(a: SlideAnimation | undefined) {
     dirty: computed(() => false),
     error: ref<string | null>(null),
     busy: computed(() => false),
+    staleRef: ref(a?.status === 'stale_layout'),
+    stale: computed((): boolean => fake.staleRef.value),
     setEffect: vi.fn(),
     // The real composable constrains every patch; the fake does the same.
     patchTween: vi.fn((target: string, patch: Partial<AnimationTween>) => {
       draft.value = draft.value.map((t) => (t.target === target ? constrainTween(t, patch) : t))
     }),
     applyPreset: vi.fn(),
-    generate: vi.fn(),
+    generate: vi.fn(async () => {}),
     generateAll: vi.fn(),
     clear: vi.fn(),
     save: vi.fn(),
@@ -72,6 +81,7 @@ let frames: FrameRequestCallback[] = []
 let now = 0
 beforeEach(() => {
   setActivePinia(createPinia())
+  run.running.value = false
   frames = []
   now = 0
   vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => frames.push(cb))
@@ -219,5 +229,46 @@ describe('MotionTimeline', () => {
     editor.footerOpen = false
     await nextTick()
     expect(editor.motionTime).toBeNull()
+  })
+
+  it('a stale layout is read-only, not playable, and offers a re-plan (asking first for hand edits)', async () => {
+    const { w, fake } = await mountTimeline(entry({ status: 'stale_layout', source: 'user' }))
+    expect(w.text()).toContain('Layout changed — re-plan')
+    expect(w.find('[data-motion-clip]').exists()).toBe(false)
+    expect(w.find('.motion-add').exists()).toBe(false)
+    expect((w.find('button[aria-label="Play animation"]').element as HTMLButtonElement).disabled).toBe(true)
+    const replan = [...document.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Re-plan')!
+    replan.click()
+    await flushPromises()
+    expect(document.body.textContent).toContain('Replace your edits?')
+    ;[...document.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Replace')!.click()
+    await flushPromises()
+    expect(fake.generate).toHaveBeenCalledWith({ force: true })
+  })
+
+  it('a stale draft stops a running preview', async () => {
+    const { fake, editor } = await mountTimeline()
+    editor.motionTime = 0.5
+    fake.staleRef.value = true
+    await nextTick()
+    expect(editor.motionTime).toBeNull()
+  })
+
+  it('while the deck run plans every slide, clips do not move and Add is disabled, with the reason', async () => {
+    run.running.value = true
+    const { w, fake } = await mountTimeline()
+    const clip = w.find('[data-motion-clip="e0"]')
+    await clip.trigger('keydown', { key: 'ArrowRight' })
+    stubLane()
+    pointer(clip.element, 'pointerdown', 100)
+    pointer(clip.element, 'pointermove', 150)
+    pointer(clip.element, 'pointerup', 150)
+    expect(fake.patchTween).not.toHaveBeenCalled()
+    expect(clip.attributes('title')).toBe('Unavailable while motion is planned for every slide')
+    const add = w.find('.motion-add')
+    expect((add.element as HTMLButtonElement).disabled).toBe(true)
+    await add.trigger('click')
+    expect(fake.setEffect).not.toHaveBeenCalled()
+    expect(w.text()).toContain('Unavailable while motion is planned for every slide.')
   })
 })

@@ -20,4 +20,6 @@ export type SlideAnimation = {
   reset_from_user: boolean
   tweens: AnimationTween[]
   targets: { id: string; kind: string; text: string }[]
+  /** Signature of `targets` as the slide is now; sent back with a PUT (null when unsupported). */
+  targets_signature?: string | null
 }

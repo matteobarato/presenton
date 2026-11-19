@@ -15,8 +15,14 @@ vi.mock('@/api/animations', async (importActual) => ({
   ...(await importActual<typeof import('@/api/animations')>()),
   ...api,
 }))
+const deckSave = vi.hoisted(() => ({ settled: vi.fn((): Promise<void> => Promise.resolve()) }))
+vi.mock('@/composables/useSlideMutations', async (importActual) => ({
+  ...(await importActual<typeof import('@/composables/useSlideMutations')>()),
+  deckSaveSettled: deckSave.settled,
+}))
 
 import { presentationKeys } from '@/api/presentations'
+import { ApiError } from '@/api/errors'
 import { animationKeys, ANIMATION_SAVE_DELAY_MS, useSlideAnimation } from '@/composables/useSlideAnimation'
 
 const tween = (target: string, over: Partial<AnimationTween> = {}): AnimationTween => ({
@@ -39,6 +45,7 @@ const entry = (index: number, over: Partial<SlideAnimation> = {}): SlideAnimatio
     { id: 'e0', kind: 'heading', text: 'Title' },
     { id: 'e1', kind: 'text', text: 'Body' },
   ],
+  targets_signature: 'sig',
   ...over,
 })
 
@@ -67,6 +74,8 @@ beforeEach(() => {
   qc = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } })
   slide = ref<Slide>(slideOf(0))
   for (const fn of Object.values(api)) fn.mockReset()
+  deckSave.settled.mockReset()
+  deckSave.settled.mockImplementation(() => Promise.resolve())
   api.getAnimations.mockImplementation(async () => ({ slides: [entry(0), entry(1)] }))
   api.putAnimation.mockImplementation(async (_id: string, index: number, tweens: AnimationTween[]) =>
     entry(index, { tweens, source: 'user' }),
@@ -168,6 +177,7 @@ describe('useSlideAnimation', () => {
     const { anim } = setup([entry(0), entry(1, { tweens: [tween('e1')] })])
     anim.setEffect('e1', 'blur')
     slide.value = slideOf(1)
+    await vi.advanceTimersByTimeAsync(0)
     expect(api.putAnimation).toHaveBeenCalledTimes(1)
     const [, index, body] = api.putAnimation.mock.calls[0]!
     expect(index).toBe(0)
@@ -208,7 +218,7 @@ describe('useSlideAnimation', () => {
     anim.applyPreset('clear')
     expect(anim.draft.value).toEqual([])
     await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
-    expect(api.putAnimation).toHaveBeenCalledWith('p1', 0, [])
+    expect(api.putAnimation).toHaveBeenCalledWith('p1', 0, [], { slide_id: 's0', targets_signature: 'sig' })
     expect(api.deleteAnimation).not.toHaveBeenCalled()
   })
 
@@ -255,5 +265,120 @@ describe('useSlideAnimation', () => {
     expect(api.putAnimation).toHaveBeenCalledTimes(1)
     expect(api.generateAnimationsAsync).toHaveBeenCalledWith('p1', {})
     expect(task).toMatchObject({ id: 't1' })
+  })
+
+  it('sends the slide id and the signature of the entry being edited', async () => {
+    const { anim } = setup()
+    anim.setEffect('e1', 'fade')
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(api.putAnimation.mock.calls[0]![3]).toEqual({ slide_id: 's0', targets_signature: 'sig' })
+  })
+
+  it('never runs two PUTs at once and sends the newest snapshot last', async () => {
+    let release!: (v: SlideAnimation) => void
+    api.putAnimation.mockImplementationOnce(
+      (_id: string, index: number, tweens: AnimationTween[]) =>
+        new Promise<SlideAnimation>((resolve) => (release = () => resolve(entry(index, { tweens, source: 'user' })))),
+    )
+    const { anim } = setup()
+    anim.setEffect('e1', 'fade')
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(api.putAnimation).toHaveBeenCalledTimes(1)
+    anim.patchTween('e1', { delay: 0.5 })
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    anim.patchTween('e1', { delay: 0.7 })
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    // The slow first PUT is still out: nothing else is sent.
+    expect(api.putAnimation).toHaveBeenCalledTimes(1)
+    release(entry(0))
+    await vi.advanceTimersByTimeAsync(0)
+    // The old response must not roll the draft back.
+    expect(anim.draft.value.find((t) => t.target === 'e1')?.delay).toBe(0.7)
+    expect(api.putAnimation).toHaveBeenCalledTimes(2)
+    expect(api.putAnimation.mock.calls[1]![2].find((t: AnimationTween) => t.target === 'e1').delay).toBe(0.7)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(anim.dirty.value).toBe(false)
+    expect(anim.draft.value.find((t) => t.target === 'e1')?.delay).toBe(0.7)
+    const cached = qc.getQueryData<{ slides: SlideAnimation[] }>(animationKeys.one('p1'))!.slides[0]!
+    expect(cached.tweens.find((t) => t.target === 'e1')?.delay).toBe(0.7)
+  })
+
+  it('ignores a PUT response older than a generate result', async () => {
+    let release!: () => void
+    api.putAnimation.mockImplementationOnce(
+      (_id: string, index: number, tweens: AnimationTween[]) =>
+        new Promise<SlideAnimation>((resolve) => (release = () => resolve(entry(index, { tweens, source: 'user' })))),
+    )
+    api.generateAnimations.mockResolvedValue({ slides: [entry(0, { tweens: [tween('e1', { delay: 0.9 })] })] })
+    const { anim } = setup()
+    anim.setEffect('e1', 'fade')
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    const generating = anim.generate({ force: true })
+    await vi.advanceTimersByTimeAsync(0)
+    // generate waits for the PUT in flight before it asks for a plan.
+    expect(api.generateAnimations).not.toHaveBeenCalled()
+    release()
+    await generating
+    expect(api.generateAnimations).toHaveBeenCalledTimes(1)
+    expect(anim.draft.value).toEqual([tween('e1', { delay: 0.9 })])
+    expect(anim.animation.value?.tweens).toEqual([tween('e1', { delay: 0.9 })])
+  })
+
+  it('on a 409 keeps the draft unsaved, says so, and refetches the plan', async () => {
+    api.putAnimation.mockRejectedValueOnce(new ApiError('changed', 409, { detail: 'changed' }))
+    const { anim } = setup()
+    const spy = vi.spyOn(qc, 'invalidateQueries')
+    anim.setEffect('e1', 'fade')
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(anim.error.value).toBe('This slide changed — refreshing')
+    expect(anim.dirty.value).toBe(true)
+    expect(anim.draft.value.map((t) => t.target)).toEqual(['e0', 'e1'])
+    expect(spy).toHaveBeenCalledWith({ queryKey: animationKeys.one('p1') })
+    // Not retried with the stale signature.
+    await anim.save()
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(api.putAnimation).toHaveBeenCalledTimes(1)
+  })
+
+  it('a stale_layout plan is read-only but can be re-planned', async () => {
+    api.generateAnimations.mockResolvedValue({ slides: [entry(0, { tweens: [tween('e1')] })] })
+    const { anim } = setup([entry(0, { status: 'stale_layout' })])
+    expect(anim.stale.value).toBe(true)
+    anim.setEffect('e1', 'fade')
+    anim.patchTween('e0', { delay: 1 })
+    anim.applyPreset('cascade')
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(api.putAnimation).not.toHaveBeenCalled()
+    expect(anim.draft.value).toEqual([tween('e0')])
+    await anim.generate({ force: true })
+    expect(api.generateAnimations).toHaveBeenCalledWith('p1', { slide_indexes: [0], force: true })
+    expect(anim.stale.value).toBe(false)
+  })
+
+  it('a draft targeting an element the slide no longer has is stale', async () => {
+    const { anim } = setup([entry(0, { tweens: [tween('e5')] })])
+    expect(anim.stale.value).toBe(true)
+    anim.setEffect('e1', 'fade')
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(api.putAnimation).not.toHaveBeenCalled()
+  })
+
+  it('generate and clear wait for a pending deck-order save, then use the slide\'s new index', async () => {
+    let finish!: () => void
+    deckSave.settled.mockReturnValueOnce(new Promise<void>((resolve) => (finish = resolve)))
+    api.generateAnimations.mockResolvedValue({ slides: [entry(0, { index: 1 })] })
+    const { anim } = setup()
+    const generating = anim.generate()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(api.generateAnimations).not.toHaveBeenCalled()
+    // The reorder lands: s0 is second now.
+    qc.setQueryData(presentationKeys.one('p1'), { id: 'p1', slides: [slideOf(1, 0), slideOf(0, 1)] })
+    finish()
+    await generating
+    expect(api.generateAnimations).toHaveBeenCalledWith('p1', { slide_indexes: [1], force: false })
+    expect(deckSave.settled).toHaveBeenCalledWith('p1')
+
+    await anim.clear()
+    expect(api.deleteAnimation).toHaveBeenCalledWith('p1', 1)
   })
 })
