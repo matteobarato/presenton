@@ -184,17 +184,7 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
       <AiProgress v-if="deckRunning" class="mb-4" stage="Planning motion for every slide…" label="Deck motion planning" :expected-ms="60_000" />
       <p v-if="alert" class="mb-4 text-[11px] text-danger-text" role="alert">{{ alert }}</p>
 
-      <div v-if="animation.status === 'missing' && !planning" class="flex flex-col items-start gap-3 pb-[18px]">
-        <div>
-          <h3 class="text-[12px] font-semibold text-[#f6f8f9]">No motion yet</h3>
-          <p class="mt-1 text-[10px] leading-[1.6] text-[#a0abb1]">Let AI plan how this slide's elements arrive, or start from a sequence below.</p>
-        </div>
-        <Button size="sm" :disabled="busy || deckRunning" :title="lockReason" @click="runGenerate(false)">
-          <Sparkles class="size-3.5" aria-hidden="true" />Generate with AI
-        </Button>
-      </div>
-
-      <div v-else-if="stale" class="flex flex-col items-start gap-3 pb-[18px]" role="status">
+      <div v-if="stale" class="flex flex-col items-start gap-3 pb-[18px]" role="status">
         <div>
           <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Layout changed — re-plan</h3>
           <p class="mt-1 text-[10px] leading-[1.6] text-[#a0abb1]">
@@ -203,6 +193,16 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
         </div>
         <Button size="sm" :disabled="busy || planning || deckRunning" :title="lockReason" @click="regenerate">
           <Sparkles class="size-3.5" aria-hidden="true" />Re-plan this slide
+        </Button>
+      </div>
+
+      <div v-else-if="animation.status === 'missing' && !planning" class="flex flex-col items-start gap-3 pb-[18px]">
+        <div>
+          <h3 class="text-[12px] font-semibold text-[#f6f8f9]">No motion yet</h3>
+          <p class="mt-1 text-[10px] leading-[1.6] text-[#a0abb1]">Let AI plan how this slide's elements arrive, or start from a sequence below.</p>
+        </div>
+        <Button size="sm" :disabled="busy || deckRunning" :title="lockReason" @click="runGenerate(false)">
+          <Sparkles class="size-3.5" aria-hidden="true" />Generate with AI
         </Button>
       </div>
 

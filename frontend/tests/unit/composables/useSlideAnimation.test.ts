@@ -381,4 +381,49 @@ describe('useSlideAnimation', () => {
     await anim.clear()
     expect(api.deleteAnimation).toHaveBeenCalledWith('p1', 1)
   })
+
+  it('an unsaved edit made before the elements changed is stale, even on an unplanned slide', async () => {
+    api.putAnimation.mockRejectedValueOnce(new Error('offline'))
+    const { anim } = setup([entry(0, { status: 'missing', source: null, tweens: [] })])
+    anim.setEffect('e1', 'fade')
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(anim.dirty.value).toBe(true)
+    // An element was inserted: same ids e0/e1 (positional), new signature, still no stored plan.
+    qc.setQueryData(animationKeys.one('p1'), {
+      slides: [entry(0, { status: 'missing', source: null, tweens: [], targets_signature: 'sig2' })],
+    })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(anim.stale.value).toBe(true)
+    anim.patchTween('e1', { delay: 0.4 })
+    expect(anim.draft.value.find((t) => t.target === 'e1')?.delay).toBe(0)
+    // A retry of the failed save still carries the signature it was made against (the server then 409s).
+    await anim.save()
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(api.putAnimation.mock.calls.map((c) => c[3].targets_signature)).toEqual(['sig', 'sig'])
+  })
+
+  it('after a 409 the refetched signature makes the unsaved draft stale: no edit re-signs it', async () => {
+    api.putAnimation.mockRejectedValueOnce(new ApiError('changed', 409, { detail: 'changed' }))
+    const { anim } = setup([entry(0, { status: 'missing', source: null, tweens: [] })])
+    anim.setEffect('e1', 'fade')
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    qc.setQueryData(animationKeys.one('p1'), {
+      slides: [entry(0, { status: 'missing', source: null, tweens: [], targets_signature: 'sig2' })],
+    })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(anim.stale.value).toBe(true)
+    anim.patchTween('e1', { delay: 0.4 })
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(api.putAnimation).toHaveBeenCalledTimes(1)
+  })
+
+  it('a clean draft follows a new signature, and the next edit is signed with it', async () => {
+    const { anim } = setup()
+    qc.setQueryData(animationKeys.one('p1'), { slides: [entry(0, { targets_signature: 'sig2' })] })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(anim.stale.value).toBe(false)
+    anim.setEffect('e1', 'fade')
+    await vi.advanceTimersByTimeAsync(ANIMATION_SAVE_DELAY_MS)
+    expect(api.putAnimation.mock.calls[0]![3]).toEqual({ slide_id: 's0', targets_signature: 'sig2' })
+  })
 })

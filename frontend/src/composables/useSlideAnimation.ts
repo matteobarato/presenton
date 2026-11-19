@@ -145,6 +145,9 @@ function createSlideAnimation(presentationId: Ref<string>, slide: Ref<Slide>, en
   })
 
   const draft = ref<AnimationTween[]>(copy(animation.value?.tweens))
+  // The targets signature of the entry the draft was taken from: a dirty draft outlives refetches, so an
+  // edit must be signed with what the draft was made against, not with the entry as it is now.
+  const base = ref(animation.value?.targets_signature ?? null)
   const isDirty = ref(false)
   const error = ref<string | null>(null)
   const generating = ref(false)
@@ -159,6 +162,8 @@ function createSlideAnimation(presentationId: Ref<string>, slide: Ref<Slide>, en
     const a = animation.value
     if (!a || !plannable.value) return false
     if (a.status === 'stale_layout') return true
+    // Unsaved edits made against other elements (ids are positional, so they may still all exist).
+    if (isDirty.value && base.value !== (a.targets_signature ?? null)) return true
     const ids = new Set(a.targets.map((t) => t.id))
     return draft.value.some((t) => !ids.has(t.target))
   })
@@ -266,7 +271,7 @@ function createSlideAnimation(presentationId: Ref<string>, slide: Ref<Slide>, en
     pending = {
       presentationId: presentationId.value,
       slideId: a.slide_id,
-      signature: a.targets_signature ?? null,
+      signature: base.value,
       key: slideKey(slide.value),
       fallbackIndex: slide.value.index,
       tweens: copy(next),
@@ -309,6 +314,7 @@ function createSlideAnimation(presentationId: Ref<string>, slide: Ref<Slide>, en
         // The plan replaces the draft, edits made while it was planned included.
         if (pending?.slideId === a.slide_id) cancel()
         draft.value = copy(mine.tweens)
+        base.value = mine.targets_signature ?? null
         isDirty.value = false
       }
     } catch (e) {
@@ -333,6 +339,7 @@ function createSlideAnimation(presentationId: Ref<string>, slide: Ref<Slide>, en
     const fallbackIndex = slide.value.index
     cancel()
     draft.value = []
+    base.value = a.targets_signature ?? null
     isDirty.value = false
     error.value = null
     applied.set(a.slide_id, ++seq)
@@ -353,16 +360,19 @@ function createSlideAnimation(presentationId: Ref<string>, slide: Ref<Slide>, en
     () => {
       void save()
       draft.value = copy(animation.value?.tweens)
+      base.value = animation.value?.targets_signature ?? null
       isDirty.value = false
       error.value = null
     },
     { flush: 'sync' },
   )
-  // A refetch (or a save elsewhere) may bring new tweens; never clobber unsaved edits.
+  // A refetch (or a save elsewhere) may bring new tweens or elements; never clobber unsaved edits.
   watch(
-    () => animation.value?.tweens,
-    (tweens) => {
-      if (!isDirty.value) draft.value = copy(tweens)
+    [() => animation.value?.tweens, () => animation.value?.targets_signature],
+    ([tweens, signature]) => {
+      if (isDirty.value) return
+      draft.value = copy(tweens)
+      base.value = signature ?? null
     },
   )
   if (getCurrentScope()) onScopeDispose(() => void save())

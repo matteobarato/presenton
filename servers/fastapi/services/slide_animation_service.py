@@ -350,6 +350,11 @@ async def resolve_slide_animations(
                 ),
             )
 
+    if writes:
+        # Nothing is pending yet: end the read transaction, so the re-read
+        # below sees edits committed meanwhile (MySQL's REPEATABLE READ would
+        # otherwise keep returning the snapshot taken before the LLM call).
+        await sql_session.commit()
     changed = False
     for position in sorted(writes):
         slide, plan = writes[position]
