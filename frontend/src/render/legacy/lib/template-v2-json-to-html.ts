@@ -572,7 +572,7 @@ function renderImage(item: JsonRecord, mode: RenderMode): string {
   if (!source) return "";
   const color = normalizeChartColor(readString(item.color));
   const clipPath = clipPathStyle(item);
-  if (color && readBoolean(item.isIcon ?? item.is_icon)) {
+  if (color && (readBoolean(item.isIcon ?? item.is_icon) || readBoolean(item.tint))) {
     const maskUrl = cssUrl(source);
     const maskSize = imageMaskSize(item.fit);
     return `<div style="${frameStyle(item, mode)}${boxStyle(

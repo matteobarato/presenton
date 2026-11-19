@@ -19,6 +19,25 @@ const withoutVectorEffects = (html: string): string =>
 
 let layoutsWithEffects = 0
 
+// The old renderer has no `tint` support: feed both renderers a layout with the
+// tint flag (and the colour it drives) removed. Tint is covered by unit tests.
+const stripTint = (ui: Layout): Layout => {
+  const walk = (v: unknown): void => {
+    if (Array.isArray(v)) v.forEach(walk)
+    else if (v && typeof v === 'object') {
+      const o = v as Record<string, unknown>
+      if (o.type === 'image' && o.tint) {
+        delete o.tint
+        delete o.color
+      }
+      Object.values(o).forEach(walk)
+    }
+  }
+  const copy = JSON.parse(JSON.stringify(ui)) as Layout
+  walk(copy)
+  return copy
+}
+
 type Layout = Record<string, unknown>
 const templates: { name: string; layouts: Layout[] }[] = available
   ? readdirSync(templatesDir)
@@ -46,7 +65,7 @@ describe.skipIf(!available)('template-v2 renderer golden equivalence', () => {
         const newMod = await import('@new/render/legacy/lib/template-v2-json-to-html')
         const opts = { annotateElements: true }
         t.layouts.forEach((layout, i) => {
-          const ui = layout as never
+          const ui = stripTint(layout) as never
           const where = `${t.name}[${i}]`
           if (newMod.templateV2UiToHtml(ui, opts) !== oldMod.templateV2UiToHtml(ui, opts)) layoutsWithEffects++
           expect(oldMod.templateV2UiToHtml(ui, opts), `${where} renders`).toEqual(expect.any(String))
