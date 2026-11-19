@@ -210,7 +210,7 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
         <label class="mb-2 block text-[10px] text-[#c0cfd6]" for="motion-element">Selected element</label>
         <div :class="field">
           <select id="motion-element" :class="select" :value="selected ?? ''" @change="editor.motionTarget = ($event.target as HTMLSelectElement).value">
-            <option v-for="t in targets" :key="t.id" :value="t.id">{{ names.get(t.id) }}</option>
+            <option v-for="t in targets" :key="t.id" :value="t.id" class="bg-dialog">{{ names.get(t.id) }}</option>
           </select>
           <ChevronDown class="size-3 shrink-0 text-[#a0aeb5]" aria-hidden="true" />
         </div>
@@ -266,7 +266,7 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
                 <span :class="fieldLabel">Ease</span>
                 <div :class="field">
                   <select aria-label="Ease" :class="select" :value="tween.ease" @change="patch({ ease: ($event.target as HTMLSelectElement).value })">
-                    <option v-for="ease in EASES" :key="ease.id" :value="ease.id">{{ ease.label }}</option>
+                    <option v-for="ease in EASES" :key="ease.id" :value="ease.id" class="bg-dialog">{{ ease.label }}</option>
                   </select>
                   <ChevronDown class="size-3 shrink-0 text-[#a0aeb5]" aria-hidden="true" />
                 </div>
@@ -305,11 +305,11 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
         <h3 :class="sectionLabel">Whole-slide sequence</h3>
         <div :class="field">
           <select id="motion-preset" aria-label="Sequence preset" :class="select" value="" :disabled="locked" :title="lockReason" @change="onPreset">
-            <option value="" disabled>Apply a preset…</option>
-            <option value="cinematic">Cinematic reveal</option>
-            <option value="cascade">Staggered cascade</option>
-            <option value="subtle">Soft &amp; subtle</option>
-            <option value="clear">Remove all effects</option>
+            <option value="" disabled class="bg-dialog">Apply a preset…</option>
+            <option value="cinematic" class="bg-dialog">Cinematic reveal</option>
+            <option value="cascade" class="bg-dialog">Staggered cascade</option>
+            <option value="subtle" class="bg-dialog">Soft &amp; subtle</option>
+            <option value="clear" class="bg-dialog">Remove all effects</option>
           </select>
           <ChevronDown class="size-3 shrink-0 text-[#a0aeb5]" aria-hidden="true" />
         </div>
