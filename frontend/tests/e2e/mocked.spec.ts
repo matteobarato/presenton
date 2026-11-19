@@ -465,6 +465,112 @@ test.describe('on-slide editing (mocked)', () => {
   })
 })
 
+// --- Motion editor -----------------------------------------------------------------------------
+
+interface Tween {
+  target: string
+  from_values: Record<string, number>
+  duration: number
+  delay: number
+  ease: string
+}
+
+test.describe('motion editor (mocked)', () => {
+  const MOTION_WINDOW = 2.5
+  // The template slide of the editable deck; its layers render as `data-hf-el="e0…"` in the shadow root.
+  const entry = {
+    slide_id: 'aaaaaaaa-0000-4000-8000-000000000000',
+    index: 0,
+    status: 'fresh',
+    source: 'llm',
+    reset_from_user: false,
+    tweens: [] as Tween[],
+    targets: [
+      { id: 'e0', kind: 'shape', text: '' },
+      { id: 'e1', kind: 'text', text: 'Headline' },
+      { id: 'e2', kind: 'image', text: '' },
+    ],
+  }
+
+  /** Editable deck with a planned-but-empty motion plan; PUT bodies are recorded and served back. */
+  async function open(page: Page) {
+    const puts: { tweens: Tween[] }[] = []
+    const { unexpected } = await editableApi(page, {
+      [`GET /api/v1/ppt/presentation/${DECK_ID}/animations`]: json({ slides: [entry] }),
+      [`PUT /api/v1/ppt/presentation/${DECK_ID}/animations/0`]: (route) => {
+        const body = route.request().postDataJSON() as { tweens: Tween[] }
+        puts.push(body)
+        return json({ ...entry, source: 'user', tweens: body.tweens })(route)
+      },
+    })
+    await page.goto(`/p/${DECK_ID}`)
+    await expect(page.getByTestId('selection-overlay')).toBeVisible()
+    await expect(page.locator('[data-hf-el="e0"]')).toBeAttached()
+
+    await page.getByRole('tablist', { name: 'Inspector sections' }).getByRole('tab', { name: 'Motion' }).click()
+    await page.getByRole('tablist', { name: 'Notes, voice and motion' }).getByRole('tab', { name: 'Motion' }).click()
+    await expect(page.getByRole('region', { name: 'Animation timeline' })).toBeVisible()
+    return { puts, unexpected }
+  }
+
+  test('motion editor: Rise, drag the clip, Play saves the plan', async ({ page }) => {
+    const { puts, unexpected } = await open(page)
+
+    // The first element is selected by default; Rise gives it a clip on the timeline.
+    await page.getByRole('region', { name: 'Motion' }).getByRole('button', { name: 'Rise', exact: true }).click()
+    const clip = page.locator('[data-motion-clip="e0"]')
+    await expect(clip).toBeVisible()
+    await clip.scrollIntoViewIfNeeded()
+
+    // Drag it right by 0.8 s worth of lane (the timeline rounds to 0.1 s and clamps to the window).
+    const box = await clip.boundingBox()
+    const lane = await clip.locator('..').boundingBox()
+    if (!box || !lane) throw new Error('no clip or lane box')
+    const dx = (0.8 / MOTION_WINDOW) * lane.width
+    const x = box.x + box.width / 2
+    const y = box.y + box.height / 2
+    await page.mouse.move(x, y)
+    await page.mouse.down()
+    await page.mouse.move(x + dx / 2, y, { steps: 4 })
+    await page.mouse.move(x + dx, y, { steps: 4 })
+    await page.mouse.up()
+    const maxDelay = Math.floor((MOTION_WINDOW - 0.6) * 10 + 1e-6) / 10
+    const expected = Math.min(maxDelay, Math.max(0, Math.round((dx / lane.width) * MOTION_WINDOW * 10) / 10))
+
+    await page.getByRole('button', { name: 'Play animation' }).click()
+
+    await expect.poll(() => puts.at(-1)?.tweens[0]?.delay ?? 0).toBeGreaterThan(0)
+    const tweens = puts.at(-1)!.tweens
+    expect(tweens).toHaveLength(1)
+    expect(tweens[0].target).toBe('e0')
+    expect(tweens[0].from_values).toEqual({ opacity: 0, y: 32 })
+    // One 0.1 s step of slack for sub-pixel lane geometry.
+    expect(Math.abs(tweens[0].delay - expected)).toBeLessThanOrEqual(0.1 + 1e-9)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('motion editor: Play styles the element inline; Stop restores the slide', async ({ page }) => {
+    const { unexpected } = await open(page)
+    await page.getByRole('region', { name: 'Motion' }).getByRole('button', { name: 'Rise', exact: true }).click()
+    await expect(page.locator('[data-motion-clip="e0"]')).toBeVisible()
+
+    // The layer is in the slide's shadow root; CSS locators pierce it.
+    const layer = page.locator('[data-hf-el="e0"]')
+    const before = await layer.getAttribute('style')
+    const inline = () => layer.evaluate((el: HTMLElement) => ({ opacity: el.style.opacity, transform: el.style.transform }))
+    expect(await inline()).toEqual({ opacity: '', transform: '' })
+
+    await page.getByRole('button', { name: 'Play animation' }).click()
+    await expect.poll(async () => (await inline()).opacity).not.toBe('')
+    expect(await layer.getAttribute('style')).not.toBe(before)
+
+    await page.getByRole('button', { name: 'Stop and restore slide' }).click()
+    await expect.poll(inline).toEqual({ opacity: '', transform: '' })
+    expect(await layer.getAttribute('style')).toBe(before)
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+})
+
 // --- Visual element editing --------------------------------------------------------------------
 
 const visualDeck = fixture<typeof editableDeck>('visual-presentation')
