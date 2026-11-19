@@ -32,6 +32,7 @@ async function mockApi(page: Page, overrides: Record<string, Handler> = {}) {
     [`GET /api/v1/ppt/presentation/${DECK_ID}/videos/generate`]: json({ detail: 'Not found' }, 404),
     [`GET /api/v1/ppt/presentation/${DECK_ID}/videos/generate/preview`]: json({ language: 'en', languages: ['en'], slides: [] }),
     'GET /api/v1/ppt/chat/conversations': json([]),
+    [`GET /api/v1/ppt/presentation/${DECK_ID}/animations`]: json({ slides: [] }),
     ...overrides,
   }
 
@@ -420,8 +421,8 @@ test.describe('on-slide editing (mocked)', () => {
       const list = page.getByRole('tablist', { name: 'Inspector sections' })
       await expect(list).toBeVisible()
       const tabs = list.getByRole('tab')
-      await expect(tabs).toHaveCount(4)
-      for (const name of ['Layers', 'Insert', 'Design', 'Avatar']) {
+      await expect(tabs).toHaveCount(5)
+      for (const name of ['Layers', 'Insert', 'Design', 'Motion', 'Avatar']) {
         await page.getByRole('tab', { name }).click()
         await expect(page.getByRole('tab', { name })).toHaveAttribute('aria-selected', 'true')
         const fit = await list.evaluate((el) => {

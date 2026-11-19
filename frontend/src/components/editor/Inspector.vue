@@ -41,7 +41,7 @@ const activeSlide = computed(() => {
         class="group/tab h-8 flex-1 gap-2 rounded-[8px] px-2 text-[11px] font-normal text-[#a2adb3] data-[state=active]:bg-[#353b3e] data-[state=active]:text-[#edf1f2] data-[state=active]:shadow-[0_2px_4px_#0001]"
       >
         <component :is="tab.icon" class="size-3.5" aria-hidden="true" />
-        <!-- Four tabs don't fit the docked width with labels: inactive tabs show the icon (the label stays as their accessible name). -->
+        <!-- Five tabs don't fit the docked width with labels: inactive tabs show the icon (the label stays as their accessible name). -->
         <span class="group-data-[state=inactive]/tab:sr-only">{{ tab.label }}</span>
       </TabsTrigger>
     </TabsList>
