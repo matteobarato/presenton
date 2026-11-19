@@ -574,6 +574,40 @@ test.describe('motion editor (mocked)', () => {
   })
 })
 
+test.describe('present mode motion (mocked)', () => {
+  const planned = (status: string, tweens: Tween[]) => ({
+    slide_id: 'aaaaaaaa-0000-4000-8000-000000000000',
+    index: 0,
+    status,
+    source: 'user',
+    reset_from_user: false,
+    tweens,
+    targets: [{ id: 'e0', kind: 'shape', text: '' }],
+  })
+  const rise: Tween = { target: 'e0', from_values: { opacity: 0, y: 32 }, duration: 0.6, delay: 0, ease: 'power2.out' }
+
+  test('the stored entrance plan plays when a slide is shown', async ({ page }) => {
+    await editableApi(page, {
+      [`GET /api/v1/ppt/presentation/${DECK_ID}/animations`]: json({ slides: [planned('fresh', [rise])] }),
+    })
+    await page.goto(`/p/${DECK_ID}/present`)
+    const layer = page.locator('[data-present-stage] [data-hf-el="e0"]')
+    await expect(layer).toBeAttached()
+    // GSAP writes inline styles while it plays and leaves the end state in place.
+    await expect.poll(() => layer.evaluate((el: HTMLElement) => el.style.opacity)).not.toBe('')
+    await expect.poll(() => layer.evaluate((el: HTMLElement) => el.style.opacity)).toBe('1')
+  })
+
+  test('a plan whose layout changed is not played', async ({ page }) => {
+    await editableApi(page, {
+      [`GET /api/v1/ppt/presentation/${DECK_ID}/animations`]: json({ slides: [planned('stale_layout', [rise])] }),
+    })
+    await page.goto(`/p/${DECK_ID}/present`)
+    await expect(page.locator('[data-present-stage]')).toBeVisible()
+    await expect(page.locator('[data-present-stage] [data-hf-el="e0"]')).toHaveCount(0)
+  })
+})
+
 // --- Visual element editing --------------------------------------------------------------------
 
 const visualDeck = fixture<typeof editableDeck>('visual-presentation')

@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePresentation } from '@/api/presentations'
+import { useAnimations } from '@/composables/useSlideAnimation'
 import PresentControls from '@/components/present/PresentControls.vue'
 import PresentStage from '@/components/present/PresentStage.vue'
 import { useNarratedPlayback } from '@/composables/useNarratedPlayback'
@@ -18,6 +19,14 @@ const total = computed(() => slides.value.length)
 // `?from=N` starts at slide N ("Present from current slide"); the total watcher clamps it.
 const index = ref(Math.max(0, Math.floor(Number(route.query.from)) || 0))
 const slide = computed(() => slides.value[index.value])
+
+// Stored entrance plans, played as each slide appears. A plan whose elements changed since it was made
+// (`stale_layout`) would animate the wrong things, so it is skipped, as are slides without a plan.
+const { data: animations } = useAnimations(id)
+const tweens = computed(() => {
+  const entry = animations.value?.slides.find((a) => a.slide_id === slide.value?.id)
+  return entry && ['fresh', 'stale_content'].includes(entry.status) ? entry.tweens : []
+})
 
 const narrating = ref(false)
 const { playing, avatar, available, toggle, onAdvance } = useNarratedPlayback(id, index, narrating)
@@ -115,6 +124,7 @@ watch(total, (n) => {
       :theme="presentation?.theme"
       :fonts="presentation?.fonts"
       :reduced-motion="reducedMotion"
+      :tweens="tweens"
       :avatar="avatar"
       :playing="playing"
     />
