@@ -36,7 +36,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_shape",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -81,7 +83,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_field",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -126,7 +130,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_field",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -202,7 +208,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "dark_background_shape",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -247,7 +255,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -292,7 +302,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base_image",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -337,7 +349,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -382,7 +396,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_field",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -427,7 +443,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -472,7 +490,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base_texture",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -517,7 +537,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "dark_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -562,7 +584,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -607,7 +631,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "dark_background_shape",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -652,7 +678,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "slide_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -714,7 +742,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_shape",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -759,7 +789,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -804,7 +836,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_texture",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -849,7 +883,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_canvas",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -894,7 +930,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -939,7 +977,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -984,7 +1024,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -1029,7 +1071,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "slide_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -1093,7 +1137,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_field",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -1138,7 +1184,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -1352,7 +1400,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "landscape_image_frame",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#EDF9FE",
+              "tint": true
             },
             {
               "type": "image",
@@ -1368,7 +1418,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "portrait_image_frame",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#EDF9FE",
+              "tint": true
             },
             {
               "type": "image",
@@ -1736,7 +1788,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "curved_image_frame",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "container",
@@ -5269,7 +5323,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_badge_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -5458,7 +5514,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_badge_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -5647,7 +5705,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_badge_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -5836,7 +5896,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_badge_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -7193,7 +7255,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "connector_node",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#A4D3F9",
+                  "tint": true
                 },
                 {
                   "type": "vector",
@@ -7256,7 +7320,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#6FBEF8",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -7388,7 +7454,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "connector_node",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#A4D3F9",
+                  "tint": true
                 },
                 {
                   "type": "vector",
@@ -7451,7 +7519,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#44AFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -7583,7 +7653,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "connector_node",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#A4D3F9",
+                  "tint": true
                 },
                 {
                   "type": "vector",
@@ -7626,7 +7698,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#0F92F4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -7758,7 +7832,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "connector_node",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#A4D3F9",
+                  "tint": true
                 },
                 {
                   "type": "vector",
@@ -7821,7 +7897,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#0C75C3",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -7953,7 +8031,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "connector_node",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#A4D3F9",
+                  "tint": true
                 },
                 {
                   "type": "vector",
@@ -8016,7 +8096,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#063A62",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -11087,7 +11169,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "connector_node",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     }
                   ]
                 },
@@ -11277,7 +11361,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "connector_node",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     }
                   ]
                 },
@@ -11467,7 +11553,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "connector_node",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     }
                   ]
                 },
@@ -11657,7 +11745,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "connector_node",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     }
                   ]
                 },
@@ -11847,7 +11937,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "connector_node",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     }
                   ]
                 },
@@ -13202,7 +13294,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "image_panel_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1296FF",
+              "tint": true
             },
             {
               "type": "image",
@@ -13251,7 +13345,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "vertical_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#0F92F4",
+              "tint": true
             },
             {
               "type": "container",
@@ -13311,7 +13407,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "chart_base_panel",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "chart",
@@ -14270,7 +14368,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 6.0
+                "y": 6
               },
               "size": {
                 "width": 10,
@@ -14291,7 +14389,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 670,
@@ -14330,7 +14428,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 24.0
+                "y": 24
               },
               "size": {
                 "width": 670,
@@ -14369,7 +14467,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 65.0
+                "y": 65
               },
               "size": {
                 "width": 10,
@@ -14390,7 +14488,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 59.0
+                "y": 59
               },
               "size": {
                 "width": 670,
@@ -14429,7 +14527,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 83.0
+                "y": 83
               },
               "size": {
                 "width": 670,
@@ -14468,7 +14566,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 124.0
+                "y": 124
               },
               "size": {
                 "width": 10,
@@ -14489,7 +14587,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 118.0
+                "y": 118
               },
               "size": {
                 "width": 670,
@@ -14528,7 +14626,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 142.0
+                "y": 142
               },
               "size": {
                 "width": 670,
@@ -14583,7 +14681,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 52,
@@ -14604,7 +14702,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 12.0
+                "y": 12
               },
               "size": {
                 "width": 52,
@@ -14643,7 +14741,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 640,
@@ -14682,7 +14780,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 28.0
+                "y": 28
               },
               "size": {
                 "width": 640,
@@ -14721,7 +14819,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 52,
@@ -14742,7 +14840,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 88.0
+                "y": 88
               },
               "size": {
                 "width": 52,
@@ -14781,7 +14879,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 640,
@@ -14820,7 +14918,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 104.0
+                "y": 104
               },
               "size": {
                 "width": 640,
@@ -14859,7 +14957,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 52,
@@ -14880,7 +14978,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 164.0
+                "y": 164
               },
               "size": {
                 "width": 52,
@@ -14919,7 +15017,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 640,
@@ -14958,7 +15056,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 180.0
+                "y": 180
               },
               "size": {
                 "width": 640,
@@ -16378,7 +16476,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_shape",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -16598,7 +16698,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "landscape_image_frame",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#EDF9FE",
+              "tint": true
             },
             {
               "type": "image",
@@ -16614,7 +16716,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "portrait_image_frame",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#EDF9FE",
+              "tint": true
             },
             {
               "type": "image",
@@ -16790,7 +16894,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -16939,7 +17045,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "image_panel_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1296FF",
+              "tint": true
             }
           ]
         }
@@ -17211,7 +17319,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_shape",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -17419,7 +17529,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "landscape_image_frame",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#EDF9FE",
+              "tint": true
             },
             {
               "type": "image",
@@ -17435,7 +17547,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "portrait_image_frame",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#EDF9FE",
+              "tint": true
             },
             {
               "type": "image",
@@ -17627,7 +17741,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_field",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -17860,7 +17976,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_field",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -17936,7 +18054,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "curved_image_frame",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "container",
@@ -18088,7 +18208,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "dark_background_shape",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -18442,7 +18564,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -19067,7 +19191,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base_image",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -19336,7 +19462,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -19475,7 +19603,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "connector_node",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     }
                   ]
                 },
@@ -19665,7 +19795,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "connector_node",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     }
                   ]
                 },
@@ -19855,7 +19987,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "connector_node",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     }
                   ]
                 },
@@ -20045,7 +20179,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "connector_node",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     }
                   ]
                 },
@@ -20235,7 +20371,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "connector_node",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     }
                   ]
                 },
@@ -20400,7 +20538,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_field",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -21041,7 +21181,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -21178,7 +21320,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "image_panel_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1296FF",
+              "tint": true
             },
             {
               "type": "image",
@@ -21465,7 +21609,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base_texture",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -22663,7 +22809,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "dark_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -22837,7 +22985,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "chart_base_panel",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "chart",
@@ -22920,7 +23070,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -23320,7 +23472,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "dark_background_shape",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -23870,7 +24024,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "slide_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -24093,7 +24249,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_badge_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -24282,7 +24440,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_badge_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -24471,7 +24631,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_badge_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -24660,7 +24822,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_badge_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -24756,7 +24920,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_shape",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -25563,7 +25729,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -26039,7 +26207,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_texture",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -26652,7 +26822,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_canvas",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -26818,7 +26990,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "connector_node",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#A4D3F9",
+                  "tint": true
                 },
                 {
                   "type": "vector",
@@ -26881,7 +27055,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#6FBEF8",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -27013,7 +27189,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "connector_node",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#A4D3F9",
+                  "tint": true
                 },
                 {
                   "type": "vector",
@@ -27076,7 +27254,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#44AFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -27208,7 +27388,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "connector_node",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#A4D3F9",
+                  "tint": true
                 },
                 {
                   "type": "vector",
@@ -27251,7 +27433,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#0F92F4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -27383,7 +27567,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "connector_node",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#A4D3F9",
+                  "tint": true
                 },
                 {
                   "type": "vector",
@@ -27446,7 +27632,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#0C75C3",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -27578,7 +27766,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "connector_node",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#A4D3F9",
+                  "tint": true
                 },
                 {
                   "type": "vector",
@@ -27641,7 +27831,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#063A62",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -27760,7 +27952,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -28067,7 +28261,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -28265,7 +28461,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -28457,7 +28655,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "vertical_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#0F92F4",
+              "tint": true
             },
             {
               "type": "container",
@@ -28517,7 +28717,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "slide_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -29646,7 +29848,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_field",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -29965,7 +30169,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -31512,7 +31718,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 6.0
+                "y": 6
               },
               "size": {
                 "width": 10,
@@ -31533,7 +31739,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 670,
@@ -31572,7 +31778,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 24.0
+                "y": 24
               },
               "size": {
                 "width": 670,
@@ -31611,7 +31817,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 65.0
+                "y": 65
               },
               "size": {
                 "width": 10,
@@ -31632,7 +31838,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 59.0
+                "y": 59
               },
               "size": {
                 "width": 670,
@@ -31671,7 +31877,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 83.0
+                "y": 83
               },
               "size": {
                 "width": 670,
@@ -31710,7 +31916,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 124.0
+                "y": 124
               },
               "size": {
                 "width": 10,
@@ -31731,7 +31937,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 118.0
+                "y": 118
               },
               "size": {
                 "width": 670,
@@ -31770,7 +31976,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 142.0
+                "y": 142
               },
               "size": {
                 "width": 670,
@@ -31950,7 +32156,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 52,
@@ -31971,7 +32177,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 12.0
+                "y": 12
               },
               "size": {
                 "width": 52,
@@ -32010,7 +32216,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 640,
@@ -32049,7 +32255,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 28.0
+                "y": 28
               },
               "size": {
                 "width": 640,
@@ -32088,7 +32294,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 52,
@@ -32109,7 +32315,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 88.0
+                "y": 88
               },
               "size": {
                 "width": 52,
@@ -32148,7 +32354,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 640,
@@ -32187,7 +32393,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 104.0
+                "y": 104
               },
               "size": {
                 "width": 640,
@@ -32226,7 +32432,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 52,
@@ -32247,7 +32453,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 164.0
+                "y": 164
               },
               "size": {
                 "width": 52,
@@ -32286,7 +32492,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 640,
@@ -32325,7 +32531,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 180.0
+                "y": 180
               },
               "size": {
                 "width": 640,
@@ -34035,7 +34241,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_shape",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -34243,7 +34451,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "landscape_image_frame",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#EDF9FE",
+              "tint": true
             },
             {
               "type": "image",
@@ -34259,7 +34469,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "portrait_image_frame",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#EDF9FE",
+              "tint": true
             },
             {
               "type": "image",
@@ -34487,7 +34699,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "background_base",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#010913",
+              "tint": true
             },
             {
               "type": "image",
@@ -34624,7 +34838,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "image_panel_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1296FF",
+              "tint": true
             }
           ]
         },
