@@ -141,6 +141,8 @@ def test_chat_memory_resolves_template_layout_schemas():
             "id": "intro",
             "name": "intro",
             "description": "Intro slide.",
+            "has_image": True,
+            "has_video": False,
         }
     ]
     assert schema is not None

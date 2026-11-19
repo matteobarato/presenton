@@ -18,8 +18,10 @@ const m = vi.hoisted(() => ({
   decomposeFiles: vi.fn(),
   createPresentation: vi.fn(),
   listTemplates: vi.fn(),
+  listThemes: vi.fn(),
 }))
 vi.mock('@/api/templates', async (orig) => ({ ...(await orig<typeof import('@/api/templates')>()), listTemplates: m.listTemplates }))
+vi.mock('@/api/themes', async (orig) => ({ ...(await orig<typeof import('@/api/themes')>()), listThemes: m.listThemes }))
 vi.mock('@/api/files', async (orig) => ({ ...(await orig<typeof import('@/api/files')>()), uploadFiles: m.uploadFiles, decomposeFiles: m.decomposeFiles }))
 vi.mock('@/api/generation', () => ({ createPresentation: m.createPresentation, getGenerationDefaults: vi.fn() }))
 
@@ -57,6 +59,7 @@ async function attach(w: W, name = 'brief.pdf') {
 beforeEach(() => {
   Object.values(m).forEach((f) => f.mockReset())
   m.listTemplates.mockResolvedValue([{ id: 'c1', name: 'Pitch', kind: 'custom', layouts: [{}] }])
+  m.listThemes.mockResolvedValue([{ id: 't1', name: 'Ocean', user: 'u', data: { colors: {} } }])
   document.body.innerHTML = ''
 })
 
@@ -81,6 +84,60 @@ describe('NewView', () => {
     expect((input.element as HTMLInputElement).value).toBe('50')
     await input.setValue('0')
     expect((input.element as HTMLInputElement).value).toBe('')
+  })
+
+  it('clamps the image count to 0-50, keeping 0 as "none"', async () => {
+    const { wrapper } = await mountView()
+    const input = wrapper.get('#opt-images')
+    await input.setValue('99')
+    expect((input.element as HTMLInputElement).value).toBe('50')
+    await input.setValue('0')
+    expect((input.element as HTMLInputElement).value).toBe('0')
+    await input.setValue('')
+    expect((input.element as HTMLInputElement).value).toBe('')
+  })
+
+  it.each([
+    ['Auto', null, null],
+    ['None', null, 0],
+    [null, '4', 4],
+  ] as const)('sends n_images for chip %s / typed %s as %s', async (label, typed, expected) => {
+    m.createPresentation.mockResolvedValue({ id: 'abc' })
+    const { wrapper } = await mountView()
+    await wrapper.get('#create-prompt').setValue('Quarterly review')
+    if (label) {
+      const chip = wrapper.findAll('[aria-label="Image count"] [role="radio"]').find((b) => b.text() === label)!
+      await chip.trigger('click')
+      expect(chip.attributes('aria-checked')).toBe('true')
+    }
+    if (typed) await wrapper.get('#opt-images').setValue(typed)
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(m.createPresentation).toHaveBeenCalledWith(expect.objectContaining({ n_images: expected }))
+  })
+
+  it.each([
+    ['Auto', null, null],
+    ['None', null, 0],
+    [null, '2', 2],
+  ] as const)('sends n_videos for chip %s / typed %s as %s', async (label, typed, expected) => {
+    m.createPresentation.mockResolvedValue({ id: 'abc' })
+    const { wrapper } = await mountView()
+    await wrapper.get('#create-prompt').setValue('Quarterly review')
+    if (label) {
+      const chip = wrapper.findAll('[aria-label="Presenter video count"] [role="radio"]').find((b) => b.text() === label)!
+      await chip.trigger('click')
+      expect(chip.attributes('aria-checked')).toBe('true')
+    }
+    if (typed) await wrapper.get('#opt-videos').setValue(typed)
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(m.createPresentation).toHaveBeenCalledWith(expect.objectContaining({ n_videos: expected, n_images: null }))
+  })
+
+  it('says presenter slots wait for avatar generation', async () => {
+    const { wrapper } = await mountView()
+    expect(wrapper.text()).toContain('Slots show a placeholder until you generate avatars in the Avatars panel')
   })
 
   it('renders no mode switch, creates a standard presentation and routes to the outline, without file calls', async () => {
@@ -204,6 +261,38 @@ describe('NewView', () => {
       const payload = m.createPresentation.mock.calls[0][0]
       expect(payload).not.toHaveProperty('template')
       expect(payload).not.toHaveProperty('layout')
+    })
+  })
+
+  describe('theme picker', () => {
+    it('shows a Theme row on the Look step with Template colours selected', async () => {
+      const { wrapper } = await mountView()
+      await flushPromises()
+      expect(wrapper.get('[data-testid="theme-option-none"] button').attributes('aria-pressed')).toBe('true')
+      expect(wrapper.find('[data-testid="theme-option-t1"]').exists()).toBe(true)
+    })
+
+    it('carries ?template and ?theme to the outline', async () => {
+      m.createPresentation.mockResolvedValue({ id: 'abc' })
+      const { wrapper, router } = await mountView('both', {}, '/new?template=c1&theme=t1')
+      await flushPromises()
+      await wrapper.get('#create-prompt').setValue('Quarterly review')
+      await wrapper.get('form').trigger('submit')
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe('outline')
+      expect(router.currentRoute.value.query).toEqual({ template: 'c1', theme: 't1' })
+    })
+
+    it('still submits when themes fail to load', async () => {
+      m.listThemes.mockRejectedValue(new Error('boom'))
+      m.createPresentation.mockResolvedValue({ id: 'abc' })
+      const { wrapper, router } = await mountView()
+      await flushPromises()
+      await wrapper.get('#create-prompt').setValue('Quarterly review')
+      await wrapper.get('form').trigger('submit')
+      await flushPromises()
+      expect(router.currentRoute.value.query.theme).toBeUndefined()
+      expect(router.currentRoute.value.fullPath).toBe('/new/abc/outline')
     })
   })
 })

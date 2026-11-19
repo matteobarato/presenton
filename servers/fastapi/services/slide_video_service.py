@@ -215,6 +215,64 @@ def default_placeholder_box(
     )
 
 
+# Slots added by generation are portrait, like the avatar frames templates
+# draw (Momentum's are 288x512): a presenter's face filled into a landscape
+# box with `cover` would be cropped to a strip.
+PRESENTER_SLOT_ASPECT = (9, 16)
+
+_CONTENT_ELEMENT_TYPES = frozenset(
+    {"text", "text-list", "table", "chart", "infographic", "image", "math"}
+)
+
+
+def _corner_coverage(ui: Any) -> tuple[StageBox, float]:
+    """The least-covered corner box, with how much content area it covers."""
+    base = default_placeholder_box(*PRESENTER_SLOT_ASPECT)
+    width, height = base.size.width, base.size.height
+    left, top = float(STAGE_MARGIN), float(STAGE_MARGIN)
+    right = STAGE_WIDTH - STAGE_MARGIN - width
+    bottom = STAGE_HEIGHT - STAGE_MARGIN - height
+    corners = [(right, bottom), (left, bottom), (right, top), (left, top)]
+
+    boxes: list[tuple[float, float, float, float]] = []
+    for node, (offset_x, offset_y) in _walk(ui):
+        if node.get("type") not in _CONTENT_ELEMENT_TYPES or node.get("decorative"):
+            continue
+        size = node.get("size") if isinstance(node.get("size"), dict) else {}
+        node_width = _number(size.get("width")) or 0.0
+        node_height = _number(size.get("height")) or 0.0
+        if node_width <= 0 or node_height <= 0:
+            continue
+        x, y = _position(node)
+        boxes.append((offset_x + x, offset_y + y, node_width, node_height))
+
+    def covered(corner: tuple[float, float]) -> float:
+        cx, cy = corner
+        total = 0.0
+        for x, y, w, h in boxes:
+            overlap_w = min(cx + width, x + w) - max(cx, x)
+            overlap_h = min(cy + height, y + h) - max(cy, y)
+            if overlap_w > 0 and overlap_h > 0:
+                total += overlap_w * overlap_h
+        return total
+
+    x, y = min(corners, key=covered)
+    return StageBox.of(x, y, width, height), covered((x, y))
+
+
+def quietest_corner_box(ui: Any) -> StageBox:
+    """The default-sized placeholder box in whichever stage corner covers the
+    least slide content, so a presenter slot added by generation hides as
+    little text, data or imagery as it can. Ties keep the bottom-right corner,
+    where an uploaded avatar goes."""
+    return _corner_coverage(ui)[0]
+
+
+def presenter_slot_fits(ui: Any) -> bool:
+    """Whether a corner of the slide is free of content for a presenter slot."""
+    return _corner_coverage(ui)[1] == 0
+
+
 def default_bubble_box() -> StageBox:
     """The voice bubble's spot when a deck has not set one: the same corner the
     default video placeholder uses, so the presenter shrinks in place."""

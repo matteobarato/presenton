@@ -6,8 +6,8 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import ThemePicker from '@/components/create/ThemePicker.vue'
 import { useThemeParam } from '@/composables/useThemeParam'
 
-const m = vi.hoisted(() => ({ listThemes: vi.fn() }))
-vi.mock('@/api/themes', async (orig) => ({ ...(await orig<typeof import('@/api/themes')>()), listThemes: m.listThemes }))
+const m = vi.hoisted(() => ({ listThemes: vi.fn(), createTheme: vi.fn() }))
+vi.mock('@/api/themes', async (orig) => ({ ...(await orig<typeof import('@/api/themes')>()), listThemes: m.listThemes, createTheme: m.createTheme }))
 
 const theme = { id: 't1', name: 'Ocean', user: 'u', data: { colors: {} } }
 
@@ -33,6 +33,7 @@ const btn = (w: Awaited<ReturnType<typeof mountHost>>['wrapper'], id: string) =>
 
 beforeEach(() => {
   m.listThemes.mockReset().mockResolvedValue([theme])
+  m.createTheme.mockReset()
   document.body.innerHTML = ''
 })
 
@@ -66,5 +67,22 @@ describe('ThemePicker + useThemeParam', () => {
     m.listThemes.mockRejectedValue(new Error('boom'))
     const b = await mountHost()
     expect(b.wrapper.findAll('[data-testid^="theme-option-"]')).toHaveLength(1)
+  })
+
+  it('New theme opens the editor and a saved theme is created and selected', async () => {
+    const created = { id: 't2', name: 'Mine', user: 'u', data: { colors: {} } }
+    m.createTheme.mockResolvedValue(created)
+    const { wrapper, router } = await mountHost()
+    m.listThemes.mockResolvedValue([theme, created])
+    await wrapper.get('[data-testid="theme-new"]').trigger('click')
+    await flushPromises()
+    const name = document.body.querySelector<HTMLInputElement>('#theme-name')!
+    name.value = 'Mine'
+    name.dispatchEvent(new Event('input', { bubbles: true }))
+    await flushPromises()
+    document.body.querySelector('form')!.dispatchEvent(new Event('submit', { cancelable: true }))
+    await flushPromises()
+    expect(m.createTheme).toHaveBeenCalledWith(expect.objectContaining({ name: 'Mine' }))
+    expect(router.currentRoute.value.query.theme).toBe('t2')
   })
 })

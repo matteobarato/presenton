@@ -13,6 +13,11 @@ class SlideLayoutModel(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     json_schema: dict
+    # The layout frames a presenter (avatar) video: its UI holds a video
+    # placeholder. Read from the layout's UI, which `json_schema` lacks.
+    has_video: bool = False
+    # A corner of the layout is free for a presenter slot added by generation.
+    presenter_fits: bool = True
 
 
 class PresentationLayoutModel(BaseModel):

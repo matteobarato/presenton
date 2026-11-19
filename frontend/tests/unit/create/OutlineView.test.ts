@@ -11,6 +11,9 @@ const mocks = vi.hoisted(() => ({
   preparePresentation: vi.fn(),
   getTemplate: vi.fn(),
   listTemplates: vi.fn(),
+  listThemes: vi.fn(),
+  updatePresentation: vi.fn(),
+  toastError: vi.fn(),
   stream: null as unknown,
 }))
 vi.mock('@/api/outlines', async (importActual) => ({
@@ -20,6 +23,9 @@ vi.mock('@/api/outlines', async (importActual) => ({
   getTemplate: mocks.getTemplate,
 }))
 vi.mock('@/api/templates', () => ({ listTemplates: mocks.listTemplates }))
+vi.mock('@/api/themes', async (orig) => ({ ...(await orig<typeof import('@/api/themes')>()), listThemes: mocks.listThemes }))
+vi.mock('@/api/presentations', async (orig) => ({ ...(await orig<typeof import('@/api/presentations')>()), updatePresentation: mocks.updatePresentation }))
+vi.mock('@/components/ui/sonner', () => ({ toast: { error: mocks.toastError } }))
 vi.mock('@/composables/useOutlineStream', () => ({
   useOutlineStream: () => mocks.stream,
 }))
@@ -62,6 +68,9 @@ beforeEach(() => {
   mocks.getTemplate.mockReset().mockResolvedValue({
     layouts: [layout(1), layout(2), layout(3), layout(4)],
   })
+  mocks.listThemes.mockReset().mockResolvedValue([{ id: 't1', name: 'Ocean', user: 'u', data: { colors: {} } }])
+  mocks.updatePresentation.mockReset().mockResolvedValue({})
+  mocks.toastError.mockReset()
   mocks.listTemplates.mockReset().mockResolvedValue([
     {
       id: 'modern',
@@ -181,8 +190,11 @@ describe('OutlineView', () => {
     expect(router.currentRoute.value.fullPath).toBe('/p/p1?stream=1')
   })
 
-  it('preselects ?template once templates load', async () => {
+  it('shows a template chosen on the New page as a summary, with the picker behind Change', async () => {
     const { wrapper } = await mountView('/new/p1/outline?template=modern')
+    expect(wrapper.get('[data-testid="chosen-template"]').text()).toContain('Modern')
+    expect(wrapper.find('[data-testid="template-modern"]').exists()).toBe(false)
+    await wrapper.get('[data-testid="chosen-template"] button').trigger('click')
     expect(wrapper.get('[data-testid="template-modern"]').attributes('aria-checked')).toBe('true')
     expect(wrapper.findAll('button').some((b) => b.text().includes('Generate presentation'))).toBe(true)
   })
@@ -196,12 +208,33 @@ describe('OutlineView', () => {
 
   it('changing the selection updates the query and generates with it', async () => {
     const { wrapper, router } = await mountView('/new/p1/outline?template=modern')
+    await wrapper.get('[data-testid="chosen-template"] button').trigger('click')
     await wrapper.get('[data-testid="template-custom-1"]').trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.query.template).toBe('custom-1')
     await wrapper.findAll('button').find((b) => b.text().includes('Generate presentation'))!.trigger('click')
     await flushPromises()
     expect(mocks.preparePresentation).toHaveBeenCalledWith(expect.objectContaining({ layout: 'custom-1' }))
+  })
+
+  it('renders each slide as markdown and shows the source while editing', async () => {
+    mocks.stream = { ...(mocks.stream as object), items: ref([{ content: '# Intro\n- **One**\n- Two' }]) }
+    const { wrapper } = await mountView()
+    const preview = wrapper.get('[data-testid="outline-preview"]')
+    expect(preview.find('h1').text()).toBe('Intro')
+    expect(preview.findAll('li').map((l) => l.text())).toEqual(['One', 'Two'])
+    expect(preview.find('strong').exists()).toBe(true)
+    await wrapper.get('textarea').trigger('focus')
+    expect(preview.isVisible()).toBe(false)
+    await wrapper.get('textarea').trigger('blur')
+    expect(preview.isVisible()).toBe(true)
+  })
+
+  it('shows the progress card while the outline streams', async () => {
+    ;(mocks.stream as { streaming: { value: boolean } }).streaming.value = true
+    const { wrapper } = await mountView()
+    expect(wrapper.get('[role="progressbar"]').attributes('aria-label')).toBe('Outline progress')
+    expect(wrapper.text()).toContain('3 slides drafted')
   })
 
   it('keeps Generate disabled while streaming and locks editing', async () => {
@@ -211,5 +244,67 @@ describe('OutlineView', () => {
     const generate = wrapper.findAll('button').find((b) => /Generate/.test(b.text()))!
     expect(generate.attributes('disabled')).toBeDefined()
     expect(wrapper.findAll('textarea')[0]!.attributes('disabled')).toBeDefined()
+  })
+
+  describe('theme', () => {
+    const clickGenerate = async (w: VueWrapper) => {
+      await w.findAll('button').find((b) => b.text().includes('Generate presentation'))!.trigger('click')
+      await flushPromises()
+    }
+
+    it('applies the chosen theme after prepare, then opens the editor', async () => {
+      const { wrapper, router } = await mountView('/new/p1/outline?template=modern&theme=t1')
+      await clickGenerate(wrapper)
+      expect(mocks.updatePresentation).toHaveBeenCalledWith({ id: 'p1', theme: expect.objectContaining({ id: 't1' }) })
+      expect(mocks.preparePresentation.mock.invocationCallOrder[0]).toBeLessThan(mocks.updatePresentation.mock.invocationCallOrder[0]!)
+      expect(router.currentRoute.value.name).toBe('editor')
+      expect(router.currentRoute.value.query.stream).toBe('1')
+    })
+
+    it('tells the user when a chosen theme could not be loaded, and still opens the editor', async () => {
+      mocks.listThemes.mockRejectedValue(new Error('boom'))
+      const { wrapper, router } = await mountView('/new/p1/outline?template=modern&theme=t1')
+      await clickGenerate(wrapper)
+      expect(mocks.updatePresentation).not.toHaveBeenCalled()
+      expect(mocks.toastError).toHaveBeenCalledWith("Couldn't apply theme — set it in Design")
+      expect(router.currentRoute.value.name).toBe('editor')
+    })
+
+    it('holds Generate while a chosen theme is still loading', async () => {
+      mocks.listThemes.mockReturnValue(new Promise(() => {}))
+      const { wrapper } = await mountView('/new/p1/outline?template=modern&theme=t1')
+      const gen = wrapper.findAll('button').find((b) => b.text().includes('Generate presentation'))!
+      expect(gen.attributes('disabled')).toBeDefined()
+    })
+
+    it('makes no theme call with Template colours', async () => {
+      const { wrapper } = await mountView('/new/p1/outline?template=modern')
+      await clickGenerate(wrapper)
+      expect(mocks.updatePresentation).not.toHaveBeenCalled()
+    })
+
+    it('still opens the editor when applying the theme fails', async () => {
+      mocks.updatePresentation.mockRejectedValue(new Error('nope'))
+      const { wrapper, router } = await mountView('/new/p1/outline?template=modern&theme=t1')
+      await clickGenerate(wrapper)
+      expect(router.currentRoute.value.name).toBe('editor')
+      expect(mocks.toastError).toHaveBeenCalledWith("Couldn't apply theme — set it in Design")
+    })
+
+    it('keeps ?theme when the template changes', async () => {
+      const { wrapper, router } = await mountView('/new/p1/outline?template=modern&theme=t1')
+      await wrapper.get('[data-testid="chosen-template"] button').trigger('click')
+      await wrapper.get('[data-testid="template-custom-1"]').trigger('click')
+      await flushPromises()
+      expect(router.currentRoute.value.query).toMatchObject({ template: 'custom-1', theme: 't1' })
+    })
+
+    it('shows the chosen theme as a summary, with the picker behind Change', async () => {
+      const { wrapper } = await mountView('/new/p1/outline?template=modern&theme=t1')
+      expect(wrapper.get('[data-testid="chosen-theme"]').text()).toContain('Ocean')
+      expect(wrapper.find('[data-testid="theme-option-none"]').exists()).toBe(false)
+      await wrapper.get('[data-testid="chosen-theme"] button').trigger('click')
+      expect(wrapper.find('[data-testid="theme-option-none"]').exists()).toBe(true)
+    })
   })
 })

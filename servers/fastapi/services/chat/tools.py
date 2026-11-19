@@ -735,10 +735,12 @@ class ChatTools:
         outline = await self._get_presentation_outline({})
         layouts = await self._get_available_layouts({})
         theme = await self._get_presentation_theme_catalog({})
+        images = await self._memory.get_image_preference()
         return {
             "outline": outline,
             "available_layouts": layouts,
             "theme": theme,
+            "images": images,
             "message": "Template summary fetched successfully.",
         }
 

@@ -3,7 +3,7 @@ from enum import Enum
 from typing import List, Literal, Optional
 import uuid
 import copy
-from sqlalchemy import JSON, Column, DateTime, Enum as SAEnum, ForeignKey, String
+from sqlalchemy import JSON, Column, DateTime, Enum as SAEnum, ForeignKey, Integer, String
 from sqlmodel import Boolean, Field, SQLModel
 
 from models.presentation_outline_model import PresentationOutlineModel
@@ -82,6 +82,16 @@ class PresentationModel(SQLModel, table=True):
     # Narrated playback settings, e.g. where the voice bubble sits:
     # {"bubble": {"position": {"x", "y"}, "size": {"width", "height"}}}
     narration: Optional[dict] = Field(sa_column=Column(JSON), default=None)
+    # How many slides should carry images: None lets the layout picker decide,
+    # 0 means no image layouts, N is the target count of image slides.
+    n_images: Optional[int] = Field(
+        sa_column=Column(Integer, nullable=True), default=None
+    )
+    # How many slides should hold a presenter (avatar) video slot: None lets
+    # the template decide, 0 means none, N is the target count.
+    n_videos: Optional[int] = Field(
+        sa_column=Column(Integer, nullable=True), default=None
+    )
 
     def get_new_presentation(self):
         return PresentationModel(
@@ -107,6 +117,8 @@ class PresentationModel(SQLModel, table=True):
             generation_mode=self.generation_mode,
             community_design_ids=copy.deepcopy(self.community_design_ids),
             narration=copy.deepcopy(self.narration),
+            n_images=self.n_images,
+            n_videos=self.n_videos,
         )
 
     def get_presentation_outline(self):

@@ -73,6 +73,11 @@ from models.sql.presentation import PresentationModel, PresentationVersion
 from models.sql.template_v2 import TemplateV2
 from models.sql.async_task import AsyncTaskModel
 from utils.asset_directory_utils import get_images_directory
+from utils.image_target import (
+    enforce_media_targets,
+    log_media_targets,
+    video_slot_positions,
+)
 from utils.llm_calls.generate_presentation_structure import (
     generate_presentation_structure,
 )
@@ -150,6 +155,10 @@ from models.slide_video_response import (
 )
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
 from services.slide_video_service import (
+    ensure_video_placeholder,
+    find_video_placeholder,
+    presenter_slot_fits,
+    quietest_corner_box,
     InvalidStageBoxError,
     MultipleNarrationLanguagesError,
     SlideVideoNotSupportedError,
@@ -511,6 +520,8 @@ def _build_template_layout_model(
                 description=source_layout.get("description")
                 or layout_schema.get("description"),
                 json_schema=layout_schema,
+            has_video=find_video_placeholder(source_layout) is not None,
+            presenter_fits=presenter_slot_fits(source_layout),
             )
         )
 
@@ -543,6 +554,35 @@ def _is_template_layout_payload(layout_payload: Any) -> bool:
         isinstance(layout_payload, dict)
         and isinstance(layout_payload.get("layouts"), list)
     )
+
+
+def _add_presenter_slots(
+    slides: Sequence[SlideModel],
+    structure: Sequence[int],
+    layout: PresentationLayoutModel,
+    n_videos: Optional[int],
+) -> None:
+    """Give the slides chosen by `video_slot_positions` a presenter slot.
+
+    Slides on a video layout already frame one; the rest get the default slot,
+    in the corner, as an uploaded avatar would. Run after the slide's UI is
+    built from its content, so no later rebuild drops the slot.
+    """
+    for position in video_slot_positions(structure, layout, n_videos):
+        if position < len(slides):
+            _add_presenter_slot(slides[position])
+
+
+def _add_presenter_slot(slide: SlideModel) -> None:
+    if isinstance(slide.ui, dict) and find_video_placeholder(slide.ui) is None:
+        box = quietest_corner_box(slide.ui)
+        slide.ui = ensure_video_placeholder(
+            slide.ui,
+            x=box.position.x,
+            y=box.position.y,
+            width=box.size.width,
+            height=box.size.height,
+        )
 
 
 def _template_slide_ui(
@@ -2780,6 +2820,24 @@ async def create_presentation(
     include_table_of_contents: Annotated[bool, Body()] = False,
     include_title_slide: Annotated[bool, Body()] = True,
     web_search: Annotated[bool, Body()] = False,
+    n_images: Annotated[
+        Optional[int],
+        Body(
+            description=(
+                "How many slides should show an image. Omit for automatic, "
+                "0 for none."
+            )
+        ),
+    ] = None,
+    n_videos: Annotated[
+        Optional[int],
+        Body(
+            description=(
+                "How many slides should hold a presenter (avatar) video slot. "
+                "Omit to let the template decide, 0 for none."
+            )
+        ),
+    ] = None,
     generation_mode: Annotated[Literal["standard", "smart"], Body()] = "standard",
     community_design_ids: Annotated[Optional[List[int]], Body()] = None,
     sql_session: AsyncSession = Depends(get_async_session),
@@ -2802,6 +2860,17 @@ async def create_presentation(
             status_code=400,
             detail="Number of slides cannot be less than 3 if table of contents is included",
     )
+
+    if n_images is not None and not 0 <= n_images <= MAX_NUMBER_OF_SLIDES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Number of images must be between 0 and {MAX_NUMBER_OF_SLIDES}",
+        )
+    if n_videos is not None and not 0 <= n_videos <= MAX_NUMBER_OF_SLIDES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Number of videos must be between 0 and {MAX_NUMBER_OF_SLIDES}",
+        )
 
     normalized_community_ids = normalize_community_ids(community_design_ids)
     if normalized_community_ids and not is_community_enabled():
@@ -2847,6 +2916,8 @@ async def create_presentation(
         web_search=web_search,
         generation_mode=generation_mode,
         community_design_ids=normalized_community_ids or None,
+        n_images=n_images,
+        n_videos=n_videos,
     )
 
     sql_session.add(presentation)
@@ -2959,6 +3030,8 @@ async def prepare_presentation(
                 presentation_layout=structure_layout,
                 instructions=presentation.instructions,
                 source_content=presentation.content,
+                n_images=presentation.n_images,
+                n_videos=presentation.n_videos,
             )
         )
 
@@ -2967,6 +3040,21 @@ async def prepare_presentation(
         outline_count=total_outlines,
         layout_count=total_slide_layouts,
     )
+    # An ordered template maps each outline to its own layout, so the image
+    # count is the template's to decide there.
+    if not structure_layout.ordered:
+        presentation_structure.slides = enforce_media_targets(
+            presentation_structure.slides,
+            structure_layout,
+            presentation.n_images,
+            presentation.n_videos,
+        )
+        log_media_targets(
+            presentation_structure.slides,
+            structure_layout,
+            presentation.n_images,
+            presentation.n_videos,
+        )
 
     if presentation.include_table_of_contents:
         n_toc_slides = get_no_of_toc_required_for_n_outlines(
@@ -3540,6 +3628,9 @@ async def stream_presentation(
                 await asset_events.put(slide_index)
 
         slides: List[SlideModel] = []
+        presenter_slots = set(
+            video_slot_positions(structure.slides, layout, presentation.n_videos)
+        )
         yield SSEResponse(
             event="response",
             data=json.dumps({"type": "chunk", "chunk": '{ "slides": [ '}),
@@ -3577,6 +3668,8 @@ async def stream_presentation(
             # This will mutate slide and add placeholder assets
             process_slide_add_placeholder_assets(slide)
             slide.ui = _apply_template_content_to_ui(slide.ui, slide.content)
+            if i in presenter_slots:
+                _add_presenter_slot(slide)
 
             # This will mutate slide - start task immediately so it runs in parallel with next slide LLM generation
             asset_warnings_by_slide[i] = []
@@ -4130,6 +4223,8 @@ async def generate_presentation_handler(
                     using_slides_markdown=using_slides_markdown,
                     source_content=request.content,
                     disconnect_checker=disconnect_checker,
+                    n_images=request.n_images,
+                    n_videos=request.n_videos,
                 )
             )
 
@@ -4141,6 +4236,22 @@ async def generate_presentation_handler(
                 continue
             if presentation_structure.slides[index] >= total_slide_layouts:
                 presentation_structure.slides[index] = random_slide_index
+
+        # An ordered template maps each outline to its own layout, so the
+        # image count is the template's to decide there.
+        if not layout_model.ordered:
+            presentation_structure.slides = enforce_media_targets(
+                presentation_structure.slides,
+                layout_model,
+                request.n_images,
+                request.n_videos,
+            )
+            log_media_targets(
+                presentation_structure.slides,
+                layout_model,
+                request.n_images,
+                request.n_videos,
+            )
 
         should_include_toc = (
             request.include_table_of_contents and not using_slides_markdown
@@ -4187,6 +4298,8 @@ async def generate_presentation_handler(
             instructions=request.instructions,
             fonts=template_fonts,
             theme=template_theme,
+            n_images=request.n_images,
+            n_videos=request.n_videos,
         )
 
         # Updating async status
@@ -4311,6 +4424,12 @@ async def generate_presentation_handler(
 
         for slide in slides:
             _hydrate_template_slide_ui(slide, layout_payload)
+        _add_presenter_slots(
+            slides,
+            presentation_structure.slides,
+            layout_model,
+            request.n_videos,
+        )
 
         # 8. Save PresentationModel and Slides
         sql_session.add(presentation)

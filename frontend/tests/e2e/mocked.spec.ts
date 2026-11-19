@@ -165,6 +165,9 @@ test.describe('mocked backend', () => {
 
     await page.getByRole('button', { name: 'Use this template' }).click()
     await expect(page).toHaveURL(/\/new\?template=c1$/)
+    // The chosen template shows in the step strip; the Look step holds the picker.
+    await expect(page.getByTestId('step-look')).toContainText('Pitch')
+    await page.getByTestId('step-look').click()
     await expect(page.getByRole('radio', { name: 'Pitch' })).toHaveAttribute('aria-checked', 'true')
     const mainImage = page.getByTestId('new-template-c1').getByTestId('template-main-image')
     await expect(mainImage).toBeVisible()

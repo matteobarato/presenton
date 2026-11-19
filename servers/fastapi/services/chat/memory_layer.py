@@ -17,6 +17,8 @@ from models.sql.image_asset import ImageAsset
 from models.sql.key_value import KeyValueSqlModel
 from models.sql.presentation import PresentationModel
 from models.sql.slide import SlideModel
+from services.slide_video_service import find_video_placeholder, presenter_slot_fits
+from utils.image_target import image_layout_indexes
 from models.sql.template_v2 import TemplateV2
 from services.icon_finder_service import ICON_FINDER_SERVICE
 from services.documents_loader import DocumentsLoader
@@ -666,14 +668,79 @@ class PresentationChatMemoryLayer:
         if not layout_model:
             return []
 
+        image_layouts = set(image_layout_indexes(layout_model))
         return [
             {
                 "id": layout.id,
                 "name": layout.name,
                 "description": layout.description,
+                "has_image": index in image_layouts,
+                "has_video": layout.has_video,
             }
-            for layout in layout_model.slides
+            for index, layout in enumerate(layout_model.slides)
         ]
+
+    async def get_image_preference(self) -> dict[str, Any]:
+        """The deck's image target, chosen when it was created, and where it stands.
+
+        `n_images` is None when the user left it automatic, 0 for no images
+        and otherwise how many slides should show an image.
+        """
+        presentation = await self._sql_session.get(
+            PresentationModel, self._presentation_id
+        )
+        n_images = presentation.n_images if presentation else None
+        n_videos = presentation.n_videos if presentation else None
+        layout_model = await self._get_layout_model(presentation)
+        image_layout_ids = (
+            {layout_model.slides[i].id for i in image_layout_indexes(layout_model)}
+            if layout_model
+            else set()
+        )
+        slides = list(
+            await self._sql_session.scalars(
+                select(SlideModel).where(
+                    SlideModel.presentation == self._presentation_id
+                )
+            )
+        )
+        slides_with_images = sum(1 for slide in slides if slide.layout in image_layout_ids)
+        slides_with_video_slot = sum(
+            1
+            for slide in slides
+            if isinstance(slide.ui, dict) and find_video_placeholder(slide.ui) is not None
+        )
+        if n_images is None:
+            rule = "Automatic: use image layouts where a visual helps."
+        elif n_images == 0:
+            rule = "The user asked for no images: pick layouts with has_image=false."
+        else:
+            rule = (
+                f"The user asked for {n_images} slides with images. Keep the deck "
+                "near that count when adding or swapping layouts, unless the user "
+                "now asks otherwise."
+            )
+        if n_videos is None:
+            video_rule = "Automatic: the template decides where a presenter video goes."
+        elif n_videos == 0:
+            video_rule = (
+                "The user asked for no presenter videos: pick layouts with "
+                "has_video=false."
+            )
+        else:
+            video_rule = (
+                f"The user asked for {n_videos} slides with a presenter (avatar) "
+                "video slot. Avatars are generated from the Avatars panel; do not "
+                "add or remove slots unless the user asks."
+            )
+        return {
+            "n_images": n_images,
+            "slides_with_images": slides_with_images,
+            "rule": rule,
+            "n_videos": n_videos,
+            "slides_with_video_slot": slides_with_video_slot,
+            "video_rule": video_rule,
+        }
 
     async def get_available_blocks(
         self,
@@ -3644,6 +3711,8 @@ class PresentationChatMemoryLayer:
                     description=source_layout.get("description")
                     or layout_schema.get("description"),
                     json_schema=layout_schema,
+                    has_video=find_video_placeholder(source_layout) is not None,
+                    presenter_fits=presenter_slot_fits(source_layout),
                 )
             )
 

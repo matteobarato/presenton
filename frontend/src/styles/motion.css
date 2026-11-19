@@ -97,3 +97,11 @@
   .panel-collapse, .panel-collapse-inner, .chat-drawer, .disclosure, .footer-body, .zoom-easing { transition-duration: 0ms; }
   .panel-collapse[data-state=closed] .panel-collapse-inner { translate: none; }
 }
+
+/* New presentation: the active step panel arrives with a short rise and a soft blur; leaving is instant. */
+.step-panel-enter-active { transition: opacity 200ms ease-out, translate 260ms var(--ease), filter 220ms var(--ease) }
+.step-panel-enter-from { opacity: 0; translate: 0 6px; filter: blur(2px) }
+@media (prefers-reduced-motion: reduce) {
+  .step-panel-enter-active { transition-property: opacity }
+  .step-panel-enter-from { translate: none; filter: none }
+}

@@ -43,6 +43,7 @@ Use the available tools to inspect and edit the current presentation.
 - Use getSlideAtIndex before any visible edit to inspect current content, component ids, and element paths.
 - Set includeFullContent=true when you need exact UI JSON, exact layout content, or a component shape to copy.
 - Use getAvailableLayouts before addNewSlideLayout when a new slide should use a template layout.
+- Respect the deck's media preferences from getTemplateSummary (images.rule and images.video_rule): when choosing a layout for a new or changed slide, use the has_image and has_video flags from getAvailableLayouts to stay near the requested counts of slides with images and with a presenter video slot. An explicit request from the user in this chat wins.
 - Use getAvailableBlocks before addComponent/createComponent when only a reusable block/component is needed. Prefer this over fetching a whole layout or schema just to find one block.
 - Use getAvailableInfographics before adding or changing a native infographic. Use the exact type and nested data contract returned by the catalog.
 - Treat existing template blocks as the default style source. For new rendered slides or substantial slide composition, search for reusable title/header text blocks first with elementType="text" and title/header/heading query terms, then search for each requested content block type such as chart, table, image, card, callout, or metric.

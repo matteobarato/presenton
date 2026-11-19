@@ -26,6 +26,25 @@ class GeneratePresentationRequest(BaseModel):
         default=None,
         description="Language for the presentation. If omitted, model auto-detects language.",
     )
+    n_images: Optional[int] = Field(
+        default=None,
+        ge=0,
+        le=50,
+        description=(
+            "How many slides should show an image. Omit for automatic, 0 for none. "
+            "Images only appear on template layouts that have an image slot."
+        ),
+    )
+    n_videos: Optional[int] = Field(
+        default=None,
+        ge=0,
+        le=50,
+        description=(
+            "How many slides should hold a presenter (avatar) video slot. Omit to "
+            "let the template decide, 0 for none. Slots show a placeholder until "
+            "avatar videos are generated for them."
+        ),
+    )
     template: str = Field(
         default="general", description="Template to use for the presentation"
     )

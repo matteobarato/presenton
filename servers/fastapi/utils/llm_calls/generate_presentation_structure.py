@@ -10,6 +10,7 @@ from utils.llm_utils import DisconnectChecker, generate_structured_with_schema_r
 from utils.llm_provider import get_model
 from utils.get_dynamic_models import get_presentation_structure_model_with_n_slides
 from utils.schema_utils import prepare_schema_for_validation
+from utils.image_target import media_target_instruction
 from models.presentation_structure_model import PresentationStructureModel
 
 
@@ -111,12 +112,15 @@ def get_messages(
     data: str,
     instructions: Optional[str] = None,
     source_content: Optional[str] = None,
+    image_target: str = "",
 ) -> list[Message]:
     intent_sections = []
     if instructions:
         intent_sections.append(f"# User Instructions:\n{instructions}")
     if source_content:
         intent_sections.append(f"# Original User Request:\n{source_content}")
+    if image_target:
+        intent_sections.append(image_target)
     system_prompt = GET_MESSAGES_SYSTEM_PROMPT.format(
         user_instruction_header="\n\n".join(intent_sections),
         n_slides=n_slides,
@@ -140,12 +144,15 @@ def get_messages_for_slides_markdown(
     data: str,
     instructions: Optional[str] = None,
     source_content: Optional[str] = None,
+    image_target: str = "",
 ) -> list[Message]:
     intent_sections = []
     if instructions:
         intent_sections.append(f"# User Instructions:\n{instructions}")
     if source_content:
         intent_sections.append(f"# Original User Request:\n{source_content}")
+    if image_target:
+        intent_sections.append(image_target)
     system_prompt = STRUCTURE_FROM_SLIDES_MARKDOWN_SYSTEM_PROMPT.format(
         user_intent="\n\n".join(intent_sections),
         presentation_layout=presentation_layout.to_string(with_schema=True),
@@ -161,11 +168,17 @@ async def generate_presentation_structure(
     using_slides_markdown: bool = False,
     source_content: Optional[str] = None,
     disconnect_checker: Optional[DisconnectChecker] = None,
+    n_images: Optional[int] = None,
+    n_videos: Optional[int] = None,
 ) -> PresentationStructureModel:
     client = get_client(config=get_llm_config())
     model = get_model()
     response_model = get_presentation_structure_model_with_n_slides(
         len(presentation_outline.slides)
+    )
+
+    image_target = media_target_instruction(
+        presentation_layout, n_images, len(presentation_outline.slides), n_videos
     )
 
     try:
@@ -176,6 +189,7 @@ async def generate_presentation_structure(
                 presentation_outline.to_string(),
                 instructions,
                 source_content,
+                image_target,
             )
             if using_slides_markdown
             else get_messages(
@@ -184,6 +198,7 @@ async def generate_presentation_structure(
                 presentation_outline.to_string(),
                 instructions,
                 source_content,
+                image_target,
             )
         )
         structure_schema = prepare_schema_for_validation(

@@ -14,6 +14,7 @@ import {
 } from '@/render/legacy/lib/template-v2-json-to-html'
 import { registerDocumentFonts } from '@/render/font-registry'
 import { hydrateTemplateCharts } from '@/render/template-charts'
+import { retintUi } from '@/render/retint'
 import { cssVarDeclarations, themeCssVars, themeFontFaceCss } from '@/render/theme'
 
 const props = withDefaults(
@@ -90,7 +91,8 @@ function render() {
   const current = ++generation
   try {
     shadow ??= el.shadowRoot ?? el.attachShadow({ mode: 'open' })
-    const fragment = templateV2UiToHtmlFragment(props.ui, {
+    const ui = retintUi(props.ui, props.theme)
+    const fragment = templateV2UiToHtmlFragment(ui, {
       fonts: props.fonts,
       annotateElements: props.annotate,
     })
@@ -99,15 +101,15 @@ function render() {
       localFontOptionsFromUnknown(props.fonts).map(renderLocalFontFaceCss).join('') + themeFontFaceCss(props.theme)
     registerDocumentFonts(fontCss)
 
-    renderedSources = props.annotate && fragment ? templateV2ItemSources(props.ui) : []
+    renderedSources = props.annotate && fragment ? templateV2ItemSources(ui) : []
     const vars = cssVarDeclarations(themeCssVars(props.theme))
     shadow.innerHTML =
       `<style>${fontCss.replaceAll('</style', '<\\/style')}` +
       `:host{display:block;width:${TEMPLATE_V2_HTML_WIDTH}px;height:${TEMPLATE_V2_HTML_HEIGHT}px;overflow:hidden;${vars}}</style>` +
-      (fragment ?? backgroundOnly(props.ui))
+      (fragment ?? backgroundOnly(ui))
     mountVideo(shadow)
 
-    if (templateV2UiHasChart(props.ui)) {
+    if (templateV2UiHasChart(ui)) {
       const charts = hydrateTemplateCharts(shadow)
       disposeCharts = charts.dispose
       charts.done.then(

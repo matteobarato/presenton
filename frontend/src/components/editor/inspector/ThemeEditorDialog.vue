@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import type { ThemeCreateBody, ThemeRecord } from '@/api/themes'
+import { generateTheme, type ThemeCreateBody, type ThemeRecord } from '@/api/themes'
 import {
   DEFAULT_TEMPLATE_THEME,
   TEMPLATE_THEME_COLOR_KEYS,
@@ -34,6 +34,24 @@ watch(open, (isOpen) => {
   if (isOpen) load()
 }, { immediate: true })
 
+const seedPrimary = ref('#4a6ebd')
+const seedBackground = ref('#ffffff')
+const generating = ref(false)
+const generateError = ref('')
+// Derives the full palette from two seed colours; the result stays editable below.
+async function generateFromSeeds() {
+  generating.value = true
+  generateError.value = ''
+  try {
+    const palette = normalizeTemplateTheme({ colors: await generateTheme({ primary: seedPrimary.value, background: seedBackground.value }) })
+    if (palette) Object.assign(colors, palette)
+  } catch {
+    generateError.value = 'Could not generate a palette'
+  } finally {
+    generating.value = false
+  }
+}
+
 const label = (key: string) => key.replace('_', ' ')
 
 function submit() {
@@ -62,6 +80,12 @@ function submit() {
         <div class="flex flex-col gap-1">
           <Label for="theme-description">Description</Label>
           <Input id="theme-description" v-model="description" />
+        </div>
+        <div class="flex flex-wrap items-center gap-2" data-testid="theme-generate">
+          <input v-model="seedPrimary" type="color" class="size-8 shrink-0 cursor-pointer rounded-[6px] border border-white/10 bg-transparent" aria-label="Seed primary colour" />
+          <input v-model="seedBackground" type="color" class="size-8 shrink-0 cursor-pointer rounded-[6px] border border-white/10 bg-transparent" aria-label="Seed background colour" />
+          <Button type="button" variant="outline" size="sm" :disabled="generating" @click="generateFromSeeds">Generate from colours</Button>
+          <span v-if="generateError" class="text-[11px] text-red-300" role="alert">{{ generateError }}</span>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div v-for="key in TEMPLATE_THEME_COLOR_KEYS" :key="key" class="flex items-center gap-2">

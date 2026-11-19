@@ -2405,6 +2405,16 @@ export interface components {
              */
             web_search: boolean;
             /**
+             * N Images
+             * @description How many slides should show an image. Omit for automatic, 0 for none.
+             */
+            n_images?: number | null;
+            /**
+             * N Videos
+             * @description How many slides should hold a presenter (avatar) video slot. Omit to let the template decide, 0 for none.
+             */
+            n_videos?: number | null;
+            /**
              * Generation Mode
              * @default standard
              * @enum {string}
@@ -3153,6 +3163,16 @@ export interface components {
              */
             language?: string | null;
             /**
+             * N Images
+             * @description How many slides should show an image. Omit for automatic, 0 for none. Images only appear on template layouts that have an image slot.
+             */
+            n_images?: number | null;
+            /**
+             * N Videos
+             * @description How many slides should hold a presenter (avatar) video slot. Omit to let the template decide, 0 for none. Slots show a placeholder until avatar videos are generated for them.
+             */
+            n_videos?: number | null;
+            /**
              * Template
              * @description Template to use for the presentation
              * @default general
@@ -3444,6 +3464,8 @@ export interface components {
             clip_path?: string | null;
             /** Color */
             color?: string | null;
+            /** Video Placeholder */
+            video_placeholder?: boolean | null;
             /** Decorative */
             decorative: boolean;
             /** Name */
@@ -3890,6 +3912,10 @@ export interface components {
             narration?: {
                 [key: string]: unknown;
             } | null;
+            /** N Images */
+            n_images?: number | null;
+            /** N Videos */
+            n_videos?: number | null;
         };
         /** PresentationOutlineModel */
         PresentationOutlineModel: {

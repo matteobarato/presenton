@@ -1,0 +1,60 @@
+<script setup lang="ts">
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { Sparkles } from 'lucide-vue-next'
+
+/**
+ * Aera's AI progress card (aera-frontend AiProgress): a stage line, a filling track with a light
+ * sweep and an elapsed-time row. Real jobs have no known duration, so the fill eases towards 95%
+ * over `expectedMs` and the caller supplies the honest detail (e.g. "3 slides drafted").
+ */
+const props = withDefaults(defineProps<{ stage: string; detail?: string; label?: string; expectedMs?: number }>(), {
+  detail: '',
+  label: 'Progress',
+  expectedMs: 30_000,
+})
+
+const startedAt = performance.now()
+const now = ref(startedAt)
+let ticker: ReturnType<typeof setInterval> | undefined
+onMounted(() => {
+  ticker = setInterval(() => (now.value = performance.now()), 100)
+})
+onUnmounted(() => clearInterval(ticker))
+
+const elapsed = computed(() => Math.max(0, now.value - startedAt))
+const progress = computed(() => Math.min(95, Math.round(95 * (1 - Math.exp(-elapsed.value / (props.expectedMs / 2))))))
+</script>
+
+<template>
+  <div class="ai-progress">
+    <div class="ai-progress-heading">
+      <span class="ai-progress-mark"><Sparkles :size="14" aria-hidden="true" /></span>
+      <span class="ai-progress-stage" role="status" aria-live="polite">{{ stage }}</span>
+      <span class="ai-progress-percent" aria-hidden="true">{{ progress }}%</span>
+    </div>
+    <div class="ai-progress-track" role="progressbar" :aria-label="label" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100">
+      <span class="ai-progress-fill" :style="{ transform: `scaleX(${progress / 100})` }" />
+    </div>
+    <div class="ai-progress-times">
+      <span>{{ (elapsed / 1000).toFixed(1) }}s elapsed</span>
+      <span>{{ detail }}</span>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.ai-progress { display: grid; gap: 9px; padding: 11px; border: 1px solid #8ebfd329; border-radius: 10px; background: #203039; }
+.ai-progress-heading, .ai-progress-times { display: flex; align-items: center; gap: 7px; }
+.ai-progress-mark { display: grid; width: 22px; height: 22px; flex: 0 0 22px; place-items: center; border-radius: 6px; background: #344c5a; color: #c5eaff; }
+.ai-progress-stage { flex: 1; color: #e5f1f7; font-size: 11px; font-weight: 650; }
+.ai-progress-percent { color: #c5eaff; font-size: 11px; font-variant-numeric: tabular-nums; }
+.ai-progress-track { height: 5px; overflow: hidden; border-radius: 5px; background: #141d23; }
+.ai-progress-fill { position: relative; display: block; width: 100%; height: 100%; transform-origin: left; background: #9bd5ee; transition: transform 130ms linear; }
+.ai-progress-fill::after { position: absolute; inset: 0; background: linear-gradient(100deg, transparent 25%, #e8f9ffad 50%, transparent 75%); content: ''; animation: ai-progress-sweep 1.5s linear infinite; }
+@keyframes ai-progress-sweep { from { transform: translateX(-100%) } to { transform: translateX(100%) } }
+.ai-progress-times { justify-content: space-between; color: #b8ccd7; font-size: 10px; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) {
+  .ai-progress-fill { transition: none; }
+  .ai-progress-fill::after { animation: none; }
+}
+</style>
