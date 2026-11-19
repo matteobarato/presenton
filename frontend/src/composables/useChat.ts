@@ -6,6 +6,7 @@ import {
   streamMessage,
   type ChatConversation,
 } from '@/api/chat'
+import { animationKeys } from '@/api/animations'
 import { presentationKeys } from '@/api/presentations'
 import { queryClient } from '@/api/query'
 import { useEditorStore } from '@/stores/editor'
@@ -235,7 +236,11 @@ export function useChat(presentationId: Ref<string>) {
     } finally {
       // Also after a stop or error: a mutating tool may already have changed the deck.
       try {
-        if (mutated) await queryClient.invalidateQueries({ queryKey: presentationKeys.one(presentationId.value) })
+        if (mutated) {
+          // Not awaited: the deck refetch alone gates `deckBusy`; the motion plans follow the edited slides.
+          void queryClient.invalidateQueries({ queryKey: animationKeys.one(presentationId.value) })
+          await queryClient.invalidateQueries({ queryKey: presentationKeys.one(presentationId.value) })
+        }
       } catch {
         // A failed refetch is surfaced by the editor's own query.
       } finally {

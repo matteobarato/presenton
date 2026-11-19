@@ -957,7 +957,7 @@ def test_database_at_either_video_head_upgrades_to_head(tmp_path, monkeypatch, s
             tables = _table_names(connection)
 
         assert version == migrations.REVISION_HEAD
-        assert migrations.REVISION_HEAD == migrations.REVISION_PRESENTATION_N_VIDEOS
+        assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_ANIMATION
         assert {"slide_videos", "presentation_videos"} <= tables
     finally:
         engine.dispose()
@@ -1105,15 +1105,26 @@ def test_presentation_n_images_is_added_nullable_and_dropped_on_downgrade(tmp_pa
         engine.dispose()
 
 
-def test_presentation_n_videos_revision_is_the_head_on_n_images():
+def test_presentation_n_videos_revision_sits_on_n_images():
     script = ScriptDirectory.from_config(_alembic_config("sqlite://"))
 
     assert migrations.REVISION_PRESENTATION_N_VIDEOS == "b3c5d7e9f1a4"
-    assert migrations.REVISION_HEAD == migrations.REVISION_PRESENTATION_N_VIDEOS
     assert (
         script.get_revision(migrations.REVISION_PRESENTATION_N_VIDEOS).down_revision
         == migrations.REVISION_PRESENTATION_N_IMAGES
     )
+
+
+def test_slide_animation_revision_is_the_head_on_n_videos():
+    script = ScriptDirectory.from_config(_alembic_config("sqlite://"))
+
+    assert migrations.REVISION_SLIDE_ANIMATION == "c4d6e8f0a2b3"
+    assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_ANIMATION
+    assert (
+        script.get_revision(migrations.REVISION_SLIDE_ANIMATION).down_revision
+        == migrations.REVISION_PRESENTATION_N_VIDEOS
+    )
+    assert script.get_heads() == [migrations.REVISION_SLIDE_ANIMATION]
 
 
 def test_presentation_n_videos_is_added_nullable_and_dropped_on_downgrade(tmp_path):
@@ -1206,5 +1217,37 @@ def test_a_database_stamped_below_its_schema_still_upgrades(tmp_path, monkeypatc
         assert _version(engine) == migrations.REVISION_HEAD
         with engine.connect() as connection:
             assert {"api_keys", "speaker_note_audios", "slide_videos"} <= _table_names(connection)
+    finally:
+        engine.dispose()
+
+
+def test_slides_have_animation_column_after_upgrade(tmp_path):
+    database_url = f"sqlite:///{tmp_path / 'slide-animation.db'}"
+    engine = create_engine(database_url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(text("CREATE TABLE slides (id TEXT PRIMARY KEY)"))
+            connection.execute(
+                text("CREATE TABLE alembic_version (version_num VARCHAR(32) NOT NULL)")
+            )
+            connection.execute(
+                text("INSERT INTO alembic_version (version_num) VALUES (:revision)"),
+                {"revision": migrations.REVISION_TEMPLATE_V2},
+            )
+
+        command.upgrade(_alembic_config(database_url), "head")
+
+        with engine.connect() as connection:
+            version = connection.execute(
+                text("SELECT version_num FROM alembic_version")
+            ).scalar_one()
+            slide_columns = {
+                row[1]
+                for row in connection.execute(text("PRAGMA table_info(slides)"))
+            }
+
+        assert version == migrations.REVISION_HEAD
+        assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_ANIMATION
+        assert "animation" in slide_columns
     finally:
         engine.dispose()

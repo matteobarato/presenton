@@ -19,6 +19,9 @@ vi.mock('@/components/editor/inspector/VoiceTab.vue', () => ({
     },
   },
 }))
+vi.mock('@/components/editor/MotionTimeline.vue', () => ({
+  default: { name: 'MotionTimelineStub', template: '<div data-testid="motion-stub" />' },
+}))
 // The card (the footer's parent) has no layout in jsdom: its height is whatever the test says.
 const card = vi.hoisted(() => ({ height: { value: 0 } as { value: number } }))
 vi.mock('@vueuse/core', async (orig) => {
@@ -77,7 +80,7 @@ describe('SpeakerNotes footer', () => {
     expect(editor.footerOpen).toBe(false)
     expect(editor.footerTab).toBe('notes')
     expect(w.find('[data-testid="voice-stub"]').exists()).toBe(false)
-    expect(w.get('[role="tablist"]').attributes('aria-label')).toBe('Notes and voice')
+    expect(w.get('[role="tablist"]').attributes('aria-label')).toBe('Notes, voice and motion')
     expect(tab(w, 'Voice').attributes('aria-controls')).toBe('footer-panel')
 
     await tab(w, 'Voice').trigger('click')
@@ -124,10 +127,23 @@ describe('SpeakerNotes footer', () => {
     expect(tab(w, 'Voice').attributes('tabindex')).toBe('0')
     expect(tab(w, 'Notes').attributes('tabindex')).toBe('-1')
     expect(document.activeElement).toBe(tab(w, 'Voice').element)
-    await key(tab(w, 'Voice'), 'ArrowRight') // wraps
+    await key(tab(w, 'Voice'), 'ArrowRight')
+    expect(editor.footerTab).toBe('motion')
+    await key(tab(w, 'Motion'), 'ArrowRight') // wraps
     expect(editor.footerTab).toBe('notes')
     await key(tab(w, 'Notes'), 'ArrowLeft') // wraps back
-    expect(editor.footerTab).toBe('voice')
+    expect(editor.footerTab).toBe('motion')
+  })
+
+  it('Motion shows the timeline only while its tab is open, without mounting Voice', async () => {
+    const w = mountFooter()
+    await tab(w, 'Motion').trigger('click')
+    expect(editor.footerOpen).toBe(true)
+    expect(editor.footerTab).toBe('motion')
+    expect(w.find('[data-testid="motion-stub"]').exists()).toBe(true)
+    expect(m.voiceMounts.count).toBe(0)
+    await tab(w, 'Notes').trigger('click')
+    expect(w.find('[data-testid="motion-stub"]').exists()).toBe(false)
   })
 
   it('keeps Voice mounted after switching to Notes', async () => {
@@ -161,7 +177,7 @@ describe('SpeakerNotes footer', () => {
     await tab(w, 'Notes').trigger('click')
     const handle = w.get('[role="separator"]')
     expect(handle.attributes('aria-orientation')).toBe('horizontal')
-    expect(handle.attributes('aria-label')).toBe('Resize notes and voice')
+    expect(handle.attributes('aria-label')).toBe('Resize notes, voice and motion')
     expect(handle.attributes('tabindex')).toBe('0')
     expect(handle.attributes('style')).toContain('touch-action: none')
 

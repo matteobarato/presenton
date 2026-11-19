@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, toRef, watch } from 'vue'
+import { computed, onMounted, reactive, ref, toRef, watch } from 'vue'
 import { Download, Film, Loader2, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { extractApiErrorMessage } from '@/api/errors'
@@ -18,6 +18,8 @@ import { Progress } from '@/components/ui/progress'
 import type { Presentation } from '@/api/types'
 import { useAsyncTask } from '@/composables/useAsyncTask'
 import { useTtsLanguage } from '@/composables/useTtsLanguage'
+import { useAnimations } from '@/composables/useSlideAnimation'
+import { useEditorStore } from '@/stores/editor'
 import VideoExportOptions from './VideoExportOptions.vue'
 
 const props = defineProps<{ presentationId: string; presentation: Presentation }>()
@@ -26,6 +28,22 @@ const { language: ttsLanguage } = useTtsLanguage(
   toRef(() => props.presentationId),
   toRef(() => props.presentation),
 )
+
+// Motion summary. Animatable: a template slide with elements to animate (smart slides are "unsupported").
+// Animated: one of those with a stored plan that moves something.
+const editor = useEditorStore()
+const animations = useAnimations(toRef(() => props.presentationId))
+const motion = computed(() => {
+  const list = animations.data.value?.slides
+  if (!list) return null
+  const animatable = list.filter((a) => a.status !== 'unsupported' && a.targets.length > 0)
+  const animated = animatable.filter((a) => a.status !== 'missing' && a.tweens.length > 0)
+  return animatable.length ? { animated: animated.length, total: animatable.length } : null
+})
+function editMotion() {
+  editor.exportOpen = false
+  editor.openMotion()
+}
 
 const form = reactive<VideoRequest>({
   language: ttsLanguage.value || 'en',
@@ -112,6 +130,18 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col gap-3" data-testid="export-mp4">
     <VideoExportOptions :model-value="form" :languages="languages" :disabled="status === 'pending' || starting" />
+
+    <p v-if="motion" class="flex flex-wrap items-center gap-x-2 text-[11px] text-muted" data-testid="mp4-animations">
+      <span>Animations: {{ motion.animated }} of {{ motion.total }} slides</span>
+      <button
+        type="button"
+        class="text-accent underline-offset-2 hover:underline"
+        data-testid="mp4-animations-edit"
+        @click="editMotion"
+      >
+        Edit in Motion tab
+      </button>
+    </p>
 
     <Button :disabled="status === 'pending' || starting" data-testid="mp4-start" @click="run">
       <Loader2 v-if="status === 'pending' || starting" :size="14" class="animate-spin motion-reduce:animate-none" />

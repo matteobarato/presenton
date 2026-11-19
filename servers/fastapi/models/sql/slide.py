@@ -28,6 +28,9 @@ class SlideModel(SQLModel, table=True):
     speaker_note: Optional[str] = None
     properties: Optional[dict] = Field(sa_column=Column(JSON))
     ui: Optional[dict] = Field(default=None, sa_column=Column(JSON, nullable=True))
+    animation: Optional[dict] = Field(
+        default=None, sa_column=Column(JSON, nullable=True)
+    )
 
     def get_new_slide(self, presentation: uuid.UUID, content: Optional[dict] = None):
         return SlideModel(
@@ -42,4 +45,5 @@ class SlideModel(SQLModel, table=True):
             html_content=self.html_content,
             properties=copy.deepcopy(self.properties),
             ui=copy.deepcopy(self.ui),
+            animation=copy.deepcopy(self.animation),
         )

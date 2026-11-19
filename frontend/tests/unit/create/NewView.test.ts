@@ -61,6 +61,7 @@ beforeEach(() => {
   m.listTemplates.mockResolvedValue([{ id: 'c1', name: 'Pitch', kind: 'custom', layouts: [{}] }])
   m.listThemes.mockResolvedValue([{ id: 't1', name: 'Ocean', user: 'u', data: { colors: {} } }])
   document.body.innerHTML = ''
+  sessionStorage.clear()
 })
 
 describe('NewView', () => {
@@ -153,6 +154,29 @@ describe('NewView', () => {
     expect(m.createPresentation).toHaveBeenCalledWith(
       expect.objectContaining({ content: 'Quarterly review', n_slides: 8, file_paths: [], generation_mode: 'standard', tone: 'default', verbosity: 'standard' }),
     )
+    expect(router.currentRoute.value.fullPath).toBe('/new/abc/outline')
+  })
+
+  it('animate is off by default: nothing is handed to the editor', async () => {
+    m.createPresentation.mockResolvedValue({ id: 'abc' })
+    const { wrapper } = await mountView()
+    expect(wrapper.get('#opt-animate').attributes('aria-checked')).toBe('false')
+    await wrapper.get('#create-prompt').setValue('Quarterly review')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(m.createPresentation.mock.calls[0]![0]).not.toHaveProperty('animate')
+    expect(sessionStorage.getItem('presenton.animate.abc')).toBeNull()
+  })
+
+  it('with animate on, flags the new deck so the editor plans its motion after generation', async () => {
+    m.createPresentation.mockResolvedValue({ id: 'abc' })
+    const { wrapper, router } = await mountView()
+    await wrapper.get('#create-prompt').setValue('Quarterly review')
+    await wrapper.get('#opt-animate').trigger('click')
+    expect(wrapper.get('#opt-animate').attributes('aria-checked')).toBe('true')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(sessionStorage.getItem('presenton.animate.abc')).toBe('1')
     expect(router.currentRoute.value.fullPath).toBe('/new/abc/outline')
   })
 

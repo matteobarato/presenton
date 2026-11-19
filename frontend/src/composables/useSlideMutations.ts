@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import { toast } from '@/components/ui/sonner'
+import { animationKeys } from '@/api/animations'
 import { getPresentation, presentationKeys, updatePresentation } from '@/api/presentations'
 import type { Presentation, Slide } from '@/api/types'
 import { slideKey, useEditorStore } from '@/stores/editor'
@@ -47,6 +48,14 @@ interface QueuedSave {
  * but not started, oldest first, so a save can see that a newer one will send the cache anyway.
  */
 const queues = new Map<string, { tail: Promise<void>; waiting: QueuedSave[] }>()
+
+/**
+ * Settles once every deck save queued so far has settled (it never rejects). Index-addressed
+ * requests elsewhere (animations) wait on it, so a reorder still in flight cannot misdirect them.
+ */
+export function deckSaveSettled(deckId: string): Promise<void> {
+  return queues.get(deckId)?.tail ?? Promise.resolve()
+}
 
 /** How `editSlideUi` reports progress and joins history. */
 export interface EditSlideUiOptions {
@@ -137,6 +146,9 @@ export function useSlideMutations(presentationId: Ref<string>) {
           title: snapshot.title || undefined,
           theme: snapshot.theme ?? undefined,
         })
+        // Slides were written: indexes may have moved and element ids (positional) may now point at other
+        // elements, so the animations cache (its targets, statuses and signatures) must be refetched.
+        if (withSlides) void queryClient.invalidateQueries({ queryKey: animationKeys.one(deckId) })
       } catch (error) {
         toast.error(`Could not ${label.toLowerCase()}`, { description: error instanceof Error ? error.message : undefined })
         try {

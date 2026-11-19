@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useElementSize } from '@vueuse/core'
-import { AudioLines, ChevronDown, MessageSquare } from 'lucide-vue-next'
+import { AudioLines, ChevronDown, Clapperboard, MessageSquare } from 'lucide-vue-next'
 import type { Presentation, Slide } from '@/api/types'
 import { useEditorStore, type FooterTab } from '@/stores/editor'
 import { clampFooterHeight, FOOTER_KEY_STEP, FOOTER_MAX_RATIO, FOOTER_MIN_HEIGHT } from './footerHeight'
+import MotionTimeline from './MotionTimeline.vue'
 import NotesStrip from './NotesStrip.vue'
 import VoiceTab from './inspector/VoiceTab.vue'
 
 /**
- * Aera footer of the canvas card: a Notes | Voice tab bar that opens a resizable body under the slide.
+ * Aera footer of the canvas card: a Notes | Voice | Motion tab bar that opens a resizable body under the slide.
  * Collapsed by default. The body height is the store's raw px, clamped to the card where it is rendered.
  */
 const props = defineProps<{ presentationId: string; presentation: Presentation; slide: Slide | null }>()
@@ -18,10 +19,12 @@ const editor = useEditorStore()
 const tabs: { id: FooterTab; label: string }[] = [
   { id: 'notes', label: 'Notes' },
   { id: 'voice', label: 'Voice' },
+  { id: 'motion', label: 'Motion' },
 ]
 
 // Notes mounts once opened and is dropped when its tab is left: unmounting NotesStrip flushes a pending note.
 // Voice mounts on first open, then stays (v-show) so a running generation and its state survive tab switches.
+// Motion mounts while its tab is shown: leaving it unmounts the timeline, which stops the preview.
 const notesMounted = ref(false)
 const voiceMounted = ref(false)
 watch(
@@ -29,7 +32,7 @@ watch(
   ([open, current]) => {
     if (!open) return
     if (current === 'notes') notesMounted.value = true
-    else voiceMounted.value = true
+    else if (current === 'voice') voiceMounted.value = true
   },
   { immediate: true },
 )
@@ -97,7 +100,7 @@ function onHandleKeydown(e: KeyboardEvent) {
       v-if="editor.footerOpen"
       role="separator"
       aria-orientation="horizontal"
-      aria-label="Resize notes and voice"
+      aria-label="Resize notes, voice and motion"
       tabindex="0"
       :aria-valuenow="renderedHeight"
       :aria-valuemin="FOOTER_MIN_HEIGHT"
@@ -115,7 +118,7 @@ function onHandleKeydown(e: KeyboardEvent) {
     </div>
 
     <div class="flex items-center gap-1 px-4 pt-2 max-[760px]:px-3">
-      <div role="tablist" aria-label="Notes and voice" class="flex items-center gap-1">
+      <div role="tablist" aria-label="Notes, voice and motion" class="flex items-center gap-1">
         <button
           v-for="(t, i) in tabs"
           :id="`footer-tab-${t.id}`"
@@ -132,7 +135,8 @@ function onHandleKeydown(e: KeyboardEvent) {
           @keydown="onTabKeydown($event, i)"
         >
           <MessageSquare v-if="t.id === 'notes'" class="size-3.5" aria-hidden="true" />
-          <AudioLines v-else class="size-3.5" aria-hidden="true" />
+          <AudioLines v-else-if="t.id === 'voice'" class="size-3.5" aria-hidden="true" />
+          <Clapperboard v-else class="size-3.5" aria-hidden="true" />
           {{ t.label }}
         </button>
       </div>
@@ -164,6 +168,7 @@ function onHandleKeydown(e: KeyboardEvent) {
       <div v-if="voiceMounted" v-show="editor.footerTab === 'voice'" data-footer-pane="voice">
         <VoiceTab :presentation-id="props.presentationId" :presentation="props.presentation" :active-slide="props.slide" />
       </div>
+      <MotionTimeline v-if="editor.footerTab === 'motion'" :presentation-id="props.presentationId" :slide="props.slide" />
     </div>
   </div>
 </template>

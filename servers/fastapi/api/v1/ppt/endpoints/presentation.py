@@ -154,6 +154,7 @@ from models.slide_video_response import (
     StageBox,
 )
 from models.sql.speaker_note_audio import SpeakerNoteAudioModel
+from services.slide_animation_service import resolve_slide_animations
 from services.slide_video_service import (
     ensure_video_placeholder,
     find_video_placeholder,
@@ -3889,7 +3890,7 @@ async def update_presentation(
                     .values(slide_index=slide.index)
                 )
             stored_slide.sqlmodel_update(
-                slide.model_dump(exclude={"id", "presentation"})
+                slide.model_dump(exclude={"id", "presentation", "animation"})
             )
             sql_session.add(stored_slide)
 
@@ -3932,7 +3933,7 @@ async def update_presentation_slide(
 
     stored_slide.sqlmodel_update(
         slide.model_dump(
-            exclude={"id", "presentation", "index"},
+            exclude={"id", "presentation", "index", "animation"},
         )
     )
     sql_session.add(stored_slide)
@@ -4003,6 +4004,28 @@ async def check_if_api_request_is_valid(
         status_code=400,
         detail="Template not found. Please use a valid template.",
     )
+
+
+async def _plan_generated_animations(
+    sql_session: AsyncSession,
+    presentation: PresentationModel,
+    cookie_header: Optional[str],
+    async_status: Optional[AsyncTaskModel],
+) -> None:
+    """Plan every slide's entrance animation; a failure never fails generation."""
+    if async_status:
+        async_status.message = "Planning slide animations"
+        async_status.updated_at = datetime.now()
+        sql_session.add(async_status)
+        await sql_session.commit()
+    try:
+        await resolve_slide_animations(sql_session, presentation, cookie_header)
+    except Exception:
+        logger.warning(
+            "[presentation.generate] animation planning failed presentation_id=%s",
+            presentation.id,
+            exc_info=True,
+        )
 
 
 async def generate_presentation_handler(
@@ -4451,6 +4474,11 @@ async def generate_presentation_handler(
         if updated_slides:
             sql_session.add_all(updated_slides)
             await sql_session.commit()
+
+        if request.animate:
+            await _plan_generated_animations(
+                sql_session, presentation, export_cookie_header, async_status
+            )
 
         if async_status:
             async_status.message = "Exporting presentation"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { usePresentation } from '@/api/presentations'
 import { ApiError } from '@/api/errors'
@@ -19,6 +19,13 @@ import SpeakerNotes from '@/components/editor/SpeakerNotes.vue'
 import { slideLabel } from '@/lib/slide-label'
 import { useSelectionScope } from '@/composables/useSelectionScope'
 import { useSlideEditing } from '@/slide-editor/useSlideEditing'
+import { animationKeys, provideSlideAnimation } from '@/composables/useSlideAnimation'
+import { useQueryClient } from '@tanstack/vue-query'
+import { provideDeckAnimationRun } from '@/composables/useDeckAnimationRun'
+import { animateFlagKey } from '@/components/create/options'
+import AiProgress from '@/components/shell/AiProgress.vue'
+import { toast } from '@/components/ui/sonner'
+import type { Slide } from '@/api/types'
 import { useEditorShortcuts } from '@/composables/useEditorShortcuts'
 import { usePresentationStream } from '@/composables/usePresentationStream'
 import { slideKey, useEditorStore } from '@/stores/editor'
@@ -26,6 +33,7 @@ import { useHistoryStore } from '@/stores/history'
 
 const route = useRoute()
 const router = useRouter()
+const queryClient = useQueryClient()
 const editor = useEditorStore()
 const history = useHistoryStore()
 
@@ -37,15 +45,42 @@ const slides = computed(() => presentation.value?.slides ?? [])
 const streamRequested = computed(() => ['1', 'true'].includes(String(route.query.stream ?? '')))
 const stream = usePresentationStream(id, streamRequested)
 const generating = computed(() => stream.status.value === 'streaming')
+// The deck-wide motion run, shared by the Motion tab and the run below; it outlives the tab.
+const deckRun = provideDeckAnimationRun(id)
+const planningAfterGeneration = ref(false)
+watch(deckRun.running, (running, was) => {
+  if (was && !running) planningAfterGeneration.value = false
+})
 watch(
   () => stream.status.value,
   (status) => {
+    if (status !== 'done' && status !== 'error') return
+    // Any motion read made while the deck streamed in saw a half-built deck.
+    void queryClient.invalidateQueries({ queryKey: animationKeys.one(id.value) })
     if (status !== 'done') return
     const query = { ...route.query }
     delete query.stream
     void router.replace({ query })
+    void planMotionIfRequested(id.value)
   },
 )
+
+/** A deck created with "Animate slides" gets its motion planned once, right after generation. */
+async function planMotionIfRequested(presentationId: string) {
+  const key = animateFlagKey(presentationId)
+  try {
+    if (sessionStorage.getItem(key) !== '1') return
+    // Consumed before the request, so a second "done" (or a reload) never plans twice.
+    sessionStorage.removeItem(key)
+  } catch {
+    return
+  }
+  planningAfterGeneration.value = true
+  await deckRun.run()
+  // Not started (an error, or the editor moved to another deck meanwhile): no progress to show.
+  if (!deckRun.running.value) planningAfterGeneration.value = false
+  if (deckRun.error.value) toast.error('Motion planning could not start', { description: deckRun.error.value })
+}
 
 useEditorShortcuts()
 
@@ -77,6 +112,15 @@ const activeSlide = computed(() => slides.value[activeIndex.value] ?? null)
 // Provides the slide's editing state to the canvas and the inspector.
 const editing = useSlideEditing(id, activeSlide)
 useSelectionScope(editing)
+// One animation draft for the active slide, shared by the Motion tab, the timeline and the canvas preview.
+// No slide → an index no slide has, so no plan is found and every edit is a no-op.
+const NO_SLIDE = { id: null, index: -1 } as unknown as Slide
+// The motion read renders the whole deck server-side: it waits until the deck has finished streaming in.
+provideSlideAnimation(
+  id,
+  computed(() => activeSlide.value ?? NO_SLIDE),
+  computed(() => !generating.value),
+)
 const notFound = computed(() => error.value instanceof ApiError && error.value.status === 404)
 
 </script>
@@ -114,6 +158,13 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
           :metrics="stream.metrics.value"
           :status="stream.status.value"
           :slide-count="slides.length"
+        />
+        <AiProgress
+          v-if="planningAfterGeneration"
+          class="mx-auto mb-2 w-full max-w-[520px]"
+          stage="Planning motion for every slide…"
+          label="Deck motion planning"
+          :expected-ms="60_000"
         />
         <!-- Aera canvas card: floating tools, slide stage and status row, then the speaker-notes footer. -->
         <div class="flex min-h-0 flex-1 flex-col rounded-panel bg-canvas max-[760px]:rounded-[13px]">

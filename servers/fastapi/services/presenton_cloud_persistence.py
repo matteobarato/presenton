@@ -211,6 +211,7 @@ async def persist_cloud_presentation_complete(
                     speaker_note=_optional_text(value.get("speaker_note")),
                     properties=_dict(value.get("properties")),
                     ui=_dict(value.get("ui")),
+                    animation=_dict(value.get("animation")),
                 )
             )
 

@@ -7,6 +7,7 @@ import {
   UserRound,
   ChevronDown,
   ChevronRight,
+  Clapperboard,
   CloudCheck,
   Copy,
   Download,
@@ -198,6 +199,9 @@ const iconBtn =
             <DropdownMenuSeparator />
             <DropdownMenuItem @select="editor.openFooter('voice')">
               <AudioLines class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Narration
+            </DropdownMenuItem>
+            <DropdownMenuItem @select="editor.openFooter('motion')">
+              <Clapperboard class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Motion
             </DropdownMenuItem>
             <DropdownMenuItem @select="editor.openAvatar()">
               <UserRound class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Avatars

@@ -137,7 +137,12 @@ function layerFor(source: TemplateV2ItemSource): HTMLElement | null {
   return shadow.querySelector<HTMLElement>(`[data-hf-el="e${index}"]`)
 }
 
-defineExpose({ layerFor })
+/** The rendered slide's shadow root (the motion preview animates inside it). */
+function shadowRoot(): ShadowRoot | null {
+  return shadow
+}
+
+defineExpose({ layerFor, shadowRoot })
 
 onMounted(render)
 watch(() => [props.ui, props.theme, props.fonts, props.annotate, props.videoSrc], render)

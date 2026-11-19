@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Globe, ListOrdered, Presentation } from 'lucide-vue-next'
+import { Clapperboard, Globe, ListOrdered, Presentation } from 'lucide-vue-next'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -202,6 +202,14 @@ const hint = 'text-[11px] text-[#8e9ca4]'
             <span class="text-[10px] text-[#8e9ca4]">Ground facts online</span>
           </span>
           <Switch id="opt-web" :model-value="model.webSearch" :disabled="disabled" @update:model-value="patch({ webSearch: $event === true })" />
+        </label>
+        <label for="opt-animate" class="flex cursor-pointer items-start gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 hover:bg-white/[0.04] has-[[data-state=checked]]:border-[#bee3f355]">
+          <Clapperboard class="mt-px size-4 text-[#8fb4c6]" aria-hidden="true" />
+          <span class="flex flex-1 flex-col gap-0.5">
+            <span class="text-[12px] font-medium text-[#e4ecf0]">Animate slides</span>
+            <span class="text-[10px] text-[#8e9ca4]">Plan entrance motion once generated</span>
+          </span>
+          <Switch id="opt-animate" :model-value="model.animate" :disabled="disabled" @update:model-value="patch({ animate: $event === true })" />
         </label>
       </div>
     </fieldset>

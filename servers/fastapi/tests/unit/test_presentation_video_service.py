@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import select
 
 import services.presentation_video_service as pvs
+import services.slide_animation_service as sas
 from constants.tts_languages import UnsupportedTTSLanguageError
 from models.presentation_and_path import PresentationAndPath
 from models.sql.presentation import PresentationModel, PresentationVersion
@@ -991,12 +992,14 @@ def _patched_animation(monkeypatch, tmp_path, deck, *, html_for=(0, 1), render_e
     monkeypatch.setattr(pvs, "hyperframes_available", lambda: True)
     monkeypatch.setattr(pvs, "gsap_script_path", lambda: gsap)
     monkeypatch.setattr(pvs, "_fetch_video_composition", fake_fetch)
-    monkeypatch.setattr(pvs, "generate_slide_animations", fake_plans)
+    monkeypatch.setattr(sas, "_fetch_video_composition", fake_fetch)
+    monkeypatch.setattr(sas, "generate_slide_animations", fake_plans)
     monkeypatch.setattr(pvs, "render_hyperframes_project", fake_render)
+    state["fetch"] = fake_fetch
     return state
 
 
-def _run_animated(deck, *, regenerate=False):
+def _run_animated(deck, *, regenerate=False, on_progress=None):
     async def scenario():
         async with deck.session_maker() as session:
             presentation = await session.get(PresentationModel, deck.presentation_id)
@@ -1008,19 +1011,21 @@ def _run_animated(deck, *, regenerate=False):
                 sql_session=session,
                 options=VideoRenderOptions(crossfade_seconds=0, animate=True),
                 regenerate=regenerate,
+                on_progress=on_progress,
             )
 
     return asyncio.run(scenario())
 
 
-def test_animated_pipeline_renders_clip_and_caches_plans(tmp_path, monkeypatch):
+def test_animated_pipeline_renders_clip_and_stores_plans(tmp_path, monkeypatch):
     _make_env(tmp_path, monkeypatch)
     deck = _Deck(tmp_path)
     calls, _ = _patched(monkeypatch, tmp_path)
     state = _patched_animation(monkeypatch, tmp_path, deck)
     asyncio.run(deck.seed())
+    progress = []
 
-    result = _run_animated(deck)
+    result = _run_animated(deck, on_progress=progress.append)
 
     assert result.animation == {"requested": True, "applied": True, "animated_slides": 2}
     assert result.video.preset.endswith("-anim-cut")
@@ -1034,12 +1039,109 @@ def test_animated_pipeline_renders_clip_and_caches_plans(tmp_path, monkeypatch):
     assert args[5].endswith("animated.mp4")
     assert "tpad=stop_mode=clone" in args[args.index("-filter_complex") + 1]
 
-    paths = asyncio.run(_paths(deck))
-    assert any(path.endswith("animation-plans.json") for path in paths)
+    # Plans live on the slides now; the old file cache is never written.
+    plans = asyncio.run(_stored_plans(deck))
+    assert all(plan and plan["source"] == "llm" for plan in plans)
+    assert not os.path.exists(_legacy_cache_path(deck))
+    # The planning stage is still reported.
+    assert [e for e in progress if e["phase"] == "animation-plan"][-1] == {
+        "phase": "animation-plan",
+        "completed": 2,
+        "total": 2,
+    }
 
-    # A forced re-render reuses the cached plans instead of asking again.
+
+def _legacy_cache_path(deck):
+    return os.path.join(
+        pvs.get_videos_directory(), str(deck.presentation_id), "animation-plans.json"
+    )
+
+
+async def _stored_plans(deck):
+    async with deck.session_maker() as session:
+        return [
+            (await session.get(SlideModel, slide_id)).animation
+            for slide_id in deck.slide_ids
+        ]
+
+
+async def _store_plans(deck, state, plans_by_index):
+    composition = await state["fetch"](deck.presentation_id, None)
+    async with deck.session_maker() as session:
+        for index, build in plans_by_index.items():
+            slide = await session.get(SlideModel, deck.slide_ids[index])
+            build(slide, composition["slides"][index])
+            session.add(slide)
+        await session.commit()
+
+
+def _llm_plan(slide, entry):
+    slide.animation = sas._build_plan(
+        source="llm",
+        entry=entry,
+        tweens=[SlideTween(target="e0", from_values={"opacity": 0.0}, duration=0.5, delay=0.0, ease="power2.out")],
+        reset_from_user=False,
+    )
+
+
+_HAND_EDITED = [
+    {"target": "e0", "from_values": {"x": -200.0, "opacity": 0.0}, "duration": 1.1, "delay": 0.3, "ease": "expo.out"}
+]
+
+
+def _user_plan(slide, entry):
+    sas.set_user_animation(slide, entry, _HAND_EDITED)
+
+
+def test_second_export_makes_zero_animation_llm_calls(tmp_path, monkeypatch):
+    _make_env(tmp_path, monkeypatch)
+    deck = _Deck(tmp_path)
+    _patched(monkeypatch, tmp_path)
+    state = _patched_animation(monkeypatch, tmp_path, deck)
+    asyncio.run(deck.seed())
+    asyncio.run(_store_plans(deck, state, {0: _llm_plan, 1: _llm_plan}))
+
+    result = _run_animated(deck)
+
+    assert result.animation["applied"] is True
+    assert state["llm_calls"] == 0
     _run_animated(deck, regenerate=True)
-    assert state["llm_calls"] == 1
+    assert state["llm_calls"] == 0
+
+
+def test_export_uses_hand_edited_tweens(tmp_path, monkeypatch):
+    _make_env(tmp_path, monkeypatch)
+    deck = _Deck(tmp_path)
+    _patched(monkeypatch, tmp_path)
+    state = _patched_animation(monkeypatch, tmp_path, deck)
+    asyncio.run(deck.seed())
+    asyncio.run(_store_plans(deck, state, {0: _user_plan, 1: _llm_plan}))
+    seen = {}
+    original = pvs.build_composition_slides
+
+    def capturing(segments, slide_html, tweens, fps):
+        seen["tweens"] = [list(slide_tweens) for slide_tweens in tweens]
+        return original(segments, slide_html, tweens, fps)
+
+    monkeypatch.setattr(pvs, "build_composition_slides", capturing)
+
+    _run_animated(deck)
+
+    assert state["llm_calls"] == 0
+    assert seen["tweens"][0] == [SlideTween.from_dict(t) for t in _HAND_EDITED]
+    stored = asyncio.run(_stored_plans(deck))[0]
+    assert stored["source"] == "user"
+
+
+def test_deck_paths_still_include_a_legacy_plan_cache(tmp_path, monkeypatch):
+    _make_env(tmp_path, monkeypatch)
+    deck = _Deck(tmp_path)
+    asyncio.run(deck.seed())
+    path = _legacy_cache_path(deck)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    open(path, "w").write("{}")
+
+    assert path in asyncio.run(_paths(deck))
 
 
 async def _paths(deck):

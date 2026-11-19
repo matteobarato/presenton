@@ -42,7 +42,8 @@ REVISION_SLIDE_VIDEO_LANGUAGE = "e5f7a9b1c3d5"
 REVISION_SLIDE_VIDEO_SOURCE = "f6a8b0c2d4e6"
 REVISION_PRESENTATION_N_IMAGES = "a2b4c6d8e0f1"
 REVISION_PRESENTATION_N_VIDEOS = "b3c5d7e9f1a4"
-REVISION_HEAD = REVISION_PRESENTATION_N_VIDEOS
+REVISION_SLIDE_ANIMATION = "c4d6e8f0a2b3"
+REVISION_HEAD = REVISION_SLIDE_ANIMATION
 
 
 async def migrate_database_on_startup() -> None:
@@ -243,6 +244,8 @@ def _revision_past_unified_api_keys(inspector, tables: set[str]) -> str:
     slide_videos = "slide_videos" in tables
     presentation_videos = "presentation_videos" in tables
     if slide_videos and presentation_videos:
+        if "slides" in tables and _has_column(inspector, "slides", "animation"):
+            return REVISION_SLIDE_ANIMATION
         if _has_column(inspector, "slide_videos", "language"):
             return REVISION_SLIDE_VIDEO_LANGUAGE
         return REVISION_VIDEOS_MERGE

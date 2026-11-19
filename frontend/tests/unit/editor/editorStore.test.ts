@@ -39,3 +39,34 @@ describe('editor store inspector', () => {
     expect(editor.inspectorOpen).toBe(true)
   })
 })
+
+describe('editor store motion', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+
+  it('accepts the motion tabs', () => {
+    const editor = useEditorStore()
+    editor.openFooter('motion')
+    editor.inspectorTab = 'motion'
+    expect(editor.footerTab).toBe('motion')
+    expect(editor.inspectorTab).toBe('motion')
+  })
+
+  it('resets motionTarget and motionTime when the active slide changes', () => {
+    const editor = useEditorStore()
+    editor.select('a')
+    editor.motionTarget = 'e2'
+    editor.motionTime = 1.4
+    editor.select('b')
+    expect(editor.motionTarget).toBeNull()
+    expect(editor.motionTime).toBeNull()
+  })
+
+  it('reset clears the motion state', () => {
+    const editor = useEditorStore()
+    editor.motionTarget = 'e1'
+    editor.motionTime = 0.5
+    editor.reset()
+    expect(editor.motionTarget).toBeNull()
+    expect(editor.motionTime).toBeNull()
+  })
+})

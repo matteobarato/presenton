@@ -746,6 +746,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ppt/presentation/{id}/animations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Animations
+         * @description Each slide's stored animation, its status and the elements it can target.
+         */
+        get: operations["get_animations_api_v1_ppt_presentation__id__animations_get"];
+        put?: never;
+        /**
+         * Plan Animations
+         * @description Plan missing and stale slides, or every chosen slide with `force`.
+         */
+        post: operations["plan_animations_api_v1_ppt_presentation__id__animations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ppt/presentation/{id}/animations/async": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Plan Animations Async
+         * @description Like `POST /animations`, as a task to poll; `data` has `done` and `total` slides.
+         *
+         *     409 (`detail.task_id`) while another run for this deck is pending.
+         */
+        post: operations["plan_animations_async_api_v1_ppt_presentation__id__animations_async_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ppt/presentation/{id}/animations/{slide_index}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Animation
+         * @description Store a hand-edited animation; unknown targets are dropped, values clamped.
+         *
+         *     With `slide_id` / `targets_signature`, 409 when another slide is at this
+         *     index or the slide's elements changed since the edit was made.
+         */
+        put: operations["put_animation_api_v1_ppt_presentation__id__animations__slide_index__put"];
+        post?: never;
+        /**
+         * Delete Animation
+         * @description Forget the slide's stored animation.
+         */
+        delete: operations["delete_animation_api_v1_ppt_presentation__id__animations__slide_index__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/ppt/presentation/all": {
         parameters: {
             query?: never;
@@ -2237,6 +2310,19 @@ export interface components {
             horizontal?: components["schemas"]["HorizontalAlignment"] | null;
             vertical?: components["schemas"]["VerticalAlignment"] | null;
         };
+        /** AnimationTarget */
+        AnimationTarget: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Box */
+            box?: {
+                [key: string]: unknown;
+            } | null;
+            /** Text */
+            text?: string | null;
+        };
         /** ApiKeyCreated */
         ApiKeyCreated: {
             /** Id */
@@ -3208,6 +3294,12 @@ export interface components {
              * @default false
              */
             trigger_webhook: boolean;
+            /**
+             * Animate
+             * @description Whether to plan each slide's entrance animation after generation
+             * @default false
+             */
+            animate: boolean;
         };
         /** GenerateSmartPresentationRequest */
         GenerateSmartPresentationRequest: {
@@ -4310,6 +4402,60 @@ export interface components {
             /** Height */
             height: number;
         };
+        /** SlideAnimationEntry */
+        SlideAnimationEntry: {
+            /**
+             * Slide Id
+             * Format: uuid
+             */
+            slide_id: string;
+            /** Index */
+            index: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "fresh" | "stale_content" | "stale_layout" | "missing" | "unsupported";
+            /** Source */
+            source?: ("llm" | "fallback" | "user") | null;
+            /**
+             * Reset From User
+             * @default false
+             */
+            reset_from_user: boolean;
+            /** Tweens */
+            tweens?: {
+                [key: string]: unknown;
+            }[];
+            /** Targets */
+            targets?: components["schemas"]["AnimationTarget"][];
+            /** Targets Signature */
+            targets_signature?: string | null;
+        };
+        /** SlideAnimationUpdateRequest */
+        SlideAnimationUpdateRequest: {
+            /** Tweens */
+            tweens: components["schemas"]["SlideTweenModel"][];
+            /** Slide Id */
+            slide_id?: string | null;
+            /** Targets Signature */
+            targets_signature?: string | null;
+        };
+        /** SlideAnimationsRequest */
+        SlideAnimationsRequest: {
+            /** Slide Indexes */
+            slide_indexes?: number[] | null;
+            /**
+             * Force
+             * @default false
+             */
+            force: boolean;
+        };
+        /** SlideAnimationsResponse */
+        SlideAnimationsResponse: {
+            /** Slides */
+            slides: components["schemas"]["SlideAnimationEntry"][];
+        };
         /** SlideAvatarGenerationRequest */
         SlideAvatarGenerationRequest: {
             /** Slide Indices */
@@ -4385,6 +4531,10 @@ export interface components {
             ui?: {
                 [key: string]: unknown;
             } | null;
+            /** Animation */
+            animation?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** SlideModel */
         "SlideModel-Output": {
@@ -4420,6 +4570,10 @@ export interface components {
             ui?: {
                 [key: string]: unknown;
             } | null;
+            /** Animation */
+            animation?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** SlideOutlineModel */
         SlideOutlineModel: {
@@ -4428,6 +4582,27 @@ export interface components {
              * @description Audience-facing Markdown content and data for the finished slide; never slide-creation commands, visual/layout configuration, styling notes, or model instructions. Maximum 100 words.
              */
             content: string;
+        };
+        /** SlideTweenModel */
+        SlideTweenModel: {
+            /** Target */
+            target: string;
+            /** From Values */
+            from_values?: {
+                [key: string]: number;
+            };
+            /** Duration */
+            duration: number;
+            /**
+             * Delay
+             * @default 0
+             */
+            delay: number;
+            /**
+             * Ease
+             * @default power2.out
+             */
+            ease: string;
         };
         /**
          * SlideVideoResponse
@@ -6497,6 +6672,187 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AvatarGenerationPreview"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_animations_api_v1_ppt_presentation__id__animations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SlideAnimationsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    plan_animations_api_v1_ppt_presentation__id__animations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SlideAnimationsRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SlideAnimationsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    plan_animations_async_api_v1_ppt_presentation__id__animations_async_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SlideAnimationsRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AsyncTaskModel"];
+                };
+            };
+            /** @description A planning run for this deck is pending */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_animation_api_v1_ppt_presentation__id__animations__slide_index__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                slide_index: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SlideAnimationUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SlideAnimationEntry"];
+                };
+            };
+            /** @description The slide at this index, or its elements, changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_animation_api_v1_ppt_presentation__id__animations__slide_index__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                slide_index: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onErrorCaptured, onMounted, provide, ref, watch } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import type { Slide } from '@/api/types'
+import { useSlideAnimationContext } from '@/composables/useSlideAnimation'
+import { createPreview, type MotionPreview } from '@/motion/preview'
 import SlideRenderError from '@/render/SlideRenderError.vue'
 import TemplateSlideHost from '@/render/TemplateSlideHost.vue'
 import { slideKind } from '@/render/slide-kind'
@@ -8,6 +11,7 @@ import { getElementAtSelection, type ElementSelection, type RawUi } from '@/slid
 import { blankTableCellAt, blankTextAt } from '@/slide-editor/tiptapRuns'
 import { useEditingShortcuts } from '@/slide-editor/useEditingShortcuts'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+import { useEditorStore } from '@/stores/editor'
 import { EDITABLE_CANVAS_KEY } from './canvas-context'
 import InlineTextEditor from './InlineTextEditor.vue'
 import SelectionOverlay from './SelectionOverlay.vue'
@@ -56,6 +60,13 @@ const renderUi = computed(() => {
     : blankTextAt(base as RawUi, edit.selection)
 })
 
+const editor = useEditorStore()
+const animation = useSlideAnimationContext()
+const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+const motionOpen = computed(() => editor.inspectorTab === 'motion' || editor.footerTab === 'motion')
+// The motion preview runs on the current slide only; while it does, direct editing is off.
+const previewing = computed(() => editor.motionTime !== null && current.value && kind.value === 'template')
+
 const scale = computed(() => (width.value && width.value > 0 ? width.value / STAGE_W : 1))
 const stageStyle = computed(() => ({
   width: `${STAGE_W}px`,
@@ -68,7 +79,8 @@ const stageStyle = computed(() => ({
 // The context follows the canvas's current slide; a slide fading out after a switch is not it.
 const current = computed(() => editing.slideId.value === slideId.value)
 // Only the current slide handles keys; a slide fading out must not double-handle them.
-useEditingShortcuts(editing, current)
+// Nothing edits the slide while the motion preview owns its DOM.
+useEditingShortcuts(editing, computed(() => current.value && !previewing.value))
 provide(EDITABLE_CANVAS_KEY, { layerFor: (source) => host.value?.layerFor(source) ?? null, slideId })
 
 // Text and text-list elements edit in place; every double-click is still reported.
@@ -100,6 +112,79 @@ watch(
   },
   { immediate: true },
 )
+
+// Motion preview. It is built only once the user plays or scrubs (it shows the FROM state at once), and it
+// snapshots the targets' inline style, so it is rebuilt (never edited) when the tweens or the DOM change.
+let preview: MotionPreview | null = null
+function stopPreview() {
+  preview?.restore()
+  preview = null
+}
+function syncPreview() {
+  const time = editor.motionTime
+  // A stale plan names elements the slide no longer has (ids are positional): never preview it.
+  if (time === null || !previewing.value || !animation || animation.stale?.value || failure.value) return stopPreview()
+  if (!preview) {
+    const root = host.value?.shadowRoot()
+    if (!root) return
+    preview = createPreview(root, animation.draft.value, { reducedMotion: reducedMotion.value })
+  }
+  preview.seek(time)
+}
+function rebuildPreview() {
+  if (!preview) return
+  stopPreview()
+  syncPreview()
+}
+watch(() => editor.motionTime, syncPreview)
+watch(previewing, (on) => {
+  if (!on) return stopPreview()
+  syncPreview()
+})
+// The preview owns the slide: no selection (and so no floating bar or inline edit) while it is live, however
+// the selection is made (canvas, Layers panel).
+watch(
+  () => [previewing.value, editing.selection.value] as const,
+  ([on, sel]) => {
+    if (on && sel) editing.select(null)
+  },
+  { immediate: true },
+)
+watch(() => animation?.draft.value, rebuildPreview, { deep: true })
+watch(() => animation?.stale?.value, rebuildPreview)
+watch(reducedMotion, rebuildPreview)
+watch(slideId, stopPreview)
+// Leaving Motion ends the preview.
+watch(motionOpen, (open) => {
+  if (!open) editor.motionTime = null
+})
+onBeforeUnmount(stopPreview)
+
+// The element picked in Motion gets the mockup's dashed outline (an attribute plus one shadow rule, so the
+// preview's inline-style snapshot never captures it). Hidden while the preview plays.
+const OUTLINE_CSS = '[data-motion-selected]{outline:2px dashed #648d9e;outline-offset:5px}'
+function markSelected() {
+  const root = host.value?.shadowRoot()
+  if (!root) return
+  root.querySelectorAll('[data-motion-selected]').forEach((el) => el.removeAttribute('data-motion-selected'))
+  const id = editor.motionTarget
+  if (!id || !motionOpen.value || editor.motionTime !== null || !current.value) return
+  if (!root.querySelector('style[data-motion-outline]')) {
+    const style = document.createElement('style')
+    style.dataset.motionOutline = ''
+    style.textContent = OUTLINE_CSS
+    root.appendChild(style)
+  }
+  root.querySelectorAll(`[data-hf-el="${CSS.escape(id)}"]`).forEach((el) => el.setAttribute('data-motion-selected', ''))
+}
+watch(() => [editor.motionTarget, motionOpen.value, editor.motionTime, current.value], markSelected)
+
+// A re-render (remote edit, refetch) replaces the slide DOM: mark it again and rebuild a live preview on it.
+function onRendered() {
+  markSelected()
+  rebuildPreview()
+  emit('rendered')
+}
 
 let resizeObserver: ResizeObserver | undefined
 onMounted(() => {
@@ -133,13 +218,13 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
           :fonts="fonts"
           :video-src="videoSrc"
           annotate
-          @rendered="emit('rendered')"
+          @rendered="onRendered"
           @error="onFailed"
         />
       </div>
       <!-- Same scale as the stage, so the editor box and its font are in slide px. -->
       <div
-        v-if="inlineEdit && editing.enabled.value && !failure"
+        v-if="inlineEdit && editing.enabled.value && !failure && !previewing"
         data-inline-edit-layer
         class="pointer-events-none absolute top-0 left-0 z-20 origin-top-left"
         :style="{ width: `${STAGE_W}px`, height: `${STAGE_H}px`, transform: `scale(${scale})` }"
@@ -147,6 +232,6 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
         <InlineTextEditor :key="inlineEditKey" />
       </div>
     </div>
-    <SelectionOverlay v-if="editing.enabled.value && current && !failure" @open-editor="onOpenEditor" />
+    <SelectionOverlay v-if="editing.enabled.value && current && !failure && !previewing" @open-editor="onOpenEditor" />
   </div>
 </template>

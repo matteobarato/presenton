@@ -2,6 +2,7 @@ import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } fr
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { Presentation, Slide } from '@/api/types'
 import { ApiError } from '@/api/errors'
+import { animationKeys } from '@/api/animations'
 import { playbackKeys } from '@/api/playback'
 import { presentationKeys } from '@/api/presentations'
 import {
@@ -54,7 +55,12 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
   // Generation task
   const taskId = ref<string | null>(null)
   const refreshVideos = () => qc.invalidateQueries({ queryKey: videoKeys.all(presentationId.value) })
-  const refreshPresentation = () => qc.invalidateQueries({ queryKey: presentationKeys.one(presentationId.value) })
+  // Motion plans address elements by position (`e0..eN`), and a placeholder or video changes the
+  // slide's elements, so the cached plans (and the draft and preview built on them) go stale too.
+  const refreshPresentation = () => {
+    void qc.invalidateQueries({ queryKey: animationKeys.one(presentationId.value) })
+    return qc.invalidateQueries({ queryKey: presentationKeys.one(presentationId.value) })
+  }
   const { task, status: taskStatus, error: taskError, start } = useAsyncTask(taskId, {
     storageKey: `presenton.task.avatars.${presentationId.value}`,
   })
