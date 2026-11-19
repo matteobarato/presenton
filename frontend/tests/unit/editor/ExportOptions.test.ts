@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { createPinia, setActivePinia } from 'pinia'
 import { ApiError } from '@/api/errors'
-import type { Presentation } from '@/api/types'
+import type { Presentation, SlideAnimation } from '@/api/types'
+import { useEditorStore } from '@/stores/editor'
 import ExportOptions from '@/components/editor/export/ExportOptions.vue'
 
 const m = vi.hoisted(() => ({
@@ -12,6 +14,7 @@ const m = vi.hoisted(() => ({
   deleteVideoExport: vi.fn(),
   listTtsLanguages: vi.fn(),
   getTask: vi.fn(),
+  getAnimations: vi.fn(),
 }))
 vi.mock('@/api/exports', async (orig) => ({
   ...(await orig<typeof import('@/api/exports')>()),
@@ -22,6 +25,7 @@ vi.mock('@/api/exports', async (orig) => ({
 }))
 vi.mock('@/api/tts', async (orig) => ({ ...(await orig<typeof import('@/api/tts')>()), listTtsLanguages: m.listTtsLanguages }))
 vi.mock('@/api/tasks', () => ({ getTask: m.getTask }))
+vi.mock('@/api/animations', async (orig) => ({ ...(await orig<typeof import('@/api/animations')>()), getAnimations: m.getAnimations }))
 
 const ID = 'p1'
 const presentation = { id: ID, language: 'English', slides: [] } as unknown as Presentation
@@ -36,7 +40,9 @@ function mountTab() {
 }
 
 beforeEach(() => {
+  setActivePinia(createPinia())
   Object.values(m).forEach((f) => f.mockReset())
+  m.getAnimations.mockResolvedValue({ slides: [] })
   m.listTtsLanguages.mockResolvedValue([{ code: 'it', name: 'Italian' }])
   m.getVideoExport.mockResolvedValue(null)
   localStorage.clear()
@@ -154,5 +160,58 @@ describe('ExportOptions formats', () => {
     expect(w.get('[data-testid="format-mp4"]').attributes('aria-checked')).toBe('true')
     expect(visible('export-mp4')).toBe(true)
     expect(visible('export-pptx')).toBe(false)
+  })
+})
+
+describe('ExportOptions animation summary', () => {
+  const anim = (index: number, over: Partial<SlideAnimation> = {}): SlideAnimation => ({
+    slide_id: `s${index}`, index, status: 'fresh', source: 'llm', reset_from_user: false,
+    tweens: [{ target: 'e0', from_values: { opacity: 0 }, duration: 0.6, delay: 0, ease: 'power2.out' }],
+    targets: [{ id: 'e0', kind: 'title', text: 'Hi' }],
+    ...over,
+  })
+
+  it('counts animated slides out of the animatable ones, leaving smart and empty slides out', async () => {
+    m.getAnimations.mockResolvedValue({
+      slides: [
+        anim(0),
+        anim(1, { status: 'stale_content' }),
+        anim(2, { status: 'missing', tweens: [] }),
+        anim(3, { tweens: [] }),
+        anim(4, { status: 'unsupported', targets: [], tweens: [] }),
+        anim(5, { targets: [], tweens: [] }),
+      ],
+    })
+    const w = mountTab()
+    await flushPromises()
+    expect(w.get('[data-testid="mp4-animations"]').text()).toContain('Animations: 2 of 4 slides')
+  })
+
+  it('"Edit in Motion tab" closes the dialog and opens the Motion tab', async () => {
+    m.getAnimations.mockResolvedValue({ slides: [anim(0)] })
+    const editor = useEditorStore()
+    editor.exportOpen = true
+    editor.inspectorOpen = false
+    const w = mountTab()
+    await flushPromises()
+    await w.get('[data-testid="mp4-animations-edit"]').trigger('click')
+    expect(editor.exportOpen).toBe(false)
+    expect(editor.inspectorTab).toBe('motion')
+    expect(editor.inspectorOpen).toBe(true)
+  })
+
+  it('shows no summary while loading or when the plans cannot be read', async () => {
+    m.getAnimations.mockReturnValue(new Promise(() => {}))
+    const loading = mountTab()
+    await flushPromises()
+    expect(loading.find('[data-testid="mp4-animations"]').exists()).toBe(false)
+    expect(loading.find('[data-testid="mp4-start"]').exists()).toBe(true)
+    loading.unmount()
+
+    m.getAnimations.mockRejectedValue(new Error('boom'))
+    const failed = mountTab()
+    await flushPromises()
+    expect(failed.find('[data-testid="mp4-animations"]').exists()).toBe(false)
+    expect(failed.find('[data-testid="mp4-start"]').exists()).toBe(true)
   })
 })

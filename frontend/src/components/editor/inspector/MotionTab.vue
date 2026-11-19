@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, toRef, watch } from 'vue'
+import { computed, ref, toRef } from 'vue'
 import { useEventListener } from '@vueuse/core'
-import { useQueryClient } from '@tanstack/vue-query'
 import { ChevronDown, Search, Sparkles, X } from 'lucide-vue-next'
 import type { AnimationTween, Presentation, Slide } from '@/api/types'
-import { animationKeys } from '@/api/animations'
-import { useAsyncTask } from '@/composables/useAsyncTask'
+import { useDeckAnimationRun } from '@/composables/useDeckAnimationRun'
 import { useAnimations, useSlideAnimation } from '@/composables/useSlideAnimation'
 import { EASES, MIN_DURATION, MOTION_WINDOW, effects } from '@/motion/effects'
 import { targetNames } from '@/motion/names'
@@ -24,7 +22,6 @@ import { field, label as sectionLabel, section } from './controls/styles'
 const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
 
 const editor = useEditorStore()
-const queryClient = useQueryClient()
 
 // No slide → an index no slide has, so the composable finds no plan and every edit is a no-op.
 const NO_SLIDE = { id: null, index: -1 } as unknown as Slide
@@ -124,26 +121,12 @@ function confirmRegenerate() {
   void runGenerate(true)
 }
 
-const taskId = ref<string | null>(null)
-const deckError = ref<string | null>(null)
-const { status: taskStatus, error: taskError, start, clear: clearTask } = useAsyncTask(taskId, {
-  storageKey: `presenton.task.animations.${props.presentationId}`,
-})
-const deckRunning = computed(() => taskStatus.value === 'pending')
-watch(taskStatus, (now, before) => {
-  if (before === 'pending' && now !== 'pending') {
-    void queryClient.invalidateQueries({ queryKey: animationKeys.one(props.presentationId) })
-    if (now === 'completed') clearTask()
-  }
-})
-async function runGenerateAll() {
-  deckError.value = null
-  try {
-    const task = await generateAll()
-    start(task.id)
-  } catch (e) {
-    deckError.value = e instanceof Error && e.message ? e.message : 'Could not start planning the deck.'
-  }
+// The deck-wide run is the editor's (shared with the post-generation run), so it outlives this tab.
+const deckRun = useDeckAnimationRun(toRef(props, 'presentationId'))
+const deckRunning = deckRun.running
+function runGenerateAll() {
+  // `generateAll` saves this slide's pending draft before the deck is planned.
+  return deckRun.run(generateAll)
 }
 
 // The "edits were reset" banner: dismissed per slide, in this view only.
@@ -153,7 +136,7 @@ const showReset = computed(() => {
   return Boolean(a?.reset_from_user && dismissedFor.value !== a.slide_id)
 })
 
-const alert = computed(() => error.value ?? deckError.value ?? taskError.value)
+const alert = computed(() => error.value ?? deckRun.error.value)
 const fieldLabel = 'mb-2 block text-[10px] text-[#b8cad4]'
 const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-[#dce3e7] outline-none'
 </script>

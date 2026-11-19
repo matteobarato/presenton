@@ -117,6 +117,7 @@ describe('useChat', () => {
     const chat = setup()
     await chat.send('edit')
     expect(spy).toHaveBeenCalledWith({ queryKey: ['presentation', 'p1'] })
+    expect(spy).toHaveBeenCalledWith({ queryKey: ['animations', 'p1'] })
     spy.mockClear()
     mocks.streamMessage.mockImplementation(async function* () {
       yield { type: 'complete', chat: { conversation_id: 'c1', response: 'Seen', tool_calls: ['getSlideAtIndex'] } } as StreamEvent

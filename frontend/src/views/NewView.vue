@@ -16,7 +16,7 @@ import FileDropzone from '@/components/create/FileDropzone.vue'
 import GenerationOptions from '@/components/create/GenerationOptions.vue'
 import NewTemplateSelector from '@/components/create/NewTemplateSelector.vue'
 import PromptField from '@/components/create/PromptField.vue'
-import { type CreateOptions } from '@/components/create/options'
+import { animateFlagKey, type CreateOptions } from '@/components/create/options'
 import { AUTO_LANGUAGE } from '@/lib/languages'
 
 const router = useRouter()
@@ -57,6 +57,7 @@ const options = ref<CreateOptions>({
   includeTitleSlide: false,
   includeTableOfContents: false,
   webSearch: false,
+  animate: false,
 })
 
 // Provider defaults from the runtime config; applied once, then the user is in charge.
@@ -108,6 +109,13 @@ async function submit() {
       // The backend calls template-based generation "standard".
       generation_mode: 'standard',
     })
+    if (o.animate) {
+      try {
+        sessionStorage.setItem(animateFlagKey(created.id), '1')
+      } catch {
+        // Storage unavailable: the deck is generated without motion; it can be planned in the Motion tab.
+      }
+    }
     // Stay pending until the navigation settles.
     await router.push({ name: 'outline', params: { id: created.id }, query: chosen.value ? { template: chosen.value.id } : {} })
   } catch (e) {

@@ -67,6 +67,10 @@ export const useEditorStore = defineStore('editor', () => {
     inspectorTab.value = 'avatar'
     inspectorOpen.value = true
   }
+  function openMotion() {
+    inspectorTab.value = 'motion'
+    inspectorOpen.value = true
+  }
   function openFooter(tab: FooterTab) {
     footerTab.value = tab
     footerOpen.value = true
@@ -129,6 +133,7 @@ export const useEditorStore = defineStore('editor', () => {
     toggleAsk,
     openInsert,
     openAvatar,
+    openMotion,
     openFooter,
     chatOpen,
     select,

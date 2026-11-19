@@ -80,6 +80,10 @@ const selectClass =
         <Switch id="opt-web" :model-value="model.webSearch" :disabled="disabled" @update:model-value="patch({ webSearch: $event === true })" />
         <Label for="opt-web" class="text-[12px]">Web search</Label>
       </div>
+      <div class="flex items-center gap-2">
+        <Switch id="opt-animate" :model-value="model.animate" :disabled="disabled" @update:model-value="patch({ animate: $event === true })" />
+        <Label for="opt-animate" class="text-[12px]">Animate slides</Label>
+      </div>
     </div>
   </div>
 </template>
