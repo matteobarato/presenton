@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-vue-next'
-import PageHeader from '@/components/shell/PageHeader.vue'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { useRoute, useRouter } from 'vue-router'
@@ -13,12 +12,15 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import GenerationOptions from '@/components/create/GenerationOptions.vue'
-import NewSteps, { type StepItem } from '@/components/create/NewSteps.vue'
 import NewTemplateSelector from '@/components/create/NewTemplateSelector.vue'
 import ThemePicker from '@/components/create/ThemePicker.vue'
 import TopicComposer from '@/components/create/TopicComposer.vue'
+import WizardFooter from '@/components/create/wizard/WizardFooter.vue'
+import WizardLayout from '@/components/create/wizard/WizardLayout.vue'
+import { AVATAR_BADGE, avatarHint, type WizardStepItem, type WizardStepKey } from '@/components/create/wizard/progress'
+import { useNewDraft } from '@/components/create/wizard/useNewDraft'
 import { useThemeParam } from '@/composables/useThemeParam'
-import { animateFlagKey, mediaCountForRequest, TONES, VERBOSITIES, type CreateOptions } from '@/components/create/options'
+import { animateFlagKey, mediaCountForRequest, type CreateOptions } from '@/components/create/options'
 import { AUTO_LANGUAGE } from '@/lib/languages'
 
 const router = useRouter()
@@ -64,9 +66,18 @@ const options = ref<CreateOptions>({
   webSearch: false,
   animate: false,
 })
+// A reload keeps the prompt and options; files can't be kept, so the composer asks for them again.
+const draft = useNewDraft(prompt, options)
+watch(
+  () => files.value.length > 0,
+  (has) => {
+    draft.hadFiles.value = has
+  },
+)
+const filesLost = computed(() => draft.hadFiles.value && files.value.length === 0)
 
-// Provider defaults from the runtime config; applied once, then the user is in charge.
-let webSearchApplied = false
+// Provider defaults from the runtime config; applied once, unless a restored draft already holds the user's choice.
+let webSearchApplied = draft.restored
 watch(
   () => session.runtime?.config.WEB_GROUNDING,
   (value) => {
@@ -87,14 +98,13 @@ watch(
 const stage = ref('')
 const error = ref('')
 const hasTopic = computed(() => prompt.value.trim() !== '' || files.value.length > 0)
-const canSubmit = computed(() => !pending.value && hasTopic.value)
+const hasTemplate = computed(() => !!chosen.value)
+const canSubmit = computed(() => !pending.value && hasTopic.value && hasTemplate.value)
 
-// --- Steps: free to visit in any order; only submitting needs a topic. ---
-const STEP_TOPIC = 0
-const STEP_LOOK = 1
-const STEP_DETAILS = 2
-const step = ref(STEP_TOPIC)
-const composer = ref<InstanceType<typeof TopicComposer> | null>(null)
+// --- Steps: free to visit in any order; creating needs a topic and a template. ---
+type NewStepKey = Extract<WizardStepKey, 'topic' | 'look' | 'details'>
+const ORDER: NewStepKey[] = ['topic', 'look', 'details']
+const step = ref<NewStepKey>('topic')
 const languageNeeded = computed(() => files.value.length > 0 && options.value.language === AUTO_LANGUAGE)
 
 function mediaSummary(o: CreateOptions) {
@@ -106,31 +116,78 @@ function clip(text: string, max = 44) {
   const t = text.trim().replace(/\s+/g, ' ')
   return t.length > max ? `${t.slice(0, max - 1)}…` : t
 }
-const steps = computed<StepItem[]>(() => {
+const LOCKED = 'Create the outline first'
+const items = computed<WizardStepItem[]>(() => {
   const o = options.value
   const n = files.value.length
-  const topic = prompt.value.trim() ? clip(prompt.value) : n ? `${n} ${n === 1 ? 'document' : 'documents'}` : 'Not written yet'
-  const tone = TONES.find((t) => t.value === o.tone)?.label ?? 'Default'
-  const verbosity = VERBOSITIES.find((v) => v.value === o.verbosity)?.label ?? 'Standard'
+  const topic = prompt.value.trim() ? clip(prompt.value) : n ? `${n} ${n === 1 ? 'document' : 'documents'}` : ''
+  const mine = (key: NewStepKey, label: string, summary: string, done: boolean): WizardStepItem => ({
+    key,
+    label,
+    summary,
+    state: done && step.value !== key ? 'done' : 'available',
+    reason: null,
+    badge: null,
+  })
+  const locked = (key: WizardStepKey, label: string, badge: string | null = null): WizardStepItem => ({
+    key,
+    label,
+    summary: '',
+    state: 'locked',
+    reason: LOCKED,
+    badge,
+  })
   return [
-    { key: 'topic', label: 'Topic', value: topic, done: hasTopic.value },
-    { key: 'look', label: 'Look', value: chosen.value?.name ?? 'Decide later', done: !!chosen.value },
-    {
-      key: 'details',
-      label: 'Details',
-      value: `${o.slides ? `${o.slides} slides` : 'Auto length'} · ${mediaSummary(o)} · ${tone} · ${verbosity}`,
-      done: step.value > STEP_DETAILS,
-    },
+    mine('topic', 'Topic', topic, hasTopic.value),
+    mine('look', 'Look', chosen.value?.name ?? '', hasTemplate.value),
+    mine('details', 'Details', `${o.slides ? `${o.slides} slides` : 'Auto length'} · ${mediaSummary(o)}`, false),
+    locked('outline', 'Outline'),
+    locked('preview', 'Preview'),
+    locked('avatar', 'Avatar', AVATAR_BADGE[avatarHint(o.videos)]),
+    locked('export', 'Export'),
   ]
 })
-const isLast = computed(() => step.value === STEP_DETAILS)
-const nextLabel = computed(() => (step.value === STEP_TOPIC ? 'Choose a look' : 'Fine-tune details'))
 
-function go(to: number) {
-  step.value = Math.max(STEP_TOPIC, Math.min(STEP_DETAILS, to))
+const copy: Record<NewStepKey, { heading: string; lede: string }> = {
+  topic: {
+    heading: 'Every great story starts somewhere.',
+    lede: 'Say what it’s about, pick a look, tune the details. Next you’ll review the outline before any slides are made.',
+  },
+  look: { heading: 'Pick a look', lede: 'Choose a template for your slides. A theme can recolour it.' },
+  details: { heading: 'Fine-tune the details', lede: 'The defaults work well. Change only what matters.' },
 }
-watch(step, (now) => {
-  if (now === STEP_TOPIC) void nextTick(() => composer.value?.focus())
+
+function isStep(key: WizardStepKey): key is NewStepKey {
+  return (ORDER as string[]).includes(key)
+}
+function go(to: NewStepKey) {
+  step.value = to
+}
+function advance() {
+  if (step.value === 'topic') go('look')
+  else if (step.value === 'look' && hasTemplate.value) go('details')
+}
+function back() {
+  const i = ORDER.indexOf(step.value)
+  if (i > 0) go(ORDER[i - 1]!)
+}
+function onNavigate(dir: 'back' | 'next') {
+  if (pending.value) return
+  if (dir === 'back') back()
+  else advance()
+}
+
+// Why Create outline is unavailable, in the order the user can fix it.
+const blockers = computed(() => {
+  const list: { key: NewStepKey; text: string; action: string }[] = []
+  if (!hasTopic.value) list.push({ key: 'topic', text: 'Add a topic or a document', action: 'Go to Topic' })
+  if (!hasTemplate.value) list.push({ key: 'look', text: 'Pick a template', action: 'Go to Look' })
+  return list
+})
+const footerStatus = computed(() => {
+  if (pending.value) return stage.value
+  if (step.value === 'look' && !hasTemplate.value) return 'Pick a template to continue'
+  return ''
 })
 
 async function submit() {
@@ -138,7 +195,7 @@ async function submit() {
   const o = options.value
   if (files.value.length > 0 && o.language === AUTO_LANGUAGE) {
     error.value = 'Choose a language before processing uploaded documents.'
-    step.value = STEP_DETAILS
+    step.value = 'details'
     await nextTick()
     document.getElementById('opt-language')?.focus()
     return
@@ -177,6 +234,7 @@ async function submit() {
         // Storage unavailable: the deck is generated without motion; it can be planned in the Motion tab.
       }
     }
+    draft.clear()
     // Stay pending until the navigation settles.
     await router.push({ name: 'create', params: { id: created.id, step: 'outline' }, query: { ...(chosen.value && { template: chosen.value.id }), ...(chosenTheme.value && { theme: chosenTheme.value.id }) } })
   } catch (e) {
@@ -184,92 +242,92 @@ async function submit() {
     pending.value = false
   }
 }
+
+// Enter in a field moves on; only the Details primary creates the deck.
+function onFormSubmit() {
+  if (step.value === 'details') void submit()
+  else advance()
+}
 </script>
 
 <template>
-  <PageHeader title="New presentation" />
-  <section class="workspace-card">
-    <form class="mx-auto flex min-h-full w-full max-w-[880px] flex-col" @submit.prevent="submit">
-      <header class="mb-7 max-[760px]:mb-5">
-        <h1 class="text-[30px] leading-[1.22] font-medium tracking-[-0.04em] text-balance text-[#e4ecf0] max-[1050px]:text-[27px] max-[760px]:text-[24px]">
-          Every great story starts somewhere.
-        </h1>
-        <p class="mt-[11px] max-w-[60ch] text-[12px] leading-[1.7] text-[#9aabb4] max-[760px]:text-[11px]">
-          Say what it’s about, pick a look, tune the details, in any order. Next you’ll review the outline before any slides are made.
+  <WizardLayout
+    title="New presentation"
+    :heading="copy[step].heading"
+    :lede="copy[step].lede"
+    :items="items"
+    :current="step"
+    @select="(k) => isStep(k) && !pending && go(k)"
+    @navigate="onNavigate"
+  >
+    <form id="new-form" class="flex flex-col gap-5" @submit.prevent="onFormSubmit">
+      <template v-if="step === 'topic'">
+        <TopicComposer v-model:prompt="prompt" v-model:files="files" :disabled="pending" @submit="advance" />
+        <p v-if="filesLost" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">Re-add your documents; files aren't kept after a reload.</p>
+        <p v-if="languageNeeded" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">
+          Documents need a language.
+          <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go('details')">Set it in Details</button>
         </p>
-      </header>
+      </template>
 
-      <NewSteps v-model="step" :steps="steps" :disabled="pending" />
+      <template v-else-if="step === 'look'">
+        <Skeleton v-if="templates.isPending.value" class="h-[260px] w-full" />
+        <Alert v-else-if="templates.isError.value" class="py-2 text-[12px]">Templates couldn’t load. Reload the page to try again.</Alert>
+        <NewTemplateSelector v-else-if="templates.data.value?.length" v-model="selectedTemplate" :templates="templates.data.value" :disabled="pending" :theme="chosenTheme" />
+        <div class="mt-2 flex flex-col gap-3" data-testid="theme-row">
+          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h3 class="text-[13px] font-medium text-[#e4ecf0]">Theme</h3>
+            <span class="text-[11px] text-[#8e9ca4]">Optional. Recolours the template.</span>
+          </div>
+          <Skeleton v-if="themesPending" class="h-[84px] w-full" />
+          <ThemePicker v-else v-model="selectedThemeId" :themes="themeList" :disabled="pending" />
+        </div>
+      </template>
 
-      <div class="relative mt-7 flex-1 max-[760px]:mt-5">
-        <Transition name="step-panel">
-          <section v-show="step === STEP_TOPIC" aria-labelledby="step-topic-title" class="flex flex-col gap-5">
-            <h2 id="step-topic-title" class="text-[16px] font-medium tracking-[-0.02em] text-[#e4ecf0]">What is your presentation about?</h2>
-            <TopicComposer ref="composer" v-model:prompt="prompt" v-model:files="files" :disabled="pending" @submit="submit" />
-            <p v-if="languageNeeded" role="status" class="-mt-1 text-[11px] text-[#a9c4d2]">
-              Documents need a language.
-              <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go(STEP_DETAILS)">Set it in Details</button>
-            </p>
-          </section>
-        </Transition>
+      <GenerationOptions v-else v-model="options" :disabled="pending" />
+    </form>
 
-        <Transition name="step-panel">
-          <section v-show="step === STEP_LOOK" aria-labelledby="step-look-title" class="flex flex-col gap-5">
-            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h2 id="step-look-title" class="text-[16px] font-medium tracking-[-0.02em] text-[#e4ecf0]">Pick a look</h2>
-              <span class="text-[11px] text-[#8e9ca4]">Optional. You can change it on the outline step.</span>
-            </div>
-            <Skeleton v-if="templates.isPending.value" class="h-[260px] w-full" />
-            <Alert v-else-if="templates.isError.value" class="py-2 text-[12px]">
-              Templates couldn’t load. You can still pick one on the outline step.
-            </Alert>
-            <NewTemplateSelector v-else-if="templates.data.value?.length" v-model="selectedTemplate" :templates="templates.data.value" :disabled="pending" :theme="chosenTheme" />
-            <div class="mt-2 flex flex-col gap-3" data-testid="theme-row">
-              <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h3 class="text-[13px] font-medium text-[#e4ecf0]">Theme</h3>
-                <span class="text-[11px] text-[#8e9ca4]">Optional. Recolours the template.</span>
-              </div>
-              <Skeleton v-if="themesPending" class="h-[84px] w-full" />
-              <ThemePicker v-else v-model="selectedThemeId" :themes="themeList" :disabled="pending" />
-            </div>
-          </section>
-        </Transition>
-
-        <Transition name="step-panel">
-          <section v-show="step === STEP_DETAILS" aria-labelledby="step-details-title" class="flex flex-col gap-6">
-            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h2 id="step-details-title" class="text-[16px] font-medium tracking-[-0.02em] text-[#e4ecf0]">Fine-tune the details</h2>
-              <span class="text-[11px] text-[#8e9ca4]">The defaults work well. Change only what matters.</span>
-            </div>
-            <GenerationOptions v-model="options" :disabled="pending" />
-          </section>
-        </Transition>
-      </div>
-
-      <div
-        class="sticky bottom-[-44px] z-10 mt-8 -mx-3 flex flex-col gap-2.5 rounded-t-[14px] bg-[#191d1fee] px-3 pt-4 pb-[44px] backdrop-blur-[10px] max-[1050px]:bottom-[-38px] max-[1050px]:pb-[38px] max-[760px]:bottom-[-30px] max-[760px]:pb-[30px] max-[450px]:bottom-[-27px] max-[450px]:pb-[27px]"
-      >
-        <Alert v-if="error" variant="destructive" role="alert" class="py-2 text-[12px]">{{ error }}</Alert>
-        <div class="flex items-center gap-2.5 max-[520px]:flex-wrap">
-          <Button v-if="step > STEP_TOPIC" type="button" variant="ghost" class="h-[43px] px-3" :disabled="pending" @click="go(step - 1)">
+    <template #footer>
+      <WizardFooter :status="footerStatus" :error="error" :busy="pending">
+        <template #back>
+          <Button v-if="step !== 'topic'" type="button" variant="ghost" class="h-[43px] px-3" :disabled="pending" @click="back">
             <ArrowLeft class="size-4" aria-hidden="true" />
             Back
           </Button>
-          <span class="flex-1 max-[520px]:hidden" />
-          <Button v-if="!isLast" type="button" variant="outline" class="h-[43px] px-4 max-[520px]:flex-1" :disabled="pending" @click="go(step + 1)">
-            {{ nextLabel }}
+        </template>
+        <template #primary>
+          <Button
+            v-if="step === 'details'"
+            type="submit"
+            form="new-form"
+            data-testid="wizard-primary"
+            class="h-[43px] min-w-[210px] px-4 text-[12px] max-[520px]:w-full max-[520px]:min-w-0"
+            :class="pending && 'anim-working'"
+            :disabled="!canSubmit"
+          >
+            <Sparkles class="size-[17px]" aria-hidden="true" />
+            {{ pending ? 'Working…' : 'Create outline' }}
+          </Button>
+          <Button
+            v-else
+            type="button"
+            variant="outline"
+            data-testid="wizard-primary"
+            class="h-[43px] px-4 max-[520px]:flex-1"
+            :disabled="step === 'look' && !hasTemplate"
+            @click="advance"
+          >
+            {{ step === 'topic' ? 'Choose a look' : 'Fine-tune details' }}
             <ArrowRight class="size-4" aria-hidden="true" />
           </Button>
-          <Button type="submit" class="h-[43px] min-w-[210px] px-4 text-[12px] max-[520px]:w-full max-[520px]:min-w-0" :class="pending && 'anim-working'" :disabled="!canSubmit">
-            <Sparkles class="size-[17px]" aria-hidden="true" />
-            {{ pending ? 'Working…' : 'Create my outline' }}
-          </Button>
-        </div>
-        <span v-if="pending" role="status" class="text-right text-[11px] text-[#a2b7c5] max-[520px]:text-center">{{ stage }}</span>
-        <span v-else-if="!hasTopic && step !== STEP_TOPIC" class="text-right text-[11px] text-[#8e9ca4] max-[520px]:text-center">
-          Add a topic or a document to create your outline.
-        </span>
-      </div>
-    </form>
-  </section>
+        </template>
+        <template v-if="step === 'details' && !pending && blockers.length" #status>
+          <span v-for="b in blockers" :key="b.key" class="ml-3 inline-flex items-center gap-1.5">
+            {{ b.text }}
+            <button type="button" :data-testid="`fix-${b.key}`" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go(b.key)">{{ b.action }}</button>
+          </span>
+        </template>
+      </WizardFooter>
+    </template>
+  </WizardLayout>
 </template>

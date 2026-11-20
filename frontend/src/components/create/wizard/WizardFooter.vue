@@ -26,6 +26,6 @@ const hasRetry = !!getCurrentInstance()?.vnode.props?.onRetry
       <slot name="secondary" />
       <slot name="primary" />
     </div>
-    <p role="status" class="min-h-[1em] text-right text-[11px] text-[#a2b7c5] max-[520px]:text-center">{{ status }}</p>
+    <p role="status" class="min-h-[1em] text-right text-[11px] text-[#a2b7c5] max-[520px]:text-center"><slot name="status">{{ status }}</slot></p>
   </div>
 </template>
