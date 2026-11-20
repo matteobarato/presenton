@@ -452,7 +452,7 @@ describe('OutlineStep', () => {
     it('Regenerate waits while voice and avatars are being made, with the reason', async () => {
       const { wrapper } = await mountStep('/p/p1/create/outline?template=modern', deck(3), { pipelineRunning: true })
       expect(button(wrapper, /Regenerate slides from outline…/)!.attributes('disabled')).toBeDefined()
-      expect(status(wrapper)).toContain('wait for voice and avatars to finish')
+      expect(status(wrapper)).toBe('Wait for voice and avatars to finish')
       await wrapper.setProps({ pipelineRunning: false })
       expect(button(wrapper, /Regenerate slides from outline…/)!.attributes('disabled')).toBeUndefined()
     })

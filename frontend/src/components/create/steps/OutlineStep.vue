@@ -183,7 +183,7 @@ const footerStatus = computed(() => {
   if (generating.value) return 'Preparing your slides…'
   if (readOnly.value) {
     if (streaming.value) return 'Loading the outline…'
-    if (props.pipelineRunning) return `To regenerate: ${PIPELINE_BUSY.toLowerCase()}`
+    if (props.pipelineRunning) return PIPELINE_BUSY
     return templateKnown.value ? 'These slides were generated from this outline' : `To regenerate: ${NO_TEMPLATE}`
   }
   if (templateError.value) return 'Generate unavailable' // the footer alert says why
