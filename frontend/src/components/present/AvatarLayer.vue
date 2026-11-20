@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{
   src: string
@@ -19,16 +19,15 @@ const style = computed(() => ({
 }))
 
 // The avatar is lip-synced to the narration, so it follows the audio's play state.
-watch(
-  () => [props.playing, props.src] as const,
-  ([playing]) => {
-    const el = video.value
-    if (!el) return
-    if (playing) void Promise.resolve(el.play?.()).catch(() => {})
-    else el.pause?.()
-  },
-  { flush: 'post', immediate: true },
-)
+function sync() {
+  const el = video.value
+  if (!el) return
+  if (props.playing) void Promise.resolve(el.play?.()).catch(() => {})
+  else el.pause?.()
+}
+// The element does not exist yet when the watcher first runs, so the mount applies the initial state.
+onMounted(sync)
+watch(() => [props.playing, props.src] as const, sync, { flush: 'post' })
 </script>
 
 <template>

@@ -224,13 +224,13 @@ describe('EditorView', () => {
       })
 
     it('plans the deck motion once when a deck created with animate finishes generating', async () => {
-      sessionStorage.setItem('presenton.animate.p1', '1')
+      sessionStorage.setItem('slideshows.animate.p1', '1')
       completes()
       const w = await mountAt('/p/p1?stream=1')
       await flushPromises()
       expect(api.generateAnimationsAsync).toHaveBeenCalledTimes(1)
       expect(api.generateAnimationsAsync).toHaveBeenCalledWith('p1', {})
-      expect(sessionStorage.getItem('presenton.animate.p1')).toBeNull()
+      expect(sessionStorage.getItem('slideshows.animate.p1')).toBeNull()
       expect(w.find('[aria-label="Deck motion planning"]').exists()).toBe(true)
       await flushPromises()
       expect(api.generateAnimationsAsync).toHaveBeenCalledTimes(1)
@@ -244,7 +244,7 @@ describe('EditorView', () => {
     })
 
     it('does not plan motion before generation finishes, nor when it fails', async () => {
-      sessionStorage.setItem('presenton.animate.p1', '1')
+      sessionStorage.setItem('slideshows.animate.p1', '1')
       api.stream.mockImplementation(async function* () {
         yield { type: 'generation_metrics', model: 'm' }
         await new Promise<void>(() => {})
@@ -252,7 +252,7 @@ describe('EditorView', () => {
       await mountAt('/p/p1?stream=1')
       await flushPromises()
       expect(api.generateAnimationsAsync).not.toHaveBeenCalled()
-      expect(sessionStorage.getItem('presenton.animate.p1')).toBe('1')
+      expect(sessionStorage.getItem('slideshows.animate.p1')).toBe('1')
     })
 
     it('does not read the deck motion while the deck streams in, and reads it once the stream is done', async () => {
@@ -279,7 +279,7 @@ describe('EditorView', () => {
     })
 
     it('does not plan motion when opening a deck without a stream', async () => {
-      sessionStorage.setItem('presenton.animate.p1', '1')
+      sessionStorage.setItem('slideshows.animate.p1', '1')
       await mountAt('/p/p1')
       await flushPromises()
       expect(api.generateAnimationsAsync).not.toHaveBeenCalled()

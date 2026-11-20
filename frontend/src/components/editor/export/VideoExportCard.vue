@@ -76,7 +76,7 @@ async function refetch() {
 }
 
 const { task, status, error, start, clear } = useAsyncTask(taskId, {
-  storageKey: `presenton.task.mp4.${props.presentationId}`,
+  storageKey: `slideshows.task.mp4.${props.presentationId}`,
   onDone: () => {
     void refetch().then(clear)
   },

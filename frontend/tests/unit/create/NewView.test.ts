@@ -165,7 +165,7 @@ describe('NewView', () => {
     await wrapper.get('form').trigger('submit')
     await flushPromises()
     expect(m.createPresentation.mock.calls[0]![0]).not.toHaveProperty('animate')
-    expect(sessionStorage.getItem('presenton.animate.abc')).toBeNull()
+    expect(sessionStorage.getItem('slideshows.animate.abc')).toBeNull()
   })
 
   it('with animate on, flags the new deck so the editor plans its motion after generation', async () => {
@@ -176,7 +176,7 @@ describe('NewView', () => {
     expect(wrapper.get('#opt-animate').attributes('aria-checked')).toBe('true')
     await wrapper.get('form').trigger('submit')
     await flushPromises()
-    expect(sessionStorage.getItem('presenton.animate.abc')).toBe('1')
+    expect(sessionStorage.getItem('slideshows.animate.abc')).toBe('1')
     expect(router.currentRoute.value.fullPath).toBe('/new/abc/outline')
   })
 

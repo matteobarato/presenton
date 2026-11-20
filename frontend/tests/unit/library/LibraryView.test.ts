@@ -109,13 +109,13 @@ describe('LibraryView', () => {
   it('persists the grid/list toggle in localStorage', async () => {
     const w = await mountView()
     await w.get('[aria-label="List view"]').trigger('click')
-    expect(localStorage.getItem('presenton.library.view')).toBe('list')
+    expect(localStorage.getItem('slideshows.library.view')).toBe('list')
     expect(w.findAllComponents({ name: 'PresentationRow' })).toHaveLength(3)
     w.unmount()
     const again = await mountView()
     expect(again.findAllComponents({ name: 'PresentationRow' })).toHaveLength(3)
     await again.get('[aria-label="Grid view"]').trigger('click')
-    expect(localStorage.getItem('presenton.library.view')).toBe('grid')
+    expect(localStorage.getItem('slideshows.library.view')).toBe('grid')
   })
 
   it('duplicate invalidates the presentations query and toasts', async () => {

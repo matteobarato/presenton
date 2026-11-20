@@ -117,7 +117,7 @@ async function removeConversation(id: string) {
         </div>
         <h2 class="text-[20px] leading-[1.28] font-medium tracking-[-0.04em] text-[#e4ecf1]">Your idea.<br />A little more extraordinary.</h2>
         <p class="mt-3 text-[11px] leading-[1.8] text-[#a3b1b8]">
-          Ask Presenton to change the deck, rewrite a slide or answer questions about it.
+          Ask Slideshows to change the deck, rewrite a slide or answer questions about it.
         </p>
         <div class="mt-[27px] flex flex-col gap-2">
           <button

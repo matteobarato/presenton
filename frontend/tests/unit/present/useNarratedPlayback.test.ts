@@ -72,7 +72,7 @@ afterEach(() => {
 
 describe('useNarratedPlayback', () => {
   it('asks for the deck narration language, falling back to the deck language', async () => {
-    localStorage.setItem('presenton.tts.lang.p1', 'it-IT')
+    localStorage.setItem('slideshows.tts.lang.p1', 'it-IT')
     setup()
     await flushPromises()
     expect(m.getPlayback).toHaveBeenCalledWith('p1', 'it-IT')
@@ -165,7 +165,6 @@ describe('useNarratedPlayback', () => {
     await flushPromises()
     expect(FakeAudio.last.pause).toHaveBeenCalled()
     expect(api.playing.value).toBe(false)
-    expect(api.avatar.value).toBeNull()
   })
 
   it('toggle pauses and resumes', async () => {
@@ -190,9 +189,7 @@ describe('useNarratedPlayback', () => {
         },
       ]),
     )
-    const { api, enabled } = setup()
-    await flushPromises()
-    enabled.value = true
+    const { api } = setup()
     await flushPromises()
     expect(api.avatar.value).toEqual({ src: '/v/0.mp4', rect: { x: 640, y: 360, width: 320, height: 180 } })
   })

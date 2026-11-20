@@ -62,7 +62,7 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
     return qc.invalidateQueries({ queryKey: presentationKeys.one(presentationId.value) })
   }
   const { task, status: taskStatus, error: taskError, start } = useAsyncTask(taskId, {
-    storageKey: `presenton.task.avatars.${presentationId.value}`,
+    storageKey: `slideshows.task.avatars.${presentationId.value}`,
   })
   watch(
     generation,

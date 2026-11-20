@@ -49,7 +49,7 @@ describe('AppShell', () => {
     backendStatus.value = 'unreachable'
     await flushPromises()
     const text = wrapper.get('[role="alert"]').text()
-    expect(text).toContain("Can't reach the Presenton backend")
+    expect(text).toContain("Can't reach the Slideshows backend")
     expect(text).toContain('/api proxy')
     expect(text).toContain('http://backend.test:5001')
   })

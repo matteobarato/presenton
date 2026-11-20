@@ -4,7 +4,7 @@ import { listTtsLanguages, type TtsLanguage } from '@/api/tts'
 import type { Presentation } from '@/api/types'
 
 /** Last language chosen on any deck. */
-export const TTS_LANG_KEY = 'presenton.tts.lang'
+export const TTS_LANG_KEY = 'slideshows.tts.lang'
 export const ttsLangKey = (deckId: string) => `${TTS_LANG_KEY}.${deckId}`
 
 /**

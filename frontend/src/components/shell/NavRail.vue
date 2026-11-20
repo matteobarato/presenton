@@ -23,7 +23,7 @@ const settingsActive = computed(() => route.name === 'settings')
   >
     <RouterLink
       :to="{ name: 'library' }"
-      aria-label="Presenton"
+      aria-label="Slideshows"
       class="grid size-10 place-items-center rounded-[12px] max-[760px]:size-[33px] max-[760px]:rounded-[10px] bg-accent text-accent-ink shadow-[0_5px_20px_#0003] transition-[background,transform] duration-200 hover:-rotate-[5deg] hover:bg-accent-hover"
     >
       <Presentation class="size-6" aria-hidden="true" />

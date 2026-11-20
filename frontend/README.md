@@ -1,6 +1,6 @@
-# Presenton frontend (Vue 3)
+# Slideshows frontend (Vue 3)
 
-The new Presenton web app: Vue 3, Vite, shadcn-vue (reka-ui), Tailwind v4, TanStack Query and Pinia.
+The new Slideshows web app: Vue 3, Vite, shadcn-vue (reka-ui), Tailwind v4, TanStack Query and Pinia.
 It will replace the Next.js app in `servers/nextjs` in phases; the old app is not modified.
 
 ## Phase 1 scope
@@ -37,8 +37,8 @@ Both commands run from the repository root. Two variables adjust the frontend co
 
 | Variable                  | Default                             | Meaning                                  |
 | ------------------------- | ----------------------------------- | ---------------------------------------- |
-| `PRESENTON_BACKEND_URL`   | `http://host.docker.internal:5001`  | Where the dev proxy forwards API calls   |
-| `PRESENTON_FRONTEND_PORT` | `5173`                              | Host port the dev server is published on |
+| `SLIDESHOWS_BACKEND_URL`   | `http://host.docker.internal:5001`  | Where the dev proxy forwards API calls   |
+| `SLIDESHOWS_FRONTEND_PORT` | `5173`                              | Host port the dev server is published on |
 
 ### Locally
 

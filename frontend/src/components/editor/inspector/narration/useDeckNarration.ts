@@ -53,7 +53,7 @@ export function useDeckNarration(presentationId: Ref<string>, presentation: Ref<
     start,
     clear,
   } = useAsyncTask(taskId, {
-    storageKey: `presenton.task.tts.${presentationId.value}`,
+    storageKey: `slideshows.task.tts.${presentationId.value}`,
     onDone: () => {
       void refreshTts()
       // Present reads playback; it must not play the audio it had before.

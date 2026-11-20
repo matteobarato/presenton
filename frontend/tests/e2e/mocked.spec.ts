@@ -134,7 +134,7 @@ test.describe('mocked backend', () => {
     })
 
     await page.goto('/')
-    await expect(page.getByText("Can't reach the Presenton backend")).toBeVisible()
+    await expect(page.getByText("Can't reach the Slideshows backend")).toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible()
     expect(unexpected, 'API calls without a mock').toEqual([])
   })

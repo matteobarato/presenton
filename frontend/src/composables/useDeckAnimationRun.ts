@@ -16,7 +16,7 @@ export interface DeckAnimationRun {
   dismiss(): void
 }
 
-const storageKey = (id: string) => `presenton.task.animations.${id}`
+const storageKey = (id: string) => `slideshows.task.animations.${id}`
 
 /** The pending run's id from a 409 `{ detail: { task_id } }`, else null. */
 function runningTaskId(e: unknown): string | null {

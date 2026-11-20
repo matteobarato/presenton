@@ -126,7 +126,7 @@ watch(total, (n) => {
       :reduced-motion="reducedMotion"
       :tweens="tweens"
       :avatar="avatar"
-      :playing="playing"
+      :playing="playing || !narrating"
     />
     <p v-else-if="isError" role="alert" class="absolute inset-0 flex items-center justify-center text-white/80">
       Couldn't load this presentation.

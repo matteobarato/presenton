@@ -62,7 +62,7 @@ export const VERBOSITIES: { value: CreateBody['verbosity']; label: string; hint:
  * The create endpoint has no `animate`: the choice travels to the editor as a one-shot session flag on the
  * new deck, which the editor consumes when generation finishes.
  */
-export const animateFlagKey = (presentationId: string) => `presenton.animate.${presentationId}`
+export const animateFlagKey = (presentationId: string) => `slideshows.animate.${presentationId}`
 
 /** Digits only, no leading zeros, at most MAX_SLIDES; '' means automatic. */
 export function clampSlideCount(value: string): string {

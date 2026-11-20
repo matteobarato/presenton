@@ -14,8 +14,8 @@ const workspace = computed(() => (session.user?.username ? `${session.user.usern
   <footer
     class="flex h-[38px] flex-none items-center gap-[15px] bg-shell px-[22px] text-[9px] text-[#89969e] max-[760px]:h-[37px] max-[760px]:gap-2 max-[760px]:px-3.5 max-[450px]:h-[35px] [@media(max-height:780px)_and_(min-width:1051px)]:h-8"
   >
-    <span class="flex items-start gap-0.5 text-[17px] leading-none font-semibold tracking-[-0.06em] text-[#b7c4cb]">presenton</span>
-    <span class="max-[450px]:hidden">Open-source AI presentations.</span>
+    <span class="flex items-start gap-0.5 text-[17px] leading-none font-semibold tracking-[-0.06em] text-[#b7c4cb]">slideshows</span>
+    <span class="max-[450px]:hidden">Tomorrow's presentations, made today.</span>
     <div class="ml-auto flex items-center gap-1.5">
       <span
         class="size-1 rounded-full"

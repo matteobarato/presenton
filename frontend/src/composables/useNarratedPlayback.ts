@@ -19,7 +19,8 @@ export interface AvatarRect {
 /**
  * Narrated preview: plays each slide's TTS audio and exposes the lip-synced avatar to draw.
  * TTS is the only soundtrack (the avatar video stays muted). Moving to the next slide is the
- * caller's job: register a handler with `onAdvance`.
+ * caller's job: register a handler with `onAdvance`. The avatar is exposed whether or not narration is on,
+ * so a slide that has one always shows it.
  */
 export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<number>, enabled: Ref<boolean>) {
   const { data: presentation } = usePresentation(presentationId)
@@ -47,13 +48,16 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
 
   const avatar = computed<{ src: string; rect: AvatarRect } | null>(() => {
     const slide = current.value
-    if (!enabled.value || slide?.actor !== 'video' || !slide.video?.url || !slide.placeholder) return null
+    if (slide?.actor !== 'video' || !slide.video?.url || !slide.placeholder) return null
     const { position, size } = slide.placeholder
     return { src: audioSrc({ url: slide.video.url }), rect: { x: position.x, y: position.y, width: size.width, height: size.height } }
   })
 
+  /** Slides with an avatar speak on their own, even with narration off; only narration moves on by itself. */
+  const speaks = computed(() => enabled.value || Boolean(avatar.value))
+
   function advance() {
-    advanceHandler?.()
+    if (enabled.value) advanceHandler?.()
   }
   function pause() {
     clearTimeout(silentTimer)
@@ -92,11 +96,11 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
 
   // Start (or restart) whenever narration is on and the slide, or the data it depends on, changes.
   watch(
-    [enabled, index, currentAudioUrl, () => Boolean(playback.value)],
+    [speaks, index, currentAudioUrl, () => Boolean(playback.value)],
     () => {
       pause()
       loadedUrl = ''
-      if (enabled.value && playback.value) play()
+      if (speaks.value && playback.value) play()
     },
     { immediate: true },
   )
@@ -107,7 +111,7 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
       if (playing.value) pause()
     } else if (resumeOnVisible) {
       resumeOnVisible = false
-      if (enabled.value) play()
+      if (speaks.value) play()
     }
   }
   document.addEventListener('visibilitychange', onVisibility)

@@ -15,8 +15,9 @@ from utils.image_target import (
 
 TEMPLATES_ROOT = Path(__file__).resolve().parents[4] / "templates"
 TEMPLATE_IDS = sorted(p.parent.name for p in TEMPLATES_ROOT.glob("*/template.json"))
-# 7 new layouts per template; momentum has its 5 hand-made ones plus 5 new.
-EXPECTED_VIDEO_LAYOUTS = {**{t: 7 for t in TEMPLATE_IDS}, "momentum": 10}
+# 7 new layouts per template; momentum has its 5 hand-made ones plus 5 new;
+# studio is built around the presenter, with 8 of its 16 layouts on video.
+EXPECTED_VIDEO_LAYOUTS = {**{t: 7 for t in TEMPLATE_IDS}, "momentum": 10, "studio": 8}
 
 
 def layout_model(template_id: str) -> PresentationLayoutModel:

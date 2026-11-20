@@ -51,7 +51,7 @@ async function submit() {
   <main class="grid min-h-dvh place-items-center bg-rail px-5">
     <Card class="w-full max-w-sm">
       <CardHeader class="p-6 pb-4">
-        <CardTitle class="font-display text-[22px] font-medium tracking-[-0.03em]">Welcome to Presenton</CardTitle>
+        <CardTitle class="font-display text-[22px] font-medium tracking-[-0.03em]">Welcome to Slideshows</CardTitle>
         <CardDescription class="mt-1.5 text-[12px] text-muted">Create the administrator account for this workspace.</CardDescription>
       </CardHeader>
       <CardContent class="p-6 pt-0">

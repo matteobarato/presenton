@@ -239,7 +239,7 @@ describe('VoiceTab: whole deck', () => {
     await toggle.trigger('click')
     expect(toggle.attributes('aria-expanded')).toBe('false')
     expect(wrapper.find('#deck-narration-body').isVisible()).toBe(false)
-    expect(localStorage.getItem('presenton.editor.deck-narration-open')).toBe('false')
+    expect(localStorage.getItem('slideshows.editor.deck-narration-open')).toBe('false')
   })
 
   it('fills the language select and persists the choice', async () => {
@@ -247,8 +247,8 @@ describe('VoiceTab: whole deck', () => {
     const select = wrapper.find('[data-testid="tts-language"]')
     expect(select.findAll('option').map((o) => o.text())).toEqual(['English', 'Italian'])
     await select.setValue('it-IT')
-    expect(localStorage.getItem('presenton.tts.lang')).toBe('it-IT')
-    expect(localStorage.getItem('presenton.tts.lang.p1')).toBe('it-IT')
+    expect(localStorage.getItem('slideshows.tts.lang')).toBe('it-IT')
+    expect(localStorage.getItem('slideshows.tts.lang.p1')).toBe('it-IT')
     await flushPromises()
     expect(m.getTtsStatus).toHaveBeenCalledWith('p1', 'it-IT')
   })
@@ -259,7 +259,7 @@ describe('VoiceTab: whole deck', () => {
     await button(wrapper, 'Generate narration').trigger('click')
     await flushPromises()
     expect(m.generateTtsAsync).toHaveBeenCalledWith('p1', { language: 'en-US' })
-    expect(sessionStorage.getItem('presenton.task.tts.p1')).toBe('t1')
+    expect(sessionStorage.getItem('slideshows.task.tts.p1')).toBe('t1')
     await vi.advanceTimersByTimeAsync(10)
     await flushPromises()
     expect(wrapper.find('[role="status"]').exists()).toBe(true)
@@ -270,7 +270,7 @@ describe('VoiceTab: whole deck', () => {
     await flushPromises()
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['tts', 'p1', 'en-US'] })
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['playback', 'p1'] })
-    expect(sessionStorage.getItem('presenton.task.tts.p1')).toBeNull()
+    expect(sessionStorage.getItem('slideshows.task.tts.p1')).toBeNull()
     vi.useRealTimers()
   })
 

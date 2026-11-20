@@ -139,8 +139,6 @@ describe('PresentView', () => {
     })
     // jsdom has no layout, so the stage falls back to the window size: 1024x768 gives scale 0.8.
     const { wrapper } = await mountView()
-    expect(wrapper.find('video').exists()).toBe(false)
-    await button(wrapper, 'Turn narration on').trigger('click')
     await flushPromises()
     const video = wrapper.get('video')
     expect((video.element as HTMLVideoElement).muted).toBe(true)
@@ -150,6 +148,26 @@ describe('PresentView', () => {
     expect(video.attributes('style')).toContain('top: 288px')
     expect(video.attributes('style')).toContain('width: 256px')
     expect(video.attributes('style')).toContain('height: 144px')
+    wrapper.unmount()
+  })
+
+  it('plays the avatar video by itself when narration is off', async () => {
+    m.getPlayback.mockResolvedValue({
+      presentation_id: 'p1',
+      slides: [
+        playbackSlide(0, {
+          actor: 'video',
+          video: { url: 'http://backend:8000/v/0.mp4' },
+          placeholder: { position: { x: 0, y: 0 }, size: { width: 320, height: 180 } },
+        }),
+      ],
+    })
+    const spy = vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve())
+    const { wrapper } = await mountView()
+    await flushPromises()
+    expect(wrapper.find('video').exists()).toBe(true)
+    expect(spy).toHaveBeenCalled()
+    spy.mockRestore()
     wrapper.unmount()
   })
 

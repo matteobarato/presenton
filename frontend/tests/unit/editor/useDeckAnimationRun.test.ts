@@ -13,7 +13,7 @@ vi.mock('@/api/animations', async (orig) => ({
 }))
 vi.mock('@/components/ui/sonner', () => ({ toast: { error: vi.fn() } }))
 
-const KEY = 'presenton.task.animations.p1'
+const KEY = 'slideshows.task.animations.p1'
 
 function setup() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })

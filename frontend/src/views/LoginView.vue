@@ -39,7 +39,7 @@ async function submit() {
   <main class="grid min-h-dvh place-items-center bg-rail px-5">
     <Card class="w-full max-w-sm">
       <CardHeader class="p-6 pb-4">
-        <CardTitle class="font-display text-[22px] font-medium tracking-[-0.03em]">Sign in to Presenton</CardTitle>
+        <CardTitle class="font-display text-[22px] font-medium tracking-[-0.03em]">Sign in to Slideshows</CardTitle>
         <CardDescription class="mt-1.5 text-[12px] text-muted">Use the account you created during setup.</CardDescription>
       </CardHeader>
       <CardContent class="p-6 pt-0">

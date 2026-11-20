@@ -66,7 +66,7 @@ describe('useTtsLanguage', () => {
   })
 
   it('falls back to the last language used anywhere, then to English', async () => {
-    localStorage.setItem('presenton.tts.lang', 'fr-FR')
+    localStorage.setItem('slideshows.tts.lang', 'fr-FR')
     const a = useIn('deck-x2', 'Klingon')
     await flushPromises()
     expect(a.api.language.value).toBe('fr-FR')
@@ -84,9 +84,9 @@ describe('useTtsLanguage', () => {
     two.api.setLanguage('it-IT')
     expect(one.api.language.value).toBe('fr-FR')
     expect(two.api.language.value).toBe('it-IT')
-    expect(localStorage.getItem('presenton.tts.lang.deck-1')).toBe('fr-FR')
-    expect(localStorage.getItem('presenton.tts.lang.deck-2')).toBe('it-IT')
-    expect(localStorage.getItem('presenton.tts.lang')).toBe('it-IT')
+    expect(localStorage.getItem('slideshows.tts.lang.deck-1')).toBe('fr-FR')
+    expect(localStorage.getItem('slideshows.tts.lang.deck-2')).toBe('it-IT')
+    expect(localStorage.getItem('slideshows.tts.lang')).toBe('it-IT')
   })
 
   it('makes the slide status dots follow a change made elsewhere on the page', async () => {

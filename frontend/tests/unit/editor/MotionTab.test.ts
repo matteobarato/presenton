@@ -291,7 +291,7 @@ describe('MotionTab', () => {
   })
 
   it('locks every edit while the deck run plans every slide, and says why', async () => {
-    sessionStorage.setItem('presenton.task.animations.p1', 'task-1')
+    sessionStorage.setItem('slideshows.task.animations.p1', 'task-1')
     h.getTask.mockResolvedValue({ id: 'task-1', status: 'pending' })
     const { w, fake } = await mountTab()
     await vi.waitFor(() => expect(w.text()).toContain('Planning motion for every slide'))

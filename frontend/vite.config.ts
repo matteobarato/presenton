@@ -8,7 +8,7 @@ const backendUrl = process.env.BACKEND_URL ?? 'http://localhost:5001'
 
 export default defineConfig({
   // Shown by the "backend unreachable" banner.
-  define: { __PRESENTON_BACKEND_URL__: JSON.stringify(backendUrl) },
+  define: { __SLIDESHOWS_BACKEND_URL__: JSON.stringify(backendUrl) },
   plugins: [vue(), tailwindcss()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: {

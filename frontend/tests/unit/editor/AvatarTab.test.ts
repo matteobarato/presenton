@@ -239,7 +239,7 @@ describe('AvatarTab: avatar of the active slide', () => {
     dialogButton('Generate').click()
     await flushPromises()
     expect(m.startAvatarGeneration).toHaveBeenCalledWith('p1', { slide_indices: [0], language: 'en-US', force: false })
-    expect(sessionStorage.getItem('presenton.task.avatars.p1')).toBe('g1')
+    expect(sessionStorage.getItem('slideshows.task.avatars.p1')).toBe('g1')
   })
 
   it('shows the provider message on a failed slide', async () => {
@@ -291,7 +291,7 @@ describe('AvatarTab: avatars for the whole deck', () => {
     await flushPromises()
     dialogButton('Generate').click()
     await flushPromises()
-    expect(sessionStorage.getItem('presenton.task.avatars.p1')).toBe('g7')
+    expect(sessionStorage.getItem('slideshows.task.avatars.p1')).toBe('g7')
     expect(m.getTask).toHaveBeenCalledWith('g7')
   })
 
@@ -428,7 +428,7 @@ describe('AvatarTab: overview', () => {
   it('opens the portrait settings from a missing-portrait fix', async () => {
     m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait: null, videos: [] })
     const { wrapper } = await mountTab()
-    localStorage.setItem('presenton.editor.deck-avatars-open', 'false')
+    localStorage.setItem('slideshows.editor.deck-avatars-open', 'false')
     await cell(wrapper, 'portrait', 'deck').find('button').trigger('click')
     await flushPromises()
     expect(wrapper.find('#deck-avatars-body').attributes('style') ?? '').not.toContain('display: none')

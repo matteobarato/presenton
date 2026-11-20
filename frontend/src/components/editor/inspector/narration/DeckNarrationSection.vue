@@ -31,7 +31,7 @@ const {
   removeTts,
 } = injectDeckNarration()
 // Per-viewer convenience; useLocalStorage falls back to memory when storage is unavailable.
-const open = useLocalStorage('presenton.editor.deck-narration-open', true)
+const open = useLocalStorage('slideshows.editor.deck-narration-open', true)
 
 const total = computed(() => props.presentation.slides.length)
 const narrated = computed(() => counts.value.ready + counts.value.translated + counts.value.stale)

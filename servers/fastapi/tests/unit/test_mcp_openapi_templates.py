@@ -18,6 +18,7 @@ def test_default_templates_match_supported_builtin_groups():
         "horizon",
         "mosaic",
         "pulse",
+        "studio",
         "verdant",
     ]
 

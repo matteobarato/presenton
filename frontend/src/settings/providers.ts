@@ -52,7 +52,7 @@ export const DEFAULT_OLLAMA_URL = 'http://host.docker.internal:11434'
 export const LOCALHOST_OLLAMA_URL = 'http://localhost:11434'
 
 /** The classic app lives on the backend origin; same-origin /settings is this app. */
-export const CLASSIC_SETTINGS_URL = `${__PRESENTON_BACKEND_URL__}/settings`
+export const CLASSIC_SETTINGS_URL = `${__SLIDESHOWS_BACKEND_URL__}/settings`
 
 export const TEXT_PROVIDERS: TextProviderRow[] = [
   {

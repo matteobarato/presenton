@@ -37,7 +37,7 @@ let queryClient: QueryClient
 beforeEach(() => {
   Object.values(m).forEach((f) => f.mockReset())
   localStorage.clear()
-  localStorage.setItem('presenton.tts.lang', 'en-US')
+  localStorage.setItem('slideshows.tts.lang', 'en-US')
   m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait, videos: [] })
   m.getTtsStatus.mockResolvedValue({ presentation_id: 'p1', language: 'en-US', audios: [audio(0, 'Hello'), audio(1, 'Old note')] })
   m.getPresentation.mockResolvedValue(presentation)

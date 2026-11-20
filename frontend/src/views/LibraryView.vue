@@ -28,7 +28,7 @@ const queryClient = useQueryClient()
 const session = useSessionStore()
 const query = useQuery({ queryKey: presentationKeys.all, queryFn: listPresentations })
 
-const layout = useLocalStorage<LibraryLayout>('presenton.library.view', 'grid')
+const layout = useLocalStorage<LibraryLayout>('slideshows.library.view', 'grid')
 const search = ref('')
 
 const visible = computed(() => {

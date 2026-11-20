@@ -25,7 +25,7 @@ const {
 } = injectDeckAvatars()
 
 // Per-viewer convenience; useLocalStorage falls back to memory when storage is unavailable.
-const open = useLocalStorage('presenton.editor.deck-avatars-open', true)
+const open = useLocalStorage('slideshows.editor.deck-avatars-open', true)
 const root = useTemplateRef<HTMLElement>('root')
 /** Opens the section and brings the portrait picker into view (the overview's "Missing portrait" fix). */
 async function revealPortrait() {

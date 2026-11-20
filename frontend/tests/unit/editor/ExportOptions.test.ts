@@ -79,7 +79,7 @@ describe('ExportOptions files', () => {
 
 describe('ExportOptions video', () => {
   it('shows basic options, hides advanced ones until expanded', async () => {
-    localStorage.setItem('presenton.tts.lang', 'it')
+    localStorage.setItem('slideshows.tts.lang', 'it')
     const w = mountTab()
     await flushPromises()
     expect(w.text()).toContain('Language')
@@ -95,7 +95,7 @@ describe('ExportOptions video', () => {
   })
 
   it('starts with the narration language, persists the task and shows its message', async () => {
-    localStorage.setItem('presenton.tts.lang', 'it')
+    localStorage.setItem('slideshows.tts.lang', 'it')
     m.startVideoExport.mockResolvedValue({ id: 't1', type: 'x', status: 'pending' })
     m.getTask.mockResolvedValue({ id: 't1', status: 'pending', message: 'Rendering slide 2', data: { completed: 1, total: 4 } })
     const w = mountTab()
@@ -104,7 +104,7 @@ describe('ExportOptions video', () => {
     await flushPromises()
     const body = m.startVideoExport.mock.calls[0][1]
     expect(body).toMatchObject({ language: 'it', resolution: '1080p', subtitles: 'soft', avatars: true, animate: false })
-    expect(sessionStorage.getItem(`presenton.task.mp4.${ID}`)).toBe('t1')
+    expect(sessionStorage.getItem(`slideshows.task.mp4.${ID}`)).toBe('t1')
     await vi.waitFor(() => expect(w.get('[data-testid="mp4-message"]').text()).toBe('Rendering slide 2'))
   })
 
@@ -116,7 +116,7 @@ describe('ExportOptions video', () => {
     m.getVideoExport.mockResolvedValue(video)
     await w.get('[data-testid="mp4-start"]').trigger('click')
     await vi.waitFor(() => expect(w.find('[data-testid="mp4-video"]').exists()).toBe(true))
-    expect(sessionStorage.getItem(`presenton.task.mp4.${ID}`)).toBeNull()
+    expect(sessionStorage.getItem(`slideshows.task.mp4.${ID}`)).toBeNull()
     expect(w.get('[data-testid="mp4-download"]').attributes('href')).toBe('/app_data/exports/v.mp4')
   })
 
