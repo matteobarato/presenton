@@ -101,9 +101,18 @@ watch(stepParam, () => (summary.value = null))
 
 const current = computed<WizardStepKey>(() => summary.value ?? step.value ?? requested.value ?? progress.value.resume)
 
+const GENERATING = 'Wait for the slides to finish generating'
+/** Leaving Preview mid-generation would abort the stream and lose the deck: summaries stay open, other steps don't. */
+const heldOnPreview = (target: DeckStepKey | null) =>
+  slidesStreaming.value && requested.value === 'preview' && !!target && target !== 'preview'
+
 function select(key: WizardStepKey) {
   if (key === 'topic' || key === 'look' || key === 'details') {
     summary.value = key
+    return
+  }
+  if (heldOnPreview(key)) {
+    toast.info(GENERATING)
     return
   }
   summary.value = null
@@ -131,6 +140,10 @@ function navigate(dir: 'back' | 'next') {
     return
   }
   const target = neighbour(dir)
+  if (heldOnPreview(target)) {
+    toast.info(GENERATING)
+    return
+  }
   if (target) void go(target)
 }
 

@@ -7,9 +7,10 @@ import { claimWizardFooter } from './stepFooter'
 
 /**
  * A step's own footer. Inside the wizard it takes the wizard's footer place (one footer on screen, with the
- * wizard's Back unless the step fills `back`); outside it renders in place. Same props and slots as `WizardFooter`.
+ * wizard's Back unless the step fills `back`); outside it renders in place. Same props and slots as `WizardFooter`,
+ * plus `backDisabled` for the wizard's Back.
  */
-defineProps<{ status?: string; error?: string | null; busy?: boolean }>()
+defineProps<{ status?: string; error?: string | null; busy?: boolean; backDisabled?: boolean }>()
 const emit = defineEmits<{ retry: [] }>()
 const host = claimWizardFooter()
 // The footer offers Retry only when the step listens for it.
@@ -21,7 +22,7 @@ const listeners = getCurrentInstance()?.vnode.props?.onRetry ? { retry: () => em
     <WizardFooter :status="status" :error="error" :busy="busy" v-on="listeners">
       <template #back>
         <slot name="back">
-          <Button v-if="host?.back.available.value" type="button" variant="ghost" @click="host?.back.go()">
+          <Button v-if="host?.back.available.value" type="button" variant="ghost" :disabled="backDisabled" @click="host?.back.go()">
             <ArrowLeft class="size-4" aria-hidden="true" />Back
           </Button>
         </slot>

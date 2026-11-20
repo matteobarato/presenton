@@ -111,6 +111,24 @@ describe('PreviewStep', () => {
     expect(mocks.plan).toHaveBeenCalledTimes(1)
   })
 
+  it('edit slides and present wait while streaming', async () => {
+    const { wrapper, router } = await mountStep('/p/p1/create/preview?stream=1', deck([slide(0)], 3))
+    const edit = button(wrapper, /Edit slides/)!
+    const present = button(wrapper, /Present/)!
+    expect(edit.attributes('disabled')).toBeDefined()
+    expect(present.element.tagName).toBe('BUTTON')
+    expect(present.attributes('disabled')).toBeDefined()
+    await edit.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('create')
+  })
+
+  it('says finishing up once every slide is in but the stream is still open', async () => {
+    const { wrapper } = await mountStep('/p/p1/create/preview?stream=1', deck([slide(0), slide(1)], 2))
+    expect(wrapper.findAll('[data-testid="preview-skeleton"]')).toHaveLength(0)
+    expect(status(wrapper)).toBe('Finishing up…')
+  })
+
   it('removes stream flag when done', async () => {
     const { wrapper, router } = await mountStep('/p/p1/create/preview?template=modern&stream=1', deck([slide(0)], 2))
     mocks.status.value = 'done'
@@ -149,11 +167,11 @@ describe('PreviewStep', () => {
     expect(shown()).toBe('s1')
     const counter = () => dialog()?.querySelector('[data-testid="lightbox-counter"]')?.textContent
     expect(counter()).toBe('2 / 3')
-    dialog()!.querySelector('[data-testid="lightbox-stage"]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+    dialog()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
     await nextTick()
     expect(shown()).toBe('s2')
     const press = async (key: string) => {
-      dialog()!.querySelector('[data-testid="lightbox-stage"]')!.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+      dialog()!.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
       await nextTick()
     }
     await press('ArrowLeft')
@@ -166,6 +184,10 @@ describe('PreviewStep', () => {
     ;(dialog()!.querySelector('button[aria-label="Next slide"]') as HTMLButtonElement).click()
     await nextTick()
     expect(shown()).toBe('s1')
+    // Arrow keys work wherever focus sits in the dialog, the close button included.
+    dialog()!.querySelector('button[aria-label="Close dialog"]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+    await nextTick()
+    expect(shown()).toBe('s2')
     document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
     await flushPromises()
     await new Promise((r) => setTimeout(r, 0))

@@ -19,6 +19,8 @@ const m = vi.hoisted(() => ({
   listThemes: vi.fn(),
   outlineStream: vi.fn(),
   outlineStreaming: false,
+  /** The slide stream fails at once (fatal), instead of never ending. */
+  streamFails: false,
   toast: { info: vi.fn(), error: vi.fn(), success: vi.fn() },
 }))
 // The hooks call their fetchers inside their own module, so the hooks themselves are swapped for
@@ -56,9 +58,14 @@ vi.mock('@/api/templates', async (orig) => ({
 }))
 vi.mock('@/api/themes', async (orig) => ({ ...(await orig<typeof import('@/api/themes')>()), listThemes: m.listThemes }))
 vi.mock('@/components/ui/sonner', () => ({ toast: m.toast }))
-// The preview step streams the slides from the server; here that stream never ends, so `?stream=1` stays put.
+// The preview step streams the slides from the server; here that stream never ends (so `?stream=1` stays put),
+// or fails at once when `m.streamFails` is set.
 vi.mock('@/api/sse', () => ({
   streamEvents: async function* (_url: string, { signal }: { signal?: AbortSignal } = {}) {
+    if (m.streamFails) {
+      yield { type: 'error', detail: 'Boom', retryable: false }
+      return
+    }
     await new Promise<void>((resolve) => signal?.addEventListener('abort', () => resolve(), { once: true }))
     yield* []
   },
@@ -144,6 +151,7 @@ beforeEach(() => {
   m.listTemplates.mockResolvedValue([{ id: 'modern', name: 'Modern', layouts: [], kind: 'builtin' }])
   m.listThemes.mockResolvedValue([])
   m.outlineStreaming = false
+  m.streamFails = false
 })
 
 const panel = (key: string) => `[data-testid="step-body-${key}"]`
@@ -209,6 +217,25 @@ describe('CreateDeckView', () => {
     expect(wrapper.find(panel('preview')).exists()).toBe(true)
   })
 
+  it('keeps a streaming preview open: other deck steps and Back wait, summaries still open', async () => {
+    m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
+    const { wrapper, router } = await mountView('/p/p1/create/preview?stream=1')
+    await wrapper.get('[data-testid="step-outline"]').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/preview?stream=1')
+    expect(m.toast.info).toHaveBeenCalledWith('Wait for the slides to finish generating')
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', altKey: true }))
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/preview?stream=1')
+    expect(m.toast.info).toHaveBeenCalledTimes(2)
+    const back = wrapper.findAll('[data-testid="wizard-footer"] button').find((b) => /^Back$/.test(b.text()))!
+    expect(back.attributes('disabled')).toBeDefined()
+    await wrapper.get('[data-testid="step-topic"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="summary-topic"]').exists()).toBe(true)
+    expect(wrapper.find(panel('preview')).exists()).toBe(true)
+  })
+
   it('going from the outline to a streaming preview stays on the preview', async () => {
     m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
     const { wrapper, router } = await mountView('/p/p1/create/outline?template=modern')
@@ -259,6 +286,8 @@ describe('CreateDeckView', () => {
   })
 
   it('leaving preview drops the stream flag', async () => {
+    // A failed stream keeps `?stream=1` (for Retry) but no longer holds the user on Preview.
+    m.streamFails = true
     m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
     const { router } = await mountView('/p/p1/create/preview?stream=1&template=modern')
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', altKey: true }))

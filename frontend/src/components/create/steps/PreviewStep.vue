@@ -54,7 +54,9 @@ async function retry() {
 const slides = computed(() => props.presentation.slides)
 const total = computed(() => Math.max(props.presentation.n_slides ?? 0, slides.value.length))
 const pending = computed(() => (streaming.value ? Math.max(0, total.value - slides.value.length) : 0))
-const generatingLabel = computed(() => `Generating slide ${Math.min(slides.value.length + 1, total.value)} of ${total.value}…`)
+const generatingLabel = computed(() =>
+  slides.value.length >= total.value ? 'Finishing up…' : `Generating slide ${slides.value.length + 1} of ${total.value}…`,
+)
 const showMetrics = computed(() => streamFlag.value || streaming.value)
 
 // ── Lightbox ──
@@ -145,12 +147,14 @@ function editSlides() {
     @closed="restoreFocus"
   />
 
-  <WizardStepFooter :status="footerStatus" :error="streamError" :busy="streaming" @retry="retry">
+  <!-- Leaving mid-generation aborts the stream and loses the deck: Back, Present and Edit wait (the status says why). -->
+  <WizardStepFooter :status="footerStatus" :error="streamError" :busy="streaming" :back-disabled="streaming" @retry="retry">
     <template #secondary>
-      <Button as-child variant="ghost">
+      <Button v-if="streaming" type="button" variant="ghost" disabled><Play class="size-4" aria-hidden="true" />Present</Button>
+      <Button v-else as-child variant="ghost">
         <RouterLink :to="{ name: 'present', params: { id } }"><Play class="size-4" aria-hidden="true" />Present</RouterLink>
       </Button>
-      <Button type="button" variant="outline" @click="editSlides">
+      <Button type="button" variant="outline" :disabled="streaming" @click="editSlides">
         <Pencil class="size-4" aria-hidden="true" />Edit slides
       </Button>
     </template>

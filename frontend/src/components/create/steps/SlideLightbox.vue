@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
-import type { Slide } from '@/api/types'
+import type { Presentation, Slide } from '@/api/types'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import SlideView from '@/render/SlideView.vue'
 
@@ -9,7 +9,7 @@ import SlideView from '@/render/SlideView.vue'
  * One generated slide at full width, with prev/next buttons and ←/→ keys; Esc closes (the Dialog's own).
  * `closed` fires when the dialog would restore focus, so the caller can return it to the thumb that opened it.
  */
-const props = defineProps<{ slides: Slide[]; theme?: unknown; fonts?: unknown; title: string }>()
+const props = defineProps<{ slides: Slide[]; theme?: Presentation['theme']; fonts?: Presentation['fonts']; title: string }>()
 const index = defineModel<number | null>('index', { required: true })
 const emit = defineEmits<{ closed: [] }>()
 
@@ -45,12 +45,13 @@ function onCloseAutoFocus(e: Event) {
     <DialogContent
       class="w-[min(1100px,calc(100vw-32px))] max-w-none bg-[#0c1114ee] p-4 backdrop-blur-xl"
       @close-auto-focus="onCloseAutoFocus"
+      @keydown="onKeydown"
     >
-      <div data-testid="lightbox-stage" @keydown="onKeydown">
+      <div>
         <DialogTitle class="sr-only">{{ title }} — slide {{ (index ?? 0) + 1 }}</DialogTitle>
         <DialogDescription class="sr-only">Slide preview. Use the arrow keys to move between slides.</DialogDescription>
         <div class="overflow-hidden rounded-[9px] bg-[#101416]">
-          <SlideView v-if="current" :key="current.id ?? index ?? 0" :slide="current" :theme="theme as never" :fonts="fonts as never" fit="width" />
+          <SlideView v-if="current" :key="current.id ?? index ?? 0" :slide="current" :theme="theme" :fonts="fonts" fit="width" />
         </div>
         <div class="mt-3 flex items-center justify-center gap-4 text-[12px] text-[#9eb7c7] tabular-nums">
           <button
