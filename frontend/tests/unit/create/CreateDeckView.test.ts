@@ -56,6 +56,13 @@ vi.mock('@/api/templates', async (orig) => ({
 }))
 vi.mock('@/api/themes', async (orig) => ({ ...(await orig<typeof import('@/api/themes')>()), listThemes: m.listThemes }))
 vi.mock('@/components/ui/sonner', () => ({ toast: m.toast }))
+// The preview step streams the slides from the server; here that stream never ends, so `?stream=1` stays put.
+vi.mock('@/api/sse', () => ({
+  streamEvents: async function* (_url: string, { signal }: { signal?: AbortSignal } = {}) {
+    await new Promise<void>((resolve) => signal?.addEventListener('abort', () => resolve(), { once: true }))
+    yield* []
+  },
+}))
 // The outline step streams from the server; here it only needs a finished outline.
 vi.mock('@/composables/useOutlineStream', async () => {
   const { ref } = await import('vue')
@@ -106,6 +113,7 @@ async function mountView(path: string) {
     routes: [
       { path: '/p/:id/create/:step?', name: 'create', component: CreateDeckView },
       { path: '/p/:id', name: 'editor', component: { template: '<div />' } },
+      { path: '/p/:id/present', name: 'present', component: { template: '<div />' } },
       { path: '/', name: 'library', component: { template: '<div />' } },
       { path: '/new', name: 'new', component: { template: '<div />' } },
     ],

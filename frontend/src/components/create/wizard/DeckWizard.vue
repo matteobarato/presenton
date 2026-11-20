@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/sonner'
 import { useDeckWizard } from '@/composables/useDeckWizard'
 import OutlineStep from '@/components/create/steps/OutlineStep.vue'
+import PreviewStep from '@/components/create/steps/PreviewStep.vue'
 import WizardFooter from './WizardFooter.vue'
 import WizardLayout from './WizardLayout.vue'
 import type { DeckStepKey, WizardStepKey } from './progress'
@@ -201,7 +202,9 @@ const details = computed(() => {
     <section v-if="step === 'outline'" v-show="!summary" data-testid="step-body-outline">
       <OutlineStep :presentation="presentation" @streaming="outlineStreaming = $event" />
     </section>
-    <section v-else-if="step === 'preview'" v-show="!summary" data-testid="step-body-preview" />
+    <section v-else-if="step === 'preview'" v-show="!summary" data-testid="step-body-preview">
+      <PreviewStep :presentation="presentation" :progress="progress" @streaming="slidesStreaming = $event" />
+    </section>
     <section v-else-if="step === 'avatar'" v-show="!summary" data-testid="step-body-avatar" />
     <section v-else-if="step === 'export'" v-show="!summary" data-testid="step-body-export" />
     <div v-else-if="!summary" aria-busy="true" aria-label="Loading step">

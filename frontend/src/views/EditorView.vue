@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { usePresentation } from '@/api/presentations'
 import { ApiError } from '@/api/errors'
@@ -22,10 +22,8 @@ import { useSelectionScope } from '@/composables/useSelectionScope'
 import { useSlideEditing } from '@/slide-editor/useSlideEditing'
 import { animationKeys, provideSlideAnimation } from '@/composables/useSlideAnimation'
 import { useQueryClient } from '@tanstack/vue-query'
-import { provideDeckAnimationRun } from '@/composables/useDeckAnimationRun'
-import { animateFlagKey } from '@/components/create/options'
+import { usePlanMotionAfterGeneration } from '@/composables/usePlanMotionAfterGeneration'
 import AiProgress from '@/components/shell/AiProgress.vue'
-import { toast } from '@/components/ui/sonner'
 import type { Slide } from '@/api/types'
 import { useEditorShortcuts } from '@/composables/useEditorShortcuts'
 import { usePresentationStream } from '@/composables/usePresentationStream'
@@ -46,12 +44,6 @@ const slides = computed(() => presentation.value?.slides ?? [])
 const streamRequested = computed(() => ['1', 'true'].includes(String(route.query.stream ?? '')))
 const stream = usePresentationStream(id, streamRequested)
 const generating = computed(() => stream.status.value === 'streaming')
-// The deck-wide motion run, shared by the Motion tab and the run below; it outlives the tab.
-const deckRun = provideDeckAnimationRun(id)
-const planningAfterGeneration = ref(false)
-watch(deckRun.running, (running, was) => {
-  if (was && !running) planningAfterGeneration.value = false
-})
 watch(
   () => stream.status.value,
   (status) => {
@@ -62,26 +54,11 @@ watch(
     const query = { ...route.query }
     delete query.stream
     void router.replace({ query })
-    void planMotionIfRequested(id.value)
   },
 )
-
-/** A deck created with "Animate slides" gets its motion planned once, right after generation. */
-async function planMotionIfRequested(presentationId: string) {
-  const key = animateFlagKey(presentationId)
-  try {
-    if (sessionStorage.getItem(key) !== '1') return
-    // Consumed before the request, so a second "done" (or a reload) never plans twice.
-    sessionStorage.removeItem(key)
-  } catch {
-    return
-  }
-  planningAfterGeneration.value = true
-  await deckRun.run()
-  // Not started (an error, or the editor moved to another deck meanwhile): no progress to show.
-  if (!deckRun.running.value) planningAfterGeneration.value = false
-  if (deckRun.error.value) toast.error('Motion planning could not start', { description: deckRun.error.value })
-}
+// Provides the deck-wide motion run (shared by the Motion tab and timeline; it outlives the tab) and plans
+// a deck created with "Animate slides" once its generation is done.
+const { planning: planningAfterGeneration } = usePlanMotionAfterGeneration(id, stream.status)
 
 useEditorShortcuts()
 
