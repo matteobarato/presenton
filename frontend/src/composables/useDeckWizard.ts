@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/vue-query'
 import type { Presentation } from '@/api/types'
 import { useTts } from '@/api/tts'
 import { getVideos, videoKeys } from '@/api/videos'
-import { listTemplates, templatesKey } from '@/api/templates'
+import { listTemplates, templatesKey, type TemplateSummary } from '@/api/templates'
 import { injectDeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
 import { injectDeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
 import { isFreshVideo } from '@/components/editor/inspector/video/avatar-state'
@@ -42,7 +42,12 @@ export function useDeckWizard(
   id: Ref<string>,
   presentation: Ref<Presentation>,
   opts: DeckWizardOptions,
-): { progress: ComputedRef<DeckProgress>; items: ComputedRef<WizardStepItem[]>; ready: ComputedRef<boolean> } {
+): {
+  progress: ComputedRef<DeckProgress>
+  items: ComputedRef<WizardStepItem[]>
+  ready: ComputedRef<boolean>
+  template: ComputedRef<TemplateSummary | null>
+} {
   const narration = injectDeckNarration()
   const avatars = injectDeckAvatars()
 
@@ -74,19 +79,19 @@ export function useDeckWizard(
   })
 
   const templates = useQuery({ queryKey: templatesKey, queryFn: listTemplates })
-  const templateName = computed(() => {
+  const template = computed(() => {
     const tid =
       blockTemplateId(presentation.value.slides) ?? opts.templateId?.value ?? readDeckLook(id.value)?.template ?? null
-    return (tid && templates.data.value?.find((t) => t.id === tid)?.name) || 'Template'
+    return (tid && templates.data.value?.find((t) => t.id === tid)) || null
   })
+  const templateName = computed(() => template.value?.name || 'Template')
 
   const items = computed<WizardStepItem[]>(() => {
     const p = presentation.value
     const n = slideCount.value
     const counts = narration.counts.value
     const summaries: Record<string, string> = {
-      topic: clip(p.content ?? ''),
-      look: templateName.value,
+      topic: [clip(p.content ?? '', 40), templateName.value].filter(Boolean).join(' · '),
       details: [`${p.n_slides} slides`, p.tone, p.verbosity].filter(Boolean).join(' · '),
       outline: n ? `${n} slides` : '',
       preview: '',
@@ -95,12 +100,12 @@ export function useDeckWizard(
     }
     return WIZARD_STEPS.map(({ key, label }) => {
       const status =
-        key === 'topic' || key === 'look' || key === 'details'
+        key === 'topic' || key === 'details'
           ? { state: 'done' as const, reason: null, badge: null }
           : progress.value.steps[key as DeckStepKey]
       return { key, label, summary: summaries[key] ?? '', ...status }
     })
   })
 
-  return { progress, items, ready }
+  return { progress, items, ready, template }
 }

@@ -14,13 +14,11 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import GenerationOptions from '@/components/create/GenerationOptions.vue'
 import NewTemplateSelector from '@/components/create/NewTemplateSelector.vue'
-import ThemePicker from '@/components/create/ThemePicker.vue'
 import TopicComposer from '@/components/create/TopicComposer.vue'
 import WizardFooter from '@/components/create/wizard/WizardFooter.vue'
 import WizardLayout from '@/components/create/wizard/WizardLayout.vue'
 import { AVATAR_BADGE, avatarHint, type WizardStepItem, type WizardStepKey } from '@/components/create/wizard/progress'
 import { useNewDraft } from '@/components/create/wizard/useNewDraft'
-import { useThemeParam } from '@/composables/useThemeParam'
 import { animateFlagKey, mediaCountForRequest, type CreateOptions } from '@/components/create/options'
 import { AUTO_LANGUAGE } from '@/lib/languages'
 
@@ -49,7 +47,6 @@ watch(
   },
   { immediate: true },
 )
-const { themeList, isPending: themesPending, selectedThemeId, chosenTheme } = useThemeParam()
 const session = useSessionStore()
 
 const prompt = ref('')
@@ -65,7 +62,7 @@ const options = ref<CreateOptions>({
   includeTitleSlide: false,
   includeTableOfContents: false,
   webSearch: false,
-  animate: false,
+  animate: true,
 })
 // A reload keeps the prompt and options; files can't be kept, so the composer asks for them again.
 const draft = useNewDraft(prompt, options)
@@ -103,8 +100,8 @@ const hasTemplate = computed(() => !!chosen.value)
 const canSubmit = computed(() => !pending.value && hasTopic.value && hasTemplate.value)
 
 // --- Steps: free to visit in any order; creating needs a topic and a template. ---
-type NewStepKey = Extract<WizardStepKey, 'topic' | 'look' | 'details'>
-const ORDER: NewStepKey[] = ['topic', 'look', 'details']
+type NewStepKey = Extract<WizardStepKey, 'topic' | 'details'>
+const ORDER: NewStepKey[] = ['topic', 'details']
 const step = ref<NewStepKey>('topic')
 const languageNeeded = computed(() => files.value.length > 0 && options.value.language === AUTO_LANGUAGE)
 
@@ -139,8 +136,7 @@ const items = computed<WizardStepItem[]>(() => {
     badge,
   })
   return [
-    mine('topic', 'Topic', topic, hasTopic.value),
-    mine('look', 'Look', chosen.value?.name ?? '', hasTemplate.value),
+    mine('topic', 'Topic & look', [topic, chosen.value?.name].filter(Boolean).join(' · '), hasTopic.value && hasTemplate.value),
     mine('details', 'Details', `${o.slides ? `${o.slides} slides` : 'Auto length'} · ${mediaSummary(o)}`, false),
     locked('outline', 'Outline'),
     locked('preview', 'Preview'),
@@ -152,9 +148,8 @@ const items = computed<WizardStepItem[]>(() => {
 const copy: Record<NewStepKey, { heading: string; lede: string }> = {
   topic: {
     heading: 'Every great story starts somewhere.',
-    lede: 'Say what it’s about, pick a look, tune the details. Next you’ll review the outline before any slides are made.',
+    lede: 'Say what it’s about and pick a look. Then tune the details and review the outline before any slides are made.',
   },
-  look: { heading: 'Pick a look', lede: 'Choose a template for your slides. A theme can recolour it.' },
   details: { heading: 'Fine-tune the details', lede: 'The defaults work well. Change only what matters.' },
 }
 
@@ -165,8 +160,7 @@ function go(to: NewStepKey) {
   step.value = to
 }
 function advance() {
-  if (step.value === 'topic') go('look')
-  else if (step.value === 'look' && hasTemplate.value) go('details')
+  if (step.value === 'topic' && hasTemplate.value) go('details')
 }
 function back() {
   const i = ORDER.indexOf(step.value)
@@ -180,14 +174,14 @@ function onNavigate(dir: 'back' | 'next') {
 
 // Why Create outline is unavailable, in the order the user can fix it.
 const blockers = computed(() => {
-  const list: { key: NewStepKey; text: string; action: string }[] = []
-  if (!hasTopic.value) list.push({ key: 'topic', text: 'Add a topic or a document', action: 'Go to Topic' })
-  if (!hasTemplate.value) list.push({ key: 'look', text: 'Pick a template', action: 'Go to Look' })
+  const list: { id: string; key: NewStepKey; text: string; action: string }[] = []
+  if (!hasTopic.value) list.push({ id: 'topic', key: 'topic', text: 'Add a topic or a document', action: 'Go to Topic' })
+  if (!hasTemplate.value) list.push({ id: 'look', key: 'topic', text: 'Pick a template', action: 'Pick a look' })
   return list
 })
 const footerStatus = computed(() => {
   if (pending.value) return stage.value
-  if (step.value === 'look' && !hasTemplate.value) return 'Pick a template to continue'
+  if (step.value === 'topic' && !hasTemplate.value) return 'Pick a template to continue'
   return ''
 })
 
@@ -229,7 +223,7 @@ async function submit() {
       generation_mode: 'standard',
     })
     // Each deck remembers its look: the Outline step finds it even when reached without the query.
-    if (chosen.value) rememberDeckLook(created.id, { template: chosen.value.id, ...(chosenTheme.value && { theme: chosenTheme.value.id }) })
+    if (chosen.value) rememberDeckLook(created.id, { template: chosen.value.id })
     if (o.animate) {
       try {
         sessionStorage.setItem(animateFlagKey(created.id), '1')
@@ -238,7 +232,7 @@ async function submit() {
       }
     }
     // Stay pending until the navigation settles; a failure leaves the draft intact.
-    await router.push({ name: 'create', params: { id: created.id, step: 'outline' }, query: { ...(chosen.value && { template: chosen.value.id }), ...(chosenTheme.value && { theme: chosenTheme.value.id }) } })
+    await router.push({ name: 'create', params: { id: created.id, step: 'outline' }, query: { ...(chosen.value && { template: chosen.value.id }) } })
     draft.clear()
   } catch (e) {
     error.value = e instanceof ApiError ? e.message : e instanceof Error && e.message ? e.message : 'Something went wrong while starting your presentation.'
@@ -278,29 +272,38 @@ watch(
     @select="(k) => isStep(k) && !pending && go(k)"
     @navigate="onNavigate"
   >
-    <form id="new-form" class="flex flex-col gap-5" @submit.prevent="onFormSubmit">
+    <form id="new-form" class="flex flex-col gap-6" @submit.prevent="onFormSubmit">
       <template v-if="step === 'topic'">
-        <TopicComposer ref="composer" v-model:prompt="prompt" v-model:files="files" :disabled="pending" @submit="onComposerSubmit" />
-        <p v-if="filesLost" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">Re-add your documents; files aren't kept after a reload.</p>
-        <p v-if="languageNeeded" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">
-          Documents need a language.
-          <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go('details')">Set it in Details</button>
-        </p>
-      </template>
-
-      <template v-else-if="step === 'look'">
-        <Skeleton v-if="templates.isPending.value" class="h-[260px] w-full" />
-        <Alert v-else-if="templates.isError.value" class="py-2 text-[12px]">Templates couldn’t load. Reload the page to try again.</Alert>
-        <NewTemplateSelector v-else-if="templates.data.value?.length" v-model="selectedTemplate" :templates="templates.data.value" :allow-later="false" :disabled="pending" :theme="chosenTheme" />
-        <Alert v-else class="py-2 text-[12px]">No templates are available yet. Add one in Templates, then come back to create your outline.</Alert>
-        <div class="mt-2 flex flex-col gap-3" data-testid="theme-row">
+        <section class="flex flex-col gap-3" aria-labelledby="new-topic-h">
           <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h3 class="text-[13px] font-medium text-[#e4ecf0]">Theme</h3>
-            <span class="text-[11px] text-[#8e9ca4]">Optional. Recolours the template.</span>
+            <h3 id="new-topic-h" class="flex items-center gap-2 text-[13px] font-medium text-[#e4ecf0]">
+              <span class="grid size-5 place-items-center rounded-full bg-[#bee3f31f] text-[10px] font-semibold text-accent">1</span>
+              What’s it about?
+            </h3>
+            <span class="text-[11px] text-[#8e9ca4]">A prompt, documents, or both.</span>
           </div>
-          <Skeleton v-if="themesPending" class="h-[84px] w-full" />
-          <ThemePicker v-else v-model="selectedThemeId" :themes="themeList" :disabled="pending" />
-        </div>
+          <TopicComposer ref="composer" v-model:prompt="prompt" v-model:files="files" :disabled="pending" @submit="onComposerSubmit" />
+          <p v-if="filesLost" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">Re-add your documents; files aren't kept after a reload.</p>
+          <p v-if="languageNeeded" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">
+            Documents need a language.
+            <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go('details')">Set it in Details</button>
+          </p>
+        </section>
+
+        <section class="flex flex-col gap-3 border-t border-white/[0.06] pt-6" aria-labelledby="new-look-h">
+          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h3 id="new-look-h" class="flex items-center gap-2 text-[13px] font-medium text-[#e4ecf0]">
+              <span class="grid size-5 place-items-center rounded-full bg-[#bee3f31f] text-[10px] font-semibold text-accent">2</span>
+              Pick a look
+            </h3>
+            <span class="text-[11px] text-[#8e9ca4]">{{ chosen ? chosen.name : 'Choose a template for your slides.' }}</span>
+          </div>
+          <Skeleton v-if="templates.isPending.value" class="h-[260px] w-full" />
+          <Alert v-else-if="templates.isError.value" class="py-2 text-[12px]">Templates couldn’t load. Reload the page to try again.</Alert>
+          <NewTemplateSelector v-else-if="templates.data.value?.length" v-model="selectedTemplate" :templates="templates.data.value" :allow-later="false" :disabled="pending" />
+          <Alert v-else class="py-2 text-[12px]">No templates are available yet. Add one in Templates, then come back to create your outline.</Alert>
+        </section>
+
       </template>
 
       <GenerationOptions v-else v-model="options" :disabled="pending" />
@@ -333,17 +336,17 @@ watch(
             variant="outline"
             data-testid="wizard-primary"
             class="h-[43px] px-4 max-[520px]:flex-1"
-            :disabled="step === 'look' && !hasTemplate"
+            :disabled="!hasTemplate"
             @click="advance"
           >
-            {{ step === 'topic' ? 'Choose a look' : 'Fine-tune details' }}
+            Fine-tune details
             <ArrowRight class="size-4" aria-hidden="true" />
           </Button>
         </template>
         <template v-if="step === 'details' && !pending && blockers.length" #status>
-          <span v-for="b in blockers" :key="b.key" class="ml-3 inline-flex items-center gap-1.5">
+          <span v-for="b in blockers" :key="b.id" class="ml-3 inline-flex items-center gap-1.5">
             {{ b.text }}
-            <button type="button" :data-testid="`fix-${b.key}`" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go(b.key)">{{ b.action }}</button>
+            <button type="button" :data-testid="`fix-${b.id}`" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go(b.key)">{{ b.action }}</button>
           </span>
         </template>
       </WizardFooter>

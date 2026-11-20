@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, ArrowRight } from 'lucide-vue-next'
+import { AlignLeft, ArrowLeft, ArrowRight, CalendarDays, Languages, Layers, MessageSquareQuote, Palette, PencilLine } from 'lucide-vue-next'
+import { useQuery } from '@tanstack/vue-query'
+import { useElementSize } from '@vueuse/core'
+import { listThemes, themeKeys, type ThemeRecord } from '@/api/themes'
+import { readDeckLook } from '@/composables/useDeckLook'
+import TemplateCardThumb from '@/components/create/TemplateCardThumb.vue'
 import type { Presentation } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -26,7 +31,7 @@ import { provideWizardFooter } from './stepFooter'
 const props = defineProps<{ presentationId: string; presentation: Presentation }>()
 
 const DECK_STEPS: readonly DeckStepKey[] = ['outline', 'preview', 'avatar', 'export']
-type SummaryKey = 'topic' | 'look' | 'details'
+type SummaryKey = 'topic' | 'details'
 const isDeckStep = (k: string): k is DeckStepKey => (DECK_STEPS as readonly string[]).includes(k)
 
 const route = useRoute()
@@ -46,7 +51,7 @@ const deck = computed(() => props.presentation)
 const pipeline = useNarrationAvatarPipeline(id, deck, injectDeckNarration(), injectDeckAvatars())
 const pipelineRunning = pipeline.running
 const templateQuery = computed(() => (typeof route.query.template === 'string' ? route.query.template : null))
-const { progress, items, ready } = useDeckWizard(id, deck, {
+const { progress, items, ready, template } = useDeckWizard(id, deck, {
   outlineStreaming,
   slidesStreaming,
   pipelineRunning,
@@ -115,7 +120,7 @@ const heldOnPreview = (target: DeckStepKey | null) =>
   slidesStreaming.value && requested.value === 'preview' && !!target && target !== 'preview'
 
 function select(key: WizardStepKey) {
-  if (key === 'topic' || key === 'look' || key === 'details') {
+  if (key === 'topic' || key === 'details') {
     summary.value = key
     return
   }
@@ -165,8 +170,7 @@ const footer = provideWizardFooter(
 const setFooterTarget = (el: unknown) => (footer.target.value = el instanceof HTMLElement ? el : null)
 
 const COPY: Record<WizardStepKey, { heading: string; lede: string }> = {
-  topic: { heading: 'Topic', lede: 'What this deck is about. It was set when the deck was created.' },
-  look: { heading: 'Look', lede: 'The template the slides are built from. Change layouts and styling in the editor.' },
+  topic: { heading: 'Topic & look', lede: 'What this deck is about and the template it’s built from. Both were set when the deck was created.' },
   details: { heading: 'Details', lede: 'How the deck was generated. Tune individual slides in the editor.' },
   outline: { heading: 'Shape the story', lede: 'Each card becomes one slide. Read it through, then generate the slides.' },
   preview: { heading: 'Preview your slides', lede: 'Your deck, slide by slide. Fine-tuning lives in the editor.' },
@@ -178,16 +182,29 @@ const copy = computed(() => COPY[current.value])
 const panelKey = computed(() => step.value ?? requested.value ?? progress.value.resume)
 const title = computed(() => props.presentation.title?.trim() || 'New presentation')
 
-const lookName = computed(() => items.value.find((i) => i.key === 'look')?.summary ?? 'Template')
+const themes = useQuery({ queryKey: themeKeys.all, queryFn: listThemes })
+const deckTheme = computed(() => {
+  const tid = (typeof route.query.theme === 'string' && route.query.theme) || readDeckLook(props.presentationId)?.theme
+  const list: unknown = themes.data.value
+  return tid && Array.isArray(list) ? (list as ThemeRecord[]).find((t) => t?.id === tid) : undefined
+})
+const created = computed(() => {
+  const d = new Date(props.presentation.created_at)
+  return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+})
+const cap = (v: string) => v.charAt(0).toUpperCase() + v.slice(1)
 const details = computed(() => {
   const p = props.presentation
   return [
-    { label: 'Slides', value: String(p.n_slides) },
-    { label: 'Language', value: p.language },
-    { label: 'Tone', value: p.tone },
-    { label: 'Verbosity', value: p.verbosity },
-  ].filter((d): d is { label: string; value: string } => Boolean(d.value))
+    { label: 'Slides', value: String(p.n_slides), icon: Layers },
+    { label: 'Language', value: p.language, icon: Languages },
+    { label: 'Tone', value: p.tone ? cap(p.tone) : '', icon: MessageSquareQuote },
+    { label: 'Verbosity', value: p.verbosity ? cap(p.verbosity) : '', icon: AlignLeft },
+  ].filter((d) => Boolean(d.value))
 })
+const thumbBox = ref<HTMLElement | null>(null)
+const { width: thumbBoxWidth } = useElementSize(thumbBox)
+const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value || 260)))
 </script>
 
 <template>
@@ -202,22 +219,40 @@ const details = computed(() => {
     @select="select"
     @navigate="navigate"
   >
-    <section v-if="summary === 'topic'" data-testid="summary-topic" class="rounded-card border border-white/[0.06] bg-white/[0.015] p-4">
-      <p class="text-[13px] leading-[1.7] whitespace-pre-wrap text-[#d4dee3]">{{ presentation.content }}</p>
+    <section v-if="summary === 'topic'" data-testid="summary-topic" class="grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-4 max-[760px]:grid-cols-1">
+      <article class="summary-card flex min-w-0 flex-col gap-3">
+        <header class="summary-kicker"><PencilLine class="size-3.5" aria-hidden="true" />Topic</header>
+        <blockquote class="relative max-h-[320px] overflow-y-auto border-l-2 border-accent/60 pl-4 text-[13.5px] leading-[1.75] whitespace-pre-wrap text-[#dbe5ea]">
+          {{ presentation.content?.trim() || 'Generated from uploaded documents.' }}
+        </blockquote>
+        <footer v-if="created" class="mt-auto flex items-center gap-1.5 pt-1 text-[11px] text-[#8e9ca4]">
+          <CalendarDays class="size-3.5" aria-hidden="true" />Created {{ created }}
+        </footer>
+      </article>
+      <article data-testid="summary-look" class="summary-card flex min-w-0 flex-col gap-3">
+        <header class="summary-kicker"><Palette class="size-3.5" aria-hidden="true" />Look</header>
+        <div ref="thumbBox" class="w-full">
+          <TemplateCardThumb v-if="template" :template="template" :width="thumbWidth" :theme-override="deckTheme" />
+          <div v-else class="grid aspect-video w-full place-items-center rounded border border-dashed border-white/[0.1] text-[11px] text-[#8e9ca4]">No preview</div>
+        </div>
+        <div class="flex min-w-0 flex-col gap-1">
+          <p class="truncate text-[14px] font-medium text-[#eef6fa]">{{ template?.name ?? 'Template' }}</p>
+          <p class="flex flex-wrap items-center gap-1.5 text-[11px] text-[#8e9ca4]">
+            <span v-if="template">{{ template.layouts.length }} {{ template.layouts.length === 1 ? 'layout' : 'layouts' }}</span>
+            <span v-if="template && deckTheme" aria-hidden="true">·</span>
+            <span v-if="deckTheme" class="rounded-full border border-white/[0.12] px-2 py-px text-[10.5px] text-[#a9c4d2]">{{ deckTheme.name }}</span>
+          </p>
+        </div>
+      </article>
     </section>
-    <section v-else-if="summary === 'look'" data-testid="summary-look" class="rounded-card border border-white/[0.06] bg-white/[0.015] p-4">
-      <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
-        <dt class="text-[#8e9ca4]">Template</dt>
-        <dd class="text-[#d4dee3]">{{ lookName }}</dd>
-      </dl>
-    </section>
-    <section v-else-if="summary === 'details'" data-testid="summary-details" class="rounded-card border border-white/[0.06] bg-white/[0.015] p-4">
-      <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
-        <template v-for="d in details" :key="d.label">
-          <dt class="text-[#8e9ca4]">{{ d.label }}</dt>
-          <dd class="text-[#d4dee3]">{{ d.value }}</dd>
-        </template>
-      </dl>
+    <section v-else-if="summary === 'details'" data-testid="summary-details" class="grid grid-cols-4 gap-3 max-[760px]:grid-cols-2">
+      <div v-for="d in details" :key="d.label" class="summary-card flex min-w-0 flex-col gap-3">
+        <span class="grid size-8 place-items-center rounded-full bg-[#bee3f31a] text-accent" aria-hidden="true"><component :is="d.icon" class="size-4" /></span>
+        <div class="flex min-w-0 flex-col gap-0.5">
+          <span class="text-[10.5px] tracking-[0.06em] text-[#8e9ca4] uppercase">{{ d.label }}</span>
+          <span class="truncate text-[18px] leading-tight font-medium tracking-[-0.02em] text-[#eef6fa]" :title="d.value">{{ d.value }}</span>
+        </div>
+      </div>
     </section>
 
     <!-- Step bodies: filled by the Outline, Preview, Avatar and Export steps. They stay mounted (hidden) behind a
@@ -255,3 +290,23 @@ const details = computed(() => {
     </template>
   </WizardLayout>
 </template>
+
+<style scoped>
+.summary-card {
+  border-radius: var(--radius-card, 12px);
+  border: 1px solid rgb(255 255 255 / 0.07);
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.035), rgb(255 255 255 / 0.012));
+  padding: 18px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+.summary-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent, #bee3f3);
+}
+</style>
