@@ -4223,7 +4223,9 @@
                 "fit": "fill",
                 "decorative": true,
                 "name": "curved_band_asset",
-                "is_icon": false
+                "is_icon": false,
+                "color": "#1A3DB3",
+                "tint": true
               }
             }
           ]
@@ -4250,7 +4252,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "curved_background_arc",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             }
           ]
         }
@@ -5057,7 +5061,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "container",
@@ -10077,7 +10083,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10093,7 +10101,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10223,7 +10233,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10239,7 +10251,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10369,7 +10383,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10385,7 +10401,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10515,7 +10533,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10531,7 +10551,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10661,7 +10683,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10677,7 +10701,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -14543,7 +14569,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_outline",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#4864C2",
+              "tint": true
             },
             {
               "type": "image",
@@ -14559,7 +14587,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_fill",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             },
             {
               "type": "text",
@@ -16909,7 +16939,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_outline",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#4864C2",
+              "tint": true
             },
             {
               "type": "image",
@@ -16925,7 +16957,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_fill",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             },
             {
               "type": "text",
@@ -19505,7 +19539,9 @@
                 "fit": "fill",
                 "decorative": true,
                 "name": "curved_band_asset",
-                "is_icon": false
+                "is_icon": false,
+                "color": "#1A3DB3",
+                "tint": true
               }
             }
           ]
@@ -20423,7 +20459,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "container",
@@ -23447,7 +23485,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23463,7 +23503,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23593,7 +23635,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23609,7 +23653,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23739,7 +23785,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23755,7 +23803,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23885,7 +23935,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23901,7 +23953,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -24031,7 +24085,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -24047,7 +24103,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -27587,7 +27645,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_outline",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#4864C2",
+              "tint": true
             },
             {
               "type": "image",
@@ -27603,7 +27663,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_fill",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             },
             {
               "type": "text",
@@ -31647,7 +31709,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "curved_background_arc",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             }
           ]
         },
@@ -36724,7 +36788,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_outline",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#4864C2",
+              "tint": true
             },
             {
               "type": "image",
@@ -36740,7 +36806,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_fill",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             },
             {
               "type": "text",

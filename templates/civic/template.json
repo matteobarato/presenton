@@ -6335,7 +6335,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "hero_image_overlay",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#000000",
+                  "tint": true
                 }
               ],
               "name": "hero_image_layers"
@@ -7533,7 +7535,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_image_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         }
                       ],
                       "name": "image_card_item_1"
@@ -9260,7 +9264,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         }
                       ],
                       "name": "image_card_item_1"
@@ -9628,7 +9634,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "category_badge_outer_shape",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#8E8E8E",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -9749,7 +9757,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "category_badge_outer_shape",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#8E8E8E",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -11858,7 +11868,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "hero_overlay",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#000000",
+                      "tint": true
                     }
                   ],
                   "name": "hero_image_layers"
@@ -12204,7 +12216,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "circular_connector",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#8E8E8E",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -12514,7 +12528,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "highlighted_node_border",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#8E8E8E",
+                              "tint": true
                             },
                             {
                               "type": "image",
@@ -13092,7 +13108,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         }
                       ],
                       "name": "comparison_card_item_1"
@@ -13530,7 +13548,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         }
                       ],
                       "name": "comparison_card_item_1"
@@ -14177,7 +14197,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "process_roadway",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#000000",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -14193,7 +14215,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "process_lane_markings",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#ECECEC",
+                  "tint": true
                 },
                 {
                   "type": "group",
@@ -17809,7 +17833,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#8E8E8E",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -17827,7 +17853,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_surface_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#8E8E8E",
+                          "tint": true
                         }
                       ],
                       "name": "card_surface"
@@ -18233,7 +18261,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_surface_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -18251,7 +18281,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_surface_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         }
                       ],
                       "name": "card_surface"
@@ -19605,7 +19637,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#000000",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -19954,7 +19988,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "dark_panel_overlay",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#000000",
+                  "tint": true
                 }
               ],
               "name": "dark_feature_panel_layers"
@@ -21011,7 +21047,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "sidebar_background_overlay",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#000000",
+                      "tint": true
                     }
                   ],
                   "name": "sidebar_layered_imagery"
@@ -23462,7 +23500,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "chart_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#DDDDDD",
+                  "tint": true
                 },
                 {
                   "type": "chart",
@@ -32317,7 +32357,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "category_badge_outer_shape",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#8E8E8E",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -32438,7 +32480,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "category_badge_outer_shape",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#8E8E8E",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -34852,7 +34896,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "hero_overlay",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#000000",
+                      "tint": true
                     }
                   ],
                   "name": "hero_image_layers"
@@ -35171,7 +35217,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "circular_connector",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#8E8E8E",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -35481,7 +35529,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "highlighted_node_border",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#8E8E8E",
+                              "tint": true
                             },
                             {
                               "type": "image",
@@ -36218,7 +36268,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         }
                       ],
                       "name": "comparison_card_item_1"
@@ -36656,7 +36708,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         }
                       ],
                       "name": "comparison_card_item_1"
@@ -37856,7 +37910,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "process_roadway",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#000000",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -37872,7 +37928,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "process_lane_markings",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#ECECEC",
+                  "tint": true
                 },
                 {
                   "type": "group",
@@ -39755,7 +39813,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#8E8E8E",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -39773,7 +39833,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_surface_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#8E8E8E",
+                          "tint": true
                         }
                       ],
                       "name": "card_surface"
@@ -40179,7 +40241,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_surface_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -40197,7 +40261,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_surface_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         }
                       ],
                       "name": "card_surface"
@@ -40465,7 +40531,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "hero_image_overlay",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#000000",
+                  "tint": true
                 }
               ],
               "name": "hero_image_layers"
@@ -40526,7 +40594,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "dark_panel_overlay",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#000000",
+                  "tint": true
                 }
               ],
               "name": "dark_feature_panel_layers"
@@ -43536,7 +43606,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "sidebar_background_overlay",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#000000",
+                      "tint": true
                     }
                   ],
                   "name": "sidebar_layered_imagery"
@@ -46824,7 +46896,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         }
                       ],
                       "name": "image_card_item_1"
@@ -47380,7 +47454,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "chart_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#DDDDDD",
+                  "tint": true
                 },
                 {
                   "type": "chart",
@@ -48999,7 +49075,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_image_overlay",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#000000",
+                          "tint": true
                         }
                       ],
                       "name": "image_card_item_1"
@@ -51280,7 +51358,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#000000",
+                      "tint": true
                     },
                     {
                       "type": "image",

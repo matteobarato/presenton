@@ -8003,7 +8003,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_heading_backdrop",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#954D00",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -8270,7 +8272,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_heading_backdrop",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#AA7133",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -8537,7 +8541,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_heading_backdrop",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#BF9466",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -17393,7 +17399,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_text_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#BF9466",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -17563,7 +17571,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_text_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#BF9466",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -40124,7 +40134,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_text_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#BF9466",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -40294,7 +40306,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_text_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#BF9466",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -44525,7 +44539,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_heading_backdrop",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#954D00",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -44792,7 +44808,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_heading_backdrop",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#AA7133",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -45059,7 +45077,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_heading_backdrop",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#BF9466",
+                          "tint": true
                         },
                         {
                           "type": "text",

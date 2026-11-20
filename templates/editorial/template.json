@@ -1368,7 +1368,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "wide_outline_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -1384,7 +1386,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "upper_outline_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -1491,7 +1495,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "callout_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -1867,7 +1873,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -3271,7 +3279,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "callout_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#44AFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -3371,7 +3381,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "callout_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#44AFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -3545,7 +3557,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "upper_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -3714,7 +3728,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "upper_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -3883,7 +3899,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "lower_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -4052,7 +4070,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "lower_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -4221,7 +4241,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "upper_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -4390,7 +4412,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "lower_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -6298,7 +6322,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "panel_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "text",
@@ -7239,7 +7265,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "priority_circle_band",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#6FBEF8",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -7438,7 +7466,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "priority_circle_band",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#44AFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -7637,7 +7667,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "priority_circle_band",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#0F92F4",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -7816,7 +7848,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "priority_circle_band",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#0C75C3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -8015,7 +8049,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "priority_circle_band",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#063A62",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -11280,7 +11316,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "icon_circle_marker",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1B92F1",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -11472,7 +11510,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "icon_circle_marker",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1B92F1",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -11664,7 +11704,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "icon_circle_marker",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1B92F1",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -11856,7 +11898,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "icon_circle_marker",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1B92F1",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -12048,7 +12092,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "icon_circle_marker",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1B92F1",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -16666,7 +16712,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "wide_outline_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -16682,7 +16730,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "upper_outline_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -16773,7 +16823,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "callout_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -17112,7 +17164,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "callout_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#44AFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -17212,7 +17266,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "callout_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#44AFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -17497,7 +17553,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "wide_outline_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -17513,7 +17571,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "upper_outline_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -17620,7 +17680,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "callout_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -18370,7 +18432,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -19714,7 +19778,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "icon_circle_marker",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1B92F1",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -19906,7 +19972,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "icon_circle_marker",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1B92F1",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -20098,7 +20166,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "icon_circle_marker",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1B92F1",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -20290,7 +20360,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "icon_circle_marker",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1B92F1",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -20482,7 +20554,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "icon_circle_marker",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1B92F1",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -21404,7 +21478,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "callout_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#44AFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -21504,7 +21580,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "callout_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#44AFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -21822,7 +21900,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "upper_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -21991,7 +22071,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "upper_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -22160,7 +22242,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "lower_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -22329,7 +22413,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "lower_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -22498,7 +22584,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "upper_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -22667,7 +22755,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "lower_bracket_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -25459,7 +25549,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "panel_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "text",
@@ -26974,7 +27066,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "priority_circle_band",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#6FBEF8",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -27173,7 +27267,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "priority_circle_band",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#44AFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -27372,7 +27468,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "priority_circle_band",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#0F92F4",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -27551,7 +27649,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "priority_circle_band",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#0C75C3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -27750,7 +27850,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "priority_circle_band",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#063A62",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -34419,7 +34521,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "wide_outline_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -34435,7 +34539,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "upper_outline_accent",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -34578,7 +34684,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "callout_background",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#FFFFFF",
+              "tint": true
             },
             {
               "type": "image",
@@ -34957,7 +35065,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "callout_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#44AFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -35057,7 +35167,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "callout_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#44AFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
