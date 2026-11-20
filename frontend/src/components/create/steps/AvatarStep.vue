@@ -47,6 +47,14 @@ const narrated = computed(() => counts.value.ready + counts.value.translated)
 const withAvatar = computed(() => placeholderSlides.value.filter((s) => isFreshVideo(videoBySlide.value.get(s.id))).length)
 const summary = computed(() => `${plural(narrated.value, 'slide')} narrated · ${withAvatar.value} with a presenter avatar`)
 const stale = computed(() => counts.value.stale)
+const missing = computed(() => counts.value.missing)
+/** Some slides are narrated and some are not (or out of date): offer to bring the rest up to date. */
+const behind = computed(() => stale.value > 0 || (missing.value > 0 && narrated.value > 0))
+const behindText = computed(() =>
+  [stale.value && `${plural(stale.value, 'slide')} out of date`, missing.value && `${plural(missing.value, 'slide')} without narration`]
+    .filter(Boolean)
+    .join(' · '),
+)
 
 // ── Pipeline progress ──
 const SEGMENTS: { key: WorkPhase; label: string }[] = [
@@ -98,13 +106,12 @@ const liveText = computed(() => {
 })
 
 // ── Footer ──
+// From the deck's state, never from a finished run: the pipeline outlives Regenerate and language changes.
 const complete = computed(
   () =>
     !running.value &&
     stale.value === 0 &&
-    (phase.value === 'done' ||
-      props.progress.steps.avatar.state === 'done' ||
-      (!plan.value.voice && plan.value.avatars === 0)),
+    (props.progress.steps.avatar.state === 'done' || (!plan.value.voice && plan.value.avatars === 0 && !plan.value.notes)),
 )
 const primaryLabel = computed(() => (plan.value.avatars > 0 ? 'Generate voice & avatars' : 'Generate voice'))
 /** What a run will do, from the plan: the confirmation for a paid HeyGen run, so it never claims more or less. */
@@ -199,8 +206,8 @@ const showChip = (s: Slide) => hasVideoPlaceholder(s) || videoBySlide.value.has(
         </template>
       </div>
 
-      <div v-if="stale > 0 && !running && !failed" class="flex items-center gap-2 text-[12px] text-[#e6c07b]" data-testid="setup-stale">
-        <span class="flex-1">{{ plural(stale, 'slide') }} out of date</span>
+      <div v-if="behind && !running && !failed" class="flex items-center gap-2 text-[12px] text-[#e6c07b]" data-testid="setup-stale">
+        <span class="flex-1">{{ behindText }}</span>
         <Button type="button" size="sm" variant="outline" :disabled="!canGenerate" @click="generate">Update</Button>
       </div>
 
@@ -251,17 +258,17 @@ const showChip = (s: Slide) => hasVideoPlaceholder(s) || videoBySlide.value.has(
   <!-- No footer Retry: in the error state the primary is "Retry from <phase>", disabled with the blocker as the reason. -->
   <WizardStepFooter :status="footerStatus" :error="footerError" :busy="running">
     <template #secondary>
-      <Button v-if="complete" as-child variant="ghost">
+      <Button v-if="!failed && complete" as-child variant="ghost">
         <RouterLink :to="{ name: 'editor', params: { id } }">Fine-tune voice and avatars in the editor</RouterLink>
       </Button>
       <Button v-else-if="optional" type="button" variant="ghost" @click="go('export')">Skip</Button>
     </template>
     <template #primary>
-      <Button v-if="complete" type="button" :disabled="!!exportLock" @click="go('export')">
-        Continue to Export<ArrowRight class="size-4" aria-hidden="true" />
-      </Button>
-      <Button v-else-if="failed" type="button" :disabled="!canGenerate" @click="retryFailed">
+      <Button v-if="failed" type="button" :disabled="!canGenerate" @click="retryFailed">
         <RotateCcw class="size-4" aria-hidden="true" />Retry from {{ PHASE_LABEL[failed] }}
+      </Button>
+      <Button v-else-if="complete" type="button" :disabled="!!exportLock" @click="go('export')">
+        Continue to Export<ArrowRight class="size-4" aria-hidden="true" />
       </Button>
       <Button v-else type="button" :disabled="!canGenerate" @click="generate">
         <Sparkles class="size-4" aria-hidden="true" />{{ primaryLabel }}

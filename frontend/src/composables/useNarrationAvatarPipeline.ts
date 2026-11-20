@@ -248,6 +248,21 @@ export function useNarrationAvatarPipeline(
     { immediate: true },
   )
 
+  // A finished or failed run describes slides and a language that may be gone (Regenerate, a language
+  // change): back to idle, so the step reads the deck's state again instead of the old outcome. A value
+  // arriving for the first time (the saved language loading) is not a change.
+  watch(
+    [() => slides.value.map((s) => s.id).join('\n'), narration.language],
+    ([ids, lang], [oldIds, oldLang]) => {
+      const changed = (oldIds !== '' && ids !== oldIds) || (!!oldLang && lang !== oldLang)
+      if (!changed || (phase.value !== 'done' && phase.value !== 'error') || running.value) return
+      run++
+      failedPhase.value = null
+      error.value = null
+      setPhase('idle')
+    },
+  )
+
   function begin(from: WorkPhase) {
     run++
     failedPhase.value = null

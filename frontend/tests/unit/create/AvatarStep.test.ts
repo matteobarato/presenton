@@ -232,6 +232,47 @@ describe('AvatarStep', () => {
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/export')
   })
 
+  it('a run left at done does not hide Generate when slides have no narration (after Regenerate)', async () => {
+    const f = fakes({ counts: { missing: 3, ready: 0 } })
+    f.phase.value = 'done'
+    f.plan.value = { notes: true, voice: true, avatars: 0 }
+    const { wrapper } = await mountStep(f, progress({}, 'available'))
+    expect(button(wrapper, /Continue to Export/)).toBeUndefined()
+    expect(button(wrapper, /^Generate/)!.attributes('disabled')).toBeUndefined()
+  })
+
+  it('a run left at done does not hide Generate after the narration language changed', async () => {
+    const f = fakes({ counts: { missing: 0, ready: 0, translated: 0, stale: 0 } })
+    // New language: nothing recorded in it yet.
+    f.counts.value = { missing: 3, ready: 0, stale: 0, translated: 0 }
+    f.phase.value = 'done'
+    f.plan.value = { notes: false, voice: true, avatars: 1 }
+    const { wrapper } = await mountStep(f, progress({}, 'available'))
+    expect(button(wrapper, /Continue to Export/)).toBeUndefined()
+    expect(button(wrapper, /^Generate voice & avatars$/)).toBeDefined()
+  })
+
+  it('partly narrated slides offer an update for the missing ones too', async () => {
+    const f = fakes({ counts: { missing: 1, ready: 2 } })
+    const { wrapper } = await mountStep(f)
+    expect(wrapper.get('[data-testid="setup-stale"]').text()).toContain('1 slide without narration')
+    await button(wrapper, /^Update$/)!.trigger('click')
+    expect(f.pipeline.start).toHaveBeenCalledTimes(1)
+  })
+
+  it('an error wins over a complete deck: Retry from the phase, not Continue', async () => {
+    const f = fakes({ counts: { missing: 0, ready: 3 } })
+    f.phase.value = 'error'
+    f.failedPhase.value = 'avatars'
+    f.error.value = '1 slide failed'
+    f.plan.value = { notes: false, voice: false, avatars: 0 }
+    const { wrapper } = await mountStep(f, progress({ avatarRequirement: 'optional' }, 'done'))
+    expect(button(wrapper, /^Retry from Avatars$/)).toBeDefined()
+    expect(button(wrapper, /Continue to Export/)).toBeUndefined()
+    expect(button(wrapper, /Fine-tune voice and avatars/)).toBeUndefined()
+    expect(button(wrapper, /^Skip$/)).toBeDefined()
+  })
+
   it('a deck already complete opens on continue, not generate', async () => {
     const f = fakes({ counts: { missing: 0, ready: 3 } })
     f.plan.value = { notes: false, voice: false, avatars: 0 }

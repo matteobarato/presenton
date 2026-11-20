@@ -204,6 +204,64 @@ describe('useNarrationAvatarPipeline', () => {
     expect(t.pipeline.phase.value).toBe('done')
   })
 
+  describe('a finished run does not outlive the deck it ran on', () => {
+    const doneRun = async () => {
+      const f = fakes({ slides: [{ id: 's0', index: 0, speaker_note: 'One' }] })
+      f.recorded.value = new Set(['s0'])
+      const t = setup(f)
+      t.pipeline.start()
+      await flushPromises()
+      expect(t.pipeline.phase.value).toBe('done')
+      return t
+    }
+
+    it('new slides (Regenerate) take a done run back to idle', async () => {
+      const t = await doneRun()
+      t.slides.value = [{ id: 'n0', index: 0, speaker_note: '' }]
+      await flushPromises()
+      expect(t.pipeline.phase.value).toBe('idle')
+      expect(t.pipeline.plan.value).toEqual({ notes: true, voice: true, avatars: 0 })
+    })
+
+    it('a narration language change takes a done run back to idle', async () => {
+      const t = await doneRun()
+      t.narration.language.value = 'fr-FR'
+      await flushPromises()
+      expect(t.pipeline.phase.value).toBe('idle')
+    })
+
+    it('slides refreshed with the same ids (notes written) keep the outcome', async () => {
+      const t = await doneRun()
+      t.slides.value = t.slides.value.map((s) => ({ ...s, speaker_note: 'Edited' }))
+      await flushPromises()
+      expect(t.pipeline.phase.value).toBe('done')
+    })
+
+    it('clears a failed run, its phase and its error', async () => {
+      const t = setup()
+      t.narration.generateNotes.mutate.mockImplementationOnce((_v: unknown, cb?: Cb) => cb?.onError?.(new Error('LLM down')))
+      t.pipeline.start()
+      await flushPromises()
+      expect(t.pipeline.phase.value).toBe('error')
+      t.slides.value = [{ id: 'n0', index: 0, speaker_note: '' }]
+      await flushPromises()
+      expect(t.pipeline.phase.value).toBe('idle')
+      expect(t.pipeline.failedPhase.value).toBeNull()
+      expect(t.pipeline.error.value).toBeNull()
+      expect(stored()).toBeNull()
+    })
+
+    it('a running pipeline is not reset', async () => {
+      const t = setup()
+      t.pipeline.start()
+      await flushPromises()
+      expect(t.pipeline.phase.value).toBe('voice')
+      t.narration.language.value = 'fr-FR'
+      await flushPromises()
+      expect(t.pipeline.phase.value).toBe('voice')
+    })
+  })
+
   it('stops and reports failed phase on tts error', async () => {
     const t = setup()
     t.pipeline.start()
