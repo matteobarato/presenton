@@ -62,8 +62,11 @@ const { progress, ready: wizardReady } = useDeckWizard(id, toRef(props, 'present
 })
 const stepLabel = (key: DeckStepKey) => WIZARD_STEPS.find((s) => s.key === key)!.label
 const setupSteps = (['outline', 'preview', 'avatar', 'export'] as const).map((key) => ({ key, label: stepLabel(key) }))
-const showContinue = computed(
-  () => wizardReady.value && !(progress.value.resume === 'export' && progress.value.steps.avatar.state === 'done'),
+// A finished deck keeps its way back into the wizard: the button turns into a plain "Setup" entry.
+const setupComplete = computed(() => progress.value.resume === 'export' && progress.value.steps.avatar.state === 'done')
+const setupLabel = computed(() => (setupComplete.value ? 'Setup' : `Continue: ${stepLabel(progress.value.resume)}`))
+const setupTitle = computed(() =>
+  setupComplete.value ? 'Open the setup wizard' : `Continue setup: ${stepLabel(progress.value.resume)}`,
 )
 function openSetup(step: DeckStepKey) {
   void router.push({ name: 'create', params: { id: id.value, step } })
@@ -194,12 +197,16 @@ const iconBtn =
 
     <div class="flex flex-none items-center justify-self-end gap-[9px] max-[760px]:gap-[7px] max-[450px]:gap-[5px]">
       <RouterLink
-        v-if="showContinue"
+        v-if="wizardReady"
         data-testid="continue-setup"
         :to="{ name: 'create', params: { id, step: progress.resume } }"
-        :class="cn(buttonVariants({ variant: 'outline' }), 'rounded-full border-accent text-accent hover:bg-accent/10 max-[760px]:hidden')"
+        :class="cn(buttonVariants({ variant: 'outline' }), 'gap-2 border-accent/40 bg-accent/[0.07] text-accent hover:border-accent/70 hover:bg-accent/[0.14] max-[1099px]:px-0 max-[1099px]:w-[37px] max-[760px]:hidden')"
+        :title="setupTitle"
+        :aria-label="setupTitle"
       >
-        Continue: {{ stepLabel(progress.resume) }}
+        <Wand2 class="size-3.5" aria-hidden="true" />
+        <span class="max-[1099px]:hidden">{{ setupLabel }}</span>
+        <ChevronRight class="size-3.5 max-[1099px]:hidden" aria-hidden="true" />
       </RouterLink>
       <Button
         variant="outline"

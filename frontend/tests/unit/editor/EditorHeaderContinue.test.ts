@@ -77,10 +77,16 @@ describe('EditorHeader continue setup', () => {
     expect(w.find('[data-testid="continue-setup"]').exists()).toBe(false)
   })
 
-  it('is hidden when the deck is complete', async () => {
+  it('stays available as "Setup" when the deck is complete', async () => {
     setProgress('export', { avatar: st('done'), export: st('done') })
-    const { w } = await mountHeader()
-    expect(w.find('[data-testid="continue-setup"]').exists()).toBe(false)
+    const { w, router } = await mountHeader()
+    const btn = w.get('[data-testid="continue-setup"]')
+    expect(btn.text()).toBe('Setup')
+    expect(btn.attributes('aria-label')).toBe('Open the setup wizard')
+    await btn.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('create')
+    expect(router.currentRoute.value.params).toMatchObject({ id: 'p1', step: 'export' })
   })
 
   it('still shows on export when the avatar is not done', async () => {

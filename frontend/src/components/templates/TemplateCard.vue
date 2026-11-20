@@ -30,7 +30,7 @@ const meta = computed(
     >
       <div class="aspect-video overflow-hidden rounded-card bg-[#101416] shadow-[0_6px_15px_#0002] transition-transform duration-200 motion-safe:group-hover:-translate-y-1">
         <Skeleton v-if="pending" data-testid="cover-skeleton" class="size-full rounded-none" />
-        <SlideView v-else-if="cover" :slide="cover" :theme="theme" :fonts="fonts" fit="width" lazy />
+        <SlideView v-else-if="cover" :slide="cover" :theme="theme" :fonts="fonts" show-placeholders fit="width" lazy />
         <div v-else class="size-full bg-[#1a2125]" />
       </div>
       <div class="mt-[13px] flex items-center justify-between gap-3">

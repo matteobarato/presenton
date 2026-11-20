@@ -82,7 +82,7 @@ function choose(layout: NewSlideLayout | null) {
             :aria-label="`Add ${o.description} layout`"
             @click="choose({ id: o.id, ui: o.ui, group: templateId })"
           >
-            <SlideView :slide="o.preview" :theme="theme" :fonts="fonts" fit="width" lazy class="pointer-events-none" />
+            <SlideView :slide="o.preview" :theme="theme" :fonts="fonts" show-placeholders fit="width" lazy class="pointer-events-none" />
           </button>
         </li>
       </ul>

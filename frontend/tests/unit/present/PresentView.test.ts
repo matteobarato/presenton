@@ -151,7 +151,7 @@ describe('PresentView', () => {
     wrapper.unmount()
   })
 
-  it('plays the avatar video by itself when narration is off', async () => {
+  it('plays the avatar video only while running', async () => {
     m.getPlayback.mockResolvedValue({
       presentation_id: 'p1',
       slides: [
@@ -166,42 +166,66 @@ describe('PresentView', () => {
     const { wrapper } = await mountView()
     await flushPromises()
     expect(wrapper.find('video').exists()).toBe(true)
+    expect(spy).not.toHaveBeenCalled()
+    await button(wrapper, 'Play').trigger('click')
+    await flushPromises()
     expect(spy).toHaveBeenCalled()
     spy.mockRestore()
     wrapper.unmount()
   })
 
-  it('offers the narration toggle only when some slide has audio', async () => {
+  it('offers the audio toggle only when some slide has audio, and Play always', async () => {
     const withAudio = await mountView()
-    expect(button(withAudio.wrapper, 'Turn narration on').exists()).toBe(true)
+    expect(button(withAudio.wrapper, 'Turn audio off').exists()).toBe(true)
     withAudio.wrapper.unmount()
 
     m.getPlayback.mockResolvedValue({ presentation_id: 'p1', slides: [{ slide_id: 's0', slide_index: 0, actor: 'none', audio: null }] })
     const silent = await mountView()
-    expect(button(silent.wrapper, 'Turn narration on').exists()).toBe(false)
+    expect(button(silent.wrapper, 'Turn audio off').exists()).toBe(false)
     silent.wrapper.unmount()
 
     m.getPlayback.mockRejectedValue(new Error('boom'))
     const failed = await mountView()
-    expect(button(failed.wrapper, 'Turn narration on').exists()).toBe(false)
+    expect(button(failed.wrapper, 'Turn audio off').exists()).toBe(false)
+    expect(button(failed.wrapper, 'Play').exists()).toBe(true)
     expect(counter(failed.wrapper)).toBe('1 / 12')
     failed.wrapper.unmount()
   })
 
-  it('moves to the next slide when narration ends', async () => {
+  it('starts paused, and moves to the next slide when narration ends once playing', async () => {
     m.getPlayback.mockResolvedValue({ presentation_id: 'p1', slides: [playbackSlide(0), playbackSlide(1)] })
     const { wrapper } = await mountView(2)
-    await button(wrapper, 'Turn narration on').trigger('click')
+    await flushPromises()
+    expect(FakeAudio.last.play).not.toHaveBeenCalled()
+    FakeAudio.last.dispatchEvent(new Event('ended'))
     await flushPromises()
     expect(counter(wrapper)).toBe('1 / 2')
+    await button(wrapper, 'Play').trigger('click')
+    await flushPromises()
+    expect(button(wrapper, 'Pause').exists()).toBe(true)
     FakeAudio.last.dispatchEvent(new Event('ended'))
     await flushPromises()
     expect(counter(wrapper)).toBe('2 / 2')
-    // the last slide ending stops narration instead of running past the deck
+    // the last slide ending stops autoplay instead of running past the deck
     FakeAudio.last.dispatchEvent(new Event('ended'))
     await flushPromises()
     expect(counter(wrapper)).toBe('2 / 2')
-    expect(button(wrapper, 'Turn narration on').exists()).toBe(true)
+    expect(button(wrapper, 'Play').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('with audio off, Play moves on by a timer without sound', async () => {
+    m.getPlayback.mockResolvedValue({ presentation_id: 'p1', slides: [playbackSlide(0), playbackSlide(1)] })
+    const { wrapper } = await mountView(2)
+    await button(wrapper, 'Turn audio off').trigger('click')
+    vi.useFakeTimers()
+    await button(wrapper, 'Play').trigger('click')
+    await flushPromises()
+    expect(FakeAudio.last.play).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(5000)
+    await flushPromises()
+    expect(counter(wrapper)).toBe('2 / 2')
+    vi.useRealTimers()
     wrapper.unmount()
   })
 

@@ -42,7 +42,7 @@ function onOpenChange(v: boolean) {
         <DialogTitle class="sr-only">{{ title }} — layout {{ (index ?? 0) + 1 }}</DialogTitle>
         <DialogDescription class="sr-only">Layout preview</DialogDescription>
         <div class="overflow-hidden rounded-[9px] bg-[#101416]">
-          <SlideView v-if="current" :key="current.id" :slide="current" :theme="theme as never" :fonts="fonts as never" fit="width" />
+          <SlideView v-if="current" :key="current.id" :slide="current" :theme="theme as never" :fonts="fonts as never" show-placeholders fit="width" />
         </div>
         <div class="mt-3 flex items-center justify-center gap-4 text-[12px] text-[#9eb7c7] tabular-nums">
           <button type="button" aria-label="Previous layout" :aria-disabled="atStart" class="grid size-8 place-items-center rounded-full hover:bg-[#3b4b55] aria-disabled:cursor-default aria-disabled:opacity-40" @click="step(-1)">

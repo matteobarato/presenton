@@ -7,6 +7,8 @@ import { useTtsLanguage } from '@/composables/useTtsLanguage'
 
 /** How long a slide without narration stays up before the preview moves on. */
 export const SILENT_SLIDE_MS = 1500
+/** Slide time under autoplay when nothing sets it (a deck with no narration, or narration muted without a known length). */
+export const AUTOPLAY_SLIDE_MS = 5000
 
 type PlaybackSlide = Playback['slides'][number]
 export interface AvatarRect {
@@ -18,11 +20,18 @@ export interface AvatarRect {
 
 /**
  * Narrated preview: plays each slide's TTS audio and exposes the lip-synced avatar to draw.
- * TTS is the only soundtrack (the avatar video stays muted). Moving to the next slide is the
- * caller's job: register a handler with `onAdvance`. The avatar is exposed whether or not narration is on,
- * so a slide that has one always shows it.
+ * TTS is the only soundtrack (the avatar video stays muted). Two independent switches:
+ * - `running`: autoplay. While on, the deck moves on by itself, when the narration ends or, if it isn't
+ *   being played, after a timer. While off (the default) nothing plays or advances.
+ * - `audio`: whether the narration is heard while running (off = muted, avatars included).
+ * Moving to the next slide is the caller's job: register a handler with `onAdvance`. The avatar is exposed
+ * whether or not the deck is running, so a slide that has one always shows it.
  */
-export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<number>, enabled: Ref<boolean>) {
+export function useNarratedPlayback(
+  presentationId: Ref<string>,
+  index: Ref<number>,
+  { audio: audioOn, running }: { audio: Ref<boolean>; running: Ref<boolean> },
+) {
   const { data: presentation } = usePresentation(presentationId)
   // The endpoint 409s on multi-language decks without a language, so always send one.
   const { language } = useTtsLanguage(presentationId, presentation)
@@ -33,7 +42,7 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
     retry: false,
   })
 
-  const audio = new Audio()
+  const player = new Audio()
   const playing = ref(false)
   let advanceHandler: (() => void) | null = null
   let silentTimer: ReturnType<typeof setTimeout> | undefined
@@ -53,57 +62,64 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
     return { src: audioSrc({ url: slide.video.url }), rect: { x: position.x, y: position.y, width: size.width, height: size.height } }
   })
 
-  /** Slides with an avatar speak on their own, even with narration off; only narration moves on by itself. */
-  const speaks = computed(() => enabled.value || Boolean(avatar.value))
+  /** Playback data is in, or will never come (the deck then plays on timers alone). */
+  const ready = computed(() => Boolean(playback.value) || isError.value)
 
   function advance() {
-    if (enabled.value) advanceHandler?.()
+    if (running.value) advanceHandler?.()
+  }
+  /** Without audio playing, a slide stays up as long as its narration lasts (when known), else a default. */
+  function scheduleTimer() {
+    clearTimeout(silentTimer)
+    const spoken = (current.value?.duration_seconds ?? 0) * 1000
+    const ms = currentAudioUrl.value ? spoken || AUTOPLAY_SLIDE_MS : available.value ? SILENT_SLIDE_MS : AUTOPLAY_SLIDE_MS
+    silentTimer = setTimeout(advance, ms)
   }
   function pause() {
     clearTimeout(silentTimer)
-    audio.pause()
+    player.pause()
     playing.value = false
   }
   function play() {
     clearTimeout(silentTimer)
     const url = currentAudioUrl.value
     playing.value = true
-    if (!url) {
-      silentTimer = setTimeout(advance, SILENT_SLIDE_MS)
+    if (!url || !audioOn.value) {
+      scheduleTimer()
       return
     }
     if (url !== loadedUrl) {
       loadedUrl = url
-      audio.src = audioSrc({ url })
+      player.src = audioSrc({ url })
     }
     const mine = ++playToken
-    void Promise.resolve(audio.play()).catch((error: unknown) => {
+    void Promise.resolve(player.play()).catch((error: unknown) => {
       // A newer play() or a pause() aborts this one; only a current, real failure (autoplay block) counts.
       if (mine !== playToken || (error instanceof Error && error.name === 'AbortError')) return
       playing.value = false
     })
   }
-  function toggle() {
-    if (playing.value) pause()
-    else play()
-  }
-
   function onEnded() {
     playing.value = false
     advance()
   }
-  audio.addEventListener('ended', onEnded)
+  player.addEventListener('ended', onEnded)
 
-  // Start (or restart) whenever narration is on and the slide, or the data it depends on, changes.
+  // A new slide, or a change to the sound or the data, starts the slide over (when running).
   watch(
-    [speaks, index, currentAudioUrl, () => Boolean(playback.value)],
+    [audioOn, index, currentAudioUrl, ready],
     () => {
       pause()
       loadedUrl = ''
-      if (speaks.value && playback.value) play()
+      if (running.value && ready.value) play()
     },
     { immediate: true },
   )
+  // Pause keeps the narration's position; Play carries on from it.
+  watch(running, (on) => {
+    if (on && ready.value) play()
+    else pause()
+  })
 
   function onVisibility() {
     if (document.visibilityState === 'hidden') {
@@ -111,7 +127,7 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
       if (playing.value) pause()
     } else if (resumeOnVisible) {
       resumeOnVisible = false
-      if (speaks.value) play()
+      if (running.value) play()
     }
   }
   document.addEventListener('visibilitychange', onVisibility)
@@ -119,18 +135,17 @@ export function useNarratedPlayback(presentationId: Ref<string>, index: Ref<numb
   onBeforeUnmount(() => {
     document.removeEventListener('visibilitychange', onVisibility)
     pause()
-    audio.removeEventListener('ended', onEnded)
-    audio.removeAttribute?.('src')
-    audio.load?.()
+    player.removeEventListener('ended', onEnded)
+    player.removeAttribute?.('src')
+    player.load?.()
     advanceHandler = null
   })
 
   return {
     playing,
-    audio,
+    audio: player,
     avatar,
     available,
-    toggle,
     onAdvance(fn: () => void) {
       advanceHandler = fn
     },

@@ -16,7 +16,7 @@ const first = computed(() => (layouts.value[0] ? layoutToSlide(props.template.id
 
 <template>
   <span class="block overflow-hidden rounded border border-white/[0.07]" data-testid="template-main-image">
-    <SlideView v-if="first" :slide="first" :theme="shownTheme" :fonts="fonts" :scale="SCALE" lazy />
+    <SlideView v-if="first" :slide="first" :theme="shownTheme" :fonts="fonts" show-placeholders :scale="SCALE" lazy />
     <span
       v-else
       class="grid place-items-center bg-white/[0.03] text-[10px] text-muted"

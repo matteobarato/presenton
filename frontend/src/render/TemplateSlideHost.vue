@@ -23,10 +23,11 @@ const props = withDefaults(
     theme?: unknown
     fonts?: unknown
     annotate?: boolean
+    showPlaceholders?: boolean
     /** The slide's avatar video: shown in the placeholder layer, in place of its picture. */
     videoSrc?: string | null
   }>(),
-  { theme: undefined, fonts: undefined, annotate: false, videoSrc: null },
+  { theme: undefined, fonts: undefined, annotate: false, showPlaceholders: false, videoSrc: null },
 )
 const emit = defineEmits<{ rendered: []; error: [message: string] }>()
 
@@ -48,13 +49,16 @@ function backgroundOnly(ui: unknown): string {
 function mountVideo(root: ShadowRoot) {
   const src = props.videoSrc
   if (!src) {
-    // No video yet: the poster is transparent, so give the placeholder a visible default fill while editing.
-    if (props.annotate) {
+    // No video yet: the poster is transparent, so mark the placeholder as an avatar slot while editing
+    // or previewing a template. Exports and the present view never set either prop.
+    if (props.annotate || props.showPlaceholders) {
       root.querySelectorAll<HTMLElement>('[data-video-placeholder]').forEach((node) => {
-        node.style.background = 'repeating-conic-gradient(#d9dee1 0% 25%, #f4f6f7 0% 50%) 0 0 / 24px 24px'
-        node.style.opacity = '0.5'
-        node.style.outline = '2px dashed rgba(0,0,0,0.35)'
+        node.style.background =
+          "url('/presenter-silhouette.svg') center bottom / contain no-repeat, linear-gradient(160deg, #e6f3fa, #cfe6f2)"
+        node.style.opacity = '0.6'
+        node.style.outline = '2px dashed rgba(52, 110, 140, 0.5)'
         node.style.outlineOffset = '-2px'
+        node.setAttribute('title', 'Avatar')
       })
     }
     return
@@ -145,7 +149,7 @@ function shadowRoot(): ShadowRoot | null {
 defineExpose({ layerFor, shadowRoot })
 
 onMounted(render)
-watch(() => [props.ui, props.theme, props.fonts, props.annotate, props.videoSrc], render)
+watch(() => [props.ui, props.theme, props.fonts, props.annotate, props.showPlaceholders, props.videoSrc], render)
 onBeforeUnmount(() => {
   generation++
   disposeCharts?.()

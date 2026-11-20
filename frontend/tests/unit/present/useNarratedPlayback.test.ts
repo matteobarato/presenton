@@ -36,7 +36,8 @@ const slideAudio = (i: number, url?: string) => ({
 })
 const response = (slides: unknown[]) => ({ presentation_id: 'p1', slides })
 
-function setup(index = ref(0), enabled = ref(false)) {
+// `enabled` is the running (autoplay) switch, off to start with; audio is on unless told otherwise.
+function setup(index = ref(0), enabled = ref(false), audio = ref(true)) {
   let api!: ReturnType<typeof useNarratedPlayback>
   const advance = vi.fn(() => {
     index.value += 1
@@ -44,14 +45,14 @@ function setup(index = ref(0), enabled = ref(false)) {
   const wrapper = mount(
     defineComponent({
       setup() {
-        api = useNarratedPlayback(ref('p1'), index, enabled)
+        api = useNarratedPlayback(ref('p1'), index, { audio, running: enabled })
         api.onAdvance(advance)
         return () => h('div')
       },
     }),
     { global: { plugins: [[VueQueryPlugin, { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false } } }) }]] } },
   )
-  return { api, index, enabled, advance, wrapper }
+  return { api, index, enabled, audio, advance, wrapper }
 }
 const setVisibility = (state: 'hidden' | 'visible') => {
   Object.defineProperty(document, 'visibilityState', { configurable: true, value: state })
@@ -114,6 +115,65 @@ describe('useNarratedPlayback', () => {
     expect(FakeAudio.last.play).not.toHaveBeenCalled()
   })
 
+  it('plays nothing and advances nothing while paused', async () => {
+    const { advance } = setup()
+    await flushPromises()
+    FakeAudio.last.dispatchEvent(new Event('ended'))
+    expect(FakeAudio.last.play).not.toHaveBeenCalled()
+    expect(advance).not.toHaveBeenCalled()
+  })
+
+  it('with audio off, runs silently and advances after the narration length', async () => {
+    m.getPlayback.mockResolvedValue(response([{ ...slideAudio(0, '/a/0.mp3'), duration_seconds: 8 }, slideAudio(1)]))
+    const { advance, enabled } = setup(ref(0), ref(false), ref(false))
+    await flushPromises()
+    vi.useFakeTimers()
+    enabled.value = true
+    await flushPromises()
+    expect(FakeAudio.last.play).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(7999)
+    expect(advance).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(1)
+    expect(advance).toHaveBeenCalledTimes(1)
+  })
+
+  it('on a deck without narration, uses the default slide time', async () => {
+    m.getPlayback.mockResolvedValue(response([slideAudio(0), slideAudio(1)]))
+    const { advance, enabled } = setup()
+    await flushPromises()
+    vi.useFakeTimers()
+    enabled.value = true
+    await flushPromises()
+    vi.advanceTimersByTime(4999)
+    expect(advance).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(1)
+    expect(advance).toHaveBeenCalledTimes(1)
+  })
+
+  it('still runs on the default slide time when the playback request fails', async () => {
+    m.getPlayback.mockRejectedValue(new Error('boom'))
+    const { advance, enabled } = setup()
+    await flushPromises()
+    vi.useFakeTimers()
+    enabled.value = true
+    await flushPromises()
+    vi.advanceTimersByTime(5000)
+    expect(advance).toHaveBeenCalledTimes(1)
+  })
+
+  it('pausing keeps the narration position and resuming does not reload it', async () => {
+    const { enabled } = setup()
+    enabled.value = true
+    await flushPromises()
+    enabled.value = false
+    await flushPromises()
+    expect(FakeAudio.last.pause).toHaveBeenCalled()
+    enabled.value = true
+    await flushPromises()
+    expect(FakeAudio.last.play).toHaveBeenCalledTimes(2)
+    expect(FakeAudio.last.src).toBe('/a/0.mp3')
+  })
+
   it('pauses while the document is hidden and resumes when visible again', async () => {
     const { api, enabled } = setup()
     enabled.value = true
@@ -127,10 +187,11 @@ describe('useNarratedPlayback', () => {
   })
 
   it('does not resume on visible when it was paused by the user', async () => {
-    const { api, enabled } = setup()
+    const { enabled } = setup()
     enabled.value = true
     await flushPromises()
-    api.toggle()
+    enabled.value = false
+    await flushPromises()
     FakeAudio.last.play.mockClear()
     setVisibility('hidden')
     setVisibility('visible')
@@ -157,7 +218,7 @@ describe('useNarratedPlayback', () => {
     expect(api.playing.value).toBe(true)
   })
 
-  it('pauses when narration is turned off', async () => {
+  it('pauses when the deck is paused', async () => {
     const { api, enabled } = setup()
     enabled.value = true
     await flushPromises()
@@ -165,17 +226,6 @@ describe('useNarratedPlayback', () => {
     await flushPromises()
     expect(FakeAudio.last.pause).toHaveBeenCalled()
     expect(api.playing.value).toBe(false)
-  })
-
-  it('toggle pauses and resumes', async () => {
-    const { api, enabled } = setup()
-    enabled.value = true
-    await flushPromises()
-    api.toggle()
-    expect(api.playing.value).toBe(false)
-    api.toggle()
-    expect(api.playing.value).toBe(true)
-    expect(FakeAudio.last.src).toBe('/a/0.mp3')
   })
 
   it('exposes the avatar video and its placeholder rect for video slides', async () => {

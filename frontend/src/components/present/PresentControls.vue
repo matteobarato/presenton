@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft, ChevronRight, Mic, MicOff, Pause, Play, X } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Pause, Play, Volume2, VolumeX, X } from 'lucide-vue-next'
 
 defineProps<{
   index: number
@@ -7,10 +7,12 @@ defineProps<{
   visible: boolean
   /** Hidden entirely when the deck has no narration to preview. */
   narrationAvailable: boolean
-  narrating: boolean
-  playing: boolean
+  /** Narration sound on. */
+  audioOn: boolean
+  /** Autoplay is running (otherwise paused). */
+  running: boolean
 }>()
-defineEmits<{ prev: []; next: []; exit: []; 'toggle-narration': []; 'toggle-play': [] }>()
+defineEmits<{ prev: []; next: []; exit: []; 'toggle-audio': []; 'toggle-play': [] }>()
 
 const btn =
   'inline-flex size-9 items-center justify-center rounded-full text-white/90 transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white disabled:opacity-40'
@@ -31,23 +33,22 @@ const btn =
       <button type="button" :class="btn" aria-label="Next slide" :disabled="index >= total - 1" @click="$emit('next')">
         <ChevronRight class="size-5" />
       </button>
-      <template v-if="narrationAvailable">
-        <span class="mx-1 h-5 w-px bg-white/20" />
-        <button
-          type="button"
-          :class="btn"
-          :aria-pressed="narrating"
-          :aria-label="narrating ? 'Turn narration off' : 'Turn narration on'"
-          @click="$emit('toggle-narration')"
-        >
-          <Mic v-if="narrating" class="size-5" />
-          <MicOff v-else class="size-5" />
-        </button>
-        <button v-if="narrating" type="button" :class="btn" :aria-label="playing ? 'Pause narration' : 'Play narration'" @click="$emit('toggle-play')">
-          <Pause v-if="playing" class="size-5" />
-          <Play v-else class="size-5" />
-        </button>
-      </template>
+      <span class="mx-1 h-5 w-px bg-white/20" />
+      <button type="button" :class="btn" :aria-label="running ? 'Pause' : 'Play'" @click="$emit('toggle-play')">
+        <Pause v-if="running" class="size-5" />
+        <Play v-else class="size-5" />
+      </button>
+      <button
+        v-if="narrationAvailable"
+        type="button"
+        :class="btn"
+        :aria-pressed="audioOn"
+        :aria-label="audioOn ? 'Turn audio off' : 'Turn audio on'"
+        @click="$emit('toggle-audio')"
+      >
+        <Volume2 v-if="audioOn" class="size-5" />
+        <VolumeX v-else class="size-5" />
+      </button>
       <span class="mx-1 h-5 w-px bg-white/20" />
       <button type="button" :class="btn" aria-label="Exit presentation" @click="$emit('exit')">
         <X class="size-5" />

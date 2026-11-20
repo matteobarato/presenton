@@ -256,8 +256,12 @@ async def resolve_slide_animations(
     force: bool = False,
     on_progress: Optional[ProgressCallback] = None,
     composition: Optional[dict[str, Any]] = None,
+    stored_only: bool = False,
 ) -> dict[uuid.UUID, dict[str, Any]]:
     """Plan missing and stale slides (all in scope with `force`) and store them.
+
+    With `stored_only` nothing is planned: slides keep the plan made at
+    generation or editing time (a plan whose layout changed is left out).
 
     Returns the stored plan of every in-scope slide that has one. Composition
     fetch errors propagate; an LLM failure becomes a `fallback` plan.
@@ -326,6 +330,15 @@ async def resolve_slide_animations(
         else:
             to_plan[position] = (slide, entry, previous_reset)
 
+    unplanned: set[uuid.UUID] = set()
+    if stored_only:
+        unplanned = {
+            slide.id
+            for slide, entry, _ in to_plan.values()
+            if plan_status(slide.animation, entry) == "stale_layout"
+        }
+        to_plan = {}
+
     total = len(in_scope)
     done = total - len(to_plan)
     await _emit(on_progress, done, total)
@@ -378,4 +391,5 @@ async def resolve_slide_animations(
         slide.id: slide.animation
         for _, slide, _ in in_scope
         if _is_plan(slide.animation)
+        and slide.id not in unplanned
     }

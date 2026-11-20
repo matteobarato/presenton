@@ -1165,8 +1165,8 @@ async def _stored_animation_plans(
 ) -> dict[int, list[SlideTween]]:
     """Tweens by position for `(position, slide_id, html, elements)`.
 
-    Plans are stored on the slides, so only missing or stale ones are planned
-    and hand-edited (`user`) plans are used as they are.
+    Plans are stored on the slides at generation or editing time and are used
+    as they are; the export never plans new animations.
     """
 
     async def _plan_progress(event: dict[str, Any]) -> None:
@@ -1180,6 +1180,7 @@ async def _stored_animation_plans(
         cookie_header,
         on_progress=_plan_progress,
         composition=composition,
+        stored_only=True,
     )
     plans: dict[int, list[SlideTween]] = {}
     for position, slide_id, _html, _elements in animated:

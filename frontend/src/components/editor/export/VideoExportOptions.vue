@@ -59,6 +59,10 @@ function num(v: string | number): number | null {
       <Label for="mp4-avatars">Avatars</Label>
       <Switch id="mp4-avatars" v-model="form.avatars" :disabled="disabled" data-testid="mp4-avatars" />
     </div>
+    <div class="flex items-center justify-between">
+      <Label for="mp4-animate">Animate</Label>
+      <Switch id="mp4-animate" v-model="form.animate" :disabled="disabled" data-testid="mp4-animate" />
+    </div>
 
     <button
       type="button"
@@ -105,10 +109,6 @@ function num(v: string | number): number | null {
       <div class="flex items-center justify-between">
         <Label for="mp4-indicator">Speaker indicator</Label>
         <Switch id="mp4-indicator" v-model="form.speaker_indicator" :disabled="disabled" />
-      </div>
-      <div class="flex items-center justify-between">
-        <Label for="mp4-animate">Animate</Label>
-        <Switch id="mp4-animate" v-model="form.animate" :disabled="disabled" />
       </div>
       <div class="flex items-center justify-between">
         <Label for="mp4-regenerate">Regenerate</Label>

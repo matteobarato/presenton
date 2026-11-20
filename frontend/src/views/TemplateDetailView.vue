@@ -171,7 +171,7 @@ function errorMessage(error: unknown, fallback: string): string {
           @click="openLightbox(i, $event)"
         >
           <div class="aspect-video overflow-hidden rounded-[9px] bg-[#101416] shadow-[0_6px_15px_#0002] transition-transform duration-[180ms] motion-safe:group-hover:-translate-y-[3px]">
-            <SlideView :slide="layoutToSlide(template.id, layout, i)" :theme="theme" :fonts="fonts" fit="width" lazy />
+            <SlideView :slide="layoutToSlide(template.id, layout, i)" :theme="theme" :fonts="fonts" show-placeholders fit="width" lazy />
           </div>
           <span class="mt-[11px] block text-[10px] text-[#9eb7c7] tabular-nums">{{ String(i + 1).padStart(2, '0') }}</span>
         </button>

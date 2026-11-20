@@ -28,8 +28,10 @@ const tweens = computed(() => {
   return entry && ['fresh', 'stale_content'].includes(entry.status) ? entry.tweens : []
 })
 
-const narrating = ref(false)
-const { playing, avatar, available, toggle, onAdvance } = useNarratedPlayback(id, index, narrating)
+// Starts paused; Play runs the deck by itself, and audio only decides whether the narration is heard.
+const running = ref(false)
+const audioOn = ref(true)
+const { playing, avatar, available, onAdvance } = useNarratedPlayback(id, index, { audio: audioOn, running })
 
 const reducedMotion = ref(typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
 
@@ -39,9 +41,9 @@ function go(to: number) {
 const next = () => go(index.value + 1)
 const prev = () => go(index.value - 1)
 
-// Narration moves on by itself; after the last slide it simply stops.
+// Autoplay moves on by itself; after the last slide it simply stops.
 onAdvance(() => {
-  if (index.value >= total.value - 1) narrating.value = false
+  if (index.value >= total.value - 1) running.value = false
   else next()
 })
 
@@ -126,7 +128,7 @@ watch(total, (n) => {
       :reduced-motion="reducedMotion"
       :tweens="tweens"
       :avatar="avatar"
-      :playing="playing || !narrating"
+      :playing="playing"
     />
     <p v-else-if="isError" role="alert" class="absolute inset-0 flex items-center justify-center text-white/80">
       Couldn't load this presentation.
@@ -136,13 +138,13 @@ watch(total, (n) => {
       :total="total"
       :visible="controlsVisible"
       :narration-available="available"
-      :narrating="narrating"
-      :playing="playing"
+      :audio-on="audioOn"
+      :running="running"
       @prev="prev"
       @next="next"
       @exit="exit"
-      @toggle-narration="narrating = !narrating"
-      @toggle-play="toggle"
+      @toggle-audio="audioOn = !audioOn"
+      @toggle-play="running = !running"
     />
   </main>
 </template>

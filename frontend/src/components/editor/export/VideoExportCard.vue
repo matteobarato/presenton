@@ -55,7 +55,7 @@ const form = reactive<VideoRequest>({
   min_slide_seconds: 3,
   padding_seconds: 0.4,
   generate_missing_audio: true,
-  animate: false,
+  animate: true,
   speaker_indicator: true,
   crossfade_seconds: 0.5,
   avatars: true,

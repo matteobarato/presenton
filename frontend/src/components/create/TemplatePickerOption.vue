@@ -48,7 +48,7 @@ watch(
         class="overflow-hidden rounded border border-white/[0.07]"
         data-testid="template-preview"
       >
-        <SlideView :slide="pv" :theme="theme" :fonts="fonts" :scale="PREVIEW_SCALE" lazy />
+        <SlideView :slide="pv" :theme="theme" :fonts="fonts" show-placeholders :scale="PREVIEW_SCALE" lazy />
       </span>
       <span
         v-if="!previews.length"
