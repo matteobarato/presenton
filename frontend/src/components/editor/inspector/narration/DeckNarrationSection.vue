@@ -44,10 +44,11 @@ function deleteNarration() {
 </script>
 
 <template>
-  <section class="flex flex-col rounded-card border border-white/[0.06]" aria-label="Whole deck">
+  <section class="flex flex-col rounded-card border border-white/[0.06] bg-white/[0.015]" aria-label="Whole deck">
     <button
       type="button"
-      class="flex min-h-11 items-center gap-2 rounded-card px-3 text-left transition-colors duration-200 hover:bg-white/[0.03]"
+      class="flex min-h-11 items-center gap-2 px-3 text-left transition-colors duration-200 hover:bg-white/[0.03]"
+      :class="open ? 'rounded-t-card' : 'rounded-card'"
       :aria-expanded="open"
       aria-controls="deck-narration-body"
       @click="open = !open"
@@ -62,23 +63,29 @@ function deleteNarration() {
       <span class="text-[11px] text-muted">{{ task?.message || 'Generating narration…' }}</span>
     </div>
 
-    <div v-show="open" id="deck-narration-body" class="flex flex-col gap-5 border-t border-white/[0.06] p-3">
-      <div class="flex flex-col gap-2">
-        <TtsLanguageSelect :model-value="language" :languages="languages ?? []" :disabled="running" @update:model-value="setLanguage" />
-        <p v-if="tts" class="text-[11px] text-muted tabular-nums" data-testid="narration-counts">
+    <div v-show="open" id="deck-narration-body" class="flex flex-1 flex-col gap-3 border-t border-white/[0.06] p-3">
+      <TtsLanguageSelect :model-value="language" :languages="languages ?? []" :disabled="running" @update:model-value="setLanguage" />
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <p v-if="tts" class="min-w-0 text-[11px] text-muted tabular-nums" data-testid="narration-counts">
           {{ counts.ready + counts.translated }} up to date · {{ counts.stale }} out of date · {{ counts.missing }} without audio
         </p>
-        <div class="flex flex-wrap gap-2 [&>*]:min-w-[110px] [&>*]:flex-1">
-          <Button size="sm" variant="secondary" :disabled="generateNotes.isPending.value || editor.generating" @click="generateNotes.mutate()">
-            Generate all notes
-          </Button>
-          <Button size="sm" :disabled="!canStart" @click="generateAll">Generate narration</Button>
-        </div>
-        <Button size="sm" variant="ghost" class="self-start" :disabled="running || !tts?.audios.length" @click="confirmDelete = true">
+        <Button
+          size="sm"
+          variant="ghost"
+          class="-mr-2 ml-auto h-7 px-2 font-medium hover:text-danger-text"
+          :disabled="running || !tts?.audios.length"
+          @click="confirmDelete = true"
+        >
           Delete narration
         </Button>
-        <p v-if="taskError" role="alert" class="text-[11px] text-danger-text">{{ taskError }}</p>
       </div>
+      <div class="flex flex-wrap gap-2 [&>*]:min-w-[132px] [&>*]:flex-1">
+        <Button size="sm" variant="secondary" :disabled="generateNotes.isPending.value || editor.generating" @click="generateNotes.mutate()">
+          Generate all notes
+        </Button>
+        <Button size="sm" :disabled="!canStart" @click="generateAll">Generate narration</Button>
+      </div>
+      <p v-if="taskError" role="alert" class="text-[11px] text-danger-text">{{ taskError }}</p>
     </div>
 
     <Dialog v-model:open="confirmDelete">

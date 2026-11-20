@@ -117,7 +117,7 @@ function onHandleKeydown(e: KeyboardEvent) {
       <span class="h-0.5 w-9 rounded-full bg-line group-hover:bg-muted group-focus-visible:bg-muted" :class="dragging && 'bg-muted'" aria-hidden="true" />
     </div>
 
-    <div class="flex items-center gap-1 px-4 pt-2 max-[760px]:px-3">
+    <div class="flex h-10 items-center gap-1 px-4 max-[760px]:px-3">
       <div role="tablist" aria-label="Notes, voice and motion" class="flex items-center gap-1">
         <button
           v-for="(t, i) in tabs"
@@ -129,8 +129,8 @@ function onHandleKeydown(e: KeyboardEvent) {
           aria-controls="footer-panel"
           :aria-selected="editor.footerTab === t.id"
           :tabindex="editor.footerTab === t.id ? 0 : -1"
-          class="inline-flex h-7 items-center gap-1.5 rounded-control px-2 text-[11px] hover:text-white"
-          :class="editor.footerTab === t.id ? 'text-white' : 'text-[#919fa7]'"
+          class="inline-flex h-7 items-center gap-1.5 rounded-control px-2.5 text-[11px] leading-none hover:bg-white/[0.04] hover:text-white"
+          :class="editor.footerTab !== t.id ? 'text-[#919fa7]' : editor.footerOpen ? 'bg-white/[0.07] text-white' : 'text-white'"
           @click="onTabClick(t.id)"
           @keydown="onTabKeydown($event, i)"
         >
@@ -142,7 +142,7 @@ function onHandleKeydown(e: KeyboardEvent) {
       </div>
       <button
         type="button"
-        class="inline-flex size-7 items-center justify-center rounded-control text-[#919fa7] hover:text-white"
+        class="inline-flex size-7 items-center justify-center rounded-control text-[#919fa7] hover:bg-white/[0.04] hover:text-white"
         :aria-label="editor.footerOpen ? 'Collapse' : 'Expand'"
         :aria-expanded="editor.footerOpen"
         aria-controls="footer-panel"
@@ -150,7 +150,7 @@ function onHandleKeydown(e: KeyboardEvent) {
       >
         <ChevronDown class="size-3.5 transition-transform duration-200" :class="editor.footerOpen && 'rotate-180'" aria-hidden="true" />
       </button>
-      <span v-if="editor.footerTab === 'notes'" class="ml-auto text-[9px] text-[#97a3aa] max-[1279px]:hidden">Only you can see these</span>
+      <span v-if="editor.footerTab === 'notes'" class="ml-auto text-[10px] leading-none text-[#97a3aa] max-[1279px]:hidden">Only you can see these</span>
     </div>
 
     <div
@@ -162,7 +162,7 @@ function onHandleKeydown(e: KeyboardEvent) {
       :style="{ height: bodyHeight }"
       :inert="!editor.footerOpen"
     >
-      <div v-if="notesMounted && editor.footerTab === 'notes'" class="px-4 pt-2.5 pb-3 max-[760px]:px-3">
+      <div v-if="notesMounted && editor.footerTab === 'notes'" class="px-4 pt-1 pb-3 max-[760px]:px-3">
         <NotesStrip v-if="props.slide" :presentation-id="props.presentationId" :slide="props.slide" />
       </div>
       <div v-if="voiceMounted" v-show="editor.footerTab === 'voice'" data-footer-pane="voice">

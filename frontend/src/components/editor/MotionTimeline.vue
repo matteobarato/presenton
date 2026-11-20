@@ -302,7 +302,7 @@ function askReplan() {
 
 <style scoped>
 /* Timeline look from the Aera mockup (aera-frontend/src/motion.css). */
-.motion-timeline { padding: 6px 16px 8px; }
+.motion-timeline { padding: 4px 16px 12px; }
 .motion-header { display: flex; align-items: center; justify-content: space-between; gap: 9px; padding-bottom: 8px; }
 .motion-transport { display: flex; align-items: center; gap: 9px; white-space: nowrap; }
 .motion-play { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 6px; background: #30414b; color: #d1e8f3; font-size: 10px; }
@@ -347,7 +347,7 @@ function askReplan() {
   .motion-loop { display: none; }
 }
 @media (max-width: 760px) {
-  .motion-timeline { padding: 6px 12px 8px; }
+  .motion-timeline { padding: 4px 12px 12px; }
   .motion-transport { gap: 3px; }
   .motion-clip { min-width: 7px; }
 }

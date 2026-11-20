@@ -11,15 +11,13 @@ defineProps<{ presentationId: string; presentation: Presentation; activeSlide: S
 </script>
 
 <template>
-  <section class="@container flex flex-col gap-3 px-4 py-3" aria-label="Voice">
+  <section class="@container flex flex-col gap-3 px-4 pt-1 pb-4 max-[760px]:px-3" aria-label="Voice">
     <template v-if="activeSlide">
-      <p class="text-[11px] font-semibold tracking-wide text-muted uppercase tabular-nums" data-testid="narration-slide">
-        Slide {{ activeSlide.index + 1 }} <span class="font-normal normal-case">of {{ presentation.slides.length }}</span>
-      </p>
+      <p class="sr-only" data-testid="narration-slide">Slide {{ activeSlide.index + 1 }} of {{ presentation.slides.length }}</p>
     </template>
     <p v-else class="text-[12px] text-muted">Select a slide to edit its narration.</p>
 
-    <div data-testid="voice-columns" class="grid items-start gap-4 @2xl:grid-cols-2">
+    <div data-testid="voice-columns" class="grid items-stretch gap-3 @2xl:grid-cols-2">
       <SlideVoiceSection v-if="activeSlide" :slide="activeSlide" />
       <DeckNarrationSection :presentation="presentation" />
     </div>
