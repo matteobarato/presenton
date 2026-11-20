@@ -30,13 +30,9 @@ defineExpose({ pick: () => input.value?.click() })
         @click="input?.click()"
       >
         <!-- Presenter silhouette framed by scan corners: a face goes here. -->
-        <svg viewBox="0 0 120 90" class="absolute inset-x-0 top-3 mx-auto h-[62%] text-accent/40 transition-colors group-hover:text-accent/70" fill="none" aria-hidden="true">
-          <path d="M8 22V10a2 2 0 0 1 2-2h12M98 8h12a2 2 0 0 1 2 2v12M112 68v12a2 2 0 0 1-2 2H98M22 82H10a2 2 0 0 1-2-2V68" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          <circle cx="60" cy="34" r="14" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" />
-          <path d="M30 80c0-16 13-26 30-26s30 10 30 26" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" />
-        </svg>
+        <img src="/presenter-silhouette.svg" alt="" class="absolute inset-x-0 top-3 opacity-30 mx-auto h-[100%] text-accent/40 transition-colors group-hover:text-accent/70" aria-hidden="true" />
         <span class="relative flex items-center gap-1.5 text-[12px] font-semibold text-[#f6f8f9]"><ImagePlus class="size-3.5" aria-hidden="true" />Add your digital presenter</span>
-        <span class="relative text-[11px] leading-[1.4] text-muted">A clear front-facing photo becomes a talking avatar for your slides. JPEG, PNG or WebP, up to 10 MB.</span>
+        <span class="relative text-[11px] leading-[1.4] text-muted">A clear front-facing photo becomes a talking avatar for your slides. JPEG, PNG or WebP, up to 10 MBA clear front-facing photo becomes a talking avatar for your slides. JPEG, PNG or WebP, up to 10 MB.</span>
       </button>
       <div v-if="portrait" class="absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-gradient-to-t from-black/70 to-transparent p-2 pt-8">
         <Button size="sm" variant="secondary" :disabled="busy" @click="input?.click()">Replace</Button>
