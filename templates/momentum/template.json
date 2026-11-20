@@ -4223,7 +4223,9 @@
                 "fit": "fill",
                 "decorative": true,
                 "name": "curved_band_asset",
-                "is_icon": false
+                "is_icon": false,
+                "color": "#1A3DB3",
+                "tint": true
               }
             }
           ]
@@ -4250,7 +4252,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "curved_background_arc",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             }
           ]
         }
@@ -5057,7 +5061,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "container",
@@ -5191,7 +5197,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "container",
@@ -5944,7 +5952,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "step_icon_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1A3DB3",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -6834,7 +6844,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "duration_arrow_shape",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1A3DB3",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -8414,7 +8426,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_center_fill",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -10069,7 +10083,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10085,7 +10101,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10101,7 +10119,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10213,7 +10233,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10229,7 +10251,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10245,7 +10269,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10357,7 +10383,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10373,7 +10401,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10389,7 +10419,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10501,7 +10533,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10517,7 +10551,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10533,7 +10569,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10645,7 +10683,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10661,7 +10701,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10677,7 +10719,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -13289,7 +13333,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "profile_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1A3DB3",
+                      "tint": true
                     },
                     {
                       "type": "container",
@@ -14523,7 +14569,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_outline",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#4864C2",
+              "tint": true
             },
             {
               "type": "image",
@@ -14539,7 +14587,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_fill",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             },
             {
               "type": "text",
@@ -16889,7 +16939,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_outline",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#4864C2",
+              "tint": true
             },
             {
               "type": "image",
@@ -16905,7 +16957,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_fill",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             },
             {
               "type": "text",
@@ -17350,7 +17404,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 6.0
+                "y": 6
               },
               "size": {
                 "width": 10,
@@ -17371,7 +17425,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 670,
@@ -17410,7 +17464,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 25.0
+                "y": 25
               },
               "size": {
                 "width": 670,
@@ -17449,7 +17503,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 68.0
+                "y": 68
               },
               "size": {
                 "width": 10,
@@ -17470,7 +17524,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 62.0
+                "y": 62
               },
               "size": {
                 "width": 670,
@@ -17509,7 +17563,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 87.0
+                "y": 87
               },
               "size": {
                 "width": 670,
@@ -17548,7 +17602,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 130.0
+                "y": 130
               },
               "size": {
                 "width": 10,
@@ -17569,7 +17623,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 124.0
+                "y": 124
               },
               "size": {
                 "width": 670,
@@ -17608,7 +17662,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 149.0
+                "y": 149
               },
               "size": {
                 "width": 670,
@@ -17663,7 +17717,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 52,
@@ -17684,7 +17738,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 12.0
+                "y": 12
               },
               "size": {
                 "width": 52,
@@ -17723,7 +17777,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 640,
@@ -17762,7 +17816,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 30.0
+                "y": 30
               },
               "size": {
                 "width": 640,
@@ -17801,7 +17855,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 52,
@@ -17822,7 +17876,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 88.0
+                "y": 88
               },
               "size": {
                 "width": 52,
@@ -17861,7 +17915,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 640,
@@ -17900,7 +17954,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 106.0
+                "y": 106
               },
               "size": {
                 "width": 640,
@@ -17939,7 +17993,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 52,
@@ -17960,7 +18014,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 164.0
+                "y": 164
               },
               "size": {
                 "width": 52,
@@ -17999,7 +18053,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 640,
@@ -18038,7 +18092,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 182.0
+                "y": 182
               },
               "size": {
                 "width": 640,
@@ -19485,7 +19539,9 @@
                 "fit": "fill",
                 "decorative": true,
                 "name": "curved_band_asset",
-                "is_icon": false
+                "is_icon": false,
+                "color": "#1A3DB3",
+                "tint": true
               }
             }
           ]
@@ -20403,7 +20459,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "container",
@@ -20537,7 +20595,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "container",
@@ -21255,7 +21315,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "step_icon_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1A3DB3",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -21675,7 +21737,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_center_fill",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -23421,7 +23485,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23437,7 +23503,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23453,7 +23521,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23565,7 +23635,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23581,7 +23653,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23597,7 +23671,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23709,7 +23785,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23725,7 +23803,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23741,7 +23821,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23853,7 +23935,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23869,7 +23953,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23885,7 +23971,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -23997,7 +24085,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -24013,7 +24103,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_outline",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#4864C2",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -24029,7 +24121,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "icon_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#1A3DB3",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -27551,7 +27645,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_outline",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#4864C2",
+              "tint": true
             },
             {
               "type": "image",
@@ -27567,7 +27663,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_fill",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             },
             {
               "type": "text",
@@ -28384,7 +28482,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "profile_accent",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1A3DB3",
+                      "tint": true
                     },
                     {
                       "type": "container",
@@ -29430,7 +29530,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "duration_arrow_shape",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#1A3DB3",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -31607,7 +31709,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "curved_background_arc",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             }
           ]
         },
@@ -33566,7 +33670,7 @@
               },
               "rotation": 0,
               "font": {
-                "size": 72.0,
+                "size": 72,
                 "family": "Lato Heavy",
                 "color": "#000000",
                 "line_height": 0.9,
@@ -33581,7 +33685,7 @@
                 {
                   "text": "Our Next Chapter",
                   "font": {
-                    "size": 72.0,
+                    "size": 72,
                     "family": "Lato Heavy",
                     "color": "#000000",
                     "line_height": 0.9,
@@ -34063,7 +34167,7 @@
               },
               "rotation": 0,
               "font": {
-                "size": 72.0,
+                "size": 72,
                 "family": "Lato Heavy",
                 "color": "#000000",
                 "line_height": 0.9,
@@ -34078,7 +34182,7 @@
                 {
                   "text": "How We Work",
                   "font": {
-                    "size": 72.0,
+                    "size": 72,
                     "family": "Lato Heavy",
                     "color": "#000000",
                     "line_height": 0.9,
@@ -36684,7 +36788,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_outline",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#4864C2",
+              "tint": true
             },
             {
               "type": "image",
@@ -36700,7 +36806,9 @@
               "fit": "fill",
               "decorative": true,
               "name": "quote_panel_fill",
-              "is_icon": false
+              "is_icon": false,
+              "color": "#1A3DB3",
+              "tint": true
             },
             {
               "type": "text",
@@ -37169,7 +37277,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 6.0
+                "y": 6
               },
               "size": {
                 "width": 10,
@@ -37190,7 +37298,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 670,
@@ -37229,7 +37337,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 25.0
+                "y": 25
               },
               "size": {
                 "width": 670,
@@ -37268,7 +37376,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 68.0
+                "y": 68
               },
               "size": {
                 "width": 10,
@@ -37289,7 +37397,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 62.0
+                "y": 62
               },
               "size": {
                 "width": 670,
@@ -37328,7 +37436,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 87.0
+                "y": 87
               },
               "size": {
                 "width": 670,
@@ -37367,7 +37475,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 130.0
+                "y": 130
               },
               "size": {
                 "width": 10,
@@ -37388,7 +37496,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 124.0
+                "y": 124
               },
               "size": {
                 "width": 670,
@@ -37427,7 +37535,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 149.0
+                "y": 149
               },
               "size": {
                 "width": 670,
@@ -37607,7 +37715,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 52,
@@ -37628,7 +37736,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 12.0
+                "y": 12
               },
               "size": {
                 "width": 52,
@@ -37667,7 +37775,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 640,
@@ -37706,7 +37814,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 30.0
+                "y": 30
               },
               "size": {
                 "width": 640,
@@ -37745,7 +37853,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 52,
@@ -37766,7 +37874,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 88.0
+                "y": 88
               },
               "size": {
                 "width": 52,
@@ -37805,7 +37913,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 640,
@@ -37844,7 +37952,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 106.0
+                "y": 106
               },
               "size": {
                 "width": 640,
@@ -37883,7 +37991,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 52,
@@ -37904,7 +38012,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 164.0
+                "y": 164
               },
               "size": {
                 "width": 52,
@@ -37943,7 +38051,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 640,
@@ -37982,7 +38090,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 182.0
+                "y": 182
               },
               "size": {
                 "width": 640,

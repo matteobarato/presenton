@@ -4027,7 +4027,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -4253,7 +4255,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -6824,7 +6828,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -6927,7 +6933,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -7029,7 +7037,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -7162,7 +7172,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -7264,7 +7276,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -7366,7 +7380,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -8850,7 +8866,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -8978,7 +8996,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -9106,7 +9126,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -10992,7 +11014,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 6.0
+                "y": 6
               },
               "size": {
                 "width": 10,
@@ -11013,7 +11035,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 670,
@@ -11052,7 +11074,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 28.0
+                "y": 28
               },
               "size": {
                 "width": 670,
@@ -11091,7 +11113,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 73.0
+                "y": 73
               },
               "size": {
                 "width": 10,
@@ -11112,7 +11134,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 67.0
+                "y": 67
               },
               "size": {
                 "width": 670,
@@ -11151,7 +11173,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 95.0
+                "y": 95
               },
               "size": {
                 "width": 670,
@@ -11190,7 +11212,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 140.0
+                "y": 140
               },
               "size": {
                 "width": 10,
@@ -11211,7 +11233,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 134.0
+                "y": 134
               },
               "size": {
                 "width": 670,
@@ -11250,7 +11272,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 162.0
+                "y": 162
               },
               "size": {
                 "width": 670,
@@ -11305,7 +11327,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 52,
@@ -11326,7 +11348,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 12.0
+                "y": 12
               },
               "size": {
                 "width": 52,
@@ -11365,7 +11387,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 640,
@@ -11404,7 +11426,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 34.0
+                "y": 34
               },
               "size": {
                 "width": 640,
@@ -11443,7 +11465,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 83.0
+                "y": 83
               },
               "size": {
                 "width": 52,
@@ -11464,7 +11486,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 95.0
+                "y": 95
               },
               "size": {
                 "width": 52,
@@ -11503,7 +11525,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 83.0
+                "y": 83
               },
               "size": {
                 "width": 640,
@@ -11542,7 +11564,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 117.0
+                "y": 117
               },
               "size": {
                 "width": 640,
@@ -11581,7 +11603,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 166.0
+                "y": 166
               },
               "size": {
                 "width": 52,
@@ -11602,7 +11624,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 178.0
+                "y": 178
               },
               "size": {
                 "width": 52,
@@ -11641,7 +11663,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 166.0
+                "y": 166
               },
               "size": {
                 "width": 640,
@@ -11680,7 +11702,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 200.0
+                "y": 200
               },
               "size": {
                 "width": 640,
@@ -17592,7 +17614,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -17695,7 +17719,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -17797,7 +17823,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -18456,7 +18484,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -19929,7 +19959,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background_panel",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -20753,7 +20785,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -20881,7 +20915,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -21009,7 +21045,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_panel",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#FFFFFF",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -21813,7 +21851,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -21915,7 +21955,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -22017,7 +22059,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_panel_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#FFFFFF",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -24489,7 +24533,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 6.0
+                "y": 6
               },
               "size": {
                 "width": 10,
@@ -24510,7 +24554,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 670,
@@ -24549,7 +24593,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 28.0
+                "y": 28
               },
               "size": {
                 "width": 670,
@@ -24588,7 +24632,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 73.0
+                "y": 73
               },
               "size": {
                 "width": 10,
@@ -24609,7 +24653,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 67.0
+                "y": 67
               },
               "size": {
                 "width": 670,
@@ -24648,7 +24692,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 95.0
+                "y": 95
               },
               "size": {
                 "width": 670,
@@ -24687,7 +24731,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 140.0
+                "y": 140
               },
               "size": {
                 "width": 10,
@@ -24708,7 +24752,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 134.0
+                "y": 134
               },
               "size": {
                 "width": 670,
@@ -24747,7 +24791,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 162.0
+                "y": 162
               },
               "size": {
                 "width": 670,
@@ -24927,7 +24971,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 52,
@@ -24948,7 +24992,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 12.0
+                "y": 12
               },
               "size": {
                 "width": 52,
@@ -24987,7 +25031,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 640,
@@ -25026,7 +25070,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 34.0
+                "y": 34
               },
               "size": {
                 "width": 640,
@@ -25065,7 +25109,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 83.0
+                "y": 83
               },
               "size": {
                 "width": 52,
@@ -25086,7 +25130,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 95.0
+                "y": 95
               },
               "size": {
                 "width": 52,
@@ -25125,7 +25169,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 83.0
+                "y": 83
               },
               "size": {
                 "width": 640,
@@ -25164,7 +25208,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 117.0
+                "y": 117
               },
               "size": {
                 "width": 640,
@@ -25203,7 +25247,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 166.0
+                "y": 166
               },
               "size": {
                 "width": 52,
@@ -25224,7 +25268,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 178.0
+                "y": 178
               },
               "size": {
                 "width": 52,
@@ -25263,7 +25307,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 166.0
+                "y": 166
               },
               "size": {
                 "width": 640,
@@ -25302,7 +25346,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 200.0
+                "y": 200
               },
               "size": {
                 "width": 640,
@@ -27394,7 +27438,7 @@
           "description": "Panel behind the video, so an empty slot still looks designed.",
           "position": {
             "x": 521.5,
-            "y": 116.0
+            "y": 116
           },
           "elements": [
             {
@@ -27425,7 +27469,7 @@
           "description": "Avatar video placeholder",
           "position": {
             "x": 533.5,
-            "y": 128.0
+            "y": 128
           },
           "elements": [
             {

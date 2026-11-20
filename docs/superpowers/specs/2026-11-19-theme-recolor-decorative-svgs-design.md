@@ -41,7 +41,7 @@ Cause (verified): `render/retint.ts` rewrites `#rrggbb` values inside a slide's 
 
 ## Constraints
 
-- Masks flatten opacity inside the SVG: an SVG with `fill-opacity`/`opacity` below 1 is treated as multi-color-class (skipped) unless the value is carried to the item's `opacity`.
+- A CSS mask uses the SVG's alpha channel, so partial `opacity`/`fill-opacity`/`stroke-opacity` inside the SVG is preserved; such SVGs migrate normally. Stroke-only SVGs (single stroke hex, fills none) migrate with `color` = the stroke hex.
 - Do not modify `servers/nextjs`.
 
 ## Verification

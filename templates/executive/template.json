@@ -8379,7 +8379,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "curved_connector",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#BFC1C9",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -14402,7 +14404,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 6.0
+                "y": 6
               },
               "size": {
                 "width": 10,
@@ -14423,7 +14425,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 670,
@@ -14462,7 +14464,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 27.0
+                "y": 27
               },
               "size": {
                 "width": 670,
@@ -14501,7 +14503,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 71.0
+                "y": 71
               },
               "size": {
                 "width": 10,
@@ -14522,7 +14524,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 65.0
+                "y": 65
               },
               "size": {
                 "width": 670,
@@ -14561,7 +14563,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 92.0
+                "y": 92
               },
               "size": {
                 "width": 670,
@@ -14600,7 +14602,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 136.0
+                "y": 136
               },
               "size": {
                 "width": 10,
@@ -14621,7 +14623,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 130.0
+                "y": 130
               },
               "size": {
                 "width": 670,
@@ -14660,7 +14662,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 157.0
+                "y": 157
               },
               "size": {
                 "width": 670,
@@ -14715,7 +14717,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 52,
@@ -14736,7 +14738,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 12.0
+                "y": 12
               },
               "size": {
                 "width": 52,
@@ -14775,7 +14777,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 640,
@@ -14814,7 +14816,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 32.0
+                "y": 32
               },
               "size": {
                 "width": 640,
@@ -14853,7 +14855,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 79.0
+                "y": 79
               },
               "size": {
                 "width": 52,
@@ -14874,7 +14876,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 91.0
+                "y": 91
               },
               "size": {
                 "width": 52,
@@ -14913,7 +14915,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 79.0
+                "y": 79
               },
               "size": {
                 "width": 640,
@@ -14952,7 +14954,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 111.0
+                "y": 111
               },
               "size": {
                 "width": 640,
@@ -14991,7 +14993,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 158.0
+                "y": 158
               },
               "size": {
                 "width": 52,
@@ -15012,7 +15014,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 170.0
+                "y": 170
               },
               "size": {
                 "width": 52,
@@ -15051,7 +15053,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 158.0
+                "y": 158
               },
               "size": {
                 "width": 640,
@@ -15090,7 +15092,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 190.0
+                "y": 190
               },
               "size": {
                 "width": 640,
@@ -19387,7 +19389,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "curved_connector",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#BFC1C9",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -31293,7 +31297,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 6.0
+                "y": 6
               },
               "size": {
                 "width": 10,
@@ -31314,7 +31318,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 670,
@@ -31353,7 +31357,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 27.0
+                "y": 27
               },
               "size": {
                 "width": 670,
@@ -31392,7 +31396,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 71.0
+                "y": 71
               },
               "size": {
                 "width": 10,
@@ -31413,7 +31417,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 65.0
+                "y": 65
               },
               "size": {
                 "width": 670,
@@ -31452,7 +31456,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 92.0
+                "y": 92
               },
               "size": {
                 "width": 670,
@@ -31491,7 +31495,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 136.0
+                "y": 136
               },
               "size": {
                 "width": 10,
@@ -31512,7 +31516,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 130.0
+                "y": 130
               },
               "size": {
                 "width": 670,
@@ -31551,7 +31555,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 157.0
+                "y": 157
               },
               "size": {
                 "width": 670,
@@ -31731,7 +31735,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 52,
@@ -31752,7 +31756,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 12.0
+                "y": 12
               },
               "size": {
                 "width": 52,
@@ -31791,7 +31795,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 640,
@@ -31830,7 +31834,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 32.0
+                "y": 32
               },
               "size": {
                 "width": 640,
@@ -31869,7 +31873,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 79.0
+                "y": 79
               },
               "size": {
                 "width": 52,
@@ -31890,7 +31894,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 91.0
+                "y": 91
               },
               "size": {
                 "width": 52,
@@ -31929,7 +31933,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 79.0
+                "y": 79
               },
               "size": {
                 "width": 640,
@@ -31968,7 +31972,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 111.0
+                "y": 111
               },
               "size": {
                 "width": 640,
@@ -32007,7 +32011,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 158.0
+                "y": 158
               },
               "size": {
                 "width": 52,
@@ -32028,7 +32032,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 170.0
+                "y": 170
               },
               "size": {
                 "width": 52,
@@ -32067,7 +32071,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 158.0
+                "y": 158
               },
               "size": {
                 "width": 640,
@@ -32106,7 +32110,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 190.0
+                "y": 190
               },
               "size": {
                 "width": 640,

@@ -737,7 +737,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "image_backing_shape",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#CAE7B9",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -3680,7 +3682,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "subtitle_pill",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -3821,7 +3825,9 @@
                             "fit": "fill",
                             "decorative": true,
                             "name": "hanging_badge",
-                            "is_icon": false
+                            "is_icon": false,
+                            "color": "#CAE7B9",
+                            "tint": true
                           }
                         ],
                         "name": "Group 5"
@@ -3896,7 +3902,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "hanging_badge",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -3967,7 +3975,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "hanging_badge",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -4038,7 +4048,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "hanging_badge",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -4691,7 +4703,9 @@
                       "clip_path": "path('M 0 0 L 186.95 0 L 186.95 186.95 L 0 186.95 L 0 0 Z')",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7c6af4",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -4800,7 +4814,9 @@
                       "clip_path": "path('M 0 0 L 186.95 0 L 186.95 186.95 L 0 186.95 L 0 0 Z')",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#cae7b9",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -4909,7 +4925,9 @@
                       "clip_path": "path('M 0 0 L 186.95 0 L 186.95 186.95 L 0 186.95 L 0 0 Z')",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7c6af4",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -5018,7 +5036,9 @@
                       "clip_path": "path('M 0 0 L 186.95 0 L 186.95 186.95 L 0 186.95 L 0 0 Z')",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#cae7b9",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -5127,7 +5147,9 @@
                       "clip_path": "path('M 0 0 L 186.95 0 L 186.95 186.95 L 0 186.95 L 0 0 Z')",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7c6af4",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -5448,7 +5470,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "step_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "flex",
@@ -5558,7 +5582,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "step_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "flex",
@@ -5668,7 +5694,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "step_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "flex",
@@ -5778,7 +5806,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "step_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "flex",
@@ -6027,7 +6057,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "summary_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -6291,7 +6323,9 @@
                   "clip_path": "path('M 0 0 L 354.16 0 L 354.16 274.21 L 0 274.21 L 0 0 Z')",
                   "decorative": true,
                   "name": "summary_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7c6af4",
+                  "tint": true
                 },
                 {
                   "type": "group",
@@ -6784,7 +6818,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "metric_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -6894,7 +6930,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "metric_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#CAE7B9",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -7036,7 +7074,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "summary_card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -7156,7 +7196,9 @@
                       "clip_path": "path('M 0 0 L 365.14 0 L 365.14 209.61 L 0 209.61 L 0 0 Z')",
                       "decorative": true,
                       "name": "summary_card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7c6af4",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -7326,7 +7368,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "insight_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -7432,7 +7476,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "insight_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -7573,7 +7619,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -7690,7 +7738,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -7807,7 +7857,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -7954,7 +8006,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -8060,7 +8114,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -8166,7 +8222,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -8272,7 +8330,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -8408,7 +8468,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -8514,7 +8576,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -8620,7 +8684,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -8726,7 +8792,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -8861,7 +8929,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -8978,7 +9048,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -9125,7 +9197,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -9231,7 +9305,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -9337,7 +9413,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -9443,7 +9521,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -9574,7 +9654,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "middle_frame",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7C6AF4",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -9592,7 +9674,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "inner_frame",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7C6AF4",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -9610,7 +9694,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "outer_frame",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7C6AF4",
+                  "tint": true
                 },
                 {
                   "type": "group",
@@ -9639,7 +9725,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "center_label_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -9721,7 +9809,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -9774,7 +9864,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -9827,7 +9919,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -9880,7 +9974,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -9933,7 +10029,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -9986,7 +10084,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -10061,7 +10161,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "chart_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "chart",
@@ -10171,7 +10273,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "chart",
@@ -10266,7 +10370,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "metric_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -11444,7 +11550,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -11627,7 +11735,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -11810,7 +11920,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -12012,7 +12124,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "metric_card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -12401,7 +12515,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "detail_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -12510,7 +12626,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "detail_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -12619,7 +12737,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "detail_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -14639,7 +14759,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -14668,7 +14790,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FFFFFF",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -14721,7 +14845,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_tag_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FFFFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -14865,7 +14991,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -14894,7 +15022,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FFFFFF",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -14947,7 +15077,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_tag_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FFFFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -15126,7 +15258,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -15155,7 +15289,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FFF1F2",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -15294,7 +15430,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -15323,7 +15461,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#F1F2FF",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -15462,7 +15602,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -15491,7 +15633,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FAF1FF",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -15660,7 +15804,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -15791,7 +15937,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -15922,7 +16070,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -16053,7 +16203,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -16184,7 +16336,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -16315,7 +16469,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -16559,7 +16715,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "chart",
@@ -16640,7 +16798,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "chart",
@@ -16749,7 +16909,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7C6AF4",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -16880,7 +17042,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "takeaway_card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -17013,7 +17177,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "callout_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7C6AF4",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -17237,7 +17403,9 @@
                   "clip_path": "path('M 0 0 L 285.56 0 L 285.56 163.93 L 0 163.93 L 0 0 Z')",
                   "decorative": true,
                   "name": "metric_card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7c6af4",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -17406,7 +17574,9 @@
                       "clip_path": "path('M 0 0 L 331.1 0 L 331.1 378.28 L 0 378.28 L 0 0 Z')",
                       "decorative": true,
                       "name": "panel_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#eeeeee",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -18065,7 +18235,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "chart_card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "chart",
@@ -18560,7 +18732,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -18708,7 +18882,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -18856,7 +19032,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -19004,7 +19182,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -19404,7 +19584,9 @@
                           "clip_path": "path('M 389.99 0 L 0 0 L 0 409.49 L 389.99 409.49 L 389.99 0 Z')",
                           "decorative": true,
                           "name": "card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7c6af4",
+                          "tint": true
                         },
                         {
                           "type": "group",
@@ -19433,7 +19615,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "card_label_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#FFFFFF",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -19604,7 +19788,9 @@
                           "clip_path": "path('M 0 0 L 389.99 0 L 389.99 409.49 L 0 409.49 L 0 0 Z')",
                           "decorative": true,
                           "name": "card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#d9d9d9",
+                          "tint": true
                         },
                         {
                           "type": "group",
@@ -19633,7 +19819,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "card_label_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#FFFFFF",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -19802,7 +19990,9 @@
                   "clip_path": "path('M 0 0 L 89.47 0 L 89.47 92.96 L 0 92.96 L 0 0 Z')",
                   "decorative": true,
                   "name": "shared_notch_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#d9d9d9",
+                  "tint": true
                 }
               ],
               "name": "metric_cards_with_shared_notch"
@@ -20073,7 +20263,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "stage_header_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#7C6AF4",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -20135,7 +20327,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "stage_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#EEEEEE",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -20225,7 +20419,9 @@
                                     "fit": "fill",
                                     "decorative": true,
                                     "name": "icon_badge_surface",
-                                    "is_icon": false
+                                    "is_icon": false,
+                                    "color": "#7C6AF4",
+                                    "tint": true
                                   }
                                 ],
                                 "name": "group_31"
@@ -20289,7 +20485,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "timeline_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -20367,7 +20565,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "stage_header_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#7C6AF4",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -20429,7 +20629,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "stage_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#EEEEEE",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -20519,7 +20721,9 @@
                                     "fit": "fill",
                                     "decorative": true,
                                     "name": "icon_badge_surface",
-                                    "is_icon": false
+                                    "is_icon": false,
+                                    "color": "#7C6AF4",
+                                    "tint": true
                                   }
                                 ],
                                 "name": "group_40"
@@ -20583,7 +20787,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "timeline_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -20661,7 +20867,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "stage_header_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#7C6AF4",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -20723,7 +20931,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "stage_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#EEEEEE",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -20813,7 +21023,9 @@
                                     "fit": "fill",
                                     "decorative": true,
                                     "name": "icon_badge_surface",
-                                    "is_icon": false
+                                    "is_icon": false,
+                                    "color": "#7C6AF4",
+                                    "tint": true
                                   }
                                 ],
                                 "name": "group_49"
@@ -20877,7 +21089,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "timeline_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -20955,7 +21169,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "stage_header_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#7C6AF4",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -21017,7 +21233,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "stage_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#EEEEEE",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -21107,7 +21325,9 @@
                                     "fit": "fill",
                                     "decorative": true,
                                     "name": "icon_badge_surface",
-                                    "is_icon": false
+                                    "is_icon": false,
+                                    "color": "#7C6AF4",
+                                    "tint": true
                                   }
                                 ],
                                 "name": "group_58"
@@ -21171,7 +21391,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "timeline_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -21249,7 +21471,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "stage_header_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#7C6AF4",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -21311,7 +21535,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "stage_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#EEEEEE",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -21401,7 +21627,9 @@
                                     "fit": "fill",
                                     "decorative": true,
                                     "name": "icon_badge_surface",
-                                    "is_icon": false
+                                    "is_icon": false,
+                                    "color": "#7C6AF4",
+                                    "tint": true
                                   }
                                 ],
                                 "name": "group_67"
@@ -21465,7 +21693,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "timeline_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -21582,7 +21812,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "circle_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#CAE7B9",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -21653,7 +21885,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "circle_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#CAE7B9",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -21724,7 +21958,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "circle_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#CAE7B9",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -21809,7 +22045,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "photo_frame",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#9081C8",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -21861,7 +22099,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "photo_frame",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#9081C8",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -21913,7 +22153,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "photo_frame",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#9081C8",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -21979,7 +22221,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "profile_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -22062,7 +22306,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "profile_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -22145,7 +22391,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "profile_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -22534,7 +22782,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "metric_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "group",
@@ -23605,7 +23855,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "text_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -23941,7 +24193,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "image_text_overlay",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#443894",
+                  "tint": true
                 },
                 {
                   "type": "text",
@@ -24189,7 +24443,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_badge_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -24299,7 +24555,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_badge_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -25749,7 +26007,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -25816,7 +26076,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -25883,7 +26145,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -26237,7 +26501,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 6.0
+                "y": 6
               },
               "size": {
                 "width": 10,
@@ -26258,7 +26522,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 670,
@@ -26297,7 +26561,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 25.0
+                "y": 25
               },
               "size": {
                 "width": 670,
@@ -26336,7 +26600,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 68.0
+                "y": 68
               },
               "size": {
                 "width": 10,
@@ -26357,7 +26621,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 62.0
+                "y": 62
               },
               "size": {
                 "width": 670,
@@ -26396,7 +26660,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 87.0
+                "y": 87
               },
               "size": {
                 "width": 670,
@@ -26435,7 +26699,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 130.0
+                "y": 130
               },
               "size": {
                 "width": 10,
@@ -26456,7 +26720,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 124.0
+                "y": 124
               },
               "size": {
                 "width": 670,
@@ -26495,7 +26759,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 149.0
+                "y": 149
               },
               "size": {
                 "width": 670,
@@ -26550,7 +26814,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 52,
@@ -26571,7 +26835,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 12.0
+                "y": 12
               },
               "size": {
                 "width": 52,
@@ -26610,7 +26874,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 640,
@@ -26649,7 +26913,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 30.0
+                "y": 30
               },
               "size": {
                 "width": 640,
@@ -26688,7 +26952,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 52,
@@ -26709,7 +26973,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 88.0
+                "y": 88
               },
               "size": {
                 "width": 52,
@@ -26748,7 +27012,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 640,
@@ -26787,7 +27051,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 106.0
+                "y": 106
               },
               "size": {
                 "width": 640,
@@ -26826,7 +27090,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 52,
@@ -26847,7 +27111,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 164.0
+                "y": 164
               },
               "size": {
                 "width": 52,
@@ -26886,7 +27150,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 640,
@@ -26925,7 +27189,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 182.0
+                "y": 182
               },
               "size": {
                 "width": 640,
@@ -28665,7 +28929,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -28732,7 +28998,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -28799,7 +29067,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -29295,7 +29565,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "image_backing_shape",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#CAE7B9",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -29914,7 +30186,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "subtitle_pill",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -30049,7 +30323,9 @@
                             "fit": "fill",
                             "decorative": true,
                             "name": "hanging_badge",
-                            "is_icon": false
+                            "is_icon": false,
+                            "color": "#CAE7B9",
+                            "tint": true
                           }
                         ],
                         "name": "Group 5"
@@ -30124,7 +30400,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "hanging_badge",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -30195,7 +30473,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "hanging_badge",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -30266,7 +30546,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "hanging_badge",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -31125,7 +31407,9 @@
                       "clip_path": "path('M 0 0 L 186.95 0 L 186.95 186.95 L 0 186.95 L 0 0 Z')",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7c6af4",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -31234,7 +31518,9 @@
                       "clip_path": "path('M 0 0 L 186.95 0 L 186.95 186.95 L 0 186.95 L 0 0 Z')",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#cae7b9",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -31343,7 +31629,9 @@
                       "clip_path": "path('M 0 0 L 186.95 0 L 186.95 186.95 L 0 186.95 L 0 0 Z')",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7c6af4",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -31452,7 +31740,9 @@
                       "clip_path": "path('M 0 0 L 186.95 0 L 186.95 186.95 L 0 186.95 L 0 0 Z')",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#cae7b9",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -31561,7 +31851,9 @@
                       "clip_path": "path('M 0 0 L 186.95 0 L 186.95 186.95 L 0 186.95 L 0 0 Z')",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7c6af4",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -31876,7 +32168,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "step_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "flex",
@@ -31986,7 +32280,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "step_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "flex",
@@ -32096,7 +32392,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "step_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "flex",
@@ -32206,7 +32504,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "step_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "flex",
@@ -32492,7 +32792,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "summary_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -32802,7 +33104,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "metric_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -32912,7 +33216,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "metric_card_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#CAE7B9",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -33153,7 +33459,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "summary_card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -33273,7 +33581,9 @@
                       "clip_path": "path('M 0 0 L 365.14 0 L 365.14 209.61 L 0 209.61 L 0 0 Z')",
                       "decorative": true,
                       "name": "summary_card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7c6af4",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -33443,7 +33753,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -33560,7 +33872,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -33677,7 +33991,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -33929,7 +34245,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "middle_frame",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7C6AF4",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -33947,7 +34265,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "inner_frame",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7C6AF4",
+                  "tint": true
                 },
                 {
                   "type": "image",
@@ -33965,7 +34285,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "outer_frame",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7C6AF4",
+                  "tint": true
                 },
                 {
                   "type": "group",
@@ -33994,7 +34316,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "center_label_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -34076,7 +34400,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -34129,7 +34455,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -34182,7 +34510,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -34235,7 +34565,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -34288,7 +34620,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -34341,7 +34675,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -34421,7 +34757,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -34527,7 +34865,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -34633,7 +34973,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -34739,7 +35081,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -34969,7 +35313,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "chart_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "chart",
@@ -35079,7 +35425,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "metric_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -35405,7 +35753,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "insight_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -35511,7 +35861,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "insight_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -36489,7 +36841,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -36672,7 +37026,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -36855,7 +37211,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -37073,7 +37431,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "detail_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -37182,7 +37542,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "detail_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -37291,7 +37653,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "detail_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -37485,7 +37849,9 @@
                   "clip_path": "path('M 0 0 L 354.16 0 L 354.16 274.21 L 0 274.21 L 0 0 Z')",
                   "decorative": true,
                   "name": "summary_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7c6af4",
+                  "tint": true
                 },
                 {
                   "type": "group",
@@ -38154,7 +38520,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -38260,7 +38628,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -38366,7 +38736,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -38472,7 +38844,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -40572,7 +40946,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -40601,7 +40977,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FFFFFF",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -40654,7 +41032,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_tag_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FFFFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -40798,7 +41178,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -40827,7 +41209,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_icon_badge",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FFFFFF",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -40880,7 +41264,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "card_tag_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FFFFFF",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -41059,7 +41445,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -41088,7 +41476,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FFF1F2",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -41227,7 +41617,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -41256,7 +41648,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#F1F2FF",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -41395,7 +41789,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -41424,7 +41820,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "icon_badge_background",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#FAF1FF",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -41775,7 +42173,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "chart",
@@ -41856,7 +42256,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "chart",
@@ -41959,7 +42361,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "chart",
@@ -42048,7 +42452,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7C6AF4",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -42466,7 +42872,9 @@
                   "clip_path": "path('M 0 0 L 285.56 0 L 285.56 163.93 L 0 163.93 L 0 0 Z')",
                   "decorative": true,
                   "name": "metric_card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7c6af4",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -42617,7 +43025,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "takeaway_card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -42768,7 +43178,9 @@
                       "clip_path": "path('M 0 0 L 331.1 0 L 331.1 378.28 L 0 378.28 L 0 0 Z')",
                       "decorative": true,
                       "name": "panel_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#eeeeee",
+                      "tint": true
                     },
                     {
                       "type": "group",
@@ -43619,7 +44031,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "chart_card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "chart",
@@ -43715,7 +44129,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "metric_card_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -44474,7 +44890,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -44591,7 +45009,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_card_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "flex",
@@ -44843,7 +45263,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -44991,7 +45413,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -45139,7 +45563,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -45287,7 +45713,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "image",
@@ -45570,7 +45998,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -45701,7 +46131,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -45832,7 +46264,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -45963,7 +46397,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -46094,7 +46530,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -46225,7 +46663,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#CAE7B9",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -46596,7 +47036,9 @@
                           "clip_path": "path('M 389.99 0 L 0 0 L 0 409.49 L 389.99 409.49 L 389.99 0 Z')",
                           "decorative": true,
                           "name": "card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7c6af4",
+                          "tint": true
                         },
                         {
                           "type": "group",
@@ -46625,7 +47067,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "card_label_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#FFFFFF",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -46796,7 +47240,9 @@
                           "clip_path": "path('M 0 0 L 389.99 0 L 389.99 409.49 L 0 409.49 L 0 0 Z')",
                           "decorative": true,
                           "name": "card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#d9d9d9",
+                          "tint": true
                         },
                         {
                           "type": "group",
@@ -46825,7 +47271,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "card_label_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#FFFFFF",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -46994,7 +47442,9 @@
                   "clip_path": "path('M 0 0 L 89.47 0 L 89.47 92.96 L 0 92.96 L 0 0 Z')",
                   "decorative": true,
                   "name": "shared_notch_circle",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#d9d9d9",
+                  "tint": true
                 }
               ],
               "name": "metric_cards_with_shared_notch"
@@ -47412,7 +47862,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -47518,7 +47970,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -47624,7 +48078,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#EEEEEE",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -47730,7 +48186,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "card_surface",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -48010,7 +48468,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "stage_header_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#7C6AF4",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -48072,7 +48532,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "stage_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#EEEEEE",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -48162,7 +48624,9 @@
                                     "fit": "fill",
                                     "decorative": true,
                                     "name": "icon_badge_surface",
-                                    "is_icon": false
+                                    "is_icon": false,
+                                    "color": "#7C6AF4",
+                                    "tint": true
                                   }
                                 ],
                                 "name": "group_31"
@@ -48226,7 +48690,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "timeline_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -48304,7 +48770,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "stage_header_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#7C6AF4",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -48366,7 +48834,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "stage_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#EEEEEE",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -48456,7 +48926,9 @@
                                     "fit": "fill",
                                     "decorative": true,
                                     "name": "icon_badge_surface",
-                                    "is_icon": false
+                                    "is_icon": false,
+                                    "color": "#7C6AF4",
+                                    "tint": true
                                   }
                                 ],
                                 "name": "group_40"
@@ -48520,7 +48992,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "timeline_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -48598,7 +49072,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "stage_header_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#7C6AF4",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -48660,7 +49136,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "stage_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#EEEEEE",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -48750,7 +49228,9 @@
                                     "fit": "fill",
                                     "decorative": true,
                                     "name": "icon_badge_surface",
-                                    "is_icon": false
+                                    "is_icon": false,
+                                    "color": "#7C6AF4",
+                                    "tint": true
                                   }
                                 ],
                                 "name": "group_49"
@@ -48814,7 +49294,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "timeline_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -48892,7 +49374,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "stage_header_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#7C6AF4",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -48954,7 +49438,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "stage_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#EEEEEE",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -49044,7 +49530,9 @@
                                     "fit": "fill",
                                     "decorative": true,
                                     "name": "icon_badge_surface",
-                                    "is_icon": false
+                                    "is_icon": false,
+                                    "color": "#7C6AF4",
+                                    "tint": true
                                   }
                                 ],
                                 "name": "group_58"
@@ -49108,7 +49596,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "timeline_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -49186,7 +49676,9 @@
                               "fit": "fill",
                               "decorative": true,
                               "name": "stage_header_surface",
-                              "is_icon": false
+                              "is_icon": false,
+                              "color": "#7C6AF4",
+                              "tint": true
                             },
                             {
                               "type": "text",
@@ -49248,7 +49740,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "stage_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#EEEEEE",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -49338,7 +49832,9 @@
                                     "fit": "fill",
                                     "decorative": true,
                                     "name": "icon_badge_surface",
-                                    "is_icon": false
+                                    "is_icon": false,
+                                    "color": "#7C6AF4",
+                                    "tint": true
                                   }
                                 ],
                                 "name": "group_67"
@@ -49402,7 +49898,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "timeline_marker",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -49519,7 +50017,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "circle_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#CAE7B9",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -49590,7 +50090,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "circle_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#CAE7B9",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -49661,7 +50163,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "circle_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#CAE7B9",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -49746,7 +50250,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "photo_frame",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#9081C8",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -49798,7 +50304,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "photo_frame",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#9081C8",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -49850,7 +50358,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "photo_frame",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#9081C8",
+                          "tint": true
                         },
                         {
                           "type": "image",
@@ -49916,7 +50426,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "profile_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -49999,7 +50511,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "profile_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -50082,7 +50596,9 @@
                           "fit": "fill",
                           "decorative": true,
                           "name": "profile_card_surface",
-                          "is_icon": false
+                          "is_icon": false,
+                          "color": "#7C6AF4",
+                          "tint": true
                         },
                         {
                           "type": "text",
@@ -50564,7 +51080,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "metric_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "group",
@@ -51092,7 +51610,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "callout_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#7C6AF4",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -51221,7 +51741,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "text_panel_background",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#EEEEEE",
+                  "tint": true
                 },
                 {
                   "type": "flex",
@@ -51551,7 +52073,9 @@
                   "fit": "fill",
                   "decorative": true,
                   "name": "image_text_overlay",
-                  "is_icon": false
+                  "is_icon": false,
+                  "color": "#443894",
+                  "tint": true
                 },
                 {
                   "type": "text",
@@ -51892,7 +52416,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_badge_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -52002,7 +52528,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "metric_badge_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -54381,7 +54909,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -54448,7 +54978,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -54515,7 +55047,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -54938,7 +55472,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 6.0
+                "y": 6
               },
               "size": {
                 "width": 10,
@@ -54959,7 +55493,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 670,
@@ -54998,7 +55532,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 25.0
+                "y": 25
               },
               "size": {
                 "width": 670,
@@ -55037,7 +55571,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 68.0
+                "y": 68
               },
               "size": {
                 "width": 10,
@@ -55058,7 +55592,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 62.0
+                "y": 62
               },
               "size": {
                 "width": 670,
@@ -55097,7 +55631,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 87.0
+                "y": 87
               },
               "size": {
                 "width": 670,
@@ -55136,7 +55670,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 130.0
+                "y": 130
               },
               "size": {
                 "width": 10,
@@ -55157,7 +55691,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 124.0
+                "y": 124
               },
               "size": {
                 "width": 670,
@@ -55196,7 +55730,7 @@
               "type": "text",
               "position": {
                 "x": 26,
-                "y": 149.0
+                "y": 149
               },
               "size": {
                 "width": 670,
@@ -55376,7 +55910,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 52,
@@ -55397,7 +55931,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 12.0
+                "y": 12
               },
               "size": {
                 "width": 52,
@@ -55436,7 +55970,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 0.0
+                "y": 0
               },
               "size": {
                 "width": 640,
@@ -55475,7 +56009,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 30.0
+                "y": 30
               },
               "size": {
                 "width": 640,
@@ -55514,7 +56048,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 52,
@@ -55535,7 +56069,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 88.0
+                "y": 88
               },
               "size": {
                 "width": 52,
@@ -55574,7 +56108,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 76.0
+                "y": 76
               },
               "size": {
                 "width": 640,
@@ -55613,7 +56147,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 106.0
+                "y": 106
               },
               "size": {
                 "width": 640,
@@ -55652,7 +56186,7 @@
               "type": "container",
               "position": {
                 "x": 0,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 52,
@@ -55673,7 +56207,7 @@
               "type": "text",
               "position": {
                 "x": 0,
-                "y": 164.0
+                "y": 164
               },
               "size": {
                 "width": 52,
@@ -55712,7 +56246,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 152.0
+                "y": 152
               },
               "size": {
                 "width": 640,
@@ -55751,7 +56285,7 @@
               "type": "text",
               "position": {
                 "x": 72,
-                "y": 182.0
+                "y": 182
               },
               "size": {
                 "width": 640,
@@ -57827,7 +58361,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -57894,7 +58430,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
@@ -57961,7 +58499,9 @@
                       "fit": "fill",
                       "decorative": true,
                       "name": "contact_pill_background",
-                      "is_icon": false
+                      "is_icon": false,
+                      "color": "#7C6AF4",
+                      "tint": true
                     },
                     {
                       "type": "text",
