@@ -34,6 +34,7 @@ let lastClient: QueryClient
 const mounted: { unmount: () => void }[] = []
 afterEach(() => mounted.splice(0).forEach((w) => w.unmount()))
 
+let lastRouter: ReturnType<typeof createRouter>
 async function mountAt(path: string) {
   setActivePinia(createPinia())
   const router = createRouter({
@@ -42,8 +43,10 @@ async function mountAt(path: string) {
       { path: '/', name: 'library', component: { template: '<div />' } },
       { path: '/p/:id', name: 'editor', component: EditorView },
       { path: '/p/:id/present', name: 'present', component: { template: '<div />' } },
+      { path: '/p/:id/create/:step?', name: 'create', component: { template: '<div />' } },
     ],
   })
+  lastRouter = router
   await router.push(path)
   lastClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const wrapper = mount(EditorView, {
@@ -85,6 +88,27 @@ beforeEach(() => {
 })
 
 describe('EditorView', () => {
+  it('an empty deck opened without a stream redirects to the wizard outline step', async () => {
+    api.getPresentation.mockResolvedValue({ ...deck(), slides: [] })
+    await mountAt('/p/p1')
+    expect(lastRouter.currentRoute.value.name).toBe('create')
+    expect(lastRouter.currentRoute.value.params).toMatchObject({ id: 'p1', step: 'outline' })
+  })
+
+  it('a streaming empty deck stays in the editor', async () => {
+    api.getPresentation.mockResolvedValue({ ...deck(), slides: [] })
+    api.stream.mockImplementation(async function* () {
+      await new Promise<void>(() => {})
+    })
+    await mountAt('/p/p1?stream=1')
+    expect(lastRouter.currentRoute.value.name).toBe('editor')
+  })
+
+  it('a deck with slides stays in the editor', async () => {
+    await mountAt('/p/p1')
+    expect(lastRouter.currentRoute.value.name).toBe('editor')
+  })
+
   it('renders lazy navigator thumbnails and the active slide on the canvas', async () => {
     const w = await mountAt('/p/p1')
     const views = w.findAllComponents(SlideView)

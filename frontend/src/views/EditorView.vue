@@ -56,6 +56,15 @@ watch(
     void router.replace({ query })
   },
 )
+// A deck with no slides and no stream coming has nothing to edit: the wizard's outline step builds it.
+watch(
+  [presentation, streamRequested, generating],
+  ([deck, requested, streaming]) => {
+    if (!deck || deck.slides.length > 0 || requested || streaming) return
+    void router.replace({ name: 'create', params: { id: id.value, step: 'outline' } })
+  },
+  { immediate: true },
+)
 // Provides the deck-wide motion run (shared by the Motion tab and timeline; it outlives the tab) and plans
 // a deck created with "Animate slides" once its generation is done.
 const { planning: planningAfterGeneration } = usePlanMotionAfterGeneration(id, stream.status)
@@ -129,7 +138,7 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
     <template v-else>
       <DeckStateProvider :presentation-id="id" :presentation="presentation">
       <EditorLayout>
-        <template #header><EditorHeader :presentation="presentation" /></template>
+        <template #header><EditorHeader :presentation="presentation" :slides-streaming="generating" /></template>
         <template #navigator><SlideNavigator :presentation-id="id" :slides="slides" /></template>
 
         <GenerationMetrics

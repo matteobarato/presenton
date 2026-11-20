@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, toRef, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useIsMutating, useQueryClient } from '@tanstack/vue-query'
 import {
@@ -15,6 +15,7 @@ import {
   PencilLine,
   Play,
   SkipBack,
+  Wand2,
   Trash2,
 } from 'lucide-vue-next'
 import { toast } from '@/components/ui/sonner'
@@ -22,6 +23,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
@@ -30,11 +32,13 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { deletePresentation, duplicatePresentation, presentationKeys } from '@/api/presentations'
 import FloatingToolbar from '@/components/editor/FloatingToolbar.vue'
 import type { Presentation } from '@/api/types'
+import { useDeckWizard } from '@/composables/useDeckWizard'
+import { WIZARD_STEPS, type DeckStepKey } from '@/components/create/wizard/progress'
 import { useSlideMutations } from '@/composables/useSlideMutations'
 import { cn } from '@/lib/utils'
 import { slideKey, useEditorStore } from '@/stores/editor'
 
-const props = defineProps<{ presentation: Presentation }>()
+const props = defineProps<{ presentation: Presentation; slidesStreaming?: boolean }>()
 
 const router = useRouter() 
 const queryClient = useQueryClient()
@@ -48,6 +52,22 @@ function present(from: number) {
 }
 const id = computed(() => props.presentation.id)
 const { rename } = useSlideMutations(id)
+
+// Setup: where this deck stands in the create wizard. The wizard's own pipeline and outline stream live
+// in the wizard, so only the editor's slide stream counts here.
+const { progress, ready: wizardReady } = useDeckWizard(id, toRef(props, 'presentation'), {
+  slidesStreaming: computed(() => !!props.slidesStreaming),
+  outlineStreaming: ref(false),
+  pipelineRunning: ref(false),
+})
+const stepLabel = (key: DeckStepKey) => WIZARD_STEPS.find((s) => s.key === key)!.label
+const setupSteps = (['outline', 'preview', 'avatar', 'export'] as const).map((key) => ({ key, label: stepLabel(key) }))
+const showContinue = computed(
+  () => wizardReady.value && !(progress.value.resume === 'export' && progress.value.steps.avatar.state === 'done'),
+)
+function openSetup(step: DeckStepKey) {
+  void router.push({ name: 'create', params: { id: id.value, step } })
+}
 
 const titleInput = ref<HTMLInputElement | null>(null)
 const draft = ref(props.presentation.title ?? '')
@@ -135,6 +155,20 @@ const iconBtn =
             <Copy class="size-3.5" aria-hidden="true" />Duplicate presentation
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+          <DropdownMenuLabel class="px-2 pt-1 pb-0.5 text-[10px] font-semibold tracking-wide text-[#879298] uppercase">Setup</DropdownMenuLabel>
+          <DropdownMenuItem
+            v-for="step in setupSteps"
+            :key="step.key"
+            :data-testid="`setup-item-${step.key}`"
+            :disabled="progress.steps[step.key].state === 'locked'"
+            :title="progress.steps[step.key].reason ?? undefined"
+            class="flex-col items-start gap-0"
+            @select="openSetup(step.key)"
+          >
+            <span class="flex items-center gap-2"><Wand2 class="size-3.5" aria-hidden="true" />{{ step.label }}</span>
+            <span v-if="progress.steps[step.key].reason" class="pl-[22px] text-[10px] font-normal text-[#879298]">{{ progress.steps[step.key].reason }}</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             :disabled="editor.locked"
             class="text-danger-text data-[highlighted]:bg-danger data-[highlighted]:text-danger-text"
@@ -159,6 +193,14 @@ const iconBtn =
     <FloatingToolbar />
 
     <div class="flex flex-none items-center justify-self-end gap-[9px] max-[760px]:gap-[7px] max-[450px]:gap-[5px]">
+      <RouterLink
+        v-if="showContinue"
+        data-testid="continue-setup"
+        :to="{ name: 'create', params: { id, step: progress.resume } }"
+        :class="cn(buttonVariants({ variant: 'outline' }), 'rounded-full border-accent text-accent hover:bg-accent/10 max-[760px]:hidden')"
+      >
+        Continue: {{ stepLabel(progress.resume) }}
+      </RouterLink>
       <Button
         variant="outline"
         class="max-[760px]:w-[33px] max-[760px]:px-0"
