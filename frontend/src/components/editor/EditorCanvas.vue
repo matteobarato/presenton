@@ -7,7 +7,6 @@ import type { Slide } from '@/api/types'
 import SlideView from '@/render/SlideView.vue'
 import { slideKind } from '@/render/slide-kind'
 import { useEditorStore } from '@/stores/editor'
-import FloatingToolbar from './FloatingToolbar.vue'
 import FloatingElementEditor from './canvas/floating/FloatingElementEditor.vue'
 import EditableSlide from './canvas/EditableSlide.vue'
 import SelectionAnnouncer from './canvas/SelectionAnnouncer.vue'
@@ -47,9 +46,8 @@ const slideWidth = computed(() => {
 <template>
   <section
     aria-label="Slide canvas"
-    class="dotted-canvas relative flex min-h-0 flex-1 flex-col rounded-t-panel px-2 pt-[62px] pb-2.5 max-[760px]:pt-[58px] max-[760px]:pb-2 max-[450px]:pt-14"
+    class="dotted-canvas relative flex min-h-0 flex-1 flex-col rounded-t-panel p-2 pt-2.5 max-[760px]:pt-2"
   >
-    <div class="absolute top-2.5 left-1/2 z-30 -translate-x-1/2 max-[760px]:top-2 max-[450px]:top-[7px]"><FloatingToolbar /></div>
     <div
       ref="scrollerEl"
       class="flex min-h-0 w-full flex-1 [container-type:size] rounded-[11px]"

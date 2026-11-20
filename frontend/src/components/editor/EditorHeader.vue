@@ -12,7 +12,6 @@ import {
   Copy,
   Download,
   Loader2,
-  PanelLeft,
   PencilLine,
   Play,
   SkipBack,
@@ -29,6 +28,7 @@ import {
 import DeleteDeckDialog from '@/components/library/DeleteDeckDialog.vue'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { deletePresentation, duplicatePresentation, presentationKeys } from '@/api/presentations'
+import FloatingToolbar from '@/components/editor/FloatingToolbar.vue'
 import type { Presentation } from '@/api/types'
 import { useSlideMutations } from '@/composables/useSlideMutations'
 import { cn } from '@/lib/utils'
@@ -101,18 +101,9 @@ const iconBtn =
 
 <template>
   <header
-    class="flex h-[83px] flex-none items-center justify-between gap-5 px-[27px] max-[1279px]:px-5 max-[760px]:h-[75px] max-[760px]:gap-3 max-[760px]:px-4 max-[450px]:px-[11px] [@media(max-height:780px)_and_(min-width:1051px)]:h-[69px]"
+    class="grid h-[83px] flex-none grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-5 px-[27px] max-[1279px]:px-5 max-[760px]:h-[75px] max-[760px]:gap-3 max-[760px]:px-4 max-[450px]:px-[11px] [@media(max-height:780px)_and_(min-width:1051px)]:h-[69px]"
   >
     <div class="flex min-w-0 items-center gap-[13px] max-[760px]:gap-[7px]">
-      <button
-        type="button"
-        :class="cn(iconBtn, 'hidden max-[760px]:inline-flex')"
-        aria-label="Show slides"
-        @click="editor.navigatorOpen = true"
-      >
-        <PanelLeft class="size-4" aria-hidden="true" />
-      </button>
-
       <nav aria-label="Breadcrumb" class="flex min-w-0 items-center gap-[13px]">
         <RouterLink :to="{ name: 'library' }" class="text-[11px] whitespace-nowrap text-[#929b9f] hover:text-accent max-[760px]:hidden">Library</RouterLink>
         <ChevronRight class="size-[13px] flex-none text-[#667179] max-[760px]:hidden" aria-hidden="true" />
@@ -165,7 +156,9 @@ const iconBtn =
       </span>
     </div>
 
-    <div class="flex flex-none items-center gap-[9px] max-[760px]:gap-[7px] max-[450px]:gap-[5px]">
+    <FloatingToolbar />
+
+    <div class="flex flex-none items-center justify-self-end gap-[9px] max-[760px]:gap-[7px] max-[450px]:gap-[5px]">
       <Button
         variant="outline"
         class="max-[760px]:w-[33px] max-[760px]:px-0"
