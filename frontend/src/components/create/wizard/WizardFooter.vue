@@ -13,7 +13,7 @@ const hasRetry = !!getCurrentInstance()?.vnode.props?.onRetry
 
 <template>
   <div
-    class="sticky bottom-[-44px] z-10 mt-8 -mx-3 flex flex-col gap-2.5 rounded-t-[14px] bg-[#191d1fee] px-3 pt-4 pb-[44px] backdrop-blur-[10px] max-[1050px]:bottom-[-38px] max-[1050px]:pb-[38px] max-[760px]:bottom-[-30px] max-[760px]:pb-[30px] max-[450px]:bottom-[-27px] max-[450px]:pb-[27px]"
+    class="sticky wizard-footer z-10 mt-8 -mx-3 flex flex-col gap-2.5 rounded-t-[14px] bg-[#191d1fee] px-3 pt-4 backdrop-blur-[10px]"
     :aria-busy="busy ? 'true' : undefined"
     data-testid="wizard-footer"
   >
@@ -30,3 +30,29 @@ const hasRetry = !!getCurrentInstance()?.vnode.props?.onRetry
     <p role="status" class="min-h-[1em] text-right text-[11px] text-[#a2b7c5] max-[520px]:text-center"><slot name="status">{{ status }}</slot></p>
   </div>
 </template>
+
+<style scoped>
+/* Pinned over .workspace-card's bottom padding: same values and the same inclusive breakpoints as that card. */
+.wizard-footer {
+  bottom: -44px;
+  padding-bottom: 44px;
+}
+@media (max-width: 1050px) {
+  .wizard-footer {
+    bottom: -38px;
+    padding-bottom: 38px;
+  }
+}
+@media (max-width: 760px) {
+  .wizard-footer {
+    bottom: -30px;
+    padding-bottom: 30px;
+  }
+}
+@media (max-width: 450px) {
+  .wizard-footer {
+    bottom: -27px;
+    padding-bottom: 27px;
+  }
+}
+</style>

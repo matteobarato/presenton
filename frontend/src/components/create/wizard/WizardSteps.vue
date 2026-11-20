@@ -12,6 +12,8 @@ const index = computed(() => Math.max(0, props.items.findIndex((i) => i.key === 
 const currentItem = computed(() => props.items[index.value])
 const percent = computed(() => Math.round(((index.value + 1) / Math.max(1, props.items.length)) * 100))
 
+const BADGE = 'rounded-full border border-white/[0.12] px-1.5 py-px text-[9.5px] leading-[1.4] whitespace-nowrap text-[#a9c4d2]'
+
 function pick(item: WizardStepItem) {
   if (props.disabled || item.state === 'locked') return
   emit('select', item.key)
@@ -60,12 +62,14 @@ function pick(item: WizardStepItem) {
           <span class="flex min-w-0 flex-col" :class="s.key !== current && 'max-[1050px]:sr-only'">
             <span class="flex min-w-0 items-center gap-1.5">
               <span class="truncate text-[12px] font-semibold" :class="s.key === current ? 'text-[#eef6fa]' : 'text-[#c9d5db]'">{{ s.label }}</span>
-              <span
-                v-if="s.badge"
-                class="flex-none rounded-full border border-white/[0.12] px-1.5 py-px text-[9.5px] leading-[1.4] whitespace-nowrap text-[#a9c4d2]"
-              >{{ s.badge }}</span>
+              <!-- Under 1050px only the current label shows, so its badge has room beside it. -->
+              <span v-if="s.badge" class="hidden flex-none max-[1050px]:inline" :class="BADGE">{{ s.badge }}</span>
             </span>
-            <span v-if="s.summary" class="truncate text-[10.5px] text-[#8e9ca4] max-[1050px]:hidden">{{ s.summary }}</span>
+            <!-- From 1050px the steps share the width: the badge gets the second line, ahead of the summary. -->
+            <span v-if="s.badge || s.summary" class="flex min-w-0 items-center gap-1.5 max-[1050px]:hidden">
+              <span v-if="s.badge" class="min-w-0 truncate" :class="BADGE" :title="s.badge">{{ s.badge }}</span>
+              <span v-if="s.summary" class="min-w-0 truncate text-[10.5px] text-[#8e9ca4]">{{ s.summary }}</span>
+            </span>
           </span>
           <span v-if="s.key === current" class="absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-accent" aria-hidden="true" />
         </button>
