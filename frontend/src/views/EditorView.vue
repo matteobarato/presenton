@@ -10,6 +10,7 @@ import EditorHeader from '@/components/editor/EditorHeader.vue'
 import EditorLayout from '@/components/editor/EditorLayout.vue'
 import DeckStateProvider from '@/components/editor/DeckStateProvider.vue'
 import ChatPanel from '@/components/editor/chat/ChatPanel.vue'
+import { useSlideMutations } from '@/composables/useSlideMutations'
 import EditorStatusBar from '@/components/editor/EditorStatusBar.vue'
 import ExportDialog from '@/components/editor/ExportDialog.vue'
 import GenerationMetrics from '@/components/editor/GenerationMetrics.vue'
@@ -111,6 +112,7 @@ const activeIndex = computed(() => Math.max(0, slides.value.findIndex((s) => sli
 const activeSlide = computed(() => slides.value[activeIndex.value] ?? null)
 // Provides the slide's editing state to the canvas and the inspector.
 const editing = useSlideEditing(id, activeSlide)
+const slideMutations = useSlideMutations(id)
 useSelectionScope(editing)
 // One animation draft for the active slide, shared by the Motion tab, the timeline and the canvas preview.
 // No slide → an index no slide has, so no plan is found and every edit is a no-op.
@@ -170,7 +172,7 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
         <div class="flex min-h-0 flex-1 flex-col rounded-panel bg-canvas max-[760px]:rounded-[13px]">
           <EditorCanvas :presentation-id="id" :slide="activeSlide">
             <template #status>
-              <EditorStatusBar :position="activeIndex + 1" :total="slides.length" :label="slideLabel(activeSlide)" />
+              <EditorStatusBar :position="activeIndex + 1" :total="slides.length" :label="slideLabel(activeSlide)" :editable="!editor.locked && !!activeSlide?.id" @rename="(n) => activeSlide?.id && slideMutations.renameSlide(activeSlide.id, n)" />
             </template>
           </EditorCanvas>
           <SpeakerNotes :presentation-id="id" :presentation="presentation" :slide="activeSlide" />

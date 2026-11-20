@@ -359,6 +359,35 @@ export function useSlideMutations(presentationId: Ref<string>) {
     )
   }
 
+  /** Give a slide a custom name (stored in `properties.name`); an empty name restores the automatic one. */
+  async function renameSlide(slideId: string, name: string): Promise<boolean> {
+    const next = name.trim()
+    let previous: string | undefined
+    const setName = (value: string, capture: boolean) =>
+      onSlides((l) => {
+        const i = indexOfId(l, slideId)
+        if (i < 0) return null
+        const slide = l[i]!
+        const props = { ...((slide.properties as Record<string, unknown> | null) ?? {}) }
+        const current = typeof props.name === 'string' ? props.name : ''
+        if (current === value) return null
+        if (capture) previous = current
+        if (value) props.name = value
+        else delete props.name
+        return l.map((s, n) => (n === i ? { ...s, properties: props } : s))
+      })
+    return commit(
+      'Rename slide',
+      setName(next, true),
+      async () => {
+        if (editor.locked) throw new Error('The deck is busy.')
+        if (previous === undefined) return
+        const r = await applyEdit('Rename slide', setName(previous, false))
+        await r.saved
+      },
+    )
+  }
+
   /**
    * Replace the `ui` of the slide with this id. One history entry (or one merged run of entries
    * with `mergeKey`); undo writes back the `ui` captured at first apply.
@@ -391,5 +420,5 @@ export function useSlideMutations(presentationId: Ref<string>) {
     )
   }
 
-  return { reorder, removeSlide, duplicateSlide, addSlide, rename, editSlideUi }
+  return { reorder, removeSlide, duplicateSlide, addSlide, rename, renameSlide, editSlideUi }
 }

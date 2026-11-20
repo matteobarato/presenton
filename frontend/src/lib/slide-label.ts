@@ -42,6 +42,8 @@ function layoutName(layout: string | null | undefined): string {
 /** A short human name for a slide, for the storyboard caption and canvas status row. */
 export function slideLabel(slide: Slide | null | undefined): string {
   if (!slide) return ''
+  const custom = (slide.properties as Node | null | undefined)?.name
+  if (typeof custom === 'string' && clean(custom)) return clean(custom)
   const content = slide.content as Node | null | undefined
   const fromContent = content && typeof content.title === 'string' ? clean(content.title) : ''
   return (
