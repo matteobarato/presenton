@@ -128,7 +128,9 @@ export function deckProgress(i: DeckProgressInput): DeckProgress {
   const exportLocked = !previewDone
     ? AVATAR_LOCK
     : required && !avatarDone
-      ? `${missing} ${missing === 1 ? 'slide still needs its' : 'slides still need their'} avatar`
+      ? missing > 0
+        ? `${missing} ${missing === 1 ? 'slide still needs its' : 'slides still need their'} avatar`
+        : 'Narrate every slide first'
       : null
   const exportStep = status(exportLocked ? 'locked' : 'available', exportLocked)
 

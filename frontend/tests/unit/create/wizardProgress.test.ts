@@ -92,6 +92,21 @@ describe('deckProgress', () => {
     expect(p.steps.export.reason).toBe('1 slide still needs its avatar')
   })
 
+  it('asks to narrate when avatars are complete but narration is not', () => {
+    const p = deckProgress(input({
+      slideCount: 4,
+      narration: { ready: 3, stale: 1 },
+      avatar: { placeholderSlides: 2, withVideo: 2, generationAvailable: true },
+    }))
+    expect(p.steps.export.state).toBe('locked')
+    expect(p.steps.export.reason).toBe('Narrate every slide first')
+  })
+
+  it('outline stays running while regenerating over existing slides', () => {
+    const p = deckProgress(input({ slideCount: 3, outlineStreaming: true }))
+    expect(p.steps.outline.state).toBe('running')
+  })
+
   it('undefined generationAvailable counts as available', () => {
     const p = deckProgress(input({
       slideCount: 2,
