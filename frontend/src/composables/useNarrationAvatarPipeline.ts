@@ -3,8 +3,10 @@ import { useQueryClient } from '@tanstack/vue-query'
 import type { Presentation } from '@/api/types'
 import { ApiError } from '@/api/errors'
 import { ttsKeys } from '@/api/tts'
+import { videoKeys } from '@/api/videos'
 import type { DeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
 import type { DeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
+import { isFreshVideo } from '@/components/editor/inspector/video/avatar-state'
 
 export type PipelinePhase = 'idle' | 'notes' | 'voice' | 'avatars' | 'done' | 'error'
 type WorkPhase = 'notes' | 'voice' | 'avatars'
@@ -14,13 +16,27 @@ export const pipelineKey = (presentationId: string) => `slideshows.pipeline.${pr
 
 const message = (e: unknown) => (e instanceof Error && e.message ? e.message : 'Something went wrong')
 
-function readStored(key: string): { phase: WorkPhase; startedAt: number } | null {
+interface Stored {
+  phase: WorkPhase
+  startedAt: number
+  /**
+   * False while the request starting the phase's server task is in flight: until it answers, the
+   * task's id is nowhere, so a reload can't follow it. Absent (older entries) counts as confirmed.
+   */
+  confirmed: boolean
+}
+
+function readStored(key: string): Stored | null {
   try {
     const raw = sessionStorage.getItem(key)
     if (!raw) return null
-    const v = JSON.parse(raw) as { phase?: unknown; startedAt?: unknown }
+    const v = JSON.parse(raw) as { phase?: unknown; startedAt?: unknown; confirmed?: unknown }
     if (typeof v.phase !== 'string' || !WORK.includes(v.phase)) return null
-    return { phase: v.phase as WorkPhase, startedAt: typeof v.startedAt === 'number' ? v.startedAt : Date.now() }
+    return {
+      phase: v.phase as WorkPhase,
+      startedAt: typeof v.startedAt === 'number' ? v.startedAt : Date.now(),
+      confirmed: v.confirmed !== false,
+    }
   } catch {
     return null
   }
@@ -65,17 +81,23 @@ export function useNarrationAvatarPipeline(
   /** A HeyGen run is never started twice within one pipeline run. */
   let avatarsStarted = false
 
-  function persist(p: PipelinePhase) {
+  function persist(p: PipelinePhase, confirmed = true) {
     try {
-      if (WORK.includes(p)) sessionStorage.setItem(key(), JSON.stringify({ phase: p, startedAt }))
+      if (WORK.includes(p)) sessionStorage.setItem(key(), JSON.stringify({ phase: p, startedAt, confirmed }))
       else sessionStorage.removeItem(key())
     } catch {
       // Storage unavailable: the pipeline still runs, it just won't resume after a reload.
     }
   }
-  function setPhase(p: PipelinePhase) {
+  function setPhase(p: PipelinePhase, confirmed = true) {
     phase.value = p
-    persist(p)
+    persist(p, confirmed)
+  }
+  /** The phase's server task has an id now (its own composable stored it): a reload can follow it. */
+  function confirm(mine: number) {
+    if (mine !== run) return
+    persist(phase.value, true)
+    waiting.value = true
   }
   function fail(p: WorkPhase, e: unknown) {
     waiting.value = false
@@ -86,11 +108,15 @@ export function useNarrationAvatarPipeline(
 
   const slides = computed(() => presentation.value.slides)
   const avatarsAvailable = computed(() => avatars.videos.value?.generation_available !== false)
-  /** Placeholder slides without an avatar yet, or whose last generation failed. */
-  const avatarsToMake = computed(() =>
-    avatars.placeholderSlides.value.filter(
-      (s) => avatars.planBySlide.value.get(s.id)?.state === 'failed' || !avatars.videoBySlide.value.get(s.id),
-    ).length,
+  const failedSlides = computed(
+    () => avatars.placeholderSlides.value.filter((s) => avatars.planBySlide.value.get(s.id)?.state === 'failed').length,
+  )
+  /** Placeholder slides without an up-to-date avatar, or whose last generation failed. */
+  const avatarsToMake = computed(
+    () =>
+      avatars.placeholderSlides.value.filter(
+        (s) => avatars.planBySlide.value.get(s.id)?.state === 'failed' || !isFreshVideo(avatars.videoBySlide.value.get(s.id)),
+      ).length,
   )
   const needsNotes = computed(() => slides.value.some((s) => !(s.speaker_note ?? '').trim()))
   const needsVoice = computed(() => narration.counts.value.missing + narration.counts.value.stale > 0)
@@ -118,6 +144,8 @@ export function useNarrationAvatarPipeline(
     const lang = narration.language.value
     const list = narration.languages.value
     if (!lang || (list?.length && !list.some((l) => l.code === lang))) return 'Choose a narration language first.'
+    // Until the videos answer, neither the portrait nor whether HeyGen is configured is known.
+    if (avatars.placeholderSlides.value.length && !avatars.videos.value) return 'Checking avatar setup…'
     if (plan.value.avatars > 0 && !avatars.videos.value?.portrait) return 'Upload a presenter portrait first.'
     return null
   })
@@ -140,18 +168,17 @@ export function useNarrationAvatarPipeline(
     }
     if (p === 'voice') {
       if (!opts.notesRan && !needsVoice.value && !narration.running.value) return enter('avatars')
-      setPhase('voice')
       // A TTS task is already going (started elsewhere): wait for it instead of starting another.
       if (narration.running.value) {
+        setPhase('voice')
         waiting.value = true
         return
       }
+      setPhase('voice', false)
       narration.startTts.mutate(
         {},
         {
-          onSuccess: () => {
-            if (mine === run) waiting.value = true
-          },
+          onSuccess: () => confirm(mine),
           onError: (e) => {
             if (mine === run) fail('voice', e)
           },
@@ -168,26 +195,30 @@ export function useNarrationAvatarPipeline(
     if (avatarsStarted || plan.value.avatars === 0) return setPhase('done')
     const indices = avatars.eligibleSlides.value.map((s) => s.index)
     if (!indices.length) return fail('avatars', 'Every placeholder slide needs up-to-date narration first.')
-    setPhase('avatars')
+    setPhase('avatars', false)
     avatarsStarted = true
     avatars.pendingIndices.value = indices
     avatars.generate.mutate(false, {
-      onSuccess: () => {
-        if (mine === run) waiting.value = true
-      },
+      onSuccess: () => confirm(mine),
       onError: (e) => {
         if (mine !== run) return
         // Another run is going: useDeckAvatars follows it, and so do we.
-        if (e instanceof ApiError && e.status === 409) waiting.value = avatars.running.value ? true : 'armed'
-        else fail('avatars', e)
+        if (e instanceof ApiError && e.status === 409) {
+          persist('avatars', true)
+          waiting.value = avatars.running.value ? true : 'armed'
+        } else fail('avatars', e)
       },
     })
   }
 
   async function afterVoice() {
     const mine = run
-    // The TTS task's own refresh is fire-and-forget; the avatar step needs the new audio to pick its slides.
-    await qc.refetchQueries({ queryKey: ttsKeys.status(id.value, narration.language.value) }).catch(() => undefined)
+    // The TTS task's own refresh is fire-and-forget; the avatar step needs the new audio to pick its
+    // slides, and the videos, which new audio makes stale.
+    await Promise.all([
+      qc.refetchQueries({ queryKey: ttsKeys.status(id.value, narration.language.value) }),
+      qc.refetchQueries({ queryKey: videoKeys.all(id.value) }),
+    ]).catch(() => undefined)
     if (mine === run && phase.value === 'voice') enter('avatars')
   }
 
@@ -202,7 +233,9 @@ export function useNarrationAvatarPipeline(
         if (waiting.value === 'armed' && avatars.running.value) waiting.value = true
         else if (waiting.value === true && !avatars.running.value) {
           waiting.value = false
+          const failed = failedSlides.value
           if (avatars.taskError.value) fail('avatars', avatars.taskError.value)
+          else if (failed) fail('avatars', `${failed} slide${failed === 1 ? '' : 's'} failed`)
           else setPhase('done')
         }
       }
@@ -240,7 +273,10 @@ export function useNarrationAvatarPipeline(
     } else {
       phase.value = saved.phase
       if (saved.phase === 'avatars') avatarsStarted = true
-      waiting.value = true
+      const serverRunning = saved.phase === 'voice' ? narration.running.value : avatars.running.value
+      // The start request was cut off by the reload: whether a task began is unknown, so don't chain on.
+      if (!saved.confirmed && !serverRunning) fail(saved.phase, 'Interrupted, retry to continue')
+      else waiting.value = true
     }
   }
 

@@ -82,3 +82,10 @@ export function chipFor(input: {
   if (previewReason === 'unsupported_audio_format') return 'unsupported_audio'
   return 'ready'
 }
+
+/**
+ * Does this video still match the slide? An uploaded video always does; a generated one goes stale
+ * when the narration it was lip-synced to changes.
+ */
+export const isFreshVideo = (v: Pick<SlideVideo, 'stale' | 'source'> | null | undefined): boolean =>
+  v != null && (!v.stale || v.source === 'upload')

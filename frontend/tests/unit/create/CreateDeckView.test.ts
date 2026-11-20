@@ -182,6 +182,17 @@ describe('CreateDeckView', () => {
     expect(wrapper.find(panel('export')).exists()).toBe(true)
   })
 
+  it('a stale generated avatar leaves the avatar step not done', async () => {
+    m.getPresentation.mockResolvedValue(deck(true))
+    m.getTtsStatus.mockResolvedValue({ presentation_id: 'p1', language: 'en-US', audios: audios(3) })
+    const stale = videos(3).map((v, i) => (i === 1 ? { ...v, source: 'heygen', stale: true } : v))
+    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait: null, videos: stale })
+    const { wrapper, router } = await mountView('/p/p1/create/export')
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar')
+    expect(m.toast.info).toHaveBeenCalledWith('1 slide still needs its avatar')
+    expect(wrapper.find(panel('avatar')).exists()).toBe(true)
+  })
+
   it('a streaming preview stays open before any slide exists', async () => {
     m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
     const { wrapper, router } = await mountView('/p/p1/create/preview?stream=1')

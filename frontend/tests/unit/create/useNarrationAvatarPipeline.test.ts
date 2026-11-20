@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { computed, defineComponent, h, nextTick, ref } from 'vue'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { ttsKeys } from '@/api/tts'
+import { videoKeys } from '@/api/videos'
 import { ApiError } from '@/api/errors'
 import { useNarrationAvatarPipeline } from '@/composables/useNarrationAvatarPipeline'
 import type { DeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
@@ -62,15 +63,17 @@ function fakes(opts: { slides?: FakeSlide[]; generationAvailable?: boolean; port
 
   const avatarsRunning = ref(false)
   const avatarsError = ref<string | null>(null)
-  const videos = ref({
+  const videos = ref<
+    { generation_available: boolean; portrait: { url: string } | null; videos: { slide_id: string; stale?: boolean; source?: string }[] } | undefined
+  >({
     generation_available: opts.generationAvailable ?? true,
     portrait: opts.portrait === false ? null : { url: '/p.png' },
-    videos: [] as { slide_id: string }[],
+    videos: [],
   })
   const placeholderSlides = computed(() => slides.value.filter((s) => s.placeholder))
   const avatars = {
     videos,
-    videoBySlide: computed(() => new Map(videos.value.videos.map((v) => [v.slide_id, v]))),
+    videoBySlide: computed(() => new Map((videos.value?.videos ?? []).map((v) => [v.slide_id, v]))),
     planBySlide: ref(new Map<string, { state: string }>()),
     running: computed(() => avatarsRunning.value),
     taskError: computed(() => avatarsError.value),
@@ -301,7 +304,8 @@ describe('useNarrationAvatarPipeline', () => {
   it('a running flicker while the voice phase settles starts avatars once', async () => {
     const t = setup()
     let release!: () => void
-    t.refetch.mockImplementation(() => new Promise<void>((r) => (release = r)))
+    const refetched = new Promise<void>((r) => (release = r))
+    t.refetch.mockImplementation(() => refetched)
     t.pipeline.start()
     await flushPromises()
     t.finishTts()
@@ -310,7 +314,8 @@ describe('useNarrationAvatarPipeline', () => {
     await nextTick()
     t.narrationRunning.value = false
     await nextTick()
-    expect(t.refetch).toHaveBeenCalledTimes(1)
+    // One settle: the TTS status and the videos, refetched once each.
+    expect(t.refetch).toHaveBeenCalledTimes(2)
     release()
     await flushPromises()
     expect(t.avatars.generate.mutate).toHaveBeenCalledTimes(1)
@@ -331,7 +336,6 @@ describe('useNarrationAvatarPipeline', () => {
   it('follows an existing run when generation answers 409', async () => {
     const f = fakes({ slides: [{ id: 's1', index: 1, speaker_note: 'Hello', placeholder: true }] })
     f.recorded.value = new Set(['s1'])
-    f.videos.value = { ...f.videos.value }
     f.avatars.generate.mutate.mockImplementationOnce((_force: boolean, cb?: Cb) => {
       f.avatarsRunning.value = true // useDeckAvatars starts following the task in its own onError
       cb?.onError?.(new ApiError('Conflict', 409, { detail: { task_id: 'a0' } }))
@@ -396,9 +400,117 @@ describe('useNarrationAvatarPipeline', () => {
         { id: 's2', index: 2, speaker_note: 'C', placeholder: true },
       ],
     })
-    f.videos.value = { ...f.videos.value, videos: [{ slide_id: 's0' }, { slide_id: 's1' }] }
+    f.videos.value = { ...f.videos.value!, videos: [{ slide_id: 's0' }, { slide_id: 's1' }] }
     f.avatars.planBySlide.value = new Map([['s1', { state: 'failed' }]])
     const t = setup(f)
     expect(t.pipeline.plan.value.avatars).toBe(2)
+  })
+
+  it('counts a stale generated avatar as missing, but not a stale upload', () => {
+    const f = fakes({ slides: [{ id: 's1', index: 1, speaker_note: 'Hello', placeholder: true }] })
+    f.recorded.value = new Set(['s1'])
+    f.videos.value = { ...f.videos.value!, videos: [{ slide_id: 's1', stale: true, source: 'heygen' }] }
+    const t = setup(f)
+    expect(t.pipeline.plan.value.avatars).toBe(1)
+    f.videos.value = { ...f.videos.value, videos: [{ slide_id: 's1', stale: true, source: 'upload' }] }
+    expect(t.pipeline.plan.value.avatars).toBe(0)
+  })
+
+  it('refetches the videos after the voice, so newly stale avatars are regenerated', async () => {
+    const t = setup()
+    t.pipeline.start()
+    await flushPromises()
+    t.finishTts()
+    await flushPromises()
+    expect(t.refetch).toHaveBeenCalledWith({ queryKey: videoKeys.all('p1') })
+  })
+
+  it('stores a phase as unconfirmed until its start request answers', async () => {
+    const t = setup()
+    let answer!: () => void
+    t.narration.startTts.mutate.mockImplementationOnce((_b: unknown, cb?: Cb) => {
+      answer = () => {
+        t.narrationRunning.value = true
+        cb?.onSuccess?.({ id: 't1' })
+      }
+    })
+    t.pipeline.start()
+    await flushPromises()
+    expect(stored()).toMatchObject({ phase: 'voice', confirmed: false })
+    answer()
+    await flushPromises()
+    expect(stored()).toMatchObject({ phase: 'voice', confirmed: true })
+  })
+
+  it('a reload during the voice start request fails voice instead of chaining', async () => {
+    sessionStorage.setItem(KEY, JSON.stringify({ phase: 'voice', startedAt: 1, confirmed: false }))
+    const t = setup()
+    await flushPromises()
+    expect(t.pipeline.phase.value).toBe('error')
+    expect(t.pipeline.failedPhase.value).toBe('voice')
+    expect(t.pipeline.error.value).toBe('Interrupted, retry to continue')
+    expect(t.avatars.generate.mutate).not.toHaveBeenCalled()
+    expect(t.refetch).not.toHaveBeenCalled()
+    expect(stored()).toBeNull()
+  })
+
+  it('a reload during the avatar start request fails avatars instead of reporting done', async () => {
+    sessionStorage.setItem(KEY, JSON.stringify({ phase: 'avatars', startedAt: 1, confirmed: false }))
+    const t = setup()
+    await flushPromises()
+    expect(t.pipeline.phase.value).toBe('error')
+    expect(t.pipeline.failedPhase.value).toBe('avatars')
+    expect(t.pipeline.error.value).toBe('Interrupted, retry to continue')
+    expect(t.avatars.generate.mutate).not.toHaveBeenCalled()
+  })
+
+  it('an unconfirmed phase whose task is running is followed', async () => {
+    sessionStorage.setItem(KEY, JSON.stringify({ phase: 'avatars', startedAt: 1, confirmed: false }))
+    const f = fakes()
+    f.avatarsRunning.value = true
+    const t = setup(f)
+    expect(t.pipeline.phase.value).toBe('avatars')
+    t.avatarsRunning.value = false
+    await flushPromises()
+    expect(t.pipeline.phase.value).toBe('done')
+  })
+
+  it('an avatar run with failed slides offers a retry from avatars', async () => {
+    const f = fakes({
+      slides: [
+        { id: 's0', index: 0, speaker_note: 'A', placeholder: true },
+        { id: 's1', index: 1, speaker_note: 'B', placeholder: true },
+      ],
+    })
+    f.recorded.value = new Set(['s0', 's1'])
+    const t = setup(f)
+    t.pipeline.start()
+    await flushPromises()
+    t.avatars.planBySlide.value = new Map([['s1', { state: 'failed' }]])
+    t.avatarsRunning.value = false
+    await flushPromises()
+    expect(t.pipeline.phase.value).toBe('error')
+    expect(t.pipeline.failedPhase.value).toBe('avatars')
+    expect(t.pipeline.error.value).toBe('1 slide failed')
+
+    t.pipeline.retry()
+    await flushPromises()
+    expect(t.avatars.generate.mutate).toHaveBeenCalledTimes(2)
+    t.avatars.planBySlide.value = new Map([
+      ['s0', { state: 'failed' }],
+      ['s1', { state: 'failed' }],
+    ])
+    t.avatarsRunning.value = false
+    await flushPromises()
+    expect(t.pipeline.error.value).toBe('2 slides failed')
+  })
+
+  it('blocks with a visible reason while the avatar setup is loading', () => {
+    const f = fakes({ portrait: false })
+    f.videos.value = undefined
+    const t = setup(f)
+    expect(t.pipeline.blocker.value).toBe('Checking avatar setup…')
+    f.videos.value = { generation_available: true, portrait: { url: '/p.png' }, videos: [] }
+    expect(t.pipeline.blocker.value).toBeNull()
   })
 })

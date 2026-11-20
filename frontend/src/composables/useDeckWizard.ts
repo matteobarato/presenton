@@ -6,6 +6,7 @@ import { getVideos, videoKeys } from '@/api/videos'
 import { listTemplates, templatesKey } from '@/api/templates'
 import { injectDeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
 import { injectDeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
+import { isFreshVideo } from '@/components/editor/inspector/video/avatar-state'
 import { blockTemplateId } from '@/slide-editor/insert/templateBlocks'
 import {
   deckProgress,
@@ -61,7 +62,7 @@ export function useDeckWizard(
       narration: { ready: counts.ready + counts.translated, stale: counts.stale },
       avatar: {
         placeholderSlides: placeholders.length,
-        withVideo: placeholders.filter((s) => avatars.videoBySlide.value.get(s.id)).length,
+        withVideo: placeholders.filter((s) => isFreshVideo(avatars.videoBySlide.value.get(s.id))).length,
         generationAvailable: avatars.videos.value?.generation_available,
       },
       pipelineRunning: opts.pipelineRunning.value,
