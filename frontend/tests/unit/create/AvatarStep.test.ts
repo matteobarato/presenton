@@ -68,6 +68,7 @@ function fakes(opts: { counts?: Partial<Record<'missing' | 'ready' | 'stale' | '
     running: computed(() => running.value),
     plan: computed(() => plan.value),
     blocker: computed(() => blocker.value),
+    languageOk: computed(() => blocker.value !== 'Choose a narration language first.'),
     start: vi.fn(() => {
       running.value = true
       phase.value = 'voice'
@@ -169,22 +170,51 @@ describe('AvatarStep', () => {
     expect(wrapper.get('[data-testid="pipeline-avatars"]').attributes('data-state')).toBe('pending')
   })
 
-  it('error shows retry from the failed phase', async () => {
-    const f = fakes()
+  it('error makes the primary retry from the failed phase', async () => {
+    const f = fakes({ counts: { missing: 0, ready: 3 } })
     f.phase.value = 'error'
     f.failedPhase.value = 'avatars'
     f.error.value = '2 slides failed'
+    f.plan.value = { notes: false, voice: false, avatars: 2 }
     const { wrapper } = await mountStep(f)
     expect(wrapper.get('[role="alert"]').text()).toContain('2 slides failed')
     expect(wrapper.get('[data-testid="pipeline-avatars"]').attributes('data-state')).toBe('failed')
-    await wrapper.get('[data-testid="footer-retry"]').trigger('click')
+    // One action only: no footer Retry, no Generate next to it.
+    expect(wrapper.find('[data-testid="footer-retry"]').exists()).toBe(false)
+    expect(button(wrapper, /^Generate/)).toBeUndefined()
+    expect(status(wrapper)).toBe('Will render 2 avatars with HeyGen')
+    const primary = button(wrapper, /^Retry from Avatars$/)!
+    expect(primary.attributes('disabled')).toBeUndefined()
+    await primary.trigger('click')
     expect(f.pipeline.retry).toHaveBeenCalledTimes(1)
+  })
+
+  it('error retry waits for the blocker, and says why', async () => {
+    const f = fakes()
+    f.phase.value = 'error'
+    f.failedPhase.value = 'voice'
+    f.error.value = 'Interrupted, retry to continue'
+    f.blocker.value = 'Choose a narration language first.'
+    const { wrapper } = await mountStep(f)
+    expect(button(wrapper, /^Retry from Voice$/)!.attributes('disabled')).toBeDefined()
+    expect(status(wrapper)).toBe('Choose a narration language first.')
+    expect(wrapper.get('[data-testid="setup-language"]').attributes('data-ok')).toBe('false')
+  })
+
+  it('avatars-only run states only the HeyGen part', async () => {
+    const f = fakes({ counts: { missing: 0, ready: 3 } })
+    f.plan.value = { notes: false, voice: false, avatars: 1 }
+    const { wrapper } = await mountStep(f)
+    expect(status(wrapper)).toBe('Will render 1 avatar with HeyGen')
+    expect(button(wrapper, /^Generate/)!.text()).toBe('Generate voice & avatars')
   })
 
   it('stale narration offers an update', async () => {
     const f = fakes({ counts: { missing: 0, ready: 2, stale: 1 } })
     const { wrapper } = await mountStep(f)
     expect(wrapper.text()).toContain('1 slide out of date')
+    // Update starts a run (HeyGen included): the status says what it will do.
+    expect(status(wrapper)).toBe('Will narrate 1 slide and render 1 avatar with HeyGen')
     await button(wrapper, /^Update$/)!.trigger('click')
     expect(f.pipeline.start).toHaveBeenCalledTimes(1)
   })

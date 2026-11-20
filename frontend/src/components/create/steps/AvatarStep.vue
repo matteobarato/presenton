@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { AlertTriangle, ArrowRight, Check, Mic, Sparkles, X } from 'lucide-vue-next'
+import { AlertTriangle, ArrowRight, Check, Mic, RotateCcw, Sparkles, X } from 'lucide-vue-next'
 import type { Presentation, Slide } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import WizardStepFooter from '@/components/create/wizard/WizardStepFooter.vue'
@@ -26,7 +26,7 @@ type SegmentState = 'pending' | 'running' | 'done' | 'skipped' | 'failed'
 const props = defineProps<{ presentation: Presentation; progress: DeckProgress; pipeline: Pipeline }>()
 
 // The pipeline is a plain object of refs (props don't unwrap them); it lives as long as the wizard.
-const { phase, failedPhase, error, running, plan, blocker, start, retry } = props.pipeline
+const { phase, failedPhase, error, running, plan, blocker, languageOk, start, retry } = props.pipeline
 
 const router = useRouter()
 const narration = injectDeckNarration()
@@ -39,10 +39,6 @@ const slides = computed(() => [...props.presentation.slides].sort((a, b) => a.in
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
 
 // ── Setup ──
-const languageOk = computed(() => {
-  const list = languages.value
-  return Boolean(language.value) && (!list?.length || list.some((l) => l.code === language.value))
-})
 const portraitOk = computed(() => Boolean(videos.value?.portrait))
 const showPortrait = computed(() => plan.value.avatars > 0)
 const hasPlaceholders = computed(() => placeholderSlides.value.length > 0)
@@ -104,23 +100,28 @@ const liveText = computed(() => {
 const complete = computed(
   () =>
     !running.value &&
+    stale.value === 0 &&
     (phase.value === 'done' ||
       props.progress.steps.avatar.state === 'done' ||
-      (!plan.value.voice && plan.value.avatars === 0 && stale.value === 0)),
+      (!plan.value.voice && plan.value.avatars === 0)),
 )
 const primaryLabel = computed(() => (plan.value.avatars > 0 ? 'Generate voice & avatars' : 'Generate voice'))
+/** What a run will do, from the plan: the confirmation for a paid HeyGen run, so it never claims more or less. */
 const willRun = computed(() => {
-  const voice = counts.value.missing + counts.value.stale
-  const parts = [`Will narrate ${plural(voice || slides.value.length, 'slide')}`]
+  const parts: string[] = []
+  if (plan.value.voice) {
+    const voice = counts.value.missing + counts.value.stale
+    parts.push(`narrate ${plural(voice || slides.value.length, 'slide')}`)
+  }
   if (plan.value.avatars > 0) parts.push(`render ${plural(plan.value.avatars, 'avatar')} with HeyGen`)
-  return parts.join(' and ')
+  return parts.length ? `Will ${parts.join(' and ')}` : undefined
 })
 const exportLock = computed(() =>
   props.progress.steps.export.state === 'locked' ? props.progress.steps.export.reason : null,
 )
 const footerStatus = computed(() => {
   if (running.value) return `${liveText.value} You can leave this page; we'll keep going.`
-  if (phase.value === 'error') return undefined
+  if (phase.value === 'error') return blocker.value ?? willRun.value
   if (complete.value) return exportLock.value ?? summary.value
   if (blocker.value) return blocker.value
   return willRun.value
@@ -132,11 +133,15 @@ const footerError = computed(() =>
     : null,
 )
 const canGenerate = computed(() => !running.value && !blocker.value)
+const failed = computed(() => (phase.value === 'error' && failedPhase.value ? failedPhase.value : null))
 const optional = computed(() => props.progress.avatarRequirement === 'optional')
 
 function generate() {
   if (!canGenerate.value) return
   start()
+}
+function retryFailed() {
+  if (canGenerate.value) retry()
 }
 function go(step: DeckStepKey) {
   void router.push({ name: 'create', params: { id: id.value, step } })
@@ -190,7 +195,7 @@ const showChip = (s: Slide) => hasVideoPlaceholder(s) || videoBySlide.value.has(
         </template>
       </div>
 
-      <div v-if="stale > 0 && !running" class="flex items-center gap-2 text-[12px] text-[#e6c07b]" data-testid="setup-stale">
+      <div v-if="stale > 0 && !running && !failed" class="flex items-center gap-2 text-[12px] text-[#e6c07b]" data-testid="setup-stale">
         <span class="flex-1">{{ plural(stale, 'slide') }} out of date</span>
         <Button type="button" size="sm" variant="outline" :disabled="!canGenerate" @click="generate">Update</Button>
       </div>
@@ -239,7 +244,8 @@ const showChip = (s: Slide) => hasVideoPlaceholder(s) || videoBySlide.value.has(
     </div>
   </div>
 
-  <WizardStepFooter :status="footerStatus" :error="footerError" :busy="running" @retry="retry">
+  <!-- No footer Retry: in the error state the primary is "Retry from <phase>", disabled with the blocker as the reason. -->
+  <WizardStepFooter :status="footerStatus" :error="footerError" :busy="running">
     <template #secondary>
       <Button v-if="complete" as-child variant="ghost">
         <RouterLink :to="{ name: 'editor', params: { id } }">Fine-tune voice and avatars in the editor</RouterLink>
@@ -249,6 +255,9 @@ const showChip = (s: Slide) => hasVideoPlaceholder(s) || videoBySlide.value.has(
     <template #primary>
       <Button v-if="complete" type="button" :disabled="!!exportLock" @click="go('export')">
         Continue to Export<ArrowRight class="size-4" aria-hidden="true" />
+      </Button>
+      <Button v-else-if="failed" type="button" :disabled="!canGenerate" @click="retryFailed">
+        <RotateCcw class="size-4" aria-hidden="true" />Retry from {{ PHASE_LABEL[failed] }}
       </Button>
       <Button v-else type="button" :disabled="!canGenerate" @click="generate">
         <Sparkles class="size-4" aria-hidden="true" />{{ primaryLabel }}

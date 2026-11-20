@@ -181,7 +181,8 @@ describe('CreateDeckView', () => {
     sessionStorage.setItem('slideshows.pipeline.p1', JSON.stringify({ phase: 'voice', startedAt: 1, confirmed: false }))
     const { wrapper } = await mountView('/p/p1/create/avatar')
     expect(wrapper.get('[data-testid="wizard-footer"] [role="alert"]').text()).toContain('Interrupted, retry to continue')
-    expect(wrapper.find('[data-testid="footer-retry"]').exists()).toBe(true)
+    const retry = wrapper.findAll('[data-testid="wizard-footer"] button').find((b) => b.text() === 'Retry from Voice')
+    expect(retry!.attributes('disabled')).toBeUndefined()
   })
 
   it('unknown step resumes', async () => {

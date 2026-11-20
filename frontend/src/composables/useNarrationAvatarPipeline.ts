@@ -61,6 +61,8 @@ export function useNarrationAvatarPipeline(
   running: ComputedRef<boolean>
   plan: ComputedRef<{ notes: boolean; voice: boolean; avatars: number }>
   blocker: ComputedRef<string | null>
+  /** The narration language is set and one the server offers (the blocker's first check). */
+  languageOk: ComputedRef<boolean>
   start(): void
   retry(): void
 } {
@@ -140,10 +142,13 @@ export function useNarrationAvatarPipeline(
       Boolean(avatars.generate.isPending.value),
   )
 
-  const blocker = computed<string | null>(() => {
+  const languageOk = computed(() => {
     const lang = narration.language.value
     const list = narration.languages.value
-    if (!lang || (list?.length && !list.some((l) => l.code === lang))) return 'Choose a narration language first.'
+    return Boolean(lang) && !(list?.length && !list.some((l) => l.code === lang))
+  })
+  const blocker = computed<string | null>(() => {
+    if (!languageOk.value) return 'Choose a narration language first.'
     // Until the videos answer, neither the portrait nor whether HeyGen is configured is known.
     if (avatars.placeholderSlides.value.length && !avatars.videos.value) return 'Checking avatar setup…'
     if (plan.value.avatars > 0 && !avatars.videos.value?.portrait) return 'Upload a presenter portrait first.'
@@ -282,5 +287,5 @@ export function useNarrationAvatarPipeline(
 
   if (getCurrentScope()) onScopeDispose(() => run++)
 
-  return { phase, failedPhase, error, running, plan, blocker, start, retry }
+  return { phase, failedPhase, error, running, plan, blocker, languageOk, start, retry }
 }
