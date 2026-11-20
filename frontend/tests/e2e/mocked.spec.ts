@@ -33,6 +33,9 @@ async function mockApi(page: Page, overrides: Record<string, Handler> = {}) {
     [`GET /api/v1/ppt/presentation/${DECK_ID}/videos/generate/preview`]: json({ language: 'en', languages: ['en'], slides: [] }),
     'GET /api/v1/ppt/chat/conversations': json([]),
     [`GET /api/v1/ppt/presentation/${DECK_ID}/animations`]: json({ slides: [] }),
+    // The editor header reads the deck's wizard progress, which names the template.
+    'GET /api/templates': json([]),
+    'GET /api/v1/ppt/template/all': json(fixture('templates')),
     ...overrides,
   }
 
@@ -141,8 +144,6 @@ test.describe('mocked backend', () => {
 
   test('templates: gallery → detail → lightbox → use', async ({ page }) => {
     const unexpected = await mockApi(page, {
-      'GET /api/templates': json([]),
-      'GET /api/v1/ppt/template/all': json(fixture('templates')),
       'GET /api/v1/ppt/template/c1': json(fixture('template')),
     })
 
@@ -173,10 +174,8 @@ test.describe('mocked backend', () => {
     const mainImage = page.getByTestId('new-template-c1').getByTestId('template-main-image')
     await expect(mainImage).toBeVisible()
     await expect(mainImage).not.toContainText(/Loading|No preview/)
-    await page.getByRole('radio', { name: 'Decide later' }).click()
-    await expect(page).toHaveURL(/\/new$/)
-    await page.getByRole('radio', { name: 'Pitch' }).click()
-    await expect(page).toHaveURL(/\/new\?template=c1$/)
+    // The wizard needs a template: there is no "Decide later" here.
+    await expect(page.getByRole('radio', { name: 'Decide later' })).toHaveCount(0)
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 })
@@ -1210,6 +1209,250 @@ test.describe('settings (mocked)', () => {
     await expect(page.getByText('You have unsaved changes.')).toBeVisible()
     await expect(page.getByLabel('Anthropic API key')).toHaveValue('sk-ant-test-fake')
     await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled()
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+})
+
+// --- Create wizard ----------------------------------------------------------------------------
+
+interface WizardSlide extends Record<string, unknown> {
+  id: string
+  index: number
+  speaker_note: string | null
+  ui: { components: Record<string, unknown>[] } & Record<string, unknown>
+}
+type WizardDeck = Record<string, unknown> & { slides: WizardSlide[] }
+
+const NOTES = ['Welcome everyone to the quarterly review.', 'Here are the headline numbers.']
+const OUTLINE = ['# Quarterly review\nWhere we stand', '# Headline numbers\nRevenue, margin and growth']
+const NOW = '2026-11-20T10:00:00Z'
+const PORTRAIT = { url: '/app_data/portrait.png', mime_type: 'image/png', width: 512, height: 512, size_bytes: 10, updated_at: NOW }
+
+/** The two template slides of the fixture deck; the second carries the avatar placeholder layer. */
+function wizardDeck(notes: (string | null)[]): WizardDeck {
+  const base = structuredClone(fixture<WizardDeck>('presentation'))
+  const slides = base.slides.slice(0, 2).map((s, i) => ({ ...s, speaker_note: notes[i] ?? null }))
+  slides[1]!.ui.components.push({
+    id: 'video_placeholder',
+    description: 'Avatar video placeholder',
+    position: { x: 860, y: 360 },
+    elements: [
+      {
+        type: 'image',
+        position: { x: 0, y: 0 },
+        size: { width: 360, height: 320 },
+        data: '/static/images/replaceable_template_image.png',
+        fit: 'cover',
+        video_placeholder: true,
+      },
+    ],
+  })
+  return { ...base, title: 'Quarterly Review', content: 'A quarterly review for the board', n_slides: 2, slides }
+}
+
+const sse = (events: unknown[]): Handler => (route) =>
+  route.fulfill({
+    status: 200,
+    contentType: 'text/event-stream',
+    body: events.map((e) => `event: response\ndata: ${JSON.stringify(e)}\n\n`).join(''),
+  })
+
+const task = (id: string, type: string, status: string, data: Record<string, unknown> | null = null) => ({
+  id,
+  type,
+  status,
+  data,
+  created_at: NOW,
+  updated_at: NOW,
+})
+
+/** Narration recorded from each slide's current note, so every slide reads as narrated. */
+const ttsOf = (deck: WizardDeck, recorded: boolean) => ({
+  presentation_id: DECK_ID,
+  language: 'en',
+  language_name: 'English',
+  total_duration_seconds: recorded ? deck.slides.length * 3 : null,
+  audios: recorded
+    ? deck.slides.map((s) => ({
+        id: `cccccccc-0000-4000-8000-00000000000${s.index}`,
+        presentation_id: DECK_ID,
+        slide_id: s.id,
+        slide_index: s.index,
+        language: 'en',
+        language_name: 'English',
+        model: 'mock',
+        voice: null,
+        text: s.speaker_note,
+        translated: false,
+        url: `/app_data/audio/${s.index}.mp3`,
+        format: 'mp3',
+        size_bytes: 10,
+        duration_seconds: 3,
+        created_at: NOW,
+      }))
+    : [],
+  generated_slide_indexes: recorded ? deck.slides.map((s) => s.index) : [],
+  reused_slide_indexes: [],
+  skipped: [],
+})
+
+const avatarVideo = (slide: WizardSlide) => ({
+  id: 'dddddddd-0000-4000-8000-000000000001',
+  presentation_id: DECK_ID,
+  slide_id: slide.id,
+  slide_index: slide.index,
+  url: '/app_data/videos/1.mp4',
+  format: 'mp4',
+  mime_type: 'video/mp4',
+  size_bytes: 10,
+  duration_seconds: 3,
+  language: 'en',
+  source: 'heygen',
+  stale: false,
+})
+
+/**
+ * The backend of a deck made in the wizard, as a small state machine: created (no slides) → outline streamed →
+ * prepared → slides streamed → notes written → narration recorded (TTS task) → avatar rendered (HeyGen task).
+ * Tasks complete on their first poll.
+ */
+async function wizardApi(page: Page) {
+  const state = { generated: false, notes: false, tts: false, avatars: false, avatarRun: false }
+  const requests: string[] = []
+  const deckNow = (): WizardDeck =>
+    state.generated ? wizardDeck(state.notes ? NOTES : [null, null]) : { ...wizardDeck([]), slides: [] }
+  const record =
+    (name: string, handler: Handler): Handler =>
+    (route) => {
+      requests.push(name)
+      return handler(route)
+    }
+  const unexpected = await mockApi(page, {
+    'GET /api/v1/ppt/template/c1': json(fixture('template')),
+    'POST /api/v1/ppt/presentation/create': record('create', (route) => json(deckNow())(route)),
+    [`GET /api/v1/ppt/presentation/${DECK_ID}`]: (route) => json(deckNow())(route),
+    [`GET /api/v1/ppt/outlines/${DECK_ID}`]: json({ slides: [] }),
+    [`GET /api/v1/ppt/outlines/stream/${DECK_ID}`]: sse([
+      { type: 'status', status: 'Drafting the outline' },
+      { type: 'complete', presentation: { outlines: { slides: OUTLINE.map((content) => ({ content })) } } },
+    ]),
+    'POST /api/v1/ppt/presentation/prepare': record('prepare', (route) => json(deckNow())(route)),
+    [`GET /api/v1/ppt/presentation/stream/${DECK_ID}`]: record('stream', (route) => {
+      state.generated = true
+      return sse([{ type: 'complete', presentation: deckNow() }])(route)
+    }),
+    [`POST /api/v1/ppt/presentation/${DECK_ID}/speaker-notes`]: record('notes', (route) => {
+      state.notes = true
+      return json(deckNow())(route)
+    }),
+    [`GET /api/v1/ppt/presentation/${DECK_ID}/speaker-notes/tts`]: (route) => json(ttsOf(deckNow(), state.tts))(route),
+    [`POST /api/v1/ppt/presentation/${DECK_ID}/speaker-notes/tts/async`]: record('tts', json(task('tts-task', 'tts', 'pending'))),
+    'GET /api/v1/async-tasks/status/tts-task': (route) => {
+      state.tts = true
+      return json(task('tts-task', 'tts', 'completed', { completed_slides: 2, total_slides: 2 }))(route)
+    },
+    [`GET /api/v1/ppt/presentation/${DECK_ID}/videos`]: (route) => {
+      const videos = state.avatars ? [avatarVideo(deckNow().slides[1]!)] : []
+      return json({ presentation_id: DECK_ID, total_duration_seconds: null, portrait: PORTRAIT, generation_available: true, videos })(route)
+    },
+    [`POST /api/v1/ppt/presentation/${DECK_ID}/videos/generate`]: record('avatars', (route) => {
+      state.avatarRun = true
+      return json(task('avatar-task', 'avatar_videos', 'pending'))(route)
+    }),
+    [`GET /api/v1/ppt/presentation/${DECK_ID}/videos/generate`]: (route) =>
+      state.avatarRun
+        ? json(task('avatar-task', 'avatar_videos', state.avatars ? 'completed' : 'pending'))(route)
+        : json({ detail: 'Not found' }, 404)(route),
+    'GET /api/v1/async-tasks/status/avatar-task': (route) => {
+      state.avatars = true
+      const slide = deckNow().slides[1]!
+      return json(
+        task('avatar-task', 'avatar_videos', 'completed', { slides: [{ slide_id: slide.id, slide_index: slide.index, state: 'done' }] }),
+      )(route)
+    },
+    // No narrated MP4 rendered yet.
+    [`GET /api/v1/ppt/presentation/${DECK_ID}/video-export`]: json({ detail: 'Not found' }, 404),
+  })
+  await page.route('**/static/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }))
+  return { requests, unexpected }
+}
+
+const wizardToast = (page: Page, text: string) => page.locator('[data-sonner-toast]').filter({ hasText: text })
+
+test.describe('create wizard (mocked)', () => {
+  test('wizard: topic → export with resume from editor', async ({ page }) => {
+    test.setTimeout(90_000)
+    const { requests, unexpected } = await wizardApi(page)
+
+    // Steps 1–3: Topic, Look (a template is required), Details.
+    await page.goto('/new')
+    await page.getByPlaceholder(/Describe the topic/).fill('A quarterly review for the board')
+    await page.getByTestId('wizard-primary').click()
+    await expect(page.getByTestId('step-look')).toHaveAttribute('aria-current', 'step')
+    await expect(page.getByTestId('wizard-primary')).toBeDisabled()
+    await page.getByRole('radio', { name: 'Pitch' }).click()
+    await expect(page).toHaveURL(/\/new\?template=c1$/)
+    await page.getByTestId('wizard-primary').click()
+    await expect(page.getByTestId('step-details')).toHaveAttribute('aria-current', 'step')
+    await page.getByRole('button', { name: 'Create outline' }).click()
+
+    // Step 4: the outline streams in; Generate builds the slides from the chosen template.
+    await expect(page).toHaveURL(new RegExp(`/p/${DECK_ID}/create/outline\\?template=c1$`))
+    await expect(page.getByTestId('outline-count')).toHaveText('2 slides · max 50')
+    await page.getByRole('button', { name: 'Generate slides' }).click()
+
+    // Step 5: the slides stream in, then the grid shows them.
+    await expect(page).toHaveURL(new RegExp(`/p/${DECK_ID}/create/preview`))
+    await expect(page.getByTestId('preview-grid').getByRole('button', { name: /Open slide/ })).toHaveCount(2)
+    await expect(page).not.toHaveURL(/stream=/)
+    await page.getByRole('button', { name: 'Edit slides' }).click()
+
+    // The editor offers to carry on where the wizard stands: the Avatar step.
+    await expect(page).toHaveURL(`/p/${DECK_ID}`)
+    const resume = page.getByTestId('continue-setup')
+    await expect(resume).toHaveText('Continue: Avatar')
+    await resume.click()
+
+    // Step 6: one run writes the notes, records the voice and renders the avatar.
+    await expect(page).toHaveURL(`/p/${DECK_ID}/create/avatar`)
+    await expect(page.getByTestId('setup-portrait')).toHaveAttribute('data-ok', 'true')
+    await page.getByRole('button', { name: 'Generate voice & avatars' }).click()
+    const toExport = page.getByRole('button', { name: 'Continue to Export' })
+    await expect(toExport).toBeEnabled({ timeout: 30_000 })
+    await expect(page.getByTestId('setup-summary')).toHaveText('2 slides narrated · 1 with a presenter avatar')
+    for (const phase of ['notes', 'voice', 'avatars']) {
+      await expect(page.getByTestId(`pipeline-${phase}`)).toHaveAttribute('data-state', 'done')
+    }
+    await toExport.click()
+
+    // Step 7: the export options.
+    await expect(page).toHaveURL(`/p/${DECK_ID}/create/export`)
+    await expect(page.getByTestId('step-export')).toHaveAttribute('aria-current', 'step')
+    await expect(page.getByTestId('export-heading')).toHaveText('Quarterly Review · 2 slides')
+    await expect(page.getByTestId('export-options').getByRole('radio', { name: /PowerPoint/ })).toBeVisible()
+
+    expect(requests).toEqual(['create', 'prepare', 'stream', 'notes', 'tts', 'avatars'])
+    expect(unexpected, 'API calls without a mock').toEqual([])
+  })
+
+  test('export url redirects to avatar while avatars are missing', async ({ page }) => {
+    const unexpected = await mockApi(page, {
+      // Narrated (the tts fixture holds these notes), one placeholder slide, no avatar video yet.
+      [`GET /api/v1/ppt/presentation/${DECK_ID}`]: json(wizardDeck(NOTES)),
+      [`GET /api/v1/ppt/presentation/${DECK_ID}/videos`]: json({
+        presentation_id: DECK_ID,
+        total_duration_seconds: null,
+        portrait: null,
+        generation_available: true,
+        videos: [],
+      }),
+    })
+    await page.route('**/static/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }))
+
+    await page.goto(`/p/${DECK_ID}/create/export`)
+    await expect(page).toHaveURL(`/p/${DECK_ID}/create/avatar`)
+    await expect(wizardToast(page, '1 slide still needs its avatar')).toBeVisible()
+    await expect(page.getByTestId('step-export')).toHaveAttribute('data-state', 'locked')
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 })
