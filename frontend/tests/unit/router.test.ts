@@ -7,7 +7,8 @@ describe('router', () => {
     expect(router.resolve({ name: 'setup' }).path).toBe('/setup')
     expect(router.resolve({ name: 'library' }).path).toBe('/')
     expect(router.resolve({ name: 'new' }).path).toBe('/new')
-    expect(router.resolve({ name: 'outline', params: { id: 'x' } }).path).toBe('/new/x/outline')
+    expect(router.resolve({ name: 'create', params: { id: 'x', step: 'avatar' } }).path).toBe('/p/x/create/avatar')
+    expect(router.resolve({ name: 'create', params: { id: 'x' } }).path).toBe('/p/x/create')
     expect(router.resolve({ name: 'editor', params: { id: 'x' } }).path).toBe('/p/x')
     expect(router.resolve({ name: 'present', params: { id: 'x' } }).path).toBe('/p/x/present')
     expect(router.resolve({ name: 'templates' }).path).toBe('/templates')
@@ -26,9 +27,22 @@ describe('router', () => {
     for (const name of ['login', 'setup', 'present']) {
       expect(router.resolve({ name, params: { id: 'x' } }).meta.layout).toBe('bare')
     }
-    for (const name of ['library', 'new', 'outline', 'editor', 'templates', 'template', 'settings', 'not-found']) {
+    for (const name of ['library', 'new', 'create', 'editor', 'templates', 'template', 'settings', 'not-found']) {
       expect(router.resolve({ name, params: { id: 'x', section: 'text' } }).meta.layout).toBe('app')
     }
+  })
+
+  it('old outline url redirects to create/outline keeping query', async () => {
+    await router.push('/templates')
+    await router.push('/new/abc/outline?template=modern&theme=t1')
+    const r = router.currentRoute.value
+    expect(r.name).toBe('create')
+    expect(r.params).toEqual({ id: 'abc', step: 'outline' })
+    expect(r.query).toEqual({ template: 'modern', theme: 't1' })
+  })
+
+  it('has no outline route any more', () => {
+    expect(router.hasRoute('outline')).toBe(false)
   })
 
   it('redirects /settings and unknown sections to /settings/text', async () => {

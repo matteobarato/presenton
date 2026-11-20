@@ -178,7 +178,7 @@ async function submit() {
       }
     }
     // Stay pending until the navigation settles.
-    await router.push({ name: 'outline', params: { id: created.id }, query: { ...(chosen.value && { template: chosen.value.id }), ...(chosenTheme.value && { theme: chosenTheme.value.id }) } })
+    await router.push({ name: 'create', params: { id: created.id, step: 'outline' }, query: { ...(chosen.value && { template: chosen.value.id }), ...(chosenTheme.value && { theme: chosenTheme.value.id }) } })
   } catch (e) {
     error.value = e instanceof ApiError ? e.message : e instanceof Error && e.message ? e.message : 'Something went wrong while starting your presentation.'
     pending.value = false

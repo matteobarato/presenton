@@ -11,7 +11,7 @@ const link =
   'flex w-full flex-col items-center gap-2 rounded-[11px] py-3 text-[9px] font-medium text-[#9aa3a8] transition-colors duration-200 hover:bg-[#1d2225] hover:text-[#d9e0e4] max-[760px]:gap-1.5 max-[760px]:text-[7px]'
 const active = 'bg-[#222b30] text-[#c2e5f5]'
 const libraryActive = computed(() => route.name === 'library' || route.name === 'editor')
-const newActive = computed(() => route.name === 'new' || route.name === 'outline')
+const newActive = computed(() => route.name === 'new' || route.name === 'create')
 const templatesActive = computed(() => route.name === 'templates' || route.name === 'template')
 const settingsActive = computed(() => route.name === 'settings')
 </script>

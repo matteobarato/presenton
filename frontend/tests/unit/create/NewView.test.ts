@@ -35,7 +35,7 @@ async function mountView(generationMode: GenerationMode = 'both', config: Record
     history: createMemoryHistory(),
     routes: [
       { path: '/new', name: 'new', component: NewView },
-      { path: '/new/:id/outline', name: 'outline', component: view },
+      { path: '/p/:id/create/:step?', name: 'create', component: view },
       { path: '/p/:id', name: 'editor', component: view },
     ],
   })
@@ -154,7 +154,7 @@ describe('NewView', () => {
     expect(m.createPresentation).toHaveBeenCalledWith(
       expect.objectContaining({ content: 'Quarterly review', n_slides: 8, file_paths: [], generation_mode: 'standard', tone: 'default', verbosity: 'standard' }),
     )
-    expect(router.currentRoute.value.fullPath).toBe('/new/abc/outline')
+    expect(router.currentRoute.value.fullPath).toBe('/p/abc/create/outline')
   })
 
   it('animate is off by default: nothing is handed to the editor', async () => {
@@ -177,7 +177,7 @@ describe('NewView', () => {
     await wrapper.get('form').trigger('submit')
     await flushPromises()
     expect(sessionStorage.getItem('slideshows.animate.abc')).toBe('1')
-    expect(router.currentRoute.value.fullPath).toBe('/new/abc/outline')
+    expect(router.currentRoute.value.fullPath).toBe('/p/abc/create/outline')
   })
 
   it('uploads, decomposes and sends the extracted paths', async () => {
@@ -280,7 +280,7 @@ describe('NewView', () => {
       await wrapper.get('#create-prompt').setValue('Topic')
       await wrapper.get('form').trigger('submit')
       await flushPromises()
-      expect(router.currentRoute.value.name).toBe('outline')
+      expect(router.currentRoute.value.name).toBe('create')
       expect(router.currentRoute.value.query.template).toBe('c1')
       const payload = m.createPresentation.mock.calls[0][0]
       expect(payload).not.toHaveProperty('template')
@@ -303,7 +303,7 @@ describe('NewView', () => {
       await wrapper.get('#create-prompt').setValue('Quarterly review')
       await wrapper.get('form').trigger('submit')
       await flushPromises()
-      expect(router.currentRoute.value.name).toBe('outline')
+      expect(router.currentRoute.value.name).toBe('create')
       expect(router.currentRoute.value.query).toEqual({ template: 'c1', theme: 't1' })
     })
 
@@ -316,7 +316,7 @@ describe('NewView', () => {
       await wrapper.get('form').trigger('submit')
       await flushPromises()
       expect(router.currentRoute.value.query.theme).toBeUndefined()
-      expect(router.currentRoute.value.fullPath).toBe('/new/abc/outline')
+      expect(router.currentRoute.value.fullPath).toBe('/p/abc/create/outline')
     })
   })
 })

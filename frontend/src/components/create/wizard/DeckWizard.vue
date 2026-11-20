@@ -1,0 +1,194 @@
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ArrowLeft, ArrowRight } from 'lucide-vue-next'
+import type { Presentation } from '@/api/types'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { toast } from '@/components/ui/sonner'
+import { useDeckWizard } from '@/composables/useDeckWizard'
+import WizardFooter from './WizardFooter.vue'
+import WizardLayout from './WizardLayout.vue'
+import type { DeckStepKey, WizardStepKey } from './progress'
+
+/**
+ * Steps 4–7 of the create wizard for one deck. Runs inside `DeckStateProvider`. Owns the deck-step
+ * guards: no or unknown step → resume step; a locked step → resume step with a toast saying why.
+ */
+const props = defineProps<{ presentationId: string; presentation: Presentation }>()
+
+const DECK_STEPS: readonly DeckStepKey[] = ['outline', 'preview', 'avatar', 'export']
+type SummaryKey = 'topic' | 'look' | 'details'
+const isDeckStep = (k: string): k is DeckStepKey => (DECK_STEPS as readonly string[]).includes(k)
+
+const route = useRoute()
+const router = useRouter()
+
+// Set by the step bodies (later tasks): the outline or slides are streaming, the narration/avatar pipeline runs.
+const outlineStreaming = ref(false)
+const slidesStreaming = ref(false)
+const pipelineRunning = ref(false)
+
+const id = computed(() => props.presentationId)
+const deck = computed(() => props.presentation)
+const templateQuery = computed(() => (typeof route.query.template === 'string' ? route.query.template : null))
+const { progress, items, ready } = useDeckWizard(id, deck, {
+  outlineStreaming,
+  slidesStreaming,
+  pipelineRunning,
+  templateId: templateQuery,
+})
+
+const stepParam = computed(() => {
+  const s = route.params.step
+  return String(Array.isArray(s) ? s[0] : (s ?? ''))
+})
+const requested = computed<DeckStepKey | null>(() => (isDeckStep(stepParam.value) ? stepParam.value : null))
+/** The requested step, once it is known to be open; until then the body waits. */
+const step = computed<DeckStepKey | null>(() =>
+  ready.value && requested.value && progress.value.steps[requested.value].state !== 'locked' ? requested.value : null,
+)
+
+const go = (target: DeckStepKey, replace = false) => {
+  const to = { name: 'create', params: { id: props.presentationId, step: target }, query: route.query }
+  return replace ? router.replace(to) : router.push(to)
+}
+
+// Judge the URL only once narration and videos are in, and only when the URL changes: a step the user is
+// already on is not taken away when its state shifts underneath (e.g. a note edited elsewhere).
+watch(
+  [ready, stepParam],
+  () => {
+    if (!ready.value) return
+    const want = requested.value
+    const resume = progress.value.resume
+    if (!want) {
+      void go(resume, true)
+      return
+    }
+    const status = progress.value.steps[want]
+    if (status.state === 'locked') {
+      if (status.reason) toast.info(status.reason)
+      void go(resume, true)
+    }
+  },
+  { immediate: true },
+)
+
+// Steps 1–3 of a created deck are read-only summaries shown in place.
+const summary = ref<SummaryKey | null>(null)
+watch(stepParam, () => (summary.value = null))
+
+const current = computed<WizardStepKey>(() => summary.value ?? step.value ?? requested.value ?? progress.value.resume)
+
+function select(key: WizardStepKey) {
+  if (key === 'topic' || key === 'look' || key === 'details') {
+    summary.value = key
+    return
+  }
+  summary.value = null
+  if (key !== requested.value) void go(key)
+}
+
+const open = (k: DeckStepKey) => progress.value.steps[k].state !== 'locked'
+const neighbour = (dir: 'back' | 'next'): DeckStepKey | null => {
+  const at = DECK_STEPS.indexOf(requested.value ?? progress.value.resume)
+  const list = dir === 'back' ? DECK_STEPS.slice(0, at).reverse() : DECK_STEPS.slice(at + 1)
+  return list.find(open) ?? null
+}
+const nextStep = computed(() => {
+  const at = DECK_STEPS.indexOf(requested.value ?? progress.value.resume)
+  return DECK_STEPS[at + 1] ?? null
+})
+const nextLockReason = computed(() => {
+  const n = nextStep.value
+  return n && !open(n) ? progress.value.steps[n].reason : null
+})
+
+function navigate(dir: 'back' | 'next') {
+  if (summary.value) {
+    summary.value = null
+    return
+  }
+  const target = neighbour(dir)
+  if (target) void go(target)
+}
+
+const COPY: Record<WizardStepKey, { heading: string; lede: string }> = {
+  topic: { heading: 'Topic', lede: 'What this deck is about. It was set when the deck was created.' },
+  look: { heading: 'Look', lede: 'The template the slides are built from. Change layouts and styling in the editor.' },
+  details: { heading: 'Details', lede: 'How the deck was generated. Tune individual slides in the editor.' },
+  outline: { heading: 'Review the outline', lede: 'Edit, reorder or remove slides before any are generated.' },
+  preview: { heading: 'Preview your slides', lede: 'Your deck, slide by slide. Fine-tuning lives in the editor.' },
+  avatar: { heading: 'Voice and avatar', lede: 'Narrate every slide and add the presenter where the deck calls for one.' },
+  export: { heading: 'Export', lede: 'Download the deck, or the narrated video.' },
+}
+const copy = computed(() => COPY[current.value])
+const title = computed(() => props.presentation.title?.trim() || 'New presentation')
+
+const lookName = computed(() => items.value.find((i) => i.key === 'look')?.summary ?? 'Template')
+const details = computed(() => {
+  const p = props.presentation
+  return [
+    { label: 'Slides', value: String(p.n_slides) },
+    { label: 'Language', value: p.language },
+    { label: 'Tone', value: p.tone ?? 'default' },
+    { label: 'Verbosity', value: p.verbosity ?? 'standard' },
+  ]
+})
+</script>
+
+<template>
+  <WizardLayout
+    :title="title"
+    :heading="copy.heading"
+    :lede="copy.lede"
+    :items="items"
+    :current="current"
+    :parent="{ label: 'Library', to: { name: 'library' } }"
+    @select="select"
+    @navigate="navigate"
+  >
+    <section v-if="summary === 'topic'" data-testid="summary-topic" class="rounded-card border border-white/[0.06] bg-white/[0.015] p-4">
+      <p class="text-[13px] leading-[1.7] whitespace-pre-wrap text-[#d4dee3]">{{ presentation.content }}</p>
+    </section>
+    <section v-else-if="summary === 'look'" data-testid="summary-look" class="rounded-card border border-white/[0.06] bg-white/[0.015] p-4">
+      <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
+        <dt class="text-[#8e9ca4]">Template</dt>
+        <dd class="text-[#d4dee3]">{{ lookName }}</dd>
+      </dl>
+    </section>
+    <section v-else-if="summary === 'details'" data-testid="summary-details" class="rounded-card border border-white/[0.06] bg-white/[0.015] p-4">
+      <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
+        <template v-for="d in details" :key="d.label">
+          <dt class="text-[#8e9ca4]">{{ d.label }}</dt>
+          <dd class="text-[#d4dee3]">{{ d.value }}</dd>
+        </template>
+      </dl>
+    </section>
+
+    <!-- Step bodies: filled by the Outline, Preview, Avatar and Export steps. -->
+    <section v-else-if="step === 'outline'" data-testid="step-outline" />
+    <section v-else-if="step === 'preview'" data-testid="step-preview" />
+    <section v-else-if="step === 'avatar'" data-testid="step-avatar" />
+    <section v-else-if="step === 'export'" data-testid="step-export" />
+    <div v-else aria-busy="true" aria-label="Loading step">
+      <Skeleton class="h-[320px] w-full rounded-panel" />
+    </div>
+
+    <template #footer>
+      <WizardFooter :status="summary ? 'Set when the deck was created' : (nextLockReason ?? undefined)">
+        <template #back>
+          <Button v-if="summary || neighbour('back')" type="button" variant="ghost" @click="navigate('back')">
+            <ArrowLeft class="size-4" aria-hidden="true" />{{ summary ? 'Back to step' : 'Back' }}
+          </Button>
+        </template>
+        <template #primary>
+          <Button v-if="!summary && nextStep" type="button" :disabled="!!nextLockReason" @click="navigate('next')">
+            Next<ArrowRight class="size-4" aria-hidden="true" />
+          </Button>
+        </template>
+      </WizardFooter>
+    </template>
+  </WizardLayout>
+</template>
