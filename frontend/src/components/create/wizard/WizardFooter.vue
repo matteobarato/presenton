@@ -15,6 +15,7 @@ const hasRetry = !!getCurrentInstance()?.vnode.props?.onRetry
   <div
     class="sticky bottom-[-44px] z-10 mt-8 -mx-3 flex flex-col gap-2.5 rounded-t-[14px] bg-[#191d1fee] px-3 pt-4 pb-[44px] backdrop-blur-[10px] max-[1050px]:bottom-[-38px] max-[1050px]:pb-[38px] max-[760px]:bottom-[-30px] max-[760px]:pb-[30px] max-[450px]:bottom-[-27px] max-[450px]:pb-[27px]"
     :aria-busy="busy ? 'true' : undefined"
+    data-testid="wizard-footer"
   >
     <Alert v-if="error" variant="destructive" role="alert" class="flex items-center justify-between gap-3 py-2 text-[12px]">
       <span>{{ error }}</span>

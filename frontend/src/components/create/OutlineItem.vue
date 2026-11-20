@@ -8,10 +8,25 @@ const props = defineProps<{ index: number; disabled?: boolean; active?: boolean 
 const content = defineModel<string>({ required: true })
 const emit = defineEmits<{ remove: []; move: [delta: -1 | 1] }>()
 
-// The slide reads as rendered markdown; focusing it (click, Tab or a programmatic focus) shows the source.
-// The textarea never leaves the layout, it only sits invisibly over the preview, so it can always take focus.
+/** The first non-empty line, without its markdown marker, reads as the slide title; the rest is the preview. */
+function split(md: string): { title: string; rest: string } {
+  const lines = md.split('\n')
+  const at = lines.findIndex((l) => l.trim())
+  if (at < 0) return { title: '', rest: '' }
+  const title = lines[at]!
+    .trim()
+    .replace(/^#{1,6}\s+/, '')
+    .replace(/^([-*+]|\d+[.)])\s+/, '')
+    .replace(/\*\*|__|`/g, '')
+    .trim()
+  return { title, rest: lines.slice(at + 1).join('\n').trim() }
+}
+
+// The slide reads as a title plus a muted preview; focusing it (click, Tab or a programmatic focus) shows the
+// source. The textarea never leaves the layout, it only sits invisibly over the preview, so it can always take focus.
 const editing = ref(false)
-const html = computed(() => renderMarkdown(content.value))
+const parts = computed(() => split(content.value))
+const html = computed(() => renderMarkdown(parts.value.rest))
 const showSource = computed(() => editing.value && !props.disabled)
 
 function onKeydown(e: KeyboardEvent) {
@@ -27,47 +42,59 @@ function onKeydown(e: KeyboardEvent) {
 
 <template>
   <li
-    class="outline-item group flex items-start gap-2 rounded-card border bg-white/[0.02] p-3 transition-[border-color,background] duration-200"
+    class="outline-item group flex items-start gap-3 rounded-card border bg-white/[0.02] py-3 pr-2 pl-3 transition-[border-color,background] duration-200"
     :class="showSource || active ? 'border-[#bee3f340] bg-white/[0.035]' : 'border-white/[0.07] hover:border-white/[0.12]'"
     data-testid="outline-item"
     @keydown="onKeydown"
   >
-    <button
-      type="button"
-      class="drag-handle mt-0.5 grid size-6 shrink-0 cursor-grab place-items-center rounded text-muted hover:text-[#f6f8f9] disabled:cursor-default"
-      :disabled="disabled"
-      :aria-label="`Reorder slide ${index + 1} (Alt+Up or Alt+Down)`"
-    >
-      <GripVertical class="size-4" aria-hidden="true" />
-    </button>
-    <span class="mt-1 w-6 shrink-0 text-[11px] text-muted tabular-nums" aria-hidden="true">{{ index + 1 }}</span>
+    <span
+      class="mt-px grid size-6 shrink-0 place-items-center rounded-full bg-white/[0.06] text-[11px] font-medium text-[#b8c7cf] tabular-nums"
+      aria-hidden="true"
+      data-testid="outline-number"
+    >{{ index + 1 }}</span>
     <div class="relative min-w-0 flex-1">
-      <!-- eslint-disable-next-line vue/no-v-html -- sanitised by renderMarkdown (DOMPurify) -->
-      <div v-show="!showSource" class="outline-md min-h-[24px] px-1 py-0.5 text-[13px] leading-[1.65] text-[#d6e3ea]" aria-hidden="true" data-testid="outline-preview" v-html="html" />
-      <p v-if="!showSource && !content.trim()" class="pointer-events-none absolute inset-0 px-1 py-0.5 text-[13px] text-[#7f8d95]" aria-hidden="true">
-        Empty slide. Click to write.
-      </p>
+      <div v-show="!showSource" class="min-h-[24px] px-1 py-0.5" aria-hidden="true">
+        <p v-if="parts.title" class="text-[14px] leading-[1.5] font-medium tracking-[-0.01em] text-[#e9f1f5]" data-testid="outline-title">
+          {{ parts.title }}
+        </p>
+        <p v-else class="text-[13px] leading-[1.5] text-[#7f8d95]">Empty slide. Click to write.</p>
+        <!-- eslint-disable-next-line vue/no-v-html -- sanitised by renderMarkdown (DOMPurify) -->
+        <div v-if="parts.rest" class="outline-md mt-1 text-[12px] leading-[1.65] text-[#93a5ae]" data-testid="outline-preview" v-html="html" />
+      </div>
       <textarea
         v-model="content"
         :disabled="disabled"
         :aria-label="`Slide ${index + 1} outline`"
         class="w-full resize-none rounded-control text-[13px] leading-[1.65] text-[#e2eef5] outline-none! [field-sizing:content]"
-        :class="showSource ? 'relative min-h-[72px] bg-[#1b2226] px-2.5 py-2 ring-1 ring-[#bee3f355]' : 'absolute inset-0 h-full cursor-text opacity-0'"
+        :class="showSource ? 'relative min-h-[72px] bg-[#1b2226] px-2.5 py-2 ring-1 ring-[#bee3f355]' : 'absolute inset-0 h-full cursor-text opacity-0 disabled:cursor-default'"
         @focus="editing = true"
         @blur="editing = false"
       />
     </div>
-    <Button
-      variant="ghost"
-      size="icon"
-      type="button"
-      class="opacity-60 group-hover:opacity-100 focus-visible:opacity-100"
-      :disabled="disabled"
-      :aria-label="`Delete slide ${index + 1}`"
-      @click="emit('remove')"
+    <!-- Editing tools stay out of the way: they show on hover or focus, and not at all while read-only. -->
+    <div
+      class="flex shrink-0 items-center opacity-0 transition-opacity duration-200 group-focus-within:opacity-100 group-hover:opacity-100 max-[760px]:opacity-70"
+      :class="disabled && 'invisible'"
     >
-      <Trash2 class="size-4" aria-hidden="true" />
-    </Button>
+      <button
+        type="button"
+        class="drag-handle grid size-8 cursor-grab place-items-center rounded text-muted hover:text-[#f6f8f9] disabled:cursor-default"
+        :disabled="disabled"
+        :aria-label="`Reorder slide ${index + 1} (Alt+Up or Alt+Down)`"
+      >
+        <GripVertical class="size-4" aria-hidden="true" />
+      </button>
+      <Button
+        variant="ghost"
+        size="icon"
+        type="button"
+        :disabled="disabled"
+        :aria-label="`Delete slide ${index + 1}`"
+        @click="emit('remove')"
+      >
+        <Trash2 class="size-4" aria-hidden="true" />
+      </Button>
+    </div>
   </li>
 </template>
 

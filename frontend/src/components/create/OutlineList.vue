@@ -80,9 +80,10 @@ function setContent(index: number, content: string) {
       </template>
     </draggable>
     <Button
-      variant="outline"
+      variant="ghost"
+      size="sm"
       type="button"
-      class="self-start"
+      class="self-start text-[#a8b8c0] hover:text-[#e4ecf0]"
       :disabled="props.disabled || items.length >= MAX_OUTLINE_SLIDES"
       @click="add"
     >

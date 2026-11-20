@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/sonner'
 import { useDeckWizard } from '@/composables/useDeckWizard'
+import OutlineStep from '@/components/create/steps/OutlineStep.vue'
 import WizardFooter from './WizardFooter.vue'
 import WizardLayout from './WizardLayout.vue'
 import type { DeckStepKey, WizardStepKey } from './progress'
+import { provideWizardFooter } from './stepFooter'
 
 /**
  * Steps 4–7 of the create wizard for one deck. Runs inside `DeckStateProvider`. Owns the deck-step
@@ -28,7 +30,8 @@ const router = useRouter()
 // `?stream=1` (reload or link mid-generation, or the push from the outline): slides are still coming, so
 // Preview is open even before the first slide lands. The Preview step clears it when the stream ends.
 const outlineStreaming = ref(false)
-const slidesStreaming = ref(['1', 'true'].includes(String(route.query.stream ?? '')))
+const streamFlag = computed(() => ['1', 'true'].includes(String(route.query.stream ?? '')))
+const slidesStreaming = ref(streamFlag.value)
 const pipelineRunning = ref(false)
 
 const id = computed(() => props.presentationId)
@@ -65,8 +68,11 @@ const go = (target: DeckStepKey, replace = false) => {
 // Judge the URL once narration and videos are first in, then only when the URL changes: a step the user is
 // already on is not taken away when its state shifts underneath (e.g. a note edited elsewhere).
 watch(
-  [ready, stepParam],
-  ([isReady, param], old) => {
+  [ready, stepParam, streamFlag],
+  ([isReady, param, stream], old) => {
+    // The outline's in-app replace to `preview?stream=1` keeps this component mounted: slides are now on
+    // their way, so Preview must count as open before the new step is judged (same callback, read below).
+    if (stream) slidesStreaming.value = true
     if (judged.value) {
       if (old && param === old[1]) return
     } else if (!isReady) return
@@ -127,11 +133,15 @@ function navigate(dir: 'back' | 'next') {
   if (target) void go(target)
 }
 
+// A step with its own actions renders the one footer itself (see `WizardStepFooter`).
+const footer = provideWizardFooter({ available: computed(() => !!neighbour('back')), go: () => navigate('back') })
+const setFooterTarget = (el: unknown) => (footer.target.value = el instanceof HTMLElement ? el : null)
+
 const COPY: Record<WizardStepKey, { heading: string; lede: string }> = {
   topic: { heading: 'Topic', lede: 'What this deck is about. It was set when the deck was created.' },
   look: { heading: 'Look', lede: 'The template the slides are built from. Change layouts and styling in the editor.' },
   details: { heading: 'Details', lede: 'How the deck was generated. Tune individual slides in the editor.' },
-  outline: { heading: 'Review the outline', lede: 'Edit, reorder or remove slides before any are generated.' },
+  outline: { heading: 'Shape the story', lede: 'Each card becomes one slide. Read it through, then generate the slides.' },
   preview: { heading: 'Preview your slides', lede: 'Your deck, slide by slide. Fine-tuning lives in the editor.' },
   avatar: { heading: 'Voice and avatar', lede: 'Narrate every slide and add the presenter where the deck calls for one.' },
   export: { heading: 'Export', lede: 'Download the deck, or the narrated video.' },
@@ -181,7 +191,9 @@ const details = computed(() => {
     </section>
 
     <!-- Step bodies: filled by the Outline, Preview, Avatar and Export steps. -->
-    <section v-else-if="step === 'outline'" data-testid="step-body-outline" />
+    <section v-else-if="step === 'outline'" data-testid="step-body-outline">
+      <OutlineStep :presentation="presentation" @streaming="outlineStreaming = $event" />
+    </section>
     <section v-else-if="step === 'preview'" data-testid="step-body-preview" />
     <section v-else-if="step === 'avatar'" data-testid="step-body-avatar" />
     <section v-else-if="step === 'export'" data-testid="step-body-export" />
@@ -190,7 +202,8 @@ const details = computed(() => {
     </div>
 
     <template #footer>
-      <WizardFooter :status="summary ? 'Set when the deck was created' : (nextLockReason ?? undefined)">
+      <div :ref="setFooterTarget" class="contents" />
+      <WizardFooter v-if="!footer.claims.value" :status="summary ? 'Set when the deck was created' : (nextLockReason ?? undefined)">
         <template #back>
           <Button v-if="summary || neighbour('back')" type="button" variant="ghost" @click="navigate('back')">
             <ArrowLeft class="size-4" aria-hidden="true" />{{ summary ? 'Back to step' : 'Back' }}

@@ -16,6 +16,7 @@ const m = vi.hoisted(() => ({
   getAvatarGeneration: vi.fn(),
   getAvatarPreview: vi.fn(),
   listTemplates: vi.fn(),
+  listThemes: vi.fn(),
   toast: { info: vi.fn(), error: vi.fn(), success: vi.fn() },
 }))
 // The hooks call their fetchers inside their own module, so the hooks themselves are swapped for
@@ -51,7 +52,22 @@ vi.mock('@/api/templates', async (orig) => ({
   ...(await orig<typeof import('@/api/templates')>()),
   listTemplates: m.listTemplates,
 }))
+vi.mock('@/api/themes', async (orig) => ({ ...(await orig<typeof import('@/api/themes')>()), listThemes: m.listThemes }))
 vi.mock('@/components/ui/sonner', () => ({ toast: m.toast }))
+// The outline step streams from the server; here it only needs a finished outline.
+vi.mock('@/composables/useOutlineStream', async () => {
+  const { ref } = await import('vue')
+  return {
+    useOutlineStream: () => ({
+      items: ref([{ content: 'One' }, { content: 'Two' }, { content: 'Three' }]),
+      status: ref('Outline ready'),
+      streaming: ref(false),
+      error: ref(null),
+      abort: () => {},
+      retry: () => {},
+    }),
+  }
+})
 
 const slide = (i: number, placeholder: boolean) => ({
   id: `s${i}`,
@@ -113,6 +129,7 @@ beforeEach(() => {
   m.getAvatarGeneration.mockResolvedValue(null)
   m.getAvatarPreview.mockResolvedValue({ language: 'en-US', languages: ['en-US'], slides: [] })
   m.listTemplates.mockResolvedValue([{ id: 'modern', name: 'Modern', layouts: [], kind: 'builtin' }])
+  m.listThemes.mockResolvedValue([])
 })
 
 const panel = (key: string) => `[data-testid="step-body-${key}"]`
@@ -163,6 +180,30 @@ describe('CreateDeckView', () => {
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/preview?stream=1')
     expect(m.toast.info).not.toHaveBeenCalled()
     expect(wrapper.find(panel('preview')).exists()).toBe(true)
+  })
+
+  it('going from the outline to a streaming preview stays on the preview', async () => {
+    m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
+    const { wrapper, router } = await mountView('/p/p1/create/outline?template=modern')
+    expect(wrapper.find(panel('outline')).exists()).toBe(true)
+    await router.replace({ name: 'create', params: { id: 'p1', step: 'preview' }, query: { template: 'modern', stream: '1' } })
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/preview?template=modern&stream=1')
+    expect(m.toast.info).not.toHaveBeenCalled()
+    expect(wrapper.find(panel('preview')).exists()).toBe(true)
+  })
+
+  it('shows one footer, the outline step’s own on the outline', async () => {
+    m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
+    const { wrapper } = await mountView('/p/p1/create/outline?template=modern')
+    expect(wrapper.findAll('[data-testid="wizard-footer"]')).toHaveLength(1)
+    expect(wrapper.findAll('button').filter((b) => b.text().includes('Generate slides'))).toHaveLength(1)
+    expect(wrapper.findAll('button').some((b) => b.text() === 'Next')).toBe(false)
+  })
+
+  it('shows one footer on other steps', async () => {
+    const { wrapper } = await mountView('/p/p1/create/avatar')
+    expect(wrapper.findAll('[data-testid="wizard-footer"]')).toHaveLength(1)
   })
 
   it('leaving preview drops the stream flag', async () => {
