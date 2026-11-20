@@ -13,7 +13,7 @@ const host = claimWizardFooter()
 </script>
 
 <template>
-  <Teleport v-if="host?.target.value" :to="host.target.value">
+  <Teleport v-if="host?.target.value && host.active.value" :to="host.target.value">
     <WizardFooter :status="status" :error="error" :busy="busy">
       <template #back>
         <slot name="back">

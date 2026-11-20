@@ -7,14 +7,16 @@ import { inject, onBeforeUnmount, provide, ref, type InjectionKey, type Ref } fr
 export interface WizardFooterHost {
   target: Ref<HTMLElement | null>
   claims: Ref<number>
+  /** False while the wizard shows something over the step (a summary): the step's footer then stays off screen. */
+  active: Ref<boolean>
   /** The wizard's Back action, for steps that keep it in their own footer. */
   back: { available: Ref<boolean>; go: () => void }
 }
 
 const KEY: InjectionKey<WizardFooterHost> = Symbol('wizard-footer')
 
-export function provideWizardFooter(back: WizardFooterHost['back']): WizardFooterHost {
-  const host: WizardFooterHost = { target: ref(null), claims: ref(0), back }
+export function provideWizardFooter(back: WizardFooterHost['back'], active: Ref<boolean>): WizardFooterHost {
+  const host: WizardFooterHost = { target: ref(null), claims: ref(0), active, back }
   provide(KEY, host)
   return host
 }

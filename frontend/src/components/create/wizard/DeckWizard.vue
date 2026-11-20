@@ -134,7 +134,10 @@ function navigate(dir: 'back' | 'next') {
 }
 
 // A step with its own actions renders the one footer itself (see `WizardStepFooter`).
-const footer = provideWizardFooter({ available: computed(() => !!neighbour('back')), go: () => navigate('back') })
+const footer = provideWizardFooter(
+  { available: computed(() => !!neighbour('back')), go: () => navigate('back') },
+  computed(() => !summary.value),
+)
 const setFooterTarget = (el: unknown) => (footer.target.value = el instanceof HTMLElement ? el : null)
 
 const COPY: Record<WizardStepKey, { heading: string; lede: string }> = {
@@ -147,6 +150,8 @@ const COPY: Record<WizardStepKey, { heading: string; lede: string }> = {
   export: { heading: 'Export', lede: 'Download the deck, or the narrated video.' },
 }
 const copy = computed(() => COPY[current.value])
+// The body is keyed by the deck step only: a summary shown over it must not remount it (and abort its stream).
+const panelKey = computed(() => step.value ?? requested.value ?? progress.value.resume)
 const title = computed(() => props.presentation.title?.trim() || 'New presentation')
 
 const lookName = computed(() => items.value.find((i) => i.key === 'look')?.summary ?? 'Template')
@@ -168,6 +173,7 @@ const details = computed(() => {
     :lede="copy.lede"
     :items="items"
     :current="current"
+    :panel-key="panelKey"
     :parent="{ label: 'Library', to: { name: 'library' } }"
     @select="select"
     @navigate="navigate"
@@ -190,20 +196,21 @@ const details = computed(() => {
       </dl>
     </section>
 
-    <!-- Step bodies: filled by the Outline, Preview, Avatar and Export steps. -->
-    <section v-else-if="step === 'outline'" data-testid="step-body-outline">
+    <!-- Step bodies: filled by the Outline, Preview, Avatar and Export steps. They stay mounted (hidden) behind a
+         summary, so a running stream or pipeline is not aborted by a look at steps 1–3. -->
+    <section v-if="step === 'outline'" v-show="!summary" data-testid="step-body-outline">
       <OutlineStep :presentation="presentation" @streaming="outlineStreaming = $event" />
     </section>
-    <section v-else-if="step === 'preview'" data-testid="step-body-preview" />
-    <section v-else-if="step === 'avatar'" data-testid="step-body-avatar" />
-    <section v-else-if="step === 'export'" data-testid="step-body-export" />
-    <div v-else aria-busy="true" aria-label="Loading step">
+    <section v-else-if="step === 'preview'" v-show="!summary" data-testid="step-body-preview" />
+    <section v-else-if="step === 'avatar'" v-show="!summary" data-testid="step-body-avatar" />
+    <section v-else-if="step === 'export'" v-show="!summary" data-testid="step-body-export" />
+    <div v-else-if="!summary" aria-busy="true" aria-label="Loading step">
       <Skeleton class="h-[320px] w-full rounded-panel" />
     </div>
 
     <template #footer>
       <div :ref="setFooterTarget" class="contents" />
-      <WizardFooter v-if="!footer.claims.value" :status="summary ? 'Set when the deck was created' : (nextLockReason ?? undefined)">
+      <WizardFooter v-if="summary || !footer.claims.value" :status="summary ? 'Set when the deck was created' : (nextLockReason ?? undefined)">
         <template #back>
           <Button v-if="summary || neighbour('back')" type="button" variant="ghost" @click="navigate('back')">
             <ArrowLeft class="size-4" aria-hidden="true" />{{ summary ? 'Back to step' : 'Back' }}

@@ -12,6 +12,8 @@ const props = defineProps<{
   lede: string
   items: WizardStepItem[]
   current: WizardStepKey
+  /** What re-keys the body (and plays the step transition); defaults to `current`. Keep it steady to keep a body mounted. */
+  panelKey?: string
   parent?: { label: string; to: RouteLocationRaw }
 }>()
 const emit = defineEmits<{ select: [key: WizardStepKey]; navigate: [dir: 'back' | 'next'] }>()
@@ -48,7 +50,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
       <div class="relative mt-7 flex-1 max-[760px]:mt-5">
         <Transition name="step-panel">
-          <section :key="current" class="flex flex-col gap-5">
+          <section :key="panelKey ?? current" class="flex flex-col gap-5">
             <header>
               <h2
                 ref="headingEl"

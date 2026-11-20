@@ -241,7 +241,8 @@ describe('OutlineStep', () => {
     const { wrapper } = await mountStep('/p/p1/create/outline')
     expect(generateBtn(wrapper).attributes('disabled')).toBeDefined()
     expect(wrapper.get('[role="alert"]').text()).toContain('No template chosen — start a new deck')
-    expect(status(wrapper)).toContain('No template chosen — start a new deck')
+    // The alert carries the message; the status line only names the effect.
+    expect(status(wrapper)).toBe('Generate unavailable')
     await generateBtn(wrapper).trigger('click')
     expect(mocks.preparePresentation).not.toHaveBeenCalled()
   })
@@ -291,6 +292,16 @@ describe('OutlineStep', () => {
     finish()
     await flushPromises()
     expect(mocks.preparePresentation).toHaveBeenCalledTimes(1)
+  })
+
+  it('locks the outline while generating', async () => {
+    mocks.preparePresentation.mockReturnValue(new Promise(() => {}))
+    const { wrapper } = await mountStep()
+    await generateBtn(wrapper)?.trigger('click')
+    await flushPromises()
+    expect(mocks.preparePresentation).toHaveBeenCalled()
+    expect(wrapper.findAll('textarea')[0]!.attributes('disabled')).toBeDefined()
+    expect(wrapper.find('button[aria-label="Delete slide 1"]').attributes('disabled')).toBeDefined()
   })
 
   it('shows a prepare failure in the footer and stays', async () => {

@@ -17,6 +17,8 @@ const m = vi.hoisted(() => ({
   getAvatarPreview: vi.fn(),
   listTemplates: vi.fn(),
   listThemes: vi.fn(),
+  outlineStream: vi.fn(),
+  outlineStreaming: false,
   toast: { info: vi.fn(), error: vi.fn(), success: vi.fn() },
 }))
 // The hooks call their fetchers inside their own module, so the hooks themselves are swapped for
@@ -58,14 +60,17 @@ vi.mock('@/components/ui/sonner', () => ({ toast: m.toast }))
 vi.mock('@/composables/useOutlineStream', async () => {
   const { ref } = await import('vue')
   return {
-    useOutlineStream: () => ({
-      items: ref([{ content: 'One' }, { content: 'Two' }, { content: 'Three' }]),
-      status: ref('Outline ready'),
-      streaming: ref(false),
-      error: ref(null),
-      abort: () => {},
-      retry: () => {},
-    }),
+    useOutlineStream: (...args: unknown[]) => {
+      m.outlineStream(...args)
+      return {
+        items: ref([{ content: 'One' }, { content: 'Two' }, { content: 'Three' }]),
+        status: ref('Outline ready'),
+        streaming: ref(m.outlineStreaming),
+        error: ref(null),
+        abort: () => {},
+        retry: () => {},
+      }
+    },
   }
 })
 
@@ -130,9 +135,12 @@ beforeEach(() => {
   m.getAvatarPreview.mockResolvedValue({ language: 'en-US', languages: ['en-US'], slides: [] })
   m.listTemplates.mockResolvedValue([{ id: 'modern', name: 'Modern', layouts: [], kind: 'builtin' }])
   m.listThemes.mockResolvedValue([])
+  m.outlineStreaming = false
 })
 
 const panel = (key: string) => `[data-testid="step-body-${key}"]`
+// A step body behind a summary stays mounted, hidden with v-show.
+const shown = (w: { element: Element }) => (w.element as HTMLElement).style.display !== 'none'
 
 describe('CreateDeckView', () => {
   it('missing step resumes', async () => {
@@ -201,6 +209,31 @@ describe('CreateDeckView', () => {
     expect(wrapper.findAll('button').some((b) => b.text() === 'Next')).toBe(false)
   })
 
+  it('a summary opened mid-stream keeps the outline step (and its stream) alive, with only the summary footer', async () => {
+    m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
+    m.outlineStreaming = true
+    const { wrapper } = await mountView('/p/p1/create/outline?template=modern')
+    expect(m.outlineStream).toHaveBeenCalledTimes(1)
+
+    await wrapper.get('[data-testid="step-topic"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="summary-topic"]').exists()).toBe(true)
+    expect(shown(wrapper.get(panel('outline')))).toBe(false)
+    const footers = wrapper.findAll('[data-testid="wizard-footer"]')
+    expect(footers).toHaveLength(1)
+    expect(footers[0]!.text()).toContain('Back to step')
+    expect(footers[0]!.text()).not.toContain('Generate slides')
+
+    await wrapper.findAll('button').find((b) => b.text().includes('Back to step'))!.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="summary-topic"]').exists()).toBe(false)
+    expect(shown(wrapper.get(panel('outline')))).toBe(true)
+    expect(m.outlineStream).toHaveBeenCalledTimes(1)
+    const back = wrapper.findAll('[data-testid="wizard-footer"]')
+    expect(back).toHaveLength(1)
+    expect(back[0]!.text()).toContain('Generate slides')
+  })
+
   it('shows one footer on other steps', async () => {
     const { wrapper } = await mountView('/p/p1/create/avatar')
     expect(wrapper.findAll('[data-testid="wizard-footer"]')).toHaveLength(1)
@@ -267,7 +300,8 @@ describe('CreateDeckView', () => {
     const summary = wrapper.get('[data-testid="summary-topic"]')
     expect(summary.text()).toContain('Why octopuses are smarter than you think')
     expect(summary.find('textarea, input').exists()).toBe(false)
-    expect(wrapper.find(panel('avatar')).exists()).toBe(false)
+    // The avatar body stays mounted behind the summary, hidden.
+    expect(shown(wrapper.get(panel('avatar')))).toBe(false)
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar')
 
     // Picking a deck step leaves the summary.

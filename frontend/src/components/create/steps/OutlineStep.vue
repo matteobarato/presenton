@@ -163,7 +163,7 @@ const footerStatus = computed(() => {
     if (streaming.value) return 'Loading the outline…'
     return templateKnown.value ? 'These slides were generated from this outline' : `To regenerate: ${NO_TEMPLATE}`
   }
-  if (templateError.value) return templateError.value
+  if (templateError.value) return 'Generate unavailable' // the footer alert says why
   return blockReason.value ?? `${count.value} ${count.value === 1 ? 'slide' : 'slides'} will be generated`
 })
 const footerError = computed(() => actionError.value ?? templateError.value)
@@ -249,7 +249,7 @@ function continueToPreview() {
         {{ count }} slides — a deck can have at most {{ MAX_OUTLINE_SLIDES }}. Remove {{ overLimit }} to continue (max {{ MAX_OUTLINE_SLIDES }}).
       </p>
 
-      <OutlineList v-if="items.length || !streaming" v-model="items" :disabled="streaming || readOnly" />
+      <OutlineList v-if="items.length || !streaming" v-model="items" :disabled="streaming || readOnly || generating" />
       <div v-if="skeletons" class="flex flex-col gap-2" aria-hidden="true">
         <div
           v-for="n in skeletons"
