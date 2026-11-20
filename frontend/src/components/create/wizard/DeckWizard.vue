@@ -25,8 +25,10 @@ const route = useRoute()
 const router = useRouter()
 
 // Set by the step bodies (later tasks): the outline or slides are streaming, the narration/avatar pipeline runs.
+// `?stream=1` (reload or link mid-generation, or the push from the outline): slides are still coming, so
+// Preview is open even before the first slide lands. The Preview step clears it when the stream ends.
 const outlineStreaming = ref(false)
-const slidesStreaming = ref(false)
+const slidesStreaming = ref(['1', 'true'].includes(String(route.query.stream ?? '')))
 const pipelineRunning = ref(false)
 
 const id = computed(() => props.presentationId)
@@ -44,22 +46,31 @@ const stepParam = computed(() => {
   return String(Array.isArray(s) ? s[0] : (s ?? ''))
 })
 const requested = computed<DeckStepKey | null>(() => (isDeckStep(stepParam.value) ? stepParam.value : null))
-/** The requested step, once it is known to be open; until then the body waits. */
-const step = computed<DeckStepKey | null>(() =>
-  ready.value && requested.value && progress.value.steps[requested.value].state !== 'locked' ? requested.value : null,
-)
+// Latched once the URL has been judged: a later refetch (e.g. a narration language change) must neither
+// swap the open step for a skeleton nor re-judge the step the user is already on.
+const judged = ref(false)
+/** The step the guard let in. It stays shown until the URL changes, whatever the progress says meanwhile. */
+const approved = ref<DeckStepKey | null>(null)
+/** The requested step, once the guard has let it in; until then the body waits. */
+const step = computed<DeckStepKey | null>(() => (requested.value && requested.value === approved.value ? requested.value : null))
 
 const go = (target: DeckStepKey, replace = false) => {
-  const to = { name: 'create', params: { id: props.presentationId, step: target }, query: route.query }
+  const query = { ...route.query }
+  // The stream flag belongs to Preview only.
+  if (target !== 'preview') delete query.stream
+  const to = { name: 'create', params: { id: props.presentationId, step: target }, query }
   return replace ? router.replace(to) : router.push(to)
 }
 
-// Judge the URL only once narration and videos are in, and only when the URL changes: a step the user is
+// Judge the URL once narration and videos are first in, then only when the URL changes: a step the user is
 // already on is not taken away when its state shifts underneath (e.g. a note edited elsewhere).
 watch(
   [ready, stepParam],
-  () => {
-    if (!ready.value) return
+  ([isReady, param], old) => {
+    if (judged.value) {
+      if (old && param === old[1]) return
+    } else if (!isReady) return
+    judged.value = true
     const want = requested.value
     const resume = progress.value.resume
     if (!want) {
@@ -70,7 +81,9 @@ watch(
     if (status.state === 'locked') {
       if (status.reason) toast.info(status.reason)
       void go(resume, true)
+      return
     }
+    approved.value = want
   },
   { immediate: true },
 )
@@ -132,9 +145,9 @@ const details = computed(() => {
   return [
     { label: 'Slides', value: String(p.n_slides) },
     { label: 'Language', value: p.language },
-    { label: 'Tone', value: p.tone ?? 'default' },
-    { label: 'Verbosity', value: p.verbosity ?? 'standard' },
-  ]
+    { label: 'Tone', value: p.tone },
+    { label: 'Verbosity', value: p.verbosity },
+  ].filter((d): d is { label: string; value: string } => Boolean(d.value))
 })
 </script>
 
@@ -168,10 +181,10 @@ const details = computed(() => {
     </section>
 
     <!-- Step bodies: filled by the Outline, Preview, Avatar and Export steps. -->
-    <section v-else-if="step === 'outline'" data-testid="step-outline" />
-    <section v-else-if="step === 'preview'" data-testid="step-preview" />
-    <section v-else-if="step === 'avatar'" data-testid="step-avatar" />
-    <section v-else-if="step === 'export'" data-testid="step-export" />
+    <section v-else-if="step === 'outline'" data-testid="step-body-outline" />
+    <section v-else-if="step === 'preview'" data-testid="step-body-preview" />
+    <section v-else-if="step === 'avatar'" data-testid="step-body-avatar" />
+    <section v-else-if="step === 'export'" data-testid="step-body-export" />
     <div v-else aria-busy="true" aria-label="Loading step">
       <Skeleton class="h-[320px] w-full rounded-panel" />
     </div>

@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { QueryClient, useQuery, VueQueryPlugin } from '@tanstack/vue-query'
-import type { Ref } from 'vue'
+import { defineComponent, h, ref, type Ref } from 'vue'
+import { useTtsLanguage } from '@/composables/useTtsLanguage'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { ApiError } from '@/api/errors'
 import CreateDeckView from '@/views/CreateDeckView.vue'
@@ -114,7 +115,7 @@ beforeEach(() => {
   m.listTemplates.mockResolvedValue([{ id: 'modern', name: 'Modern', layouts: [], kind: 'builtin' }])
 })
 
-const panel = (key: string) => `section[data-testid="step-${key}"]`
+const panel = (key: string) => `[data-testid="step-body-${key}"]`
 
 describe('CreateDeckView', () => {
   it('missing step resumes', async () => {
@@ -154,6 +155,64 @@ describe('CreateDeckView', () => {
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/export')
     expect(m.toast.info).not.toHaveBeenCalled()
     expect(wrapper.find(panel('export')).exists()).toBe(true)
+  })
+
+  it('a streaming preview stays open before any slide exists', async () => {
+    m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
+    const { wrapper, router } = await mountView('/p/p1/create/preview?stream=1')
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/preview?stream=1')
+    expect(m.toast.info).not.toHaveBeenCalled()
+    expect(wrapper.find(panel('preview')).exists()).toBe(true)
+  })
+
+  it('leaving preview drops the stream flag', async () => {
+    m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
+    const { router } = await mountView('/p/p1/create/preview?stream=1&template=modern')
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', altKey: true }))
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/outline?template=modern')
+  })
+
+  it('keeps the current step when narration state refetches', async () => {
+    m.getPresentation.mockResolvedValue(deck(true))
+    m.getTtsStatus.mockImplementation(async (_id: string, lang: string) => ({
+      presentation_id: 'p1',
+      language: lang,
+      audios: lang === 'en-US' ? audios(3) : [],
+    }))
+    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait: null, videos: videos(3) })
+    const { wrapper, router } = await mountView('/p/p1/create/export')
+    expect(wrapper.find(panel('export')).exists()).toBe(true)
+
+    let resolveFr!: () => void
+    m.getTtsStatus.mockImplementation(
+      (_id: string, lang: string) =>
+        new Promise((done) => {
+          resolveFr = () => done({ presentation_id: 'p1', language: lang, audios: [] })
+        }),
+    )
+    // The language is module state shared by every user of the deck; any instance can change it.
+    let setLanguage!: (code: string) => void
+    mount(
+      defineComponent({
+        setup() {
+          setLanguage = useTtsLanguage(ref('p1'), ref(undefined)).setLanguage
+          return () => h('div')
+        },
+      }),
+      { global: { plugins: [[VueQueryPlugin, { queryClient: new QueryClient() }]] } },
+    )
+    setLanguage('fr-FR')
+    await flushPromises()
+    // Still fetching the new language's narration: the body stays.
+    expect(wrapper.find(panel('export')).exists()).toBe(true)
+    resolveFr()
+    await flushPromises()
+    // Now nothing is narrated in French (export would be locked), but the user is not thrown out.
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/export')
+    expect(wrapper.find(panel('export')).exists()).toBe(true)
+    expect(m.toast.info).not.toHaveBeenCalled()
+    setLanguage('en-US') // module state: hand the next test the default back
   })
 
   it('read-only summary for topic', async () => {
