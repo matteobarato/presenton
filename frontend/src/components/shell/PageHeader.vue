@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { RouterLink, type RouteLocationRaw } from 'vue-router'
 import { ChevronRight } from 'lucide-vue-next'
 
 /** Aera topbar for workspace pages: a quiet breadcrumb on the left, page actions on the right. */
-defineProps<{ title: string; parent?: { label: string; to: string } }>()
+defineProps<{ title: string; parent?: { label: string; to: RouteLocationRaw } }>()
 </script>
 
 <template>
