@@ -67,4 +67,13 @@ describe('NewTemplateSelector', () => {
     })
     expect(w.findAll('[role="radio"]').every((r) => r.attributes('disabled') !== undefined)).toBe(true)
   })
+
+  it('hides "Decide later" when allowLater is false', () => {
+    const w = mount(NewTemplateSelector, {
+      props: { templates, modelValue: null, allowLater: false },
+      global: { plugins: [[VueQueryPlugin, { queryClient: new QueryClient() }]] },
+    })
+    expect(w.find('[data-testid="new-template-none"]').exists()).toBe(false)
+    expect(w.findAll('[role="radio"]')).toHaveLength(2)
+  })
 })

@@ -5,7 +5,7 @@ import { Check, Clock3 } from 'lucide-vue-next'
 import type { TemplateSummary } from '@/api/templates'
 import TemplateCardThumb from './TemplateCardThumb.vue'
 
-const props = defineProps<{ templates: TemplateSummary[]; disabled?: boolean; theme?: unknown }>()
+const props = withDefaults(defineProps<{ templates: TemplateSummary[]; disabled?: boolean; theme?: unknown; allowLater?: boolean }>(), { allowLater: true })
 const selected = defineModel<string | null>({ default: null })
 const emit = defineEmits<{ picked: [id: string | null] }>()
 
@@ -43,6 +43,7 @@ const off = 'border-white/[0.07] bg-white/[0.02]'
     :style="{ gap: `${GAP}px`, gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }"
   >
     <button
+      v-if="allowLater"
       type="button"
       role="radio"
       :aria-checked="none"

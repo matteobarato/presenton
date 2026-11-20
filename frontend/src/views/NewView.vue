@@ -234,9 +234,9 @@ async function submit() {
         // Storage unavailable: the deck is generated without motion; it can be planned in the Motion tab.
       }
     }
-    draft.clear()
-    // Stay pending until the navigation settles.
+    // Stay pending until the navigation settles; a failure leaves the draft intact.
     await router.push({ name: 'create', params: { id: created.id, step: 'outline' }, query: { ...(chosen.value && { template: chosen.value.id }), ...(chosenTheme.value && { theme: chosenTheme.value.id }) } })
+    draft.clear()
   } catch (e) {
     error.value = e instanceof ApiError ? e.message : e instanceof Error && e.message ? e.message : 'Something went wrong while starting your presentation.'
     pending.value = false
@@ -248,6 +248,21 @@ function onFormSubmit() {
   if (step.value === 'details') void submit()
   else advance()
 }
+// Ctrl/Cmd+Enter in the composer creates the outline when it can, otherwise moves on.
+function onComposerSubmit() {
+  if (canSubmit.value) void submit()
+  else advance()
+}
+
+const composer = ref<InstanceType<typeof TopicComposer> | null>(null)
+watch(
+  step,
+  (now) => {
+    // Two ticks: WizardLayout moves focus to its heading after one, and the composer must win.
+    if (now === 'topic') void nextTick().then(() => nextTick(() => composer.value?.focus()))
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -262,7 +277,7 @@ function onFormSubmit() {
   >
     <form id="new-form" class="flex flex-col gap-5" @submit.prevent="onFormSubmit">
       <template v-if="step === 'topic'">
-        <TopicComposer v-model:prompt="prompt" v-model:files="files" :disabled="pending" @submit="advance" />
+        <TopicComposer ref="composer" v-model:prompt="prompt" v-model:files="files" :disabled="pending" @submit="onComposerSubmit" />
         <p v-if="filesLost" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">Re-add your documents; files aren't kept after a reload.</p>
         <p v-if="languageNeeded" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">
           Documents need a language.
@@ -273,7 +288,8 @@ function onFormSubmit() {
       <template v-else-if="step === 'look'">
         <Skeleton v-if="templates.isPending.value" class="h-[260px] w-full" />
         <Alert v-else-if="templates.isError.value" class="py-2 text-[12px]">Templates couldn’t load. Reload the page to try again.</Alert>
-        <NewTemplateSelector v-else-if="templates.data.value?.length" v-model="selectedTemplate" :templates="templates.data.value" :disabled="pending" :theme="chosenTheme" />
+        <NewTemplateSelector v-else-if="templates.data.value?.length" v-model="selectedTemplate" :templates="templates.data.value" :allow-later="false" :disabled="pending" :theme="chosenTheme" />
+        <Alert v-else class="py-2 text-[12px]">No templates are available yet. Add one in Templates, then come back to create your outline.</Alert>
         <div class="mt-2 flex flex-col gap-3" data-testid="theme-row">
           <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h3 class="text-[13px] font-medium text-[#e4ecf0]">Theme</h3>

@@ -293,6 +293,8 @@ describe('NewView', () => {
 
     it('Alt+ArrowRight acts like Continue (Topic to Look to Details) and never submits', async () => {
       const { wrapper } = await mountView()
+      // The composer owns focus on Topic and Alt+Arrow is ignored while typing, so start from the page.
+      ;(document.activeElement as HTMLElement | null)?.blur()
       const press = async (key: string) => {
         window.dispatchEvent(new KeyboardEvent('keydown', { key, altKey: true }))
         await flushPromises()
@@ -313,6 +315,37 @@ describe('NewView', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true }))
       await flushPromises()
       expect(wrapper.find('#opt-slides').exists()).toBe(false)
+    })
+  })
+
+  describe('topic step', () => {
+    it('focuses the composer when entering Topic', async () => {
+      const { wrapper } = await mountView()
+      await visit(wrapper, 'look')
+      await visit(wrapper, 'topic')
+      await flushPromises()
+      expect(document.activeElement?.id).toBe('create-prompt')
+    })
+
+    const ctrlEnter = (w: W) => w.get('#create-prompt').trigger('keydown', { key: 'Enter', ctrlKey: true })
+
+    it('Ctrl+Enter creates the outline when it can', async () => {
+      m.createPresentation.mockResolvedValue({ id: 'abc' })
+      const { wrapper, router } = await mountView()
+      await typeTopic(wrapper)
+      await ctrlEnter(wrapper)
+      await flushPromises()
+      expect(m.createPresentation).toHaveBeenCalled()
+      expect(router.currentRoute.value.name).toBe('create')
+    })
+
+    it('Ctrl+Enter moves on to Look when it cannot create yet', async () => {
+      const { wrapper } = await mountView('both', {}, '/new')
+      await typeTopic(wrapper)
+      await ctrlEnter(wrapper)
+      await flushPromises()
+      expect(m.createPresentation).not.toHaveBeenCalled()
+      expect(wrapper.find('[data-testid="new-template-c1"]').exists()).toBe(true)
     })
   })
 
@@ -402,6 +435,18 @@ describe('NewView', () => {
       expect(second.wrapper.text()).toContain("Re-add your documents; files aren't kept after a reload.")
     })
 
+    it('a failed create keeps the draft and keeps saving', async () => {
+      m.createPresentation.mockRejectedValue(new ApiError('Generation is disabled', 400))
+      const { wrapper } = await mountView()
+      await typeTopic(wrapper, 'Octopuses')
+      await visit(wrapper, 'details')
+      await submit(wrapper)
+      expect(sessionStorage.getItem('slideshows.newDraft')).toContain('Octopuses')
+      await visit(wrapper, 'topic')
+      await typeTopic(wrapper, 'Squids')
+      expect(sessionStorage.getItem('slideshows.newDraft')).toContain('Squids')
+    })
+
     it('survives unusable storage', async () => {
       sessionStorage.setItem('slideshows.newDraft', '{not json')
       const { wrapper } = await mountView()
@@ -410,10 +455,10 @@ describe('NewView', () => {
   })
 
   describe('template selector', () => {
-    it('defaults to "Decide later" with no ?template', async () => {
+    it('has nothing chosen with no ?template, and offers no "Decide later"', async () => {
       const { wrapper } = await mountView('both', {}, '/new')
       await visit(wrapper, 'look')
-      expect(wrapper.get('[data-testid="new-template-none"]').attributes('aria-checked')).toBe('true')
+      expect(wrapper.find('[data-testid="new-template-none"]').exists()).toBe(false)
       expect(wrapper.get('[data-testid="new-template-c1"]').attributes('aria-checked')).toBe('false')
     })
 
@@ -425,15 +470,20 @@ describe('NewView', () => {
       expect(wrapper.get('[data-testid="step-look"]').text()).toContain('Pitch')
     })
 
-    it('picking a template writes ?template, and "Decide later" removes it', async () => {
+    it('picking a template writes ?template', async () => {
       const { wrapper, router } = await mountView('both', {}, '/new')
       await visit(wrapper, 'look')
       await wrapper.get('[data-testid="new-template-c1"]').trigger('click')
       await flushPromises()
       expect(router.currentRoute.value.query.template).toBe('c1')
-      await wrapper.get('[data-testid="new-template-none"]').trigger('click')
-      await flushPromises()
-      expect(router.currentRoute.value.query.template).toBeUndefined()
+    })
+
+    it('explains an empty template list', async () => {
+      m.listTemplates.mockResolvedValue([])
+      const { wrapper } = await mountView('both', {}, '/new')
+      await visit(wrapper, 'look')
+      expect(wrapper.text()).toContain('No templates are available yet')
+      expect(status(wrapper)).toContain('Pick a template to continue')
     })
 
     it('blocks creating when templates fail to load, with the reason', async () => {
@@ -448,7 +498,7 @@ describe('NewView', () => {
       const { wrapper, router } = await mountView('both', {}, '/new?template=zzz')
       await visit(wrapper, 'look')
       expect(router.currentRoute.value.query.template).toBeUndefined()
-      expect(wrapper.get('[data-testid="new-template-none"]').attributes('aria-checked')).toBe('true')
+      expect(wrapper.get('[data-testid="new-template-c1"]').attributes('aria-checked')).toBe('false')
     })
   })
 
