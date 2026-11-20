@@ -26,6 +26,10 @@ describe('WizardSteps', () => {
     const b = w.get('[data-testid="step-preview"]')
     expect(b.attributes('aria-disabled')).toBe('true')
     expect(b.attributes('title')).toBe('Generate slides first')
+    // The reason reaches screen readers too, not only the hover title.
+    const reason = w.get(`#${b.attributes('aria-describedby')}`)
+    expect(reason.text()).toBe('Generate slides first')
+    expect(reason.classes()).toContain('sr-only')
     await b.trigger('click')
     expect(w.emitted('select')).toBeUndefined()
   })
@@ -34,6 +38,9 @@ describe('WizardSteps', () => {
     const w = mount(WizardSteps, { props: { items: items({ topic: { state: 'done' } }), current: 'look' } })
     const b = w.get('[data-testid="step-topic"]')
     expect(b.find('[data-icon="check"]').exists()).toBe(true)
+    expect(b.get('[data-testid="step-topic-state"]').text()).toBe('(Completed)')
+    expect(w.get('[data-testid="step-look"]').find('[data-testid="step-look-state"]').exists()).toBe(false)
+    expect(w.get('[data-testid="step-look"]').attributes('aria-describedby')).toBeUndefined()
     await b.trigger('click')
     expect(w.emitted('select')).toEqual([['topic']])
   })
@@ -41,6 +48,7 @@ describe('WizardSteps', () => {
   it('running step shows spinner', () => {
     const w = mount(WizardSteps, { props: { items: items({ outline: { state: 'running' } }), current: 'outline' } })
     expect(w.get('[data-testid="step-outline"]').find('[data-icon="spinner"]').exists()).toBe(true)
+    expect(w.get('[data-testid="step-outline-state"]').text()).toBe('(In progress)')
   })
 
   it('marks current, renders badge and summary, and a compact bar', () => {

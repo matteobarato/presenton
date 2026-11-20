@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 import { Check, Loader2, Lock } from 'lucide-vue-next'
 import { Progress } from '@/components/ui/progress'
 import type { WizardStepItem, WizardStepKey } from './progress'
@@ -11,6 +11,10 @@ const emit = defineEmits<{ select: [key: WizardStepKey] }>()
 const index = computed(() => Math.max(0, props.items.findIndex((i) => i.key === props.current)))
 const currentItem = computed(() => props.items[index.value])
 const percent = computed(() => Math.round(((index.value + 1) / Math.max(1, props.items.length)) * 100))
+
+const uid = useId()
+const reasonId = (key: WizardStepKey) => `${uid}-reason-${key}`
+const STATE_TEXT: Partial<Record<WizardStepItem['state'], string>> = { done: 'Completed', running: 'In progress' }
 
 const BADGE = 'rounded-full border border-white/[0.12] px-1.5 py-px text-[9.5px] leading-[1.4] whitespace-nowrap text-[#a9c4d2]'
 
@@ -34,6 +38,7 @@ function pick(item: WizardStepItem) {
           :aria-disabled="s.state === 'locked' ? 'true' : undefined"
           :disabled="disabled"
           :title="s.state === 'locked' ? (s.reason ?? undefined) : undefined"
+          :aria-describedby="s.state === 'locked' && s.reason ? reasonId(s.key) : undefined"
           :data-testid="`step-${s.key}`"
           :data-state="s.state"
           class="group relative flex min-w-0 flex-1 items-center gap-2.5 overflow-hidden rounded-card border px-3 py-2.5 text-left transition-[background,border-color] duration-200"
@@ -62,6 +67,7 @@ function pick(item: WizardStepItem) {
           <span class="flex min-w-0 flex-col" :class="s.key !== current && 'max-[1050px]:sr-only'">
             <span class="flex min-w-0 items-center gap-1.5">
               <span class="truncate text-[12px] font-semibold" :class="s.key === current ? 'text-[#eef6fa]' : 'text-[#c9d5db]'">{{ s.label }}</span>
+              <span v-if="STATE_TEXT[s.state]" class="sr-only" :data-testid="`step-${s.key}-state`">({{ STATE_TEXT[s.state] }})</span>
               <!-- Under 1050px only the current label shows, so its badge has room beside it. -->
               <span v-if="s.badge" class="hidden flex-none max-[1050px]:inline" :class="BADGE">{{ s.badge }}</span>
             </span>
@@ -73,6 +79,7 @@ function pick(item: WizardStepItem) {
           </span>
           <span v-if="s.key === current" class="absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-accent" aria-hidden="true" />
         </button>
+        <span v-if="s.state === 'locked' && s.reason" :id="reasonId(s.key)" class="sr-only">{{ s.reason }}</span>
       </li>
     </ol>
   </nav>

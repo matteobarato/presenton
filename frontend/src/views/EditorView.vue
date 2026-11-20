@@ -37,7 +37,7 @@ const editor = useEditorStore()
 const history = useHistoryStore()
 
 const id = computed(() => String(route.params.id ?? ''))
-const { data: presentation, error, isError, refetch } = usePresentation(id, useEditorFetchGate())
+const { data: presentation, error, isError, isFetching, refetch } = usePresentation(id, useEditorFetchGate())
 const slides = computed(() => presentation.value?.slides ?? [])
 
 // `?stream=1` is set by the outline step: this deck is still being generated.
@@ -58,9 +58,10 @@ watch(
 )
 // A deck with no slides and no stream coming has nothing to edit: the wizard's outline step builds it.
 watch(
-  [presentation, streamRequested, generating],
-  ([deck, requested, streaming]) => {
-    if (!deck || deck.slides.length > 0 || requested || streaming) return
+  [presentation, streamRequested, generating, isFetching],
+  ([deck, requested, streaming, fetching]) => {
+    // A cached empty deck that is being refetched may have slides by now: wait for the answer.
+    if (!deck || deck.slides.length > 0 || requested || streaming || fetching) return
     void router.replace({ name: 'create', params: { id: id.value, step: 'outline' } })
   },
   { immediate: true },

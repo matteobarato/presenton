@@ -393,6 +393,16 @@ describe('CreateDeckView', () => {
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/export')
   })
 
+  it('Alt+ArrowRight onto a locked step says why', async () => {
+    m.getPresentation.mockResolvedValue(deck(true))
+    const { router } = await mountView('/p/p1/create/avatar')
+    m.toast.info.mockClear()
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true }))
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar')
+    expect(m.toast.info).toHaveBeenCalledWith('3 slides still need their avatar')
+  })
+
   it('not found shows message', async () => {
     m.getPresentation.mockRejectedValue(new ApiError('Not found', 404))
     const { wrapper } = await mountView('/p/p1/create/outline')

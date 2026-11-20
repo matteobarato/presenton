@@ -29,12 +29,18 @@ export function usePresentationStream(id: Ref<string>, enabled: Ref<boolean>) {
   const shownWarnings = new Set<string>()
   const status = ref<StreamStatus>('idle')
   const metrics = ref<GenerationMetrics | null>(null)
+  /**
+   * Indices of the slides this stream has delivered so far. While a deck is regenerated the cache still holds
+   * its old slides; only these are the new ones.
+   */
+  const received = ref<ReadonlySet<number>>(new Set())
   let controller: AbortController | null = null
 
   async function run(presentationId: string, signal: AbortSignal) {
     const key = presentationKeys.one(presentationId)
     status.value = 'streaming'
     metrics.value = null
+    received.value = new Set()
     // The prepared deck (settings, theme, no slides yet) is the base to merge into.
     try {
       await queryClient.fetchQuery({ queryKey: key, queryFn: () => getPresentation(presentationId), staleTime: 0 })
@@ -56,7 +62,13 @@ export function usePresentationStream(id: Ref<string>, enabled: Ref<boolean>) {
           }
           // A refetch resolving mid-stream would overwrite the streamed slides.
           await queryClient.cancelQueries({ queryKey: key })
-          queryClient.setQueryData<Presentation | undefined>(key, (prev) => applyStreamEvent(prev, ev, acc))
+          const before = queryClient.getQueryData<Presentation>(key)?.slides
+          const after = queryClient.setQueryData<Presentation | undefined>(key, (prev) => applyStreamEvent(prev, ev, acc))?.slides
+          // A slide object the event replaced or added came from this stream.
+          if (after && after !== before) {
+            const fresh = after.filter((s) => !before?.includes(s)).map((s) => s.index)
+            if (fresh.some((i) => !received.value.has(i))) received.value = new Set([...received.value, ...fresh])
+          }
           for (const detail of acc.warnings ?? []) {
             if (shownWarnings.has(detail)) continue
             shownWarnings.add(detail)
@@ -121,5 +133,5 @@ export function usePresentationStream(id: Ref<string>, enabled: Ref<boolean>) {
     editor.generating = false
   })
 
-  return { status, metrics, stop }
+  return { status, metrics, received, stop }
 }

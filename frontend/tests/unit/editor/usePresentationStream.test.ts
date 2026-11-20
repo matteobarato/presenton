@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file -- each test mounts its own host */
 import { flushPromises, mount } from '@vue/test-utils'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia, setActivePinia } from 'pinia'
@@ -33,5 +34,31 @@ describe('usePresentationStream', () => {
     await vi.waitFor(() => expect(status.value).toBe('done'))
     await flushPromises()
     expect(mocks.warning.mock.calls.map((c) => c[1].description)).toEqual(['quota', 'timeout'])
+  })
+
+  it('counts only the slides this stream delivers, not the ones already cached', async () => {
+    setActivePinia(createPinia())
+    const { getPresentation } = await import('@/api/presentations')
+    const old = (i: number) => ({ id: `old${i}`, index: i, layout: 'l', content: { title: 'Old' } })
+    vi.mocked(getPresentation).mockResolvedValueOnce({ id: 'p1', slides: [old(0), old(1), old(2)] } as never)
+    let release!: () => void
+    const gate = new Promise<void>((r) => (release = r))
+    mocks.stream.mockImplementation(async function* () {
+      yield { type: 'chunk', chunk: JSON.stringify({ id: 'n0', index: 0, layout: 'l', content: { title: 'New' } }) }
+      yield { type: 'generation_metrics', output_tokens: 10 }
+      await gate
+      yield { type: 'complete', presentation: { id: 'p1', slides: [] } }
+    })
+    let received!: { value: ReadonlySet<number> }
+    const C = defineComponent({
+      setup() {
+        received = usePresentationStream(ref('p1'), ref(true)).received
+        return () => null
+      },
+    })
+    mount(C, { global: { plugins: [[VueQueryPlugin, { queryClient: new QueryClient() }]] } })
+    await vi.waitFor(() => expect([...received.value]).toEqual([0]))
+    release()
+    await flushPromises()
   })
 })

@@ -153,6 +153,8 @@ function navigate(dir: 'back' | 'next') {
     return
   }
   if (target) void go(target)
+  // Alt+→ onto a locked step: say why instead of doing nothing.
+  else if (dir === 'next' && nextLockReason.value) toast.info(nextLockReason.value)
 }
 
 // A step with its own actions renders the one footer itself (see `WizardStepFooter`).

@@ -117,6 +117,9 @@ describe('AvatarStep', () => {
     expect(button(wrapper, /^Generate/)!.attributes('disabled')).toBeDefined()
     expect(status(wrapper)).toBe('Choose a narration language first.')
     expect(wrapper.get('[data-testid="setup-language"]').attributes('data-ok')).toBe('false')
+    // The check/cross icon is announced as an image with its state.
+    const icon = wrapper.get('[data-testid="setup-language"] [aria-label="To do"]')
+    expect(icon.attributes('role')).toBe('img')
     expect(wrapper.find('[data-testid="tts-language"]').exists()).toBe(true)
   })
 

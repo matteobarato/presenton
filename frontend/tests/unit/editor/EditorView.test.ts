@@ -35,7 +35,7 @@ const mounted: { unmount: () => void }[] = []
 afterEach(() => mounted.splice(0).forEach((w) => w.unmount()))
 
 let lastRouter: ReturnType<typeof createRouter>
-async function mountAt(path: string) {
+async function mountAt(path: string, seed?: (client: QueryClient) => void) {
   setActivePinia(createPinia())
   const router = createRouter({
     history: createMemoryHistory(),
@@ -49,6 +49,7 @@ async function mountAt(path: string) {
   lastRouter = router
   await router.push(path)
   lastClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  seed?.(lastClient)
   const wrapper = mount(EditorView, {
     global: {
       plugins: [router, [VueQueryPlugin, { queryClient: lastClient }]],
@@ -93,6 +94,16 @@ describe('EditorView', () => {
     await mountAt('/p/p1')
     expect(lastRouter.currentRoute.value.name).toBe('create')
     expect(lastRouter.currentRoute.value.params).toMatchObject({ id: 'p1', step: 'outline' })
+  })
+
+  it('a cached empty deck that is being refetched waits for the answer before redirecting', async () => {
+    let answer!: (d: Presentation) => void
+    api.getPresentation.mockReturnValue(new Promise<Presentation>((r) => (answer = r)))
+    await mountAt('/p/p1', (c) => c.setQueryData(['presentation', 'p1'], { ...deck(), slides: [] }))
+    expect(lastRouter.currentRoute.value.name).toBe('editor')
+    answer(deck())
+    await flushPromises()
+    expect(lastRouter.currentRoute.value.name).toBe('editor')
   })
 
   it('a streaming empty deck stays in the editor', async () => {

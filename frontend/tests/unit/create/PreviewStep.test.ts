@@ -9,6 +9,7 @@ import PreviewStep from '@/components/create/steps/PreviewStep.vue'
 const mocks = vi.hoisted(() => ({
   streamCalls: [] as { id: string; enabled: boolean }[],
   status: null as unknown as Ref<string>,
+  received: null as unknown as Ref<ReadonlySet<number>>,
   plan: vi.fn(),
 }))
 vi.mock('@/composables/usePresentationStream', async () => {
@@ -26,7 +27,7 @@ vi.mock('@/composables/usePresentationStream', async () => {
         },
         { immediate: true },
       )
-      return { status: mocks.status, metrics: ref(null), stop: vi.fn() }
+      return { status: mocks.status, metrics: ref(null), received: mocks.received, stop: vi.fn() }
     },
   }
 })
@@ -93,6 +94,8 @@ const button = (w: VueWrapper, re: RegExp) => w.findAll('button, a').find((b) =>
 beforeEach(() => {
   mocks.streamCalls = []
   mocks.status = ref('idle')
+  // By default every slide in the deck came from this stream.
+  mocks.received = ref(new Set(Array.from({ length: 50 }, (_, i) => i)))
   mocks.plan.mockReset()
 })
 afterEach(() => {
@@ -127,6 +130,26 @@ describe('PreviewStep', () => {
     const { wrapper } = await mountStep('/p/p1/create/preview?stream=1', deck([slide(0), slide(1)], 2))
     expect(wrapper.findAll('[data-testid="preview-skeleton"]')).toHaveLength(0)
     expect(status(wrapper)).toBe('Finishing up…')
+  })
+
+  it('regenerating an existing deck counts only the slides this stream delivered', async () => {
+    mocks.received.value = new Set()
+    const old = deck([slide(0), slide(1), slide(2)], 3)
+    const { wrapper } = await mountStep('/p/p1/create/preview?stream=1', old)
+    // The old deck's slides are still cached: none are shown, every slot is a skeleton.
+    expect(wrapper.findAll('[data-testid="slide-view"]')).toHaveLength(0)
+    expect(wrapper.findAll('[data-testid="preview-skeleton"]')).toHaveLength(3)
+    expect(status(wrapper)).toBe('Generating slide 1 of 3…')
+
+    mocks.received.value = new Set([0])
+    await nextTick()
+    expect(wrapper.findAll('[data-testid="slide-view"]').map((v) => v.attributes('data-slide'))).toEqual(['s0'])
+    expect(wrapper.findAll('[data-testid="preview-skeleton"]')).toHaveLength(2)
+    expect(status(wrapper)).toBe('Generating slide 2 of 3…')
+
+    mocks.status.value = 'done'
+    await flushPromises()
+    expect(wrapper.findAll('[data-testid="slide-view"]')).toHaveLength(3)
   })
 
   it('removes stream flag when done', async () => {

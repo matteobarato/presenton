@@ -30,7 +30,7 @@ const streamFlag = computed(() => ['1', 'true'].includes(String(route.query.stre
 /** Briefly true on Retry, so the stream's `[id, enabled]` watcher sees a fresh start. */
 const paused = ref(false)
 const enabled = computed(() => streamFlag.value && !paused.value)
-const { status, metrics } = usePresentationStream(id, enabled)
+const { status, metrics, received } = usePresentationStream(id, enabled)
 const { planning } = usePlanMotionAfterGeneration(id, status)
 
 const streaming = computed(() => status.value === 'streaming')
@@ -51,8 +51,14 @@ async function retry() {
   paused.value = false
 }
 
-const slides = computed(() => props.presentation.slides)
-const total = computed(() => Math.max(props.presentation.n_slides ?? 0, slides.value.length))
+// While streaming, only the slides this stream delivered count: on Regenerate the cache still holds the old
+// deck's slides until the new ones replace them.
+const slides = computed(() =>
+  streaming.value ? props.presentation.slides.filter((s) => received.value.has(s.index)) : props.presentation.slides,
+)
+const total = computed(() =>
+  streaming.value ? Math.max(props.presentation.n_slides ?? 0, slides.value.length) : slides.value.length,
+)
 const pending = computed(() => (streaming.value ? Math.max(0, total.value - slides.value.length) : 0))
 const generatingLabel = computed(() =>
   slides.value.length >= total.value ? 'Finishing up…' : `Generating slide ${slides.value.length + 1} of ${total.value}…`,

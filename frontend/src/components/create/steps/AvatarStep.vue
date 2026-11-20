@@ -176,16 +176,16 @@ const showChip = (s: Slide) => hasVideoPlaceholder(s) || videoBySlide.value.has(
 
       <div class="flex flex-col gap-2" data-testid="setup-language" :data-ok="String(languageOk)">
         <span class="flex items-center gap-1.5 text-[12px] text-[#d4dee3]">
-          <Check v-if="languageOk" class="size-3.5 text-accent" aria-label="Done" />
-          <X v-else class="size-3.5 text-[#e8a2a2]" aria-label="To do" />Narration language
+          <Check v-if="languageOk" class="size-3.5 text-accent" role="img" aria-label="Done" />
+          <X v-else class="size-3.5 text-[#e8a2a2]" role="img" aria-label="To do" />Narration language
         </span>
         <TtsLanguageSelect :languages="languages ?? []" :model-value="language" :disabled="running" @update:model-value="setLanguage" />
       </div>
 
       <div v-if="showPortrait" class="flex flex-col gap-2" data-testid="setup-portrait" :data-ok="String(portraitOk)">
         <span class="flex items-center gap-1.5 text-[12px] text-[#d4dee3]">
-          <Check v-if="portraitOk" class="size-3.5 text-accent" aria-label="Done" />
-          <X v-else class="size-3.5 text-[#e8a2a2]" aria-label="To do" />Presenter portrait
+          <Check v-if="portraitOk" class="size-3.5 text-accent" role="img" aria-label="Done" />
+          <X v-else class="size-3.5 text-[#e8a2a2]" role="img" aria-label="To do" />Presenter portrait
         </span>
         <PortraitHero
           :portrait="videos?.portrait"
@@ -201,7 +201,7 @@ const showChip = (s: Slide) => hasVideoPlaceholder(s) || videoBySlide.value.has(
           <span>Avatar service not configured. Placeholder slides will use the voice bubble.</span>
         </template>
         <template v-else>
-          <Check class="size-3.5 text-accent" aria-label="Done" />
+          <Check class="size-3.5 text-accent" role="img" aria-label="Done" />
           <span>Avatar service ready (HeyGen)</span>
         </template>
       </div>
