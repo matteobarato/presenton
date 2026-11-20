@@ -5,7 +5,6 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HEX = /#[0-9a-fA-F]{3,8}\b/g;
-const SHAPES = /<(path|rect|circle|ellipse|polygon|polyline|line)\b([^>]*)>/gi;
 
 function usage() {
   return `Usage: node scripts/migrate-template-svg-tint.mjs [options]
@@ -23,7 +22,7 @@ Options:
 // Returns { color } for an eligible SVG, or { reason } when it must be skipped.
 export function analyzeSvg(source) {
   if (typeof source !== "string") return { reason: "svg file not readable" };
-  if (/<(linearGradient|radialGradient)\b/i.test(source) || /fill\s*[:=]\s*["']?url\(/i.test(source)) {
+  if (/<(linearGradient|radialGradient)\b/i.test(source) || /(?:fill|stroke)\s*[:=]\s*["']?url\(/i.test(source)) {
     return { reason: "gradient" };
   }
   for (const [tag, reason] of [
@@ -36,12 +35,7 @@ export function analyzeSvg(source) {
   ]) {
     if (new RegExp(`<${tag}\\b`, "i").test(source)) return { reason };
   }
-  const opacity = /(?:^|[\s;"'])(?:fill-|stroke-)?opacity\s*[:=]\s*["']?\s*([0-9.]+%?)/gi;
-  for (const match of source.matchAll(opacity)) {
-    const raw = match[1];
-    const value = raw.endsWith("%") ? parseFloat(raw) / 100 : parseFloat(raw);
-    if (!(value >= 1)) return { reason: "opacity below 1" };
-  }
+  // Partial opacity is fine: a CSS mask uses the SVG's alpha channel, so it is preserved.
   if (/\b(?:fill|stroke)\s*[:=]\s*["']?\s*(?:rgba?|hsla?)\(/i.test(source)) {
     return { reason: "non-hex color" };
   }
@@ -56,19 +50,34 @@ export function analyzeSvg(source) {
   const [color] = distinct.values();
   if (color.length !== 7) return { reason: "non-#rrggbb color" };
 
-  const fillValues = [...source.matchAll(/\bfill\s*[:=]\s*["']?\s*([^\s"';>]+)/gi)].map((m) => m[1]);
-  if (fillValues.some((v) => /^(?:white|black|currentcolor|[a-z]+)$/i.test(v) && !/^none$/i.test(v) && !/^inherit$/i.test(v))) {
-    return { reason: "named fill color" };
+  const strokeValues = [...source.matchAll(/\bstroke\s*[:=]\s*["']?\s*([^\s"';>]+)/gi)].map((m) => m[1]);
+  if (strokeValues.some((v) => !/^(?:none|inherit|#[0-9a-f]{3,8})$/i.test(v))) {
+    return { reason: "named stroke color" };
   }
-  if (!fillValues.some((v) => v.startsWith("#"))) return { reason: "stroke-only" };
 
-  // A shape with no fill of its own paints default black unless an ancestor sets fill.
-  const rootFill = /<(?:svg|g)\b[^>]*\bfill\s*[:=]/i.test(source);
-  if (!rootFill) {
-    for (const match of source.matchAll(SHAPES)) {
-      if (!/\bfill\s*[:=]/i.test(match[2])) return { reason: "shape without explicit fill" };
+  // Resolve each shape's effective fill through its ancestors (<svg>/<g>). A shape
+  // with no fill anywhere up the chain paints default black, so it cannot be tinted.
+  const effective = [];
+  const stack = [undefined];
+  const ownFill = (attrs) => attrs.match(/\bfill\s*[:=]\s*["']?\s*([^\s"';>/]+)/i)?.[1];
+  for (const tag of source.matchAll(/<(\/?)([a-zA-Z][\w:-]*)\b([^>]*)>/g)) {
+    const [, closing, rawName, attrs] = tag;
+    const name = rawName.toLowerCase();
+    if (name === "svg" || name === "g") {
+      if (closing) {
+        if (stack.length > 1) stack.pop();
+      } else if (!/\/\s*$/.test(attrs)) {
+        const own = ownFill(attrs);
+        stack.push(own && !/^inherit$/i.test(own) ? own : stack[stack.length - 1]);
+      }
+    } else if (!closing && /^(?:path|rect|circle|ellipse|polygon|polyline|line)$/.test(name)) {
+      const own = ownFill(attrs);
+      effective.push(own && !/^inherit$/i.test(own) ? own : stack[stack.length - 1]);
     }
   }
+  if (effective.some((v) => v === undefined)) return { reason: "shape without explicit fill" };
+  if (effective.some((v) => !/^(?:none|#[0-9a-f]{3,8})$/i.test(v))) return { reason: "named fill color" };
+  // All fills are none or the one hex: a stroke-only svg is eligible with its stroke hex.
   return { color };
 }
 

@@ -18,6 +18,12 @@ const SVGS = {
     '<filter id="f"><feBlend/></filter><path d="M0 0h10v10z" fill="#1A3DB3" filter="url(#f)"/>',
   ),
   "static/stroke.svg": svg('<path d="M0 0h10v10" fill="none" stroke="#1A3DB3"/>'),
+  "static/strokeblack.svg": svg('<path d="M0 0h10v10" stroke="#1A3DB3"/>'),
+  "static/namedstroke.svg": svg('<path d="M0 0h10v10" fill="none" stroke="black"/><path d="M0 0h5" fill="none" stroke="#1A3DB3"/>'),
+  "static/groupfillhole.svg": svg('<g fill="#1A3DB3"><path d="M0 0h5v5z"/></g><path d="M5 5h5v5z" stroke="#1A3DB3"/>'),
+  "static/groupfill.svg": svg('<g fill="#1A3DB3"><path d="M0 0h5v5z"/><path d="M5 5h5v5z"/></g>'),
+  "static/rootfill.svg": svg('<path d="M0 0h5v5z"/>', ' fill="#1A3DB3"'),
+  "static/strokeopacity.svg": svg('<circle cx="5" cy="5" r="4" fill="none" stroke="#1A3DB3" stroke-opacity=".3" stroke-width="2"/>'),
   "static/icon.svg": svg('<path d="M0 0h10v10z" fill="#00AA00"/>'),
 };
 
@@ -52,17 +58,48 @@ test("ineligible svgs are skipped with a reason", () => {
   const input = template(
     image("static/two.svg"),
     image("static/grad.svg"),
-    image("static/alpha.svg"),
-    image("static/opacity.svg"),
     image("static/filter.svg"),
-    image("static/stroke.svg"),
+    image("static/namedstroke.svg"),
+    image("static/groupfillhole.svg"),
+    image("static/strokeblack.svg"),
   );
   const result = migrateTemplate(input, readSvg);
   assert.equal(result.migrated, 0);
   assert.deepEqual(result.json, input);
   assert.equal(result.skipped.length >= 5, true);
   assert.equal(result.skipped.reduce((n, s) => n + s.count, 0), 6);
+  const reasons = result.skipped.map((s) => s.reason);
+  assert.ok(reasons.includes("named stroke color"));
+  assert.ok(reasons.includes("shape without explicit fill"));
   for (const s of result.skipped) assert.ok(s.reason);
+});
+
+test("partial opacity no longer blocks migration (mask keeps alpha)", () => {
+  const result = migrateTemplate(
+    template(image("static/alpha.svg"), image("static/opacity.svg"), image("static/strokeopacity.svg")),
+    readSvg,
+  );
+  assert.equal(result.migrated, 3);
+  for (const item of items(result.json)) {
+    assert.equal(item.color, "#1A3DB3");
+    assert.equal(item.tint, true);
+  }
+});
+
+test("stroke-only svg migrates with its stroke color", () => {
+  const result = migrateTemplate(template(image("static/stroke.svg")), readSvg);
+  assert.equal(result.migrated, 1);
+  assert.equal(items(result.json)[0].color, "#1A3DB3");
+  assert.equal(items(result.json)[0].tint, true);
+});
+
+test("group and root fills cover only the shapes inside them", () => {
+  const result = migrateTemplate(
+    template(image("static/groupfill.svg"), image("static/rootfill.svg"), image("static/groupfillhole.svg")),
+    readSvg,
+  );
+  assert.equal(result.migrated, 2);
+  assert.equal(items(result.json)[2].tint, undefined);
 });
 
 test("colorless is_icon svg gets color only", () => {
