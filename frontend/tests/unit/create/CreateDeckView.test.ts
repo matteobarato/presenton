@@ -167,6 +167,23 @@ describe('CreateDeckView', () => {
     expect(m.toast.info).not.toHaveBeenCalled()
   })
 
+  it('mounts the avatar step with the wizard-owned pipeline', async () => {
+    const { wrapper } = await mountView('/p/p1/create/avatar')
+    const body = wrapper.get(panel('avatar'))
+    expect(body.find('[data-testid="avatar-setup"]').exists()).toBe(true)
+    expect(body.find('[data-testid="pipeline-voice"]').attributes('data-state')).toBe('pending')
+    const primary = wrapper.findAll('[data-testid="wizard-footer"] button').find((b) => /^Generate voice$/.test(b.text()))
+    expect(primary).toBeDefined()
+    expect(wrapper.get('[data-testid="wizard-footer"] [role="status"]').text()).toBe('Will narrate 3 slides')
+  })
+
+  it('a pipeline interrupted by a reload resumes in the wizard', async () => {
+    sessionStorage.setItem('slideshows.pipeline.p1', JSON.stringify({ phase: 'voice', startedAt: 1, confirmed: false }))
+    const { wrapper } = await mountView('/p/p1/create/avatar')
+    expect(wrapper.get('[data-testid="wizard-footer"] [role="alert"]').text()).toContain('Interrupted, retry to continue')
+    expect(wrapper.find('[data-testid="footer-retry"]').exists()).toBe(true)
+  })
+
   it('unknown step resumes', async () => {
     const { router } = await mountView('/p/p1/create/bogus')
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar')

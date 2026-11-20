@@ -9,6 +9,11 @@ import { toast } from '@/components/ui/sonner'
 import { useDeckWizard } from '@/composables/useDeckWizard'
 import OutlineStep from '@/components/create/steps/OutlineStep.vue'
 import PreviewStep from '@/components/create/steps/PreviewStep.vue'
+import AvatarStep from '@/components/create/steps/AvatarStep.vue'
+import ExportStep from '@/components/create/steps/ExportStep.vue'
+import { useNarrationAvatarPipeline } from '@/composables/useNarrationAvatarPipeline'
+import { injectDeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
+import { injectDeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
 import WizardFooter from './WizardFooter.vue'
 import WizardLayout from './WizardLayout.vue'
 import type { DeckStepKey, WizardStepKey } from './progress'
@@ -27,16 +32,19 @@ const isDeckStep = (k: string): k is DeckStepKey => (DECK_STEPS as readonly stri
 const route = useRoute()
 const router = useRouter()
 
-// Set by the step bodies (later tasks): the outline or slides are streaming, the narration/avatar pipeline runs.
+// Set by the step bodies: the outline or slides are streaming.
 // `?stream=1` (reload or link mid-generation, or the push from the outline): slides are still coming, so
 // Preview is open even before the first slide lands. The Preview step clears it when the stream ends.
 const outlineStreaming = ref(false)
 const streamFlag = computed(() => ['1', 'true'].includes(String(route.query.stream ?? '')))
 const slidesStreaming = ref(streamFlag.value)
-const pipelineRunning = ref(false)
 
 const id = computed(() => props.presentationId)
 const deck = computed(() => props.presentation)
+// The narration/avatar pipeline lives here, not in the Avatar step: it keeps chaining while the user looks at
+// another step or a summary. One per deck: DeckStateProvider (our parent) is keyed on the presentation id.
+const pipeline = useNarrationAvatarPipeline(id, deck, injectDeckNarration(), injectDeckAvatars())
+const pipelineRunning = pipeline.running
 const templateQuery = computed(() => (typeof route.query.template === 'string' ? route.query.template : null))
 const { progress, items, ready } = useDeckWizard(id, deck, {
   outlineStreaming,
@@ -218,8 +226,12 @@ const details = computed(() => {
     <section v-else-if="step === 'preview'" v-show="!summary" data-testid="step-body-preview">
       <PreviewStep :presentation="presentation" :progress="progress" @streaming="slidesStreaming = $event" />
     </section>
-    <section v-else-if="step === 'avatar'" v-show="!summary" data-testid="step-body-avatar" />
-    <section v-else-if="step === 'export'" v-show="!summary" data-testid="step-body-export" />
+    <section v-else-if="step === 'avatar'" v-show="!summary" data-testid="step-body-avatar">
+      <AvatarStep :presentation="presentation" :progress="progress" :pipeline="pipeline" />
+    </section>
+    <section v-else-if="step === 'export'" v-show="!summary" data-testid="step-body-export">
+      <ExportStep :presentation="presentation" />
+    </section>
     <div v-else-if="!summary" aria-busy="true" aria-label="Loading step">
       <Skeleton class="h-[320px] w-full rounded-panel" />
     </div>
