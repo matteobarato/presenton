@@ -137,6 +137,7 @@ async function mountView(path: string) {
 enableAutoUnmount(afterEach)
 
 beforeEach(() => {
+  localStorage.clear()
   setActivePinia(createPinia())
   localStorage.clear()
   sessionStorage.clear()

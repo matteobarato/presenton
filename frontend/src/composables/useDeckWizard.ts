@@ -8,6 +8,7 @@ import { injectDeckNarration } from '@/components/editor/inspector/narration/use
 import { injectDeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
 import { isFreshVideo } from '@/components/editor/inspector/video/avatar-state'
 import { blockTemplateId } from '@/slide-editor/insert/templateBlocks'
+import { readDeckLook } from '@/composables/useDeckLook'
 import {
   deckProgress,
   WIZARD_STEPS,
@@ -20,7 +21,10 @@ export interface DeckWizardOptions {
   slidesStreaming: Ref<boolean>
   outlineStreaming: Ref<boolean>
   pipelineRunning: Ref<boolean>
-  /** Template id to name the Look step by when the slides don't say (e.g. `?template=` before slides exist). */
+  /**
+   * Template id to name the Look step by when the slides don't say (e.g. `?template=` before slides exist);
+   * else the deck's remembered look.
+   */
   templateId?: Ref<string | null | undefined>
 }
 
@@ -71,7 +75,8 @@ export function useDeckWizard(
 
   const templates = useQuery({ queryKey: templatesKey, queryFn: listTemplates })
   const templateName = computed(() => {
-    const tid = blockTemplateId(presentation.value.slides) ?? opts.templateId?.value ?? null
+    const tid =
+      blockTemplateId(presentation.value.slides) ?? opts.templateId?.value ?? readDeckLook(id.value)?.template ?? null
     return (tid && templates.data.value?.find((t) => t.id === tid)?.name) || 'Template'
   })
 

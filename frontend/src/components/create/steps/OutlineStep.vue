@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import { useMediaQuery } from '@vueuse/core'
@@ -19,19 +19,24 @@ import { Button } from '@/components/ui/button'
 import AiProgress from '@/components/shell/AiProgress.vue'
 import OutlineList from '@/components/create/OutlineList.vue'
 import TemplateCardThumb from '@/components/create/TemplateCardThumb.vue'
+import NewTemplateSelector from '@/components/create/NewTemplateSelector.vue'
 import WizardStepFooter from '@/components/create/wizard/WizardStepFooter.vue'
+import { useDeckLook } from '@/composables/useDeckLook'
 import RegenerateDialog from './RegenerateDialog.vue'
 
 /**
  * Step 4: read (and lightly edit) the outline, then generate the slides from it with the template chosen on
- * the Look step (`?template=`) and the optional `?theme=`. Once the deck has slides the outline is read-only
- * until regenerating is confirmed.
+ * the Look step and the optional theme (see `useDeckLook`: `?template=`/`?theme=`, else the deck's remembered
+ * record, else its slides' template). A deck whose template is unknown gets a picker here. Once the deck has
+ * slides the outline is read-only until regenerating is confirmed.
  */
-const props = defineProps<{ presentation: Presentation }>()
+const props = defineProps<{ presentation: Presentation; pipelineRunning?: boolean }>()
 const emit = defineEmits<{ streaming: [value: boolean] }>()
 
 const SAVE_DEBOUNCE_MS = 500
 const NO_TEMPLATE = 'No template chosen — start a new deck'
+const PICK_TEMPLATE = 'Pick a template to generate'
+const PIPELINE_BUSY = 'Wait for voice and avatars to finish'
 
 const route = useRoute()
 const router = useRouter()
@@ -50,14 +55,23 @@ const skeletons = computed(() => (streaming.value ? Math.min(4, Math.max(1, (pro
 
 // ── Template and theme: chosen on the Look step, shown read-only here ──
 const templates = useQuery({ queryKey: templatesKey, queryFn: listTemplates })
-const templateId = computed(() => (typeof route.query.template === 'string' && route.query.template ? route.query.template : null))
+const look = useDeckLook(id, toRef(props, 'presentation'), templates.data)
+const templateId = look.templateId
+// Once the list is in, remember the resolved look for this deck: a later visit without the query (library,
+// editor, an older deck still in flight) still knows it.
+watch(
+  () => templates.isFetched.value,
+  (fetched) => fetched && look.sync(),
+  { immediate: true },
+)
 const chosenTemplate = computed(() => (templateId.value ? templates.data.value?.find((t) => t.id === templateId.value) : undefined))
 const templateKnown = computed(() => !!templateId.value && !(templates.isSuccess.value && !chosenTemplate.value))
 // The template's own palette travels with the theme, so the deck recolours by role instead of only setting variables.
 const { theme: templatePalette } = useTemplateLayouts(chosenTemplate)
-const { isPending: themesPending, isError: themesError, chosenTheme } = useThemeParam()
-// A theme in the URL that the list has not resolved yet (or failed to load) must not be dropped silently.
-const themeRequested = computed(() => typeof route.query.theme === 'string' && route.query.theme !== '')
+const { isPending: themesPending, isError: themesError, themeList } = useThemeParam()
+const chosenTheme = computed(() => (look.themeId.value ? themeList.value.find((t) => t.id === look.themeId.value) : undefined))
+// A chosen theme that the list has not resolved yet (or failed to load) must not be dropped silently.
+const themeRequested = computed(() => !!look.themeId.value)
 const themeName = computed(() => chosenTheme.value?.name ?? 'Template colours')
 const themeDots = computed(() => {
   const p = normalizeTemplateTheme(chosenTheme.value ?? templatePalette.value) ?? DEFAULT_TEMPLATE_THEME
@@ -69,6 +83,11 @@ const compact = useMediaQuery('(max-width: 900px)')
 const hasSlides = computed(() => props.presentation.slides.length > 0)
 const regenerating = ref(false)
 const readOnly = computed(() => hasSlides.value && !regenerating.value)
+// A deck created before templates were remembered (or whose template was deleted): ask for one here.
+const showPicker = computed(
+  () => !readOnly.value && !templateKnown.value && templates.isSuccess.value && (templates.data.value?.length ?? 0) > 0,
+)
+const pickedTemplate = computed<string | null>({ get: () => templateId.value, set: (t) => t && look.pick(t) })
 const confirmOpen = ref(false)
 
 // ── Debounced autosave of user edits ──
@@ -142,13 +161,16 @@ const count = computed(() => items.value.length)
 const overLimit = computed(() => count.value - MAX_OUTLINE_SLIDES)
 const countLabel = computed(() => `${count.value} ${count.value === 1 ? 'slide' : 'slides'} · max ${MAX_OUTLINE_SLIDES}`)
 
-const templateError = computed(() => (!readOnly.value && !templateKnown.value ? NO_TEMPLATE : null))
+const templateError = computed(() => (!readOnly.value && !templateKnown.value && !showPicker.value ? NO_TEMPLATE : null))
 // Regenerating needs the template too: without one, don't offer to unlock an outline that can't be generated.
-const canRegenerate = computed(() => templateKnown.value && !streaming.value)
+// Nor while voice or avatars are being made for the slides it would replace.
+const canRegenerate = computed(() => templateKnown.value && !streaming.value && !props.pipelineRunning)
 /** Why Generate can't run right now; shown in the footer status line. */
 const blockReason = computed<string | null>(() => {
   if (streaming.value) return 'Writing your outline…'
   if (templateError.value) return null // shown as the footer alert
+  if (showPicker.value) return PICK_TEMPLATE
+  if (props.pipelineRunning) return PIPELINE_BUSY
   if (templates.isPending.value) return 'Loading the template…'
   if (themeRequested.value && themesPending.value) return 'Loading your theme…'
   if (count.value === 0) return 'Add at least one slide'
@@ -161,6 +183,7 @@ const footerStatus = computed(() => {
   if (generating.value) return 'Preparing your slides…'
   if (readOnly.value) {
     if (streaming.value) return 'Loading the outline…'
+    if (props.pipelineRunning) return `To regenerate: ${PIPELINE_BUSY.toLowerCase()}`
     return templateKnown.value ? 'These slides were generated from this outline' : `To regenerate: ${NO_TEMPLATE}`
   }
   if (templateError.value) return 'Generate unavailable' // the footer alert says why
@@ -171,6 +194,8 @@ const footerError = computed(() => actionError.value ?? templateError.value)
 async function generate() {
   const layout = templateId.value
   if (!canGenerate.value || !layout) return
+  // Recorded before leaving: later visits find it even if the URL is lost.
+  look.sync()
   generating.value = true
   actionError.value = null
   try {
@@ -193,7 +218,12 @@ async function generate() {
       }
     }
     // Keep the rest of the query (template, theme): going Back to regenerate still needs the template.
-    await router.replace({ name: 'create', params: { id: id.value, step: 'preview' }, query: { ...route.query, stream: '1' } })
+    const theme = look.themeId.value
+    await router.replace({
+      name: 'create',
+      params: { id: id.value, step: 'preview' },
+      query: { ...route.query, template: layout, ...(theme && { theme }), stream: '1' },
+    })
   } catch (e) {
     actionError.value = e instanceof Error ? e.message : 'Error in presentation generation.'
   } finally {
@@ -248,6 +278,11 @@ function continueToPreview() {
         <TriangleAlert class="size-3.5 flex-none" aria-hidden="true" />
         {{ count }} slides — a deck can have at most {{ MAX_OUTLINE_SLIDES }}. Remove {{ overLimit }} to continue (max {{ MAX_OUTLINE_SLIDES }}).
       </p>
+
+      <section v-if="showPicker" class="flex flex-col gap-3" aria-label="Pick a template" data-testid="outline-template-picker">
+        <p class="text-[12px] text-[#d4dee3]">This deck has no template yet. Pick one to generate its slides.</p>
+        <NewTemplateSelector v-model="pickedTemplate" :templates="templates.data.value ?? []" :allow-later="false" :disabled="generating" :theme="chosenTheme" />
+      </section>
 
       <OutlineList v-if="items.length || !streaming" v-model="items" :disabled="streaming || readOnly || generating" />
       <div v-if="skeletons" class="flex flex-col gap-2" aria-hidden="true">

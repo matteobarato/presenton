@@ -83,6 +83,7 @@ async function attach(w: W, name = 'brief.pdf') {
 }
 
 beforeEach(() => {
+  localStorage.clear()
   Object.values(m).forEach((f) => f.mockReset())
   m.listTemplates.mockResolvedValue([{ id: 'c1', name: 'Pitch', kind: 'custom', layouts: [{}] }])
   m.listThemes.mockResolvedValue([{ id: 't1', name: 'Ocean', user: 'u', data: { colors: {} } }])
@@ -386,6 +387,8 @@ describe('NewView', () => {
       expect(router.currentRoute.value.name).toBe('create')
       expect(router.currentRoute.value.params).toMatchObject({ id: 'abc', step: 'outline' })
       expect(router.currentRoute.value.query).toEqual({ template: 'c1', theme: 't1' })
+      // The deck remembers its look: the Outline step finds it even when reached without the query.
+      expect(JSON.parse(localStorage.getItem('slideshows.deckLook.abc')!)).toEqual({ template: 'c1', theme: 't1' })
       const payload = m.createPresentation.mock.calls[0][0]
       expect(payload).not.toHaveProperty('template')
       expect(payload).not.toHaveProperty('layout')
@@ -400,6 +403,23 @@ describe('NewView', () => {
       await submit(wrapper)
       expect(router.currentRoute.value.query.theme).toBeUndefined()
       expect(router.currentRoute.value.name).toBe('create')
+      expect(JSON.parse(localStorage.getItem('slideshows.deckLook.abc')!)).toEqual({ template: 'c1' })
+    })
+
+    it('still submits when the look cannot be remembered', async () => {
+      const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('quota')
+      })
+      try {
+        m.createPresentation.mockResolvedValue({ id: 'abc' })
+        const { wrapper, router } = await mountView()
+        await typeTopic(wrapper)
+        await visit(wrapper, 'details')
+        await submit(wrapper)
+        expect(router.currentRoute.value.name).toBe('create')
+      } finally {
+        setItem.mockRestore()
+      }
     })
   })
 

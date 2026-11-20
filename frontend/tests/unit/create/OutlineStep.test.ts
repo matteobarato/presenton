@@ -47,14 +47,14 @@ type Stream = {
 const stream = () => mocks.stream as Stream
 
 const layout = (n: number) => ({ id: `l${n}` })
-const deck = (slides = 0) =>
+const deck = (slides = 0, group = 'modern') =>
   ({
     id: 'p1',
     n_slides: 3,
-    slides: Array.from({ length: slides }, (_, i) => ({ id: `s${i}`, index: i, layout: 'l1', layout_group: 'modern', content: {} })),
+    slides: Array.from({ length: slides }, (_, i) => ({ id: `s${i}`, index: i, layout: 'l1', layout_group: group, content: {} })),
   }) as unknown as Presentation
 
-async function mountStep(path = '/p/p1/create/outline?template=modern', presentation = deck()) {
+async function mountStep(path = '/p/p1/create/outline?template=modern', presentation = deck(), extra: { pipelineRunning?: boolean } = {}) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -68,7 +68,7 @@ async function mountStep(path = '/p/p1/create/outline?template=modern', presenta
   await router.push(path)
   await router.isReady()
   const wrapper = mount(OutlineStep, {
-    props: { presentation },
+    props: { presentation, ...extra },
     global: { plugins: [router, [VueQueryPlugin, { queryClient }]] },
     attachTo: document.body,
   })
@@ -82,6 +82,7 @@ const generateBtn = (w: VueWrapper) => button(w, /Generate slides/)!
 const status = (w: VueWrapper) => w.get('[data-testid="wizard-footer"] [role="status"]').text()
 
 beforeEach(() => {
+  localStorage.clear()
   vi.useFakeTimers({ shouldAdvanceTime: true })
   mocks.saveOutline.mockReset().mockResolvedValue(undefined)
   mocks.preparePresentation.mockReset().mockResolvedValue({})
@@ -237,14 +238,59 @@ describe('OutlineStep', () => {
     expect(summary.find('button').exists()).toBe(false)
   })
 
-  it('without a template, Generate is disabled with the reason in the footer', async () => {
+  it('with no template known anywhere, the picker asks for one and picking enables Generate', async () => {
+    const { wrapper, router } = await mountStep('/p/p1/create/outline')
+    expect(generateBtn(wrapper).attributes('disabled')).toBeDefined()
+    expect(status(wrapper)).toBe('Pick a template to generate')
+    expect(wrapper.find('[data-testid="new-template-none"]').exists()).toBe(false) // no "Decide later"
+    await generateBtn(wrapper).trigger('click')
+    expect(mocks.preparePresentation).not.toHaveBeenCalled()
+
+    await wrapper.get('[data-testid="new-template-modern"]').trigger('click')
+    await flushPromises()
+    expect(JSON.parse(localStorage.getItem('slideshows.deckLook.p1')!)).toEqual({ template: 'modern' })
+    expect(wrapper.find('[data-testid="outline-template-picker"]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="outline-look"]').text()).toContain('Modern')
+    expect(generateBtn(wrapper).attributes('disabled')).toBeUndefined()
+    await generateBtn(wrapper).trigger('click')
+    await flushPromises()
+    expect(mocks.preparePresentation).toHaveBeenCalledWith(expect.objectContaining({ layout: 'modern' }))
+    expect(router.currentRoute.value.query).toMatchObject({ stream: '1', template: 'modern' })
+  })
+
+  it('a template whose list failed to load and is unknown keeps Generate off, with the reason', async () => {
+    mocks.listTemplates.mockRejectedValue(new Error('down'))
     const { wrapper } = await mountStep('/p/p1/create/outline')
     expect(generateBtn(wrapper).attributes('disabled')).toBeDefined()
     expect(wrapper.get('[role="alert"]').text()).toContain('No template chosen — start a new deck')
     // The alert carries the message; the status line only names the effect.
     expect(status(wrapper)).toBe('Generate unavailable')
+  })
+
+  it('reached without the query, an empty deck generates with its remembered template and theme', async () => {
+    localStorage.setItem('slideshows.deckLook.p1', JSON.stringify({ template: 'custom-1', theme: 't1' }))
+    const { wrapper, router } = await mountStep('/p/p1/create/outline')
+    expect(wrapper.find('[data-testid="outline-template-picker"]').exists()).toBe(false)
+    const look = wrapper.get('[data-testid="outline-look"]').text()
+    expect(look).toContain('Mine')
+    expect(look).toContain('Ocean')
     await generateBtn(wrapper).trigger('click')
-    expect(mocks.preparePresentation).not.toHaveBeenCalled()
+    await flushPromises()
+    expect(mocks.preparePresentation).toHaveBeenCalledWith(expect.objectContaining({ layout: 'custom-1' }))
+    expect(mocks.updatePresentation).toHaveBeenCalledTimes(1)
+    expect(router.currentRoute.value.query).toMatchObject({ stream: '1', template: 'custom-1', theme: 't1' })
+  })
+
+  it('records the query look for the deck, so a later visit without it still knows it', async () => {
+    await mountStep('/p/p1/create/outline?template=modern&theme=t1')
+    expect(JSON.parse(localStorage.getItem('slideshows.deckLook.p1')!)).toEqual({ template: 'modern', theme: 't1' })
+  })
+
+  it('a remembered template that no longer exists falls back to the picker', async () => {
+    localStorage.setItem('slideshows.deckLook.p1', JSON.stringify({ template: 'gone' }))
+    const { wrapper } = await mountStep('/p/p1/create/outline')
+    expect(wrapper.find('[data-testid="outline-template-picker"]').exists()).toBe(true)
+    expect(status(wrapper)).toBe('Pick a template to generate')
   })
 
   it('generate goes to preview with stream flag', async () => {
@@ -386,8 +432,33 @@ describe('OutlineStep', () => {
       expect(router.currentRoute.value.query.stream).toBe('1')
     })
 
+    it('without the query, Regenerate uses the template the slides were built from', async () => {
+      const { wrapper } = await mountStep('/p/p1/create/outline', deck(3))
+      const regen = button(wrapper, /Regenerate slides from outline…/)!
+      expect(regen.attributes('disabled')).toBeUndefined()
+      await regen.trigger('click')
+      await flushPromises()
+      ;(
+        [...document.body.querySelectorAll('[role="dialog"] button')].find(
+          (b) => b.textContent?.trim() === 'Regenerate slides',
+        ) as HTMLButtonElement
+      ).click()
+      await flushPromises()
+      await generateBtn(wrapper).trigger('click')
+      await flushPromises()
+      expect(mocks.preparePresentation).toHaveBeenCalledWith(expect.objectContaining({ layout: 'modern' }))
+    })
+
+    it('Regenerate waits while voice and avatars are being made, with the reason', async () => {
+      const { wrapper } = await mountStep('/p/p1/create/outline?template=modern', deck(3), { pipelineRunning: true })
+      expect(button(wrapper, /Regenerate slides from outline…/)!.attributes('disabled')).toBeDefined()
+      expect(status(wrapper)).toContain('wait for voice and avatars to finish')
+      await wrapper.setProps({ pipelineRunning: false })
+      expect(button(wrapper, /Regenerate slides from outline…/)!.attributes('disabled')).toBeUndefined()
+    })
+
     it('Continue to Preview works without a template', async () => {
-      const { wrapper, router } = await mountStep('/p/p1/create/outline', deck(3))
+      const { wrapper, router } = await mountStep('/p/p1/create/outline', deck(3, 'smart-html'))
       expect(wrapper.find('[role="alert"]').exists()).toBe(false)
       // Regenerating would need the template: it is not offered, and the status line says why.
       expect(button(wrapper, /Regenerate slides from outline…/)!.attributes('disabled')).toBeDefined()

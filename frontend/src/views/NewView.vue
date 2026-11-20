@@ -7,6 +7,7 @@ import { listTemplates, templatesKey } from '@/api/templates'
 import { ApiError } from '@/api/errors'
 import { decomposeFiles, uploadFiles } from '@/api/files'
 import { createPresentation } from '@/api/generation'
+import { rememberDeckLook } from '@/composables/useDeckLook'
 import { useSessionStore } from '@/stores/session'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -227,6 +228,8 @@ async function submit() {
       // The backend calls template-based generation "standard".
       generation_mode: 'standard',
     })
+    // Each deck remembers its look: the Outline step finds it even when reached without the query.
+    if (chosen.value) rememberDeckLook(created.id, { template: chosen.value.id, ...(chosenTheme.value && { theme: chosenTheme.value.id }) })
     if (o.animate) {
       try {
         sessionStorage.setItem(animateFlagKey(created.id), '1')

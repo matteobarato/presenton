@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { AlertTriangle, ArrowRight, Check, Mic, RotateCcw, Sparkles, X } from 'lucide-vue-next'
 import type { Presentation, Slide } from '@/api/types'
 import { Button } from '@/components/ui/button'
@@ -28,6 +28,7 @@ const props = defineProps<{ presentation: Presentation; progress: DeckProgress; 
 // The pipeline is a plain object of refs (props don't unwrap them); it lives as long as the wizard.
 const { phase, failedPhase, error, running, plan, blocker, languageOk, start, retry } = props.pipeline
 
+const route = useRoute()
 const router = useRouter()
 const narration = injectDeckNarration()
 const avatars = injectDeckAvatars()
@@ -143,8 +144,11 @@ function generate() {
 function retryFailed() {
   if (canGenerate.value) retry()
 }
+/** Keeps the rest of the query (template, theme); the stream flag belongs to Preview only. */
 function go(step: DeckStepKey) {
-  void router.push({ name: 'create', params: { id: id.value, step } })
+  const query = { ...route.query }
+  delete query.stream
+  void router.push({ name: 'create', params: { id: id.value, step }, query })
 }
 
 // ── Slides ──

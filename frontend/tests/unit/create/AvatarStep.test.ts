@@ -78,7 +78,7 @@ function fakes(opts: { counts?: Partial<Record<'missing' | 'ready' | 'stale' | '
   return { counts, narration, avatars, phase, running, plan, blocker, error, failedPhase, pipeline }
 }
 
-async function mountStep(f = fakes(), prog = progress()) {
+async function mountStep(f = fakes(), prog = progress(), path = '/p/p1/create/avatar') {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -86,7 +86,7 @@ async function mountStep(f = fakes(), prog = progress()) {
       { path: '/p/:id', name: 'editor', component: { template: '<div />' } },
     ],
   })
-  await router.push('/p/p1/create/avatar')
+  await router.push(path)
   await router.isReady()
   const Host = defineComponent({
     setup() {
@@ -238,6 +238,16 @@ describe('AvatarStep', () => {
     const { wrapper } = await mountStep(f, progress({}, 'done'))
     expect(button(wrapper, /Continue to Export/)!.attributes('disabled')).toBeUndefined()
     expect(status(wrapper)).toBe('3 slides narrated · 0 with a presenter avatar')
+  })
+
+  it('leaving keeps the deck look in the query and drops the stream flag', async () => {
+    const f = fakes({ counts: { missing: 0, ready: 3 } })
+    f.plan.value = { notes: false, voice: false, avatars: 0 }
+    const { wrapper, router } = await mountStep(f, progress({}, 'done'), '/p/p1/create/avatar?template=modern&theme=t1&stream=1')
+    await button(wrapper, /Continue to Export/)!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.params.step).toBe('export')
+    expect(router.currentRoute.value.query).toEqual({ template: 'modern', theme: 't1' })
   })
 
   it('optional shows skip', async () => {

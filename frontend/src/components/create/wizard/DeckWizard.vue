@@ -221,7 +221,7 @@ const details = computed(() => {
     <!-- Step bodies: filled by the Outline, Preview, Avatar and Export steps. They stay mounted (hidden) behind a
          summary, so a running stream or pipeline is not aborted by a look at steps 1–3. -->
     <section v-if="step === 'outline'" v-show="!summary" data-testid="step-body-outline">
-      <OutlineStep :presentation="presentation" @streaming="outlineStreaming = $event" />
+      <OutlineStep :presentation="presentation" :pipeline-running="pipelineRunning" @streaming="outlineStreaming = $event" />
     </section>
     <section v-else-if="step === 'preview'" v-show="!summary" data-testid="step-body-preview">
       <PreviewStep :presentation="presentation" :progress="progress" @streaming="slidesStreaming = $event" />
