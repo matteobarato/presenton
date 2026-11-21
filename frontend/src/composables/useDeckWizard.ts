@@ -92,6 +92,8 @@ export function useDeckWizard(
     const counts = narration.counts.value
     const summaries: Record<string, string> = {
       topic: [clip(p.content ?? '', 40), templateName.value].filter(Boolean).join(' · '),
+      presenter: avatars.videos.value?.portrait ? 'Photo set' : 'No avatar',
+      language: p.language ?? '',
       details: [`${p.n_slides} slides`, p.tone, p.verbosity].filter(Boolean).join(' · '),
       outline: n ? `${n} slides` : '',
       preview: '',
@@ -100,7 +102,7 @@ export function useDeckWizard(
     }
     return WIZARD_STEPS.map(({ key, label }) => {
       const status =
-        key === 'topic' || key === 'details'
+        key === 'topic' || key === 'presenter' || key === 'language' || key === 'details'
           ? { state: 'done' as const, reason: null, badge: null }
           : progress.value.steps[key as DeckStepKey]
       return { key, label, summary: summaries[key] ?? '', ...status }

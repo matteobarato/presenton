@@ -80,3 +80,18 @@ export function clampMediaCount(value: string): string {
 export function mediaCountForRequest(count: string): number | null {
   return count === '' ? null : Number(count)
 }
+
+export const PHOTO_MAX_BYTES = 10 * 1024 * 1024
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
+/** The reason a presenter photo is unusable, or null when it is fine. */
+export function validatePortrait(file: File): string | null {
+  if (!PHOTO_TYPES.includes(file.type)) return 'Use a JPEG, PNG or WebP photo.'
+  if (file.size > PHOTO_MAX_BYTES) return 'The photo is over 10 MB.'
+  return null
+}
+
+/** Without a presenter photo there are no presenter slides: the count is forced to none. */
+export function effectiveVideos(videos: string, hasPhoto: boolean): string {
+  return hasPhoto ? videos : '0'
+}
