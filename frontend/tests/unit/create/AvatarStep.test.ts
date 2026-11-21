@@ -78,6 +78,7 @@ function fakes(opts: { counts?: Partial<Record<'missing' | 'ready' | 'stale' | '
   return { counts, narration, avatars, phase, running, plan, blocker, error, failedPhase, pipeline }
 }
 
+const editSetup = vi.fn()
 async function mountStep(f = fakes(), prog = progress(), path = '/p/p1/create/avatar') {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -92,7 +93,7 @@ async function mountStep(f = fakes(), prog = progress(), path = '/p/p1/create/av
     setup() {
       provideDeckNarration(f.narration as unknown as DeckNarration)
       provideDeckAvatars(f.avatars as unknown as DeckAvatars)
-      return () => h(AvatarStep, { presentation: deck(), progress: prog, pipeline: f.pipeline as never })
+      return () => h(AvatarStep, { presentation: deck(), progress: prog, pipeline: f.pipeline as never, onEditSetup: editSetup })
     },
   })
   const wrapper = mount(Host, { global: { plugins: [router] }, attachTo: document.body })
@@ -118,7 +119,7 @@ describe('AvatarStep is generation only', () => {
     expect(wrapper.find('[data-testid="avatar-progress"]').exists()).toBe(true)
     expect(button(wrapper, /^Generate/)!.attributes('disabled')).toBeDefined()
     await button(wrapper, /Set up avatar & language/)!.trigger('click')
-    expect(wrapper.emitted('edit-setup')).toHaveLength(1)
+    expect(editSetup).toHaveBeenCalledTimes(1)
   })
 })
 
