@@ -18,7 +18,9 @@ const m = vi.hoisted(() => ({
   decomposeFiles: vi.fn(),
   createPresentation: vi.fn(),
   listTemplates: vi.fn(),
+  uploadPortrait: vi.fn(),
 }))
+vi.mock('@/api/videos', () => ({ uploadPortrait: m.uploadPortrait }))
 vi.mock('@/api/templates', async (orig) => ({ ...(await orig<typeof import('@/api/templates')>()), listTemplates: m.listTemplates }))
 vi.mock('@/api/files', async (orig) => ({ ...(await orig<typeof import('@/api/files')>()), uploadFiles: m.uploadFiles, decomposeFiles: m.decomposeFiles }))
 vi.mock('@/api/generation', () => ({ createPresentation: m.createPresentation, getGenerationDefaults: vi.fn() }))
@@ -60,7 +62,7 @@ async function mountView(generationMode: GenerationMode = 'both', config: Record
 type W = Awaited<ReturnType<typeof mountView>>['wrapper']
 const submitBtn = (w: W) => w.get('button[type="submit"]')
 const status = (w: W) => w.get('[role="status"]').text()
-async function visit(w: W, key: 'topic' | 'look' | 'details') {
+async function visit(w: W, key: 'topic' | 'presenter' | 'language' | 'look' | 'details') {
   await w.get(`[data-testid="step-${key}"]`).trigger('click')
   await flushPromises()
 }
@@ -70,6 +72,16 @@ async function typeTopic(w: W, text = 'Quarterly review') {
 async function submit(w: W) {
   await w.get('form').trigger('submit')
   await flushPromises()
+}
+
+async function addPhoto(w: W, name = 'me.png') {
+  await visit(w, 'presenter')
+  const input = w.get('[data-testid="portrait-input"]')
+  const file = new File(['x'], name, { type: 'image/png' })
+  Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+  await input.trigger('change')
+  await flushPromises()
+  return file
 }
 
 async function attach(w: W, name = 'brief.pdf') {
@@ -157,6 +169,7 @@ describe('NewView', () => {
     m.createPresentation.mockResolvedValue({ id: 'abc' })
     const { wrapper } = await mountView()
     await typeTopic(wrapper)
+    await addPhoto(wrapper)
     await visit(wrapper, 'details')
     if (label) {
       const chip = wrapper.findAll('[aria-label="Presenter video count"] [role="radio"]').find((b) => b.text() === label)!
@@ -170,8 +183,50 @@ describe('NewView', () => {
 
   it('says presenter slots wait for avatar generation', async () => {
     const { wrapper } = await mountView()
+    await addPhoto(wrapper)
     await visit(wrapper, 'details')
     expect(wrapper.text()).toContain('Slots show a placeholder until you generate avatars in the Avatars panel')
+  })
+
+  it('without an avatar photo the videos count is None and disabled, and n_videos is 0', async () => {
+    m.createPresentation.mockResolvedValue({ id: 'abc' })
+    const { wrapper } = await mountView()
+    await typeTopic(wrapper)
+    await visit(wrapper, 'details')
+    expect(wrapper.text()).toContain('Add an avatar photo to use presenter slides')
+    expect((wrapper.get('#opt-videos').element as HTMLInputElement).disabled).toBe(true)
+    await submit(wrapper)
+    expect(m.createPresentation).toHaveBeenCalledWith(expect.objectContaining({ n_videos: 0 }))
+  })
+
+  it('uploads the presenter photo to the new deck before routing on, and survives an upload failure', async () => {
+    m.createPresentation.mockResolvedValue({ id: 'abc' })
+    m.uploadPortrait.mockResolvedValueOnce({})
+    const first = await mountView()
+    await typeTopic(first.wrapper)
+    const file = await addPhoto(first.wrapper)
+    await visit(first.wrapper, 'details')
+    await submit(first.wrapper)
+    expect(m.uploadPortrait).toHaveBeenCalledWith('abc', file)
+    expect(first.router.currentRoute.value.name).toBe('create')
+
+    m.uploadPortrait.mockRejectedValueOnce(new Error('boom'))
+    const second = await mountView()
+    await typeTopic(second.wrapper)
+    await addPhoto(second.wrapper)
+    await visit(second.wrapper, 'details')
+    await submit(second.wrapper)
+    expect(second.router.currentRoute.value.name).toBe('create')
+  })
+
+  it('rejects a wrong-type photo with a message and keeps no photo', async () => {
+    const { wrapper } = await mountView()
+    await visit(wrapper, 'presenter')
+    const input = wrapper.get('[data-testid="portrait-input"]')
+    Object.defineProperty(input.element, 'files', { value: [new File(['x'], 'a.gif', { type: 'image/gif' })], configurable: true })
+    await input.trigger('change')
+    expect(wrapper.get('[role="alert"]').text()).toMatch(/JPEG, PNG or WebP/)
+    expect(wrapper.find('img[alt="Presenter portrait"]').exists()).toBe(false)
   })
 
   it('renders no mode switch, creates a standard presentation and routes to the outline, without file calls', async () => {
@@ -219,8 +274,9 @@ describe('NewView', () => {
     m.createPresentation.mockResolvedValue({ id: 'f1' })
     const { wrapper } = await mountView()
     const file = await attach(wrapper)
-    await visit(wrapper, 'details')
+    await visit(wrapper, 'language')
     await wrapper.get('#opt-language').setValue('English')
+    await visit(wrapper, 'details')
     await submit(wrapper)
     expect(m.uploadFiles).toHaveBeenCalledWith([file])
     expect(m.decomposeFiles).toHaveBeenCalledWith(['up/1'], 'English')
@@ -233,6 +289,7 @@ describe('NewView', () => {
     await visit(wrapper, 'details')
     await submit(wrapper)
     expect(wrapper.get('[role="alert"]').text()).toContain('language')
+    expect(wrapper.find('#opt-language').exists()).toBe(true)
     expect(m.uploadFiles).not.toHaveBeenCalled()
   })
 
@@ -252,8 +309,9 @@ describe('NewView', () => {
     m.uploadFiles.mockRejectedValue(new ApiError('Unsupported file', 422))
     const second = await mountView()
     await attach(second.wrapper)
-    await visit(second.wrapper, 'details')
+    await visit(second.wrapper, 'language')
     await second.wrapper.get('#opt-language').setValue('English')
+    await visit(second.wrapper, 'details')
     await submit(second.wrapper)
     expect(second.wrapper.get('[role="alert"]').text()).toBe('Unsupported file')
     expect(submitBtn(second.wrapper).attributes('disabled')).toBeUndefined()
@@ -284,6 +342,7 @@ describe('NewView', () => {
       ['', 'Decided after Preview'],
     ])('avatar badge follows videos option %j', async (videos, badge) => {
       const { wrapper } = await mountView()
+      await addPhoto(wrapper)
       await visit(wrapper, 'details')
       if (videos) await wrapper.get('#opt-videos').setValue(videos)
       expect(wrapper.get('[data-testid="step-avatar"]').text()).toContain(badge)
