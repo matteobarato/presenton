@@ -70,7 +70,9 @@ test.describe('mocked backend', () => {
     await expect(page.getByTestId('deck')).toHaveCount(2)
     await expect(page.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings/text')
 
-    await page.getByRole('link', { name: 'Open Quarterly Review' }).click()
+    // The card opens the wizard's Preview step; the editor is the deck's Edit action.
+    await expect(page.getByRole('link', { name: 'Open Quarterly Review' })).toHaveAttribute('href', `/p/${DECK_ID}/create/preview`)
+    await page.getByRole('link', { name: 'Edit Quarterly Review' }).click()
     await expect(page).toHaveURL(`/p/${DECK_ID}`)
 
     const thumbnails = page.getByRole('complementary', { name: 'Slides' }).locator('button[data-slide-key]')

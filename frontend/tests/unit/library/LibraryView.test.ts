@@ -60,6 +60,7 @@ async function mountView() {
       { path: '/', component: LibraryView },
       { path: '/new', component: { template: '<div />' } },
       { path: '/p/:id', component: { template: '<div />' } },
+      { path: '/p/:id/create/:step?', component: { template: '<div />' } },
     ],
   })
   await router.push('/')
@@ -95,6 +96,19 @@ describe('LibraryView', () => {
     expect(covers[2].props('theme')).toEqual({ name: 'theme-a' })
     expect(w.findAll('[data-testid="deck"]')[0].text()).toContain('1 slide ·')
     expect(w.findAll('[data-testid="deck"]')[2].text()).toContain('2 slides ·')
+  })
+
+  it('the card opens the wizard Preview step; Edit opens the editor', async () => {
+    const w = await mountView()
+    expect(w.get('a[aria-label="Open Roadmap"]').attributes('href')).toBe('/p/b/create/preview')
+    expect(w.get('a[aria-label="Edit Roadmap"]').attributes('href')).toBe('/p/b')
+  })
+
+  it('a deck with no slides yet opens the wizard on its resume step', async () => {
+    api.listPresentations.mockResolvedValue([deck('d', 'Draft', '2026-11-06T10:00:00Z', [])])
+    const w = await mountView()
+    expect(w.get('a[aria-label="Open Draft"]').attributes('href')).toBe('/p/d/create')
+    expect(w.get('a[aria-label="Edit Draft"]').attributes('href')).toBe('/p/d')
   })
 
   it('filters by title case-insensitively', async () => {
