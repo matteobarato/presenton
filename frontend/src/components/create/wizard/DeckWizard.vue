@@ -175,7 +175,7 @@ const COPY: Record<WizardStepKey, { heading: string; lede: string }> = {
   details: { heading: 'Details', lede: 'How the deck was generated. Tune individual slides in the editor.' },
   outline: { heading: 'Shape the story', lede: 'Each card becomes one slide. Read it through, then generate the slides.' },
   preview: { heading: 'Preview your slides', lede: 'Your deck, slide by slide. Fine-tuning lives in the editor.' },
-  avatar: { heading: 'Narration', lede: 'Narrate every slide and add the presenter where the deck calls for one.' },
+  avatar: { heading: 'Narration', lede: 'Narrate every slide in the language you chose, with your presenter where the deck calls for one.' },
   export: { heading: 'Export', lede: 'Download the deck, or the narrated video.' },
 }
 const copy = computed(() => COPY[current.value])

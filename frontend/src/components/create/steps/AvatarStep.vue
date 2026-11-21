@@ -121,6 +121,11 @@ const overall = computed(() => {
   return Math.round(list.reduce((sum, j) => sum + (percent(j.key) ?? 0), 0) / list.length)
 })
 
+// Language and presenter are chosen before the deck exists: once both are in place the step shows them as a
+// summary, and only opens the controls on request or when something is missing (a failed photo upload).
+const settingsOpen = ref(false)
+const setupDone = computed(() => languageOk.value && (!avatarWork.value || portraitOk.value))
+
 // ── View: setup until a run starts, then the live checklist ──
 const editing = ref(false)
 const showProgress = computed(
@@ -170,7 +175,18 @@ function go(step: DeckStepKey) {
 <template>
   <div class="mx-auto flex w-full max-w-[720px] flex-col gap-5">
     <!-- Setup: language + presenter -->
-    <div v-if="!showProgress" class="flex flex-col gap-3" data-testid="avatar-setup">
+    <div v-if="!showProgress && setupDone && !settingsOpen" class="flex flex-col gap-3" data-testid="narration-summary">
+      <section class="flex items-center gap-3 rounded-card border border-white/[0.06] bg-white/[0.015] px-4 py-3">
+        <span class="grid size-8 flex-none place-items-center rounded-full bg-accent/10 text-accent"><Languages class="size-4" aria-hidden="true" /></span>
+        <div class="flex min-w-0 flex-1 flex-col">
+          <h3 class="text-[13px] font-semibold text-[#f6f8f9]">{{ languageName }}</h3>
+          <span class="text-[11px] text-muted">{{ avatarWork ? 'Presenter photo set' : 'Voice only, no presenter slides' }}</span>
+        </div>
+        <img v-if="avatarWork && videos?.portrait" :src="videos.portrait.url" alt="" class="size-8 rounded-full object-cover" />
+        <Button type="button" size="sm" variant="ghost" @click="settingsOpen = true"><Settings2 class="size-3.5" aria-hidden="true" />Settings</Button>
+      </section>
+    </div>
+    <div v-else-if="!showProgress" class="flex flex-col gap-3" data-testid="avatar-setup">
       <!-- Language: one full-width row -->
       <section
         class="flex items-center gap-3 rounded-card border border-white/[0.06] bg-white/[0.015] px-4 py-3 max-[560px]:flex-col max-[560px]:items-stretch"
