@@ -41,6 +41,27 @@ describe('router', () => {
     expect(r.query).toEqual({ template: 'modern' })
   })
 
+  it('old /p/:id/create/details url redirects to the outline step, keeping the query', async () => {
+    await router.push('/templates')
+    await router.push('/p/abc/create/details?template=modern&stream=1')
+    const r = router.currentRoute.value
+    expect(r.name).toBe('create')
+    expect(r.params).toEqual({ id: 'abc', step: 'outline' })
+    expect(r.query).toEqual({ template: 'modern', stream: '1' })
+  })
+
+  it('the presenter step keeps its url (no redirect)', async () => {
+    await router.push('/templates')
+    await router.push('/p/abc/create/presenter?template=modern')
+    expect(router.currentRoute.value.params).toEqual({ id: 'abc', step: 'presenter' })
+  })
+
+  it('keeps every remaining step key (topic, presenter, outline, preview, avatar, export) as it was', () => {
+    for (const step of ['topic', 'presenter', 'outline', 'preview', 'avatar', 'export']) {
+      expect(router.resolve(`/p/x/create/${step}`).params.step).toBe(step)
+    }
+  })
+
   it('has no outline route any more', () => {
     expect(router.hasRoute('outline')).toBe(false)
   })

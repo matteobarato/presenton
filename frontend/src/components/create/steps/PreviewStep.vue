@@ -1,24 +1,25 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ArrowRight, Pencil, Play, UserRound } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import AiProgress from '@/components/shell/AiProgress.vue'
 import GenerationMetrics from '@/components/editor/GenerationMetrics.vue'
 import { hasVideoPlaceholder } from '@/components/editor/inspector/video/avatar-state'
+import type { FooterAction } from '@/components/create/wizard/stepFooter'
 import WizardStepFooter from '@/components/create/wizard/WizardStepFooter.vue'
-import type { DeckProgress, DeckStepKey } from '@/components/create/wizard/progress'
+import type { DeckStepKey } from '@/components/create/wizard/progress'
 import { usePresentationStream } from '@/composables/usePresentationStream'
 import { usePlanMotionAfterGeneration } from '@/composables/usePlanMotionAfterGeneration'
 import SlideView from '@/render/SlideView.vue'
 import SlideLightbox from './SlideLightbox.vue'
 
 /**
- * Step 5: watch the slides arrive (`?stream=1`), then look them over. Thumbnails open a lightbox; tuning a
+ * Step 4: watch the slides arrive (`?stream=1`), then look them over. Thumbnails open a lightbox; tuning a
  * slide is the editor's job. A deck created with "Animate slides" gets its motion planned once generation ends.
  */
-const props = defineProps<{ presentation: Presentation; progress: DeckProgress }>()
+const props = defineProps<{ presentation: Presentation }>()
 const emit = defineEmits<{ streaming: [value: boolean] }>()
 
 const route = useRoute()
@@ -75,16 +76,17 @@ function openSlide(i: number, e: MouseEvent) {
 const restoreFocus = () => opener?.focus()
 
 // ── Footer ──
-const avatarNext = computed(() => props.progress.avatarRequirement !== 'optional')
 const streamError = computed(() =>
-  status.value === 'error' ? 'Slide generation stopped before the deck was finished.' : null,
+  status.value === 'error' ? 'Slide generation stopped before all slides were made. Choose Retry to try again.' : null,
 )
 const footerStatus = computed(() => {
-  if (streaming.value) return generatingLabel.value
-  if (!slides.value.length) return status.value === 'error' ? 'Retry to generate the slides' : 'No slides yet'
+  if (streaming.value) return `${generatingLabel.value} Other actions open when it finishes.`
+  if (!slides.value.length) return status.value === 'error' ? 'Retry to generate the slides' : 'No slides yet. Go back to the outline to generate them.'
   const n = slides.value.length
   return `${n} ${n === 1 ? 'slide' : 'slides'} ready`
 })
+/** Why Skip to Export is safe: narration can be added later (the editor has the same narration and presenter tools). */
+const SKIP_REASON = 'Narration is optional: you can narrate later from the editor.'
 const canContinue = computed(() => !streaming.value && slides.value.length > 0)
 
 /** Leaves Preview: the stream flag belongs to this step only. */
@@ -93,6 +95,13 @@ function go(step: DeckStepKey) {
   delete query.stream
   void router.push({ name: 'create', params: { id: id.value, step }, query })
 }
+// Secondary actions: buttons beside the primary on wide screens, the More menu on phones. Narration is recommended: one
+// primary, and Export stays a quiet text link past it.
+const actions = computed<FooterAction[]>(() => [
+  { key: 'present', label: 'Present', icon: Play, to: { name: 'present', params: { id: id.value } }, disabled: streaming.value },
+  { key: 'edit', label: 'Edit slides', icon: Pencil, variant: 'outline', onSelect: editSlides, disabled: streaming.value },
+  { key: 'skip', label: 'Skip to Export', link: true, testid: 'skip-to-export', onSelect: () => go('export'), disabled: !canContinue.value },
+])
 function editSlides() {
   void router.push({ name: 'editor', params: { id: id.value } })
 }
@@ -129,19 +138,20 @@ function editSlides() {
           />
           <span
             v-if="hasVideoPlaceholder(slide)"
-            class="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-[#0c1114d9] px-2 py-0.5 text-[10px] font-medium text-[#d4dee3] backdrop-blur-sm"
+            class="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-[#0c1114d9] px-2 py-0.5 text-[12px] font-medium text-[#d4dee3] backdrop-blur-sm"
             data-testid="presenter-marker"
           >
             <UserRound class="size-3" aria-hidden="true" />Presenter
           </span>
         </button>
-        <span class="px-0.5 text-[10px] text-[#899296] tabular-nums" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
+        <span class="px-0.5 text-[12px] text-[#899296] tabular-nums" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
       </li>
       <li v-for="n in pending" :key="`pending-${n}`" class="flex flex-col gap-1.5" aria-hidden="true">
         <div class="skeleton-shimmer aspect-video rounded-[9px]" data-testid="preview-skeleton" />
-        <span class="px-0.5 text-[10px] text-[#5f6b71] tabular-nums">{{ String(slides.length + n).padStart(2, '0') }}</span>
+        <span class="px-0.5 text-[12px] text-[#7b878d] tabular-nums">{{ String(slides.length + n).padStart(2, '0') }}</span>
       </li>
     </ol>
+    <p v-if="canContinue" class="text-[12px] leading-[1.6] text-[#a9b8c0]" data-testid="skip-reason">{{ SKIP_REASON }}</p>
   </div>
 
   <SlideLightbox
@@ -154,26 +164,11 @@ function editSlides() {
   />
 
   <!-- Leaving mid-generation aborts the stream and loses the deck: Back, Present and Edit wait (the status says why). -->
-  <WizardStepFooter :status="footerStatus" :error="streamError" :busy="streaming" :back-disabled="streaming" @retry="retry">
-    <template #secondary>
-      <Button v-if="streaming" type="button" variant="ghost" disabled><Play class="size-4" aria-hidden="true" />Present</Button>
-      <Button v-else as-child variant="ghost">
-        <RouterLink :to="{ name: 'present', params: { id } }"><Play class="size-4" aria-hidden="true" />Present</RouterLink>
-      </Button>
-      <Button type="button" variant="outline" :disabled="streaming" @click="editSlides">
-        <Pencil class="size-4" aria-hidden="true" />Edit slides
-      </Button>
-    </template>
+  <WizardStepFooter :status="footerStatus" :error="streamError" :busy="streaming" :back-disabled="streaming" :actions="actions" @retry="retry">
     <template #primary>
-      <Button v-if="avatarNext" type="button" :disabled="!canContinue" @click="go('avatar')">
-        Looks good — continue to Avatar<ArrowRight class="size-4" aria-hidden="true" />
+      <Button type="button" data-testid="continue-narration" :disabled="!canContinue" @click="go('avatar')">
+        Continue to Narration<ArrowRight class="size-4" aria-hidden="true" />
       </Button>
-      <template v-else>
-        <Button type="button" variant="ghost" :disabled="!canContinue" @click="go('export')">Skip to Export</Button>
-        <Button type="button" :disabled="!canContinue" @click="go('avatar')">
-          Continue<ArrowRight class="size-4" aria-hidden="true" />
-        </Button>
-      </template>
     </template>
   </WizardStepFooter>
 </template>

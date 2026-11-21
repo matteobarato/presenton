@@ -19,6 +19,9 @@ export interface CreateOptions {
   animate: boolean
 }
 
+/** The groups of `GenerationOptions`, so a chip can show just the ones it owns. */
+export type OptionSection = 'length' | 'videos' | 'style' | 'extras' | 'instructions'
+
 export const SLIDE_PRESETS: { value: string; label: string }[] = [
   { value: '', label: 'Auto' },
   { value: '5', label: '5' },

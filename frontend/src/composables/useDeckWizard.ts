@@ -8,6 +8,7 @@ import { injectDeckNarration } from '@/components/editor/inspector/narration/use
 import { injectDeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
 import { isFreshVideo } from '@/components/editor/inspector/video/avatar-state'
 import { blockTemplateId } from '@/slide-editor/insert/templateBlocks'
+import { presenterSummary } from '@/components/create/setupSummary'
 import { readDeckLook } from '@/composables/useDeckLook'
 import {
   deckProgress,
@@ -22,7 +23,7 @@ export interface DeckWizardOptions {
   outlineStreaming: Ref<boolean>
   pipelineRunning: Ref<boolean>
   /**
-   * Template id to name the Look step by when the slides don't say (e.g. `?template=` before slides exist);
+   * Template id to name the Topic step's look by when the slides don't say (e.g. `?template=` before slides exist);
    * else the deck's remembered look.
    */
   templateId?: Ref<string | null | undefined>
@@ -35,7 +36,7 @@ const clip = (s: string, max = TOPIC_MAX) => {
 }
 
 /**
- * Wizard progress of an existing deck: the step states and the seven step-bar items. Must run inside
+ * Wizard progress of an existing deck: the step states and the six step-bar items (Topic, Presenter, Outline, Preview, Narration, Export). Must run inside
  * `DeckStateProvider` (narration and avatar state come from it).
  */
 export function useDeckWizard(
@@ -92,18 +93,14 @@ export function useDeckWizard(
     const counts = narration.counts.value
     const summaries: Record<string, string> = {
       topic: [clip(p.content ?? '', 40), templateName.value].filter(Boolean).join(' · '),
-      presenter: [avatars.videos.value?.portrait ? 'Photo set' : 'No avatar', p.language].filter(Boolean).join(' · '),
-      details: [`${p.n_slides} slides`, p.tone, p.verbosity].filter(Boolean).join(' · '),
+      presenter: presenterSummary(Boolean(avatars.videos.value?.portrait)),
       outline: n ? `${n} slides` : '',
       preview: '',
       avatar: n ? `${counts.ready + counts.translated} of ${n} narrated` : '',
       export: '',
     }
     return WIZARD_STEPS.map(({ key, label }) => {
-      const status =
-        key === 'topic' || key === 'presenter' || key === 'details'
-          ? { state: 'done' as const, reason: null, badge: null }
-          : progress.value.steps[key as DeckStepKey]
+      const status = key === 'topic' || key === 'presenter' ? { state: 'done' as const, reason: null } : progress.value.steps[key as DeckStepKey]
       return { key, label, summary: summaries[key] ?? '', ...status }
     })
   })

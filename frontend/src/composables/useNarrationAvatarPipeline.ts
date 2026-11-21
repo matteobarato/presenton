@@ -14,7 +14,17 @@ type WorkPhase = 'notes' | 'voice' | 'avatars'
 const WORK: readonly string[] = ['notes', 'voice', 'avatars']
 export const pipelineKey = (presentationId: string) => `slideshows.pipeline.${presentationId}`
 
-const message = (e: unknown) => (e instanceof Error && e.message ? e.message : 'Something went wrong')
+/** Server messages may name the video provider; the product only ever says "presenter". */
+const plain = (text: string) => text.replace(/heygen('s)?( account)?/gi, 'the presenter video service')
+const FAILED_WHAT: Record<WorkPhase, string> = {
+  notes: 'Couldn’t write the speaker notes',
+  voice: 'Couldn’t record the narration',
+  avatars: 'Couldn’t render the presenter videos',
+}
+const message = (p: WorkPhase, e: unknown) => {
+  const reason = e instanceof Error ? plain(e.message).trim().replace(/[.\s]+$/, '') : ''
+  return `${FAILED_WHAT[p]}${reason ? `: ${reason}` : ''}. Retry to try again.`
+}
 
 interface Stored {
   phase: WorkPhase
@@ -44,7 +54,7 @@ function readStored(key: string): Stored | null {
 
 /**
  * The wizard's one-button narration: notes for slides without any, then the voice (TTS) for slides
- * whose audio is missing or stale, then the presenter avatars (HeyGen) for placeholder slides.
+ * whose audio is missing or stale, then the presenter videos for placeholder slides (rendered by a paid service).
  * Client-orchestrated on top of the deck's own TTS and avatar tasks, which already resume after a
  * reload; a sessionStorage key remembers which phase the pipeline was in, so it can carry on to the
  * next one. A server task started elsewhere (the editor) is only followed, never chained.
@@ -80,7 +90,7 @@ export function useNarrationAvatarPipeline(
   let startedAt = 0
   /** Bumped by start/retry/dispose, so callbacks of an older run are ignored. */
   let run = 0
-  /** A HeyGen run is never started twice within one pipeline run. */
+  /** Presenter video rendering is never started twice within one pipeline run. */
   let avatarsStarted = false
 
   function persist(p: PipelinePhase, confirmed = true) {
@@ -104,7 +114,7 @@ export function useNarrationAvatarPipeline(
   function fail(p: WorkPhase, e: unknown) {
     waiting.value = false
     failedPhase.value = p
-    error.value = typeof e === 'string' ? e : message(e)
+    error.value = typeof e === 'string' ? plain(e) : message(p, e)
     setPhase('error')
   }
 
@@ -148,10 +158,10 @@ export function useNarrationAvatarPipeline(
     return Boolean(lang) && !(list?.length && !list.some((l) => l.code === lang))
   })
   const blocker = computed<string | null>(() => {
-    if (!languageOk.value) return 'Choose a narration language first.'
+    if (!languageOk.value) return 'Choose a narration language first, under Presenter and language.'
     // Until the videos answer, neither the portrait nor whether HeyGen is configured is known.
-    if (avatars.placeholderSlides.value.length && !avatars.videos.value) return 'Checking avatar setup…'
-    if (plan.value.avatars > 0 && !avatars.videos.value?.portrait) return 'Upload a presenter portrait first.'
+    if (avatars.placeholderSlides.value.length && !avatars.videos.value) return 'Checking presenter setup…'
+    if (plan.value.avatars > 0 && !avatars.videos.value?.portrait) return 'Add a presenter photo first, under Presenter and language.'
     return null
   })
 
@@ -199,7 +209,7 @@ export function useNarrationAvatarPipeline(
     }
     if (avatarsStarted || plan.value.avatars === 0) return setPhase('done')
     const indices = avatars.eligibleSlides.value.map((s) => s.index)
-    if (!indices.length) return fail('avatars', 'Every placeholder slide needs up-to-date narration first.')
+    if (!indices.length) return fail('avatars', 'Presenter videos need up-to-date narration first. Narrate the slides again, then retry.')
     setPhase('avatars', false)
     avatarsStarted = true
     avatars.pendingIndices.value = indices
@@ -240,7 +250,7 @@ export function useNarrationAvatarPipeline(
           waiting.value = false
           const failed = failedSlides.value
           if (avatars.taskError.value) fail('avatars', avatars.taskError.value)
-          else if (failed) fail('avatars', `${failed} slide${failed === 1 ? '' : 's'} failed`)
+          else if (failed) fail('avatars', `${failed} presenter video${failed === 1 ? '' : 's'} didn’t render. Retry to render ${failed === 1 ? 'it' : 'them'} again.`)
           else setPhase('done')
         }
       }

@@ -4,7 +4,7 @@ import type { Portrait } from '@/api/videos'
 import PortraitHero from '@/components/editor/inspector/video/PortraitHero.vue'
 import { validatePortrait } from './options'
 
-/** The optional presenter photo, held in memory until the deck exists (see NewView). */
+/** The presenter photo, held in memory until the deck exists (see NewView). */
 defineProps<{ disabled?: boolean }>()
 const model = defineModel<File | null>({ required: true })
 const emit = defineEmits<{ error: [message: string] }>()
@@ -35,8 +35,8 @@ function upload(file: File) {
 <template>
   <section class="flex flex-col gap-3" data-testid="presenter-picker">
     <PortraitHero class="mx-auto w-full max-w-[380px]" :portrait="portrait" :busy="!!disabled" @upload="upload" @remove="model = null" />
-    <p class="text-center text-[11px] text-[#8e9ca4]">
-      Optional. Without a photo the deck has no presenter slides; you can still narrate it with a voice.
+    <p class="text-center text-[12px] text-[#8e9ca4]" data-testid="presenter-picker-help">
+      {{ model ? 'This photo is used on the presenter slides.' : 'Add a photo to continue with a presenter, or choose voice only.' }}
     </p>
   </section>
 </template>

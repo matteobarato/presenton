@@ -165,21 +165,24 @@ describe('CreateDeckView', () => {
     expect(m.toast.info).not.toHaveBeenCalled()
   })
 
-  it('mounts the avatar step with the wizard-owned pipeline', async () => {
+  it('mounts the narration step with the wizard-owned pipeline', async () => {
     const { wrapper } = await mountView('/p/p1/create/avatar')
     const body = wrapper.get(panel('avatar'))
-    expect(body.find('[data-testid="avatar-setup"]').exists()).toBe(true)
+    // Language and presenter are no longer set here: they are chips on the Topic step.
+    expect(body.find('[data-testid="avatar-setup"]').exists()).toBe(false)
     expect(body.find('[data-testid="pipeline-voice"]').attributes('data-state')).toBe('pending')
-    const primary = wrapper.findAll('[data-testid="wizard-footer"] button').find((b) => /^Generate voice$/.test(b.text()))
-    expect(primary).toBeDefined()
-    expect(wrapper.get('[data-testid="wizard-footer"] [role="status"]').text()).toBe('Will narrate 3 slides')
+    const footerButtons = wrapper.findAll('[data-testid="wizard-footer"] button').map((b) => b.text())
+    expect(footerButtons.some((t) => /^Narrate 3 slides$/.test(t))).toBe(true)
+    // Narration is recommended, not required: it can be skipped.
+    expect(footerButtons).toContain('Skip to Export')
   })
 
   it('a pipeline interrupted by a reload resumes in the wizard', async () => {
     sessionStorage.setItem('slideshows.pipeline.p1', JSON.stringify({ phase: 'voice', startedAt: 1, confirmed: false }))
     const { wrapper } = await mountView('/p/p1/create/avatar')
-    expect(wrapper.get('[data-testid="wizard-footer"] [role="alert"]').text()).toContain('Interrupted, retry to continue')
-    const retry = wrapper.findAll('[data-testid="wizard-footer"] button').find((b) => b.text() === 'Retry from Voice')
+    expect(wrapper.get('[data-testid="pipeline-voice"]').attributes('data-state')).toBe('failed')
+    expect(wrapper.get('[data-testid="pipeline-voice"]').text()).toContain('Interrupted, retry to continue')
+    const retry = wrapper.findAll('[data-testid="wizard-footer"] button').find((b) => /^Retry Voice$/.test(b.text()))
     expect(retry!.attributes('disabled')).toBeUndefined()
   })
 
@@ -195,16 +198,30 @@ describe('CreateDeckView', () => {
     expect(wrapper.find(panel('outline')).exists()).toBe(true)
   })
 
-  it('locked step redirects to resume step', async () => {
-    m.getPresentation.mockResolvedValue(deck(true))
+  it('a locked step redirects to the resume step, and says why', async () => {
+    m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
     const { wrapper, router } = await mountView('/p/p1/create/export')
-    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar')
-    expect(m.toast.info).toHaveBeenCalledWith('3 slides still need their avatar')
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/outline')
+    expect(m.toast.info).toHaveBeenCalledWith('Slides must finish generating first')
     expect(wrapper.find(panel('export')).exists()).toBe(false)
-    expect(wrapper.find(panel('avatar')).exists()).toBe(true)
+    expect(wrapper.find(panel('outline')).exists()).toBe(true)
   })
 
-  it('waits for narration and videos before judging a step locked', async () => {
+  it('Export is open even when presenter videos and narration are missing, and warns inline', async () => {
+    m.getPresentation.mockResolvedValue(deck(true))
+    const { wrapper, router } = await mountView('/p/p1/create/export')
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/export')
+    expect(m.toast.info).not.toHaveBeenCalled()
+    expect(wrapper.find(panel('export')).exists()).toBe(true)
+    expect(wrapper.get('[data-testid="step-export"]').attributes('data-state')).toBe('available')
+    const gaps = wrapper.get('[data-testid="export-gaps"]')
+    expect(gaps.text()).toContain('3 presenter slides have no video · 3 slides have no narration')
+    await gaps.get('a').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar')
+  })
+
+  it('waits for narration and videos before judging: a fully narrated deck shows no warning', async () => {
     m.getPresentation.mockResolvedValue(deck(true))
     m.getTtsStatus.mockResolvedValue({ presentation_id: 'p1', language: 'en-US', audios: audios(3) })
     m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait: null, videos: videos(3) })
@@ -212,17 +229,18 @@ describe('CreateDeckView', () => {
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/export')
     expect(m.toast.info).not.toHaveBeenCalled()
     expect(wrapper.find(panel('export')).exists()).toBe(true)
+    expect(wrapper.find('[data-testid="export-gaps"]').exists()).toBe(false)
   })
 
-  it('a stale generated avatar leaves the avatar step not done', async () => {
+  it('a stale generated avatar counts as a missing presenter video on Export', async () => {
     m.getPresentation.mockResolvedValue(deck(true))
     m.getTtsStatus.mockResolvedValue({ presentation_id: 'p1', language: 'en-US', audios: audios(3) })
     const stale = videos(3).map((v, i) => (i === 1 ? { ...v, source: 'heygen', stale: true } : v))
     m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait: null, videos: stale })
     const { wrapper, router } = await mountView('/p/p1/create/export')
-    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar')
-    expect(m.toast.info).toHaveBeenCalledWith('1 slide still needs its avatar')
-    expect(wrapper.find(panel('avatar')).exists()).toBe(true)
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/export')
+    expect(wrapper.get('[data-testid="export-gaps"]').text()).toContain('1 presenter slide has no video')
+    expect(wrapper.get('[data-testid="step-avatar"]').attributes('data-state')).not.toBe('done')
   })
 
   it('a streaming preview stays open before any slide exists', async () => {
@@ -248,8 +266,15 @@ describe('CreateDeckView', () => {
     expect(back.attributes('disabled')).toBeDefined()
     await wrapper.get('[data-testid="step-topic"]').trigger('click')
     await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/topic?stream=1')
     expect(wrapper.find('[data-testid="summary-topic"]').exists()).toBe(true)
     expect(wrapper.find(panel('preview')).exists()).toBe(true)
+    // Presenter -> Outline would unmount the streaming Preview, so it is held too.
+    await wrapper.get('[data-testid="step-presenter"]').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('[data-testid="wizard-footer"] button').find((b) => /^Next: Outline/.test(b.text()))!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/presenter?stream=1')
   })
 
   it('going from the outline to a streaming preview stays on the preview', async () => {
@@ -283,10 +308,10 @@ describe('CreateDeckView', () => {
     expect(shown(wrapper.get(panel('outline')))).toBe(false)
     const footers = wrapper.findAll('[data-testid="wizard-footer"]')
     expect(footers).toHaveLength(1)
-    expect(footers[0]!.text()).toContain('Back to step')
+    expect(footers[0]!.text()).toContain('Next: Presenter')
     expect(footers[0]!.text()).not.toContain('Generate slides')
 
-    await wrapper.findAll('button').find((b) => b.text().includes('Back to step'))!.trigger('click')
+    await wrapper.get('[data-testid="step-outline"]').trigger('click')
     await flushPromises()
     expect(wrapper.find('[data-testid="summary-topic"]').exists()).toBe(false)
     expect(shown(wrapper.get(panel('outline')))).toBe(true)
@@ -353,20 +378,33 @@ describe('CreateDeckView', () => {
     setLanguage('en-US') // module state: hand the next test the default back
   })
 
-  it('read-only summary for topic', async () => {
-    const { wrapper, router } = await mountView('/p/p1/create/avatar')
+  it('Topic summary: the step bar names the topic and look, six steps in all', async () => {
+    const { wrapper } = await mountView('/p/p1/create/avatar')
+    expect(wrapper.findAll('nav[aria-label="Wizard steps"] ol > li')).toHaveLength(6)
     expect(wrapper.find('[data-testid="step-topic"]').text()).toContain('Why octopuses')
-    expect(wrapper.find('[data-testid="step-look"]').text()).toContain('Modern')
-    expect(wrapper.find('[data-testid="step-details"]').text()).toContain('3 slides · casual · concise')
+    expect(wrapper.find('[data-testid="step-topic"]').text()).toContain('Modern')
+    expect(wrapper.find('[data-testid="step-look"]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="step-presenter"]').text()).toContain('Voice only')
+    expect(wrapper.find('[data-testid="step-details"]').exists()).toBe(false)
+  })
 
+  it('Topic summary: read-only topic, look and settings chips', async () => {
+    const { wrapper, router } = await mountView('/p/p1/create/avatar')
     await wrapper.get('[data-testid="step-topic"]').trigger('click')
     await flushPromises()
     const summary = wrapper.get('[data-testid="summary-topic"]')
     expect(summary.text()).toContain('Why octopuses are smarter than you think')
     expect(summary.find('textarea, input').exists()).toBe(false)
-    // The avatar body stays mounted behind the summary, hidden.
+    // The narration body stays mounted behind the summary, hidden.
     expect(shown(wrapper.get(panel('avatar')))).toBe(false)
-    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar')
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/topic')
+    // Fixed when the deck was created: plain text, not buttons.
+    for (const [k, text] of [['language', 'English'], ['length', '3 slides'], ['style', 'Tone: Casual · Text per slide: Concise']]) {
+      const chip = wrapper.get(`[data-testid="chip-${k}-fixed"]`)
+      expect(chip.element.tagName).toBe('SPAN')
+      expect(chip.text()).toBe(text)
+    }
+    expect(wrapper.find('[data-testid="chip-presenter"]').exists()).toBe(false)
 
     // Picking a deck step leaves the summary.
     await wrapper.get('[data-testid="step-preview"]').trigger('click')
@@ -374,6 +412,63 @@ describe('CreateDeckView', () => {
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/preview')
     expect(wrapper.find('[data-testid="summary-topic"]').exists()).toBe(false)
     expect(wrapper.find(panel('preview')).exists()).toBe(true)
+  })
+
+  it('Presenter summary: narration language and presenter photo stay editable', async () => {
+    m.getPresentation.mockResolvedValue(deck(true))
+    const { wrapper, router } = await mountView('/p/p1/create/avatar')
+    await wrapper.get('[data-testid="step-presenter"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('h2').text()).toBe('Presenter and language')
+    expect(wrapper.find('[data-testid="setup-language"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="setup-portrait"]').exists()).toBe(true)
+    expect(shown(wrapper.get(panel('avatar')))).toBe(false)
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/presenter')
+  })
+
+  it('Presenter summary: a deck without presenter slides says it is voice only', async () => {
+    const { wrapper } = await mountView('/p/p1/create/avatar')
+    await wrapper.findAll('button').find((b) => /Presenter and language/.test(b.text()))!.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="setup-portrait"]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="setup-voice-only"]').text()).toContain('narrated with a voice only')
+  })
+
+  it.each([['presenter', 'Presenter and language'], ['topic', 'Topic and look']])('/create/%s is its own step, with the resume step mounted behind it', async (key, heading) => {
+    const { wrapper, router } = await mountView(`/p/p1/create/${key}`)
+    expect(router.currentRoute.value.fullPath).toBe(`/p/p1/create/${key}`)
+    expect(wrapper.get('h2').text()).toBe(heading)
+    expect(shown(wrapper.get(panel('avatar')))).toBe(false)
+  })
+
+  it('Topic and Presenter have the same Back/Next footer and Alt+arrows as the other steps', async () => {
+    const { wrapper, router } = await mountView('/p/p1/create/topic')
+    const buttons = () => wrapper.findAll('[data-testid="wizard-footer"] button').map((b) => b.text())
+    expect(wrapper.findAll('[data-testid="wizard-footer"]')).toHaveLength(1)
+    expect(buttons()).toEqual(['Next: Presenter'])
+    await wrapper.findAll('[data-testid="wizard-footer"] button').find((b) => /^Next: Presenter/.test(b.text()))!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/presenter')
+    expect(buttons()).toEqual(['Back', 'Next: Outline'])
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', altKey: true }))
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/topic')
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true }))
+    await flushPromises()
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true }))
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/outline')
+    // The outline step's Back goes to Presenter.
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', altKey: true }))
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/presenter')
+  })
+
+  it('the Narration step reaches the Presenter step through Presenter and language', async () => {
+    const { wrapper } = await mountView('/p/p1/create/avatar')
+    await wrapper.findAll('button').find((b) => /Presenter and language/.test(b.text()))!.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="setup-language"]').exists()).toBe(true)
   })
 
   it('Alt+arrows move between unlocked deck steps', async () => {
@@ -384,20 +479,20 @@ describe('CreateDeckView', () => {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true }))
     await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar')
-    // Export is available (no placeholders → avatar optional).
+    // Export is open as soon as the slides are in.
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true }))
     await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/export')
   })
 
   it('Alt+ArrowRight onto a locked step says why', async () => {
-    m.getPresentation.mockResolvedValue(deck(true))
-    const { router } = await mountView('/p/p1/create/avatar')
+    m.getPresentation.mockResolvedValue({ ...deck(false), slides: [] })
+    const { router } = await mountView('/p/p1/create/outline')
     m.toast.info.mockClear()
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true }))
     await flushPromises()
-    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar')
-    expect(m.toast.info).toHaveBeenCalledWith('3 slides still need their avatar')
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/outline')
+    expect(m.toast.info).toHaveBeenCalledWith('Generate slides from the outline first')
   })
 
   it('not found shows message', async () => {

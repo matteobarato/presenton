@@ -83,7 +83,7 @@ function setContent(index: number, content: string) {
       variant="ghost"
       size="sm"
       type="button"
-      class="self-start text-[#a8b8c0] hover:text-[#e4ecf0]"
+      class="self-start text-[#a8b8c0] hover:text-[#e4ecf0] max-[559px]:h-11"
       :disabled="props.disabled || items.length >= MAX_OUTLINE_SLIDES"
       @click="add"
     >

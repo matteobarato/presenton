@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { AlignLeft, ArrowLeft, ArrowRight, CalendarDays, Languages, Layers, MessageSquareQuote, Palette, PencilLine } from 'lucide-vue-next'
+import { ArrowRight, CalendarDays, Palette, PencilLine } from 'lucide-vue-next'
 import { useElementSize } from '@vueuse/core'
 import TemplateCardThumb from '@/components/create/TemplateCardThumb.vue'
 import type { Presentation } from '@/api/types'
@@ -11,26 +11,32 @@ import { toast } from '@/components/ui/sonner'
 import { useDeckWizard } from '@/composables/useDeckWizard'
 import OutlineStep from '@/components/create/steps/OutlineStep.vue'
 import PreviewStep from '@/components/create/steps/PreviewStep.vue'
+import DeckSetupChips from '@/components/create/DeckSetupChips.vue'
 import PresenterSettings from '@/components/create/steps/PresenterSettings.vue'
 import AvatarStep from '@/components/create/steps/AvatarStep.vue'
 import ExportStep from '@/components/create/steps/ExportStep.vue'
 import { useNarrationAvatarPipeline } from '@/composables/useNarrationAvatarPipeline'
 import { injectDeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
 import { injectDeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
+import WizardBackButton from './WizardBackButton.vue'
 import WizardFooter from './WizardFooter.vue'
 import WizardLayout from './WizardLayout.vue'
-import type { DeckStepKey, WizardStepKey } from './progress'
-import { provideWizardFooter } from './stepFooter'
+import type { DeckStepKey, WizardStepItem, WizardStepKey } from './progress'
+import { provideWizardFooter, useFooterNotice } from './stepFooter'
 
 /**
- * Steps 4–7 of the create wizard for one deck. Runs inside `DeckStateProvider`. Owns the deck-step
- * guards: no or unknown step → resume step; a locked step → resume step with a toast saying why.
+ * All six steps of the create wizard for one deck, each at its own URL. Steps 3–6 (Outline, Preview, Narration,
+ * Export) are the deck steps; steps 1–2 (Topic, Presenter) are summaries (Topic read-only, Presenter editable) with the
+ * same Back/Next footer. A summary hides the deck step behind it without unmounting it, so a running stream or
+ * pipeline is not aborted by a look at step 1. Runs inside `DeckStateProvider`. Owns the guards: no or unknown
+ * step → resume step; a locked step → resume step with a toast saying why.
  */
 const props = defineProps<{ presentationId: string; presentation: Presentation }>()
 
 const DECK_STEPS: readonly DeckStepKey[] = ['outline', 'preview', 'avatar', 'export']
-type SummaryKey = 'topic' | 'presenter' | 'details'
-const isSummaryKey = (k: string): k is SummaryKey => ['topic', 'presenter', 'details'].includes(k)
+type SummaryKey = 'topic' | 'presenter'
+const isSummaryKey = (k: string): k is SummaryKey => k === 'topic' || k === 'presenter'
+const ORDER: readonly WizardStepKey[] = ['topic', 'presenter', ...DECK_STEPS]
 const isDeckStep = (k: string): k is DeckStepKey => (DECK_STEPS as readonly string[]).includes(k)
 
 const route = useRoute()
@@ -68,13 +74,15 @@ const requested = computed<DeckStepKey | null>(() => (isDeckStep(stepParam.value
 const judged = ref(false)
 /** The step the guard let in. It stays shown until the URL changes, whatever the progress says meanwhile. */
 const approved = ref<DeckStepKey | null>(null)
-/** The requested step, once the guard has let it in; until then the body waits. */
-const step = computed<DeckStepKey | null>(() => (requested.value && requested.value === approved.value ? requested.value : null))
+/** The step whose body is mounted: the requested deck step once let in, or the one kept behind a summary. */
+const step = computed<DeckStepKey | null>(() => (summary.value ? approved.value : requested.value && requested.value === approved.value ? requested.value : null))
+/** Topic or Presenter, when the URL names one. */
+const summary = ref<SummaryKey | null>(null)
 
-const go = (target: DeckStepKey, replace = false) => {
+const go = (target: WizardStepKey, replace = false) => {
   const query = { ...route.query }
-  // The stream flag belongs to Preview only.
-  if (target !== 'preview') delete query.stream
+  // The stream flag belongs to Preview only; a summary keeps it, because Preview stays mounted (streaming) behind it.
+  if (target !== 'preview' && !isSummaryKey(target)) delete query.stream
   const to = { name: 'create', params: { id: props.presentationId, step: target }, query }
   return replace ? router.replace(to) : router.push(to)
 }
@@ -93,6 +101,13 @@ watch(
     judged.value = true
     const want = requested.value
     const resume = progress.value.resume
+    if (isSummaryKey(param)) {
+      // A summary is its own step; the deck step behind it is the one already open, else the resume step.
+      summary.value = param
+      approved.value ??= resume
+      return
+    }
+    summary.value = null
     if (!want) {
       void go(resume, true)
       return
@@ -108,74 +123,70 @@ watch(
   { immediate: true },
 )
 
-// Steps 1–3 of a created deck are read-only summaries shown in place.
-const summary = ref<SummaryKey | null>(null)
-watch(stepParam, () => (summary.value = null))
-
 const current = computed<WizardStepKey>(() => summary.value ?? step.value ?? requested.value ?? progress.value.resume)
 
 const GENERATING = 'Wait for the slides to finish generating'
+// Why a step is closed, in the footer's status line (the toast alone vanishes and never reaches a screen reader).
+const notice = useFooterNotice()
+function explainLocked(item: WizardStepItem) {
+  if (item.reason) notice.show(item.reason)
+}
 /** Leaving Preview mid-generation would abort the stream and lose the deck: summaries stay open, other steps don't. */
 const heldOnPreview = (target: DeckStepKey | null) =>
-  slidesStreaming.value && requested.value === 'preview' && !!target && target !== 'preview'
+  slidesStreaming.value && approved.value === 'preview' && !!target && target !== 'preview'
 
 function select(key: WizardStepKey) {
-  if (isSummaryKey(key)) {
-    summary.value = key
-    return
-  }
-  if (heldOnPreview(key)) {
+  if (!isSummaryKey(key) && heldOnPreview(key)) {
     toast.info(GENERATING)
+    notice.show(GENERATING)
     return
   }
-  summary.value = null
-  if (key !== requested.value) void go(key)
+  notice.clear()
+  if (key !== current.value) void go(key)
 }
 
-const open = (k: DeckStepKey) => progress.value.steps[k].state !== 'locked'
-const neighbour = (dir: 'back' | 'next'): DeckStepKey | null => {
-  const at = DECK_STEPS.indexOf(requested.value ?? progress.value.resume)
-  const list = dir === 'back' ? DECK_STEPS.slice(0, at).reverse() : DECK_STEPS.slice(at + 1)
+const open = (k: WizardStepKey) => isSummaryKey(k) || progress.value.steps[k].state !== 'locked'
+const neighbour = (dir: 'back' | 'next'): WizardStepKey | null => {
+  const at = ORDER.indexOf(current.value)
+  const list = dir === 'back' ? ORDER.slice(0, at).reverse() : ORDER.slice(at + 1)
   return list.find(open) ?? null
 }
-const nextStep = computed(() => {
-  const at = DECK_STEPS.indexOf(requested.value ?? progress.value.resume)
-  return DECK_STEPS[at + 1] ?? null
-})
+const nextStep = computed(() => ORDER[ORDER.indexOf(current.value) + 1] ?? null)
+const labelOf = (k: WizardStepKey) => items.value.find((i) => i.key === k)?.label ?? ''
 const nextLockReason = computed(() => {
   const n = nextStep.value
-  return n && !open(n) ? progress.value.steps[n].reason : null
+  return n && !isSummaryKey(n) && !open(n) ? progress.value.steps[n].reason : null
 })
 
 function navigate(dir: 'back' | 'next') {
-  if (summary.value) {
-    summary.value = null
-    return
-  }
   const target = neighbour(dir)
-  if (heldOnPreview(target)) {
+  if (target && !isSummaryKey(target) && heldOnPreview(target)) {
     toast.info(GENERATING)
+    notice.show(GENERATING)
     return
   }
   if (target) void go(target)
   // Alt+→ onto a locked step: say why instead of doing nothing.
-  else if (dir === 'next' && nextLockReason.value) toast.info(nextLockReason.value)
+  else if (dir === 'next' && nextLockReason.value) {
+    toast.info(nextLockReason.value)
+    notice.show(nextLockReason.value)
+  }
 }
 
 // A step with its own actions renders the one footer itself (see `WizardStepFooter`).
 const footer = provideWizardFooter(
   { available: computed(() => !!neighbour('back')), go: () => navigate('back') },
   computed(() => !summary.value),
+  notice.text,
 )
 const setFooterTarget = (el: unknown) => (footer.target.value = el instanceof HTMLElement ? el : null)
 
 const COPY: Record<WizardStepKey, { heading: string; lede: string }> = {
-  topic: { heading: 'Topic & look', lede: 'What this deck is about and the template it’s built from. Both were set when the deck was created.' },
-  presenter: { heading: 'Avatar & language', lede: 'The presenter photo and the narration language. Narration uses what you set here.' },
-  details: { heading: 'Details', lede: 'How the deck was generated. Tune individual slides in the editor.' },
+  topic: { heading: 'Topic and look', lede: 'What this deck is about, the template it’s built from and its settings. These were fixed when the deck was created.' },
+  presenter: { heading: 'Presenter and language', lede: 'Your digital presenter and the narration language. The Narration step uses what you set here.' },
   outline: { heading: 'Shape the story', lede: 'Each card becomes one slide. Read it through, then generate the slides.' },
   preview: { heading: 'Preview your slides', lede: 'Your deck, slide by slide. Fine-tuning lives in the editor.' },
-  avatar: { heading: 'Narration', lede: 'Narrate every slide in the language you chose, with your presenter where the deck calls for one.' },
+  avatar: { heading: 'Narration', lede: 'Recommended: narrate every slide in the language you chose, with your presenter on the slides that have one. You can skip it, export now and narrate later from the editor.' },
   export: { heading: 'Export', lede: 'Download the deck, or the narrated video.' },
 }
 const copy = computed(() => COPY[current.value])
@@ -186,16 +197,6 @@ const title = computed(() => props.presentation.title?.trim() || 'New presentati
 const created = computed(() => {
   const d = new Date(props.presentation.created_at)
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
-})
-const cap = (v: string) => v.charAt(0).toUpperCase() + v.slice(1)
-const details = computed(() => {
-  const p = props.presentation
-  return [
-    { label: 'Slides', value: String(p.n_slides), icon: Layers },
-    { label: 'Language', value: p.language, icon: Languages },
-    { label: 'Tone', value: p.tone ? cap(p.tone) : '', icon: MessageSquareQuote },
-    { label: 'Verbosity', value: p.verbosity ? cap(p.verbosity) : '', icon: AlignLeft },
-  ].filter((d) => Boolean(d.value))
 })
 const avatarWork = computed(() => deckAvatars.placeholderSlides.value.length > 0 && !progress.value.voiceOnly)
 const thumbBox = ref<HTMLElement | null>(null)
@@ -213,6 +214,7 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
     :panel-key="panelKey"
     :parent="{ label: 'Library', to: { name: 'library' } }"
     @select="select"
+    @blocked="explainLocked"
     @navigate="navigate"
   >
     <section v-if="summary === 'topic'" data-testid="summary-topic" class="grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-4 max-[760px]:grid-cols-1">
@@ -221,7 +223,7 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
         <blockquote class="relative max-h-[320px] overflow-y-auto border-l-2 border-accent/60 pl-4 text-[13.5px] leading-[1.75] whitespace-pre-wrap text-[#dbe5ea]">
           {{ presentation.content?.trim() || 'Generated from uploaded documents.' }}
         </blockquote>
-        <footer v-if="created" class="mt-auto flex items-center gap-1.5 pt-1 text-[11px] text-[#8e9ca4]">
+        <footer v-if="created" class="mt-auto flex items-center gap-1.5 pt-1 text-[12px] text-[#8e9ca4]">
           <CalendarDays class="size-3.5" aria-hidden="true" />Created {{ created }}
         </footer>
       </article>
@@ -229,16 +231,17 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
         <header class="summary-kicker"><Palette class="size-3.5" aria-hidden="true" />Look</header>
         <div ref="thumbBox" class="w-full">
           <TemplateCardThumb v-if="template" :template="template" :width="thumbWidth" />
-          <div v-else class="grid aspect-video w-full place-items-center rounded border border-dashed border-white/[0.1] text-[11px] text-[#8e9ca4]">No preview</div>
+          <div v-else class="grid aspect-video w-full place-items-center rounded border border-dashed border-white/[0.1] text-[12px] text-[#8e9ca4]">No preview</div>
         </div>
         <div class="flex min-w-0 flex-col gap-1">
           <p class="truncate text-[14px] font-medium text-[#eef6fa]">{{ template?.name ?? 'Template' }}</p>
-          <p class="flex flex-wrap items-center gap-1.5 text-[11px] text-[#8e9ca4]">
+          <p class="flex flex-wrap items-center gap-1.5 text-[12px] text-[#8e9ca4]">
             <span v-if="template">{{ template.layouts.length }} {{ template.layouts.length === 1 ? 'layout' : 'layouts' }}</span>
           </p>
         </div>
       </article>
     </section>
+    <DeckSetupChips v-if="summary === 'topic'" :presentation="presentation" />
     <PresenterSettings
       v-else-if="summary === 'presenter'"
       data-testid="step-presenter"
@@ -246,29 +249,20 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
       :language-ok="pipeline.languageOk.value"
       :avatar-work="avatarWork"
     />
-    <section v-else-if="summary === 'details'" data-testid="summary-details" class="grid grid-cols-4 gap-3 max-[760px]:grid-cols-2">
-      <div v-for="d in details" :key="d.label" class="summary-card flex min-w-0 flex-col gap-3">
-        <span class="grid size-8 place-items-center rounded-full bg-[#bee3f31a] text-accent" aria-hidden="true"><component :is="d.icon" class="size-4" /></span>
-        <div class="flex min-w-0 flex-col gap-0.5">
-          <span class="text-[10.5px] tracking-[0.06em] text-[#8e9ca4] uppercase">{{ d.label }}</span>
-          <span class="truncate text-[18px] leading-tight font-medium tracking-[-0.02em] text-[#eef6fa]" :title="d.value">{{ d.value }}</span>
-        </div>
-      </div>
-    </section>
 
-    <!-- Step bodies: filled by the Outline, Preview, Avatar and Export steps. They stay mounted (hidden) behind a
-         summary, so a running stream or pipeline is not aborted by a look at steps 1–3. -->
+    <!-- Step bodies: filled by the Outline, Preview, Narration and Export steps. They stay mounted (hidden) behind the
+         Topic summary, so a running stream or pipeline is not aborted by a look at step 1. -->
     <section v-if="step === 'outline'" v-show="!summary" data-testid="step-body-outline">
       <OutlineStep :presentation="presentation" :pipeline-running="pipelineRunning" @streaming="outlineStreaming = $event" />
     </section>
     <section v-else-if="step === 'preview'" v-show="!summary" data-testid="step-body-preview">
-      <PreviewStep :presentation="presentation" :progress="progress" @streaming="slidesStreaming = $event" />
+      <PreviewStep :presentation="presentation" @streaming="slidesStreaming = $event" />
     </section>
     <section v-else-if="step === 'avatar'" v-show="!summary" data-testid="step-body-avatar">
-      <AvatarStep :presentation="presentation" :progress="progress" :pipeline="pipeline" @edit-setup="summary = 'presenter'" />
+      <AvatarStep :presentation="presentation" :progress="progress" :pipeline="pipeline" @edit-setup="select('presenter')" />
     </section>
     <section v-else-if="step === 'export'" v-show="!summary" data-testid="step-body-export">
-      <ExportStep :presentation="presentation" />
+      <ExportStep :presentation="presentation" :progress="progress" />
     </section>
     <div v-else-if="!summary" aria-busy="true" aria-label="Loading step">
       <Skeleton class="h-[320px] w-full rounded-panel" />
@@ -276,15 +270,13 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
 
     <template #footer>
       <div :ref="setFooterTarget" class="contents" />
-      <WizardFooter v-if="summary || !footer.claims.value" :status="summary === 'presenter' ? undefined : summary ? 'Set when the deck was created' : (nextLockReason ?? undefined)">
+      <WizardFooter v-if="summary || !footer.claims.value" :status="notice.text.value || (summary === 'topic' ? 'Topic and look were fixed when the deck was created' : summary ? undefined : (nextLockReason ?? undefined))">
         <template #back>
-          <Button v-if="summary || neighbour('back')" type="button" variant="ghost" @click="navigate('back')">
-            <ArrowLeft class="size-4" aria-hidden="true" />{{ summary ? 'Back to step' : 'Back' }}
-          </Button>
+          <WizardBackButton v-if="neighbour('back')" @click="navigate('back')" />
         </template>
         <template #primary>
-          <Button v-if="!summary && nextStep" type="button" :disabled="!!nextLockReason" @click="navigate('next')">
-            Next<ArrowRight class="size-4" aria-hidden="true" />
+          <Button v-if="nextStep" type="button" :disabled="!!nextLockReason" @click="navigate('next')">
+            Next: {{ labelOf(nextStep) }}<ArrowRight class="size-4" aria-hidden="true" />
           </Button>
         </template>
       </WizardFooter>

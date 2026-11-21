@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { getCurrentInstance } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
+import { RouterLink } from 'vue-router'
+import { Ellipsis } from 'lucide-vue-next'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import type { FooterAction } from './stepFooter'
 
 /** Sticky action bar shared by every wizard step. Always say why a primary action is unavailable via `status`. */
-defineProps<{ status?: string; error?: string | null; busy?: boolean }>()
+defineProps<{ status?: string; error?: string | null; busy?: boolean; actions?: FooterAction[] }>()
+/** Phones keep one row (Back, primary): the secondary actions fold into a More menu. */
+const compact = useMediaQuery('(max-width: 559px)')
 defineEmits<{ retry: [] }>()
 
 // Retry is only offered when the parent listens for it.
@@ -21,16 +28,59 @@ const hasRetry = !!getCurrentInstance()?.vnode.props?.onRetry
       <span>{{ error }}</span>
       <Button v-if="hasRetry" type="button" size="sm" variant="outline" data-testid="footer-retry" @click="$emit('retry')">Retry</Button>
     </Alert>
-    <div class="flex items-center gap-2.5 max-[520px]:flex-wrap">
+    <div class="flex items-center gap-2.5 max-[559px]:flex-wrap max-[559px]:gap-x-2 max-[559px]:gap-y-2">
       <slot name="back" />
       <p
         role="status"
-        class="min-w-0 flex-1 text-right leading-snug text-[11px] text-[#a2b7c5] max-[520px]:order-last max-[520px]:basis-full max-[520px]:text-center"
+        class="min-w-0 flex-1 text-right leading-snug text-[12px] text-[#a2b7c5] max-[559px]:order-first max-[559px]:basis-full max-[559px]:text-left max-[559px]:empty:sr-only"
       >
         <slot name="status">{{ status }}</slot>
       </p>
-      <slot name="secondary" />
-      <slot name="primary" />
+      <template v-if="actions?.length">
+        <DropdownMenu v-if="compact">
+          <DropdownMenuTrigger as-child>
+            <Button type="button" variant="outline" class="size-11 flex-none p-0" aria-label="More actions" data-testid="footer-more">
+              <Ellipsis class="size-4" aria-hidden="true" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" side="top" class="min-w-52">
+            <DropdownMenuItem
+              v-for="a in actions"
+              :key="a.key"
+              :disabled="a.disabled"
+              :data-testid="`more-${a.key}`"
+              :as-child="!!a.to"
+              class="min-h-11 gap-2.5 text-[13px]"
+              @select="a.onSelect?.()"
+            >
+              <RouterLink v-if="a.to" :to="a.to" class="flex min-h-11 w-full items-center gap-2.5"><component :is="a.icon" v-if="a.icon" class="size-4" aria-hidden="true" />{{ a.label }}</RouterLink>
+              <template v-else>
+                <component :is="a.icon" v-if="a.icon" class="size-4" aria-hidden="true" />{{ a.label }}
+              </template>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <template v-else>
+          <template v-for="a in actions" :key="a.key">
+            <Button v-if="a.to && !a.disabled" as-child :variant="a.variant ?? 'ghost'">
+              <RouterLink :to="a.to" :data-testid="a.testid"><component :is="a.icon" v-if="a.icon" class="size-4" aria-hidden="true" />{{ a.label }}</RouterLink>
+            </Button>
+            <Button
+              v-else
+              type="button"
+              :variant="a.variant ?? 'ghost'"
+              :class="a.link && 'underline decoration-white/25 underline-offset-[3px]'"
+              :disabled="a.disabled"
+              :data-testid="a.testid"
+              @click="a.onSelect?.()"
+            >
+              <component :is="a.icon" v-if="a.icon" class="size-4" aria-hidden="true" />{{ a.label }}
+            </Button>
+          </template>
+        </template>
+      </template>
+      <slot v-else name="secondary" />
+      <div class="footer-primary"><slot name="primary" /></div>
     </div>
   </div>
 </template>
@@ -52,6 +102,12 @@ const hasRetry = !!getCurrentInstance()?.vnode.props?.onRetry
   background: rgb(25 29 31 / 0.84);
   backdrop-filter: blur(18px) saturate(1.3);
   -webkit-backdrop-filter: blur(18px) saturate(1.3);
+}
+/* Desktop: the primary sits inline. Phone: it fills the row beside Back, at a thumb-sized height. */
+.footer-primary { display: contents; }
+@media (max-width: 559px) {
+  .footer-primary { display: flex; flex: 1 1 0; min-width: 0; }
+  .footer-primary > :deep(*) { flex: 1 1 auto; width: 100%; min-width: 0; min-height: 44px; height: auto; }
 }
 @media (max-width: 1050px) {
   .wizard-footer { --card-pad: 38px; }

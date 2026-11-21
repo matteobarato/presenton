@@ -12,7 +12,6 @@ function items(over: Partial<Record<string, Partial<WizardStepItem>>> = {}): Wiz
     ...s,
     state: 'available' as StepState,
     reason: null,
-    badge: null,
     summary: '',
     ...over[s.key],
   }))
@@ -35,12 +34,12 @@ describe('WizardSteps', () => {
   })
 
   it('done step shows check and is selectable', async () => {
-    const w = mount(WizardSteps, { props: { items: items({ topic: { state: 'done' } }), current: 'look' } })
+    const w = mount(WizardSteps, { props: { items: items({ topic: { state: 'done' } }), current: 'outline' } })
     const b = w.get('[data-testid="step-topic"]')
     expect(b.find('[data-icon="check"]').exists()).toBe(true)
     expect(b.get('[data-testid="step-topic-state"]').text()).toBe('(Completed)')
-    expect(w.get('[data-testid="step-look"]').find('[data-testid="step-look-state"]').exists()).toBe(false)
-    expect(w.get('[data-testid="step-look"]').attributes('aria-describedby')).toBeUndefined()
+    expect(w.get('[data-testid="step-outline"]').find('[data-testid="step-outline-state"]').exists()).toBe(false)
+    expect(w.get('[data-testid="step-outline"]').attributes('aria-describedby')).toBeUndefined()
     await b.trigger('click')
     expect(w.emitted('select')).toEqual([['topic']])
   })
@@ -51,21 +50,35 @@ describe('WizardSteps', () => {
     expect(w.get('[data-testid="step-outline-state"]').text()).toBe('(In progress)')
   })
 
-  it('marks current, renders badge and summary, and a compact bar', () => {
+  it('marks current, renders the summary, and a compact bar', () => {
     const w = mount(WizardSteps, {
-      props: { items: items({ avatar: { badge: 'Required', summary: '3 of 5' } }), current: 'details' },
+      props: { items: items({ avatar: { summary: '3 of 5 narrated' } }), current: 'preview' },
     })
-    expect(w.get('[data-testid="step-details"]').attributes('aria-current')).toBe('step')
-    expect(w.get('[data-testid="step-avatar"]').text()).toContain('Required')
-    expect(w.get('[data-testid="step-avatar"]').text()).toContain('3 of 5')
-    expect(w.get('[data-testid="steps-compact"]').text()).toContain('Step 3 of 7 · Details')
+    expect(w.get('[data-testid="step-preview"]').attributes('aria-current')).toBe('step')
+    expect(w.get('[data-testid="step-avatar"]').text()).toContain('3 of 5 narrated')
+    expect(w.get('[data-testid="steps-compact"]').text()).toContain('4/6')
+    expect(w.findAll('ol > li')).toHaveLength(6)
+  })
+})
+
+describe('WizardSteps styling', () => {
+  it('only the current tile is underlined; done is tinted; connectors follow done state', () => {
+    const w = mount(WizardSteps, {
+      props: { items: items({ topic: { state: 'done' }, presenter: { state: 'done' } }), current: 'outline' },
+    })
+    expect(w.findAll('[data-testid="step-underline"]')).toHaveLength(1)
+    expect(w.find('[data-testid="step-outline"] [data-testid="step-underline"]').exists()).toBe(true)
+    expect(w.get('[data-testid="step-topic"] [data-icon="check"]').element.parentElement!.className).toContain('text-accent')
+    expect(w.get('[data-testid="step-link-presenter"]').classes()).toContain('bg-accent/65')
+    expect(w.get('[data-testid="step-link-outline"]').classes()).toContain('bg-accent/65')
+    expect(w.get('[data-testid="step-link-preview"]').classes()).toContain('bg-white/[0.1]')
   })
 })
 
 describe('WizardFooter', () => {
   it('shows status as live region', () => {
-    const w = mount(WizardFooter, { props: { status: 'Narrate every slide first' } })
-    expect(w.get('[role="status"]').text()).toBe('Narrate every slide first')
+    const w = mount(WizardFooter, { props: { status: 'Slides must finish generating first' } })
+    expect(w.get('[role="status"]').text()).toBe('Slides must finish generating first')
   })
 
   it('retry emits', async () => {
@@ -95,7 +108,7 @@ describe('WizardLayout', () => {
 
   it('focuses heading on step change', async () => {
     const w = await mountLayout()
-    await w.setProps({ current: 'look' })
+    await w.setProps({ current: 'outline' })
     await nextTick()
     await nextTick()
     expect(document.activeElement).toBe(w.get('h2').element)
@@ -123,8 +136,8 @@ describe('WizardLayout', () => {
 
   it('re-emits select from the steps', async () => {
     const w = await mountLayout()
-    await w.get('[data-testid="step-look"]').trigger('click')
-    expect(w.emitted('select')).toEqual([['look']])
+    await w.get('[data-testid="step-outline"]').trigger('click')
+    expect(w.emitted('select')).toEqual([['outline']])
     w.unmount()
   })
 })

@@ -3,7 +3,6 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { nextTick, ref, type Ref } from 'vue'
 import type { Presentation } from '@/api/types'
-import type { DeckProgress } from '@/components/create/wizard/progress'
 import PreviewStep from '@/components/create/steps/PreviewStep.vue'
 
 const mocks = vi.hoisted(() => ({
@@ -55,20 +54,7 @@ const slide = (i: number, placeholder = false) => ({
 const deck = (slides: ReturnType<typeof slide>[], n = 5) =>
   ({ id: 'p1', title: 'Deck', n_slides: n, slides, theme: null, fonts: null }) as unknown as Presentation
 
-const progress = (avatarRequirement: DeckProgress['avatarRequirement'] = 'required') =>
-  ({
-    steps: {
-      outline: { state: 'done' },
-      preview: { state: 'done' },
-      avatar: { state: 'available' },
-      export: { state: 'available' },
-    },
-    avatarRequirement,
-    voiceOnly: false,
-    resume: 'preview',
-  }) as unknown as DeckProgress
-
-async function mountStep(path: string, presentation: Presentation, avatar: DeckProgress['avatarRequirement'] = 'required') {
+async function mountStep(path: string, presentation: Presentation) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -80,7 +66,7 @@ async function mountStep(path: string, presentation: Presentation, avatar: DeckP
   await router.push(path)
   await router.isReady()
   const wrapper = mount(PreviewStep, {
-    props: { presentation, progress: progress(avatar) },
+    props: { presentation },
     global: { plugins: [router] },
     attachTo: document.body,
   })
@@ -108,8 +94,8 @@ describe('PreviewStep', () => {
     expect(mocks.streamCalls).toEqual([{ id: 'p1', enabled: true }])
     expect(wrapper.findAll('[data-testid="slide-view"]')).toHaveLength(2)
     expect(wrapper.findAll('[data-testid="preview-skeleton"]')).toHaveLength(3)
-    expect(status(wrapper)).toBe('Generating slide 3 of 5…')
-    expect(button(wrapper, /continue to Avatar/)!.attributes('disabled')).toBeDefined()
+    expect(status(wrapper)).toContain('Generating slide 3 of 5…')
+    expect(button(wrapper, /Continue to Narration/)!.attributes('disabled')).toBeDefined()
     expect(wrapper.emitted('streaming')!.at(-1)).toEqual([true])
     expect(mocks.plan).toHaveBeenCalledTimes(1)
   })
@@ -129,7 +115,7 @@ describe('PreviewStep', () => {
   it('says finishing up once every slide is in but the stream is still open', async () => {
     const { wrapper } = await mountStep('/p/p1/create/preview?stream=1', deck([slide(0), slide(1)], 2))
     expect(wrapper.findAll('[data-testid="preview-skeleton"]')).toHaveLength(0)
-    expect(status(wrapper)).toBe('Finishing up…')
+    expect(status(wrapper)).toContain('Finishing up…')
   })
 
   it('regenerating an existing deck counts only the slides this stream delivered', async () => {
@@ -139,13 +125,13 @@ describe('PreviewStep', () => {
     // The old deck's slides are still cached: none are shown, every slot is a skeleton.
     expect(wrapper.findAll('[data-testid="slide-view"]')).toHaveLength(0)
     expect(wrapper.findAll('[data-testid="preview-skeleton"]')).toHaveLength(3)
-    expect(status(wrapper)).toBe('Generating slide 1 of 3…')
+    expect(status(wrapper)).toContain('Generating slide 1 of 3…')
 
     mocks.received.value = new Set([0])
     await nextTick()
     expect(wrapper.findAll('[data-testid="slide-view"]').map((v) => v.attributes('data-slide'))).toEqual(['s0'])
     expect(wrapper.findAll('[data-testid="preview-skeleton"]')).toHaveLength(2)
-    expect(status(wrapper)).toBe('Generating slide 2 of 3…')
+    expect(status(wrapper)).toContain('Generating slide 2 of 3…')
 
     mocks.status.value = 'done'
     await flushPromises()
@@ -228,20 +214,30 @@ describe('PreviewStep', () => {
     expect(present.attributes('href')).toBe('/p/p1/present')
   })
 
-  it('required avatar continues to the Avatar step', async () => {
-    const { wrapper, router } = await mountStep('/p/p1/create/preview?template=modern', deck([slide(0, true)], 1), 'required')
-    expect(button(wrapper, /Skip to Export/)).toBeUndefined()
-    await button(wrapper, /Looks good — continue to Avatar/)!.trigger('click')
+  it('has one primary, Continue to Narration, and a quiet Skip to Export', async () => {
+    const { wrapper, router } = await mountStep('/p/p1/create/preview?template=modern', deck([slide(0, true)], 1))
+    const primary = wrapper.get('[data-testid="continue-narration"]')
+    expect(primary.text()).toBe('Continue to Narration')
+    // Skip to Export is a text-style ghost button, not a second solid primary.
+    const skip = wrapper.get('[data-testid="skip-to-export"]')
+    expect(skip.text()).toBe('Skip to Export')
+    expect(skip.classes().join(' ')).not.toContain('bg-accent')
+    expect(primary.classes().join(' ')).toContain('bg-accent')
+    await primary.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/avatar?template=modern')
   })
 
-  it('optional avatar shows skip to export', async () => {
-    const { wrapper, router } = await mountStep('/p/p1/create/preview', deck([slide(0)], 1), 'optional')
-    expect(button(wrapper, /continue to Avatar/)).toBeUndefined()
-    expect(button(wrapper, /^Continue/)).toBeDefined()
+  it('Skip to Export goes straight to Export, whatever the deck needs', async () => {
+    const { wrapper, router } = await mountStep('/p/p1/create/preview?template=modern', deck([slide(0)], 1))
     await button(wrapper, /Skip to Export/)!.trigger('click')
     await flushPromises()
-    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/export')
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/export?template=modern')
+  })
+
+  it('both ways on wait until the slides have finished generating', async () => {
+    const { wrapper } = await mountStep('/p/p1/create/preview?stream=1', deck([slide(0)], 3))
+    expect(wrapper.get('[data-testid="skip-to-export"]').attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-testid="continue-narration"]').attributes('disabled')).toBeDefined()
   })
 })

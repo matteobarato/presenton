@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { FileText, Paperclip, X } from 'lucide-vue-next'
 import { ALLOWED_EXTENSIONS, MAX_FILES } from '@/api/files'
 
-/** Step 1: one prompt surface that also takes documents (click the clip or drop anywhere on it). */
+/** Step 1 (Topic): one prompt surface that also takes documents (click the clip or drop anywhere on it). */
 const props = defineProps<{ disabled?: boolean }>()
 const prompt = defineModel<string>('prompt', { required: true })
 const files = defineModel<File[]>('files', { required: true })
@@ -80,8 +80,8 @@ defineExpose({ focus: () => textarea.value?.focus() })
         ref="textarea"
         v-model="prompt"
         :disabled="disabled"
-        rows="5"
-        class="min-h-[150px] w-full resize-none bg-transparent px-5 pt-[18px] pb-2 text-[14px] leading-[1.75] text-[#e2eef5] outline-none! placeholder:text-[#8a9ba6] max-[760px]:min-h-[130px] max-[760px]:px-4 max-[760px]:text-[13px]"
+        rows="4"
+        class="min-h-[112px] w-full resize-none bg-transparent px-5 pt-[18px] pb-2 text-[14px] leading-[1.75] text-[#e2eef5] outline-none! placeholder:text-[#8a9ba6] max-[760px]:min-h-[104px] max-[760px]:px-4 max-[760px]:text-[13px]"
         placeholder="Describe the topic, who it’s for and what it should achieve…"
         @keydown="onKeydown"
       />
@@ -89,7 +89,7 @@ defineExpose({ focus: () => textarea.value?.focus() })
         <li
           v-for="(file, i) in files"
           :key="`${file.name}-${file.size}-${i}`"
-          class="anim-pop-in inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/[0.06] bg-[#1d2427] py-1 pr-1.5 pl-2.5 text-[11px] text-[#cfdde5]"
+          class="anim-pop-in inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/[0.06] bg-[#1d2427] py-1 pr-1.5 pl-2.5 text-[12px] text-[#cfdde5]"
         >
           <FileText class="size-3.5 text-[#8fb4c6]" aria-hidden="true" />
           <span class="max-w-[200px] truncate" :title="file.name">{{ file.name }}</span>
@@ -106,15 +106,15 @@ defineExpose({ focus: () => textarea.value?.focus() })
       </ul>
       <div class="flex items-center justify-between gap-3 px-3 pt-1 pb-3">
         <label
-          class="inline-flex h-[30px] cursor-pointer items-center gap-2 rounded-button px-2.5 text-[11px] text-[#a9b8c0] transition-colors hover:bg-white/[0.05] hover:text-text has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent"
+          class="inline-flex h-[30px] max-[559px]:h-11 cursor-pointer items-center gap-2 rounded-button px-2.5 text-[12px] text-[#a9b8c0] transition-colors hover:bg-white/[0.05] hover:text-text has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent"
         >
           <Paperclip :size="14" aria-hidden="true" />
           <span>{{ files.length ? `Attach more (${files.length}/${MAX_FILES})` : 'Attach documents' }}</span>
           <input type="file" class="sr-only" multiple :accept="accept" :disabled="disabled" data-testid="file-input" @change="onPick" />
         </label>
-        <span class="flex items-center gap-3 text-[10px] text-[#7f8d95] tabular-nums">
+        <span class="flex items-center gap-3 text-[12px] text-[#9aabb4] tabular-nums">
           <span v-if="words" aria-hidden="true">{{ words }} {{ words === 1 ? 'word' : 'words' }}</span>
-          <span class="flex items-center gap-1 max-[760px]:hidden"><kbd>{{ modKey }}</kbd><kbd>Enter</kbd> to create</span>
+          <span class="flex items-center gap-1 max-[760px]:hidden"><kbd>{{ modKey }}</kbd><kbd>Enter</kbd> for next: Presenter</span>
         </span>
       </div>
       <div
@@ -125,17 +125,17 @@ defineExpose({ focus: () => textarea.value?.focus() })
         Drop to attach
       </div>
     </div>
-    <p v-if="notice" role="status" class="-mt-2 text-[11px] text-danger-text">{{ notice }}</p>
+    <p v-if="notice" role="status" class="-mt-2 text-[12px] text-danger-text">{{ notice }}</p>
 
     <div v-if="!prompt.trim()" class="flex flex-col gap-2.5">
-      <span class="text-[11px] text-[#8e9ca4]">Need a starting point?</span>
+      <span class="text-[12px] text-[#8e9ca4]">Need a starting point?</span>
       <div class="flex flex-wrap gap-2">
         <button
           v-for="s in STARTERS"
           :key="s"
           type="button"
           :disabled="disabled"
-          class="max-w-full truncate rounded-full border border-white/[0.07] bg-white/[0.02] px-3 py-1.5 text-left text-[11px] text-[#b9c8d0] hover:border-[#bee3f340] hover:bg-white/[0.04] hover:text-[#e4eef3]"
+          class="max-w-full truncate rounded-full border border-white/[0.07] bg-white/[0.02] px-3 py-1.5 max-[559px]:min-h-11 text-left text-[12px] text-[#b9c8d0] hover:border-[#bee3f340] hover:bg-white/[0.04] hover:text-[#e4eef3]"
           :title="s"
           @click="useStarter(s)"
         >

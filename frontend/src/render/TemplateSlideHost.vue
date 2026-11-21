@@ -53,7 +53,7 @@ function mountVideo(root: ShadowRoot) {
     if (props.annotate || props.showPlaceholders) {
       root.querySelectorAll<HTMLElement>('[data-video-placeholder]').forEach((node) => {
         node.style.background =
-          "url('/presenter-silhouette.svg') center bottom / contain no-repeat, linear-gradient(160deg, #e6f3fa, #cfe6f2)"
+          "url('/presenter-silhouette.png') center center / contain no-repeat, linear-gradient(160deg, #e6f3fa, #cfe6f2)"
         node.style.opacity = '0.6'
         node.style.outline = '2px dashed rgba(52, 110, 140, 0.5)'
         node.style.outlineOffset = '-2px'

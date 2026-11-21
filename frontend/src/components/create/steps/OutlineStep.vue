@@ -14,12 +14,14 @@ import AiProgress from '@/components/shell/AiProgress.vue'
 import OutlineList from '@/components/create/OutlineList.vue'
 import TemplateCardThumb from '@/components/create/TemplateCardThumb.vue'
 import NewTemplateSelector from '@/components/create/NewTemplateSelector.vue'
+import type { FooterAction } from '@/components/create/wizard/stepFooter'
 import WizardStepFooter from '@/components/create/wizard/WizardStepFooter.vue'
 import { useDeckLook } from '@/composables/useDeckLook'
+import { describeError } from '@/components/create/wizard/errorCopy'
 import RegenerateDialog from './RegenerateDialog.vue'
 
 /**
- * Step 4: read (and lightly edit) the outline, then generate the slides from it with the template chosen on
+ * Step 3: read (and lightly edit) the outline, then generate the slides from it with the template chosen on
  * the Topic step (see `useDeckLook`: `?template=`, else the deck's remembered record, else its slides' template). A deck whose template is unknown gets a picker here. Once the deck has
  * slides the outline is read-only until regenerating is confirmed.
  */
@@ -27,9 +29,9 @@ const props = defineProps<{ presentation: Presentation; pipelineRunning?: boolea
 const emit = defineEmits<{ streaming: [value: boolean] }>()
 
 const SAVE_DEBOUNCE_MS = 500
-const NO_TEMPLATE = 'No template chosen — start a new deck'
-const PICK_TEMPLATE = 'Pick a template to generate'
-const PIPELINE_BUSY = 'Wait for voice and avatars to finish'
+const NO_TEMPLATE = 'This deck has no template, so slides can’t be generated. Start a new deck and pick one.'
+const PICK_TEMPLATE = 'Pick a template to generate slides'
+const PIPELINE_BUSY = 'Narration is running; wait for it to finish'
 
 const route = useRoute()
 const router = useRouter()
@@ -114,7 +116,7 @@ function saveNow(): Promise<void> {
       saveError.value = null
       saveState.value = 'saved'
     } catch (e) {
-      saveError.value = e instanceof Error && e.message ? e.message : 'Could not save your outline.'
+      saveError.value = describeError('Couldn’t save your outline edits', e, 'Retry before you leave.')
       saveState.value = 'error'
     }
   })()
@@ -147,6 +149,11 @@ const templateError = computed(() => (!readOnly.value && !templateKnown.value &&
 // Regenerating needs the template too: without one, don't offer to unlock an outline that can't be generated.
 // Nor while voice or avatars are being made for the slides it would replace.
 const canRegenerate = computed(() => templateKnown.value && !streaming.value && !props.pipelineRunning)
+const actions = computed<FooterAction[]>(() =>
+  readOnly.value
+    ? [{ key: 'regenerate', label: 'Regenerate slides from outline…', icon: RotateCcw, variant: 'outline', disabled: !canRegenerate.value, onSelect: () => (confirmOpen.value = true) }]
+    : [],
+)
 /** Why Generate can't run right now; shown in the footer status line. */
 const blockReason = computed<string | null>(() => {
   if (streaming.value) return 'Writing your outline…'
@@ -154,7 +161,7 @@ const blockReason = computed<string | null>(() => {
   if (showPicker.value) return PICK_TEMPLATE
   if (props.pipelineRunning) return PIPELINE_BUSY
   if (templates.isPending.value) return 'Loading the template…'
-  if (count.value === 0) return 'Add at least one slide'
+  if (count.value === 0) return 'Add at least one slide to continue'
   if (overLimit.value > 0) return `Remove ${overLimit.value} ${overLimit.value === 1 ? 'slide' : 'slides'} to continue (max ${MAX_OUTLINE_SLIDES})`
   return null
 })
@@ -165,10 +172,13 @@ const footerStatus = computed(() => {
   if (readOnly.value) {
     if (streaming.value) return 'Loading the outline…'
     if (props.pipelineRunning) return PIPELINE_BUSY
-    return templateKnown.value ? 'These slides were generated from this outline' : `To regenerate: ${NO_TEMPLATE}`
+    return templateKnown.value ? 'These slides were generated from this outline' : 'Regenerating needs a template, and this deck has none'
   }
-  if (templateError.value) return 'Generate unavailable' // the footer alert says why
-  return blockReason.value ?? `${count.value} ${count.value === 1 ? 'slide' : 'slides'} will be generated`
+  if (templateError.value) return '' // the footer alert says why
+  if (blockReason.value) return blockReason.value
+  // Scope only: no timing or cost is known here.
+  const n = count.value
+  return `Generates ${n} ${n === 1 ? 'slide' : 'slides'} from this outline${chosenTemplate.value ? ` in ${chosenTemplate.value.name}` : ''}. Nothing is narrated yet.`
 })
 const footerError = computed(() => actionError.value ?? templateError.value)
 
@@ -195,7 +205,7 @@ async function generate() {
       query: { ...route.query, template: layout, stream: '1' },
     })
   } catch (e) {
-    actionError.value = e instanceof Error ? e.message : 'Error in presentation generation.'
+    actionError.value = describeError('Couldn’t start generating slides', e, 'Your outline is kept; choose Generate slides to try again.')
   } finally {
     generating.value = false
   }
@@ -211,7 +221,7 @@ function continueToPreview() {
 <template>
   <div class="grid grid-cols-[minmax(0,1fr)_196px] items-start gap-7 max-[900px]:grid-cols-1 max-[900px]:gap-4">
     <div class="flex min-w-0 flex-col gap-4">
-      <div class="flex min-h-[24px] flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[11px]">
+      <div class="flex min-h-[24px] flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[12px]">
         <span class="text-[#9aabb4] tabular-nums" data-testid="outline-count">{{ countLabel }}</span>
         <span class="flex items-center gap-1.5" aria-live="polite" data-testid="outline-save">
           <template v-if="saveState === 'saving'">
@@ -235,7 +245,7 @@ function continueToPreview() {
       </Transition>
 
       <Alert v-if="error" variant="destructive" class="flex items-center justify-between gap-3 py-2 text-[12px]">
-        <span>{{ error }}</span>
+        <span>{{ describeError('The outline stopped before it was finished', new Error(error), 'Retry to write it again.') }}</span>
         <Button type="button" size="sm" variant="secondary" @click="retry()">Retry</Button>
       </Alert>
 
@@ -280,17 +290,12 @@ function continueToPreview() {
 
   <RegenerateDialog v-model:open="confirmOpen" @confirm="regenerating = true" />
 
-  <WizardStepFooter :status="footerStatus" :error="footerError" :busy="generating">
-    <template v-if="readOnly" #secondary>
-      <Button type="button" variant="outline" :disabled="!canRegenerate" @click="confirmOpen = true">
-        <RotateCcw class="size-4" aria-hidden="true" />Regenerate slides from outline…
-      </Button>
-    </template>
+  <WizardStepFooter :status="footerStatus" :error="footerError" :busy="generating" :actions="actions">
     <template #primary>
       <Button v-if="readOnly" type="button" @click="continueToPreview">
         Continue to Preview<ArrowRight class="size-4" aria-hidden="true" />
       </Button>
-      <Button v-else type="button" class="min-w-[180px] max-[520px]:w-full" :disabled="!canGenerate" @click="generate">
+      <Button v-else type="button" class="min-w-[180px] " :disabled="!canGenerate" @click="generate">
         {{ generating ? 'Preparing…' : 'Generate slides' }}
         <ArrowRight v-if="!generating" class="size-4" aria-hidden="true" />
       </Button>

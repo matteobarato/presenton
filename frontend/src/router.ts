@@ -17,8 +17,10 @@ export const router = createRouter({
     { path: '/setup', name: 'setup', component: () => import('@/views/SetupView.vue'), meta: { public: true, layout: 'bare' } },
     { path: '/', name: 'library', component: () => import('@/views/LibraryView.vue'), meta: { layout: 'app' } },
     { path: '/new', name: 'new', component: () => import('@/views/NewView.vue'), meta: { layout: 'app' } },
-    // Old outline URL (bookmarks, open tabs): the outline is now step 4 of the create wizard.
+    // Old outline URL (bookmarks, open tabs): the outline is now step 3 of the create wizard.
     { path: '/new/:id/outline', redirect: (to) => ({ name: 'create', params: { id: to.params.id, step: 'outline' }, query: to.query }) },
+    // The details step is gone (its settings are chips on the Topic step): land on the outline.
+    { path: '/p/:id/create/:step(details)', redirect: (to) => ({ name: 'create', params: { id: to.params.id, step: 'outline' }, query: to.query }) },
     { path: '/p/:id/create/:step?', name: 'create', component: () => import('@/views/CreateDeckView.vue'), meta: { layout: 'app' } },
     { path: '/p/:id', name: 'editor', component: () => import('@/views/EditorView.vue'), meta: { layout: 'app' } },
     { path: '/p/:id/present', name: 'present', component: () => import('@/views/PresentView.vue'), meta: { layout: 'bare' } },

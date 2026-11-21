@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { DOMWrapper, flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { ApiError } from '@/api/errors'
@@ -62,25 +62,43 @@ async function mountView(generationMode: GenerationMode = 'both', config: Record
 type W = Awaited<ReturnType<typeof mountView>>['wrapper']
 const submitBtn = (w: W) => w.get('button[type="submit"]')
 const status = (w: W) => w.get('[role="status"]').text()
-async function visit(w: W, key: 'topic' | 'presenter' | 'look' | 'details') {
-  await w.get(`[data-testid="step-${key}"]`).trigger('click')
+const chipText = (w: W, key: string) => w.get(`[data-testid="chip-${key}"]`).text()
+
+/** Opens a setup chip; its controls render in a portal, so they are read from the document. */
+async function openChip(w: W, key: 'language' | 'length' | 'style' | 'extras') {
+  await w.get(`[data-testid="chip-${key}"]`).trigger('click')
   await flushPromises()
+  const panel = document.body.querySelector(`[data-testid="chip-${key}-panel"]`)
+  if (!panel) throw new Error(`chip ${key} did not open`)
+  return new DOMWrapper(panel)
 }
 async function typeTopic(w: W, text = 'Quarterly review') {
   await w.get('#create-prompt').setValue(text)
 }
+/** Enter in the form: Next on the Topic step, Create outline on the Presenter step. This goes all the way. */
 async function submit(w: W) {
+  const fromTopic = w.get('[data-testid="wizard-primary"]').text().startsWith('Next')
   await w.get('form').trigger('submit')
+  await flushPromises()
+  if (fromTopic) {
+    await w.get('form').trigger('submit')
+    await flushPromises()
+  }
+}
+async function goTo(w: W, key: 'topic' | 'presenter') {
+  await w.get(`[data-testid="step-${key}"]`).trigger('click')
   await flushPromises()
 }
 
 async function addPhoto(w: W, name = 'me.png') {
-  await visit(w, 'presenter')
+  await goTo(w, 'presenter')
+  await w.get('[data-testid="presenter-choice-photo"]').trigger('click')
   const input = w.get('[data-testid="portrait-input"]')
   const file = new File(['x'], name, { type: 'image/png' })
   Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
   await input.trigger('change')
   await flushPromises()
+  await goTo(w, 'topic')
   return file
 }
 
@@ -101,29 +119,225 @@ beforeEach(() => {
 })
 
 describe('NewView', () => {
-  it('prefills web search from the runtime config', async () => {
-    const { wrapper } = await mountView('both', { WEB_GROUNDING: true })
-    await visit(wrapper, 'details')
-    expect(wrapper.get('#opt-web').attributes('aria-checked')).toBe('true')
+  describe('one step: topic, look and a row of setting chips', () => {
+    it('is six steps; the old Avatar & language and Details steps are gone, Presenter is its own step', async () => {
+      const { wrapper } = await mountView()
+      expect(wrapper.findAll('nav[aria-label="Wizard steps"] ol > li')).toHaveLength(6)
+      expect(wrapper.get('[data-testid="steps-compact"]').text()).toContain('1/6')
+      expect(wrapper.get('[data-testid="step-presenter"]').text()).toContain('Presenter')
+      expect(wrapper.get('[data-testid="step-presenter"]').attributes('data-state')).toBe('available')
+      for (const k of ['details', 'look']) expect(wrapper.find(`[data-testid="step-${k}"]`).exists()).toBe(false)
+      for (const k of ['outline', 'preview', 'avatar', 'export']) {
+        const b = wrapper.get(`[data-testid="step-${k}"]`)
+        expect(b.attributes('data-state')).toBe('locked')
+        expect(b.attributes('title')).toBe('Create the outline first')
+      }
+      expect(wrapper.get('[data-testid="step-avatar"]').text()).toContain('Narration')
+      expect(wrapper.get('[data-testid="step-avatar"]').text()).not.toMatch(/Required|Optional|Decided/)
+      expect(wrapper.text()).not.toContain('Fine-tune details')
+    })
+
+    it('shows the chip row directly under the composer, with a summary of the defaults', async () => {
+      const { wrapper } = await mountView()
+      const chips = wrapper.get('[data-testid="setup-chips"]')
+      const composer = wrapper.get('[data-testid="dropzone"]')
+      expect(composer.element.compareDocumentPosition(chips.element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(chipText(wrapper, 'language')).toBe('Auto (English)')
+      expect(wrapper.find('[data-testid="chip-presenter"]').exists()).toBe(false)
+      expect(chipText(wrapper, 'length')).toBe('Auto length · Auto images')
+      expect(chipText(wrapper, 'style')).toBe('Tone: Default')
+      expect(chipText(wrapper, 'extras')).toBe('Extras: Animated')
+    })
+
+    it('chip summaries follow the values', async () => {
+      const { wrapper } = await mountView()
+      let panel = await openChip(wrapper, 'length')
+      await panel.get('#opt-slides').setValue('5')
+      await panel.get('#opt-images').setValue('0')
+      expect(chipText(wrapper, 'length')).toBe('5 slides · No images')
+      panel = await openChip(wrapper, 'style')
+      await panel.findAll('[aria-label="Tone"] [role="radio"]').find((b) => b.text() === 'Casual')!.trigger('click')
+      await panel.findAll('[aria-label="Text per slide"] [role="radio"]').find((b) => b.text().includes('Concise'))!.trigger('click')
+      expect(chipText(wrapper, 'style')).toBe('Tone: Casual · Text per slide: Concise')
+      panel = await openChip(wrapper, 'extras')
+      await panel.get('#opt-title').trigger('click')
+      await panel.get('#opt-animate').trigger('click')
+      expect(chipText(wrapper, 'extras')).toBe('Extras: Title slide')
+      panel = await openChip(wrapper, 'language')
+      await panel.get('#opt-language').setValue('Spanish (Español)')
+      expect(chipText(wrapper, 'language')).toBe('Spanish (Español)')
+    })
+
+    it('opens a chip into a popover with its controls, and closes it again', async () => {
+      const { wrapper } = await mountView()
+      expect(document.body.querySelector('[data-testid="chip-length-panel"]')).toBeNull()
+      const chip = wrapper.get('[data-testid="chip-length"]')
+      expect(chip.attributes('aria-expanded')).toBe('false')
+      const panel = await openChip(wrapper, 'length')
+      expect(chip.attributes('aria-expanded')).toBe('true')
+      expect(panel.text()).toContain('Length & media')
+      expect(panel.find('#opt-slides').exists()).toBe(true)
+      // The groups the chip does not own are not in it.
+      expect(panel.find('[aria-label="Tone"]').exists()).toBe(false)
+      await chip.trigger('click')
+      await flushPromises()
+      expect(document.body.querySelector('[data-testid="chip-length-panel"]')).toBeNull()
+    })
+
+    it('holds the controls without their own cards: one group per chip, extras with instructions', async () => {
+      const { wrapper } = await mountView()
+      const extras = await openChip(wrapper, 'extras')
+      for (const id of ['#opt-title', '#opt-toc', '#opt-web', '#opt-animate', '#opt-instructions']) expect(extras.find(id).exists()).toBe(true)
+      expect(extras.find('#opt-slides').exists()).toBe(false)
+    })
+
+    it('becomes a bottom sheet below 560px', async () => {
+      const original = window.matchMedia
+      window.matchMedia = ((query: string) => ({
+        matches: query.includes('max-width: 559px'),
+        media: query,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+      })) as unknown as typeof window.matchMedia
+      try {
+        const { wrapper } = await mountView()
+        const panel = await openChip(wrapper, 'length')
+        const sheet = panel.element.closest('[role="dialog"]')
+        expect(sheet?.classList.contains('anim-sheet-bottom')).toBe(true)
+        expect(panel.find('#opt-slides').exists()).toBe(true)
+      } finally {
+        window.matchMedia = original
+      }
+    })
   })
 
-  it('disables submit with no prompt and no files, and says why with a way back to Topic', async () => {
-    const { wrapper } = await mountView()
-    await visit(wrapper, 'details')
-    expect(submitBtn(wrapper).attributes('disabled')).toBeDefined()
-    expect(status(wrapper)).toContain('Add a topic or a document')
-    await wrapper.get('[data-testid="fix-topic"]').trigger('click')
-    await flushPromises()
-    expect(wrapper.find('#create-prompt').exists()).toBe(true)
-    await typeTopic(wrapper)
-    await visit(wrapper, 'details')
-    expect(submitBtn(wrapper).attributes('disabled')).toBeUndefined()
+  describe('Presenter step', () => {
+    it('is a step of its own with a clear voice-only choice, selected by default', async () => {
+      const { wrapper } = await mountView()
+      await goTo(wrapper, 'presenter')
+      expect(wrapper.get('h2').text()).toBe('Who presents?')
+      expect(wrapper.get('[data-testid="presenter-choice-voice"]').attributes('aria-checked')).toBe('true')
+      expect(wrapper.get('[data-testid="presenter-choice-voice"]').text()).toContain('No presenter — voice only')
+      expect(wrapper.get('[data-testid="presenter-choice-photo"]').attributes('aria-checked')).toBe('false')
+      expect(wrapper.find('[data-testid="portrait-input"]').exists()).toBe(false)
+      // Language is not here: it is a chip on the Topic step.
+      expect(wrapper.find('#opt-language').exists()).toBe(false)
+    })
+
+    it('Topic has Next: Presenter as its primary, Presenter has Create outline', async () => {
+      const { wrapper } = await mountView()
+      const primary = () => wrapper.get('[data-testid="wizard-primary"]')
+      expect(primary().text()).toBe('Next: Presenter')
+      expect(primary().attributes('disabled')).toBeDefined()
+      await typeTopic(wrapper)
+      expect(primary().attributes('disabled')).toBeUndefined()
+      await primary().trigger('click')
+      await flushPromises()
+      expect(m.createPresentation).not.toHaveBeenCalled()
+      expect(wrapper.get('h2').text()).toBe('Who presents?')
+      expect(primary().text()).toBe('Create outline')
+      expect(primary().classes().join(' ')).toContain('bg-accent')
+      await wrapper.get('[data-testid="wizard-back"]').trigger('click')
+      expect(wrapper.find('#create-prompt').exists()).toBe(true)
+    })
+
+    it('adds a photo; a wrong type is refused and keeps no photo', async () => {
+      const { wrapper } = await mountView()
+      await goTo(wrapper, 'presenter')
+      await wrapper.get('[data-testid="presenter-choice-photo"]').trigger('click')
+      const input = wrapper.get('[data-testid="portrait-input"]')
+      Object.defineProperty(input.element, 'files', { value: [new File(['x'], 'a.gif', { type: 'image/gif' })], configurable: true })
+      await input.trigger('change')
+      expect(wrapper.get('[role="alert"]').text()).toMatch(/JPEG, PNG or WebP/)
+      expect(wrapper.find('img[alt="Presenter portrait"]').exists()).toBe(false)
+      // Chosen, but no photo yet: the step bar and the helper say so instead of "Voice only".
+      expect(wrapper.get('[data-testid="step-presenter"]').text()).toContain('Photo needed')
+      expect(wrapper.get('[data-testid="presenter-picker-help"]').text()).toBe('Add a photo to continue with a presenter, or choose voice only.')
+
+      await addPhoto(wrapper)
+      expect(wrapper.get('[data-testid="step-presenter"]').text()).toContain('Photo set')
+    })
+
+    it('says what Create outline will do: its scope, and voice only when no photo came', async () => {
+      const { wrapper } = await mountView()
+            await goTo(wrapper, 'presenter')
+      await wrapper.get('[data-testid="presenter-choice-photo"]').trigger('click')
+      const status = () => wrapper.get('[data-testid="wizard-footer"] [role="status"]').text()
+      // Either a missing-topic link or the voice-only line; never a silent change of plan.
+      expect(status()).toMatch(/Add a topic|voice only/)
+    })
+
+    it('clicking a locked step shows why in the footer', async () => {
+      const { wrapper } = await mountView()
+      await wrapper.get('[data-testid="step-outline"]').trigger('click')
+      expect(wrapper.get('[data-testid="wizard-footer"] [role="status"]').text()).toContain('Create the outline first')
+    })
+
+    it('choosing voice only drops the photo', async () => {
+      const { wrapper } = await mountView()
+      await addPhoto(wrapper)
+      await goTo(wrapper, 'presenter')
+      expect(wrapper.find('img[alt="Presenter portrait"]').exists()).toBe(true)
+      await wrapper.get('[data-testid="presenter-choice-voice"]').trigger('click')
+      expect(wrapper.find('img[alt="Presenter portrait"]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid="presenter-choice-voice"]').attributes('aria-checked')).toBe('true')
+    })
+
+    it('says presenter videos are rendered at the Narration step when the count is Auto', async () => {
+      const { wrapper } = await mountView()
+      await addPhoto(wrapper)
+      await goTo(wrapper, 'presenter')
+      expect(wrapper.get('[data-testid="presenter-note"]').text()).toContain('Presenter videos are rendered at the Narration step')
+    })
+
+    it('chooses how many slides get a presenter video, here and not in Length & media', async () => {
+      const { wrapper } = await mountView()
+      await goTo(wrapper, 'presenter')
+      // Voice only: no count to choose.
+      expect(wrapper.find('#opt-videos').exists()).toBe(false)
+      await addPhoto(wrapper)
+      expect((await openChip(wrapper, 'length')).find('#opt-videos').exists()).toBe(false)
+      expect(chipText(wrapper, 'length')).not.toContain('presenter')
+      await goTo(wrapper, 'presenter')
+      expect(wrapper.get('#opt-videos').element).toHaveProperty('disabled', false)
+      await wrapper.get('#opt-videos').setValue('3')
+      expect(wrapper.get('[data-testid="presenter-note"]').text()).toBe('Adds 3 presenter videos at the Narration step')
+      await wrapper.get('#opt-videos').setValue('1')
+      expect(wrapper.get('[data-testid="presenter-note"]').text()).toBe('Adds 1 presenter video at the Narration step')
+      await wrapper.findAll('[aria-label="Presenter video count"] [role="radio"]').find((b) => b.text() === 'None')!.trigger('click')
+      expect(wrapper.get('[data-testid="presenter-note"]').text()).toContain('No presenter videos requested')
+    })
+
+    it('the count is locked until a photo is added', async () => {
+      const { wrapper } = await mountView()
+      await goTo(wrapper, 'presenter')
+      await wrapper.get('[data-testid="presenter-choice-photo"]').trigger('click')
+      expect(wrapper.get('#opt-videos').element).toHaveProperty('disabled', true)
+      expect(wrapper.text()).toContain('Add a presenter photo to choose')
+    })
+
+    it('Length & media no longer carries the presenter slots hint', async () => {
+      const { wrapper } = await mountView()
+      await addPhoto(wrapper)
+      const length = await openChip(wrapper, 'length')
+      expect(length.text()).not.toContain('Slots show a placeholder')
+      await goTo(wrapper, 'presenter')
+      expect(wrapper.text()).toContain('Shown as placeholders until rendered at the Narration step')
+    })
+  })
+
+  it('prefills web search from the runtime config', async () => {
+    const { wrapper } = await mountView('both', { WEB_GROUNDING: true })
+    expect(chipText(wrapper, 'extras')).toContain('Web search')
+    const panel = await openChip(wrapper, 'extras')
+    expect(panel.get('#opt-web').attributes('aria-checked')).toBe('true')
   })
 
   it('clamps the slide count to 1-50', async () => {
     const { wrapper } = await mountView()
-    await visit(wrapper, 'details')
-    const input = wrapper.get('#opt-slides')
+    const input = (await openChip(wrapper, 'length')).get('#opt-slides')
     await input.setValue('99')
     expect((input.element as HTMLInputElement).value).toBe('50')
     await input.setValue('0')
@@ -132,8 +346,7 @@ describe('NewView', () => {
 
   it('clamps the image count to 0-50, keeping 0 as "none"', async () => {
     const { wrapper } = await mountView()
-    await visit(wrapper, 'details')
-    const input = wrapper.get('#opt-images')
+    const input = (await openChip(wrapper, 'length')).get('#opt-images')
     await input.setValue('99')
     expect((input.element as HTMLInputElement).value).toBe('50')
     await input.setValue('0')
@@ -150,13 +363,13 @@ describe('NewView', () => {
     m.createPresentation.mockResolvedValue({ id: 'abc' })
     const { wrapper } = await mountView()
     await typeTopic(wrapper)
-    await visit(wrapper, 'details')
+    const panel = await openChip(wrapper, 'length')
     if (label) {
-      const chip = wrapper.findAll('[aria-label="Image count"] [role="radio"]').find((b) => b.text() === label)!
+      const chip = panel.findAll('[aria-label="Image count"] [role="radio"]').find((b) => b.text() === label)!
       await chip.trigger('click')
       expect(chip.attributes('aria-checked')).toBe('true')
     }
-    if (typed) await wrapper.get('#opt-images').setValue(typed)
+    if (typed) await panel.get('#opt-images').setValue(typed)
     await submit(wrapper)
     expect(m.createPresentation).toHaveBeenCalledWith(expect.objectContaining({ n_images: expected }))
   })
@@ -170,7 +383,7 @@ describe('NewView', () => {
     const { wrapper } = await mountView()
     await typeTopic(wrapper)
     await addPhoto(wrapper)
-    await visit(wrapper, 'details')
+    await goTo(wrapper, 'presenter')
     if (label) {
       const chip = wrapper.findAll('[aria-label="Presenter video count"] [role="radio"]').find((b) => b.text() === label)!
       await chip.trigger('click')
@@ -181,20 +394,10 @@ describe('NewView', () => {
     expect(m.createPresentation).toHaveBeenCalledWith(expect.objectContaining({ n_videos: expected, n_images: null }))
   })
 
-  it('says presenter slots wait for avatar generation', async () => {
-    const { wrapper } = await mountView()
-    await addPhoto(wrapper)
-    await visit(wrapper, 'details')
-    expect(wrapper.text()).toContain('Slots show a placeholder until you generate avatars in the Avatars panel')
-  })
-
-  it('without an avatar photo the videos count is None and disabled, and n_videos is 0', async () => {
+  it('without a presenter photo the videos count is None and disabled, and n_videos is 0', async () => {
     m.createPresentation.mockResolvedValue({ id: 'abc' })
     const { wrapper } = await mountView()
     await typeTopic(wrapper)
-    await visit(wrapper, 'details')
-    expect(wrapper.text()).toContain('Add an avatar photo to use presenter slides')
-    expect((wrapper.get('#opt-videos').element as HTMLInputElement).disabled).toBe(true)
     await submit(wrapper)
     expect(m.createPresentation).toHaveBeenCalledWith(expect.objectContaining({ n_videos: 0 }))
   })
@@ -205,7 +408,6 @@ describe('NewView', () => {
     const first = await mountView()
     await typeTopic(first.wrapper)
     const file = await addPhoto(first.wrapper)
-    await visit(first.wrapper, 'details')
     await submit(first.wrapper)
     expect(m.uploadPortrait).toHaveBeenCalledWith('abc', file)
     expect(first.router.currentRoute.value.name).toBe('create')
@@ -214,19 +416,8 @@ describe('NewView', () => {
     const second = await mountView()
     await typeTopic(second.wrapper)
     await addPhoto(second.wrapper)
-    await visit(second.wrapper, 'details')
     await submit(second.wrapper)
     expect(second.router.currentRoute.value.name).toBe('create')
-  })
-
-  it('rejects a wrong-type photo with a message and keeps no photo', async () => {
-    const { wrapper } = await mountView()
-    await visit(wrapper, 'presenter')
-    const input = wrapper.get('[data-testid="portrait-input"]')
-    Object.defineProperty(input.element, 'files', { value: [new File(['x'], 'a.gif', { type: 'image/gif' })], configurable: true })
-    await input.trigger('change')
-    expect(wrapper.get('[role="alert"]').text()).toMatch(/JPEG, PNG or WebP/)
-    expect(wrapper.find('img[alt="Presenter portrait"]').exists()).toBe(false)
   })
 
   it('renders no mode switch, creates a standard presentation and routes to the outline, without file calls', async () => {
@@ -234,8 +425,7 @@ describe('NewView', () => {
     const { wrapper, router } = await mountView()
     expect(wrapper.text()).not.toMatch(/smart/i)
     await typeTopic(wrapper)
-    await visit(wrapper, 'details')
-    await wrapper.get('#opt-slides').setValue('8')
+    await (await openChip(wrapper, 'length')).get('#opt-slides').setValue('8')
     await submit(wrapper)
     expect(m.uploadFiles).not.toHaveBeenCalled()
     expect(m.decomposeFiles).not.toHaveBeenCalled()
@@ -245,27 +435,24 @@ describe('NewView', () => {
     expect(router.currentRoute.value.fullPath).toBe('/p/abc/create/outline?template=c1')
   })
 
-  it('animate is off by default: nothing is handed to the editor', async () => {
+  it('animate is on by default (as the chip says) and is handed to the editor as a one-shot flag; off hands nothing', async () => {
     m.createPresentation.mockResolvedValue({ id: 'abc' })
-    const { wrapper } = await mountView()
-    await typeTopic(wrapper)
-    await visit(wrapper, 'details')
-    expect(wrapper.get('#opt-animate').attributes('aria-checked')).toBe('false')
-    await submit(wrapper)
+    const on = await mountView()
+    await typeTopic(on.wrapper)
+    const panel = await openChip(on.wrapper, 'extras')
+    expect(panel.get('#opt-animate').attributes('aria-checked')).toBe('true')
+    await submit(on.wrapper)
     expect(m.createPresentation.mock.calls[0]![0]).not.toHaveProperty('animate')
-    expect(sessionStorage.getItem('slideshows.animate.abc')).toBeNull()
-  })
-
-  it('with animate on, flags the new deck so the editor plans its motion after generation', async () => {
-    m.createPresentation.mockResolvedValue({ id: 'abc' })
-    const { wrapper, router } = await mountView()
-    await typeTopic(wrapper)
-    await visit(wrapper, 'details')
-    await wrapper.get('#opt-animate').trigger('click')
-    expect(wrapper.get('#opt-animate').attributes('aria-checked')).toBe('true')
-    await submit(wrapper)
     expect(sessionStorage.getItem('slideshows.animate.abc')).toBe('1')
-    expect(router.currentRoute.value.name).toBe('create')
+    expect(on.router.currentRoute.value.name).toBe('create')
+
+    sessionStorage.clear()
+    m.createPresentation.mockResolvedValue({ id: 'def' })
+    const off = await mountView()
+    await typeTopic(off.wrapper)
+    await (await openChip(off.wrapper, 'extras')).get('#opt-animate').trigger('click')
+    await submit(off.wrapper)
+    expect(sessionStorage.getItem('slideshows.animate.def')).toBeNull()
   })
 
   it('uploads, decomposes and sends the extracted paths', async () => {
@@ -274,22 +461,22 @@ describe('NewView', () => {
     m.createPresentation.mockResolvedValue({ id: 'f1' })
     const { wrapper } = await mountView()
     const file = await attach(wrapper)
-    await visit(wrapper, 'presenter')
-    await wrapper.get('#opt-language').setValue('English')
-    await visit(wrapper, 'details')
+    await (await openChip(wrapper, 'language')).get('#opt-language').setValue('English')
     await submit(wrapper)
     expect(m.uploadFiles).toHaveBeenCalledWith([file])
     expect(m.decomposeFiles).toHaveBeenCalledWith(['up/1'], 'English')
     expect(m.createPresentation).toHaveBeenCalledWith(expect.objectContaining({ file_paths: ['/doc/1.txt'], language: 'English' }))
   })
 
-  it('asks for a language before processing documents', async () => {
+  it('asks for a language before processing documents, opening the Language chip', async () => {
     const { wrapper } = await mountView()
     await attach(wrapper)
-    await visit(wrapper, 'details')
+    expect(wrapper.text()).toContain('Documents need a language')
     await submit(wrapper)
+    await flushPromises()
     expect(wrapper.get('[role="alert"]').text()).toContain('language')
-    expect(wrapper.find('#opt-language').exists()).toBe(true)
+    expect(document.body.querySelector('[data-testid="chip-language-panel"]')).not.toBeNull()
+    expect(document.activeElement?.id).toBe('opt-language')
     expect(m.uploadFiles).not.toHaveBeenCalled()
   })
 
@@ -298,138 +485,152 @@ describe('NewView', () => {
     m.createPresentation.mockReturnValueOnce(new Promise((r) => (resolve = r)))
     const { wrapper } = await mountView()
     await typeTopic(wrapper, 'Topic')
-    await visit(wrapper, 'details')
     await submit(wrapper)
     expect(submitBtn(wrapper).attributes('disabled')).toBeDefined()
     expect(submitBtn(wrapper).text()).toContain('Working')
     expect(status(wrapper)).toContain('Preparing outline')
+    // The choices are not editable while the deck is being created.
+    expect(wrapper.get('[data-testid="presenter-choice-photo"]').attributes('disabled')).toBeDefined()
     resolve({ id: 'p1' })
     await flushPromises()
 
     m.uploadFiles.mockRejectedValue(new ApiError('Unsupported file', 422))
     const second = await mountView()
     await attach(second.wrapper)
-    await visit(second.wrapper, 'presenter')
-    await second.wrapper.get('#opt-language').setValue('English')
-    await visit(second.wrapper, 'details')
+    await (await openChip(second.wrapper, 'language')).get('#opt-language').setValue('English')
     await submit(second.wrapper)
-    expect(second.wrapper.get('[role="alert"]').text()).toBe('Unsupported file')
+    expect(second.wrapper.get('[role="alert"]').text()).toContain('Unsupported file')
     expect(submitBtn(second.wrapper).attributes('disabled')).toBeUndefined()
 
     m.createPresentation.mockRejectedValue(new ApiError('Generation is disabled', 400))
     const third = await mountView()
     await typeTopic(third.wrapper, 'Topic')
-    await visit(third.wrapper, 'details')
     await submit(third.wrapper)
-    expect(third.wrapper.get('[role="alert"]').text()).toBe('Generation is disabled')
+    expect(third.wrapper.get('[role="alert"]').text()).toContain('Generation is disabled')
   })
 
-  describe('wizard shell', () => {
-    it('shows the deck steps locked, with the avatar badge following the videos option', async () => {
-      const { wrapper } = await mountView()
-      for (const k of ['outline', 'preview', 'avatar', 'export']) {
-        const b = wrapper.get(`[data-testid="step-${k}"]`)
-        expect(b.attributes('data-state')).toBe('locked')
-        expect(b.attributes('title')).toBe('Create the outline first')
-      }
-      await wrapper.get('[data-testid="step-outline"]').trigger('click')
-      expect(wrapper.find('#create-prompt').exists()).toBe(true)
-    })
+  describe('Create outline', () => {
+    const primary = (w: W) => w.get('[data-testid="wizard-primary"]')
 
-    it.each([
-      ['0', 'Optional'],
-      ['2', 'Required'],
-      ['', 'Decided after Preview'],
-    ])('avatar badge follows videos option %j', async (videos, badge) => {
+    it('the Topic step primary is the solid Next: Presenter, enabled with a topic and a template; it creates nothing', async () => {
       const { wrapper } = await mountView()
-      await addPhoto(wrapper)
-      await visit(wrapper, 'details')
-      if (videos) await wrapper.get('#opt-videos').setValue(videos)
-      expect(wrapper.get('[data-testid="step-avatar"]').text()).toContain(badge)
-    })
-
-    it('Alt+ArrowRight acts like Continue (Topic to Look to Details) and never submits', async () => {
-      const { wrapper } = await mountView()
-      // The composer owns focus on Topic and Alt+Arrow is ignored while typing, so start from the page.
-      ;(document.activeElement as HTMLElement | null)?.blur()
-      const press = async (key: string) => {
-        window.dispatchEvent(new KeyboardEvent('keydown', { key, altKey: true }))
-        await flushPromises()
-      }
-      await press('ArrowRight')
-      expect(wrapper.find('[data-testid="new-template-c1"]').exists()).toBe(true)
-      await press('ArrowRight')
-      expect(wrapper.find('#opt-slides').exists()).toBe(true)
-      await press('ArrowRight')
-      expect(m.createPresentation).not.toHaveBeenCalled()
-      await press('ArrowLeft')
-      expect(wrapper.find('[data-testid="new-template-c1"]').exists()).toBe(true)
-    })
-
-    it('Alt+ArrowRight on Look without a template stays put', async () => {
-      const { wrapper } = await mountView('both', {}, '/new')
-      await visit(wrapper, 'look')
-      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true }))
+      expect(primary(wrapper).text()).toBe('Next: Presenter')
+      expect(primary(wrapper).attributes('type')).toBe('submit')
+      expect(primary(wrapper).classes().join(' ')).toContain('bg-accent')
+      expect(primary(wrapper).attributes('disabled')).toBeDefined()
+      await typeTopic(wrapper)
+      expect(primary(wrapper).attributes('disabled')).toBeUndefined()
+      await primary(wrapper).trigger('click')
       await flushPromises()
-      expect(wrapper.find('#opt-slides').exists()).toBe(false)
+      expect(m.createPresentation).not.toHaveBeenCalled()
+    })
+
+    it('Create outline on the Presenter step is disabled while something is missing, and the footer sends you back to fix it', async () => {
+      const { wrapper } = await mountView('both', {}, '/new')
+      await goTo(wrapper, 'presenter')
+      expect(primary(wrapper).text()).toBe('Create outline')
+      expect(primary(wrapper).attributes('disabled')).toBeDefined()
+      expect(status(wrapper)).toBe('Add a topic or a document · Pick a template')
+      await wrapper.get('[data-testid="fix-topic"]').trigger('click')
+      await flushPromises()
+      expect(document.activeElement?.id).toBe('create-prompt')
+    })
+
+    it('a document counts as a topic', async () => {
+      const { wrapper } = await mountView()
+      await attach(wrapper)
+      expect(primary(wrapper).attributes('disabled')).toBeUndefined()
+    })
+
+    it('names what is missing in the footer, each a button that takes you there', async () => {
+      const { wrapper } = await mountView('both', {}, '/new')
+      expect(primary(wrapper).attributes('disabled')).toBeDefined()
+      expect(status(wrapper)).toBe('Add a topic or a document · Pick a template')
+      expect(wrapper.get('[data-testid="fix-topic"]').element.tagName).toBe('BUTTON')
+
+      // Focus is somewhere else first, so the move is visible.
+      ;(wrapper.get('[data-testid="chip-style"]').element as HTMLElement).focus()
+      await wrapper.get('[data-testid="fix-topic"]').trigger('click')
+      expect(document.activeElement?.id).toBe('create-prompt')
+
+      await typeTopic(wrapper)
+      expect(status(wrapper)).toBe('Pick a template')
+      expect(wrapper.find('[data-testid="fix-topic"]').exists()).toBe(false)
+      const scroll = vi.fn()
+      ;(wrapper.get('[aria-labelledby="new-look-h"]').element as HTMLElement).scrollIntoView = scroll
+      await wrapper.get('[data-testid="fix-look"]').trigger('click')
+      await flushPromises()
+      expect(scroll).toHaveBeenCalled()
+      expect(document.activeElement).toBe(wrapper.get('[data-testid="new-template-c1"]').element)
+    })
+
+    it('with a template picked and no topic, only the topic is named', async () => {
+      const { wrapper } = await mountView()
+      expect(status(wrapper)).toBe('Add a topic or a document')
+      await typeTopic(wrapper)
+      expect(status(wrapper)).toBe('')
+    })
+
+    it('Enter in the form goes to what is missing before anything else', async () => {
+      m.createPresentation.mockResolvedValue({ id: 'abc' })
+      const { wrapper } = await mountView('both', {}, '/new')
+      await typeTopic(wrapper)
+      ;(document.activeElement as HTMLElement | null)?.blur()
+      await wrapper.get('form').trigger('submit')
+      await flushPromises()
+      expect(m.createPresentation).not.toHaveBeenCalled()
+      expect(document.activeElement).toBe(wrapper.get('[data-testid="new-template-c1"]').element.closest('[role="radiogroup"]')?.querySelector('[role="radio"]'))
     })
   })
 
   describe('topic step', () => {
-    it('focuses the composer when entering Topic', async () => {
-      const { wrapper } = await mountView()
-      await visit(wrapper, 'look')
-      await visit(wrapper, 'topic')
+    it('focuses the composer on arrival', async () => {
+      await mountView()
       await flushPromises()
       expect(document.activeElement?.id).toBe('create-prompt')
     })
 
     const ctrlEnter = (w: W) => w.get('#create-prompt').trigger('keydown', { key: 'Enter', ctrlKey: true })
 
-    it('Ctrl+Enter creates the outline when it can', async () => {
-      m.createPresentation.mockResolvedValue({ id: 'abc' })
-      const { wrapper, router } = await mountView()
+    it('says what the shortcut does', async () => {
+      const { wrapper } = await mountView()
+      expect(wrapper.get('[data-testid="dropzone"]').text()).toMatch(/Enter\s*for next: Presenter/)
+    })
+
+    it('Ctrl+Enter goes on to the Presenter step when it can', async () => {
+      const { wrapper } = await mountView()
       await typeTopic(wrapper)
       await ctrlEnter(wrapper)
       await flushPromises()
-      expect(m.createPresentation).toHaveBeenCalled()
-      expect(router.currentRoute.value.name).toBe('create')
+      expect(wrapper.get('h2').text()).toBe('Who presents?')
+      expect(m.createPresentation).not.toHaveBeenCalled()
     })
 
-    it('Ctrl+Enter moves on to Look when it cannot create yet', async () => {
+    it('Cmd+Enter works too', async () => {
+      const { wrapper } = await mountView()
+      await typeTopic(wrapper)
+      await wrapper.get('#create-prompt').trigger('keydown', { key: 'Enter', metaKey: true })
+      await flushPromises()
+      expect(wrapper.get('h2').text()).toBe('Who presents?')
+    })
+
+    it('Ctrl+Enter without a template focuses the template grid and creates nothing', async () => {
       const { wrapper } = await mountView('both', {}, '/new')
       await typeTopic(wrapper)
       await ctrlEnter(wrapper)
       await flushPromises()
       expect(m.createPresentation).not.toHaveBeenCalled()
-      expect(wrapper.find('[data-testid="new-template-c1"]').exists()).toBe(true)
-    })
-  })
-
-  describe('look', () => {
-    it('requires a template: primary disabled with the reason in the footer', async () => {
-      const { wrapper } = await mountView('both', {}, '/new')
-      await visit(wrapper, 'look')
-      const primary = wrapper.get('[data-testid="wizard-primary"]')
-      expect(primary.attributes('disabled')).toBeDefined()
-      expect(status(wrapper)).toContain('Pick a template to continue')
-      await wrapper.get('[data-testid="new-template-c1"]').trigger('click')
-      await flushPromises()
-      expect(wrapper.get('[data-testid="wizard-primary"]').attributes('disabled')).toBeUndefined()
-      await wrapper.get('[data-testid="wizard-primary"]').trigger('click')
-      await flushPromises()
-      expect(wrapper.find('#opt-slides').exists()).toBe(true)
+      expect(document.activeElement?.getAttribute('role')).toBe('radio')
+      expect(document.activeElement?.getAttribute('data-testid')).toBe('new-template-c1')
     })
 
-    it('Details names the missing template and jumps to Look', async () => {
-      const { wrapper } = await mountView('both', {}, '/new')
-      await typeTopic(wrapper)
-      await visit(wrapper, 'details')
-      expect(submitBtn(wrapper).attributes('disabled')).toBeDefined()
-      expect(status(wrapper)).toContain('Pick a template')
-      await wrapper.get('[data-testid="fix-look"]').trigger('click')
+    it('Ctrl+Enter with nothing typed keeps the cursor in the composer', async () => {
+      const { wrapper } = await mountView()
+      ;(wrapper.get('[data-testid="chip-style"]').element as HTMLElement).focus()
+      await ctrlEnter(wrapper)
       await flushPromises()
-      expect(wrapper.find('[data-testid="new-template-c1"]').exists()).toBe(true)
+      expect(m.createPresentation).not.toHaveBeenCalled()
+      expect(document.activeElement?.id).toBe('create-prompt')
     })
   })
 
@@ -438,7 +639,6 @@ describe('NewView', () => {
       m.createPresentation.mockResolvedValue({ id: 'abc' })
       const { wrapper, router } = await mountView('both', {}, '/new?template=c1')
       await typeTopic(wrapper)
-      await visit(wrapper, 'details')
       await submit(wrapper)
       expect(router.currentRoute.value.name).toBe('create')
       expect(router.currentRoute.value.params).toMatchObject({ id: 'abc', step: 'outline' })
@@ -458,7 +658,6 @@ describe('NewView', () => {
         m.createPresentation.mockResolvedValue({ id: 'abc' })
         const { wrapper, router } = await mountView()
         await typeTopic(wrapper)
-        await visit(wrapper, 'details')
         await submit(wrapper)
         expect(router.currentRoute.value.name).toBe('create')
       } finally {
@@ -468,32 +667,31 @@ describe('NewView', () => {
   })
 
   describe('draft', () => {
-    it('draft survives remount', async () => {
+    it('draft survives remount, chip values included', async () => {
       const first = await mountView()
       await typeTopic(first.wrapper, 'Octopuses')
-      await visit(first.wrapper, 'details')
-      await first.wrapper.get('#opt-slides').setValue('7')
+      await (await openChip(first.wrapper, 'length')).get('#opt-slides').setValue('7')
       first.wrapper.unmount()
+      document.body.innerHTML = ''
       const second = await mountView()
       expect((second.wrapper.get('#create-prompt').element as HTMLTextAreaElement).value).toBe('Octopuses')
-      await visit(second.wrapper, 'details')
-      expect((second.wrapper.get('#opt-slides').element as HTMLInputElement).value).toBe('7')
+      expect(chipText(second.wrapper, 'length')).toContain('7 slides')
+      expect((await openChip(second.wrapper, 'length')).get('#opt-slides').element).toHaveProperty('value', '7')
     })
 
     it('draft cleared after create', async () => {
       m.createPresentation.mockResolvedValue({ id: 'abc' })
       const { wrapper } = await mountView()
       await typeTopic(wrapper, 'Octopuses')
-      expect(sessionStorage.getItem('slideshows.newDraft')).toContain('Octopuses')
-      await visit(wrapper, 'details')
+      expect(localStorage.getItem('slideshows.newDraft.v1')).toContain('Octopuses')
       await submit(wrapper)
-      expect(sessionStorage.getItem('slideshows.newDraft')).toBeNull()
+      expect(localStorage.getItem('slideshows.newDraft.v1')).toBeNull()
     })
 
     it('asks to re-add documents when a restored draft had files', async () => {
       const first = await mountView()
       await attach(first.wrapper)
-      expect(JSON.parse(sessionStorage.getItem('slideshows.newDraft')!).hadFiles).toBe(true)
+      expect(JSON.parse(localStorage.getItem('slideshows.newDraft.v1')!).hadFiles).toBe(true)
       first.wrapper.unmount()
       const second = await mountView()
       expect(second.wrapper.text()).toContain("Re-add your documents; files aren't kept after a reload.")
@@ -503,16 +701,29 @@ describe('NewView', () => {
       m.createPresentation.mockRejectedValue(new ApiError('Generation is disabled', 400))
       const { wrapper } = await mountView()
       await typeTopic(wrapper, 'Octopuses')
-      await visit(wrapper, 'details')
       await submit(wrapper)
-      expect(sessionStorage.getItem('slideshows.newDraft')).toContain('Octopuses')
-      await visit(wrapper, 'topic')
+      expect(localStorage.getItem('slideshows.newDraft.v1')).toContain('Octopuses')
+      await goTo(wrapper, 'topic')
       await typeTopic(wrapper, 'Squids')
-      expect(sessionStorage.getItem('slideshows.newDraft')).toContain('Squids')
+      expect(localStorage.getItem('slideshows.newDraft.v1')).toContain('Squids')
+    })
+
+    it('restores a draft left in localStorage by a killed tab (sessionStorage is empty)', async () => {
+      sessionStorage.clear()
+      localStorage.setItem('slideshows.newDraft.v1', JSON.stringify({ prompt: 'Kraken', options: { slides: '9' }, hadFiles: true, hadPhoto: false, savedAt: Date.now() }))
+      const { wrapper } = await mountView()
+      expect((wrapper.get('#create-prompt').element as HTMLTextAreaElement).value).toBe('Kraken')
+      expect(wrapper.text()).toContain("Re-add your documents; files aren't kept after a reload.")
+    })
+
+    it('drops a draft older than two weeks', async () => {
+      localStorage.setItem('slideshows.newDraft.v1', JSON.stringify({ prompt: 'Stale', options: {}, hadFiles: false, hadPhoto: false, savedAt: Date.now() - 15 * 24 * 3600 * 1000 }))
+      const { wrapper } = await mountView()
+      expect((wrapper.get('#create-prompt').element as HTMLTextAreaElement).value).toBe('')
     })
 
     it('survives unusable storage', async () => {
-      sessionStorage.setItem('slideshows.newDraft', '{not json')
+      localStorage.setItem('slideshows.newDraft.v1', '{not json')
       const { wrapper } = await mountView()
       expect((wrapper.get('#create-prompt').element as HTMLTextAreaElement).value).toBe('')
     })
@@ -521,22 +732,19 @@ describe('NewView', () => {
   describe('template selector', () => {
     it('has nothing chosen with no ?template, and offers no "Decide later"', async () => {
       const { wrapper } = await mountView('both', {}, '/new')
-      await visit(wrapper, 'look')
       expect(wrapper.find('[data-testid="new-template-none"]').exists()).toBe(false)
       expect(wrapper.get('[data-testid="new-template-c1"]').attributes('aria-checked')).toBe('false')
     })
 
     it('preselects from ?template', async () => {
       const { wrapper } = await mountView()
-      await visit(wrapper, 'look')
       expect(wrapper.get('[data-testid="new-template-c1"]').attributes('aria-checked')).toBe('true')
       expect(wrapper.get('[data-testid="new-template-c1"]').text()).toContain('Pitch')
-      expect(wrapper.get('[data-testid="step-look"]').text()).toContain('Pitch')
+      expect(wrapper.get('[data-testid="step-topic"]').text()).toContain('Pitch')
     })
 
     it('picking a template writes ?template', async () => {
       const { wrapper, router } = await mountView('both', {}, '/new')
-      await visit(wrapper, 'look')
       await wrapper.get('[data-testid="new-template-c1"]').trigger('click')
       await flushPromises()
       expect(router.currentRoute.value.query.template).toBe('c1')
@@ -545,22 +753,19 @@ describe('NewView', () => {
     it('explains an empty template list', async () => {
       m.listTemplates.mockResolvedValue([])
       const { wrapper } = await mountView('both', {}, '/new')
-      await visit(wrapper, 'look')
       expect(wrapper.text()).toContain('No templates are available yet')
-      expect(status(wrapper)).toContain('Pick a template to continue')
+      expect(status(wrapper)).toContain('Pick a template')
     })
 
     it('blocks creating when templates fail to load, with the reason', async () => {
       m.listTemplates.mockRejectedValue(new Error('boom'))
       const { wrapper } = await mountView('both', {}, '/new')
-      await visit(wrapper, 'look')
       expect(wrapper.text()).toContain('Templates couldn’t load')
-      expect(status(wrapper)).toContain('Pick a template to continue')
+      expect(status(wrapper)).toContain('Pick a template')
     })
 
     it('drops an unknown template id', async () => {
       const { wrapper, router } = await mountView('both', {}, '/new?template=zzz')
-      await visit(wrapper, 'look')
       expect(router.currentRoute.value.query.template).toBeUndefined()
       expect(wrapper.get('[data-testid="new-template-c1"]').attributes('aria-checked')).toBe('false')
     })

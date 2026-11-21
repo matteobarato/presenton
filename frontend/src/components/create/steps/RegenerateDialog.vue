@@ -17,7 +17,7 @@ function confirm() {
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Regenerate slides from the outline?</DialogTitle>
-        <DialogDescription>Regenerating replaces every slide. Slide edits, narration and avatars will be lost.</DialogDescription>
+        <DialogDescription>Regenerating replaces every slide. Your slide edits, narration and presenter videos will be lost.</DialogDescription>
       </DialogHeader>
       <DialogFooter>
         <Button variant="outline" @click="open = false">Cancel</Button>

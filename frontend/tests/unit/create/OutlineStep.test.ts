@@ -235,7 +235,7 @@ describe('OutlineStep', () => {
   it('with no template known anywhere, the picker asks for one and picking enables Generate', async () => {
     const { wrapper, router } = await mountStep('/p/p1/create/outline')
     expect(generateBtn(wrapper).attributes('disabled')).toBeDefined()
-    expect(status(wrapper)).toBe('Pick a template to generate')
+    expect(status(wrapper)).toBe('Pick a template to generate slides')
     expect(wrapper.find('[data-testid="new-template-none"]').exists()).toBe(false) // no "Decide later"
     await generateBtn(wrapper).trigger('click')
     expect(mocks.preparePresentation).not.toHaveBeenCalled()
@@ -256,9 +256,9 @@ describe('OutlineStep', () => {
     mocks.listTemplates.mockRejectedValue(new Error('down'))
     const { wrapper } = await mountStep('/p/p1/create/outline')
     expect(generateBtn(wrapper).attributes('disabled')).toBeDefined()
-    expect(wrapper.get('[role="alert"]').text()).toContain('No template chosen — start a new deck')
+    expect(wrapper.get('[role="alert"]').text()).toContain('This deck has no template')
     // The alert carries the message; the status line only names the effect.
-    expect(status(wrapper)).toBe('Generate unavailable')
+    expect(status(wrapper)).toBe('')
   })
 
   it('reached without the query, an empty deck generates with its remembered template', async () => {
@@ -282,7 +282,7 @@ describe('OutlineStep', () => {
     localStorage.setItem('slideshows.deckLook.p1', JSON.stringify({ template: 'gone' }))
     const { wrapper } = await mountStep('/p/p1/create/outline')
     expect(wrapper.find('[data-testid="outline-template-picker"]').exists()).toBe(true)
-    expect(status(wrapper)).toBe('Pick a template to generate')
+    expect(status(wrapper)).toBe('Pick a template to generate slides')
   })
 
   it('generate goes to preview with stream flag', async () => {
@@ -400,7 +400,7 @@ describe('OutlineStep', () => {
       await button(wrapper, /Regenerate slides from outline…/)!.trigger('click')
       await flushPromises()
       const dialog = document.body.querySelector('[role="dialog"]') as HTMLElement
-      expect(dialog.textContent).toContain('Regenerating replaces every slide. Slide edits, narration and avatars will be lost.')
+      expect(dialog.textContent).toContain('Regenerating replaces every slide. Your slide edits, narration and presenter videos will be lost.')
       // Cancel keeps it read-only.
       const cancel = [...dialog.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Cancel')!
       cancel.click()
@@ -444,7 +444,7 @@ describe('OutlineStep', () => {
     it('Regenerate waits while voice and avatars are being made, with the reason', async () => {
       const { wrapper } = await mountStep('/p/p1/create/outline?template=modern', deck(3), { pipelineRunning: true })
       expect(button(wrapper, /Regenerate slides from outline…/)!.attributes('disabled')).toBeDefined()
-      expect(status(wrapper)).toBe('Wait for voice and avatars to finish')
+      expect(status(wrapper)).toBe('Narration is running; wait for it to finish')
       await wrapper.setProps({ pipelineRunning: false })
       expect(button(wrapper, /Regenerate slides from outline…/)!.attributes('disabled')).toBeUndefined()
     })
@@ -454,7 +454,7 @@ describe('OutlineStep', () => {
       expect(wrapper.find('[role="alert"]').exists()).toBe(false)
       // Regenerating would need the template: it is not offered, and the status line says why.
       expect(button(wrapper, /Regenerate slides from outline…/)!.attributes('disabled')).toBeDefined()
-      expect(status(wrapper)).toContain('No template chosen — start a new deck')
+      expect(status(wrapper)).toContain('Regenerating needs a template')
       const cont = button(wrapper, /Continue to Preview/)!
       expect(cont.attributes('disabled')).toBeUndefined()
       await cont.trigger('click')
