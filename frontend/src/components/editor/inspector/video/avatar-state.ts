@@ -13,6 +13,7 @@ export type AvatarChipKind =
   | 'done'
   | 'uploaded'
   | 'video_stale'
+  | 'other_language'
 
 export const CHIP_LABEL: Record<AvatarChipKind, string> = {
   ready: 'Ready',
@@ -25,6 +26,7 @@ export const CHIP_LABEL: Record<AvatarChipKind, string> = {
   done: 'Generated',
   uploaded: 'Uploaded video',
   video_stale: 'Out of date',
+  other_language: 'Other language',
 }
 
 const FAILURE_LABELS: Record<string, string> = {
@@ -69,10 +71,13 @@ export function chipFor(input: {
   narration: NarrationState
   video?: SlideVideo
   previewReason?: string | null
+  /** The narration language in play; an avatar recorded for another one is hidden in Present and the export. */
+  language?: string
 }): AvatarChipKind {
-  const { plan, hasPlaceholder, narration, video, previewReason } = input
+  const { plan, hasPlaceholder, narration, video, previewReason, language = '' } = input
   if (plan?.state === 'queued' || plan?.state === 'generating') return 'generating'
   if (plan?.state === 'failed') return 'failed'
+  if (otherAvatarLanguage(video, language)) return 'other_language'
   if (video?.source === 'upload') return 'uploaded'
   if (!hasPlaceholder) return 'no_placeholder'
   if (narration === 'missing') return 'no_audio'
@@ -89,3 +94,13 @@ export function chipFor(input: {
  */
 export const isFreshVideo = (v: Pick<SlideVideo, 'stale' | 'source'> | null | undefined): boolean =>
   v != null && (!v.stale || v.source === 'upload')
+
+/**
+ * The avatar's language when it is not the narration language in play, else null. The avatar is lip-synced
+ * to its own language's audio, so Present and the MP4 export hide it then (server: `resolve_slide_actors`,
+ * which lets an avatar with no language, or a deck with no narration language, through).
+ */
+export function otherAvatarLanguage(video: Pick<SlideVideo, 'language'> | null | undefined, language: string): string | null {
+  const own = video?.language
+  return own && language && own !== language ? own : null
+}

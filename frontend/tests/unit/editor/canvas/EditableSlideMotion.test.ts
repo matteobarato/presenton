@@ -139,7 +139,7 @@ describe('EditableSlide motion preview', () => {
     editor.footerTab = 'notes'
     await nextTick()
     expect(m.previews[0]!.restore).not.toHaveBeenCalled() // the inspector still shows Motion
-    editor.inspectorTab = 'design'
+    editor.inspectorTab = 'layers'
     await nextTick()
     expect(editor.motionTime).toBeNull()
     expect(m.previews[0]!.restore).toHaveBeenCalled()

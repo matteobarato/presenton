@@ -185,7 +185,7 @@ describe('MotionTimeline', () => {
 
   it('selecting a clip or a track selects the element and opens the Motion inspector tab', async () => {
     const { w, editor } = await mountTimeline()
-    editor.inspectorTab = 'design'
+    editor.inspectorTab = 'layers'
     await w.get('[data-motion-clip="e0"]').trigger('click')
     expect(editor.motionTarget).toBe('e0')
     expect(editor.inspectorTab).toBe('motion')

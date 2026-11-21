@@ -98,6 +98,7 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
       narration: narration.stateOf(s),
       video: videoBySlide.value.get(s.id),
       previewReason: previewReason.value.get(s.id),
+      language: language.value,
     })
 
   /** Why no avatar can be generated at all right now, or null. */

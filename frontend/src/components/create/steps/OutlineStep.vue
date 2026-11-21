@@ -7,13 +7,7 @@ import { ArrowRight, Check, LoaderCircle, RotateCcw, TriangleAlert } from 'lucid
 import type { Presentation } from '@/api/types'
 import { MAX_OUTLINE_SLIDES, preparePresentation, saveOutline } from '@/api/outlines'
 import { listTemplates, templatesKey } from '@/api/templates'
-import { updatePresentation } from '@/api/presentations'
-import { useTemplateLayouts } from '@/composables/useTemplateLayouts'
 import { useOutlineStream } from '@/composables/useOutlineStream'
-import { useThemeParam } from '@/composables/useThemeParam'
-import { withSourceTheme } from '@/render/retint'
-import { DEFAULT_TEMPLATE_THEME, normalizeTemplateTheme } from '@/render/legacy/lib/template-theme'
-import { toast } from '@/components/ui/sonner'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import AiProgress from '@/components/shell/AiProgress.vue'
@@ -26,8 +20,7 @@ import RegenerateDialog from './RegenerateDialog.vue'
 
 /**
  * Step 4: read (and lightly edit) the outline, then generate the slides from it with the template chosen on
- * the Look step and the optional theme (see `useDeckLook`: `?template=`/`?theme=`, else the deck's remembered
- * record, else its slides' template). A deck whose template is unknown gets a picker here. Once the deck has
+ * the Topic step (see `useDeckLook`: `?template=`, else the deck's remembered record, else its slides' template). A deck whose template is unknown gets a picker here. Once the deck has
  * slides the outline is read-only until regenerating is confirmed.
  */
 const props = defineProps<{ presentation: Presentation; pipelineRunning?: boolean }>()
@@ -53,7 +46,7 @@ const progressDetail = computed(() => {
 // Skeleton cards stand in for the slides still to come while the outline streams.
 const skeletons = computed(() => (streaming.value ? Math.min(4, Math.max(1, (props.presentation.n_slides ?? 0) - items.value.length)) : 0))
 
-// ── Template and theme: chosen on the Look step, shown read-only here ──
+// ── Template: chosen on the Topic step, shown read-only here ──
 const templates = useQuery({ queryKey: templatesKey, queryFn: listTemplates })
 const look = useDeckLook(id, toRef(props, 'presentation'), templates.data)
 const templateId = look.templateId
@@ -66,17 +59,6 @@ watch(
 )
 const chosenTemplate = computed(() => (templateId.value ? templates.data.value?.find((t) => t.id === templateId.value) : undefined))
 const templateKnown = computed(() => !!templateId.value && !(templates.isSuccess.value && !chosenTemplate.value))
-// The template's own palette travels with the theme, so the deck recolours by role instead of only setting variables.
-const { theme: templatePalette } = useTemplateLayouts(chosenTemplate)
-const { isPending: themesPending, isError: themesError, themeList } = useThemeParam()
-const chosenTheme = computed(() => (look.themeId.value ? themeList.value.find((t) => t.id === look.themeId.value) : undefined))
-// A chosen theme that the list has not resolved yet (or failed to load) must not be dropped silently.
-const themeRequested = computed(() => !!look.themeId.value)
-const themeName = computed(() => chosenTheme.value?.name ?? 'Template colours')
-const themeDots = computed(() => {
-  const p = normalizeTemplateTheme(chosenTheme.value ?? templatePalette.value) ?? DEFAULT_TEMPLATE_THEME
-  return [p.background, p.primary, p.background_text]
-})
 const compact = useMediaQuery('(max-width: 900px)')
 
 // ── Read-only once slides exist ──
@@ -172,7 +154,6 @@ const blockReason = computed<string | null>(() => {
   if (showPicker.value) return PICK_TEMPLATE
   if (props.pipelineRunning) return PIPELINE_BUSY
   if (templates.isPending.value) return 'Loading the template…'
-  if (themeRequested.value && themesPending.value) return 'Loading your theme…'
   if (count.value === 0) return 'Add at least one slide'
   if (overLimit.value > 0) return `Remove ${overLimit.value} ${overLimit.value === 1 ? 'slide' : 'slides'} to continue (max ${MAX_OUTLINE_SLIDES})`
   return null
@@ -207,22 +188,11 @@ async function generate() {
       outlines: items.value.map((i) => ({ content: i.content })),
       layout,
     })
-    // Template colours is the default: only an explicit theme is applied. A failure must not block the preview.
-    if (themeRequested.value && themesError.value) {
-      toast.error("Couldn't apply theme — set it in Design")
-    } else if (chosenTheme.value) {
-      try {
-        await updatePresentation({ id: id.value, theme: withSourceTheme(chosenTheme.value, templatePalette.value) })
-      } catch {
-        toast.error("Couldn't apply theme — set it in Design")
-      }
-    }
-    // Keep the rest of the query (template, theme): going Back to regenerate still needs the template.
-    const theme = look.themeId.value
+    // Keep the rest of the query: going Back to regenerate still needs the template.
     await router.replace({
       name: 'create',
       params: { id: id.value, step: 'preview' },
-      query: { ...route.query, template: layout, ...(theme && { theme }), stream: '1' },
+      query: { ...route.query, template: layout, stream: '1' },
     })
   } catch (e) {
     actionError.value = e instanceof Error ? e.message : 'Error in presentation generation.'
@@ -281,7 +251,7 @@ function continueToPreview() {
 
       <section v-if="showPicker" class="flex flex-col gap-3" aria-label="Pick a template" data-testid="outline-template-picker">
         <p class="text-[12px] text-[#d4dee3]">This deck has no template yet. Pick one to generate its slides.</p>
-        <NewTemplateSelector v-model="pickedTemplate" :templates="templates.data.value ?? []" :allow-later="false" :disabled="generating" :theme="chosenTheme" />
+        <NewTemplateSelector v-model="pickedTemplate" :templates="templates.data.value ?? []" :allow-later="false" :disabled="generating" />
       </section>
 
       <OutlineList v-if="items.length || !streaming" v-model="items" :disabled="streaming || readOnly || generating" />
@@ -298,19 +268,12 @@ function continueToPreview() {
 
     <aside
       class="sticky top-0 flex flex-col gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 max-[900px]:static max-[900px]:order-first max-[900px]:flex-row max-[900px]:items-center"
-      aria-label="Template and theme"
+      aria-label="Template"
       data-testid="outline-look"
     >
-      <TemplateCardThumb v-if="chosenTemplate" :template="chosenTemplate" :width="compact ? 84 : 170" :theme-override="chosenTheme" />
+      <TemplateCardThumb v-if="chosenTemplate" :template="chosenTemplate" :width="compact ? 84 : 170" />
       <div class="flex min-w-0 flex-col gap-1.5">
         <span class="truncate text-[12px] font-medium text-[#e4ecf0]">{{ chosenTemplate?.name ?? 'No template' }}</span>
-        <span class="flex items-center gap-1.5 text-[11px] text-[#a8b3b9]">
-          <span class="flex items-center gap-0.5" aria-hidden="true">
-            <i v-for="(c, n) in themeDots" :key="n" class="block size-[7px] rounded-full border border-white/[0.12]" :style="{ background: c }" />
-          </span>
-          <span class="truncate">{{ themeName }}</span>
-        </span>
-        <span class="text-[10px] text-[#7f8d95]">Theme can be changed later</span>
       </div>
     </aside>
   </div>

@@ -16,7 +16,6 @@ const m = vi.hoisted(() => ({
   getAvatarGeneration: vi.fn(),
   getAvatarPreview: vi.fn(),
   listTemplates: vi.fn(),
-  listThemes: vi.fn(),
   outlineStream: vi.fn(),
   outlineStreaming: false,
   /** The slide stream fails at once (fatal), instead of never ending. */
@@ -56,7 +55,6 @@ vi.mock('@/api/templates', async (orig) => ({
   ...(await orig<typeof import('@/api/templates')>()),
   listTemplates: m.listTemplates,
 }))
-vi.mock('@/api/themes', async (orig) => ({ ...(await orig<typeof import('@/api/themes')>()), listThemes: m.listThemes }))
 vi.mock('@/components/ui/sonner', () => ({ toast: m.toast }))
 // The preview step streams the slides from the server; here that stream never ends (so `?stream=1` stays put),
 // or fails at once when `m.streamFails` is set.
@@ -150,7 +148,6 @@ beforeEach(() => {
   m.getAvatarGeneration.mockResolvedValue(null)
   m.getAvatarPreview.mockResolvedValue({ language: 'en-US', languages: ['en-US'], slides: [] })
   m.listTemplates.mockResolvedValue([{ id: 'modern', name: 'Modern', layouts: [], kind: 'builtin' }])
-  m.listThemes.mockResolvedValue([])
   m.outlineStreaming = false
   m.streamFails = false
 })

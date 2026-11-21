@@ -23,7 +23,6 @@ async function mockApi(page: Page, overrides: Record<string, Handler> = {}) {
     'GET /api/runtime-config': json({ configured: true, config: { PRESENTATION_GENERATION_MODE: 'standard' } }),
     'GET /api/v1/ppt/presentation/all': json(decks),
     [`GET /api/v1/ppt/presentation/${DECK_ID}`]: json(deck),
-    'GET /api/v1/ppt/themes/all': json(fixture('themes')),
     'GET /api/v1/ppt/presentation/speaker-notes/tts/languages': json(fixture('languages')),
     [`GET /api/v1/ppt/presentation/${DECK_ID}/speaker-notes/tts`]: json(fixture('tts')),
     [`GET /api/v1/ppt/presentation/${DECK_ID}/playback`]: json(fixture('playback')),

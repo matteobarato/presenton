@@ -851,8 +851,16 @@ async def set_video_placeholder(
         raise SlideVideoNotSupportedError(
             "Avatar placeholders can only be added to template slides"
         )
+    # A bare placeholder has no video to take its shape from, so it is portrait
+    # like the avatar frames templates draw, not a landscape strip.
     slide.ui = ensure_video_placeholder(
-        slide.ui, x=x, y=y, width=width, height=height
+        slide.ui,
+        video_width=PRESENTER_SLOT_ASPECT[0],
+        video_height=PRESENTER_SLOT_ASPECT[1],
+        x=x,
+        y=y,
+        width=width,
+        height=height,
     )
     sql_session.add(slide)
     await sql_session.commit()

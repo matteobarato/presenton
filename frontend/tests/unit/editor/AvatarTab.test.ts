@@ -214,6 +214,22 @@ describe('AvatarTab: avatar of the active slide', () => {
     expect(m.uploadSlideVideo).toHaveBeenCalledWith('p1', 1, file)
   })
 
+  it('warns when the video was recorded for another narration language', async () => {
+    const video = (language: string) => ({ slide_index: 0, slide_id: 's0', source: 'heygen', stale: false, language })
+    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait, videos: [video('it-IT')] })
+    const { wrapper } = await mountTab()
+    expect(avatar(wrapper).attributes('data-chip')).toBe('other_language')
+    expect(avatar(wrapper).get('[data-testid="slide-avatar-language"]').text()).toContain(
+      'recorded for Italian narration, so Present and the video export hide it while the deck plays in English',
+    )
+
+    m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: true, portrait, videos: [video('en-US')] })
+    await queryClient.invalidateQueries({ queryKey: ['videos', 'p1'] })
+    await flushPromises()
+    expect(avatar(wrapper).attributes('data-chip')).toBe('done')
+    expect(avatar(wrapper).find('[data-testid="slide-avatar-language"]').exists()).toBe(false)
+  })
+
   it('explains why a slide with stale narration cannot get an avatar', async () => {
     const { wrapper } = await mountTab(1)
     expect(avatar(wrapper).text()).toContain('Narration changed — regenerate the audio first.')

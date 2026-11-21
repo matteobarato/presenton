@@ -2,10 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { AlignLeft, ArrowLeft, ArrowRight, CalendarDays, Languages, Layers, MessageSquareQuote, Palette, PencilLine } from 'lucide-vue-next'
-import { useQuery } from '@tanstack/vue-query'
 import { useElementSize } from '@vueuse/core'
-import { listThemes, themeKeys, type ThemeRecord } from '@/api/themes'
-import { readDeckLook } from '@/composables/useDeckLook'
 import TemplateCardThumb from '@/components/create/TemplateCardThumb.vue'
 import type { Presentation } from '@/api/types'
 import { Button } from '@/components/ui/button'
@@ -182,12 +179,6 @@ const copy = computed(() => COPY[current.value])
 const panelKey = computed(() => step.value ?? requested.value ?? progress.value.resume)
 const title = computed(() => props.presentation.title?.trim() || 'New presentation')
 
-const themes = useQuery({ queryKey: themeKeys.all, queryFn: listThemes })
-const deckTheme = computed(() => {
-  const tid = (typeof route.query.theme === 'string' && route.query.theme) || readDeckLook(props.presentationId)?.theme
-  const list: unknown = themes.data.value
-  return tid && Array.isArray(list) ? (list as ThemeRecord[]).find((t) => t?.id === tid) : undefined
-})
 const created = computed(() => {
   const d = new Date(props.presentation.created_at)
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
@@ -232,15 +223,13 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
       <article data-testid="summary-look" class="summary-card flex min-w-0 flex-col gap-3">
         <header class="summary-kicker"><Palette class="size-3.5" aria-hidden="true" />Look</header>
         <div ref="thumbBox" class="w-full">
-          <TemplateCardThumb v-if="template" :template="template" :width="thumbWidth" :theme-override="deckTheme" />
+          <TemplateCardThumb v-if="template" :template="template" :width="thumbWidth" />
           <div v-else class="grid aspect-video w-full place-items-center rounded border border-dashed border-white/[0.1] text-[11px] text-[#8e9ca4]">No preview</div>
         </div>
         <div class="flex min-w-0 flex-col gap-1">
           <p class="truncate text-[14px] font-medium text-[#eef6fa]">{{ template?.name ?? 'Template' }}</p>
           <p class="flex flex-wrap items-center gap-1.5 text-[11px] text-[#8e9ca4]">
             <span v-if="template">{{ template.layouts.length }} {{ template.layouts.length === 1 ? 'layout' : 'layouts' }}</span>
-            <span v-if="template && deckTheme" aria-hidden="true">·</span>
-            <span v-if="deckTheme" class="rounded-full border border-white/[0.12] px-2 py-px text-[10.5px] text-[#a9c4d2]">{{ deckTheme.name }}</span>
           </p>
         </div>
       </article>

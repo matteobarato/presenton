@@ -232,7 +232,7 @@ describe('MotionTab', () => {
     expect(document.activeElement).toBe(search)
     expect(ev.defaultPrevented).toBe(true)
     search.blur()
-    editor.inspectorTab = 'design'
+    editor.inspectorTab = 'layers'
     const ev2 = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true, cancelable: true })
     window.dispatchEvent(ev2)
     expect(document.activeElement).not.toBe(search)

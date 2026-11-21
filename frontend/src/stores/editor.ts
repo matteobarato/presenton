@@ -2,7 +2,7 @@ import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { FOOTER_DEFAULT_HEIGHT } from '@/components/editor/footerHeight'
 
-export type InspectorTabId = 'layers' | 'insert' | 'design' | 'avatar' | 'motion'
+export type InspectorTabId = 'layers' | 'insert' | 'avatar' | 'motion'
 export type FooterTab = 'notes' | 'voice' | 'motion'
 
 /** Stable key of a slide; slides mid-stream may not have an id yet. */
@@ -29,7 +29,7 @@ export const useEditorStore = defineStore('editor', () => {
   const navigatorVisible = ref(true) // the docked storyboard, above 760px
   const inspectorOpen = ref(true)
   const chatOpen = ref(false)
-  const inspectorTab = ref<InspectorTabId>('design')
+  const inspectorTab = ref<InspectorTabId>('insert')
   const zoom = ref(1)
   // The tabbed Notes | Voice footer under the slide; height is the raw body px (clamped where it is rendered).
   const footerOpen = ref(false)

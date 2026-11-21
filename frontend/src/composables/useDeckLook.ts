@@ -4,10 +4,9 @@ import type { TemplateSummary } from '@/api/templates'
 import type { Presentation } from '@/api/types'
 import { blockTemplateId } from '@/slide-editor/insert/templateBlocks'
 
-/** The template (and optional theme) a deck was created with, remembered per deck. */
+/** The template a deck was created with, remembered per deck. */
 export interface DeckLook {
   template: string
-  theme?: string
 }
 
 export const deckLookKey = (presentationId: string) => `slideshows.deckLook.${presentationId}`
@@ -20,9 +19,9 @@ export function readDeckLook(presentationId: string): DeckLook | null {
   try {
     const raw = localStorage.getItem(deckLookKey(presentationId))
     if (!raw) return null
-    const v = JSON.parse(raw) as { template?: unknown; theme?: unknown }
+    const v = JSON.parse(raw) as { template?: unknown }
     if (typeof v.template !== 'string' || !v.template) return null
-    return { template: v.template, ...(typeof v.theme === 'string' && v.theme ? { theme: v.theme } : {}) }
+    return { template: v.template }
   } catch {
     return null
   }
@@ -40,8 +39,8 @@ export function rememberDeckLook(presentationId: string, look: DeckLook) {
 const str = (v: unknown) => (typeof v === 'string' && v ? v : null)
 
 /**
- * Which template and theme generate this deck's slides: `?template=`/`?theme=`, else the deck's remembered
- * record (written when it was created), else (template only) the template its slides were built from.
+ * Which template generates this deck's slides: `?template=`, else the deck's remembered record (written
+ * when it was created), else the template its slides were built from.
  * A candidate the loaded template list doesn't know falls through to the next. `null` = still unknown: the
  * Outline step then asks for one.
  */
@@ -54,7 +53,6 @@ export function useDeckLook(
 
   const record = computed(() => readDeckLook(id.value))
   const queryTemplate = computed(() => str(route.query.template))
-  const queryTheme = computed(() => str(route.query.theme))
 
   const candidates = computed(() =>
     [queryTemplate.value, record.value?.template ?? null, blockTemplateId(presentation.value.slides)].filter(
@@ -67,25 +65,18 @@ export function useDeckLook(
     if (!list) return candidates.value[0] ?? null
     return candidates.value.find((t) => list.some((x) => x.id === t)) ?? null
   })
-  // The query names a look as a whole: a template there without a theme means the template's own colours.
-  const themeId = computed<string | null>(() =>
-    queryTemplate.value ? queryTheme.value : (queryTheme.value ?? record.value?.theme ?? null),
-  )
 
   /** Remember the resolved look in the deck's record. */
   function sync() {
     const template = templateId.value
     if (!template) return
-    const theme = themeId.value ?? undefined
-    const stored = record.value
-    if (stored?.template !== template || stored?.theme !== theme) rememberDeckLook(id.value, { template, ...(theme && { theme }) })
+    if (record.value?.template !== template) rememberDeckLook(id.value, { template })
   }
 
   /** The user picked a template for a deck that had none known. */
   function pick(template: string) {
-    const theme = themeId.value ?? undefined
-    rememberDeckLook(id.value, { template, ...(theme && { theme }) })
+    rememberDeckLook(id.value, { template })
   }
 
-  return { templateId, themeId, sync, pick }
+  return { templateId, sync, pick }
 }

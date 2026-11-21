@@ -34,11 +34,11 @@ describe('router', () => {
 
   it('old outline url redirects to create/outline keeping query', async () => {
     await router.push('/templates')
-    await router.push('/new/abc/outline?template=modern&theme=t1')
+    await router.push('/new/abc/outline?template=modern')
     const r = router.currentRoute.value
     expect(r.name).toBe('create')
     expect(r.params).toEqual({ id: 'abc', step: 'outline' })
-    expect(r.query).toEqual({ template: 'modern', theme: 't1' })
+    expect(r.query).toEqual({ template: 'modern' })
   })
 
   it('has no outline route any more', () => {

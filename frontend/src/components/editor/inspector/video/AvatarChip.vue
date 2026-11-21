@@ -7,6 +7,7 @@ const VARIANT: Partial<Record<AvatarChipKind, 'default' | 'secondary' | 'destruc
   failed: 'destructive',
   audio_stale: 'destructive',
   video_stale: 'destructive',
+  other_language: 'destructive',
   ready: 'default',
   done: 'default',
   uploaded: 'outline',

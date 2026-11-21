@@ -5,7 +5,7 @@ import { Check, Clock3 } from 'lucide-vue-next'
 import type { TemplateSummary } from '@/api/templates'
 import TemplateCardThumb from './TemplateCardThumb.vue'
 
-const props = withDefaults(defineProps<{ templates: TemplateSummary[]; disabled?: boolean; theme?: unknown; allowLater?: boolean }>(), { allowLater: true })
+const props = withDefaults(defineProps<{ templates: TemplateSummary[]; disabled?: boolean; allowLater?: boolean }>(), { allowLater: true })
 const selected = defineModel<string | null>({ default: null })
 const emit = defineEmits<{ picked: [id: string | null] }>()
 
@@ -74,7 +74,7 @@ const off = 'border-white/[0.07] bg-white/[0.02]'
       :class="[cardClass, selected === t.id ? on : off]"
       @click="pick(t.id)"
     >
-      <TemplateCardThumb :template="t" :width="thumbWidth" :theme-override="theme" />
+      <TemplateCardThumb :template="t" :width="thumbWidth" />
       <span class="flex flex-col gap-0.5 px-1">
         <span class="truncate text-[12px] font-medium text-[#e4ecf0]">{{ t.name }}</span>
         <span class="truncate text-[10px] text-[#8e9ca4]">{{ t.layouts.length }} {{ t.layouts.length === 1 ? 'layout' : 'layouts' }}</span>

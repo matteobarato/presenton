@@ -3,6 +3,8 @@ import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue'
 import { usePresentation } from '@/api/presentations'
 import { useSlideVideo } from '@/api/videos'
+import { injectDeckNarrationIfAny } from './inspector/narration/useDeckNarration'
+import { otherAvatarLanguage } from './inspector/video/avatar-state'
 import type { Slide } from '@/api/types'
 import SlideView from '@/render/SlideView.vue'
 import { slideKind } from '@/render/slide-kind'
@@ -19,7 +21,20 @@ const stageEl = ref<HTMLElement | null>(null)
 const { data: presentation } = usePresentation(toRef(props, 'presentationId'), useEditorFetchGate())
 // The slide's editing state is provided by EditorView, so the inspector shares it.
 // The slide's avatar video shows in its placeholder on the canvas.
-const { src: videoSrc } = useSlideVideo(() => props.presentationId, () => props.slide?.id)
+const { video, src: videoSrc } = useSlideVideo(() => props.presentationId, () => props.slide?.id)
+// An avatar recorded for another narration language plays here but not in Present or the export: say so on it.
+const narration = injectDeckNarrationIfAny()
+const nameOf = (code: string) => narration?.languages.value?.find((l) => l.code === code)?.name ?? code
+const languageBadge = computed(() => {
+  const language = narration?.language.value ?? ''
+  const code = otherAvatarLanguage(video.value, language)
+  const box = video.value?.placeholder
+  if (!code || !box) return null
+  return {
+    text: `${nameOf(code)} avatar · hidden in ${nameOf(language)}`,
+    style: { left: `${(box.position.x / 1280) * 100}%`, top: `${(box.position.y / 720) * 100}%`, maxWidth: `${(box.size.width / 1280) * 100}%` },
+  }
+})
 const smart = computed(() => !!props.slide && slideKind(props.slide) === 'smart')
 
 // Ease zoom steps, but only around a zoom change: during panel animations the slide must
@@ -75,6 +90,13 @@ const slideWidth = computed(() => {
             class="isolate overflow-hidden rounded-[10px] shadow-[0_18px_38px_#0004] max-[450px]:rounded-[7px]"
           />
         </Transition>
+        <span
+          v-if="languageBadge"
+          class="pointer-events-none absolute z-10 m-1.5 truncate rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-danger-text"
+          :style="languageBadge.style"
+          :title="`This avatar was recorded for another narration language; Present and the video export hide it.`"
+          data-testid="avatar-language-badge"
+        >{{ languageBadge.text }}</span>
       </div>
       <p v-else class="m-auto text-[12px] text-muted">No slides yet.</p>
     </div>

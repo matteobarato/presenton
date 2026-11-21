@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { injectDeckNarration } from '../narration/useDeckNarration'
 import AvatarChip from './AvatarChip.vue'
-import { failureText, hasVideoPlaceholder } from './avatar-state'
+import { failureText, hasVideoPlaceholder, otherAvatarLanguage } from './avatar-state'
 import { injectDeckAvatars } from './useDeckAvatars'
 
 /** The active slide's avatar: its placeholder layer, its video and its generation. */
 const props = defineProps<{ slide: Slide }>()
 
-const { stateOf } = injectDeckNarration()
+const { stateOf, language, languageName, languages } = injectDeckNarration()
 const {
   videoBySlide,
   planBySlide,
@@ -35,6 +35,11 @@ const plan = computed(() => planBySlide.value.get(props.slide.id))
 const chip = computed(() => chipOf(props.slide))
 const busy = computed(() => busySet.value.has(props.slide.index))
 const blocker = computed(() => blockerFor(props.slide))
+/** Set when the video was recorded for another narration language: Present and the export then hide it. */
+const videoLanguageName = computed(() => {
+  const code = otherAvatarLanguage(video.value, language.value)
+  return code ? (languages.value?.find((l) => l.code === code)?.name ?? code) : null
+})
 
 function picked(e: Event) {
   const el = e.target as HTMLInputElement
@@ -68,6 +73,11 @@ function picked(e: Event) {
     <p v-if="hasPlaceholder && narration === 'stale'" class="text-[11px] text-danger-text">Narration changed — regenerate the audio first.</p>
     <p v-else-if="hasPlaceholder && narration === 'missing'" class="text-[11px] text-muted">Generate this slide's audio first.</p>
     <p v-if="plan?.state === 'failed'" role="alert" class="text-[11px] text-danger-text">{{ failureText(plan) }}</p>
+
+    <p v-if="videoLanguageName" class="text-[11px] leading-[1.5] text-danger-text" data-testid="slide-avatar-language">
+      This avatar was recorded for {{ videoLanguageName }} narration, so Present and the video export hide it while the
+      deck plays in {{ languageName }}. Switch the narration language, or generate or upload one for {{ languageName }}.
+    </p>
 
     <div v-if="video" class="flex items-center gap-2 rounded-card bg-black/15 py-1 pr-1 pl-2.5 text-[11px] text-muted">
       <Film class="size-3.5 shrink-0" aria-hidden="true" />

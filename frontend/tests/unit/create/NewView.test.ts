@@ -18,10 +18,8 @@ const m = vi.hoisted(() => ({
   decomposeFiles: vi.fn(),
   createPresentation: vi.fn(),
   listTemplates: vi.fn(),
-  listThemes: vi.fn(),
 }))
 vi.mock('@/api/templates', async (orig) => ({ ...(await orig<typeof import('@/api/templates')>()), listTemplates: m.listTemplates }))
-vi.mock('@/api/themes', async (orig) => ({ ...(await orig<typeof import('@/api/themes')>()), listThemes: m.listThemes }))
 vi.mock('@/api/files', async (orig) => ({ ...(await orig<typeof import('@/api/files')>()), uploadFiles: m.uploadFiles, decomposeFiles: m.decomposeFiles }))
 vi.mock('@/api/generation', () => ({ createPresentation: m.createPresentation, getGenerationDefaults: vi.fn() }))
 
@@ -86,7 +84,6 @@ beforeEach(() => {
   localStorage.clear()
   Object.values(m).forEach((f) => f.mockReset())
   m.listTemplates.mockResolvedValue([{ id: 'c1', name: 'Pitch', kind: 'custom', layouts: [{}] }])
-  m.listThemes.mockResolvedValue([{ id: 't1', name: 'Ocean', user: 'u', data: { colors: {} } }])
   document.body.innerHTML = ''
   sessionStorage.clear()
 })
@@ -378,32 +375,20 @@ describe('NewView', () => {
   })
 
   describe('submit', () => {
-    it('submit navigates to create outline with template and theme', async () => {
+    it('submit navigates to create outline with the template', async () => {
       m.createPresentation.mockResolvedValue({ id: 'abc' })
-      const { wrapper, router } = await mountView('both', {}, '/new?template=c1&theme=t1')
+      const { wrapper, router } = await mountView('both', {}, '/new?template=c1')
       await typeTopic(wrapper)
       await visit(wrapper, 'details')
       await submit(wrapper)
       expect(router.currentRoute.value.name).toBe('create')
       expect(router.currentRoute.value.params).toMatchObject({ id: 'abc', step: 'outline' })
-      expect(router.currentRoute.value.query).toEqual({ template: 'c1', theme: 't1' })
+      expect(router.currentRoute.value.query).toEqual({ template: 'c1' })
       // The deck remembers its look: the Outline step finds it even when reached without the query.
-      expect(JSON.parse(localStorage.getItem('slideshows.deckLook.abc')!)).toEqual({ template: 'c1', theme: 't1' })
+      expect(JSON.parse(localStorage.getItem('slideshows.deckLook.abc')!)).toEqual({ template: 'c1' })
       const payload = m.createPresentation.mock.calls[0][0]
       expect(payload).not.toHaveProperty('template')
       expect(payload).not.toHaveProperty('layout')
-    })
-
-    it('still submits when themes fail to load', async () => {
-      m.listThemes.mockRejectedValue(new Error('boom'))
-      m.createPresentation.mockResolvedValue({ id: 'abc' })
-      const { wrapper, router } = await mountView()
-      await typeTopic(wrapper)
-      await visit(wrapper, 'details')
-      await submit(wrapper)
-      expect(router.currentRoute.value.query.theme).toBeUndefined()
-      expect(router.currentRoute.value.name).toBe('create')
-      expect(JSON.parse(localStorage.getItem('slideshows.deckLook.abc')!)).toEqual({ template: 'c1' })
     })
 
     it('still submits when the look cannot be remembered', async () => {
@@ -519,15 +504,6 @@ describe('NewView', () => {
       await visit(wrapper, 'look')
       expect(router.currentRoute.value.query.template).toBeUndefined()
       expect(wrapper.get('[data-testid="new-template-c1"]').attributes('aria-checked')).toBe('false')
-    })
-  })
-
-  describe('theme picker', () => {
-    it('shows a Theme row on the Look step with Template colours selected', async () => {
-      const { wrapper } = await mountView()
-      await visit(wrapper, 'look')
-      expect(wrapper.get('[data-testid="theme-option-none"] button').attributes('aria-pressed')).toBe('true')
-      expect(wrapper.find('[data-testid="theme-option-t1"]').exists()).toBe(true)
     })
   })
 })

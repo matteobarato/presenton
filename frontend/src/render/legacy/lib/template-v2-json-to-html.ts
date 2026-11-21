@@ -713,8 +713,38 @@ function renderContainer(item: JsonRecord, mode: RenderMode): string {
     readString(alignment.horizontal)
   )};${containerOverflowStyle(item, child)}`;
   return `<div style="${style}">${
-    child ? renderItem(child, readRecordOrNull(child.position) ? "absolute" : "flow") : ""
+    child
+      ? readRecordOrNull(child.position)
+        ? renderItem(child, "absolute")
+        : renderItem(withContainerContentWidth(item, child), "flow")
+      : ""
   }</div>`;
+}
+
+/**
+ * A flow child with no width of its own fills the container's content box,
+ * as the editor model lays it out (layoutContainerChildren). Without this a
+ * sizeless text child takes its one-line max-content width and, being
+ * flex-shrink:0, runs out of the card instead of wrapping.
+ */
+function withContainerContentWidth(
+  container: JsonRecord,
+  child: JsonRecord
+): JsonRecord {
+  const type = readString(child.type);
+  if (type === "group" || type === "vector") return child;
+  const size = readRecord(child.size);
+  if (readNumber(size.width) != null) return child;
+  const width = readNumber(readRecord(container.size).width);
+  if (width == null) return child;
+  const padding = readRecord(container.padding);
+  const contentWidth =
+    width - (readNumber(padding.left) ?? 0) - (readNumber(padding.right) ?? 0);
+  if (!(contentWidth > 0)) return child;
+  return {
+    ...child,
+    size: { ...size, width: Math.round(contentWidth * 100) / 100 },
+  };
 }
 
 function containerOverflowStyle(

@@ -48,6 +48,8 @@ function videoCell(chip: AvatarChipKind): OverviewCell {
       return { tone: 'ok', text: 'Uploaded' }
     case 'video_stale':
       return { tone: 'warn', text: 'Outdated' }
+    case 'other_language':
+      return { tone: 'warn', text: 'Other language' }
     case 'generating':
       return { tone: 'busy', text: 'Generating' }
     case 'failed':

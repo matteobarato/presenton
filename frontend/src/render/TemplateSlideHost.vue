@@ -14,7 +14,6 @@ import {
 } from '@/render/legacy/lib/template-v2-json-to-html'
 import { registerDocumentFonts } from '@/render/font-registry'
 import { hydrateTemplateCharts } from '@/render/template-charts'
-import { retintUi } from '@/render/retint'
 import { cssVarDeclarations, themeCssVars, themeFontFaceCss } from '@/render/theme'
 
 const props = withDefaults(
@@ -95,7 +94,7 @@ function render() {
   const current = ++generation
   try {
     shadow ??= el.shadowRoot ?? el.attachShadow({ mode: 'open' })
-    const ui = retintUi(props.ui, props.theme)
+    const ui = props.ui
     const fragment = templateV2UiToHtmlFragment(ui, {
       fonts: props.fonts,
       annotateElements: props.annotate,

@@ -7,7 +7,8 @@ import type { Slide } from '@/api/types'
 const editSlideUi = vi.hoisted(() => vi.fn())
 vi.mock('@/composables/useSlideMutations', () => ({ useSlideMutations: () => ({ editSlideUi }) }))
 vi.mock('@/api/presentations', () => ({ usePresentation: () => ({ data: ref(undefined) }) }))
-vi.mock('@/api/videos', () => ({ useSlideVideo: () => ({ src: ref(null) }) }))
+const slideVideo = vi.hoisted(() => ({ current: null as unknown }))
+vi.mock('@/api/videos', () => ({ useSlideVideo: () => ({ src: ref(null), video: ref(slideVideo.current) }) }))
 
 import EditorCanvas from '@/components/editor/EditorCanvas.vue'
 import EditableSlide from '@/components/editor/canvas/EditableSlide.vue'
@@ -15,6 +16,7 @@ import SlideView from '@/render/SlideView.vue'
 import { absoluteBoxForSelection, type ElementSelection, type RawUi } from '@/slide-editor/model'
 import { useEditorStore } from '@/stores/editor'
 import { useSlideEditing } from '@/slide-editor/useSlideEditing'
+import { provideDeckNarration, type DeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
 import { uiTwoComponents, uiWithText } from '../../slide-editor/fixtures'
 import { mountEditable, pointer, stubRect, tpl } from './harness'
 
@@ -284,12 +286,13 @@ describe('EditableSlide of a slide the context has left', () => {
 })
 
 describe('EditorCanvas', () => {
-  const mountCanvas = (slide: Slide) =>
+  const mountCanvas = (slide: Slide, narration?: DeckNarration) =>
     mount(
       defineComponent({
         setup() {
           // EditorView provides the editing state in the app.
           useSlideEditing(ref('p1'), ref<Slide | null>(slide))
+          if (narration) provideDeckNarration(narration)
           return () => h(EditorCanvas, { presentationId: 'p1', slide })
         },
       }),
@@ -324,5 +327,36 @@ describe('EditorCanvas', () => {
     const stage = w.get('[data-slide-stage]').element
     expect(stage.closest('.overflow-hidden')).not.toBeNull()
     w.unmount()
+  })
+
+  describe('avatar recorded for another narration language', () => {
+    const languages = ref([
+      { code: 'en', name: 'English' },
+      { code: 'it', name: 'Italian' },
+    ])
+    const narrating = (code: string) => ({ language: ref(code), languages }) as unknown as DeckNarration
+    const placeholder = { position: { x: 640, y: 360 }, size: { width: 320, height: 180 } }
+    afterEach(() => {
+      slideVideo.current = null
+    })
+
+    it('marks the placeholder: Present and the export hide it', async () => {
+      slideVideo.current = { language: 'en', placeholder }
+      const w = mountCanvas(tpl('a', uiWithText()), narrating('it'))
+      await nextTick()
+      const badge = w.get('[data-testid="avatar-language-badge"]')
+      expect(badge.text()).toBe('English avatar · hidden in Italian')
+      expect(badge.attributes('style')).toContain('left: 50%')
+      expect(badge.attributes('style')).toContain('top: 50%')
+      w.unmount()
+    })
+
+    it('says nothing when the languages match', async () => {
+      slideVideo.current = { language: 'it', placeholder }
+      const w = mountCanvas(tpl('a', uiWithText()), narrating('it'))
+      await nextTick()
+      expect(w.find('[data-testid="avatar-language-badge"]').exists()).toBe(false)
+      w.unmount()
+    })
   })
 })

@@ -287,11 +287,11 @@ describe('AvatarStep', () => {
   it('leaving keeps the deck look in the query and drops the stream flag', async () => {
     const f = fakes({ counts: { missing: 0, ready: 3 } })
     f.plan.value = { notes: false, voice: false, avatars: 0 }
-    const { wrapper, router } = await mountStep(f, progress({}, 'done'), '/p/p1/create/avatar?template=modern&theme=t1&stream=1')
+    const { wrapper, router } = await mountStep(f, progress({}, 'done'), '/p/p1/create/avatar?template=modern&stream=1')
     await button(wrapper, /Continue to Export/)!.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.params.step).toBe('export')
-    expect(router.currentRoute.value.query).toEqual({ template: 'modern', theme: 't1' })
+    expect(router.currentRoute.value.query).toEqual({ template: 'modern' })
   })
 
   it('optional shows skip', async () => {

@@ -122,3 +122,5 @@ export function injectDeckNarration(): DeckNarration {
   if (!n) throw new Error('useDeckNarration was not provided')
   return n
 }
+/** The deck's narration state when a DeckStateProvider is above, else null. */
+export const injectDeckNarrationIfAny = (): DeckNarration | null => inject(KEY, null)

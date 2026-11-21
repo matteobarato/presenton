@@ -159,7 +159,7 @@ function generate() {
 function retryFailed() {
   if (canGenerate.value) retry()
 }
-/** Keeps the rest of the query (template, theme); the stream flag belongs to Preview only. */
+/** Keeps the rest of the query (template); the stream flag belongs to Preview only. */
 function go(step: DeckStepKey) {
   const query = { ...route.query }
   delete query.stream

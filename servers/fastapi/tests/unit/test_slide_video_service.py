@@ -714,7 +714,9 @@ def test_set_placeholder_adds_default_box(tmp_path, monkeypatch):
 
     box, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
 
-    assert _box(box) == _box(default_placeholder_box(None, None))
+    # Portrait, like the avatar frames templates draw.
+    assert _box(box) == _box(default_placeholder_box(9, 16))
+    assert box.size.height > box.size.width
     assert _box(find_video_placeholder_box(slide.ui)) == _box(box)
 
 
@@ -726,7 +728,7 @@ def test_set_placeholder_moves_existing(tmp_path, monkeypatch):
 
     box, slide = _run_with_deck(tmp_path, monkeypatch, scenario)
 
-    default = default_placeholder_box(None, None)
+    default = default_placeholder_box(9, 16)
     assert _box(box) == (100, 50, default.size.width, default.size.height)
     assert sum(
         1
