@@ -64,7 +64,7 @@ describe('EditorHeader continue setup', () => {
     setProgress('avatar')
     const { w, router } = await mountHeader()
     const btn = w.get('[data-testid="continue-setup"]')
-    expect(btn.text()).toBe('Continue: Avatar')
+    expect(btn.text()).toBe('Continue: Narration')
     await btn.trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('create')
