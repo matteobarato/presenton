@@ -30,7 +30,7 @@ defineExpose({ pick: () => input.value?.click() })
         @click="input?.click()"
       >
         <!-- Presenter silhouette framed by scan corners: a face goes here. -->
-        <img src="/presenter-silhouette.svg" alt="" class="absolute inset-x-0 top-3 opacity-30 mx-auto h-[100%] text-accent/40 transition-colors group-hover:text-accent/70" aria-hidden="true" />
+        <img src="/presenter-silhouette.png" alt="" class="absolute inset-0 m-auto max-h-full max-w-full object-contain opacity-30 transition-opacity group-hover:opacity-50" aria-hidden="true" />
         <span class="relative flex items-center gap-1.5 text-[12px] font-semibold text-[#f6f8f9]"><ImagePlus class="size-3.5" aria-hidden="true" />Add your digital presenter</span>
         <span class="relative text-[11px] leading-[1.4] text-muted">A clear front-facing photo becomes a talking presenter on your slides. JPEG, PNG or WebP, up to 10 MB.</span>
       </button>

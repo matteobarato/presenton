@@ -9,6 +9,8 @@ const route = useRoute()
 const help = useHelpDialog()
 const link =
   'flex w-full flex-col items-center gap-2 rounded-[11px] py-3 text-[9px] font-medium text-[#9aa3a8] transition-colors duration-200 hover:bg-[#1d2225] hover:text-[#d9e0e4] max-[760px]:gap-1.5 max-[760px]:text-[7px]'
+const cta =
+  'flex w-full flex-col items-center gap-1.5 py-1 text-[9px] font-medium text-[#c2e5f5] max-[760px]:text-[7px]'
 const active = 'bg-[#222b30] text-[#c2e5f5]'
 const libraryActive = computed(() => route.name === 'library' || route.name === 'editor')
 const newActive = computed(() => route.name === 'new' || route.name === 'create')
@@ -30,11 +32,17 @@ const settingsActive = computed(() => route.name === 'settings')
     </RouterLink>
 
     <div class="mt-[38px] flex w-full flex-col gap-[13px] px-[7px] max-[760px]:mt-[30px] max-[760px]:gap-[15px] max-[760px]:px-1 [@media(max-height:780px)_and_(min-width:1051px)]:mt-[29px]">
+      <RouterLink
+        :to="{ name: 'new' }"
+        :class="[cta, 'group']"
+        :aria-current="newActive ? 'page' : undefined"
+      >
+        <span :class="['grid size-10 place-items-center rounded-full bg-[#c2e5f5]/12 transition-colors duration-200 group-hover:bg-[#c2e5f5]/20 max-[760px]:size-9', newActive && 'bg-[#c2e5f5]/25']">
+          <Plus class="size-[19px] stroke-[1.5]" aria-hidden="true" />
+        </span>New
+      </RouterLink>
       <RouterLink :to="{ name: 'library' }" :class="[link, libraryActive && active]" :aria-current="libraryActive ? 'page' : undefined">
         <FolderOpen class="size-[19px] stroke-[1.5]" aria-hidden="true" />Library
-      </RouterLink>
-      <RouterLink :to="{ name: 'new' }" :class="[link, newActive && active]" :aria-current="newActive ? 'page' : undefined">
-        <Plus class="size-[19px] stroke-[1.5]" aria-hidden="true" />New
       </RouterLink>
       <RouterLink :to="{ name: 'templates' }" :class="[link, templatesActive && active]" :aria-current="templatesActive ? 'page' : undefined">
         <LayoutTemplate class="size-[19px] stroke-[1.5]" aria-hidden="true" />Templates
