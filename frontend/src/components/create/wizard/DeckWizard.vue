@@ -11,6 +11,7 @@ import { toast } from '@/components/ui/sonner'
 import { useDeckWizard } from '@/composables/useDeckWizard'
 import OutlineStep from '@/components/create/steps/OutlineStep.vue'
 import PreviewStep from '@/components/create/steps/PreviewStep.vue'
+import PresenterSettings from '@/components/create/steps/PresenterSettings.vue'
 import AvatarStep from '@/components/create/steps/AvatarStep.vue'
 import ExportStep from '@/components/create/steps/ExportStep.vue'
 import { useNarrationAvatarPipeline } from '@/composables/useNarrationAvatarPipeline'
@@ -28,8 +29,8 @@ import { provideWizardFooter } from './stepFooter'
 const props = defineProps<{ presentationId: string; presentation: Presentation }>()
 
 const DECK_STEPS: readonly DeckStepKey[] = ['outline', 'preview', 'avatar', 'export']
-type SummaryKey = 'topic' | 'presenter' | 'language' | 'details'
-const isSummaryKey = (k: string): k is SummaryKey => ['topic', 'presenter', 'language', 'details'].includes(k)
+type SummaryKey = 'topic' | 'presenter' | 'details'
+const isSummaryKey = (k: string): k is SummaryKey => ['topic', 'presenter', 'details'].includes(k)
 const isDeckStep = (k: string): k is DeckStepKey => (DECK_STEPS as readonly string[]).includes(k)
 
 const route = useRoute()
@@ -170,8 +171,7 @@ const setFooterTarget = (el: unknown) => (footer.target.value = el instanceof HT
 
 const COPY: Record<WizardStepKey, { heading: string; lede: string }> = {
   topic: { heading: 'Topic & look', lede: 'What this deck is about and the template it’s built from. Both were set when the deck was created.' },
-  presenter: { heading: 'Avatar', lede: 'The presenter photo chosen when the deck was created. Change it in the Narration step.' },
-  language: { heading: 'Language', lede: 'The language the slides are written in. It was set when the deck was created.' },
+  presenter: { heading: 'Avatar & language', lede: 'The presenter photo and the narration language. Narration uses what you set here.' },
   details: { heading: 'Details', lede: 'How the deck was generated. Tune individual slides in the editor.' },
   outline: { heading: 'Shape the story', lede: 'Each card becomes one slide. Read it through, then generate the slides.' },
   preview: { heading: 'Preview your slides', lede: 'Your deck, slide by slide. Fine-tuning lives in the editor.' },
@@ -197,7 +197,7 @@ const details = computed(() => {
     { label: 'Verbosity', value: p.verbosity ? cap(p.verbosity) : '', icon: AlignLeft },
   ].filter((d) => Boolean(d.value))
 })
-const portraitUrl = computed(() => deckAvatars.videos.value?.portrait?.url ?? null)
+const avatarWork = computed(() => deckAvatars.placeholderSlides.value.length > 0 && !progress.value.voiceOnly)
 const thumbBox = ref<HTMLElement | null>(null)
 const { width: thumbBoxWidth } = useElementSize(thumbBox)
 const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value || 260)))
@@ -239,14 +239,13 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
         </div>
       </article>
     </section>
-    <section v-else-if="summary === 'presenter'" data-testid="summary-presenter" class="summary-card flex items-center gap-4">
-      <img v-if="portraitUrl" :src="portraitUrl" alt="Presenter portrait" class="size-24 rounded-card object-cover" />
-      <p class="text-[14px] text-[#dbe5ea]">{{ portraitUrl ? 'Presenter photo set' : 'No avatar: this deck has no presenter slides.' }}</p>
-    </section>
-    <section v-else-if="summary === 'language'" data-testid="summary-language" class="summary-card flex items-center gap-3">
-      <Languages class="size-5 text-accent" aria-hidden="true" />
-      <p class="text-[18px] font-medium text-[#eef6fa]">{{ presentation.language }}</p>
-    </section>
+    <PresenterSettings
+      v-else-if="summary === 'presenter'"
+      data-testid="step-presenter"
+      :running="pipelineRunning"
+      :language-ok="pipeline.languageOk.value"
+      :avatar-work="avatarWork"
+    />
     <section v-else-if="summary === 'details'" data-testid="summary-details" class="grid grid-cols-4 gap-3 max-[760px]:grid-cols-2">
       <div v-for="d in details" :key="d.label" class="summary-card flex min-w-0 flex-col gap-3">
         <span class="grid size-8 place-items-center rounded-full bg-[#bee3f31a] text-accent" aria-hidden="true"><component :is="d.icon" class="size-4" /></span>
@@ -266,7 +265,7 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
       <PreviewStep :presentation="presentation" :progress="progress" @streaming="slidesStreaming = $event" />
     </section>
     <section v-else-if="step === 'avatar'" v-show="!summary" data-testid="step-body-avatar">
-      <AvatarStep :presentation="presentation" :progress="progress" :pipeline="pipeline" />
+      <AvatarStep :presentation="presentation" :progress="progress" :pipeline="pipeline" @edit-setup="summary = 'presenter'" />
     </section>
     <section v-else-if="step === 'export'" v-show="!summary" data-testid="step-body-export">
       <ExportStep :presentation="presentation" />
@@ -277,7 +276,7 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
 
     <template #footer>
       <div :ref="setFooterTarget" class="contents" />
-      <WizardFooter v-if="summary || !footer.claims.value" :status="summary ? 'Set when the deck was created' : (nextLockReason ?? undefined)">
+      <WizardFooter v-if="summary || !footer.claims.value" :status="summary === 'presenter' ? undefined : summary ? 'Set when the deck was created' : (nextLockReason ?? undefined)">
         <template #back>
           <Button v-if="summary || neighbour('back')" type="button" variant="ghost" @click="navigate('back')">
             <ArrowLeft class="size-4" aria-hidden="true" />{{ summary ? 'Back to step' : 'Back' }}

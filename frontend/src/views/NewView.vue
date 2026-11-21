@@ -114,8 +114,8 @@ const hasTemplate = computed(() => !!chosen.value)
 const canSubmit = computed(() => !pending.value && hasTopic.value && hasTemplate.value)
 
 // --- Steps: free to visit in any order; creating needs a topic and a template. ---
-type NewStepKey = Extract<WizardStepKey, 'topic' | 'presenter' | 'language' | 'details'>
-const ORDER: NewStepKey[] = ['topic', 'presenter', 'language', 'details']
+type NewStepKey = Extract<WizardStepKey, 'topic' | 'presenter' | 'details'>
+const ORDER: NewStepKey[] = ['topic', 'presenter', 'details']
 const step = ref<NewStepKey>('topic')
 const languageNeeded = computed(() => files.value.length > 0 && options.value.language === AUTO_LANGUAGE)
 
@@ -152,8 +152,7 @@ const items = computed<WizardStepItem[]>(() => {
   })
   return [
     mine('topic', 'Topic & look', [topic, chosen.value?.name].filter(Boolean).join(' · '), hasTopic.value && hasTemplate.value),
-    mine('presenter', 'Avatar', portrait.value ? portrait.value.name : 'No avatar', false),
-    mine('language', 'Language', o.language === AUTO_LANGUAGE ? '' : o.language, o.language !== AUTO_LANGUAGE),
+    mine('presenter', 'Avatar & language', [portrait.value ? portrait.value.name : 'No avatar', o.language === AUTO_LANGUAGE ? '' : o.language].filter(Boolean).join(' · '), o.language !== AUTO_LANGUAGE),
     mine('details', 'Details', `${o.slides ? `${o.slides} slides` : 'Auto length'} · ${mediaSummary(o)}`, false),
     locked('outline', 'Outline'),
     locked('preview', 'Preview'),
@@ -167,8 +166,7 @@ const copy: Record<NewStepKey, { heading: string; lede: string }> = {
     heading: 'Every great story starts somewhere.',
     lede: 'Say what it’s about and pick a look. Then tune the details and review the outline before any slides are made.',
   },
-  presenter: { heading: 'Who presents?', lede: 'Add a photo to get a talking presenter on some slides, or skip it for a voice-only deck.' },
-  language: { heading: 'Pick the language', lede: 'The slides are written in this language.' },
+  presenter: { heading: 'Who presents, and in what language?', lede: 'Add a presenter photo for talking-avatar slides, or skip it for a voice-only deck. Then pick the slide language.' },
   details: { heading: 'Fine-tune the details', lede: 'The defaults work well. Change only what matters.' },
 }
 
@@ -211,7 +209,7 @@ async function submit() {
   const o = options.value
   if (files.value.length > 0 && o.language === AUTO_LANGUAGE) {
     error.value = 'Choose a language before processing uploaded documents.'
-    step.value = 'language'
+    step.value = 'presenter'
     await nextTick()
     document.getElementById('opt-language')?.focus()
     return
@@ -316,7 +314,7 @@ watch(
           <p v-if="filesLost" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">Re-add your documents; files aren't kept after a reload.</p>
           <p v-if="languageNeeded" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">
             Documents need a language.
-            <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go('language')">Set it in Language</button>
+            <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go('presenter')">Set it in Avatar & language</button>
           </p>
         </section>
 
@@ -340,9 +338,9 @@ watch(
         <PresenterPicker v-model="portrait" :disabled="pending" @error="photoError = $event" />
         <p v-if="photoError" role="alert" class="-mt-3 text-center text-[11px] text-[#e8a2a2]">{{ photoError }}</p>
         <p v-if="photoLost" role="note" class="-mt-3 text-center text-[11px] text-[#a9c4d2]">Re-add your photo; files aren't kept after a reload.</p>
+        <LanguagePicker v-model="options.language" :disabled="pending" />
       </template>
 
-      <LanguagePicker v-else-if="step === 'language'" v-model="options.language" :disabled="pending" />
 
       <GenerationOptions v-else v-model="options" :has-photo="hasPhoto" :disabled="pending" />
     </form>

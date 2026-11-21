@@ -22,10 +22,10 @@ function input(over: Partial<DeckProgressInput> = {}): DeckProgressInput {
 describe('WIZARD_STEPS', () => {
   it('lists the steps in order with labels', () => {
     expect(WIZARD_STEPS.map((s) => s.key)).toEqual([
-      'topic', 'presenter', 'language', 'details', 'outline', 'preview', 'avatar', 'export',
+      'topic', 'presenter', 'details', 'outline', 'preview', 'avatar', 'export',
     ])
     expect(WIZARD_STEPS.map((s) => s.label)).toEqual([
-      'Topic & look', 'Avatar', 'Language', 'Details', 'Outline', 'Preview', 'Narration', 'Export',
+      'Topic & look', 'Avatar & language', 'Details', 'Outline', 'Preview', 'Narration', 'Export',
     ])
   })
 })

@@ -62,7 +62,7 @@ async function mountView(generationMode: GenerationMode = 'both', config: Record
 type W = Awaited<ReturnType<typeof mountView>>['wrapper']
 const submitBtn = (w: W) => w.get('button[type="submit"]')
 const status = (w: W) => w.get('[role="status"]').text()
-async function visit(w: W, key: 'topic' | 'presenter' | 'language' | 'look' | 'details') {
+async function visit(w: W, key: 'topic' | 'presenter' | 'look' | 'details') {
   await w.get(`[data-testid="step-${key}"]`).trigger('click')
   await flushPromises()
 }
@@ -274,7 +274,7 @@ describe('NewView', () => {
     m.createPresentation.mockResolvedValue({ id: 'f1' })
     const { wrapper } = await mountView()
     const file = await attach(wrapper)
-    await visit(wrapper, 'language')
+    await visit(wrapper, 'presenter')
     await wrapper.get('#opt-language').setValue('English')
     await visit(wrapper, 'details')
     await submit(wrapper)
@@ -309,7 +309,7 @@ describe('NewView', () => {
     m.uploadFiles.mockRejectedValue(new ApiError('Unsupported file', 422))
     const second = await mountView()
     await attach(second.wrapper)
-    await visit(second.wrapper, 'language')
+    await visit(second.wrapper, 'presenter')
     await second.wrapper.get('#opt-language').setValue('English')
     await visit(second.wrapper, 'details')
     await submit(second.wrapper)

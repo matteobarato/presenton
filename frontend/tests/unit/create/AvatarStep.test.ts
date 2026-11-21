@@ -108,23 +108,17 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-describe('AvatarStep setup summary', () => {
-  it('shows language and presenter as a summary once both are set, and opens the controls on Settings', async () => {
+describe('AvatarStep is generation only', () => {
+  it('has no language or portrait controls, and sends the user to step 2 when something is missing', async () => {
     const f = fakes()
-    f.avatars.videos.value = { generation_available: true, portrait: { url: '/p.png' }, videos: [] } as never
+    f.blocker.value = 'Upload a presenter portrait first.'
     const { wrapper } = await mountStep(f)
-    expect(wrapper.find('[data-testid="narration-summary"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('English')
     expect(wrapper.find('[data-testid="setup-language"]').exists()).toBe(false)
-    await button(wrapper, /^Settings/)!.trigger('click')
-    expect(wrapper.find('[data-testid="setup-language"]').exists()).toBe(true)
-    expect(wrapper.find('[data-testid="setup-portrait"]').exists()).toBe(true)
-  })
-
-  it('opens the setup straight away when the presenter photo is missing', async () => {
-    const { wrapper } = await mountStep()
-    expect(wrapper.find('[data-testid="narration-summary"]').exists()).toBe(false)
-    expect(wrapper.find('[data-testid="setup-portrait"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="setup-portrait"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="avatar-progress"]').exists()).toBe(true)
+    expect(button(wrapper, /^Generate/)!.attributes('disabled')).toBeDefined()
+    await button(wrapper, /Set up avatar & language/)!.trigger('click')
+    expect(wrapper.emitted('edit-setup')).toHaveLength(1)
   })
 })
 
