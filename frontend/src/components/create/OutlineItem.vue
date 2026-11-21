@@ -42,17 +42,17 @@ function onKeydown(e: KeyboardEvent) {
 
 <template>
   <li
-    class="outline-item group flex items-start gap-3 rounded-card border bg-white/[0.02] py-3 pr-2 pl-3 transition-[border-color,background] duration-200"
+    class="outline-item group flex flex-wrap items-start gap-x-3 gap-y-1 rounded-card border bg-white/[0.02] py-3 pr-2 pl-3 max-[760px]:pr-3 transition-[border-color,background] duration-200"
     :class="showSource || active ? 'border-[#bee3f340] bg-white/[0.035]' : 'border-white/[0.07] hover:border-white/[0.12]'"
     data-testid="outline-item"
     @keydown="onKeydown"
   >
     <span
-      class="mt-px grid size-6 shrink-0 place-items-center rounded-full bg-white/[0.06] text-[11px] font-medium text-[#b8c7cf] tabular-nums"
+      class="mt-px grid size-6 shrink-0 place-items-center rounded-full bg-white/[0.06] text-[12px] font-medium text-[#b8c7cf] tabular-nums"
       aria-hidden="true"
       data-testid="outline-number"
     >{{ index + 1 }}</span>
-    <div class="relative min-w-0 flex-1">
+    <div class="relative min-w-0 flex-1 basis-0">
       <div v-show="!showSource" class="min-h-[24px] px-1 py-0.5" aria-hidden="true">
         <p v-if="parts.title" class="text-[14px] leading-[1.5] font-medium tracking-[-0.01em] text-[#e9f1f5]" data-testid="outline-title">
           {{ parts.title }}
@@ -71,14 +71,14 @@ function onKeydown(e: KeyboardEvent) {
         @blur="editing = false"
       />
     </div>
-    <!-- Editing tools stay out of the way: they show on hover or focus, and not at all while read-only. -->
+    <!-- Editing tools stay out of the way: they show on hover or focus (under 760px, in a row under the text once the slide is focused, so titles keep the full width; it collapses after a short delay so a tap on a button isn't lost to the blur), and not at all while read-only. -->
     <div
-      class="flex shrink-0 items-center opacity-0 transition-opacity duration-200 group-focus-within:opacity-100 group-hover:opacity-100 max-[760px]:opacity-70"
+      class="flex shrink-0 items-center opacity-0 transition-opacity duration-200 group-focus-within:opacity-100 group-hover:opacity-100 max-[760px]:max-h-0 max-[760px]:w-full max-[760px]:justify-end max-[760px]:overflow-hidden max-[760px]:transition-[max-height,opacity] max-[760px]:delay-300 max-[760px]:group-focus-within:max-h-11 max-[760px]:group-focus-within:delay-0"
       :class="disabled && 'invisible'"
     >
       <button
         type="button"
-        class="drag-handle grid size-8 cursor-grab place-items-center rounded text-muted hover:text-[#f6f8f9] disabled:cursor-default"
+        class="drag-handle grid size-8 max-[760px]:size-11 cursor-grab place-items-center rounded text-muted hover:text-[#f6f8f9] disabled:cursor-default"
         :disabled="disabled"
         :aria-label="`Reorder slide ${index + 1} (Alt+Up or Alt+Down)`"
       >
@@ -87,6 +87,7 @@ function onKeydown(e: KeyboardEvent) {
       <Button
         variant="ghost"
         size="icon"
+        class="max-[760px]:size-11"
         type="button"
         :disabled="disabled"
         :aria-label="`Delete slide ${index + 1}`"

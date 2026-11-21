@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-vue-next'
+import { ArrowRight, Sparkles } from 'lucide-vue-next'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { useRoute, useRouter } from 'vue-router'
 import { listTemplates, templatesKey } from '@/api/templates'
-import { ApiError } from '@/api/errors'
 import { decomposeFiles, uploadFiles } from '@/api/files'
 import { createPresentation } from '@/api/generation'
 import { uploadPortrait } from '@/api/videos'
@@ -14,14 +13,17 @@ import { useSessionStore } from '@/stores/session'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import GenerationOptions from '@/components/create/GenerationOptions.vue'
-import LanguagePicker from '@/components/create/LanguagePicker.vue'
-import PresenterPicker from '@/components/create/PresenterPicker.vue'
+import NewPresenterStep from '@/components/create/NewPresenterStep.vue'
+import NewSetupChips from '@/components/create/NewSetupChips.vue'
 import NewTemplateSelector from '@/components/create/NewTemplateSelector.vue'
 import TopicComposer from '@/components/create/TopicComposer.vue'
+import WizardBackButton from '@/components/create/wizard/WizardBackButton.vue'
 import WizardFooter from '@/components/create/wizard/WizardFooter.vue'
 import WizardLayout from '@/components/create/wizard/WizardLayout.vue'
-import { AVATAR_BADGE, avatarHint, type WizardStepItem, type WizardStepKey } from '@/components/create/wizard/progress'
+import { type WizardStepItem, type WizardStepKey } from '@/components/create/wizard/progress'
+import { useFooterNotice } from '@/components/create/wizard/stepFooter'
+import { presenterSummary } from '@/components/create/setupSummary'
+import { describeError } from '@/components/create/wizard/errorCopy'
 import { useNewDraft } from '@/components/create/wizard/useNewDraft'
 import { animateFlagKey, effectiveVideos, mediaCountForRequest, type CreateOptions } from '@/components/create/options'
 import { AUTO_LANGUAGE } from '@/lib/languages'
@@ -80,6 +82,8 @@ const filesLost = computed(() => draft.hadFiles.value && files.value.length === 
 
 // The optional presenter photo: kept in memory, uploaded once the deck exists. No photo means no presenter slides.
 const portrait = ref<File | null>(null)
+/** "Add a digital presenter" is chosen (a photo may still be missing): see NewPresenterStep. */
+const wantsPresenter = ref(false)
 const hasPhoto = computed(() => portrait.value !== null)
 const photoError = ref('')
 watch(portrait, (file) => {
@@ -104,59 +108,43 @@ const pending = ref(false)
 watch(
   () => options.value.language,
   () => {
-    if (error.value.startsWith('Choose a language')) error.value = ''
+    if (error.value === LANGUAGE_ERROR) error.value = ''
   },
 )
+const LANGUAGE_ERROR = 'Documents need a language. Pick one under Language, then create the outline.'
 const stage = ref('')
 const error = ref('')
 const hasTopic = computed(() => prompt.value.trim() !== '' || files.value.length > 0)
 const hasTemplate = computed(() => !!chosen.value)
 const canSubmit = computed(() => !pending.value && hasTopic.value && hasTemplate.value)
 
-// --- Steps: free to visit in any order; creating needs a topic and a template. ---
-type NewStepKey = Extract<WizardStepKey, 'topic' | 'presenter' | 'details'>
-const ORDER: NewStepKey[] = ['topic', 'presenter', 'details']
+// --- Two steps, free to visit in either order: Topic, then Presenter. Creating needs a topic and a template. ---
+type NewStepKey = Extract<WizardStepKey, 'topic' | 'presenter'>
 const step = ref<NewStepKey>('topic')
 const languageNeeded = computed(() => files.value.length > 0 && options.value.language === AUTO_LANGUAGE)
 
-function mediaSummary(o: CreateOptions) {
-  const images = o.images === '' ? 'Auto images' : o.images === '0' ? 'No images' : `${o.images} with images`
-  const videos = effectiveVideos(o.videos, hasPhoto.value)
-  if (videos === '' || videos === '0') return images
-  return `${images} · ${videos} with presenter`
-}
 function clip(text: string, max = 44) {
   const t = text.trim().replace(/\s+/g, ' ')
   return t.length > max ? `${t.slice(0, max - 1)}…` : t
 }
 const LOCKED = 'Create the outline first'
 const items = computed<WizardStepItem[]>(() => {
-  const o = options.value
   const n = files.value.length
   const topic = prompt.value.trim() ? clip(prompt.value) : n ? `${n} ${n === 1 ? 'document' : 'documents'}` : ''
+  const locked = (key: WizardStepKey, label: string): WizardStepItem => ({ key, label, summary: '', state: 'locked', reason: LOCKED })
   const mine = (key: NewStepKey, label: string, summary: string, done: boolean): WizardStepItem => ({
     key,
     label,
     summary,
     state: done && step.value !== key ? 'done' : 'available',
     reason: null,
-    badge: null,
-  })
-  const locked = (key: WizardStepKey, label: string, badge: string | null = null): WizardStepItem => ({
-    key,
-    label,
-    summary: '',
-    state: 'locked',
-    reason: LOCKED,
-    badge,
   })
   return [
-    mine('topic', 'Topic & look', [topic, chosen.value?.name].filter(Boolean).join(' · '), hasTopic.value && hasTemplate.value),
-    mine('presenter', 'Avatar & language', [portrait.value ? portrait.value.name : 'No avatar', o.language === AUTO_LANGUAGE ? '' : o.language].filter(Boolean).join(' · '), o.language !== AUTO_LANGUAGE),
-    mine('details', 'Details', `${o.slides ? `${o.slides} slides` : 'Auto length'} · ${mediaSummary(o)}`, false),
+    mine('topic', 'Topic', [topic, chosen.value?.name].filter(Boolean).join(' · '), hasTopic.value && hasTemplate.value),
+    mine('presenter', 'Presenter', presenterSummary(hasPhoto.value, wantsPresenter.value), false),
     locked('outline', 'Outline'),
     locked('preview', 'Preview'),
-    locked('avatar', 'Narration', AVATAR_BADGE[avatarHint(effectiveVideos(o.videos, hasPhoto.value))]),
+    locked('avatar', 'Narration'),
     locked('export', 'Export'),
   ]
 })
@@ -164,54 +152,81 @@ const items = computed<WizardStepItem[]>(() => {
 const copy: Record<NewStepKey, { heading: string; lede: string }> = {
   topic: {
     heading: 'Every great story starts somewhere.',
-    lede: 'Say what it’s about and pick a look. Then tune the details and review the outline before any slides are made.',
+    lede: 'Say what it’s about, pick a look and set the basics. Next you choose who presents; you review the outline before any slides are made.',
   },
-  presenter: { heading: 'Who presents, and in what language?', lede: 'Add a presenter photo for talking-avatar slides, or skip it for a voice-only deck. Then pick the slide language.' },
-  details: { heading: 'Fine-tune the details', lede: 'The defaults work well. Change only what matters.' },
+  presenter: {
+    heading: 'Who presents?',
+    lede: 'Add a photo and your digital presenter appears as a talking video on the slides that call for one. Or keep the deck voice-only.',
+  },
 }
-
-function isStep(key: WizardStepKey): key is NewStepKey {
-  return (ORDER as string[]).includes(key)
-}
-function go(to: NewStepKey) {
+const isStep = (key: WizardStepKey): key is NewStepKey => key === 'topic' || key === 'presenter'
+const go = (to: NewStepKey) => {
+  notice.clear()
   step.value = to
-}
-function advance() {
-  if (step.value === 'topic' && !hasTemplate.value) return
-  const next = ORDER[ORDER.indexOf(step.value) + 1]
-  if (next) go(next)
-}
-function back() {
-  const i = ORDER.indexOf(step.value)
-  if (i > 0) go(ORDER[i - 1]!)
 }
 function onNavigate(dir: 'back' | 'next') {
   if (pending.value) return
-  if (dir === 'back') back()
-  else advance()
+  if (dir === 'back') go('topic')
+  else if (hasTopic.value && hasTemplate.value) go('presenter')
 }
 
-// Why Create outline is unavailable, in the order the user can fix it.
+// What Create outline is missing, in the order the user can fix it. Each one can take you to the thing to fix.
+const composer = ref<InstanceType<typeof TopicComposer> | null>(null)
+const look = ref<HTMLElement | null>(null)
+const chips = ref<InstanceType<typeof NewSetupChips> | null>(null)
 const blockers = computed(() => {
-  const list: { id: string; key: NewStepKey; text: string; action: string }[] = []
-  if (!hasTopic.value) list.push({ id: 'topic', key: 'topic', text: 'Add a topic or a document', action: 'Go to Topic' })
-  if (!hasTemplate.value) list.push({ id: 'look', key: 'topic', text: 'Pick a template', action: 'Pick a look' })
+  const list: { id: 'topic' | 'look'; text: string }[] = []
+  if (!hasTopic.value) list.push({ id: 'topic', text: 'Add a topic or a document' })
+  if (!hasTemplate.value) list.push({ id: 'look', text: 'Pick a template' })
   return list
 })
+const notice = useFooterNotice()
+/** Locked steps are closed until the outline exists; say what opens them, from wherever the user is. */
+function explainLocked() {
+  notice.show(step.value === 'presenter' ? 'Create the outline first: it opens the next steps' : 'Create the outline first: continue to Presenter, then choose Create outline')
+}
+/**
+ * What Create outline will do, said before the click. It writes the outline only (no slides, voice or video yet); with
+ * a presenter chosen but no photo it goes ahead voice-only, and says so.
+ */
 const footerStatus = computed(() => {
   if (pending.value) return stage.value
-  if (step.value === 'topic' && !hasTemplate.value) return 'Pick a template to continue'
-  return ''
+  if (notice.text.value) return notice.text.value
+  if (step.value !== 'presenter') return ''
+  if (wantsPresenter.value && !hasPhoto.value) return 'No photo yet: this deck will be voice only'
+  const n = Number(options.value.slides)
+  const scope = n > 0 ? `Writes an outline for ${n} ${n === 1 ? 'slide' : 'slides'}` : 'Writes an outline; the slide count is chosen automatically'
+  return `${scope}. No slides are made until you approve it.`
 })
+
+/** Takes the user to the missing thing: the composer, or the template grid (scrolled into view, first card focused). */
+async function fixMissing(id: 'topic' | 'look') {
+  if (step.value !== 'topic') {
+    step.value = 'topic'
+    await nextTick()
+    await nextTick()
+  }
+  if (id === 'topic') {
+    composer.value?.focus()
+    return
+  }
+  const grid = look.value
+  if (!grid) return
+  grid.scrollIntoView?.({ block: 'start', behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+  await nextTick()
+  const radios = Array.from(grid.querySelectorAll<HTMLElement>('[role="radio"]'))
+  ;(radios.find((r) => r.getAttribute('aria-checked') === 'true') ?? radios[0])?.focus({ preventScroll: true })
+}
 
 async function submit() {
   if (!canSubmit.value) return
   const o = options.value
   if (files.value.length > 0 && o.language === AUTO_LANGUAGE) {
-    error.value = 'Choose a language before processing uploaded documents.'
-    step.value = 'presenter'
+    error.value = LANGUAGE_ERROR
+    step.value = 'topic'
     await nextTick()
-    document.getElementById('opt-language')?.focus()
+    await nextTick()
+    await chips.value?.openLanguage()
     return
   }
   pending.value = true
@@ -247,7 +262,7 @@ async function submit() {
         await uploadPortrait(created.id, portrait.value)
       } catch {
         // The deck exists; the photo can be added in the Narration step.
-        toast.error('The presenter photo didn’t upload. Add it again in the Narration step.')
+        toast.error('Your presenter photo didn’t upload, so the deck is voice only for now. Add it again under Presenter and language on the Narration step.')
       }
     }
     // Each deck remembers its look: the Outline step finds it even when reached without the query.
@@ -263,23 +278,21 @@ async function submit() {
     await router.push({ name: 'create', params: { id: created.id, step: 'outline' }, query: { ...(chosen.value && { template: chosen.value.id }) } })
     draft.clear()
   } catch (e) {
-    error.value = e instanceof ApiError ? e.message : e instanceof Error && e.message ? e.message : 'Something went wrong while starting your presentation.'
+    error.value = describeError('Couldn’t start your presentation', e, 'Try Create outline again; your topic and settings are kept.')
     pending.value = false
   }
 }
 
-// Enter in a field moves on; only the Details primary creates the deck.
-function onFormSubmit() {
-  if (step.value === 'details') void submit()
-  else advance()
-}
-// Ctrl/Cmd+Enter in the composer creates the outline when it can, otherwise moves on.
-function onComposerSubmit() {
-  if (canSubmit.value) void submit()
-  else advance()
+// Next: Presenter (Topic step) or Create outline (Presenter step): from the primary, Enter in a field, or
+// Ctrl/Cmd+Enter in the composer. When something is missing it takes you to the first missing thing instead.
+function onCreate() {
+  if (pending.value) return
+  if (!hasTopic.value || !hasTemplate.value) {
+    if (blockers.value[0]) void fixMissing(blockers.value[0].id)
+  } else if (step.value === 'topic') go('presenter')
+  else void submit()
 }
 
-const composer = ref<InstanceType<typeof TopicComposer> | null>(null)
 watch(
   step,
   (now) => {
@@ -298,68 +311,58 @@ watch(
     :items="items"
     :current="step"
     @select="(k) => isStep(k) && !pending && go(k)"
+    @blocked="explainLocked"
     @navigate="onNavigate"
   >
-    <form id="new-form" class="flex flex-col gap-6" @submit.prevent="onFormSubmit">
+    <form id="new-form" class="flex flex-col gap-6" @submit.prevent="onCreate">
       <template v-if="step === 'topic'">
-        <section class="flex flex-col gap-3" aria-labelledby="new-topic-h">
-          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h3 id="new-topic-h" class="flex items-center gap-2 text-[13px] font-medium text-[#e4ecf0]">
-              <span class="grid size-5 place-items-center rounded-full bg-[#bee3f31f] text-[10px] font-semibold text-accent">1</span>
-              What’s it about?
-            </h3>
-            <span class="text-[11px] text-[#8e9ca4]">A prompt, documents, or both.</span>
-          </div>
-          <TopicComposer ref="composer" v-model:prompt="prompt" v-model:files="files" :disabled="pending" @submit="onComposerSubmit" />
-          <p v-if="filesLost" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">Re-add your documents; files aren't kept after a reload.</p>
-          <p v-if="languageNeeded" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">
-            Documents need a language.
-            <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go('presenter')">Set it in Avatar & language</button>
-          </p>
-        </section>
+      <section class="flex flex-col gap-3" aria-labelledby="new-topic-h">
+        <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h3 id="new-topic-h" class="flex items-center gap-2 text-[13px] font-medium text-[#e4ecf0]">
+            <span class="grid size-5 place-items-center rounded-full bg-[#bee3f31f] text-[12px] font-semibold text-accent">1</span>
+            What’s it about?
+          </h3>
+          <span class="text-[12px] text-[#8e9ca4]">A prompt, documents, or both.</span>
+        </div>
+        <TopicComposer ref="composer" v-model:prompt="prompt" v-model:files="files" :disabled="pending" @submit="onCreate" />
+        <NewSetupChips ref="chips" v-model:options="options" :has-photo="hasPhoto" :disabled="pending" />
+        <p v-if="filesLost" role="note" class="text-[12px] text-[#a9c4d2]">Re-add your documents; files aren't kept after a reload.</p>
+        <p v-if="languageNeeded" role="note" class="text-[12px] text-[#a9c4d2]">
+          Documents need a language.
+          <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center" @click="chips?.openLanguage()">Choose one</button>
+        </p>
+      </section>
 
-        <section class="flex flex-col gap-3 border-t border-white/[0.06] pt-6" aria-labelledby="new-look-h">
-          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h3 id="new-look-h" class="flex items-center gap-2 text-[13px] font-medium text-[#e4ecf0]">
-              <span class="grid size-5 place-items-center rounded-full bg-[#bee3f31f] text-[10px] font-semibold text-accent">2</span>
-              Pick a look
-            </h3>
-            <span class="text-[11px] text-[#8e9ca4]">{{ chosen ? chosen.name : 'Choose a template for your slides.' }}</span>
-          </div>
-          <Skeleton v-if="templates.isPending.value" class="h-[260px] w-full" />
-          <Alert v-else-if="templates.isError.value" class="py-2 text-[12px]">Templates couldn’t load. Reload the page to try again.</Alert>
-          <NewTemplateSelector v-else-if="templates.data.value?.length" v-model="selectedTemplate" :templates="templates.data.value" :allow-later="false" :disabled="pending" />
-          <Alert v-else class="py-2 text-[12px]">No templates are available yet. Add one in Templates, then come back to create your outline.</Alert>
-        </section>
-
+      <section ref="look" class="flex flex-col gap-3 border-t border-white/[0.06] pt-5" aria-labelledby="new-look-h">
+        <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h3 id="new-look-h" class="flex items-center gap-2 text-[13px] font-medium text-[#e4ecf0]">
+            <span class="grid size-5 place-items-center rounded-full bg-[#bee3f31f] text-[12px] font-semibold text-accent">2</span>
+            Pick a look
+          </h3>
+          <span class="text-[12px] text-[#8e9ca4]">{{ chosen ? chosen.name : 'Choose a template for your slides.' }}</span>
+        </div>
+        <Skeleton v-if="templates.isPending.value" class="h-[260px] w-full" />
+        <Alert v-else-if="templates.isError.value" class="py-2 text-[12px]">Templates couldn’t load. Reload the page to try again.</Alert>
+        <NewTemplateSelector v-else-if="templates.data.value?.length" v-model="selectedTemplate" :templates="templates.data.value" :allow-later="false" :disabled="pending" />
+        <Alert v-else class="py-2 text-[12px]">No templates are available yet. Add one in Templates, then come back to create your outline.</Alert>
+      </section>
       </template>
 
-      <template v-else-if="step === 'presenter'">
-        <PresenterPicker v-model="portrait" :disabled="pending" @error="photoError = $event" />
-        <p v-if="photoError" role="alert" class="-mt-3 text-center text-[11px] text-[#e8a2a2]">{{ photoError }}</p>
-        <p v-if="photoLost" role="note" class="-mt-3 text-center text-[11px] text-[#a9c4d2]">Re-add your photo; files aren't kept after a reload.</p>
-        <LanguagePicker v-model="options.language" :disabled="pending" />
-      </template>
-
-
-      <GenerationOptions v-else v-model="options" :has-photo="hasPhoto" :disabled="pending" />
+      <NewPresenterStep v-else v-model="portrait" v-model:wants="wantsPresenter" v-model:options="options" :disabled="pending" :error="photoError" :photo-lost="photoLost" @error="photoError = $event" />
     </form>
 
     <template #footer>
       <WizardFooter :status="footerStatus" :error="error" :busy="pending">
         <template #back>
-          <Button v-if="step !== 'topic'" type="button" variant="ghost" class="h-[43px] px-3" :disabled="pending" @click="back">
-            <ArrowLeft class="size-4" aria-hidden="true" />
-            Back
-          </Button>
+          <WizardBackButton v-if="step === 'presenter'" class="h-[43px] px-3 max-[559px]:h-11 max-[559px]:px-0" :disabled="pending" data-testid="wizard-back" @click="go('topic')" />
         </template>
         <template #primary>
           <Button
-            v-if="step === 'details'"
+            v-if="step === 'presenter'"
             type="submit"
             form="new-form"
             data-testid="wizard-primary"
-            class="h-[43px] min-w-[210px] px-4 text-[12px] max-[520px]:w-full max-[520px]:min-w-0"
+            class="h-[43px] min-w-[210px] px-4 text-[12px] max-[559px]:min-w-0"
             :class="pending && 'anim-working'"
             :disabled="!canSubmit"
           >
@@ -368,22 +371,21 @@ watch(
           </Button>
           <Button
             v-else
-            type="button"
-            variant="outline"
+            type="submit"
+            form="new-form"
             data-testid="wizard-primary"
-            class="h-[43px] px-4 max-[520px]:flex-1"
-            :disabled="!hasTemplate"
-            @click="advance"
+            class="h-[43px] min-w-[210px] px-4 text-[12px] max-[559px]:min-w-0"
+            :disabled="!canSubmit"
           >
-            Fine-tune details
+            Next: Presenter
             <ArrowRight class="size-4" aria-hidden="true" />
           </Button>
         </template>
-        <template v-if="step === 'details' && !pending && blockers.length" #status>
-          <span v-for="b in blockers" :key="b.id" class="ml-3 inline-flex items-center gap-1.5">
-            {{ b.text }}
-            <button type="button" :data-testid="`fix-${b.id}`" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go(b.key)">{{ b.action }}</button>
-          </span>
+        <template v-if="!pending && blockers.length && !notice.text.value" #status>
+          <template v-for="(b, i) in blockers" :key="b.id">
+            <span v-if="i > 0" aria-hidden="true"> · </span>
+            <button type="button" :data-testid="`fix-${b.id}`" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" @click="fixMissing(b.id)">{{ b.text }}</button>
+          </template>
         </template>
       </WizardFooter>
     </template>

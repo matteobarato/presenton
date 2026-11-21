@@ -6,6 +6,7 @@
 @keyframes dialog-in { from { opacity: 0; translate: 0 12px; filter: blur(3px) } to { opacity: 1; translate: 0 0; filter: blur(0) } }
 @keyframes sheet-in-right { from { opacity: 0; translate: 24px 0 } to { opacity: 1; translate: 0 0 } }
 @keyframes sheet-in-left { from { opacity: 0; translate: -24px 0 } to { opacity: 1; translate: 0 0 } }
+@keyframes sheet-in-bottom { from { opacity: 0; translate: 0 24px } to { opacity: 1; translate: 0 0 } }
 @keyframes pop-in { from { opacity: 0; scale: 0.97; translate: 0 4px } to { opacity: 1; scale: 1; translate: 0 0 } }
 @keyframes thinking { from { opacity: 0.35; transform: translateY(0) } to { opacity: 1; transform: translateY(-3px) } }
 @keyframes working { from { border-color: #bedff02e } to { border-color: #bedff09c } }
@@ -17,6 +18,7 @@
 .anim-pop-in { animation: pop-in 180ms var(--ease) }
 .anim-sheet-right { animation: sheet-in-right 250ms var(--ease) }
 .anim-sheet-left { animation: sheet-in-left 250ms var(--ease) }
+.anim-sheet-bottom { animation: sheet-in-bottom 250ms var(--ease) }
 .anim-working { animation: working 1.2s ease-in-out infinite alternate }
 .thinking-dots { display: flex; align-items: center; gap: 4px }
 .thinking-dots > span { width: 4px; height: 4px; border-radius: 50%; background: #aacdde; animation: thinking 0.9s ease-in-out infinite alternate }
@@ -41,7 +43,7 @@
 
 /* Reduced motion keeps opacity feedback and drops translation, scale and blur. */
 @media (prefers-reduced-motion: reduce) {
-  .anim-rise-in, .anim-dialog-in, .anim-pop-in, .anim-sheet-right, .anim-sheet-left { animation: fade-in 150ms ease-out }
+  .anim-rise-in, .anim-dialog-in, .anim-pop-in, .anim-sheet-right, .anim-sheet-left, .anim-sheet-bottom { animation: fade-in 150ms ease-out }
   .thinking-dots > span { animation-name: thinking-fade }
   .slide-change-enter-from, .present-change-enter-from, .toast-enter-from, .toast-leave-to { transform: none; translate: none; filter: none }
   .slide-change-enter-active, .present-change-enter-active, .toast-enter-active, .toast-leave-active { transition-property: opacity }

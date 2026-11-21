@@ -1,84 +1,124 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue'
-import { Check, Loader2, Lock } from 'lucide-vue-next'
-import { Progress } from '@/components/ui/progress'
+import { Check, ChevronDown, Loader2 } from 'lucide-vue-next'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
 import type { WizardStepItem, WizardStepKey } from './progress'
 
-/** The seven-step journey bar. Locked steps explain themselves and never emit. */
+/**
+ * The six-step journey, as a compact row of header buttons (it lives in the app top bar). A locked step never
+ * selects: it emits `blocked` so the host can show its reason. Under 1280px only the open step keeps its label; under
+ * 760px the row collapses into one "3/6 · Outline" button that opens the same list as a menu.
+ */
 const props = defineProps<{ items: WizardStepItem[]; current: WizardStepKey; disabled?: boolean }>()
-const emit = defineEmits<{ select: [key: WizardStepKey] }>()
+const emit = defineEmits<{ select: [key: WizardStepKey]; blocked: [item: WizardStepItem] }>()
 
 const index = computed(() => Math.max(0, props.items.findIndex((i) => i.key === props.current)))
 const currentItem = computed(() => props.items[index.value])
-const percent = computed(() => Math.round(((index.value + 1) / Math.max(1, props.items.length)) * 100))
+
+/** The old step bar's glass tile, compacted to the header's height. */
+const tile =
+  'inline-flex h-[40px] flex-none items-center gap-2 rounded-card border px-2.5 text-[12px] font-semibold whitespace-nowrap transition-[background,border-color] duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
 const uid = useId()
 const reasonId = (key: WizardStepKey) => `${uid}-reason-${key}`
 const STATE_TEXT: Partial<Record<WizardStepItem['state'], string>> = { done: 'Completed', running: 'In progress' }
 
-const BADGE = 'rounded-full border border-white/[0.12] px-1.5 py-px text-[9.5px] leading-[1.4] whitespace-nowrap text-[#a9c4d2]'
-
 function pick(item: WizardStepItem) {
-  if (props.disabled || item.state === 'locked') return
+  if (props.disabled) return
+  // A locked step says why in the footer; the tooltip alone would never reach touch or keyboard users.
+  if (item.state === 'locked') return void emit('blocked', item)
   emit('select', item.key)
 }
+const tip = (s: WizardStepItem) => (s.state === 'locked' ? (s.reason ?? undefined) : s.summary ? `${s.label}: ${s.summary}` : s.label)
 </script>
 
 <template>
-  <nav aria-label="Create steps">
-    <div data-testid="steps-compact" class="hidden flex-col gap-2 max-[519px]:flex">
-      <p class="text-[12px] font-semibold text-[#e4ecf0]">Step {{ index + 1 }} of {{ items.length }} · {{ currentItem?.label }}</p>
-      <Progress :model-value="percent" class="h-1" aria-label="Create progress" />
-    </div>
-    <ol class="flex min-w-0 items-stretch gap-1.5 max-[1050px]:gap-1 max-[519px]:hidden">
-      <li v-for="(s, i) in items" :key="s.key" class="flex min-w-0" :class="s.key === current ? 'flex-[2_1_0%]' : 'flex-1'">
+  <nav aria-label="Wizard steps" class="flex-none">
+    <!-- Phone: one button, the full list in a menu. -->
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        data-testid="steps-compact"
+        :class="cn(tile, 'relative hidden max-[759px]:inline-flex max-[759px]:h-11', 'border-[#bee3f347] bg-[#bee3f30f] text-[#eef6fa]')"
+        aria-label="Wizard steps"
+      >
+        <span class="tabular-nums">{{ index + 1 }}/{{ items.length }}</span>
+        <span aria-hidden="true">·</span>
+        <span>{{ currentItem?.label }}</span>
+        <ChevronDown class="size-3.5" aria-hidden="true" />
+        <!-- Progress at a glance: one segment per step, done ones filled. -->
+        <span class="pointer-events-none absolute inset-x-2.5 bottom-0 flex gap-[3px]" aria-hidden="true" data-testid="steps-compact-track">
+          <span v-for="s in items" :key="s.key" class="h-[2px] flex-1 rounded-full" :class="s.key === current ? 'bg-accent' : s.state === 'done' ? 'bg-accent/65' : 'bg-white/[0.1]'" />
+        </span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" class="max-h-[var(--reka-dropdown-menu-content-available-height)] max-w-[calc(100vw-1.5rem)] min-w-52 overflow-y-auto">
+        <DropdownMenuItem
+          v-for="(s, i) in items"
+          :key="s.key"
+          :data-testid="`menu-step-${s.key}`"
+          :aria-current="s.key === current ? 'step' : undefined"
+          :aria-disabled="s.state === 'locked' ? 'true' : undefined"
+          :class="cn('min-h-11 gap-2.5 py-2.5 text-[13px]', s.state === 'locked' && 'opacity-60', s.key === current && 'text-accent')"
+          @select="pick(s)"
+        >
+          <span class="grid size-5 flex-none place-items-center text-[12px] tabular-nums" aria-hidden="true">
+            <Loader2 v-if="s.state === 'running'" class="size-3.5 animate-spin motion-reduce:animate-none" />
+            <Check v-else-if="s.state === 'done'" class="size-3.5 text-accent" />
+            <template v-else>{{ i + 1 }}</template>
+          </span>
+          <span class="flex min-w-0 flex-col">
+            <span class="font-semibold">{{ s.label }}</span>
+            <span v-if="s.summary && s.state !== 'locked'" class="text-[12px] font-normal break-words text-[#9aabb4]">{{ s.summary }}</span>
+            <span v-else-if="s.state === 'locked' && s.reason" class="text-[12px] font-normal text-[#9aabb4]">{{ s.reason }}</span>
+          </span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+
+    <ol class="flex items-center gap-3 max-[1279px]:gap-2 max-[759px]:hidden">
+      <li v-for="(s, i) in items" :key="s.key" class="relative flex">
         <button
           type="button"
           :aria-current="s.key === current ? 'step' : undefined"
           :aria-disabled="s.state === 'locked' ? 'true' : undefined"
           :disabled="disabled"
-          :title="s.state === 'locked' ? (s.reason ?? undefined) : undefined"
+          :title="tip(s)"
           :aria-describedby="s.state === 'locked' && s.reason ? reasonId(s.key) : undefined"
           :data-testid="`step-${s.key}`"
           :data-state="s.state"
-          class="group relative flex min-w-0 flex-1 items-center gap-2.5 overflow-hidden rounded-card border px-3 py-2.5 text-left transition-[background,border-color] duration-200"
-          :class="[
-            s.key === current ? 'border-[#bee3f347] bg-[#bee3f30f]' : 'border-white/[0.06] bg-white/[0.015]',
-            s.state === 'locked' ? 'cursor-not-allowed opacity-55' : s.key !== current && 'hover:border-white/[0.12] hover:bg-white/[0.035]',
-          ]"
+          :class="
+            cn(
+              tile,
+              'relative overflow-hidden',
+              s.key === current ? 'border-[#bee3f347] bg-[#bee3f30f] text-[#eef6fa]' : s.state === 'done' ? 'border-[#bee3f31f] bg-white/[0.015] text-[#dbe8ee]' : 'border-white/[0.06] bg-white/[0.015] text-[#c9d5db]',
+              s.state === 'locked' ? 'cursor-not-allowed opacity-55' : s.key !== current && 'hover:border-white/[0.12] hover:bg-white/[0.035]',
+            )
+          "
           @click="pick(s)"
         >
           <span
-            class="grid size-[24px] flex-none place-items-center rounded-full text-[11px] font-semibold tabular-nums transition-colors duration-200"
-            :class="
-              s.key === current
-                ? 'bg-accent text-accent-ink'
-                : s.state === 'done'
-                  ? 'bg-[#bee3f324] text-accent'
-                  : 'border border-white/[0.14] text-[#a5b3ba]'
-            "
+            class="grid size-[22px] flex-none place-items-center rounded-full text-[12px] leading-none font-semibold tabular-nums transition-colors duration-200"
+            :class="s.key === current ? 'bg-accent text-accent-ink' : s.state === 'done' ? 'border border-[#bee3f373] bg-[#bee3f333] text-accent' : 'border border-white/[0.14] text-[#a5b3ba]'"
             aria-hidden="true"
           >
             <Loader2 v-if="s.state === 'running'" data-icon="spinner" class="size-3.5 animate-spin motion-reduce:animate-none" />
             <Check v-else-if="s.state === 'done'" data-icon="check" class="size-3.5" />
-            <Lock v-else-if="s.state === 'locked'" data-icon="lock" class="size-3" />
             <template v-else>{{ i + 1 }}</template>
           </span>
-          <span class="flex min-w-0 flex-col" :class="s.key !== current && 'max-[1050px]:sr-only'">
-            <span class="flex min-w-0 items-center gap-1.5">
-              <span class="truncate text-[12px] font-semibold" :class="s.key === current ? 'text-[#eef6fa]' : 'text-[#c9d5db]'">{{ s.label }}</span>
-              <span v-if="STATE_TEXT[s.state]" class="sr-only" :data-testid="`step-${s.key}-state`">({{ STATE_TEXT[s.state] }})</span>
-              <!-- Under 1050px only the current label shows, so its badge has room beside it. -->
-              <span v-if="s.badge" class="hidden flex-none max-[1050px]:inline" :class="BADGE">{{ s.badge }}</span>
-            </span>
-            <!-- From 1050px the steps share the width: the badge gets the second line, ahead of the summary. -->
-            <span v-if="s.badge || s.summary" class="flex min-w-0 items-center gap-1.5 max-[1050px]:hidden">
-              <span v-if="s.badge" class="min-w-0 truncate" :class="BADGE" :title="s.badge">{{ s.badge }}</span>
-              <span v-if="s.summary" class="min-w-0 truncate text-[10.5px] text-[#8e9ca4]">{{ s.summary }}</span>
-            </span>
-          </span>
-          <span v-if="s.key === current" class="absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-accent" aria-hidden="true" />
+          <span :class="s.key !== current && 'max-[1279px]:sr-only'">{{ s.label }}</span>
+          <span v-if="STATE_TEXT[s.state]" class="sr-only" :data-testid="`step-${s.key}-state`">({{ STATE_TEXT[s.state] }})</span>
+          <!-- Summaries live in the tooltip and for screen readers, not in the bar. -->
+          <span v-if="s.summary" class="sr-only">{{ s.summary }}</span>
+          <span v-if="s.key === current" class="absolute inset-x-2.5 bottom-0 h-[2px] rounded-full bg-accent" data-testid="step-underline" aria-hidden="true" />
         </button>
+        <!-- A link into this step from the previous one: accent once the previous step is done and this one is done or open. -->
+        <span
+          v-if="i > 0"
+          class="pointer-events-none absolute top-1/2 right-full h-0.5 w-3 -translate-y-1/2 rounded-full max-[1279px]:w-2"
+          :class="items[i - 1]!.state === 'done' && (s.state === 'done' || s.key === current) ? 'bg-accent/65' : 'bg-white/[0.1]'"
+          :data-testid="`step-link-${s.key}`"
+          aria-hidden="true"
+        />
         <span v-if="s.state === 'locked' && s.reason" :id="reasonId(s.key)" class="sr-only">{{ s.reason }}</span>
       </li>
     </ol>

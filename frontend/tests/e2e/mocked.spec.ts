@@ -166,9 +166,8 @@ test.describe('mocked backend', () => {
 
     await page.getByRole('button', { name: 'Use this template' }).click()
     await expect(page).toHaveURL(/\/new\?template=c1$/)
-    // The chosen template shows in the step strip; the Look step holds the picker.
-    await expect(page.getByTestId('step-look')).toContainText('Pitch')
-    await page.getByTestId('step-look').click()
+    // The chosen template shows in the step strip; the Topic step holds the picker.
+    await expect(page.getByTestId('step-topic')).toContainText('Pitch')
     await expect(page.getByRole('radio', { name: 'Pitch' })).toHaveAttribute('aria-checked', 'true')
     const mainImage = page.getByTestId('new-template-c1').getByTestId('template-main-image')
     await expect(mainImage).toBeVisible()
@@ -1376,31 +1375,28 @@ async function wizardApi(page: Page) {
   return { requests, unexpected }
 }
 
-const wizardToast = (page: Page, text: string) => page.locator('[data-sonner-toast]').filter({ hasText: text })
 
 test.describe('create wizard (mocked)', () => {
   test('wizard: topic → export with resume from editor', async ({ page }) => {
     test.setTimeout(90_000)
     const { requests, unexpected } = await wizardApi(page)
 
-    // Steps 1–3: Topic, Look (a template is required), Details.
+    // Steps 1–2: Topic & look (a template is required), then the Presenter.
     await page.goto('/new')
     await page.getByPlaceholder(/Describe the topic/).fill('A quarterly review for the board')
-    await page.getByTestId('wizard-primary').click()
-    await expect(page.getByTestId('step-look')).toHaveAttribute('aria-current', 'step')
     await expect(page.getByTestId('wizard-primary')).toBeDisabled()
     await page.getByRole('radio', { name: 'Pitch' }).click()
     await expect(page).toHaveURL(/\/new\?template=c1$/)
     await page.getByTestId('wizard-primary').click()
-    await expect(page.getByTestId('step-details')).toHaveAttribute('aria-current', 'step')
+    await expect(page.getByTestId('step-presenter')).toHaveAttribute('aria-current', 'step')
     await page.getByRole('button', { name: 'Create outline' }).click()
 
-    // Step 4: the outline streams in; Generate builds the slides from the chosen template.
+    // Step 3: the outline streams in; Generate builds the slides from the chosen template.
     await expect(page).toHaveURL(new RegExp(`/p/${DECK_ID}/create/outline\\?template=c1$`))
     await expect(page.getByTestId('outline-count')).toHaveText('2 slides · max 50')
     await page.getByRole('button', { name: 'Generate slides' }).click()
 
-    // Step 5: the slides stream in, then the grid shows them.
+    // Step 4: the slides stream in, then the grid shows them.
     await expect(page).toHaveURL(new RegExp(`/p/${DECK_ID}/create/preview`))
     await expect(page.getByTestId('preview-grid').getByRole('button', { name: /Open slide/ })).toHaveCount(2)
     await expect(page).not.toHaveURL(/stream=/)
@@ -1412,7 +1408,7 @@ test.describe('create wizard (mocked)', () => {
     await expect(resume).toHaveText('Continue: Avatar')
     await resume.click()
 
-    // Step 6: one run writes the notes, records the voice and renders the avatar.
+    // Step 5: one run writes the notes, records the voice and renders the avatar.
     await expect(page).toHaveURL(`/p/${DECK_ID}/create/avatar`)
     await expect(page.getByTestId('setup-portrait')).toHaveAttribute('data-ok', 'true')
     await page.getByRole('button', { name: 'Generate voice & avatars' }).click()
@@ -1424,7 +1420,7 @@ test.describe('create wizard (mocked)', () => {
     }
     await toExport.click()
 
-    // Step 7: the export options.
+    // Step 6: the export options.
     await expect(page).toHaveURL(`/p/${DECK_ID}/create/export`)
     await expect(page.getByTestId('step-export')).toHaveAttribute('aria-current', 'step')
     await expect(page.getByTestId('export-heading')).toHaveText('Quarterly Review · 2 slides')
@@ -1434,7 +1430,7 @@ test.describe('create wizard (mocked)', () => {
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 
-  test('export url redirects to avatar while avatars are missing', async ({ page }) => {
+  test('export stays open while avatars are missing, and warns inline', async ({ page }) => {
     const unexpected = await mockApi(page, {
       // Narrated (the tts fixture holds these notes), one placeholder slide, no avatar video yet.
       [`GET /api/v1/ppt/presentation/${DECK_ID}`]: json(wizardDeck(NOTES)),
@@ -1449,9 +1445,9 @@ test.describe('create wizard (mocked)', () => {
     await page.route('**/static/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }))
 
     await page.goto(`/p/${DECK_ID}/create/export`)
-    await expect(page).toHaveURL(`/p/${DECK_ID}/create/avatar`)
-    await expect(wizardToast(page, '1 slide still needs its avatar')).toBeVisible()
-    await expect(page.getByTestId('step-export')).toHaveAttribute('data-state', 'locked')
+    await expect(page).toHaveURL(`/p/${DECK_ID}/create/export`)
+    await expect(page.getByTestId('export-gaps')).toContainText('1 presenter slide has no video')
+    await expect(page.getByTestId('step-export')).not.toHaveAttribute('data-state', 'locked')
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
 })

@@ -1,17 +1,10 @@
-export type WizardStepKey =
-  | 'topic'
-  | 'presenter'
-  | 'details'
-  | 'outline'
-  | 'preview'
-  | 'avatar'
-  | 'export'
+/** URL keys: `avatar` is the Narration step (step 5). The keys are kept so existing links keep working. */
+export type WizardStepKey = 'topic' | 'presenter' | 'outline' | 'preview' | 'avatar' | 'export'
 export type DeckStepKey = 'outline' | 'preview' | 'avatar' | 'export'
 
 export const WIZARD_STEPS: readonly { key: WizardStepKey; label: string }[] = [
-  { key: 'topic', label: 'Topic & look' },
-  { key: 'presenter', label: 'Avatar & language' },
-  { key: 'details', label: 'Details' },
+  { key: 'topic', label: 'Topic' },
+  { key: 'presenter', label: 'Presenter' },
   { key: 'outline', label: 'Outline' },
   { key: 'preview', label: 'Preview' },
   { key: 'avatar', label: 'Narration' },
@@ -19,12 +12,10 @@ export const WIZARD_STEPS: readonly { key: WizardStepKey; label: string }[] = [
 ]
 
 export type StepState = 'done' | 'available' | 'locked' | 'running'
-export type AvatarRequirement = 'required' | 'optional' | 'undecided'
 
 export interface StepStatus {
   state: StepState
   reason: string | null
-  badge: string | null
 }
 
 export interface WizardStepItem extends StepStatus {
@@ -49,47 +40,28 @@ export interface DeckProgressInput {
 
 export interface DeckProgress {
   steps: Record<DeckStepKey, StepStatus>
-  /** Never 'undecided' once slideCount > 0. */
-  avatarRequirement: AvatarRequirement
   /** Placeholders exist but avatar generation is unavailable. */
   voiceOnly: boolean
+  /** What Narration has not done yet. Export warns about it but is never blocked by it. */
+  missing: { narration: number; presenterVideos: number }
   resume: DeckStepKey
-}
-
-export const AVATAR_BADGE: Record<AvatarRequirement, string> = {
-  required: 'Required',
-  optional: 'Optional',
-  undecided: 'Decided after Preview',
 }
 
 const PREVIEW_LOCK = 'Generate slides from the outline first'
 const AVATAR_LOCK = 'Slides must finish generating first'
 
-/** Maps the Details-step "videos" option to what the Avatar step will need. */
-export function avatarHint(videosOption: string): AvatarRequirement {
-  if (videosOption === '') return 'undecided'
-  if (videosOption === '0') return 'optional'
-  return 'required'
-}
-
-const status = (
-  state: StepState,
-  reason: string | null = null,
-  badge: string | null = null,
-): StepStatus => ({ state, reason: state === 'locked' ? reason : null, badge })
+const status = (state: StepState, reason: string | null = null): StepStatus => ({
+  state,
+  reason: state === 'locked' ? reason : null,
+})
 
 export function deckProgress(i: DeckProgressInput): DeckProgress {
   const { slideCount, narration, avatar } = i
   const generationOk = avatar.generationAvailable !== false
 
   const voiceOnly = avatar.placeholderSlides > 0 && !generationOk
-  const avatarRequirement: AvatarRequirement =
-    slideCount === 0
-      ? 'undecided'
-      : avatar.placeholderSlides > 0 && generationOk
-        ? 'required'
-        : 'optional'
-  const required = avatarRequirement === 'required'
+  // Narration is recommended, never required: it does not gate Export.
+  const presenterWork = avatar.placeholderSlides > 0 && generationOk
 
   const outlineDone = slideCount > 0 || i.slidesStreaming
   const outline = status(
@@ -111,28 +83,14 @@ export function deckProgress(i: DeckProgressInput): DeckProgress {
   const avatarDone =
     slideCount > 0 &&
     narration.ready === slideCount &&
-    (!required || avatar.withVideo >= avatar.placeholderSlides)
+    (!presenterWork || avatar.withVideo >= avatar.placeholderSlides)
   const avatarStep = status(
-    !previewDone
-      ? 'locked'
-      : i.pipelineRunning
-        ? 'running'
-        : avatarDone
-          ? 'done'
-          : 'available',
+    !previewDone ? 'locked' : i.pipelineRunning ? 'running' : avatarDone ? 'done' : 'available',
     AVATAR_LOCK,
-    AVATAR_BADGE[avatarRequirement],
   )
 
-  const missing = avatar.placeholderSlides - avatar.withVideo
-  const exportLocked = !previewDone
-    ? AVATAR_LOCK
-    : required && !avatarDone
-      ? missing > 0
-        ? `${missing} ${missing === 1 ? 'slide still needs its' : 'slides still need their'} avatar`
-        : 'Narrate every slide first'
-      : null
-  const exportStep = status(exportLocked ? 'locked' : 'available', exportLocked)
+  // Export is open as soon as the slides are in; missing narration or presenter videos only warn (see ExportStep).
+  const exportStep = status(previewDone ? 'available' : 'locked', AVATAR_LOCK)
 
   const steps: Record<DeckStepKey, StepStatus> = {
     outline,
@@ -145,5 +103,11 @@ export function deckProgress(i: DeckProgressInput): DeckProgress {
       (k) => steps[k].state !== 'done',
     ) ?? 'export'
 
-  return { steps, avatarRequirement, voiceOnly, resume }
+  const missing = {
+    narration: Math.max(0, slideCount - narration.ready),
+    // With no video generation (voice only) the bubble is all there is: nothing to wait for.
+    presenterVideos: presenterWork ? Math.max(0, avatar.placeholderSlides - avatar.withVideo) : 0,
+  }
+
+  return { steps, voiceOnly, missing, resume }
 }

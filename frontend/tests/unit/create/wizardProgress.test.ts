@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  AVATAR_BADGE,
   WIZARD_STEPS,
-  avatarHint,
   deckProgress,
   type DeckProgressInput,
 } from '@/components/create/wizard/progress'
@@ -21,12 +19,9 @@ function input(over: Partial<DeckProgressInput> = {}): DeckProgressInput {
 
 describe('WIZARD_STEPS', () => {
   it('lists the steps in order with labels', () => {
-    expect(WIZARD_STEPS.map((s) => s.key)).toEqual([
-      'topic', 'presenter', 'details', 'outline', 'preview', 'avatar', 'export',
-    ])
-    expect(WIZARD_STEPS.map((s) => s.label)).toEqual([
-      'Topic & look', 'Avatar & language', 'Details', 'Outline', 'Preview', 'Narration', 'Export',
-    ])
+    // The URL keys are unchanged (`avatar` is Narration), so old links keep working.
+    expect(WIZARD_STEPS.map((s) => s.key)).toEqual(['topic', 'presenter', 'outline', 'preview', 'avatar', 'export'])
+    expect(WIZARD_STEPS.map((s) => s.label)).toEqual(['Topic', 'Presenter', 'Outline', 'Preview', 'Narration', 'Export'])
   })
 })
 
@@ -35,7 +30,6 @@ describe('deckProgress', () => {
     const p = deckProgress(input({ outlineStreaming: true }))
     expect(p.steps.outline.state).toBe('running')
     expect(p.resume).toBe('outline')
-    expect(p.avatarRequirement).toBe('undecided')
   })
 
   it('outline is available when idle with no slides', () => {
@@ -71,35 +65,33 @@ describe('deckProgress', () => {
     expect(p.steps.avatar.state).toBe('available')
   })
 
-  it('required avatars lock export with a count', () => {
+  it('missing avatars never lock export: they are counted as missing instead', () => {
     const p = deckProgress(input({
       slideCount: 5,
       narration: { ready: 5, stale: 0 },
       avatar: { placeholderSlides: 3, withVideo: 1, generationAvailable: true },
     }))
-    expect(p.avatarRequirement).toBe('required')
-    expect(p.steps.export.state).toBe('locked')
-    expect(p.steps.export.reason).toBe('2 slides still need their avatar')
+    expect(p.steps.export.state).toBe('available')
+    expect(p.steps.export.reason).toBeNull()
+    expect(p.missing).toEqual({ narration: 0, presenterVideos: 2 })
+    expect(p.steps.avatar.state).toBe('available')
     expect(p.resume).toBe('avatar')
   })
 
-  it('uses the singular when one slide still needs its avatar', () => {
-    const p = deckProgress(input({
-      slideCount: 5,
-      narration: { ready: 5, stale: 0 },
-      avatar: { placeholderSlides: 3, withVideo: 2, generationAvailable: true },
-    }))
-    expect(p.steps.export.reason).toBe('1 slide still needs its avatar')
-  })
-
-  it('asks to narrate when avatars are complete but narration is not', () => {
+  it('missing narration never locks export either', () => {
     const p = deckProgress(input({
       slideCount: 4,
       narration: { ready: 3, stale: 1 },
       avatar: { placeholderSlides: 2, withVideo: 2, generationAvailable: true },
     }))
-    expect(p.steps.export.state).toBe('locked')
-    expect(p.steps.export.reason).toBe('Narrate every slide first')
+    expect(p.steps.export.state).toBe('available')
+    expect(p.missing).toEqual({ narration: 1, presenterVideos: 0 })
+  })
+
+  it('export is locked only while there are no slides or they are streaming', () => {
+    expect(deckProgress(input()).steps.export.state).toBe('locked')
+    expect(deckProgress(input({ slidesStreaming: true, slideCount: 2 })).steps.export.state).toBe('locked')
+    expect(deckProgress(input({ slideCount: 2 })).steps.export.state).toBe('available')
   })
 
   it('outline stays running while regenerating over existing slides', () => {
@@ -112,8 +104,8 @@ describe('deckProgress', () => {
       slideCount: 2,
       avatar: { placeholderSlides: 1, withVideo: 0, generationAvailable: undefined },
     }))
-    expect(p.avatarRequirement).toBe('required')
     expect(p.voiceOnly).toBe(false)
+    expect(p.missing.presenterVideos).toBe(1)
   })
 
   it('voice-only completes when generation unavailable', () => {
@@ -123,7 +115,8 @@ describe('deckProgress', () => {
       avatar: { placeholderSlides: 2, withVideo: 0, generationAvailable: false },
     }))
     expect(p.voiceOnly).toBe(true)
-    expect(p.avatarRequirement).toBe('optional')
+    // Voice only: there is no video to wait for.
+    expect(p.missing.presenterVideos).toBe(0)
     expect(p.steps.avatar.state).toBe('done')
     expect(p.steps.export.state).toBe('available')
   })
@@ -137,20 +130,18 @@ describe('deckProgress', () => {
     expect(p.resume).toBe('avatar')
   })
 
-  it('no placeholders: optional and export available', () => {
+  it('no placeholders: narrated means done and export available', () => {
     const p = deckProgress(input({
       slideCount: 3,
       narration: { ready: 3, stale: 0 },
     }))
-    expect(p.avatarRequirement).toBe('optional')
     expect(p.steps.avatar.state).toBe('done')
     expect(p.steps.export.state).toBe('available')
     expect(p.resume).toBe('export')
   })
 
-  it('optional avatar not done is still the resume step but does not lock export', () => {
+  it('narration not done is still the resume step but does not lock export', () => {
     const p = deckProgress(input({ slideCount: 3 }))
-    expect(p.avatarRequirement).toBe('optional')
     expect(p.steps.avatar.state).toBe('available')
     expect(p.steps.export.state).toBe('available')
     expect(p.resume).toBe('avatar')
@@ -166,32 +157,10 @@ describe('deckProgress', () => {
     expect(p.steps.avatar.state).toBe('locked')
   })
 
-  it('badge is only set on avatar; export is never done', () => {
-    const p = deckProgress(input({
-      slideCount: 3,
-      narration: { ready: 3, stale: 0 },
-    }))
-    expect(p.steps.avatar.badge).toBe(AVATAR_BADGE.optional)
-    expect(p.steps.outline.badge).toBeNull()
-    expect(p.steps.preview.badge).toBeNull()
-    expect(p.steps.export.badge).toBeNull()
+  it('export is never done and steps carry no badge', () => {
+    const p = deckProgress(input({ slideCount: 3, narration: { ready: 3, stale: 0 } }))
     expect(p.steps.export.state).not.toBe('done')
     expect(p.steps.avatar.reason).toBeNull()
-  })
-})
-
-describe('avatarHint', () => {
-  it('maps the videos option', () => {
-    expect(avatarHint('')).toBe('undecided')
-    expect(avatarHint('0')).toBe('optional')
-    expect(avatarHint('3')).toBe('required')
-  })
-
-  it('has badge copy for each requirement', () => {
-    expect(AVATAR_BADGE).toEqual({
-      required: 'Required',
-      optional: 'Optional',
-      undecided: 'Decided after Preview',
-    })
+    expect(Object.keys(p.steps.avatar)).not.toContain('badge')
   })
 })

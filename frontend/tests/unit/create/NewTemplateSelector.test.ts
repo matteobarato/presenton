@@ -77,3 +77,33 @@ describe('NewTemplateSelector', () => {
     expect(w.findAll('[role="radio"]')).toHaveLength(2)
   })
 })
+
+describe('NewTemplateSelector keyboard (roving tabindex)', () => {
+  const tabbable = (w: W) => radios(w).filter((r) => r.attributes('tabindex') === '0')
+
+  it('is one Tab stop: the checked card, else the first', async () => {
+    const w = mountSelector('b')
+    expect(tabbable(w)).toHaveLength(1)
+    expect(tabbable(w)[0].attributes('data-testid')).toBe('new-template-b')
+    await w.setProps({ modelValue: null })
+    expect(tabbable(w)[0].attributes('data-testid')).toBe('new-template-none')
+  })
+
+  it('arrows move focus and select; Home and End jump; ends wrap', async () => {
+    const w = mountSelector(null)
+    const group = w.get('[role="radiogroup"]')
+    ;(radios(w)[0].element as HTMLElement).focus()
+    await group.trigger('keydown', { key: 'ArrowRight' })
+    await flushPromises()
+    expect(document.activeElement).toBe(radios(w)[1].element)
+    expect(radios(w)[1].attributes('aria-checked')).toBe('true')
+    await group.trigger('keydown', { key: 'End' })
+    expect(document.activeElement).toBe(radios(w)[2].element)
+    await group.trigger('keydown', { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(radios(w)[0].element)
+    await group.trigger('keydown', { key: 'ArrowLeft' })
+    expect(document.activeElement).toBe(radios(w)[2].element)
+    await group.trigger('keydown', { key: 'Home' })
+    expect(document.activeElement).toBe(radios(w)[0].element)
+  })
+})

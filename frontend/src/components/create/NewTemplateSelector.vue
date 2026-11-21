@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useElementSize } from '@vueuse/core'
 import { Check, Clock3 } from 'lucide-vue-next'
 import type { TemplateSummary } from '@/api/templates'
+import { rovingKeydown, rovingTab } from '@/lib/roving'
 import TemplateCardThumb from './TemplateCardThumb.vue'
 
 const props = withDefaults(defineProps<{ templates: TemplateSummary[]; disabled?: boolean; allowLater?: boolean }>(), { allowLater: true })
@@ -15,6 +16,13 @@ function pick(id: string | null) {
   emit('picked', id)
 }
 const none = computed(() => !props.templates.some((t) => t.id === selected.value))
+// One Tab stop for the whole grid (the selected card, else the first); arrows move and select (see lib/roving).
+const offset = computed(() => (props.allowLater ? 1 : 0))
+const checkedIndex = computed(() => {
+  if (props.allowLater && none.value) return 0
+  const i = props.templates.findIndex((t) => t.id === selected.value)
+  return i < 0 ? -1 : i + offset.value
+})
 
 // The grid fills its width; each thumbnail is rendered at its card's exact inner width.
 const GAP = 12
@@ -29,7 +37,7 @@ const thumbWidth = computed(() => {
 })
 
 const cardClass =
-  'group relative flex min-w-0 flex-col gap-2.5 rounded-card border p-[7px] pb-2.5 text-left transition-[border-color,background,box-shadow,translate] duration-200 hover:-translate-y-px hover:bg-white/[0.04] focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-40 disabled:hover:translate-y-0'
+  'group relative flex min-w-0 flex-col gap-2.5 rounded-card border p-[7px] pb-2.5 text-left transition-[border-color,background,box-shadow,translate] duration-200 hover:-translate-y-px hover:bg-white/[0.04] scroll-mb-28 focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-40 disabled:hover:translate-y-0'
 const on = 'border-accent bg-[#bee3f30d] shadow-[0_8px_24px_#0000004d]'
 const off = 'border-white/[0.07] bg-white/[0.02]'
 </script>
@@ -41,12 +49,14 @@ const off = 'border-white/[0.07] bg-white/[0.02]'
     aria-label="Template"
     class="grid"
     :style="{ gap: `${GAP}px`, gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }"
+    @keydown="rovingKeydown($event, columns)"
   >
     <button
       v-if="allowLater"
       type="button"
       role="radio"
       :aria-checked="none"
+      :tabindex="rovingTab(0, checkedIndex)"
       :disabled="disabled"
       data-testid="new-template-none"
       :class="[cardClass, none ? on : off]"
@@ -59,16 +69,17 @@ const off = 'border-white/[0.07] bg-white/[0.02]'
       </span>
       <span class="flex flex-col gap-0.5 px-1">
         <span class="truncate text-[12px] font-medium text-[#e4ecf0]">Decide later</span>
-        <span class="truncate text-[10px] text-[#8e9ca4]">Pick after the outline</span>
+        <span class="truncate text-[12px] text-[#8e9ca4]">Pick after the outline</span>
       </span>
       <Check v-if="none" class="absolute top-3 right-3 size-[18px] rounded-full bg-accent p-[3px] text-accent-ink" aria-hidden="true" />
     </button>
     <button
-      v-for="t in templates"
+      v-for="(t, i) in templates"
       :key="t.id"
       type="button"
       role="radio"
       :aria-checked="selected === t.id"
+      :tabindex="rovingTab(i + offset, checkedIndex)"
       :disabled="disabled"
       :data-testid="`new-template-${t.id}`"
       :class="[cardClass, selected === t.id ? on : off]"
@@ -77,7 +88,7 @@ const off = 'border-white/[0.07] bg-white/[0.02]'
       <TemplateCardThumb :template="t" :width="thumbWidth" />
       <span class="flex flex-col gap-0.5 px-1">
         <span class="truncate text-[12px] font-medium text-[#e4ecf0]">{{ t.name }}</span>
-        <span class="truncate text-[10px] text-[#8e9ca4]">{{ t.layouts.length }} {{ t.layouts.length === 1 ? 'layout' : 'layouts' }}</span>
+        <span class="truncate text-[12px] text-[#8e9ca4]">{{ t.layouts.length }} {{ t.layouts.length === 1 ? 'layout' : 'layouts' }}</span>
       </span>
       <Check v-if="selected === t.id" class="absolute top-3 right-3 size-[18px] rounded-full bg-accent p-[3px] text-accent-ink" aria-hidden="true" />
     </button>

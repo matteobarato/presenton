@@ -283,7 +283,7 @@ describe('useNarrationAvatarPipeline', () => {
     await flushPromises()
     expect(t.pipeline.phase.value).toBe('error')
     expect(t.pipeline.failedPhase.value).toBe('notes')
-    expect(t.pipeline.error.value).toBe('LLM down')
+    expect(t.pipeline.error.value).toBe('Couldn’t write the speaker notes: LLM down. Retry to try again.')
   })
 
   it('retry restarts from failed phase', async () => {
@@ -418,7 +418,7 @@ describe('useNarrationAvatarPipeline', () => {
     await flushPromises()
     expect(t.pipeline.phase.value).toBe('error')
     expect(t.pipeline.failedPhase.value).toBe('avatars')
-    expect(t.pipeline.error.value).toBe('HeyGen refused')
+    expect(t.pipeline.error.value).toBe('the presenter video service refused')
   })
 
   it('is running without chaining when a server task runs and no key is stored', async () => {
@@ -435,7 +435,7 @@ describe('useNarrationAvatarPipeline', () => {
 
   it('blocker asks for portrait only when avatars would run', async () => {
     const noPortrait = setup(fakes({ portrait: false }))
-    expect(noPortrait.pipeline.blocker.value).toBe('Upload a presenter portrait first.')
+    expect(noPortrait.pipeline.blocker.value).toBe('Add a presenter photo first, under Presenter and language.')
     noPortrait.pipeline.start()
     await flushPromises()
     expect(noPortrait.narration.generateNotes.mutate).not.toHaveBeenCalled()
@@ -447,7 +447,7 @@ describe('useNarrationAvatarPipeline', () => {
     expect(noHeygen.pipeline.blocker.value).toBeNull()
 
     const noLanguage = setup(fakes({ portrait: false, language: '' }))
-    expect(noLanguage.pipeline.blocker.value).toBe('Choose a narration language first.')
+    expect(noLanguage.pipeline.blocker.value).toBe('Choose a narration language first, under Presenter and language.')
   })
 
   it('counts failed and missing avatar slides for retry', () => {
@@ -549,7 +549,7 @@ describe('useNarrationAvatarPipeline', () => {
     await flushPromises()
     expect(t.pipeline.phase.value).toBe('error')
     expect(t.pipeline.failedPhase.value).toBe('avatars')
-    expect(t.pipeline.error.value).toBe('1 slide failed')
+    expect(t.pipeline.error.value).toBe('1 presenter video didn’t render. Retry to render it again.')
 
     t.pipeline.retry()
     await flushPromises()
@@ -560,14 +560,14 @@ describe('useNarrationAvatarPipeline', () => {
     ])
     t.avatarsRunning.value = false
     await flushPromises()
-    expect(t.pipeline.error.value).toBe('2 slides failed')
+    expect(t.pipeline.error.value).toBe('2 presenter videos didn’t render. Retry to render them again.')
   })
 
   it('blocks with a visible reason while the avatar setup is loading', () => {
     const f = fakes({ portrait: false })
     f.videos.value = undefined
     const t = setup(f)
-    expect(t.pipeline.blocker.value).toBe('Checking avatar setup…')
+    expect(t.pipeline.blocker.value).toBe('Checking presenter setup…')
     f.videos.value = { generation_available: true, portrait: { url: '/p.png' }, videos: [] }
     expect(t.pipeline.blocker.value).toBeNull()
   })

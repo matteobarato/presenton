@@ -5,7 +5,8 @@ import type { Presentation } from '@/api/types'
 import FileExportCard from './FileExportCard.vue'
 import VideoExportCard from './VideoExportCard.vue'
 
-defineProps<{ presentationId: string; presentation: Presentation }>()
+/** `videoNote` is a hint shown above the video export's options (the wizard says what narration is still missing). */
+defineProps<{ presentationId: string; presentation: Presentation; videoNote?: string }>()
 
 type Format = 'pptx' | 'pdf' | 'mp4'
 const formats: { id: Format; name: string; detail: string; icon: Component }[] = [
@@ -45,8 +46,8 @@ const anyRunning = computed(() => running.pptx || running.pdf)
           <component :is="f.icon" class="size-[18px]" />
         </span>
         <span class="min-w-0">
-          <span class="block text-[12px] font-medium">{{ f.name }}</span>
-          <span class="mt-0.5 block truncate text-[10px] text-[#97acb8]">{{ f.detail }}</span>
+          <span class="block text-[13px] font-medium">{{ f.name }}</span>
+          <span class="mt-0.5 block truncate text-[12px] text-[#97acb8]">{{ f.detail }}</span>
         </span>
       </button>
     </div>
@@ -60,6 +61,7 @@ const anyRunning = computed(() => running.pptx || running.pdf)
         <FileExportCard :presentation-id="presentationId" format="pdf" :busy="anyRunning" @running="running.pdf = $event" />
       </div>
       <div v-show="format === 'mp4'">
+        <p v-if="videoNote" class="mb-3 text-[12px] leading-[1.6] text-[#a9c4d2]" data-testid="mp4-note">{{ videoNote }}</p>
         <VideoExportCard :presentation-id="presentationId" :presentation="presentation" />
       </div>
     </div>

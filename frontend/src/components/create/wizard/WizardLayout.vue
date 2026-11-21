@@ -16,7 +16,7 @@ const props = defineProps<{
   panelKey?: string
   parent?: { label: string; to: RouteLocationRaw }
 }>()
-const emit = defineEmits<{ select: [key: WizardStepKey]; navigate: [dir: 'back' | 'next'] }>()
+const emit = defineEmits<{ select: [key: WizardStepKey]; blocked: [item: WizardStepItem]; navigate: [dir: 'back' | 'next'] }>()
 
 const headingEl = ref<HTMLElement | null>(null)
 watch(
@@ -43,12 +43,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <PageHeader :title="title" :parent="parent" />
+  <PageHeader :title="title" :parent="parent">
+    <template #center>
+      <WizardSteps :items="items" :current="current" @select="emit('select', $event)" @blocked="emit('blocked', $event)" />
+    </template>
+  </PageHeader>
   <section class="workspace-card">
     <div class="mx-auto flex min-h-full w-full max-w-[880px] flex-col">
-      <WizardSteps :items="items" :current="current" @select="emit('select', $event)" />
-
-      <div class="relative mt-7 flex-1 max-[760px]:mt-5">
+      <div class="relative flex-1">
         <Transition name="step-panel">
           <section :key="panelKey ?? current" class="flex flex-col gap-5">
             <header>
@@ -59,7 +61,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
               >
                 {{ heading }}
               </h2>
-              <p class="mt-[9px] max-w-[60ch] text-[12px] leading-[1.7] text-[#9aabb4] max-[760px]:text-[11px]">{{ lede }}</p>
+              <p class="mt-[9px] max-w-[60ch] text-[12px] leading-[1.7] text-[#9aabb4]">{{ lede }}</p>
             </header>
             <slot />
           </section>

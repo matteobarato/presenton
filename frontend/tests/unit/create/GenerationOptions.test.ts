@@ -16,7 +16,7 @@ describe('GenerationOptions videos', () => {
     expect(radios.find((r) => r.attributes('aria-checked') === 'true')?.text()).toBe('None')
     expect(radios.every((r) => r.attributes('disabled') !== undefined)).toBe(true)
     expect((w.get('#opt-videos').element as HTMLInputElement).disabled).toBe(true)
-    expect(w.text()).toContain('Add an avatar photo to use presenter slides')
+    expect(w.text()).toContain('Add a presenter photo to choose')
   })
   it('works as before with a photo', async () => {
     const w = mount(GenerationOptions, { props: { modelValue: base, hasPhoto: true } })

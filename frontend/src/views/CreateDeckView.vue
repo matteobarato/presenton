@@ -8,7 +8,7 @@ import PageHeader from '@/components/shell/PageHeader.vue'
 import DeckStateProvider from '@/components/editor/DeckStateProvider.vue'
 import DeckWizard from '@/components/create/wizard/DeckWizard.vue'
 
-/** `/p/:id/create/:step?`: create-wizard steps 4–7 of an existing deck. */
+/** `/p/:id/create/:step?`: all six create-wizard steps of an existing deck (Topic and Presenter as summaries, Outline to Export as the working steps). */
 const route = useRoute()
 const id = computed(() => String(route.params.id ?? ''))
 const { data: presentation, error, isError, refetch } = usePresentation(id)
