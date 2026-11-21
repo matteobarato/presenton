@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { Clapperboard, Globe, Languages, LayoutGrid, ListOrdered, MessageSquareText, Palette, Presentation, Sparkles } from 'lucide-vue-next'
+import { Clapperboard, Globe, LayoutGrid, ListOrdered, MessageSquareText, Palette, Presentation, Sparkles } from 'lucide-vue-next'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { AUTO_LANGUAGE, LANGUAGES } from '@/lib/languages'
 import { clampMediaCount, clampSlideCount, IMAGE_PRESETS, MAX_SLIDES, SLIDE_PRESETS, TONES, VERBOSITIES, VIDEO_PRESETS, type CreateOptions } from './options'
 
-defineProps<{ disabled?: boolean }>()
+const props = defineProps<{ disabled?: boolean; hasPhoto: boolean }>()
 const model = defineModel<CreateOptions>({ required: true })
+
+/** Presenter slides need a photo: without one the videos count is None and can't change. */
+const locked = (key: 'images' | 'videos') => key === 'videos' && !props.hasPhoto
+const shown = (key: 'images' | 'videos') => (locked(key) ? '0' : model.value[key])
 
 function patch(change: Partial<CreateOptions>) {
   model.value = { ...model.value, ...change }
@@ -49,28 +52,6 @@ const hint = 'text-[11px] text-[#8e9ca4]'
 
 <template>
   <div class="flex flex-col gap-5">
-    <section :class="card">
-      <header :class="head">
-        <span :class="headIcon" aria-hidden="true"><Languages class="size-4" /></span>
-        <span class="flex min-w-0 flex-col">
-          <span :class="headTitle">Language</span>
-          <span :class="headSub">What language the slides are written in</span>
-        </span>
-      </header>
-      <div class="flex flex-wrap items-center gap-3">
-        <Label for="opt-language" class="sr-only">Language</Label>
-        <select
-          id="opt-language"
-          class="h-10 w-full max-w-[340px] rounded-button border bg-field px-3 text-[13px] text-[#dce6ec] hover:border-white/15 focus-visible:border-accent disabled:opacity-40"
-          :class="model.language === AUTO_LANGUAGE ? 'border-transparent' : 'border-[#bee3f355]'"
-          :value="model.language"
-          :disabled="disabled"
-          @change="patch({ language: ($event.target as HTMLSelectElement).value })"
-        >
-          <option v-for="l in LANGUAGES" :key="l" :value="l">{{ l }}</option>
-        </select>
-      </div>
-    </section>
     <section :class="card">
       <header :class="head">
         <span :class="headIcon" aria-hidden="true"><LayoutGrid class="size-4" /></span>
@@ -116,7 +97,7 @@ const hint = 'text-[11px] text-[#8e9ca4]'
         <fieldset v-for="m in mediaCounts" :key="m.key" class="flex flex-col gap-3">
           <legend class="mb-3 flex w-full items-baseline justify-between gap-3">
             <span :class="groupLabel">{{ m.label }}</span>
-            <span :class="hint">{{ m.hint }}</span>
+            <span :class="hint">{{ m.key === 'videos' && !hasPhoto ? 'Add an avatar photo to use presenter slides' : m.hint }}</span>
           </legend>
           <div class="flex flex-wrap items-center gap-2" role="radiogroup" :aria-label="m.group">
             <button
@@ -124,9 +105,9 @@ const hint = 'text-[11px] text-[#8e9ca4]'
               :key="p.value"
               type="button"
               role="radio"
-              :aria-checked="model[m.key] === p.value"
-              :disabled="disabled"
-              :class="[chip, model[m.key] === p.value ? chipOn : chipOff]"
+              :aria-checked="shown(m.key) === p.value"
+              :disabled="disabled || locked(m.key)"
+              :class="[chip, shown(m.key) === p.value ? chipOn : chipOff]"
               @click="patch({ [m.key]: p.value })"
             >
               {{ p.label }}
@@ -137,9 +118,9 @@ const hint = 'text-[11px] text-[#8e9ca4]'
                 :id="m.inputId"
                 inputmode="numeric"
                 class="h-8 w-[68px] text-center tabular-nums"
-                :class="model[m.key] && !m.presets.some((p) => p.value === model[m.key]) && 'border-accent'"
-                :model-value="model[m.key]"
-                :disabled="disabled"
+                :class="shown(m.key) && !m.presets.some((p) => p.value === shown(m.key)) && 'border-accent'"
+                :model-value="shown(m.key)"
+                :disabled="disabled || locked(m.key)"
                 :aria-label="`${m.group}, 0 to ${MAX_SLIDES}, blank for auto`"
                 placeholder="—"
                 @update:model-value="patch({ [m.key]: clampMediaCount(String($event)) })"

@@ -1,5 +1,6 @@
 export type WizardStepKey =
   | 'topic'
+  | 'presenter'
   | 'details'
   | 'outline'
   | 'preview'
@@ -9,10 +10,11 @@ export type DeckStepKey = 'outline' | 'preview' | 'avatar' | 'export'
 
 export const WIZARD_STEPS: readonly { key: WizardStepKey; label: string }[] = [
   { key: 'topic', label: 'Topic & look' },
+  { key: 'presenter', label: 'Avatar & language' },
   { key: 'details', label: 'Details' },
   { key: 'outline', label: 'Outline' },
   { key: 'preview', label: 'Preview' },
-  { key: 'avatar', label: 'Avatar' },
+  { key: 'avatar', label: 'Narration' },
   { key: 'export', label: 'Export' },
 ]
 

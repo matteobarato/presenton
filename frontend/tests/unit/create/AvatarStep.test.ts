@@ -78,6 +78,7 @@ function fakes(opts: { counts?: Partial<Record<'missing' | 'ready' | 'stale' | '
   return { counts, narration, avatars, phase, running, plan, blocker, error, failedPhase, pipeline }
 }
 
+const editSetup = vi.fn()
 async function mountStep(f = fakes(), prog = progress(), path = '/p/p1/create/avatar') {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -92,7 +93,7 @@ async function mountStep(f = fakes(), prog = progress(), path = '/p/p1/create/av
     setup() {
       provideDeckNarration(f.narration as unknown as DeckNarration)
       provideDeckAvatars(f.avatars as unknown as DeckAvatars)
-      return () => h(AvatarStep, { presentation: deck(), progress: prog, pipeline: f.pipeline as never })
+      return () => h(AvatarStep, { presentation: deck(), progress: prog, pipeline: f.pipeline as never, onEditSetup: editSetup })
     },
   })
   const wrapper = mount(Host, { global: { plugins: [router] }, attachTo: document.body })
@@ -106,6 +107,20 @@ const button = (w: VueWrapper, re: RegExp) => w.findAll('button, a').find((b) =>
 beforeEach(() => sessionStorage.clear())
 afterEach(() => {
   document.body.innerHTML = ''
+})
+
+describe('AvatarStep is generation only', () => {
+  it('has no language or portrait controls, and sends the user to step 2 when something is missing', async () => {
+    const f = fakes()
+    f.blocker.value = 'Upload a presenter portrait first.'
+    const { wrapper } = await mountStep(f)
+    expect(wrapper.find('[data-testid="setup-language"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="setup-portrait"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="avatar-progress"]').exists()).toBe(true)
+    expect(button(wrapper, /^Generate/)!.attributes('disabled')).toBeDefined()
+    await button(wrapper, /Set up avatar & language/)!.trigger('click')
+    expect(editSetup).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('AvatarStep', () => {

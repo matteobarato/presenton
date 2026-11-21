@@ -7,19 +7,23 @@ import { listTemplates, templatesKey } from '@/api/templates'
 import { ApiError } from '@/api/errors'
 import { decomposeFiles, uploadFiles } from '@/api/files'
 import { createPresentation } from '@/api/generation'
+import { uploadPortrait } from '@/api/videos'
+import { toast } from '@/components/ui/sonner'
 import { rememberDeckLook } from '@/composables/useDeckLook'
 import { useSessionStore } from '@/stores/session'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import GenerationOptions from '@/components/create/GenerationOptions.vue'
+import LanguagePicker from '@/components/create/LanguagePicker.vue'
+import PresenterPicker from '@/components/create/PresenterPicker.vue'
 import NewTemplateSelector from '@/components/create/NewTemplateSelector.vue'
 import TopicComposer from '@/components/create/TopicComposer.vue'
 import WizardFooter from '@/components/create/wizard/WizardFooter.vue'
 import WizardLayout from '@/components/create/wizard/WizardLayout.vue'
 import { AVATAR_BADGE, avatarHint, type WizardStepItem, type WizardStepKey } from '@/components/create/wizard/progress'
 import { useNewDraft } from '@/components/create/wizard/useNewDraft'
-import { animateFlagKey, mediaCountForRequest, type CreateOptions } from '@/components/create/options'
+import { animateFlagKey, effectiveVideos, mediaCountForRequest, type CreateOptions } from '@/components/create/options'
 import { AUTO_LANGUAGE } from '@/lib/languages'
 
 const router = useRouter()
@@ -74,6 +78,16 @@ watch(
 )
 const filesLost = computed(() => draft.hadFiles.value && files.value.length === 0)
 
+// The optional presenter photo: kept in memory, uploaded once the deck exists. No photo means no presenter slides.
+const portrait = ref<File | null>(null)
+const hasPhoto = computed(() => portrait.value !== null)
+const photoError = ref('')
+watch(portrait, (file) => {
+  draft.hadPhoto.value = file !== null
+  if (file) photoError.value = ''
+})
+const photoLost = computed(() => draft.hadPhoto.value && !portrait.value)
+
 // Provider defaults from the runtime config; applied once, unless a restored draft already holds the user's choice.
 let webSearchApplied = draft.restored
 watch(
@@ -100,15 +114,16 @@ const hasTemplate = computed(() => !!chosen.value)
 const canSubmit = computed(() => !pending.value && hasTopic.value && hasTemplate.value)
 
 // --- Steps: free to visit in any order; creating needs a topic and a template. ---
-type NewStepKey = Extract<WizardStepKey, 'topic' | 'details'>
-const ORDER: NewStepKey[] = ['topic', 'details']
+type NewStepKey = Extract<WizardStepKey, 'topic' | 'presenter' | 'details'>
+const ORDER: NewStepKey[] = ['topic', 'presenter', 'details']
 const step = ref<NewStepKey>('topic')
 const languageNeeded = computed(() => files.value.length > 0 && options.value.language === AUTO_LANGUAGE)
 
 function mediaSummary(o: CreateOptions) {
   const images = o.images === '' ? 'Auto images' : o.images === '0' ? 'No images' : `${o.images} with images`
-  if (o.videos === '' || o.videos === '0') return images
-  return `${images} · ${o.videos} with presenter`
+  const videos = effectiveVideos(o.videos, hasPhoto.value)
+  if (videos === '' || videos === '0') return images
+  return `${images} · ${videos} with presenter`
 }
 function clip(text: string, max = 44) {
   const t = text.trim().replace(/\s+/g, ' ')
@@ -137,10 +152,11 @@ const items = computed<WizardStepItem[]>(() => {
   })
   return [
     mine('topic', 'Topic & look', [topic, chosen.value?.name].filter(Boolean).join(' · '), hasTopic.value && hasTemplate.value),
+    mine('presenter', 'Avatar & language', [portrait.value ? portrait.value.name : 'No avatar', o.language === AUTO_LANGUAGE ? '' : o.language].filter(Boolean).join(' · '), o.language !== AUTO_LANGUAGE),
     mine('details', 'Details', `${o.slides ? `${o.slides} slides` : 'Auto length'} · ${mediaSummary(o)}`, false),
     locked('outline', 'Outline'),
     locked('preview', 'Preview'),
-    locked('avatar', 'Avatar', AVATAR_BADGE[avatarHint(o.videos)]),
+    locked('avatar', 'Narration', AVATAR_BADGE[avatarHint(effectiveVideos(o.videos, hasPhoto.value))]),
     locked('export', 'Export'),
   ]
 })
@@ -150,6 +166,7 @@ const copy: Record<NewStepKey, { heading: string; lede: string }> = {
     heading: 'Every great story starts somewhere.',
     lede: 'Say what it’s about and pick a look. Then tune the details and review the outline before any slides are made.',
   },
+  presenter: { heading: 'Who presents, and in what language?', lede: 'Add a presenter photo for talking-avatar slides, or skip it for a voice-only deck. Then pick the slide language.' },
   details: { heading: 'Fine-tune the details', lede: 'The defaults work well. Change only what matters.' },
 }
 
@@ -160,7 +177,9 @@ function go(to: NewStepKey) {
   step.value = to
 }
 function advance() {
-  if (step.value === 'topic' && hasTemplate.value) go('details')
+  if (step.value === 'topic' && !hasTemplate.value) return
+  const next = ORDER[ORDER.indexOf(step.value) + 1]
+  if (next) go(next)
 }
 function back() {
   const i = ORDER.indexOf(step.value)
@@ -190,7 +209,7 @@ async function submit() {
   const o = options.value
   if (files.value.length > 0 && o.language === AUTO_LANGUAGE) {
     error.value = 'Choose a language before processing uploaded documents.'
-    step.value = 'details'
+    step.value = 'presenter'
     await nextTick()
     document.getElementById('opt-language')?.focus()
     return
@@ -210,7 +229,7 @@ async function submit() {
       content: prompt.value,
       n_slides: slides > 0 ? slides : null,
       n_images: mediaCountForRequest(o.images),
-      n_videos: mediaCountForRequest(o.videos),
+      n_videos: mediaCountForRequest(effectiveVideos(o.videos, hasPhoto.value)),
       file_paths: filePaths,
       language: o.language,
       tone: o.tone,
@@ -222,6 +241,15 @@ async function submit() {
       // The backend calls template-based generation "standard".
       generation_mode: 'standard',
     })
+    if (portrait.value) {
+      stage.value = 'Uploading your presenter photo…'
+      try {
+        await uploadPortrait(created.id, portrait.value)
+      } catch {
+        // The deck exists; the photo can be added in the Narration step.
+        toast.error('The presenter photo didn’t upload. Add it again in the Narration step.')
+      }
+    }
     // Each deck remembers its look: the Outline step finds it even when reached without the query.
     if (chosen.value) rememberDeckLook(created.id, { template: chosen.value.id })
     if (o.animate) {
@@ -286,7 +314,7 @@ watch(
           <p v-if="filesLost" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">Re-add your documents; files aren't kept after a reload.</p>
           <p v-if="languageNeeded" role="note" class="-mt-1 text-[11px] text-[#a9c4d2]">
             Documents need a language.
-            <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go('details')">Set it in Details</button>
+            <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent" @click="go('presenter')">Set it in Avatar & language</button>
           </p>
         </section>
 
@@ -306,7 +334,15 @@ watch(
 
       </template>
 
-      <GenerationOptions v-else v-model="options" :disabled="pending" />
+      <template v-else-if="step === 'presenter'">
+        <PresenterPicker v-model="portrait" :disabled="pending" @error="photoError = $event" />
+        <p v-if="photoError" role="alert" class="-mt-3 text-center text-[11px] text-[#e8a2a2]">{{ photoError }}</p>
+        <p v-if="photoLost" role="note" class="-mt-3 text-center text-[11px] text-[#a9c4d2]">Re-add your photo; files aren't kept after a reload.</p>
+        <LanguagePicker v-model="options.language" :disabled="pending" />
+      </template>
+
+
+      <GenerationOptions v-else v-model="options" :has-photo="hasPhoto" :disabled="pending" />
     </form>
 
     <template #footer>

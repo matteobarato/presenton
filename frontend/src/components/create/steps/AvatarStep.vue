@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { ArrowRight, Check, Languages, Loader2, RotateCcw, Settings2, Sparkles, UserRound, X } from 'lucide-vue-next'
+import { ArrowRight, Check, Languages, Loader2, RotateCcw, Settings2, Sparkles, X } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import WizardStepFooter from '@/components/create/wizard/WizardStepFooter.vue'
 import type { DeckProgress, DeckStepKey } from '@/components/create/wizard/progress'
 import type { useNarrationAvatarPipeline } from '@/composables/useNarrationAvatarPipeline'
-import TtsLanguageSelect from '@/components/editor/inspector/narration/TtsLanguageSelect.vue'
 import { injectDeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
-import PortraitHero from '@/components/editor/inspector/video/PortraitHero.vue'
 import { injectDeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
 
 type Pipeline = ReturnType<typeof useNarrationAvatarPipeline>
@@ -17,11 +15,12 @@ type WorkPhase = 'notes' | 'voice' | 'avatars'
 type SegmentState = 'pending' | 'running' | 'done' | 'skipped' | 'failed'
 
 /**
- * Step 6: set the narration language and the presenter, then one button narrates the deck
- * (notes → voice → avatars). The pipeline lives in the wizard, so it keeps going while the user looks
+ * Step 7: one button narrates the deck (notes → voice → avatars) in the language and with the presenter set in
+ * step 2 (Avatar & language). The pipeline lives in the wizard, so it keeps going while the user looks
  * elsewhere; once it starts, this step shows a live checklist of the three jobs.
  */
 const props = defineProps<{ presentation: Presentation; progress: DeckProgress; pipeline: Pipeline }>()
+const emit = defineEmits<{ 'edit-setup': [] }>()
 
 // The pipeline is a plain object of refs (props don't unwrap them); it lives as long as the wizard.
 const { phase, failedPhase, error, running, plan, blocker, languageOk, start, retry } = props.pipeline
@@ -30,15 +29,14 @@ const route = useRoute()
 const router = useRouter()
 const narration = injectDeckNarration()
 const avatars = injectDeckAvatars()
-const { languages, language, setLanguage, counts } = narration
-const { videos, placeholderSlides, portraitMut } = avatars
+const { languages, language, counts } = narration
+const { videos, placeholderSlides } = avatars
 
 const id = computed(() => props.presentation.id)
 const slides = computed(() => props.presentation.slides)
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
 
 // ── Setup ──
-const portraitOk = computed(() => Boolean(videos.value?.portrait))
 /** The deck has presenter slides and HeyGen can render them. */
 const avatarWork = computed(() => placeholderSlides.value.length > 0 && !props.progress.voiceOnly)
 const languageName = computed(() => languages.value?.find((l) => l.code === language.value)?.name ?? language.value)
@@ -121,18 +119,10 @@ const overall = computed(() => {
   return Math.round(list.reduce((sum, j) => sum + (percent(j.key) ?? 0), 0) / list.length)
 })
 
-// ── View: setup until a run starts, then the live checklist ──
-const editing = ref(false)
-const showProgress = computed(
-  () => !editing.value && (running.value || phase.value === 'done' || phase.value === 'error' || complete.value),
-)
-watch(running, (r) => {
-  if (r) editing.value = false
-})
-
 const heading = computed(() => {
   if (phase.value === 'error') return 'Something needs another try'
   if (running.value) return 'Bringing your deck to life'
+  if (!complete.value) return 'Ready to narrate'
   return 'Your deck is narrated'
 })
 
@@ -153,7 +143,6 @@ const optional = computed(() => props.progress.avatarRequirement === 'optional')
 
 function generate() {
   if (!canGenerate.value) return
-  editing.value = false
   start()
 }
 function retryFailed() {
@@ -169,57 +158,8 @@ function go(step: DeckStepKey) {
 
 <template>
   <div class="mx-auto flex w-full max-w-[720px] flex-col gap-5">
-    <!-- Setup: language + presenter -->
-    <div v-if="!showProgress" class="flex flex-col gap-3" data-testid="avatar-setup">
-      <!-- Language: one full-width row -->
-      <section
-        class="flex items-center gap-3 rounded-card border border-white/[0.06] bg-white/[0.015] px-4 py-3 max-[560px]:flex-col max-[560px]:items-stretch"
-        data-testid="setup-language"
-        :data-ok="String(languageOk)"
-      >
-        <div class="flex min-w-0 flex-1 items-center gap-2.5">
-          <span class="grid size-8 flex-none place-items-center rounded-full bg-accent/10 text-accent"><Languages class="size-4" aria-hidden="true" /></span>
-          <div class="flex min-w-0 flex-col">
-            <h3 class="text-[13px] font-semibold text-[#f6f8f9]">Language</h3>
-            <span class="text-[11px] text-muted">The voice speaks in this language</span>
-          </div>
-        </div>
-        <div class="flex w-[260px] flex-none items-center gap-2 max-[560px]:w-full">
-          <div class="min-w-0 flex-1">
-            <TtsLanguageSelect :languages="languages ?? []" :model-value="language" :disabled="running" @update:model-value="setLanguage" />
-          </div>
-          <Check v-if="languageOk" class="size-4 flex-none text-accent" role="img" aria-label="Done" />
-        </div>
-      </section>
-
-      <!-- Avatar: the big card -->
-      <section
-        v-if="avatarWork"
-        class="flex flex-col gap-4 rounded-card border border-white/[0.06] bg-white/[0.015] p-5"
-        data-testid="setup-portrait"
-        :data-ok="String(portraitOk)"
-      >
-        <div class="flex items-center gap-2.5">
-          <span class="grid size-8 flex-none place-items-center rounded-full bg-accent/10 text-accent"><UserRound class="size-4" aria-hidden="true" /></span>
-          <div class="flex flex-col">
-            <h3 class="text-[13px] font-semibold text-[#f6f8f9]">Avatar</h3>
-            <span class="text-[11px] text-muted">{{ portraitOk ? 'Your presenter for this deck' : 'Add a photo of your presenter' }}</span>
-          </div>
-          <Check v-if="portraitOk" class="ml-auto size-4 text-accent" role="img" aria-label="Done" />
-        </div>
-        <PortraitHero
-          class="mx-auto w-full max-w-[380px]"
-          :portrait="videos?.portrait"
-          :busy="running || portraitMut.isPending.value"
-          @upload="portraitMut.mutate($event)"
-          @remove="portraitMut.mutate(null)"
-        />
-      </section>
-    </div>
-
     <!-- Generation: live checklist -->
     <section
-      v-else
       class="flex flex-col gap-5 rounded-card border border-white/[0.06] bg-white/[0.015] p-6"
       aria-label="Progress"
       data-testid="avatar-progress"
@@ -242,7 +182,7 @@ function go(step: DeckStepKey) {
             />
           </svg>
           <Transition name="pop" mode="out-in">
-            <Check v-if="!running && phase !== 'error'" key="ok" class="size-6 text-accent" aria-hidden="true" />
+            <Check v-if="complete && !running && phase !== 'error'" key="ok" class="size-6 text-accent" aria-hidden="true" />
             <span v-else key="pct" class="text-[12px] font-semibold tabular-nums text-[#f6f8f9]">{{ overall }}%</span>
           </Transition>
         </div>
@@ -255,8 +195,8 @@ function go(step: DeckStepKey) {
             </span>
           </p>
         </div>
-        <Button v-if="!running" type="button" size="sm" variant="ghost" @click="editing = true">
-          <Settings2 class="size-3.5" aria-hidden="true" />Settings
+        <Button v-if="!running" type="button" size="sm" variant="ghost" @click="emit('edit-setup')">
+          <Settings2 class="size-3.5" aria-hidden="true" />Avatar &amp; language
         </Button>
       </div>
 
@@ -310,20 +250,18 @@ function go(step: DeckStepKey) {
 
   <WizardStepFooter :status="footerStatus" :busy="running">
     <template #secondary>
-      <Button v-if="!failed && complete && !editing" as-child variant="ghost">
+      <Button v-if="!failed && complete" as-child variant="ghost">
         <RouterLink :to="{ name: 'editor', params: { id } }">Fine-tune in the editor</RouterLink>
       </Button>
+      <Button v-else-if="blocker && !running" type="button" variant="ghost" @click="emit('edit-setup')">Set up avatar &amp; language</Button>
       <Button v-else-if="optional && !running" type="button" variant="ghost" @click="go('export')">Skip</Button>
     </template>
     <template #primary>
       <Button v-if="failed" type="button" :disabled="!canGenerate" @click="retryFailed">
         <RotateCcw class="size-4" aria-hidden="true" />Retry {{ PHASE_LABEL[failed] }}
       </Button>
-      <Button v-else-if="complete && !editing" type="button" :disabled="!!exportLock" @click="go('export')">
+      <Button v-else-if="complete" type="button" :disabled="!!exportLock" @click="go('export')">
         Continue to Export<ArrowRight class="size-4" aria-hidden="true" />
-      </Button>
-      <Button v-else-if="complete" type="button" @click="editing = false">
-        <Check class="size-4" aria-hidden="true" />Done
       </Button>
       <Button v-else type="button" :disabled="!canGenerate" @click="generate">
         <Sparkles class="size-4" aria-hidden="true" />{{ primaryLabel }}
