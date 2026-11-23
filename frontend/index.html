@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Slideshows</title>
+    <script>
+      // Apply the saved theme before first paint (keep in sync with src/composables/useTheme.ts).
+      (function () {
+        var t = 'system'
+        try { var v = localStorage.getItem('theme'); if (v === 'dark' || v === 'light') t = v } catch (e) {}
+        if (t === 'system') t = window.matchMedia && !window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark'
+        var el = document.documentElement
+        el.classList.add(t)
+        el.style.colorScheme = t
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>
