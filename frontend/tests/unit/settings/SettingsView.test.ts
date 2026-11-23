@@ -9,6 +9,8 @@ import SettingsView from '@/views/SettingsView.vue'
 import ImagesSection from '@/components/settings/ImagesSection.vue'
 import WebSearchSection from '@/components/settings/WebSearchSection.vue'
 import TextSection from '@/components/settings/TextSection.vue'
+import UsersSection from '@/components/settings/UsersSection.vue'
+import ApiKeysSection from '@/components/settings/ApiKeysSection.vue'
 
 const getProviderSettings = vi.hoisted(() => vi.fn<() => Promise<ProviderConfig>>())
 const saveProviderSettings = vi.hoisted(() => vi.fn<(c: ProviderConfig) => Promise<ProviderConfig>>())
@@ -22,6 +24,21 @@ vi.mock('@/api/providerSettings', () => ({
 vi.mock('@/api/providerModels', () => ({ checkStockImageKey: vi.fn().mockResolvedValue(undefined), listOllamaModels: vi.fn() }))
 vi.mock('@/api/auth', () => ({ getAuthStatus: vi.fn(), logout }))
 vi.mock('@/api/next-routes', () => ({ getRuntimeConfig: vi.fn().mockResolvedValue({ configured: true, config: {}, generationMode: 'both' }) }))
+vi.mock('@/api/admin', () => ({
+  listUsers: vi.fn().mockResolvedValue([{ id: 'u1', username: 'ada', role: 'admin', created_at: null }]),
+  listApiKeys: vi.fn().mockResolvedValue([]),
+  listMyApiKeys: vi.fn().mockResolvedValue([]),
+  createMyApiKey: vi.fn(),
+  revealMyApiKey: vi.fn(),
+  revokeMyApiKey: vi.fn(),
+  createUser: vi.fn(),
+  resetUserPassword: vi.fn(),
+  deleteUser: vi.fn(),
+  createApiKey: vi.fn(),
+  revealApiKey: vi.fn(),
+  revokeApiKey: vi.fn(),
+  apiKeyStatus: () => 'active',
+}))
 vi.mock('vue-sonner', () => ({ toast: { error: vi.fn(), warning: vi.fn(), success: vi.fn() } }))
 
 const SIDEBAR_ITEMS = 'nav[aria-label="Settings sections"] button'
@@ -79,7 +96,7 @@ afterEach(() => {
 })
 
 describe('SettingsView', () => {
-  it('shows the sidebar with all four sections for an admin, and no save bar until the draft changes', async () => {
+  it('shows the sidebar with every section for an admin, and no save bar until the draft changes', async () => {
     signIn('admin')
     getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
     const w = await mountAt('/settings/text')
@@ -89,6 +106,8 @@ describe('SettingsView', () => {
       expect.stringContaining('Text'),
       expect.stringContaining('Images'),
       expect.stringContaining('Web search'),
+      'Users',
+      'API keys',
       expect.stringContaining('Account'),
     ])
     expect(w.text()).toContain('OpenAI (gpt-4.1)')
@@ -174,12 +193,14 @@ describe('SettingsView', () => {
     expect(router.currentRoute.value.params.section).toBe('text')
   })
 
-  it('shows the managed message and no inputs for a non-admin', async () => {
+  it('shows a non-admin only API keys and Account: no provider choices', async () => {
     signIn('member', { LLM: 'openai', OPENAI_MODEL: 'gpt-4.1' })
     const w = await mountAt('/settings/text')
-    expect(w.text()).toContain('An administrator manages these settings.')
-    expect(w.text()).toContain('OpenAI (gpt-4.1)')
-    expect(w.find('input').exists()).toBe(false)
+    await flushPromises()
+    expect(router.currentRoute.value.params.section).toBe('account')
+    expect(w.findAll(SIDEBAR_ITEMS).map((t) => t.text())).toEqual(['API keys', 'Account'])
+    expect(w.text()).not.toContain('OpenAI (gpt-4.1)')
+    expect(w.text()).toContain('Change password')
     expect(getProviderSettings).not.toHaveBeenCalled()
   })
 
@@ -217,7 +238,8 @@ describe('SettingsView', () => {
   })
 
   it('never renders a secret from the runtime config in the read-only summary', async () => {
-    signIn('member', {
+    getProviderSettings.mockRejectedValue(new ApiError('Forbidden', 403, { detail: 'Forbidden' }))
+    signIn('admin', {
       LLM: 'openai',
       OPENAI_MODEL: 'gpt-4.1',
       OPENAI_API_KEY: '__configured__',
@@ -240,7 +262,7 @@ describe('SettingsView', () => {
     getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
     const w = await mountAt('/settings/account')
     expect(w.text()).toContain('ada')
-    expect(w.text()).toContain('admin')
+    expect(w.text()).toContain('Administrator')
     await w.findAll('button').find((b) => b.text() === 'Sign out')!.trigger('click')
     await flushPromises()
     expect(logout).toHaveBeenCalledTimes(1)
@@ -315,6 +337,58 @@ describe('SettingsView', () => {
     expect(saveProviderSettings).toHaveBeenCalledTimes(1)
     const keys = Object.keys(saveProviderSettings.mock.calls[0]![0])
     expect(keys.filter((k) => /^(PRESENTON_|CODEX_)/.test(k))).toEqual([])
+  })
+
+  it('redirects a non-admin away from Users and API keys to Account', async () => {
+    signIn('member', { LLM: 'openai', OPENAI_MODEL: 'gpt-4.1' })
+    const w = await mountAt('/settings/users')
+    await flushPromises()
+    expect(router.currentRoute.value.params.section).toBe('account')
+    expect(w.findComponent(UsersSection).exists()).toBe(false)
+  })
+
+  it('hides users, API keys and the password form when the backend runs without auth', async () => {
+    signIn('admin')
+    useSessionStore().user = { username: 'electron', role: 'admin', authDisabled: true }
+    getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
+    const w = await mountAt('/settings/users')
+    await flushPromises()
+    expect(router.currentRoute.value.params.section).toBe('text')
+    expect(w.findAll(SIDEBAR_ITEMS).map((t) => t.text())).not.toContain('Users')
+    expect(w.findAll(SIDEBAR_ITEMS).map((t) => t.text())).not.toContain('API keys')
+    await router.push('/settings/account')
+    await flushPromises()
+    expect(w.text()).toContain('Sign out')
+    expect(w.text()).not.toContain('Change password')
+  })
+
+  it('gives a non-admin their personal API keys and an admin every key', async () => {
+    signIn('member')
+    let w = await mountAt('/settings/api-keys')
+    expect(router.currentRoute.value.params.section).toBe('api-keys')
+    expect(w.getComponent(ApiKeysSection).props('scope')).toBe('mine')
+    w.unmount()
+
+    signIn('admin')
+    getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
+    w = await mountAt('/settings/api-keys')
+    expect(w.getComponent(ApiKeysSection).props('scope')).toBe('all')
+  })
+
+  it('renders the admin sections even when the provider settings are locked or failing', async () => {
+    signIn('admin')
+    getProviderSettings.mockRejectedValue(new ApiError('Forbidden', 403, { detail: 'Forbidden' }))
+    let w = await mountAt('/settings/users')
+    expect(w.findComponent(UsersSection).exists()).toBe(true)
+    expect(w.text()).toContain('ada')
+    expect(w.text()).not.toContain('Provider settings are locked')
+    w.unmount()
+
+    getProviderSettings.mockRejectedValue(new Error('boom'))
+    w = await mountAt('/settings/api-keys')
+    expect(w.findComponent(ApiKeysSection).exists()).toBe(true)
+    expect(w.text()).toContain('No API keys yet')
+    expect(w.text()).not.toContain('Retry')
   })
 
   it('shows the account section in every mode', async () => {

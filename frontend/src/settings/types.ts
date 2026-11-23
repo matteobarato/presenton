@@ -163,6 +163,33 @@ export const OAUTH_MANAGED_FIELDS: readonly string[] = [
   'PRESENTON_EMAIL',
 ]
 
-export type SettingsSection = 'text' | 'images' | 'web-search' | 'account'
+/** Sections that edit the provider draft (and share its save bar). */
+export type ProviderSection = 'text' | 'images' | 'web-search'
+/** Account-management sections. `users` is admin-only; `api-keys` is every key for admins, your own for members. */
+export type AdminSection = 'users' | 'api-keys'
+export type SettingsSection = ProviderSection | AdminSection | 'account'
 
-export const SETTINGS_SECTIONS: SettingsSection[] = ['text', 'images', 'web-search', 'account']
+export const PROVIDER_SECTIONS: ProviderSection[] = ['text', 'images', 'web-search']
+export const ADMIN_SECTIONS: AdminSection[] = ['users', 'api-keys']
+/** Every routable section. Which ones a viewer sees is decided by `visibleSettingsSections`. */
+export const SETTINGS_SECTIONS: SettingsSection[] = [...PROVIDER_SECTIONS, ...ADMIN_SECTIONS, 'account']
+/**
+ * What a non-admin sees. Provider choices are an administrator's concern; API keys here are the
+ * member's own (they can only act as themselves).
+ */
+export const MEMBER_SECTIONS: SettingsSection[] = ['api-keys', 'account']
+
+export function isProviderSection(section: SettingsSection): section is ProviderSection {
+  return (PROVIDER_SECTIONS as SettingsSection[]).includes(section)
+}
+
+export function visibleSettingsSections(isAdmin: boolean, authDisabled = false): SettingsSection[] {
+  // Without accounts there are no users or keys to manage: the endpoints need a real session.
+  if (authDisabled) return [...PROVIDER_SECTIONS, 'account']
+  return isAdmin ? SETTINGS_SECTIONS : MEMBER_SECTIONS
+}
+
+/** Where `/settings` lands for this viewer. */
+export function defaultSettingsSection(isAdmin: boolean): SettingsSection {
+  return isAdmin ? 'text' : 'account'
+}

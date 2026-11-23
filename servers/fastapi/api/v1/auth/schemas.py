@@ -53,8 +53,23 @@ class AdminResetPasswordRequest(BaseModel):
     password: str = Field(min_length=8, max_length=128)
 
 
+class ChangePasswordRequest(BaseModel):
+    # Legacy accounts may still hold a six-character password, so only the new one is held to 8.
+    current_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
 class AdminCreateApiKeyRequest(BaseModel):
     user_id: uuid.UUID
+    label: str = Field(default="API client", min_length=1, max_length=120)
+    expiry_days: int = Field(default=90, ge=1, le=365)
+
+
+class PersonalCreateApiKeyRequest(BaseModel):
+    """Self-service key: always acts as the signed-in user, so there is no ``user_id``."""
+
+    model_config = ConfigDict(extra="forbid")
+
     label: str = Field(default="API client", min_length=1, max_length=120)
     expiry_days: int = Field(default=90, ge=1, le=365)
 

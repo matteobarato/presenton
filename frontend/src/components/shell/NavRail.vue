@@ -3,10 +3,13 @@ import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { CircleHelp, FolderOpen, LayoutTemplate, Plus, Settings2, Presentation } from 'lucide-vue-next'
 import { useHelpDialog } from '@/composables/useHelpDialog'
+import { defaultSettingsSection } from '@/settings/types'
+import { useSessionStore } from '@/stores/session'
 import UserMenu from './UserMenu.vue'
 
 const route = useRoute()
 const help = useHelpDialog()
+const session = useSessionStore()
 const link =
   'flex w-full flex-col items-center gap-2 rounded-[11px] py-3 text-[9px] font-medium text-[#9aa3a8] transition-colors duration-200 hover:bg-[#1d2225] hover:text-[#d9e0e4] max-[760px]:gap-1.5 max-[760px]:text-[7px]'
 const cta =
@@ -16,6 +19,7 @@ const libraryActive = computed(() => route.name === 'library' || route.name === 
 const newActive = computed(() => route.name === 'new' || route.name === 'create')
 const templatesActive = computed(() => route.name === 'templates' || route.name === 'template')
 const settingsActive = computed(() => route.name === 'settings')
+const settingsSection = computed(() => defaultSettingsSection(session.user?.role === 'admin'))
 </script>
 
 <template>
@@ -47,7 +51,7 @@ const settingsActive = computed(() => route.name === 'settings')
       <RouterLink :to="{ name: 'templates' }" :class="[link, templatesActive && active]" :aria-current="templatesActive ? 'page' : undefined">
         <LayoutTemplate class="size-[19px] stroke-[1.5]" aria-hidden="true" />Templates
       </RouterLink>
-      <RouterLink :to="{ name: 'settings', params: { section: 'text' } }" :class="[link, settingsActive && active]" :aria-current="settingsActive ? 'page' : undefined">
+      <RouterLink :to="{ name: 'settings', params: { section: settingsSection } }" :class="[link, settingsActive && active]" :aria-current="settingsActive ? 'page' : undefined">
         <Settings2 class="size-[19px] stroke-[1.5]" aria-hidden="true" />Settings
       </RouterLink>
     </div>

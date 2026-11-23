@@ -33,7 +33,7 @@ async function mountShell(path = '/') {
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  useSessionStore().user = { username: 'ada' }
+  useSessionStore().user = { username: 'ada', role: 'admin' }
   backendStatus.value = 'ok'
   getAuthStatus.mockReset()
 })
@@ -83,6 +83,12 @@ describe('AppShell', () => {
     expect(link.text()).toBe('Templates')
     expect(link.attributes('aria-current')).toBe('page')
     expect(wrapper.get('nav[aria-label="Main"] a[href="/new"]').attributes('aria-current')).toBeUndefined()
+  })
+
+  it('links a non-admin straight to their account settings', async () => {
+    useSessionStore().user = { username: 'bob', role: 'user' }
+    const wrapper = await mountShell('/')
+    expect(wrapper.get('nav[aria-label="Main"] a[href="/settings/account"]').text()).toBe('Settings')
   })
 
   it('links Settings inside the app and marks it current on settings routes', async () => {
