@@ -20,6 +20,7 @@ import TopicComposer from '@/components/create/TopicComposer.vue'
 import WizardBackButton from '@/components/create/wizard/WizardBackButton.vue'
 import WizardFooter from '@/components/create/wizard/WizardFooter.vue'
 import WizardLayout from '@/components/create/wizard/WizardLayout.vue'
+import BrandLogo from '@/components/shell/BrandLogo.vue'
 import { type WizardStepItem, type WizardStepKey } from '@/components/create/wizard/progress'
 import { useFooterNotice } from '@/components/create/wizard/stepFooter'
 import { presenterSummary } from '@/components/create/setupSummary'
@@ -314,6 +315,9 @@ watch(
     @blocked="explainLocked"
     @navigate="onNavigate"
   >
+    <template v-if="step === 'topic'" #lead>
+      <BrandLogo class="mb-5 h-6 w-auto" />
+    </template>
     <form id="new-form" class="flex flex-col gap-6" @submit.prevent="onCreate">
       <template v-if="step === 'topic'">
       <section class="flex flex-col gap-3" aria-labelledby="new-topic-h">

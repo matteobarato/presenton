@@ -100,7 +100,7 @@
     "failed": "Impossibile completare la configurazione. Controlla la connessione e riprova."
   },
   "login": {
-    "title": "Accedi a Slideshows",
+    "title": "Accedi",
     "description": "Usa l’account creato durante la configurazione.",
     "username": "Nome utente",
     "password": "Password",

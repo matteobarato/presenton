@@ -100,7 +100,7 @@
     "failed": "Couldn't finish setup. Check your connection and try again."
   },
   "login": {
-    "title": "Sign in to Slideshows",
+    "title": "Sign in",
     "description": "Use the account you created during setup.",
     "username": "Username",
     "password": "Password",

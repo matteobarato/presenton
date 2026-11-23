@@ -54,6 +54,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         <Transition name="step-panel">
           <section :key="panelKey ?? current" class="flex flex-col gap-5">
             <header>
+              <slot name="lead" />
               <h2
                 ref="headingEl"
                 tabindex="-1"

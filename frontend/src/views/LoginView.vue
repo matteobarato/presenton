@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import BrandLogo from '@/components/shell/BrandLogo.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -44,6 +45,7 @@ async function submit() {
   >
     <Card class="w-full max-w-sm">
       <CardHeader class="p-6 pb-4">
+        <BrandLogo class="mb-5 h-6 w-auto" />
         <CardTitle class="font-display text-[22px] font-medium tracking-[-0.03em]">{{ t('views.login.title') }}</CardTitle>
         <CardDescription class="mt-1.5 text-[12px] text-muted">{{ t('views.login.description') }}</CardDescription>
       </CardHeader>
