@@ -4,6 +4,7 @@ import { Loader2, LockKeyhole, LogOut, ShieldCheck, UserRound } from 'lucide-vue
 import { toast } from 'vue-sonner'
 import { changePassword } from '@/api/auth'
 import { Button } from '@/components/ui/button'
+import ThemeSection from '@/components/settings/ThemeSection.vue'
 import { Input } from '@/components/ui/input'
 import { useSessionStore } from '@/stores/session'
 
@@ -75,6 +76,8 @@ async function onSubmit() {
       </div>
       <Button variant="secondary" @click="emit('sign-out')"><LogOut class="size-3.5" aria-hidden="true" />Sign out</Button>
     </div>
+
+    <ThemeSection />
 
     <form
       v-if="!session.user?.authDisabled"
