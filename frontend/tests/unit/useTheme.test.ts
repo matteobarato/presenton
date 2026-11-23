@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+type Listener = (e: { matches: boolean }) => void
 type MQ = { matches: boolean; listeners: Set<(e: { matches: boolean }) => void> }
 let mq: MQ
 
@@ -7,11 +8,11 @@ function mockMatchMedia(dark: boolean) {
   mq = { matches: dark, listeners: new Set() }
   window.matchMedia = vi.fn().mockImplementation(() => ({
     get matches() { return mq.matches },
-    addEventListener: (_: string, cb: any) => mq.listeners.add(cb),
-    removeEventListener: (_: string, cb: any) => mq.listeners.delete(cb),
-    addListener: (cb: any) => mq.listeners.add(cb),
-    removeListener: (cb: any) => mq.listeners.delete(cb),
-  })) as any
+    addEventListener: (_: string, cb: Listener) => mq.listeners.add(cb),
+    removeEventListener: (_: string, cb: Listener) => mq.listeners.delete(cb),
+    addListener: (cb: Listener) => mq.listeners.add(cb),
+    removeListener: (cb: Listener) => mq.listeners.delete(cb),
+  })) as unknown as typeof window.matchMedia
 }
 function osChange(dark: boolean) {
   mq.matches = dark
