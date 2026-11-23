@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import io
 import json
 
@@ -7,6 +8,7 @@ import pytest
 from PIL import Image
 
 from services.heygen_lipsync import (
+    MODEL,
     RESOLUTION,
     HeyGenConfigurationError,
     HeyGenLipsyncClient,
@@ -35,164 +37,91 @@ def _create(client, image=b"img", image_mime="image/png", audio=b"aud"):
     )
 
 
-def _asset(asset_id):
+def _created(job_id="v"):
     return httpx.Response(
-        200,
-        json={"data": {"asset_id": asset_id, "url": "https://x", "mime_type": "m",
-                       "size_bytes": 1}},
+        202, json={"id": job_id, "status": "pending", "polling_url": "/api/v1/videos/x"}
     )
 
 
-def _created(video_id="v"):
-    return httpx.Response(
-        200, json={"data": {"video_id": video_id, "status": "waiting",
-                            "output_format": "mp4"}}
-    )
+def _api(create=None):
+    return (create if create is not None else (lambda request: _created())), []
 
 
-def _api(create=None, upload=None):
-    """A HeyGen double: assets get sequential ids, videos answer with `create`."""
-    uploads = []
-
-    def handler(request):
-        if request.url.path == "/v3/assets":
-            uploads.append(request.read())
-            if upload is not None:
-                return upload(request, len(uploads))
-            return _asset(f"asset-{len(uploads)}")
-        return create(request) if create is not None else _created()
-
-    return handler, uploads
-
-
-def test_create_uploads_assets_then_creates_video():
+def test_create_posts_inline_references():
     seen = []
 
     def handler(request):
-        seen.append({
-            "path": request.url.path,
-            "key": request.headers.get("x-api-key"),
-            "idempotency": request.headers.get("Idempotency-Key"),
-            "type": request.headers.get("Content-Type"),
-            "body": request.read(),
-        })
-        if request.url.path == "/v3/assets":
-            return _asset(f"asset-{len(seen)}")
+        seen.append(request)
         return _created("vid1")
 
     assert asyncio.run(_create(_client(handler))) == "vid1"
-    assert [call["path"] for call in seen] == ["/v3/assets", "/v3/assets", "/v3/videos"]
-    assert all(call["key"] == "key-123" for call in seen)
-    assert all(call["idempotency"] for call in seen)
-    image, audio, video = seen
-    assert image["type"].startswith("multipart/form-data")
-    assert b'name="file"; filename="portrait.png"' in image["body"]
-    assert b"Content-Type: image/png\r\n\r\nimg" in image["body"]
-    assert b'name="file"; filename="narration.mp3"' in audio["body"]
-    assert b"Content-Type: audio/mpeg\r\n\r\naud" in audio["body"]
-    assert json.loads(video["body"]) == {
-        "type": "image",
-        "image": {"type": "asset_id", "asset_id": "asset-1"},
-        "audio_asset_id": "asset-2",
-        "resolution": RESOLUTION,
-        "aspect_ratio": "auto",
-    }
-
-
-def test_portrait_uploaded_once_per_client():
-    handler, uploads = _api()
-
-    async def run():
-        client = _client(handler)
-        await asyncio.gather(*(_create(client, audio=b"a%d" % i) for i in range(3)))
-        await _create(client, image=b"other")
-
-    asyncio.run(run())
-    portraits = [body for body in uploads if b"portrait." in body]
-    assert len(portraits) == 2
-    assert len(uploads) == 2 + 4
+    (request,) = seen
+    assert request.url.path == "/api/v1/videos"
+    assert request.headers["Authorization"] == "Bearer key-123"
+    body = json.loads(request.read())
+    image = base64.b64encode(b"img").decode()
+    audio = base64.b64encode(b"aud").decode()
+    assert body["model"] == MODEL == "heygen/heygen-avatar-6-turbo"
+    assert body["resolution"] == RESOLUTION
+    assert body["prompt"]
+    assert body["input_references"] == [
+        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image}"}},
+        {"type": "audio_url", "audio_url": {"url": f"data:audio/mpeg;base64,{audio}"}},
+    ]
 
 
 def test_webp_portrait_sent_as_png():
     buffer = io.BytesIO()
     Image.new("RGB", (4, 4), "red").save(buffer, format="WEBP")
-    handler, uploads = _api()
+    seen = []
+
+    def handler(request):
+        seen.append(json.loads(request.read()))
+        return _created()
 
     asyncio.run(_create(_client(handler), image=buffer.getvalue(),
                         image_mime="image/webp"))
-    portrait = next(body for body in uploads if b"portrait." in body)
-    assert b'filename="portrait.png"' in portrait
-    assert b"Content-Type: image/png\r\n\r\n\x89PNG" in portrait
-
-
-def test_retries_reuse_the_idempotency_key():
-    keys = []
-
-    def create(request):
-        keys.append(request.headers.get("Idempotency-Key"))
-        if len(keys) == 1:
-            raise httpx.ReadTimeout("slow")
-        if len(keys) == 2:
-            return httpx.Response(
-                409, json={"error": {"code": "request_in_progress", "message": "wait"}}
-            )
-        return _created()
-
-    handler, _ = _api(create)
-    client = _client(handler)
-    assert asyncio.run(_create(client)) == "v"
-    assert len(keys) == 3 and len(set(keys)) == 1
-    asyncio.run(_create(client))
-    assert keys[3] != keys[0]
-
-
-def test_asset_not_ready_is_retried():
-    calls = []
-
-    def create(request):
-        calls.append(1)
-        if len(calls) == 1:
-            return httpx.Response(
-                409, json={"error": {"code": "resource_not_ready", "message": "x"}}
-            )
-        return _created()
-
-    handler, _ = _api(create)
-    assert asyncio.run(_create(_client(handler))) == "v"
-    assert len(calls) == 2
+    url = seen[0]["input_references"][0]["image_url"]["url"]
+    assert url.startswith("data:image/png;base64,")
+    assert base64.b64decode(url.split(",", 1)[1]).startswith(b"\x89PNG")
 
 
 def test_get_maps_each_state():
     payloads = {
         "a": {"id": "a", "status": "pending"},
-        "b": {"id": "b", "status": "waiting"},
-        "c": {"id": "c", "status": "processing"},
-        "d": {"id": "d", "status": "completed", "video_url": "https://cdn/x.mp4"},
-        "e": {
-            "id": "e", "status": "failed",
-            "failure_code": "no_face_detected", "failure_message": "No face found",
-        },
+        "b": {"id": "b", "status": "in_progress"},
+        "c": {"id": "c", "status": "completed",
+              "unsigned_urls": ["https://openrouter.ai/api/v1/videos/c/content?index=0"]},
+        "d": {"id": "d", "status": "failed", "error": "No face found"},
+        "e": {"id": "e", "status": "expired"},
+        "f": {"id": "f", "status": "failed",
+              "error": {"code": "no_face_detected", "message": "No face found"}},
     }
 
     def handler(request):
-        assert request.headers.get("x-api-key") == "key-123"
-        assert request.url.path.startswith("/v3/videos/")
-        video_id = request.url.path.rsplit("/", 1)[1]
-        return httpx.Response(200, json={"data": payloads[video_id]})
+        assert request.headers.get("Authorization") == "Bearer key-123"
+        assert request.url.path.startswith("/api/v1/videos/")
+        return httpx.Response(200, json=payloads[request.url.path.rsplit("/", 1)[1]])
 
     async def run():
         client = _client(handler)
-        return [await client.get(i) for i in "abcde"]
+        return [await client.get(i) for i in "abcdef"]
 
-    assert asyncio.run(run()) == [
-        LipsyncStatus("pending"),
-        LipsyncStatus("pending"),
-        LipsyncStatus("generating"),
-        LipsyncStatus("completed", "https://cdn/x.mp4"),
-        LipsyncStatus(
-            "failed", failure_reason="no_face_detected", error_message="No face found"
-        ),
-    ]
+    pending, generating, completed, failed, expired, structured = asyncio.run(run())
+    assert pending.state == "pending"
+    assert generating.state == "generating"
+    assert completed.state == "completed"
+    assert completed.output_url == "https://openrouter.ai/api/v1/videos/c/content?index=0"
+    assert completed.failure_reason is None
+    assert failed.state == "failed" and failed.error_message == "No face found"
+    assert failed.failure_reason == "failed"
+    assert expired.state == "failed" and expired.failure_reason == "expired"
+    assert structured == LipsyncStatus(
+        "failed",
+        output_url="/videos/f/content?index=0",
+        failure_reason="no_face_detected",
+        error_message="No face found",
+    )
 
 
 @pytest.mark.parametrize("status", [401, 403, 402])
@@ -214,33 +143,8 @@ def test_400_surfaces_message():
     assert exc.value.status_code == 400
 
 
-def test_upload_failure_stops_before_create():
-    paths = []
-
-    def handler(request):
-        paths.append(request.url.path)
-        return httpx.Response(
-            400, json={"error": {"code": "invalid_parameter", "message": "bad file"}}
-        )
-
-    with pytest.raises(HeyGenRequestError) as exc:
-        asyncio.run(_create(_client(handler)))
-    assert "bad file" in str(exc.value)
-    assert paths == ["/v3/assets"]
 
 
-def test_409_conflict_not_retried():
-    calls = []
-
-    def create(request):
-        calls.append(1)
-        return httpx.Response(409, json={"error": {"code": "other", "message": "no"}})
-
-    handler, _ = _api(create)
-    with pytest.raises(HeyGenRequestError) as exc:
-        asyncio.run(_create(_client(handler)))
-    assert exc.value.status_code == 409
-    assert len(calls) == 1
 
 
 def test_429_retried_then_succeeds():
@@ -289,13 +193,13 @@ def test_429_exhausted_raises_request_error():
     assert sleeps == [1, 2, 4]
 
 
-def test_create_transport_error_retried_then_raises():
+def test_create_connect_error_retried_then_raises():
     calls = []
     sleeps = []
 
     def create(request):
         calls.append(1)
-        raise httpx.ReadTimeout("slow")
+        raise httpx.ConnectError("refused")
 
     handler, _ = _api(create)
     with pytest.raises(HeyGenRequestError) as exc:
@@ -307,24 +211,11 @@ def test_create_transport_error_retried_then_raises():
 
 
 def test_create_without_video_id_fails():
-    handler, _ = _api(lambda r: httpx.Response(200, json={"data": {}}))
+    handler, _ = _api(lambda r: httpx.Response(200, json={}))
     with pytest.raises(HeyGenRequestError):
         asyncio.run(_create(_client(handler)))
 
 
-def test_create_and_get_do_not_follow_redirects():
-    hosts = []
-
-    def handler(request):
-        hosts.append(request.url.host)
-        return httpx.Response(302, headers={"Location": "https://evil.example/x"})
-
-    client = _client(handler)
-    with pytest.raises(HeyGenRequestError):
-        asyncio.run(_create(client))
-    with pytest.raises(HeyGenRequestError):
-        asyncio.run(client.get("x"))
-    assert set(hosts) == {"api.heygen.com"}
 
 
 def test_download_follows_redirects():
@@ -337,7 +228,7 @@ def test_download_follows_redirects():
 
 
 def test_get_unknown_status_returns_none():
-    client = _client(lambda r: httpx.Response(200, json={"data": {"status": "weird"}}))
+    client = _client(lambda r: httpx.Response(200, json={"status": "weird"}))
     assert asyncio.run(client.get("x")) is None
 
 
@@ -376,25 +267,16 @@ def test_download_size_cap():
         asyncio.run(client.download("https://cdn/x.mp4", max_bytes=99))
 
 
-def test_download_sends_no_api_key():
-    seen = {}
-
-    def handler(request):
-        seen["key"] = request.headers.get("x-api-key")
-        return httpx.Response(200, content=b"ok")
-
-    assert asyncio.run(_client(handler).download("https://cdn/x", max_bytes=10)) == b"ok"
-    assert seen["key"] is None
 
 
 def test_from_env_requires_key(monkeypatch):
-    monkeypatch.delenv("HEYGEN_API_KEY", raising=False)
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
     with pytest.raises(HeyGenConfigurationError):
         lipsync_client_from_env()
-    monkeypatch.setenv("HEYGEN_API_KEY", "   ")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "   ")
     with pytest.raises(HeyGenConfigurationError):
         lipsync_client_from_env()
-    monkeypatch.setenv("HEYGEN_API_KEY", "k")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "k")
     assert isinstance(lipsync_client_from_env(), HeyGenLipsyncClient)
 
 
@@ -405,3 +287,48 @@ def test_concurrency_clamped(monkeypatch):
         else:
             monkeypatch.setenv("HEYGEN_LIPSYNC_CONCURRENCY", raw)
         assert lipsync_concurrency() == expected
+
+
+
+def test_download_sends_key_only_to_openrouter():
+    seen = {}
+
+    def handler(request):
+        seen[request.url.host] = request.headers.get("Authorization")
+        return httpx.Response(200, content=b"ok")
+
+    client = _client(handler)
+    asyncio.run(client.download("https://openrouter.ai/api/v1/videos/v/content", max_bytes=10))
+    asyncio.run(client.download("https://cdn/x.mp4", max_bytes=10))
+    assert seen == {"openrouter.ai": "Bearer key-123", "cdn": None}
+
+
+@pytest.mark.parametrize(
+    "outcome",
+    [lambda: httpx.Response(502), lambda: httpx.Response(500),
+     httpx.ReadTimeout("slow")],
+)
+def test_create_not_retried_once_the_request_may_have_landed(outcome):
+    calls = []
+
+    def create(request):
+        calls.append(1)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome()
+
+    handler, _ = _api(create)
+    with pytest.raises(HeyGenRequestError) as exc:
+        asyncio.run(_create(_client(handler, [])))
+    assert len(calls) == 1
+    if isinstance(outcome, Exception):
+        assert "may still" in str(exc.value)
+
+
+def test_from_env_uses_openrouter_base_url(monkeypatch):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "k")
+    monkeypatch.setenv("OPENROUTER_BASE_URL", "https://proxy.example/or/api/v1/")
+    client = lipsync_client_from_env()
+    assert str(client._http.base_url) == "https://proxy.example/or/api/v1/"
+    monkeypatch.delenv("OPENROUTER_BASE_URL")
+    assert str(lipsync_client_from_env()._http.base_url) == "https://openrouter.ai/api/v1/"

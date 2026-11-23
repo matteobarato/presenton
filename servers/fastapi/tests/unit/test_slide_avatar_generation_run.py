@@ -332,7 +332,7 @@ def test_run_client_factory_configuration_error(tmp_path, monkeypatch):
     task_id = _create_task(ctx)
 
     def factory():
-        raise HeyGenConfigurationError("HEYGEN_API_KEY is not set")
+        raise HeyGenConfigurationError("OPENROUTER_API_KEY is not set")
 
     asyncio.run(
         run_avatar_generation_task(

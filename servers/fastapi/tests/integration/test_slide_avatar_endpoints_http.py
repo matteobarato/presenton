@@ -113,13 +113,13 @@ def test_videos_listing_carries_portrait_and_generation_flag(tmp_path, monkeypat
     client, presentation_id, _ids, _sessions, _app_data = _build_client(
         tmp_path, monkeypatch
     )
-    monkeypatch.delenv("HEYGEN_API_KEY", raising=False)
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
     body = client.get(f"{BASE}/{presentation_id}/videos").json()
     assert body["portrait"] is None
     assert body["generation_available"] is False
 
     _put_portrait(client, presentation_id)
-    monkeypatch.setenv("HEYGEN_API_KEY", "k")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "k")
     body = client.get(f"{BASE}/{presentation_id}/videos").json()
     assert body["portrait"]["mime_type"] == "image/png"
     assert body["generation_available"] is True
@@ -156,7 +156,7 @@ def _generation_client(tmp_path, monkeypatch, *, run=None):
         tmp_path, monkeypatch
     )
     client.app.include_router(API_V1_ASYNC_TASKS_ROUTER)
-    monkeypatch.setenv("HEYGEN_API_KEY", "k")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "k")
     assert _put_portrait(client, presentation_id).status_code == 200
     for index in (0, 1):
         assert (
@@ -218,7 +218,7 @@ def _narrate(sessions, slide_ids, tmp_path, language, indexes):
 
 def test_generate_without_api_key_is_503(tmp_path, monkeypatch):
     client, presentation_id, _ids, _sessions = _generation_client(tmp_path, monkeypatch)
-    monkeypatch.delenv("HEYGEN_API_KEY")
+    monkeypatch.delenv("OPENROUTER_API_KEY")
 
     response = client.post(f"{BASE}/{presentation_id}/videos/generate", json={})
 
@@ -237,7 +237,7 @@ def test_generate_without_portrait_is_422(tmp_path, monkeypatch):
 
 def test_generate_without_narration_is_422(tmp_path, monkeypatch):
     client, presentation_id, *_ = _build_client(tmp_path, monkeypatch)
-    monkeypatch.setenv("HEYGEN_API_KEY", "k")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "k")
     _put_portrait(client, presentation_id)
 
     response = client.post(f"{BASE}/{presentation_id}/videos/generate", json={})
@@ -331,7 +331,7 @@ def test_preview_lists_chips_for_a_mixed_deck(tmp_path, monkeypatch):
         tmp_path, monkeypatch
     )
     # Preview needs neither the key nor the portrait, and creates no task.
-    monkeypatch.delenv("HEYGEN_API_KEY")
+    monkeypatch.delenv("OPENROUTER_API_KEY")
     client.delete(f"{BASE}/{presentation_id}/videos/portrait")
     _upload(client, presentation_id, 0, language="it")
 

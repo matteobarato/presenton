@@ -31,7 +31,7 @@ const capability = computed(() => {
     return {
       state: 'off',
       label: 'Not set up',
-      detail: 'Set HEYGEN_API_KEY on the server to generate avatars. You can still upload your own videos.',
+      detail: 'Set OPENROUTER_API_KEY on the server to generate avatars. You can still upload your own videos.',
       variant: 'secondary' as const,
     }
   }
