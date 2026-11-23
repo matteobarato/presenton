@@ -38,7 +38,10 @@ async function submit() {
 </script>
 
 <template>
-  <main class="grid min-h-dvh place-items-center bg-rail px-5">
+  <main
+    class="grid min-h-dvh place-items-center bg-rail bg-cover bg-center px-5"
+    style="background-image: linear-gradient(rgb(0 0 0 / 0.35), rgb(0 0 0 / 0.35)), url('/alex-padurariu-cKH9F7Wjn9U-unsplash.jpg')"
+  >
     <Card class="w-full max-w-sm">
       <CardHeader class="p-6 pb-4">
         <CardTitle class="font-display text-[22px] font-medium tracking-[-0.03em]">{{ t('views.login.title') }}</CardTitle>
