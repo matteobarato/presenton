@@ -106,7 +106,7 @@ function confirmDelete() {
 
     <RouterLink
       to="/new"
-      class="mb-[45px] flex w-full items-center gap-[17px] rounded-panel border border-lx-95bed022 bg-[linear-gradient(110deg,#344b57,#222e35)] px-7 py-6 text-left text-tx-d8e7ef transition-[border-color,transform] duration-200 hover:border-lx-91c0da66 motion-safe:hover:-translate-y-0.5 max-[1050px]:p-[22px] max-[760px]:flex-wrap max-[760px]:gap-3.5 max-[760px]:p-5 max-[450px]:px-3.5 max-[450px]:py-[18px]"
+      class="mb-[45px] flex w-full items-center gap-[17px] rounded-panel border border-lx-95bed022 bg-[linear-gradient(110deg,var(--hero-a),var(--hero-b))] px-7 py-6 text-left text-tx-d8e7ef transition-[border-color,transform] duration-200 hover:border-lx-91c0da66 motion-safe:hover:-translate-y-0.5 max-[1050px]:p-[22px] max-[760px]:flex-wrap max-[760px]:gap-3.5 max-[760px]:p-5 max-[450px]:px-3.5 max-[450px]:py-[18px]"
     >
       <span class="grid size-[45px] flex-none place-items-center rounded-[12px] bg-sx-badbef15 text-tx-cbe8f5 max-[450px]:size-[35px]">
         <Sparkles class="size-[22px] max-[450px]:size-[15px]" aria-hidden="true" />

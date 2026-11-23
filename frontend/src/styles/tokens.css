@@ -78,6 +78,14 @@
   --selection-bg: #9cd4ec;
   --selection-fg: #14242c;
   --workspace-bg: #191d1f;
+  --hero-a: #344b57;
+  --hero-b: #222e35;
+  --tile-a: #4f6c7d6b;
+  --tile-b: #243c4966;
+  --sheen-border: rgb(255 255 255 / 0.07);
+  --sheen-a: rgb(255 255 255 / 0.035);
+  --sheen-b: rgb(255 255 255 / 0.012);
+  --sheen-inset: rgb(255 255 255 / 0.04);
 }
 
 /* Light theme: the Aera look with lightness inverted. Unlayered, so it beats the @theme layer. */
@@ -127,4 +135,12 @@
   --selection-bg: #a8d8ee;
   --selection-fg: #14242c;
   --workspace-bg: #f7f9fa;
+  --hero-a: #dbeaf2;
+  --hero-b: #eef5f9;
+  --tile-a: #cfe3ee99;
+  --tile-b: #e3eff6aa;
+  --sheen-border: rgb(0 0 0 / 0.08);
+  --sheen-a: rgb(255 255 255 / 0.85);
+  --sheen-b: rgb(255 255 255 / 0.55);
+  --sheen-inset: rgb(255 255 255 / 0.9);
 }

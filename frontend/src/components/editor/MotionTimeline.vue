@@ -305,42 +305,42 @@ function askReplan() {
 .motion-timeline { padding: 4px 16px 12px; }
 .motion-header { display: flex; align-items: center; justify-content: space-between; gap: 9px; padding-bottom: 8px; }
 .motion-transport { display: flex; align-items: center; gap: 9px; white-space: nowrap; }
-.motion-play { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 6px; background: #30414b; color: #d1e8f3; font-size: 10px; }
-.motion-play:hover:not(:disabled) { background: #3a505d; }
-.motion-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; color: #a4b5bd; }
-.motion-icon:hover:not(:disabled) { color: #fff; background: #ffffff0a; }
+.motion-play { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 6px; background: var(--color-sx-30414b); color: var(--color-tx-d1e8f3); font-size: 10px; }
+.motion-play:hover:not(:disabled) { background: var(--color-sx-3a505d); }
+.motion-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; color: var(--color-tx-a4b5bd); }
+.motion-icon:hover:not(:disabled) { color: var(--color-tx-ffffff); background: var(--color-sx-ffffff0a); }
 .motion-play:disabled, .motion-icon:disabled, .motion-scrubber input:disabled { opacity: 0.45; cursor: default; }
-.motion-time { min-width: 62px; color: #d4e7ef; font-size: 11px; font-variant-numeric: tabular-nums; }
-.motion-time span { color: #a4b5bd; font-size: 9px; }
-.motion-loop { display: flex; align-items: center; gap: 4px; color: #a8bbc5; font-size: 9px; }
-.motion-loop input { accent-color: #f1cc96; }
+.motion-time { min-width: 62px; color: var(--color-tx-d4e7ef); font-size: 11px; font-variant-numeric: tabular-nums; }
+.motion-time span { color: var(--color-tx-a4b5bd); font-size: 9px; }
+.motion-loop { display: flex; align-items: center; gap: 4px; color: var(--color-tx-a8bbc5); font-size: 9px; }
+.motion-loop input { accent-color: var(--color-tx-f1cc96); }
 .motion-ruler, .motion-track, .motion-scrubber { display: grid; grid-template-columns: 108px minmax(0, 1fr); }
-.motion-ruler { height: 23px; font-size: 8px; letter-spacing: 0.04em; color: #a2b5c0; }
+.motion-ruler { height: 23px; font-size: 8px; letter-spacing: 0.04em; color: var(--color-tx-a2b5c0); }
 .motion-ruler > span { padding-top: 1px; }
 .motion-ruler > div { position: relative; margin-right: 4px; }
 .motion-ruler > div > span { position: absolute; translate: -50% 0; font-variant-numeric: tabular-nums; }
 .motion-ruler > div > span:first-child { translate: 0; }
 .motion-ruler > div > span:last-child { translate: -100% 0; }
 .motion-track { height: 28px; border-radius: 4px; }
-.motion-track.is-selected { background: #bee3f30a; }
-.motion-track-name { display: flex; min-width: 0; align-items: center; gap: 7px; padding: 0 5px; text-align: left; font-size: 10px; color: #b7c8d1; white-space: nowrap; }
+.motion-track.is-selected { background: var(--color-sx-bee3f30a); }
+.motion-track-name { display: flex; min-width: 0; align-items: center; gap: 7px; padding: 0 5px; text-align: left; font-size: 10px; color: var(--color-tx-b7c8d1); white-space: nowrap; }
 .motion-track-name b { overflow: hidden; text-overflow: ellipsis; font-weight: 400; }
-.motion-track-name > span { width: 5px; height: 5px; flex-shrink: 0; border-radius: 2px; background: #708590; }
-.is-selected > .motion-track-name { color: #e1f2fa; }
-.is-selected > .motion-track-name > span { background: #bee3f3; }
-.motion-lane { position: relative; margin-right: 4px; border-bottom: 1px solid #ffffff07; background: repeating-linear-gradient(90deg, #ffffff08 0px, #ffffff08 1px, transparent 1px, transparent 20%); }
-.motion-clip { position: absolute; top: 5px; height: 18px; min-width: 4px; overflow: hidden; padding: 0; border: 1px solid #91b9cd; border-radius: 4px; background: #436b7e; color: #e6f5fd; font-size: 8px; text-align: left; touch-action: none; cursor: grab; transition: background 150ms; }
+.motion-track-name > span { width: 5px; height: 5px; flex-shrink: 0; border-radius: 2px; background: var(--color-sx-708590); }
+.is-selected > .motion-track-name { color: var(--color-tx-e1f2fa); }
+.is-selected > .motion-track-name > span { background: var(--color-accent); }
+.motion-lane { position: relative; margin-right: 4px; border-bottom: 1px solid var(--color-lx-ffffff07); background: repeating-linear-gradient(90deg, var(--color-sx-ffffff08) 0px, var(--color-sx-ffffff08) 1px, transparent 1px, transparent 20%); }
+.motion-clip { position: absolute; top: 5px; height: 18px; min-width: 4px; overflow: hidden; padding: 0; border: 1px solid var(--color-lx-91b9cd); border-radius: 4px; background: var(--color-sx-436b7e); color: var(--color-tx-e6f5fd); font-size: 8px; text-align: left; touch-action: none; cursor: grab; transition: background 150ms; }
 .motion-clip span { padding: 0 4px; white-space: nowrap; }
 .motion-clip:active { cursor: grabbing; }
-.motion-clip.is-active { outline: 1px solid #eff8fc; outline-offset: 2px; }
-.motion-add { position: absolute; top: 5px; left: 0; display: inline-flex; height: 18px; align-items: center; gap: 3px; padding: 0 6px; border: 1px dashed #ffffff21; border-radius: 4px; color: #a2b5c0; font-size: 8px; }
-.motion-add:hover:not(:disabled) { border-color: #829eac; color: #e5f4fc; }
+.motion-clip.is-active { outline: 1px solid var(--color-lx-eff8fc); outline-offset: 2px; }
+.motion-add { position: absolute; top: 5px; left: 0; display: inline-flex; height: 18px; align-items: center; gap: 3px; padding: 0 6px; border: 1px dashed var(--color-lx-ffffff21); border-radius: 4px; color: var(--color-tx-a2b5c0); font-size: 8px; }
+.motion-add:hover:not(:disabled) { border-color: var(--color-lx-829eac); color: var(--color-tx-e5f4fc); }
 .motion-add:disabled { opacity: 0.45; cursor: default; }
 .motion-clip[aria-disabled] { cursor: default; }
-.motion-playhead { position: absolute; top: 0; bottom: 0; z-index: 2; width: 1px; background: #f1cc96; pointer-events: none; }
-.motion-scrubber { align-items: center; margin: 7px 0 6px; color: #a2b5c0; font-size: 9px; }
-.motion-scrubber input { width: 100%; height: 12px; margin: 0; accent-color: #f1cc96; cursor: ew-resize; }
-.motion-help { margin-top: 4px; color: #a6bac5; font-size: 9px; line-height: 1.5; }
+.motion-playhead { position: absolute; top: 0; bottom: 0; z-index: 2; width: 1px; background: var(--color-sx-f1cc96); pointer-events: none; }
+.motion-scrubber { align-items: center; margin: 7px 0 6px; color: var(--color-tx-a2b5c0); font-size: 9px; }
+.motion-scrubber input { width: 100%; height: 12px; margin: 0; accent-color: var(--color-tx-f1cc96); cursor: ew-resize; }
+.motion-help { margin-top: 4px; color: var(--color-tx-a6bac5); font-size: 9px; line-height: 1.5; }
 @media (max-width: 1279px) {
   .motion-ruler, .motion-track, .motion-scrubber { grid-template-columns: 91px minmax(0, 1fr); }
   .motion-track-name { font-size: 9px; }

@@ -110,7 +110,7 @@ async function removeConversation(id: string) {
     <div ref="list" class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-5 pt-5 pb-4" aria-live="polite">
       <div v-if="!chat.messages.value.length && !chat.loading.value" class="anim-fade-in pt-2">
         <div
-          class="mb-[21px] grid size-[55px] place-items-center rounded-[17px] border border-lx-c7e9ff12 bg-[linear-gradient(135deg,#4f6c7d6b,#243c4966)] text-tx-c5e6f5 shadow-[0_10px_20px_#0002]"
+          class="mb-[21px] grid size-[55px] place-items-center rounded-[17px] border border-lx-c7e9ff12 bg-[linear-gradient(135deg,var(--tile-a),var(--tile-b))] text-tx-c5e6f5 shadow-[0_10px_20px_#0002]"
           aria-hidden="true"
         >
           <Sparkles class="size-[26px]" />

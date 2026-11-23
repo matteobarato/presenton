@@ -287,10 +287,10 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
 <style scoped>
 .summary-card {
   border-radius: var(--radius-card, 12px);
-  border: 1px solid rgb(255 255 255 / 0.07);
-  background: linear-gradient(180deg, rgb(255 255 255 / 0.035), rgb(255 255 255 / 0.012));
+  border: 1px solid var(--sheen-border);
+  background: linear-gradient(180deg, var(--sheen-a), var(--sheen-b));
   padding: 18px;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 1px 0 var(--sheen-inset);
 }
 .summary-kicker {
   display: inline-flex;

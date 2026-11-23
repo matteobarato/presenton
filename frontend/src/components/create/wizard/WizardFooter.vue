@@ -99,7 +99,7 @@ const hasRetry = !!getCurrentInstance()?.vnode.props?.onRetry
   bottom: calc(-1 * var(--card-pad));
   margin-bottom: calc(-1 * var(--card-pad));
   padding-bottom: 14px;
-  background: rgb(25 29 31 / 0.84);
+  background: color-mix(in srgb, var(--workspace-bg) 84%, transparent);
   backdrop-filter: blur(18px) saturate(1.3);
   -webkit-backdrop-filter: blur(18px) saturate(1.3);
 }

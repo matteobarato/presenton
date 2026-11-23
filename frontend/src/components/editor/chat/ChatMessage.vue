@@ -34,13 +34,13 @@ const html = computed(() => (props.message.role === 'assistant' ? renderMarkdown
 }
 .chat-md :deep(ul) { list-style: disc; padding-left: 1.2em; }
 .chat-md :deep(ol) { list-style: decimal; padding-left: 1.2em; }
-.chat-md :deep(code) { font-family: ui-monospace, monospace; font-size: 11px; background: #0003; padding: 0 3px; border-radius: 4px; }
-.chat-md :deep(pre) { overflow-x: auto; background: #0004; padding: 8px; border-radius: 8px; }
+.chat-md :deep(code) { font-family: ui-monospace, monospace; font-size: 11px; background: var(--color-sx-00000033); padding: 0 3px; border-radius: 4px; }
+.chat-md :deep(pre) { overflow-x: auto; background: var(--color-sx-00000044); padding: 8px; border-radius: 8px; }
 .chat-md :deep(pre code) { background: none; padding: 0; }
 .chat-md :deep(a) { text-decoration: underline; }
 .chat-md :deep(table) { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 11px; }
-.chat-md :deep(th), .chat-md :deep(td) { border: 1px solid #ffffff17; padding: 5px 9px; text-align: left; vertical-align: top; }
-.chat-md :deep(th) { background: #ffffff0a; color: #eef5f9; font-weight: 600; }
+.chat-md :deep(th), .chat-md :deep(td) { border: 1px solid var(--color-lx-ffffff17); padding: 5px 9px; text-align: left; vertical-align: top; }
+.chat-md :deep(th) { background: var(--color-sx-ffffff0a); color: var(--color-tx-eef5f9); font-weight: 600; }
 .chat-md :deep(th[align=center]), .chat-md :deep(td[align=center]) { text-align: center; }
 .chat-md :deep(th[align=right]), .chat-md :deep(td[align=right]) { text-align: right; font-variant-numeric: tabular-nums; }
 </style>

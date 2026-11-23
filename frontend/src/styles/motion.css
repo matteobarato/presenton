@@ -9,7 +9,7 @@
 @keyframes sheet-in-bottom { from { opacity: 0; translate: 0 24px } to { opacity: 1; translate: 0 0 } }
 @keyframes pop-in { from { opacity: 0; scale: 0.97; translate: 0 4px } to { opacity: 1; scale: 1; translate: 0 0 } }
 @keyframes thinking { from { opacity: 0.35; transform: translateY(0) } to { opacity: 1; transform: translateY(-3px) } }
-@keyframes working { from { border-color: #bedff02e } to { border-color: #bedff09c } }
+@keyframes working { from { border-color: var(--color-lx-bedff02e) } to { border-color: var(--color-lx-bedff09c) } }
 @keyframes shimmer { from { background-position: 200% 0 } to { background-position: -200% 0 } }
 
 .anim-rise-in { animation: rise-in 220ms var(--ease) both }
@@ -21,10 +21,10 @@
 .anim-sheet-bottom { animation: sheet-in-bottom 250ms var(--ease) }
 .anim-working { animation: working 1.2s ease-in-out infinite alternate }
 .thinking-dots { display: flex; align-items: center; gap: 4px }
-.thinking-dots > span { width: 4px; height: 4px; border-radius: 50%; background: #aacdde; animation: thinking 0.9s ease-in-out infinite alternate }
+.thinking-dots > span { width: 4px; height: 4px; border-radius: 50%; background: var(--color-sx-aacdde); animation: thinking 0.9s ease-in-out infinite alternate }
 .thinking-dots > span:nth-child(2) { animation-delay: 0.15s }
 .thinking-dots > span:nth-child(3) { animation-delay: 0.3s }
-.skeleton-shimmer { background: linear-gradient(90deg, #ffffff08 25%, #ffffff12 50%, #ffffff08 75%); background-size: 200% 100%; animation: shimmer 1.6s linear infinite }
+.skeleton-shimmer { background: linear-gradient(90deg, var(--color-sx-ffffff08) 25%, var(--color-sx-ffffff12) 50%, var(--color-sx-ffffff08) 75%); background-size: 200% 100%; animation: shimmer 1.6s linear infinite }
 
 .slide-change-enter-active { transition: opacity 180ms, transform 240ms var(--ease), filter 200ms }
 .slide-change-leave-active { transition: opacity 100ms }

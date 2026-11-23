@@ -43,16 +43,16 @@ const progress = computed(() => Math.min(95, Math.round(95 * (1 - Math.exp(-elap
 </template>
 
 <style scoped>
-.ai-progress { display: grid; gap: 9px; padding: 11px; border: 1px solid #8ebfd329; border-radius: 10px; background: #203039; }
+.ai-progress { display: grid; gap: 9px; padding: 11px; border: 1px solid var(--color-lx-8ebfd329); border-radius: 10px; background: var(--color-sx-203039); }
 .ai-progress-heading, .ai-progress-times { display: flex; align-items: center; gap: 7px; }
-.ai-progress-mark { display: grid; width: 22px; height: 22px; flex: 0 0 22px; place-items: center; border-radius: 6px; background: #344c5a; color: #c5eaff; }
-.ai-progress-stage { flex: 1; color: #e5f1f7; font-size: 11px; font-weight: 650; }
-.ai-progress-percent { color: #c5eaff; font-size: 11px; font-variant-numeric: tabular-nums; }
-.ai-progress-track { height: 5px; overflow: hidden; border-radius: 5px; background: #141d23; }
-.ai-progress-fill { position: relative; display: block; width: 100%; height: 100%; transform-origin: left; background: #9bd5ee; transition: transform 130ms linear; }
-.ai-progress-fill::after { position: absolute; inset: 0; background: linear-gradient(100deg, transparent 25%, #e8f9ffad 50%, transparent 75%); content: ''; animation: ai-progress-sweep 1.5s linear infinite; }
+.ai-progress-mark { display: grid; width: 22px; height: 22px; flex: 0 0 22px; place-items: center; border-radius: 6px; background: var(--color-sx-344c5a); color: var(--color-tx-c5eaff); }
+.ai-progress-stage { flex: 1; color: var(--color-tx-e5f1f7); font-size: 11px; font-weight: 650; }
+.ai-progress-percent { color: var(--color-tx-c5eaff); font-size: 11px; font-variant-numeric: tabular-nums; }
+.ai-progress-track { height: 5px; overflow: hidden; border-radius: 5px; background: var(--color-sx-141d23); }
+.ai-progress-fill { position: relative; display: block; width: 100%; height: 100%; transform-origin: left; background: var(--color-sx-9bd5ee); transition: transform 130ms linear; }
+.ai-progress-fill::after { position: absolute; inset: 0; background: linear-gradient(100deg, transparent 25%, var(--color-sx-e8f9ffad) 50%, transparent 75%); content: ''; animation: ai-progress-sweep 1.5s linear infinite; }
 @keyframes ai-progress-sweep { from { transform: translateX(-100%) } to { transform: translateX(100%) } }
-.ai-progress-times { justify-content: space-between; color: #b8ccd7; font-size: 10px; font-variant-numeric: tabular-nums; }
+.ai-progress-times { justify-content: space-between; color: var(--color-tx-b8ccd7); font-size: 10px; font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) {
   .ai-progress-fill { transition: none; }
   .ai-progress-fill::after { animation: none; }

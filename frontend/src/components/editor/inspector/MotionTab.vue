@@ -342,12 +342,12 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
 <style scoped>
 /* Effect glyphs, from the Aera mockup (motion.css). */
 .effect-glyph { position: relative; display: grid; width: 20px; height: 16px; place-items: center; }
-.effect-glyph i { width: 11px; height: 11px; border-radius: 2px; background: #bee3f3; }
-.effect-none i { border: 1px dashed #9db0ba; background: none; }
+.effect-glyph i { width: 11px; height: 11px; border-radius: 2px; background: var(--color-accent); }
+.effect-none i { border: 1px dashed var(--color-lx-9db0ba); background: none; }
 .effect-fade i { opacity: 0.55; }
-.effect-rise i { border-bottom: 3px solid #5f7f90; translate: 0 -2px; }
-.effect-slide i { border-left: 3px solid #5f7f90; translate: 3px 0; }
-.effect-zoom i { border: 2px solid #7896a5; scale: 1.25; }
+.effect-rise i { border-bottom: 3px solid var(--color-lx-5f7f90); translate: 0 -2px; }
+.effect-slide i { border-left: 3px solid var(--color-lx-5f7f90); translate: 3px 0; }
+.effect-zoom i { border: 2px solid var(--color-lx-7896a5); scale: 1.25; }
 .effect-turn i { rotate: -22deg; }
 .effect-blur i { filter: blur(1.5px); }
 </style>

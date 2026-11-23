@@ -105,7 +105,7 @@ function onKeydown(e: KeyboardEvent) {
 .outline-md :deep(h3),
 .outline-md :deep(h4),
 .outline-md :deep(h5),
-.outline-md :deep(h6) { color: #eef5f9; font-weight: 600; letter-spacing: -0.015em; line-height: 1.35; }
+.outline-md :deep(h6) { color: var(--color-tx-eef5f9); font-weight: 600; letter-spacing: -0.015em; line-height: 1.35; }
 .outline-md :deep(h1) { font-size: 16px; }
 .outline-md :deep(h2) { font-size: 15px; }
 .outline-md :deep(h3), .outline-md :deep(h4), .outline-md :deep(h5), .outline-md :deep(h6) { font-size: 14px; }
@@ -113,15 +113,15 @@ function onKeydown(e: KeyboardEvent) {
 .outline-md :deep(ul) { list-style: disc; padding-left: 1.25em; }
 .outline-md :deep(ol) { list-style: decimal; padding-left: 1.25em; }
 .outline-md :deep(li) { margin-top: 0.15em; }
-.outline-md :deep(li::marker) { color: #8fb4c6; }
-.outline-md :deep(strong) { color: #eef5f9; font-weight: 600; }
-.outline-md :deep(code) { font-family: ui-monospace, monospace; font-size: 12px; background: #0003; padding: 0 3px; border-radius: 4px; }
-.outline-md :deep(pre) { overflow-x: auto; background: #0004; padding: 8px; border-radius: 8px; }
+.outline-md :deep(li::marker) { color: var(--color-tx-8fb4c6); }
+.outline-md :deep(strong) { color: var(--color-tx-eef5f9); font-weight: 600; }
+.outline-md :deep(code) { font-family: ui-monospace, monospace; font-size: 12px; background: var(--color-sx-00000033); padding: 0 3px; border-radius: 4px; }
+.outline-md :deep(pre) { overflow-x: auto; background: var(--color-sx-00000044); padding: 8px; border-radius: 8px; }
 .outline-md :deep(pre code) { background: none; padding: 0; }
 .outline-md :deep(a) { color: var(--color-accent); text-decoration: underline; text-underline-offset: 2px; }
 .outline-md :deep(table) { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 12px; }
-.outline-md :deep(th), .outline-md :deep(td) { border: 1px solid #ffffff17; padding: 5px 9px; text-align: left; vertical-align: top; }
-.outline-md :deep(th) { background: #ffffff0a; color: #eef5f9; font-weight: 600; }
+.outline-md :deep(th), .outline-md :deep(td) { border: 1px solid var(--color-lx-ffffff17); padding: 5px 9px; text-align: left; vertical-align: top; }
+.outline-md :deep(th) { background: var(--color-sx-ffffff0a); color: var(--color-tx-eef5f9); font-weight: 600; }
 .outline-md :deep(th[align=center]), .outline-md :deep(td[align=center]) { text-align: center; }
 .outline-md :deep(th[align=right]), .outline-md :deep(td[align=right]) { text-align: right; font-variant-numeric: tabular-nums; }
 </style>
