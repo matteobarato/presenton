@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { Shapes } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
 import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
 import { label, section } from '@/components/editor/inspector/controls/styles'
 import IconPickerDialog from './IconPickerDialog.vue'
 import { useIconControls } from './useIconControls'
+
+const { t } = useI18n()
 
 const props = defineProps<{ presentation: Presentation }>()
 
@@ -13,7 +16,7 @@ const { element, palette, src, color, weight, currentUrl, hold, setColor, picker
 
 <template>
   <div v-if="element" :class="section">
-    <div :class="label"><h3>Icon</h3></div>
+    <div :class="label"><h3>{{ t('editorInspector.element.icon.title') }}</h3></div>
     <div class="mb-3 grid h-20 place-items-center rounded-control border border-ov/[0.05] bg-sx-11171a">
       <span
         v-if="src"
@@ -32,16 +35,16 @@ const { element, palette, src, color, weight, currentUrl, hold, setColor, picker
         }"
       />
     </div>
-    <ColorField :model-value="color" :palette="palette" label="Icon colour" @open="hold" @commit="setColor" />
+    <ColorField :model-value="color" :palette="palette" :label="t('editorInspector.element.icon.colour')" @open="hold" @commit="setColor" />
     <button
       type="button"
       class="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-control border border-ov/[0.05] bg-field text-[10px] text-tx-909fa7 hover:bg-sx-303a3f hover:text-tx-d9e6ed"
-      aria-label="Change icon"
+      :aria-label="t('editorInspector.element.icon.change')"
       @mousedown.prevent
       @click="openPicker"
     >
       <Shapes class="size-4" aria-hidden="true" />
-      Change icon
+      {{ t('editorInspector.element.icon.change') }}
     </button>
   </div>
   <!-- Outside the v-if: a dialog open while the icon is deleted stays up, and picking then says so. -->

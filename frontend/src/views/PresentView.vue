@@ -6,9 +6,11 @@ import { useAnimations } from '@/composables/useSlideAnimation'
 import PresentControls from '@/components/present/PresentControls.vue'
 import PresentStage from '@/components/present/PresentStage.vue'
 import { useNarratedPlayback } from '@/composables/useNarratedPlayback'
+import { useI18n } from 'vue-i18n'
 
 const IDLE_MS = 2000
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const id = computed(() => String(route.params.id ?? ''))
@@ -131,7 +133,7 @@ watch(total, (n) => {
       :playing="playing"
     />
     <p v-else-if="isError" role="alert" class="absolute inset-0 flex items-center justify-center text-white/80">
-      Couldn't load this presentation.
+      {{ t('views.present.loadFailed') }}
     </p>
     <PresentControls
       :index="index"

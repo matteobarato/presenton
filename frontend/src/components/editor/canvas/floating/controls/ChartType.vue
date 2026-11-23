@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { ChartElement } from '@/render/legacy/components/slide-editor/types'
 import { useChartControls } from '@/components/editor/inspector/element/useChartControls'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Bar control: chart type selector.
 const { chart, type, options, changeType } = useChartControls()
@@ -9,8 +12,8 @@ const { chart, type, options, changeType } = useChartControls()
 <template>
   <select
     v-if="chart"
-    aria-label="Chart type"
-    title="Chart type"
+    :aria-label="t('editorCanvas.controls.chart.type')"
+    :title="t('editorCanvas.controls.chart.type')"
     data-bar-item="chart-type"
     class="h-[31px] max-w-[130px] rounded-control bg-transparent px-1.5 text-[11px] text-tx-dce3e7 outline-none hover:bg-sx-30373b focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent"
     :value="type"

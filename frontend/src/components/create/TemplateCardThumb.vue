@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import type { TemplateSummary } from '@/api/templates'
 import { layoutToSlide } from '@/components/templates/layoutSlide'
 import { useTemplateLayouts } from '@/composables/useTemplateLayouts'
 import SlideView from '@/render/SlideView.vue'
+const { t } = useI18n()
 
 /** A template's main image (its first layout). `width` is the rendered slide width; the default fills a 160px card. */
 const props = withDefaults(defineProps<{ template: TemplateSummary; width?: number }>(), { width: 158 })
@@ -20,7 +22,7 @@ const first = computed(() => (layouts.value[0] ? layoutToSlide(props.template.id
       class="grid place-items-center bg-ov/[0.03] text-[12px] text-muted"
       :style="{ width: `${1280 * SCALE}px`, height: `${720 * SCALE}px` }"
     >
-      {{ pending ? 'Loading…' : 'No preview' }}
+      {{ pending ? t('common.actions.loading') : t('create.templates.noPreview') }}
     </span>
   </span>
 </template>

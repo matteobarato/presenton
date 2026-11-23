@@ -1,4 +1,5 @@
 import { toast } from '@/components/ui/sonner'
+import { i18n } from '@/i18n'
 import { useHistoryStore } from '@/stores/history'
 
 /** Undo/redo that surface a failed save as a toast; the command stays on its stack. */
@@ -9,7 +10,7 @@ export function useUndoRedo() {
     try {
       await history[action]()
     } catch (error) {
-      toast.error(`Could not ${action}`, { description: error instanceof Error ? error.message : undefined })
+      toast.error(i18n.global.t(action === 'undo' ? 'editor.undo.couldNotUndo' : 'editor.undo.couldNotRedo'), { description: error instanceof Error ? error.message : undefined })
     }
   }
 

@@ -1,0 +1,680 @@
+{
+  "tabs": {
+    "insert": "Inserisci",
+    "avatar": "Avatar",
+    "motion": "Movimento",
+    "layers": "Livelli"
+  },
+  "layers": {
+    "title": "Livelli",
+    "hint": "Seleziona qualcosa nella diapositiva per modificarlo. Fai doppio clic sul testo per scrivere.",
+    "unavailable": "Questa diapositiva non si può modificare sul canvas."
+  },
+  "voice": {
+    "ariaLabel": "Voce",
+    "slideCount": "Diapositiva {current} di {total}",
+    "noSlide": "Seleziona una diapositiva per modificarne la narrazione."
+  },
+  "avatar": {
+    "ariaLabel": "Avatar",
+    "title": "Il tuo relatore, sul palco.",
+    "intro": "Un solo ritratto, sincronizzato sulle labbra con la narrazione di ogni diapositiva.",
+    "noSlide": "Seleziona una diapositiva per inserirci il relatore.",
+    "bubble": {
+      "ariaLabel": "Bolla vocale",
+      "title": "Bolla vocale",
+      "hint": "Riproduce la narrazione nelle diapositive senza relatore. Trascinala per spostarla in ogni diapositiva; trascina l'angolo per ridimensionarla.",
+      "presenterNote": "Questa diapositiva riproduce il video del relatore, quindi qui la bolla resta nascosta.",
+      "loadError": "Impossibile caricare la bolla vocale",
+      "saveError": "Impossibile salvare la posizione della bolla vocale",
+      "keyHint": "Trascina, oppure usa le frecce per spostare. Tieni premuto Shift per spostare più veloce."
+    },
+    "portrait": {
+      "ariaLabel": "Ritratto del relatore",
+      "add": "Aggiungi il tuo relatore digitale",
+      "addHint": "Una foto frontale nitida diventa un relatore parlante nelle tue diapositive. JPEG, PNG o WebP, fino a 10 MB.",
+      "replace": "Sostituisci",
+      "removeAria": "Rimuovi ritratto",
+      "cardHint": "L'immagine da cui vengono sincronizzati gli avatar. JPEG, PNG o WebP, fino a 10 MB.",
+      "cardReplace": "Sostituisci ritratto",
+      "cardUpload": "Carica ritratto",
+      "cardRemove": "Rimuovi ritratto"
+    },
+    "chip": {
+      "failed": "Non riuscito",
+      "audio_stale": "Narrazione modificata",
+      "video_stale": "Non aggiornato",
+      "ready": "Pronto",
+      "no_placeholder": "Relatore off",
+      "no_audio": "Nessuna narrazione",
+      "unsupported_audio": "Formato audio",
+      "generating": "Generazione",
+      "done": "Generato",
+      "uploaded": "Video caricato",
+      "other_language": "Altra lingua"
+    },
+    "dialog": {
+      "title": "Genera avatar",
+      "lead": "{count} diapositiva avrà un avatar sincronizzato sulle labbra nella | {count} diapositive avranno un avatar sincronizzato sulle labbra nella",
+      "narrationLanguage": "lingua della narrazione",
+      "tail": ", creato dal ritratto del relatore e dalla narrazione di ogni diapositiva. Gli avatar sono legati a quella lingua. I crediti HeyGen vengono usati per ogni diapositiva non saltata.",
+      "force": "Rigenera le diapositive con avatar già aggiornato",
+      "generate": "Genera"
+    },
+    "deck": {
+      "ariaLabel": "Avatar dell'intera presentazione",
+      "title": "Intera presentazione",
+      "generatingDetail": "Generazione degli avatar…",
+      "state": {
+        "generating": "Generazione",
+        "notUsed": "Non ancora usato",
+        "needsUpdate": "Da aggiornare",
+        "toGenerate": "Da generare",
+        "upToDate": "Aggiornato"
+      },
+      "parts": {
+        "outOfDate": "{count} non aggiornati",
+        "failed": "{count} non riusciti",
+        "withoutVideo": "{count} senza video"
+      },
+      "noVideoYet": "{count} diapositiva con relatore non ha ancora un video. | {count} diapositive con relatore non hanno ancora un video.",
+      "currentVideo": "La diapositiva con relatore ha un video aggiornato. | Tutte le {count} diapositive con relatore hanno un video aggiornato.",
+      "generateCount": "Genera {count} avatar",
+      "generate": "Genera avatar",
+      "readyText": " · {eligible} di {total} diapositiva con relatore pronta da generare | · {eligible} di {total} diapositive con relatore pronte da generare",
+      "langLead": "Sincronizzati con la narrazione in",
+      "langTail": "{readyText}.",
+      "progressAria": "Avanzamento della generazione degli avatar",
+      "checking": "Verifica di cosa può generare questo server…",
+      "blocker": {
+        "notSetUp": "La generazione degli avatar non è configurata su questo server (richiede OPENROUTER_API_KEY). Puoi comunque caricare i tuoi video.",
+        "noPortrait": "Carica prima un ritratto del relatore.",
+        "running": "Una generazione di avatar è già in corso.",
+        "checkingNarration": "Verifica della narrazione…",
+        "noPresenter": "Attiva il relatore in una diapositiva per includerla qui.",
+        "noNarration": "Le diapositive con relatore richiedono prima una narrazione aggiornata. Generala nella scheda Voce."
+      },
+      "section": {
+        "summary": "{eligible}/{total} pronte",
+        "lead": "Gli avatar sono sincronizzati con la narrazione in",
+        "tail": ". Cambia la lingua nella scheda Voce.",
+        "avatars": "Avatar",
+        "readyCount": "{eligible} di {total} diapositiva con segnaposto è pronta da generare. | {eligible} di {total} diapositive con segnaposto sono pronte da generare.",
+        "bubbleHint": "Dove si trova il narratore nelle diapositive senza avatar. Trascinala qui; vale per ogni diapositiva."
+      }
+    },
+    "slides": {
+      "title": "Diapositive",
+      "withPresenter": "{count} di {total} con relatore",
+      "slide": "Diapositiva {n}",
+      "voiceBubble": "Bolla vocale",
+      "noVideo": "Nessun video"
+    },
+    "failure": {
+      "fallback": "Generazione non riuscita",
+      "timeout": "Tempo scaduto",
+      "internal_error": "Errore interno",
+      "invalid_output": "Video restituito non valido",
+      "configuration": "HeyGen non è configurato",
+      "request_error": "Richiesta non riuscita",
+      "audio_error": "Impossibile leggere l'audio della narrazione",
+      "unknown": "Errore sconosciuto"
+    },
+    "slideBlocker": {
+      "noPlaceholder": "Questa diapositiva non ha un segnaposto per l'avatar.",
+      "noNarration": "Questa diapositiva non ha ancora una narrazione.",
+      "narrationChanged": "La narrazione di questa diapositiva è cambiata dopo la registrazione."
+    },
+    "slide": {
+      "ariaLabel": "Video avatar della diapositiva",
+      "narrationStale": "La narrazione è cambiata dopo la registrazione. Rigenerala prima.",
+      "narrationMissing": "Questa diapositiva non ha ancora una narrazione. Il relatore la segue con il labiale.",
+      "turnOn": "Attiva il relatore per generare un video per questa diapositiva.",
+      "presenterOn": "Relatore in questa diapositiva",
+      "presenterOnHint": "Sostituisce qui la bolla vocale.",
+      "presenterOffHint": "Off: qui si riproduce la bolla vocale.",
+      "placeholderAria": "Segnaposto avatar nella diapositiva {n}",
+      "openVoice": "Apri Voce",
+      "otherLanguage": "Questo avatar è stato registrato per la narrazione in {recorded}, quindi Presenta e l'esportazione video lo nascondono mentre la presentazione è in {deck}. Cambia la lingua della narrazione, oppure genera o carica un avatar per {deck}.",
+      "generatedAvatar": "Avatar generato",
+      "removeVideoAria": "Rimuovi il video dalla diapositiva {n}",
+      "keptForLater": "Conservato per dopo: questo video non verrà riprodotto finché il relatore non è attivo.",
+      "noVideo": "Ancora nessun video. Generane uno dal ritratto e dalla narrazione di questa diapositiva, oppure carica il tuo.",
+      "generate": "Genera avatar",
+      "replaceVideo": "Sostituisci video",
+      "uploadVideo": "Carica video",
+      "videoFileAria": "File video per la diapositiva {n}"
+    },
+    "overview": {
+      "title": "Generazione avatar",
+      "caption": "Da cosa è composto un avatar",
+      "requirement": "Requisito",
+      "deck": "Presentazione",
+      "slide": "Diapositiva {n}",
+      "row": {
+        "portrait": "Ritratto",
+        "narration": "Narrazione",
+        "placeholder": "Segnaposto",
+        "video": "Video"
+      },
+      "cell": {
+        "ready": "Pronto",
+        "translated": "Tradotto",
+        "outdated": "Non aggiornato",
+        "missing": "Mancante",
+        "added": "Aggiunto",
+        "shared": "Condiviso",
+        "none": "Nessuno",
+        "on": "On",
+        "off": "Off",
+        "uploaded": "Caricato",
+        "otherLanguage": "Altra lingua",
+        "generating": "Generazione",
+        "failed": "Non riuscito"
+      },
+      "capability": {
+        "busy": {
+          "label": "Generazione",
+          "detail": "Generazione degli avatar…"
+        },
+        "checking": {
+          "label": "Verifica…",
+          "detail": "Verifica di cosa può generare questo server."
+        },
+        "off": {
+          "label": "Non configurato",
+          "detail": "Imposta OPENROUTER_API_KEY sul server per generare avatar. Puoi comunque caricare i tuoi video."
+        },
+        "on": {
+          "label": "Disponibile",
+          "detail": "Trasforma il ritratto del relatore e la narrazione di ogni diapositiva in un video con labiale sincronizzato, generato con HeyGen."
+        }
+      }
+    }
+  },
+  "controls": {
+    "none": "Nessuno",
+    "recent": "Recenti",
+    "picker": "Selettore {label}",
+    "hex": "{label} esadecimale",
+    "slider": "Cursore {label}"
+  },
+  "motion": {
+    "ariaLabel": "Movimento",
+    "title": "Movimento, con intenzione.",
+    "intro": "Definisci come ogni elemento entra nella diapositiva.",
+    "noSlide": "Seleziona una diapositiva per modificarne il movimento.",
+    "loadError": "Impossibile caricare il movimento di questa presentazione.",
+    "notReady": "Il movimento di questa diapositiva non è ancora pronto.",
+    "unsupported": "Questa diapositiva non si può animare. Il movimento funziona con le diapositive create da un modello.",
+    "nothingToAnimate": "Niente da animare in questa diapositiva.",
+    "resetNotice": "Le tue modifiche sono state reimpostate perché il layout è cambiato.",
+    "dismiss": "Chiudi",
+    "planningSlide": "Pianificazione del movimento di questa diapositiva…",
+    "planningSlideLabel": "Pianificazione del movimento",
+    "planningDeck": "Pianificazione del movimento per ogni diapositiva…",
+    "planningDeckLabel": "Pianificazione del movimento della presentazione",
+    "stale": {
+      "title": "Layout cambiato — ripianifica",
+      "hint": "Gli elementi di questa diapositiva sono cambiati dopo la creazione del movimento, quindi il piano non corrisponde più. Ripianificalo per modificare di nuovo il movimento.",
+      "replan": "Ripianifica questa diapositiva"
+    },
+    "missing": {
+      "title": "Ancora nessun movimento",
+      "hint": "Lascia che l'IA pianifichi come entrano gli elementi di questa diapositiva, oppure parti da una sequenza qui sotto.",
+      "generate": "Genera con l'IA"
+    },
+    "lockReason": "Non disponibile mentre il movimento viene pianificato per ogni diapositiva",
+    "selectedElement": "Elemento selezionato",
+    "findEffect": "Cerca un effetto…",
+    "searchEffects": "Cerca effetti di movimento",
+    "effectsLegend": "Effetti",
+    "effectsLegendLocked": "Effetti ({reason})",
+    "timingLegend": "Tempi",
+    "timingLegendLocked": "Tempi ({reason})",
+    "noEffects": "Nessun effetto trovato.",
+    "stillElement": "Questo elemento resta fermo. Scegli un effetto per animarlo.",
+    "custom": "Personalizzato",
+    "none": "Nessuno",
+    "start": "Inizio",
+    "duration": "Durata",
+    "ease": "Easing",
+    "customValues": "Valori personalizzati",
+    "fromField": {
+      "opacity": "Opacità",
+      "x": "x",
+      "y": "y",
+      "scale": "Scala",
+      "rotation": "Rotazione",
+      "blur": "Sfocatura"
+    },
+    "fromAria": "Da {field}",
+    "sequence": {
+      "title": "Sequenza dell'intera diapositiva",
+      "ariaLabel": "Preset di sequenza",
+      "apply": "Applica un preset…",
+      "cinematic": "Rivelazione cinematografica",
+      "cascade": "Cascata sfalsata",
+      "subtle": "Morbido e sottile",
+      "clear": "Rimuovi tutti gli effetti"
+    },
+    "regenerate": "Rigenera",
+    "generateAll": "Genera per tutte le diapositive",
+    "clearPlan": "Cancella piano",
+    "replaceDialog": {
+      "title": "Sostituire le tue modifiche?",
+      "description": "Hai modificato a mano il movimento di questa diapositiva. La rigenerazione lo sostituisce con un nuovo piano dell'IA.",
+      "replace": "Sostituisci"
+    }
+  },
+  "insert": {
+    "ariaLabel": "Inserisci",
+    "title": "Inserisci",
+    "intro": "Fai clic per aggiungere a questa diapositiva.",
+    "text": "Testo",
+    "images": "Immagini",
+    "shapes": "Forme",
+    "insertItem": "Inserisci {label}",
+    "disabled": {
+      "templateOnly": "Inserisci è disponibile per le diapositive da modello",
+      "noSlide": "Seleziona una diapositiva in cui inserire",
+      "busy": "Inserisci non è disponibile mentre la presentazione è occupata"
+    },
+    "blocks": {
+      "title": "Blocchi",
+      "count": "{count} da questo modello",
+      "loadError": "Impossibile caricare i blocchi del modello",
+      "retry": "Riprova",
+      "empty": "Il modello di questa presentazione non ha blocchi riutilizzabili.",
+      "searchAria": "Cerca blocchi",
+      "searchPlaceholder": "Cerca blocchi",
+      "noMatch": "Nessun blocco corrisponde a “{query}”.",
+      "variants": "{count} varianti",
+      "showVariants": "Mostra le varianti di {title}"
+    }
+  },
+  "narration": {
+    "progressAria": "Avanzamento della narrazione",
+    "genericError": "Qualcosa è andato storto",
+    "ready": "La narrazione è pronta",
+    "language": "Lingua della narrazione",
+    "slide": {
+      "ariaLabel": "Voce della diapositiva",
+      "title": "Questa diapositiva",
+      "state": {
+        "missing": "Nessun audio",
+        "ready": "Aggiornato",
+        "stale": "Non aggiornato",
+        "translated": "Tradotto"
+      },
+      "translatedHint": "Una narrazione tradotta non può essere confrontata con le modifiche alle note. Rigenera questa diapositiva se hai cambiato la nota.",
+      "staleNote": "La nota è cambiata dopo la creazione di questo audio.",
+      "noteFirst": "Scrivi prima una nota, poi genera il suo audio.",
+      "audioAria": "Narrazione per la diapositiva {n}",
+      "generating": "Generazione dell'audio…",
+      "regenerate": "Rigenera audio",
+      "generate": "Genera audio"
+    },
+    "deck": {
+      "ariaLabel": "Intera presentazione",
+      "title": "Intera presentazione",
+      "narratedCount": "{narrated}/{total} narrate",
+      "generating": "Generazione della narrazione…",
+      "counts": "{upToDate} aggiornate · {outOfDate} non aggiornate · {withoutAudio} senza audio",
+      "delete": "Elimina narrazione",
+      "generateNotes": "Genera tutte le note",
+      "generate": "Genera narrazione",
+      "deleteTitle": "Eliminare la narrazione?",
+      "deleteDescription": "Questo rimuove l'audio registrato per questa lingua. Le note del relatore vengono conservate."
+    }
+  },
+  "element": {
+    "list": {
+      "marker": "Indicatore",
+      "bullet": "Punto elenco",
+      "number": "Numero",
+      "none": "Nessuno"
+    },
+    "line": {
+      "colour": "Colore",
+      "width": "Spessore",
+      "none": "Nessuna",
+      "markerList": "Estremità {end}",
+      "swap": "Inverti estremità",
+      "dash": {
+        "title": "Tratteggio",
+        "solid": "Continuo",
+        "dashed": "Tratteggiato",
+        "dotted": "Punteggiato"
+      },
+      "ends": {
+        "title": "Estremità della linea",
+        "start": "Inizio",
+        "end": "Fine"
+      },
+      "title": "Linea"
+    },
+    "video": {
+      "title": "Video",
+      "preview": "Anteprima video",
+      "loading": "Caricamento del video…",
+      "empty": "Ancora nessun video in questa diapositiva. Generane o caricane uno qui sotto.",
+      "generatedAvatar": "Avatar generato",
+      "uploaded": "Video caricato"
+    },
+    "arrange": {
+      "title": "Disponi",
+      "group": "Raggruppa",
+      "groupShortcut": "Raggruppa (Ctrl+G)",
+      "ungroup": "Separa",
+      "ungroupShortcut": "Separa (Shift+Ctrl+G)",
+      "duplicate": "Duplica",
+      "duplicateShortcut": "Duplica (Ctrl+D)",
+      "copy": "Copia",
+      "copyShortcut": "Copia (Ctrl+C)",
+      "deleteShortcut": "Elimina (Del)"
+    },
+    "order": {
+      "title": "Ordine dei livelli",
+      "front": {
+        "label": "Porta in primo piano",
+        "short": "Sopra"
+      },
+      "up": {
+        "label": "Porta avanti",
+        "short": "Su"
+      },
+      "down": {
+        "label": "Porta indietro",
+        "short": "Giù"
+      },
+      "back": {
+        "label": "Porta in secondo piano",
+        "short": "Sotto"
+      }
+    },
+    "layout": {
+      "title": "Layout",
+      "gap": "Spazio",
+      "items": "Elementi",
+      "addItem": "Aggiungi elemento",
+      "removeItem": "Rimuovi ultimo elemento",
+      "fill": "Riempimento",
+      "fillColour": "Colore di riempimento",
+      "fillOpacity": "Opacità del riempimento",
+      "stroke": "Contorno",
+      "strokeColour": "Colore del contorno",
+      "strokeWidth": "Spessore del contorno",
+      "strokeOpacity": "Opacità del contorno",
+      "cornerRadius": "Raggio degli angoli",
+      "alignment": "Allineamento",
+      "paddingX": "Margine interno X",
+      "paddingY": "Margine interno Y",
+      "alignCell": "{h} {v}",
+      "align": {
+        "left": "Sinistra",
+        "center": "Centro",
+        "right": "Destra",
+        "top": "Alto",
+        "middle": "Metà",
+        "bottom": "Basso"
+      }
+    },
+    "text": {
+      "typography": "Tipografia",
+      "fontFamily": "Famiglia di caratteri",
+      "fontSize": "Dimensione carattere",
+      "color": "Colore",
+      "colourValue": "Colore {value}",
+      "customColour": "Colore personalizzato",
+      "alignment": "Allineamento",
+      "lineHeight": "Interlinea",
+      "align": {
+        "left": "Allinea a sinistra",
+        "center": "Allinea al centro",
+        "right": "Allinea a destra",
+        "justify": "Giustifica"
+      },
+      "mark": {
+        "bold": "Grassetto",
+        "italic": "Corsivo",
+        "underline": "Sottolineato"
+      },
+      "markTitle": {
+        "bold": "Grassetto (Ctrl+B)",
+        "italic": "Corsivo (Ctrl+I)",
+        "underline": "Sottolineato (Ctrl+U)"
+      }
+    },
+    "table": {
+      "title": "Tabella",
+      "cell": "Cella",
+      "cellBackground": "Sfondo della cella",
+      "alignment": "Allineamento",
+      "cellAlignment": "Allineamento della cella",
+      "addRow": "Aggiungi riga",
+      "addColumn": "Aggiungi colonna",
+      "deleteRow": "Elimina riga",
+      "deleteColumn": "Elimina colonna",
+      "moveLeft": "Sposta colonna a sinistra",
+      "moveRight": "Sposta colonna a destra",
+      "align": {
+        "left": "Cella allineata a sinistra",
+        "center": "Cella allineata al centro",
+        "right": "Cella allineata a destra"
+      },
+      "why": {
+        "headerRow": "La riga di intestazione non si può eliminare",
+        "selectRow": "Seleziona una cella per eliminarne la riga",
+        "minRows": "Le tabelle richiedono almeno {count} righe",
+        "selectColumn": "Seleziona una cella per eliminarne la colonna",
+        "minCols": "Le tabelle richiedono almeno {count} colonna | Le tabelle richiedono almeno {count} colonne",
+        "selectMove": "Seleziona una cella per spostarne la colonna",
+        "firstColumn": "Questa è la prima colonna",
+        "lastColumn": "Questa è l'ultima colonna",
+        "maxRows": "Le tabelle hanno al massimo {count} righe",
+        "maxCols": "Le tabelle hanno al massimo {count} colonne"
+      }
+    },
+    "shape": {
+      "title": "Forma",
+      "fill": "Riempimento",
+      "fillColour": "Colore di riempimento",
+      "opacity": "Opacità",
+      "stroke": "Contorno",
+      "strokeColour": "Colore del contorno",
+      "width": "Spessore",
+      "cornerRadius": "Raggio degli angoli",
+      "dash": {
+        "title": "Tratteggio",
+        "solid": "Continuo",
+        "dashed": "Tratteggiato",
+        "dotted": "Punteggiato"
+      },
+      "curve": {
+        "title": "Curva",
+        "none": "Netta",
+        "smooth": "Morbida"
+      }
+    },
+    "image": {
+      "title": "Immagine",
+      "previewAria": "Anteprima immagine, fai clic per sostituire",
+      "replace": "Sostituisci immagine",
+      "replaceButton": "Sostituisci",
+      "fitTitle": "Adattamento",
+      "fit": {
+        "cover": "Copri",
+        "contain": "Contieni",
+        "fill": "Riempi"
+      },
+      "focusTitle": "Fuoco del ritaglio",
+      "adjustFocus": "Regola il fuoco",
+      "focusAria": "Fuoco {position}",
+      "focus": {
+        "topLeft": "alto a sinistra",
+        "top": "alto",
+        "topRight": "alto a destra",
+        "left": "sinistra",
+        "center": "centro",
+        "right": "destra",
+        "bottomLeft": "basso a sinistra",
+        "bottom": "basso",
+        "bottomRight": "basso a destra"
+      }
+    },
+    "icon": {
+      "title": "Icona",
+      "colour": "Colore dell'icona",
+      "change": "Cambia icona",
+      "removed": "L'icona è stata rimossa dalla diapositiva."
+    },
+    "layers": {
+      "tree": "Livelli della diapositiva",
+      "empty": "Questa diapositiva è vuota.",
+      "collapse": "Comprimi {label}",
+      "expand": "Espandi {label}"
+    },
+    "children": {
+      "selected": "Selezionato",
+      "contains": "Contiene",
+      "path": "Percorso di selezione",
+      "slide": "Diapositiva"
+    },
+    "swatches": {
+      "colourAria": "Colore del grafico {n}",
+      "add": "Aggiungi colore del grafico",
+      "remove": "Rimuovi colore del grafico",
+      "removeLast": "Rimuovi l'ultimo colore del grafico"
+    },
+    "appearance": {
+      "title": "Aspetto",
+      "rotation": "Rotazione",
+      "rotateLeft": "Ruota di -90°",
+      "rotateRight": "Ruota di +90°",
+      "flip": "Rifletti",
+      "flipH": "Rifletti O",
+      "flipHTitle": "Rifletti orizzontalmente",
+      "flipV": "Rifletti V",
+      "flipVTitle": "Rifletti verticalmente",
+      "opacity": "Opacità",
+      "cornerRadius": "Raggio degli angoli",
+      "shadow": "Ombra",
+      "shadowColour": "Colore dell'ombra",
+      "blur": "Sfocatura",
+      "offsetX": "X",
+      "offsetY": "Y",
+      "shadowX": "Ombra X",
+      "shadowY": "Ombra Y",
+      "shadowOpacity": "Opacità dell'ombra"
+    },
+    "infographic": {
+      "title": "Infografica",
+      "value": "Valore",
+      "min": "Min",
+      "max": "Max",
+      "items": "Elementi",
+      "addItem": "Aggiungi elemento",
+      "removeItem": "Rimuovi ultimo elemento",
+      "editItems": "Modifica elementi…",
+      "colours": "Colori",
+      "colourN": "Colore {n}",
+      "textColour": "Colore del testo"
+    },
+    "chart": {
+      "title": "Grafico",
+      "type": "Tipo di grafico",
+      "data": "Dati",
+      "noData": "Nessun dato",
+      "moreRows": "+{count} altre",
+      "moreSeparator": ", ",
+      "moreSeries": "+{count} altre serie",
+      "editData": "Modifica dati",
+      "colours": "Colori",
+      "titleSection": "Titolo",
+      "titleAria": "Titolo del grafico",
+      "noTitle": "Nessun titolo",
+      "colour": "Colore",
+      "titleColour": "Colore del titolo",
+      "axes": "Assi",
+      "categories": "Categorie",
+      "xAxis": "Asse X",
+      "xAxisTitle": "Titolo asse X",
+      "values": "Valori",
+      "yAxis": "Asse Y",
+      "yAxisTitle": "Titolo asse Y",
+      "categoryLabels": "Etichette delle categorie",
+      "spokes": "Raggi",
+      "showAxis": "Mostra asse",
+      "showGrid": "Mostra griglia",
+      "valueLabels": "Etichette dei valori",
+      "rings": "Anelli",
+      "legend": "Legenda",
+      "showLegend": "Mostra legenda",
+      "legendColour": "Colore della legenda",
+      "dataLabels": "Etichette dati",
+      "labelPos": {
+        "off": "Off",
+        "base": "Base",
+        "mid": "Centro",
+        "top": "Alto",
+        "outside": "Esterno"
+      },
+      "frame": "Cornice",
+      "axisColour": "Colore dell'asse",
+      "gridColour": "Colore della griglia"
+    },
+    "chartData": {
+      "title": "Modifica dati del grafico",
+      "description": "Le modifiche appaiono in anteprima sulla diapositiva. Fine le applica come un'unica modifica.",
+      "category": "Categoria",
+      "seriesName": "Nome della serie {n}",
+      "seriesActions": "Azioni della serie {n}",
+      "moveLeft": "Sposta a sinistra",
+      "moveRight": "Sposta a destra",
+      "deleteSeries": "Elimina serie",
+      "deleteRow": "Elimina riga {n}",
+      "categoryName": "Categoria {n}",
+      "valueAria": "Valore {row},{col}",
+      "addRow": "Aggiungi riga",
+      "addSeries": "Aggiungi serie",
+      "done": "Fine"
+    },
+    "itemsDialog": {
+      "title": "Modifica elementi",
+      "description": "Descrizione",
+      "valueAria": "Valore {n}",
+      "valuePlaceholder": "Valore",
+      "changeIcon": "Cambia icona {n}",
+      "changeIconTitle": "Cambia icona",
+      "headingAria": "Titolo {n}",
+      "heading": "Titolo",
+      "descriptionAria": "Descrizione {n}",
+      "moveUp": "Sposta su l'elemento {n}",
+      "moveDown": "Sposta giù l'elemento {n}",
+      "deleteItem": "Elimina elemento {n}",
+      "addItem": "Aggiungi elemento",
+      "done": "Fine"
+    },
+    "iconPicker": {
+      "title": "Cambia icona",
+      "description": "Cerca un'icona e scegline lo spessore.",
+      "searchAria": "Cerca icone",
+      "weightAria": "Spessore dell'icona",
+      "weight": {
+        "thin": "Sottile",
+        "light": "Leggero",
+        "regular": "Normale",
+        "bold": "Grassetto",
+        "fill": "Pieno",
+        "duotone": "Bicolore"
+      },
+      "searchFailed": "Ricerca delle icone non riuscita.",
+      "retry": "Riprova",
+      "searching": "Ricerca...",
+      "noIcons": "Nessuna icona per \"{query}\"",
+      "iconN": "Icona {n}",
+      "replace": "Sostituisci"
+    }
+  }
+}

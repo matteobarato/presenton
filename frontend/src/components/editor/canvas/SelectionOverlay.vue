@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { hitComponent, hitDeepest, selectionFrames, toSlidePoint } from '@/slide-editor/geometry'
 import {
   getElementAtSelection,
@@ -39,6 +40,8 @@ import {
 } from './gestures'
 
 const emit = defineEmits<{ 'open-editor': [sel: ElementSelection] }>()
+
+const { t } = useI18n()
 
 const editing = useSlideEditingContext()
 const canvas = useEditableCanvas()
@@ -562,7 +565,7 @@ onBeforeUnmount(() => finish(false))
         <div
           data-rotate-handle
           role="button"
-          aria-label="Rotate"
+          :aria-label="t('editorCanvas.selection.rotate')"
           class="pointer-events-auto absolute box-border size-3 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border border-lx-4bb3e6 bg-white"
           :style="{ left: '50%', top: `calc(100% + ${ROTATE_STEM_PX}px)` }"
           @pointerdown="onRotateDown"

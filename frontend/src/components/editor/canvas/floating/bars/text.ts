@@ -18,5 +18,5 @@ export const textBar: BarItem[] = [
   { type: 'custom', id: 'marks', component: TextMarks, props: presentationProps },
   { type: 'custom', id: 'text-color', component: TextColor, props: presentationProps },
   { type: 'custom', id: 'align', component: TextAlign, props: presentationProps },
-  { type: 'panel', id: 'text', label: 'Text', icon: Type, component: TextPanel, props: presentationProps },
+  { type: 'panel', id: 'text', label: 'editorCanvas.bar.labels.text', icon: Type, component: TextPanel, props: presentationProps },
 ]

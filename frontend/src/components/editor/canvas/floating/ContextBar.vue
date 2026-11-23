@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUpdated, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { active, container, divider, tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
 import type { BarContext, BarItem } from './barItems'
 import { guardKeys } from './guardKeys'
@@ -15,6 +16,7 @@ const props = defineProps<{
   side?: 'top' | 'bottom'
 }>()
 const emit = defineEmits<{ 'update:openPanel': [id: string | null] }>()
+const { t } = useI18n()
 
 const root = ref<HTMLElement | null>(null)
 
@@ -75,7 +77,7 @@ function onKeydown(e: KeyboardEvent) {
   <div
     ref="root"
     role="toolbar"
-    aria-label="Element tools"
+    :aria-label="t('editorCanvas.bar.toolbarLabel')"
     aria-orientation="horizontal"
     data-inline-edit-ignore="true"
     :class="[container, 'max-w-[calc(100%-16px)] overflow-x-auto overflow-y-hidden']"
@@ -88,8 +90,8 @@ function onKeydown(e: KeyboardEvent) {
         v-if="item.type === 'button'"
         type="button"
         :class="[tool, item.active?.(bar()) && active]"
-        :aria-label="item.label"
-        :title="item.title ?? item.label"
+        :aria-label="t(item.label)"
+        :title="t(item.title ?? item.label)"
         :aria-pressed="item.active ? !!item.active(bar()) : undefined"
         :disabled="item.disabled?.(bar())"
         :data-bar-item="item.id"

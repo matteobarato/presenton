@@ -1,0 +1,18 @@
+{
+  "language": {
+    "title": "Lingua",
+    "hint": "Lingua dell’interfaccia. Salvata su questo dispositivo. La lingua dei contenuti si sceglie separatamente quando crei una presentazione.",
+    "en": "English",
+    "it": "Italiano"
+  },
+  "actions": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "close": "Chiudi",
+    "delete": "Elimina",
+    "confirm": "Conferma",
+    "back": "Indietro",
+    "next": "Avanti",
+    "loading": "Caricamento…"
+  }
+}

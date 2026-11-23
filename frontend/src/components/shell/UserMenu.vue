@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { LogOut } from 'lucide-vue-next'
 import {
@@ -12,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useSessionStore } from '@/stores/session'
 
+const { t } = useI18n()
 const session = useSessionStore()
 const router = useRouter()
 const name = computed(() => session.user?.username ?? '')
@@ -28,7 +30,7 @@ async function signOut() {
     <DropdownMenuTrigger as-child>
       <button
         type="button"
-        aria-label="Account menu"
+        :aria-label="t('shell.nav.accountMenu')"
         class="grid size-[33px] place-items-center rounded-full border-[3px] border-lx-2e2b28 bg-sx-ddccb9 text-[12px] font-bold text-tx-493c2e"
       >
         {{ initial }}
@@ -37,7 +39,7 @@ async function signOut() {
     <DropdownMenuContent side="right" align="end">
       <DropdownMenuLabel class="px-2 py-1.5 text-[11px] font-medium text-muted">{{ name }}</DropdownMenuLabel>
       <DropdownMenuSeparator />
-      <DropdownMenuItem @select="signOut"><LogOut class="size-4" aria-hidden="true" />Sign out</DropdownMenuItem>
+      <DropdownMenuItem @select="signOut"><LogOut class="size-4" aria-hidden="true" />{{ t('shell.nav.signOut') }}</DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>

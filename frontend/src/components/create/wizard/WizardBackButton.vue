@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ArrowLeft } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
+const { t } = useI18n()
 
 /** The wizard's Back: icon and label from 560px, a 44px icon button (label kept for screen readers) on phones. */
 defineProps<{ disabled?: boolean; label?: string }>()
@@ -8,6 +10,6 @@ defineProps<{ disabled?: boolean; label?: string }>()
 
 <template>
   <Button type="button" variant="ghost" class="max-[559px]:size-11 max-[559px]:flex-none max-[559px]:px-0" :disabled="disabled">
-    <ArrowLeft class="size-4" aria-hidden="true" /><span class="max-[559px]:sr-only">{{ label ?? 'Back' }}</span>
+    <ArrowLeft class="size-4" aria-hidden="true" /><span class="max-[559px]:sr-only">{{ label ?? t('common.actions.back') }}</span>
   </Button>
 </template>

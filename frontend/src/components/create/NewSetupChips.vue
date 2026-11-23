@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { nextTick, ref } from 'vue'
 import { Languages, LayoutGrid, Palette, Sparkles } from 'lucide-vue-next'
 import GenerationOptions from './GenerationOptions.vue'
@@ -6,6 +7,7 @@ import LanguagePicker from './LanguagePicker.vue'
 import SetupChip from './SetupChip.vue'
 import type { CreateOptions } from './options'
 import { extrasSummary, lengthMediaSummary, styleSummary } from './setupSummary'
+const { t } = useI18n()
 
 /**
  * The settings of a new deck as a row of chips under the topic: language, length and media, style, extras. Each chip
@@ -27,20 +29,20 @@ defineExpose({ openLanguage })
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-2" role="group" aria-label="Deck settings" data-testid="setup-chips">
-    <SetupChip v-model:open="languageOpen" label="Language" :value="options.language" :icon="Languages" description="What language the slides are written in" :disabled="disabled" testid="chip-language">
+  <div class="flex flex-wrap gap-2" role="group" :aria-label="t('create.chips.deckSettings')" data-testid="setup-chips">
+    <SetupChip v-model:open="languageOpen" :label="t('create.chips.language')" :value="options.language" :icon="Languages" :description="t('create.chips.languageHint')" :disabled="disabled" testid="chip-language">
       <LanguagePicker v-model="options.language" :disabled="props.disabled" bare />
     </SetupChip>
 
-    <SetupChip label="Length & media" :value="lengthMediaSummary(options)" :icon="LayoutGrid" description="How long the deck is and what goes on the slides" :disabled="disabled" testid="chip-length">
+    <SetupChip :label="t('create.chips.lengthMedia')" :value="lengthMediaSummary(options)" :icon="LayoutGrid" :description="t('create.chips.lengthMediaHint')" :disabled="disabled" testid="chip-length">
       <GenerationOptions v-model="options" :has-photo="props.hasPhoto" :disabled="props.disabled" :sections="['length']" bare />
     </SetupChip>
 
-    <SetupChip label="Style" :value="styleSummary(options.tone, options.verbosity)" :icon="Palette" description="How it sounds and how much text each slide carries" :disabled="disabled" testid="chip-style">
+    <SetupChip :label="t('create.chips.style')" :value="styleSummary(options.tone, options.verbosity)" :icon="Palette" :description="t('create.chips.styleHint')" :disabled="disabled" testid="chip-style">
       <GenerationOptions v-model="options" :has-photo="props.hasPhoto" :disabled="props.disabled" :sections="['style']" bare />
     </SetupChip>
 
-    <SetupChip label="Extras" :value="`Extras: ${extrasSummary(options)}`" :icon="Sparkles" description="Optional additions and instructions for the writer" :disabled="disabled" testid="chip-extras">
+    <SetupChip :label="t('create.chips.extras')" :value="t('create.chips.extrasValue', { summary: extrasSummary(options) })" :icon="Sparkles" :description="t('create.chips.extrasHint')" :disabled="disabled" testid="chip-extras">
       <GenerationOptions v-model="options" :has-photo="props.hasPhoto" :disabled="props.disabled" :sections="['extras', 'instructions']" bare />
     </SetupChip>
   </div>

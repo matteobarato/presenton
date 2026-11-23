@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { Loader2, Search } from 'lucide-vue-next'
 import { ICON_WEIGHTS, replaceIconWeightInUrl, searchIcons } from '@/api/icons'
 import SegmentedControl from '@/components/editor/inspector/controls/SegmentedControl.vue'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { resolveAssetUrl } from '@/render/legacy/lib/template-v2-json-to-html'
 import type { IconWeight } from '@/slide-editor/elementStyle'
+
+const { t } = useI18n()
 
 const props = defineProps<{ open: boolean; currentUrl: string | null; weight: IconWeight }>()
 const emit = defineEmits<{ 'update:open': [value: boolean]; pick: [url: string, weight: IconWeight] }>()
@@ -18,7 +21,7 @@ const selected = ref<string | null>(null)
 const loading = ref(false)
 const error = ref('')
 const searched = ref(false)
-const WEIGHTS = ICON_WEIGHTS.map((w) => ({ value: w, label: w[0]!.toUpperCase() + w.slice(1) }))
+const WEIGHTS = computed(() => ICON_WEIGHTS.map((w) => ({ value: w, label: t(`editorInspector.element.iconPicker.weight.${w}`) })))
 
 let requestId = 0
 let controller: AbortController | null = null
@@ -55,7 +58,7 @@ async function run() {
     searched.value = true
   } catch (e) {
     if (id !== requestId) return
-    error.value = e instanceof Error && e.message ? e.message : 'Failed to search icons.'
+    error.value = e instanceof Error && e.message ? e.message : t('editorInspector.element.iconPicker.searchFailed')
   } finally {
     if (id === requestId) loading.value = false
   }
@@ -106,31 +109,31 @@ const alertClass = 'flex items-center justify-between gap-2 rounded-control bg-d
   <Dialog :open="props.open" @update:open="emit('update:open', $event)">
     <DialogContent class="w-[min(560px,calc(100vw-32px))]" data-inline-edit-ignore="true">
       <DialogHeader>
-        <DialogTitle>Change icon</DialogTitle>
-        <DialogDescription>Search for an icon and choose its weight.</DialogDescription>
+        <DialogTitle>{{ t('editorInspector.element.iconPicker.title') }}</DialogTitle>
+        <DialogDescription>{{ t('editorInspector.element.iconPicker.description') }}</DialogDescription>
       </DialogHeader>
       <div class="mt-4 flex flex-col gap-3">
         <div class="flex gap-2">
-          <input v-model="query" type="search" aria-label="Search icons" placeholder="Search icons" :class="fieldClass" />
+          <input v-model="query" type="search" :aria-label="t('editorInspector.element.iconPicker.searchAria')" :placeholder="t('editorInspector.element.iconPicker.searchAria')" :class="fieldClass" />
           <span class="grid size-9 place-items-center text-tx-9aa9b0" aria-hidden="true">
             <Loader2 v-if="loading" class="size-4 animate-spin" />
             <Search v-else class="size-4" />
           </span>
         </div>
-        <SegmentedControl :model-value="weight" :options="WEIGHTS" label="Icon weight" @update:model-value="setWeight" />
+        <SegmentedControl :model-value="weight" :options="WEIGHTS" :label="t('editorInspector.element.iconPicker.weightAria')" @update:model-value="setWeight" />
         <p v-if="error" role="alert" :class="alertClass">
           <span>{{ error }}</span>
-          <button type="button" class="rounded-control px-2 py-1 hover:bg-ov/[0.08]" @click="run">Retry</button>
+          <button type="button" class="rounded-control px-2 py-1 hover:bg-ov/[0.08]" @click="run">{{ t('editorInspector.element.iconPicker.retry') }}</button>
         </p>
-        <p v-else-if="loading && !results.length" class="text-[12px] text-tx-9aa9b0">Searching...</p>
-        <p v-else-if="searched && !results.length" class="text-[12px] text-tx-9aa9b0">No icons for "{{ query.trim() }}"</p>
+        <p v-else-if="loading && !results.length" class="text-[12px] text-tx-9aa9b0">{{ t('editorInspector.element.iconPicker.searching') }}</p>
+        <p v-else-if="searched && !results.length" class="text-[12px] text-tx-9aa9b0">{{ t('editorInspector.element.iconPicker.noIcons', { query: query.trim() }) }}</p>
         <div v-else-if="results.length" class="grid max-h-[320px] grid-cols-6 gap-2 overflow-y-auto">
           <button
             v-for="(url, i) in results"
             :key="url"
             type="button"
             :class="[thumb, selected === url && '!border-accent !bg-sx-303c42']"
-            :aria-label="`Icon ${i + 1}`"
+            :aria-label="t('editorInspector.element.iconPicker.iconN', { n: i + 1 })"
             :aria-pressed="selected === url"
             @click="selected = url"
           >
@@ -147,7 +150,7 @@ const alertClass = 'flex items-center justify-between gap-2 rounded-control bg-d
             :disabled="!selected"
             @click="replace"
           >
-            Replace
+            {{ t('editorInspector.element.iconPicker.replace') }}
           </button>
         </div>
       </div>

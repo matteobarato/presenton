@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   localFontOptionsFromUnknown,
   renderLocalFontFaceCss,
@@ -29,6 +30,7 @@ const props = withDefaults(
   { theme: undefined, fonts: undefined, annotate: false, showPlaceholders: false, videoSrc: null },
 )
 const emit = defineEmits<{ rendered: []; error: [message: string] }>()
+const { t, locale } = useI18n()
 
 const host = ref<HTMLElement | null>(null)
 let shadow: ShadowRoot | null = null
@@ -57,7 +59,7 @@ function mountVideo(root: ShadowRoot) {
         node.style.opacity = '0.6'
         node.style.outline = '2px dashed rgba(52, 110, 140, 0.5)'
         node.style.outlineOffset = '-2px'
-        node.setAttribute('title', 'Avatar')
+        node.setAttribute('title', t('render.template.avatar'))
       })
     }
     return
@@ -148,7 +150,7 @@ function shadowRoot(): ShadowRoot | null {
 defineExpose({ layerFor, shadowRoot })
 
 onMounted(render)
-watch(() => [props.ui, props.theme, props.fonts, props.annotate, props.showPlaceholders, props.videoSrc], render)
+watch(() => [props.ui, props.theme, props.fonts, props.annotate, props.showPlaceholders, props.videoSrc, locale.value], render)
 onBeforeUnmount(() => {
   generation++
   disposeCharts?.()

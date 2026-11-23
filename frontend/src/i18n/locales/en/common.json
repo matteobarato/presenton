@@ -1,0 +1,18 @@
+{
+  "language": {
+    "title": "Language",
+    "hint": "Interface language. Saved on this device. Deck content language is chosen separately when creating a deck.",
+    "en": "English",
+    "it": "Italiano"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "loading": "Loading…"
+  }
+}

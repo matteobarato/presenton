@@ -4,6 +4,9 @@ import { Table2 } from 'lucide-vue-next'
 import { tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
 import ChartDataDialog from '@/components/editor/inspector/element/ChartDataDialog.vue'
 import { useChartControls } from '@/components/editor/inspector/element/useChartControls'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Bar control: Edit data. Owns the data dialog, so it stays mounted while the bar is shown.
 const { root, chart } = useChartControls()
@@ -15,8 +18,8 @@ const open = ref(false)
     v-if="chart"
     type="button"
     :class="tool"
-    aria-label="Edit data"
-    title="Edit data"
+    :aria-label="t('editorCanvas.controls.chart.editData')"
+    :title="t('editorCanvas.controls.chart.editData')"
     data-bar-item="chart-edit-data"
     @mousedown.prevent
     @click="open = true"

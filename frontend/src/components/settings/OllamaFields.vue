@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Ported from servers/nextjs/components/OllamaConfig.tsx
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Download, Loader2, X } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import {
@@ -19,11 +20,10 @@ import type { ProviderConfig } from '@/settings/types'
 
 const props = defineProps<{ config: ProviderConfig }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
+const { t } = useI18n()
 
 const URL_FIELD = 'OLLAMA_URL'
 const MODEL_FIELD = 'OLLAMA_MODEL'
-const CONNECT_FALLBACK = 'Check the Ollama URL and try again.'
-const UNEXPECTED_END = 'Pull ended unexpectedly. Check the model list and try again.'
 
 function text(field: string): string {
   const value = props.config[field]
@@ -108,17 +108,17 @@ async function check(select?: string): Promise<void> {
     }
 
     const more = libraryModels.filter((m) => !names.includes(m.name)).length
-    toast.success('Connected to Ollama', {
+    toast.success(t('settings.ollama.connected.title'), {
       description:
         names.length > 0
-          ? `Found ${names.length} downloaded model${names.length === 1 ? '' : 's'}. ${more} more available in library.`
-          : 'Ollama is reachable. Browse the library to download models.',
+          ? t('settings.ollama.connected.foundModels', { count: names.length, more }, names.length)
+          : t('settings.ollama.connected.reachableEmpty'),
     })
     if (reachable.usedFallback) {
-      toast.success('Using in-container Ollama', {
+      toast.success(t('settings.ollama.inContainer.title'), {
         description: requested
-          ? 'host.docker.internal did not respond, so the Ollama URL was switched to localhost.'
-          : 'host.docker.internal did not respond, so this check used localhost.',
+          ? t('settings.ollama.inContainer.requested')
+          : t('settings.ollama.inContainer.notRequested'),
       })
     }
   } catch (error) {
@@ -127,10 +127,10 @@ async function check(select?: string): Promise<void> {
     library.value = []
     resolvedUrl.value = ''
     checked.value = true
-    const message = messageOf(error, CONNECT_FALLBACK)
+    const message = messageOf(error, t('settings.ollama.connectFallback'))
     checkError.value = message
     emit('set', MODEL_FIELD, '')
-    toast.error('Could not connect to Ollama', { description: `${message} Check the URL and try again.` })
+    toast.error(t('settings.ollama.connectError.title'), { description: t('settings.ollama.connectError.description', { message }) })
   } finally {
     if (id === requestId) loading.value = false
   }
@@ -173,7 +173,7 @@ function percentOf(event: OllamaPullEvent): number | null {
 function markCancelled(): void {
   if (pull.value) {
     pull.value.phase = 'cancelled'
-    pull.value.status = 'Pull cancelled.'
+    pull.value.status = t('settings.ollama.pull.cancelled')
   }
   pullController = null
 }
@@ -183,7 +183,7 @@ async function startPull(name: string): Promise<void> {
   const id = ++pullId
   const controller = new AbortController()
   pullController = controller
-  pull.value = { name, phase: 'running', status: 'Starting pull…', percent: null, completed: null, total: null, error: null }
+  pull.value = { name, phase: 'running', status: t('settings.ollama.pull.starting'), percent: null, completed: null, total: null, error: null }
   const live = () => id === pullId && !controller.signal.aborted
   let terminal = false
 
@@ -192,10 +192,10 @@ async function startPull(name: string): Promise<void> {
     if (!live() || !current) return
     switch (event.type) {
       case 'status':
-        current.status = event.status || 'Processing…'
+        current.status = event.status || t('settings.ollama.pull.processing')
         break
       case 'progress':
-        current.status = event.status || 'Downloading…'
+        current.status = event.status || t('settings.ollama.pull.downloading')
         current.percent = percentOf(event)
         current.completed = event.completed ?? null
         current.total = event.total ?? null
@@ -203,18 +203,18 @@ async function startPull(name: string): Promise<void> {
       case 'complete':
         terminal = true
         current.phase = 'done'
-        current.status = 'Model downloaded.'
+        current.status = t('settings.ollama.pull.downloadedStatus')
         current.percent = 100
         pullController = null
-        toast.success('Model downloaded', { description: `${name} is ready to use.` })
+        toast.success(t('settings.ollama.pull.downloadedToast'), { description: t('settings.ollama.pull.readyDescription', { name }) })
         void check(name)
         break
       case 'error':
         terminal = true
         current.phase = 'error'
-        current.error = event.detail || 'Pull failed'
+        current.error = event.detail || t('settings.ollama.pull.failed')
         pullController = null
-        toast.error('Pull failed', { description: current.error })
+        toast.error(t('settings.ollama.pull.failed'), { description: current.error })
         break
     }
   }
@@ -227,13 +227,13 @@ async function startPull(name: string): Promise<void> {
       markCancelled()
       return
     }
-    const message = messageOf(error, 'Pull failed')
+    const message = messageOf(error, t('settings.ollama.pull.failed'))
     if (pull.value) {
       pull.value.phase = 'error'
       pull.value.error = message
     }
     pullController = null
-    toast.error('Pull failed', { description: message })
+    toast.error(t('settings.ollama.pull.failed'), { description: message })
     return
   }
   if (id !== pullId) return
@@ -243,14 +243,14 @@ async function startPull(name: string): Promise<void> {
   }
   if (!terminal && pull.value) {
     pull.value.phase = 'error'
-    pull.value.error = UNEXPECTED_END
+    pull.value.error = t('settings.ollama.unexpectedEnd')
     pullController = null
   }
 }
 
 function cancelPull(): void {
   if (!pullController || !pull.value) return
-  pull.value.status = 'Cancelling…'
+  pull.value.status = t('settings.ollama.pull.cancelling')
   pullController.abort()
 }
 
@@ -293,16 +293,14 @@ const pullBytes = computed(() =>
     : '',
 )
 const emptyMessage = computed(() =>
-  downloadable.value.length > 0
-    ? 'Ollama is reachable, but no models are installed. Download one below, then check again.'
-    : 'Ollama is reachable, but no models are installed. Pull a model in Ollama, then check again.',
+  downloadable.value.length > 0 ? t('settings.ollama.emptyWithLibrary') : t('settings.ollama.emptyNoLibrary'),
 )
 </script>
 
 <template>
   <div class="grid min-w-0 gap-4">
     <div class="min-w-0">
-      <label for="ollama-url" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Ollama URL</label>
+      <label for="ollama-url" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.ollama.urlLabel') }}</label>
       <Input
         id="ollama-url"
         type="text"
@@ -315,26 +313,26 @@ const emptyMessage = computed(() =>
         @update:model-value="onUrlInput"
       />
       <p id="ollama-url-help" class="mt-1.5 text-[11px] text-tx-95aab7">
-        Required for generation. Use {{ DEFAULT_OLLAMA_URL }}, or click Check models to detect localhost when Ollama runs in the same container.
+        {{ t('settings.ollama.urlHelp', { url: DEFAULT_OLLAMA_URL }) }}
       </p>
     </div>
 
     <div>
       <Button type="button" variant="secondary" :disabled="loading || pulling" @click="check()">
         <Loader2 v-if="loading" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-        {{ loading ? 'Checking for models…' : 'Check models' }}
+        {{ loading ? t('settings.providerFields.checkingModels') : t('settings.providerFields.checkModels') }}
       </Button>
     </div>
 
     <div v-if="checked && installed.length > 0" class="min-w-0">
-      <label for="ollama-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Choose an Ollama model</label>
+      <label for="ollama-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.ollama.chooseModel') }}</label>
       <select
         id="ollama-model"
         :value="selected"
         class="flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-tx-dce6ec transition-colors duration-200 hover:border-ov/15 focus-visible:border-accent focus-visible:outline-none"
         @change="onModelChange"
       >
-        <option value="" disabled>Select a model</option>
+        <option value="" disabled>{{ t('settings.ollama.selectModel') }}</option>
         <option v-for="m in installed" :key="m.name" :value="m.name">{{ modelLabel(m) }}</option>
       </select>
     </div>
@@ -346,7 +344,7 @@ const emptyMessage = computed(() =>
       <summary
         class="mb-2 cursor-pointer text-[12px] font-medium text-tx-dbe7ef focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
-        Available in library ({{ downloadable.length }})
+        {{ t('settings.ollama.library', { count: downloadable.length }) }}
       </summary>
       <ul class="grid max-h-72 gap-1.5 overflow-y-auto pr-1">
         <li
@@ -360,9 +358,9 @@ const emptyMessage = computed(() =>
             </p>
             <p v-if="m.description" class="truncate text-[11px] text-tx-95aab7">{{ m.description }}</p>
           </div>
-          <Button type="button" size="sm" variant="outline" :aria-label="`Pull ${m.name}`" :disabled="pulling" @click="startPull(m.name)">
+          <Button type="button" size="sm" variant="outline" :aria-label="t('settings.ollama.pullLabel', { name: m.name })" :disabled="pulling" @click="startPull(m.name)">
             <Download class="size-3.5" aria-hidden="true" />
-            Pull
+            {{ t('settings.ollama.pullButton') }}
           </Button>
         </li>
       </ul>
@@ -371,15 +369,15 @@ const emptyMessage = computed(() =>
     <div v-if="pull" class="grid min-w-0 gap-2 rounded-button border border-ov/[0.09] p-3">
       <template v-if="pull.phase === 'running'">
         <div class="flex items-center justify-between gap-2 text-[12px] text-tx-dce6ec">
-          <span class="truncate" aria-live="polite">Downloading {{ pull.name }}: {{ pull.status }}</span>
+          <span class="truncate" aria-live="polite">{{ t('settings.ollama.downloadingStatus', { name: pull.name, status: pull.status }) }}</span>
           <span v-if="pull.percent !== null" class="shrink-0 font-medium">{{ pull.percent.toFixed(1) }}%</span>
         </div>
-        <Progress :model-value="pullPercent" :max="100" :aria-label="`Downloading ${pull.name}`" />
+        <Progress :model-value="pullPercent" :max="100" :aria-label="t('settings.ollama.downloadingLabel', { name: pull.name })" />
         <p v-if="pullBytes" class="text-[11px] text-tx-95aab7">{{ pullBytes }}</p>
         <div>
           <Button type="button" size="sm" variant="outline" @click="cancelPull">
             <X class="size-3.5" aria-hidden="true" />
-            Cancel
+            {{ t('settings.ollama.cancel') }}
           </Button>
         </div>
       </template>
@@ -387,8 +385,8 @@ const emptyMessage = computed(() =>
         {{ pull.name }}: {{ pull.error }}
       </p>
       <p v-else role="status" class="text-[12px] text-tx-dce6ec">
-        <template v-if="pull.phase === 'done'">{{ pull.name }} has been downloaded and selected as your active model.</template>
-        <template v-else>Download of {{ pull.name }} was cancelled.</template>
+        <template v-if="pull.phase === 'done'">{{ t('settings.ollama.downloadedDone', { name: pull.name }) }}</template>
+        <template v-else>{{ t('settings.ollama.downloadCancelled', { name: pull.name }) }}</template>
       </p>
     </div>
   </div>

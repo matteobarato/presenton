@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { Loader2, Search, Sparkles, Upload, X } from 'lucide-vue-next'
 import { generateImage, imageKeys, listGeneratedImages, listUploadedImages, searchStockImages, uploadImage, type ImageAsset } from '@/api/images'
@@ -13,6 +14,7 @@ const emit = defineEmits<{ 'update:open': [value: boolean]; pick: [src: string] 
 type TabName = 'upload' | 'uploaded' | 'generate' | 'stock'
 const tab = ref<TabName>('upload')
 const queryClient = useQueryClient()
+const { t } = useI18n()
 
 function message(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback
@@ -29,7 +31,7 @@ const uploadError = ref('')
 async function upload(file: File | undefined) {
   if (!file || uploading.value) return
   if (file.type && !file.type.startsWith('image/')) {
-    uploadError.value = 'Choose an image file.'
+    uploadError.value = t('editorCanvas.imagePicker.errors.chooseImage')
     return
   }
   uploading.value = true
@@ -39,7 +41,7 @@ async function upload(file: File | undefined) {
     void queryClient.invalidateQueries({ queryKey: imageKeys.uploaded })
     choose(asset.path)
   } catch (e) {
-    uploadError.value = message(e, 'Failed to upload image.')
+    uploadError.value = message(e, t('editorCanvas.imagePicker.errors.uploadFailed'))
   } finally {
     uploading.value = false
   }
@@ -87,7 +89,7 @@ async function generate() {
     generatedSrc.value = src
     void queryClient.invalidateQueries({ queryKey: imageKeys.generated })
   } catch (e) {
-    if (!controller.signal.aborted) generateError.value = message(e, 'Failed to generate image.')
+    if (!controller.signal.aborted) generateError.value = message(e, t('editorCanvas.imagePicker.errors.generateFailed'))
   } finally {
     if (generateController === controller) generateController = null
     generating.value = false
@@ -118,7 +120,7 @@ async function search() {
     stockResults.value = results
     stockSearched.value = true
   } catch (e) {
-    if (!controller.signal.aborted) stockError.value = message(e, 'Failed to search stock images.')
+    if (!controller.signal.aborted) stockError.value = message(e, t('editorCanvas.imagePicker.errors.stockFailed'))
   } finally {
     if (stockController === controller) {
       stockController = null
@@ -139,7 +141,7 @@ watch(
 )
 onBeforeUnmount(stopRequests)
 
-const errorText = (error: unknown) => message(error, 'Failed to load images.')
+const errorText = (error: unknown) => message(error, t('editorCanvas.imagePicker.errors.loadFailed'))
 const assets = (list: ImageAsset[] | undefined) => list ?? []
 
 const tabClass = 'mt-4 flex flex-col gap-3 outline-none'
@@ -157,15 +159,15 @@ const alertClass = 'rounded-control bg-danger px-3 py-2 text-[12px] text-danger-
   <Dialog :open="props.open" @update:open="emit('update:open', $event)">
     <DialogContent class="w-[min(640px,calc(100vw-32px))]" data-inline-edit-ignore="true">
       <DialogHeader>
-        <DialogTitle>Replace image</DialogTitle>
-        <DialogDescription>Upload a picture, pick one you already have, generate one, or search stock photos.</DialogDescription>
+        <DialogTitle>{{ t('editorCanvas.imagePicker.title') }}</DialogTitle>
+        <DialogDescription>{{ t('editorCanvas.imagePicker.description') }}</DialogDescription>
       </DialogHeader>
       <Tabs v-model="tab" class="mt-4">
         <TabsList class="flex w-full gap-1">
-          <TabsTrigger value="upload">Upload</TabsTrigger>
-          <TabsTrigger value="uploaded">Uploaded</TabsTrigger>
-          <TabsTrigger value="generate">Generate</TabsTrigger>
-          <TabsTrigger value="stock">Stock</TabsTrigger>
+          <TabsTrigger value="upload">{{ t('editorCanvas.imagePicker.tabs.upload') }}</TabsTrigger>
+          <TabsTrigger value="uploaded">{{ t('editorCanvas.imagePicker.tabs.uploaded') }}</TabsTrigger>
+          <TabsTrigger value="generate">{{ t('editorCanvas.imagePicker.tabs.generate') }}</TabsTrigger>
+          <TabsTrigger value="stock">{{ t('editorCanvas.imagePicker.tabs.stock') }}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="upload" :class="tabClass">
@@ -179,7 +181,7 @@ const alertClass = 'rounded-control bg-danger px-3 py-2 text-[12px] text-danger-
           >
             <Loader2 v-if="uploading" class="size-5 animate-spin" aria-hidden="true" />
             <Upload v-else class="size-5" aria-hidden="true" />
-            <span>{{ uploading ? 'Uploading...' : 'Choose an image or drop it here' }}</span>
+            <span>{{ uploading ? t('editorCanvas.imagePicker.upload.uploading') : t('editorCanvas.imagePicker.upload.dropzone') }}</span>
             <input type="file" class="sr-only" accept="image/*" :disabled="uploading" @change="onFile" />
           </label>
           <p v-if="uploadError" role="alert" :class="alertClass">{{ uploadError }}</p>
@@ -187,10 +189,10 @@ const alertClass = 'rounded-control bg-danger px-3 py-2 text-[12px] text-danger-
 
         <TabsContent value="uploaded" :class="tabClass">
           <p v-if="uploaded.isError.value" role="alert" :class="alertClass">{{ errorText(uploaded.error.value) }}</p>
-          <p v-else-if="uploaded.isPending.value" class="text-[12px] text-muted">Loading...</p>
-          <p v-else-if="assets(uploaded.data.value).length === 0" class="text-[12px] text-muted">No uploaded images yet.</p>
+          <p v-else-if="uploaded.isPending.value" class="text-[12px] text-muted">{{ t('editorCanvas.imagePicker.uploaded.loading') }}</p>
+          <p v-else-if="assets(uploaded.data.value).length === 0" class="text-[12px] text-muted">{{ t('editorCanvas.imagePicker.uploaded.empty') }}</p>
           <div v-else :class="gridClass">
-            <button v-for="(asset, i) in assets(uploaded.data.value)" :key="asset.id" type="button" :class="thumb" :aria-label="`Use image ${i + 1}`" @click="choose(asset.path)">
+            <button v-for="(asset, i) in assets(uploaded.data.value)" :key="asset.id" type="button" :class="thumb" :aria-label="t('editorCanvas.imagePicker.useImage', { n: i + 1 })" @click="choose(asset.path)">
               <img :src="resolveAssetUrl(asset.path)" alt="" class="size-full object-cover" />
             </button>
           </div>
@@ -198,26 +200,26 @@ const alertClass = 'rounded-control bg-danger px-3 py-2 text-[12px] text-danger-
 
         <TabsContent value="generate" :class="tabClass">
           <form class="flex gap-2" @submit.prevent="generate">
-            <input v-model="prompt" type="text" aria-label="Image prompt" placeholder="Describe the image" :class="fieldClass" :disabled="generating" />
-            <button type="submit" :class="primary" aria-label="Generate image" :disabled="generating || !prompt.trim()">
+            <input v-model="prompt" type="text" :aria-label="t('editorCanvas.imagePicker.generate.promptLabel')" :placeholder="t('editorCanvas.imagePicker.generate.placeholder')" :class="fieldClass" :disabled="generating" />
+            <button type="submit" :class="primary" :aria-label="t('editorCanvas.imagePicker.generate.submitLabel')" :disabled="generating || !prompt.trim()">
               <Sparkles class="size-3.5" aria-hidden="true" />
-              Generate
+              {{ t('editorCanvas.imagePicker.tabs.generate') }}
             </button>
           </form>
           <div v-if="generating" class="flex items-center gap-3 text-[12px] text-muted">
-            <span role="status" aria-label="Generating image" class="inline-flex"><Loader2 class="size-4 animate-spin" aria-hidden="true" /></span>
-            <span>Generating...</span>
-            <button type="button" class="ml-auto inline-flex items-center gap-1 rounded-control px-2 py-1 hover:bg-ov/[0.04] hover:text-text" aria-label="Cancel generation" @click="cancelGenerate">
+            <span role="status" :aria-label="t('editorCanvas.imagePicker.generate.generatingLabel')" class="inline-flex"><Loader2 class="size-4 animate-spin" aria-hidden="true" /></span>
+            <span>{{ t('editorCanvas.imagePicker.generate.generating') }}</span>
+            <button type="button" class="ml-auto inline-flex items-center gap-1 rounded-control px-2 py-1 hover:bg-ov/[0.04] hover:text-text" :aria-label="t('editorCanvas.imagePicker.generate.cancelLabel')" @click="cancelGenerate">
               <X class="size-3.5" aria-hidden="true" />
-              Cancel
+              {{ t('editorCanvas.imagePicker.generate.cancel') }}
             </button>
           </div>
           <p v-if="generateError" role="alert" :class="alertClass">{{ generateError }}</p>
-          <button v-if="generatedSrc" type="button" :class="[thumb, 'max-w-[240px]']" aria-label="Use generated image" @click="choose(generatedSrc)">
+          <button v-if="generatedSrc" type="button" :class="[thumb, 'max-w-[240px]']" :aria-label="t('editorCanvas.imagePicker.generate.useGenerated')" @click="choose(generatedSrc)">
             <img :src="resolveAssetUrl(generatedSrc)" alt="" class="size-full object-cover" />
           </button>
           <div v-if="assets(generatedList.data.value).length" :class="gridClass">
-            <button v-for="(asset, i) in assets(generatedList.data.value)" :key="asset.id" type="button" :class="thumb" :aria-label="`Use earlier image ${i + 1}`" @click="choose(asset.path)">
+            <button v-for="(asset, i) in assets(generatedList.data.value)" :key="asset.id" type="button" :class="thumb" :aria-label="t('editorCanvas.imagePicker.generate.useEarlier', { n: i + 1 })" @click="choose(asset.path)">
               <img :src="resolveAssetUrl(asset.path)" alt="" class="size-full object-cover" />
             </button>
           </div>
@@ -225,17 +227,17 @@ const alertClass = 'rounded-control bg-danger px-3 py-2 text-[12px] text-danger-
 
         <TabsContent value="stock" :class="tabClass">
           <form class="flex gap-2" @submit.prevent="search">
-            <input v-model="stockQuery" type="search" aria-label="Search stock images" placeholder="Search stock photos" :class="fieldClass" />
-            <button type="submit" :class="primary" aria-label="Search" :disabled="searching || !stockQuery.trim()">
+            <input v-model="stockQuery" type="search" :aria-label="t('editorCanvas.imagePicker.stock.searchLabel')" :placeholder="t('editorCanvas.imagePicker.stock.placeholder')" :class="fieldClass" />
+            <button type="submit" :class="primary" :aria-label="t('editorCanvas.imagePicker.stock.search')" :disabled="searching || !stockQuery.trim()">
               <Loader2 v-if="searching" class="size-3.5 animate-spin" aria-hidden="true" />
               <Search v-else class="size-3.5" aria-hidden="true" />
-              Search
+              {{ t('editorCanvas.imagePicker.stock.search') }}
             </button>
           </form>
           <p v-if="stockError" role="alert" :class="alertClass">{{ stockError }}</p>
-          <p v-else-if="stockSearched && stockResults.length === 0" class="text-[12px] text-muted">No results.</p>
+          <p v-else-if="stockSearched && stockResults.length === 0" class="text-[12px] text-muted">{{ t('editorCanvas.imagePicker.stock.empty') }}</p>
           <div v-if="stockResults.length" :class="gridClass">
-            <button v-for="(url, i) in stockResults" :key="url" type="button" :class="thumb" :aria-label="`Use image ${i + 1}`" @click="choose(url)">
+            <button v-for="(url, i) in stockResults" :key="url" type="button" :class="thumb" :aria-label="t('editorCanvas.imagePicker.useImage', { n: i + 1 })" @click="choose(url)">
               <img :src="resolveAssetUrl(url)" alt="" class="size-full object-cover" />
             </button>
           </div>

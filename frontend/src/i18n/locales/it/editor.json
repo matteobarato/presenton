@@ -1,0 +1,319 @@
+{
+  "header": {
+    "breadcrumb": "Percorso",
+    "library": "Libreria",
+    "presentationTitle": "Titolo della presentazione",
+    "presentationActions": "Azioni della presentazione",
+    "rename": "Rinomina",
+    "duplicatePresentation": "Duplica presentazione",
+    "setup": "Configurazione",
+    "continueSetup": "Continua: {step}",
+    "openSetupWizard": "Apri la configurazione guidata",
+    "continueSetupTitle": "Continua la configurazione: {step}",
+    "couldNotDuplicate": "Impossibile duplicare la presentazione",
+    "couldNotDelete": "Impossibile eliminare la presentazione",
+    "deletePresentation": "Elimina presentazione",
+    "saving": "Salvataggio in corso…",
+    "saved": "Tutte le modifiche sono salvate",
+    "export": "Esporta",
+    "present": "Presenta",
+    "presentOptions": "Opzioni di presentazione ed esportazione",
+    "presentFromCurrent": "Presenta dalla diapositiva corrente",
+    "presentFromBeginning": "Presenta dall'inizio",
+    "narration": "Narrazione",
+    "motion": "Movimento",
+    "avatars": "Avatar",
+    "exportFormats": "Esporta PPTX, PDF o video…",
+    "untitled": "Presentazione senza titolo"
+  },
+  "toolbar": {
+    "slideTools": "Strumenti diapositiva",
+    "showSlides": "Mostra diapositive",
+    "hideSlides": "Nascondi diapositive",
+    "showInspector": "Mostra ispettore",
+    "hideInspector": "Nascondi ispettore",
+    "previousSlide": "Diapositiva precedente",
+    "previousSlideShortcut": "Diapositiva precedente (↑)",
+    "nextSlide": "Diapositiva successiva",
+    "nextSlideShortcut": "Diapositiva successiva (↓)",
+    "undo": "Annulla",
+    "undoNamed": "Annulla {label}",
+    "undoTitle": "Annulla (Ctrl+Z)",
+    "redo": "Ripeti",
+    "redoNamed": "Ripeti {label}",
+    "redoTitle": "Ripeti (Shift+Ctrl+Z)",
+    "insert": "Inserisci",
+    "insertTitle": "Inserisci (blocchi, testo, immagini, forme)",
+    "insertSmartUnavailable": "L'inserimento è disponibile per le diapositive basate su modello",
+    "insertSelectSlide": "Seleziona una diapositiva in cui inserire",
+    "insertBusy": "L'inserimento non è disponibile mentre la presentazione è occupata",
+    "askAi": "Chiedi all'IA",
+    "askTitle": "Chiedi all'IA di modificare questa diapositiva (Ctrl+K)",
+    "askSmartUnavailable": "La modifica con IA è disponibile per le diapositive basate su modello"
+  },
+  "generation": {
+    "generating": "Generazione della presentazione",
+    "stopped": "Generazione interrotta",
+    "complete": "Generazione completata",
+    "slideCount": "{count} diapositiva | {count} diapositive",
+    "outputTokens": "{count} token in uscita",
+    "thinking": "{count} di ragionamento",
+    "tokensPerSecond": "{rate} tok/s",
+    "seconds": "{seconds}s"
+  },
+  "layouts": {
+    "chooseLayout": "Scegli il layout della diapositiva",
+    "loading": "Caricamento dei layout",
+    "optionCount": "{count} opzione | {count} opzioni",
+    "loadFailed": "Impossibile caricare i layout di questo modello. Puoi comunque aggiungere una diapositiva vuota.",
+    "addBlankAria": "Aggiungi layout diapositiva vuota",
+    "blank": "Vuota",
+    "addLayoutAria": "Aggiungi layout {name}"
+  },
+  "notes": {
+    "speakerNotes": "Note del relatore",
+    "placeholder": "Dai alla tua storia un po' di direzione. Aggiungi le note del relatore…",
+    "writing": "Scrittura delle note…",
+    "writeWithAi": "Scrivi le note con l'IA",
+    "couldNotGenerate": "Impossibile generare le note.",
+    "couldNotSave": "Impossibile salvare le note."
+  },
+  "navigator": {
+    "slides": "Diapositive",
+    "slideNumber": "Diapositiva {n}",
+    "duplicateSlideNumber": "Duplica diapositiva {n}",
+    "deleteSlideNumber": "Elimina diapositiva {n}",
+    "duplicateSlide": "Duplica diapositiva",
+    "deleteSlide": "Elimina diapositiva",
+    "addSlide": "Aggiungi diapositiva",
+    "tagline": "Un po' di struttura. Possibilità infinite.",
+    "narrationReady": "Narrazione pronta",
+    "narrationOutOfDate": "Narrazione non aggiornata",
+    "avatarVideo": "Video avatar"
+  },
+  "footer": {
+    "tabs": {
+      "notes": "Note",
+      "voice": "Voce",
+      "motion": "Movimento"
+    },
+    "collapse": "Comprimi",
+    "expand": "Espandi",
+    "resize": "Ridimensiona note, voce e movimento",
+    "tabsLabel": "Note, voce e movimento",
+    "onlyYou": "Solo tu puoi vederle"
+  },
+  "inspector": {
+    "sections": "Sezioni dell'ispettore"
+  },
+  "canvas": {
+    "slideCanvas": "Area della diapositiva",
+    "avatarLanguage": "Avatar {avatar} · nascosto in {language}",
+    "avatarLanguageTitle": "Questo avatar è stato registrato per un'altra lingua di narrazione; Presenta e l'esportazione video lo nascondono.",
+    "noSlides": "Ancora nessuna diapositiva."
+  },
+  "layout": {
+    "slides": "Diapositive",
+    "slideNavigator": "Navigatore diapositive",
+    "inspector": "Ispettore",
+    "inspectorDescription": "Livelli, inserimento e strumenti di design",
+    "askAi": "Chiedi all'IA"
+  },
+  "statusBar": {
+    "slideOfTotal": "Diapositiva {position} di {total}",
+    "slideName": "Nome della diapositiva",
+    "zoom": "Zoom",
+    "zoomOut": "Riduci zoom",
+    "zoomIn": "Aumenta zoom",
+    "fitToCanvas": "Adatta all'area",
+    "presentFromSlide": "Presenta da questa diapositiva"
+  },
+  "exportDialog": {
+    "title": "Porta con te la tua presentazione.",
+    "description": "Scarica una presentazione modificabile o un PDF, oppure genera un video narrato."
+  },
+  "export": {
+    "format": "Formato di esportazione",
+    "formats": {
+      "pptx": {
+        "name": "PowerPoint",
+        "detail": "Presentazione .pptx modificabile"
+      },
+      "pdf": {
+        "name": "PDF",
+        "detail": "Pronto da stampare o condividere"
+      },
+      "mp4": {
+        "name": "Video",
+        "detail": "MP4 narrato"
+      }
+    },
+    "file": {
+      "blurb": {
+        "pptx": "Ogni diapositiva come file PowerPoint modificabile, con il tuo tema e i tuoi font.",
+        "pdf": "Un documento a layout fisso, una diapositiva per pagina."
+      },
+      "exportFailed": "Esportazione non riuscita",
+      "exporting": "Esportazione di {format}...",
+      "export": "Esporta {format}",
+      "ready": "Il tuo {format} è pronto.",
+      "download": "Scarica {format}"
+    },
+    "video": {
+      "couldNotStart": "Impossibile avviare l'esportazione del video",
+      "couldNotDelete": "Impossibile eliminare il video",
+      "animations": "Animazioni: {animated} diapositive su {total}",
+      "editInMotion": "Modifica nella scheda Movimento",
+      "renderAgain": "Genera di nuovo",
+      "renderMp4": "Genera MP4",
+      "queued": "In coda...",
+      "dismiss": "Chiudi",
+      "downloadMp4": "Scarica MP4",
+      "deleteTitle": "Eliminare questo video?",
+      "deleteDescription": "Il file MP4 generato verrà rimosso. Potrai generarlo di nuovo più tardi."
+    },
+    "options": {
+      "language": "Lingua",
+      "resolution": "Risoluzione",
+      "subtitles": "Sottotitoli",
+      "subtitleOptions": {
+        "soft": "Opzionali (attivabili nel player)",
+        "burned": "Incorporati nel video",
+        "none": "Nessuno"
+      },
+      "chooseLanguage": "Scegli una lingua",
+      "avatars": "Avatar",
+      "animate": "Anima",
+      "advanced": "Avanzate",
+      "voice": "Voce",
+      "providerDefault": "Predefinito del provider",
+      "fps": "Fotogrammi al secondo",
+      "minSeconds": "Secondi minimi per diapositiva",
+      "padding": "Secondi di margine",
+      "crossfade": "Secondi di dissolvenza incrociata",
+      "generateAudio": "Genera l'audio mancante",
+      "speakerIndicator": "Indicatore del relatore",
+      "regenerate": "Rigenera"
+    }
+  },
+  "chat": {
+    "title": "Chiedi all'IA",
+    "busyDefault": "Ci sto lavorando",
+    "stopped": "Interrotto",
+    "suggestions": {
+      "concise": "Dì di più con meno",
+      "headline": "Rendi il titolo più incisivo",
+      "ending": "Dagli un grande finale"
+    },
+    "couldNotDelete": "Impossibile eliminare la conversazione",
+    "closeAria": "Chiudi Chiedi all'IA",
+    "closeTitle": "Chiudi (Ctrl+K)",
+    "emptyHeadlineStart": "La tua idea.",
+    "emptyHeadlineEnd": "Un po' più straordinaria.",
+    "emptyBody": "Chiedi a Slideshows di modificare la presentazione, riscrivere una diapositiva o rispondere a domande su di essa.",
+    "placeholder": "Cosa hai in mente?",
+    "messageAria": "Messaggio",
+    "slideNumber": "Diapositiva {n}",
+    "wholeDeck": "Intera presentazione",
+    "stop": "Interrompi",
+    "send": "Invia",
+    "conversations": {
+      "menu": "Conversazioni",
+      "new": "Nuova conversazione",
+      "none": "Nessuna conversazione precedente",
+      "empty": "Conversazione vuota",
+      "deleteAria": "Elimina conversazione",
+      "deleteTitle": "Eliminare questa conversazione?",
+      "deleteDescription": "I messaggi vengono rimossi definitivamente. Le diapositive non vengono modificate."
+    },
+    "activity": {
+      "searchFound": "Ho trovato il contenuto rilevante.",
+      "searchLooking": "Sto esaminando il contenuto.",
+      "slideChecked": "Ho controllato la diapositiva.",
+      "slideChecking": "Sto controllando la diapositiva.",
+      "itemRemoved": "Ho rimosso l'elemento selezionato.",
+      "itemRemoving": "Sto rimuovendo l'elemento selezionato.",
+      "assetsPrepared": "Ho preparato le risorse visive.",
+      "assetsPreparing": "Sto preparando le risorse visive.",
+      "themeUpdated": "Ho aggiornato il tema.",
+      "themeUpdating": "Sto aggiornando il tema.",
+      "changeApplied": "Ho applicato la modifica.",
+      "changeApplying": "Sto applicando la modifica.",
+      "stepFinished": "Ho completato questo passaggio.",
+      "working": "Ci sto lavorando.",
+      "stepFailed": "Non sono riuscito a completare questo passaggio.",
+      "somethingWrong": "Qualcosa è andato storto"
+    }
+  },
+  "mutations": {
+    "deckBusy": "La presentazione è occupata.",
+    "couldNot": "Impossibile: {action}",
+    "slideDeleted": "Diapositiva eliminata",
+    "deleteNotice": "Annullando si ripristina il contenuto della diapositiva, ma non l'audio della narrazione né il video dell'avatar.",
+    "slideLimit": "Limite di diapositive raggiunto",
+    "slideLimitDescription": "Puoi avere fino a {max} diapositive.",
+    "labels": {
+      "reorderSlides": "Riordina diapositive",
+      "deleteSlide": "Elimina diapositiva",
+      "duplicateSlide": "Duplica diapositiva",
+      "addSlide": "Aggiungi diapositiva",
+      "renamePresentation": "Rinomina presentazione",
+      "renameSlide": "Rinomina diapositiva"
+    }
+  },
+  "pipeline": {
+    "failure": "{what}{detail}. Riprova.",
+    "failedWhat": {
+      "notes": "Impossibile scrivere le note del relatore",
+      "voice": "Impossibile registrare la narrazione",
+      "avatars": "Impossibile generare i video del relatore"
+    },
+    "chooseLanguage": "Scegli prima una lingua di narrazione, in Relatore e lingua.",
+    "checkingPresenter": "Controllo della configurazione del relatore…",
+    "addPortrait": "Aggiungi prima una foto del relatore, in Relatore e lingua.",
+    "needsNarration": "I video del relatore richiedono prima una narrazione aggiornata. Narra di nuovo le diapositive, poi riprova.",
+    "presenterVideosFailed": "{count} video del relatore non è stato generato. Riprova per generarlo di nuovo. | {count} video del relatore non sono stati generati. Riprova per generarli di nuovo.",
+    "interrupted": "Interrotto, riprova per continuare"
+  },
+  "animation": {
+    "failed": "Pianificazione del movimento non riuscita",
+    "couldNotStartPlanning": "Impossibile avviare la pianificazione del movimento",
+    "couldNotStartDeck": "Impossibile avviare la pianificazione della presentazione."
+  },
+  "undo": {
+    "couldNotUndo": "Impossibile annullare",
+    "couldNotRedo": "Impossibile ripetere"
+  },
+  "motion": {
+    "lockedByDeckRun": "Non disponibile mentre il movimento viene pianificato per ogni diapositiva",
+    "custom": "Personalizzato",
+    "animationTimeline": "Timeline dell'animazione",
+    "timeline": "Timeline",
+    "pauseAnimation": "Metti in pausa l'animazione",
+    "playAnimation": "Riproduci l'animazione",
+    "pause": "Pausa",
+    "play": "Riproduci",
+    "stopRestore": "Ferma e ripristina la diapositiva",
+    "timeOfWindow": "/ {seconds} s",
+    "loop": "Ciclo",
+    "element": "ELEMENTO",
+    "tick": "{seconds}s",
+    "cannotAnimate": "Questa diapositiva non può essere animata.",
+    "nothingToAnimate": "Niente da animare in questa diapositiva.",
+    "layoutChanged": "Layout modificato — ripianifica.",
+    "elementsChanged": "Gli elementi di questa diapositiva sono cambiati da quando è stato creato il suo movimento.",
+    "replan": "Ripianifica",
+    "clipAria": "Animazione {name}. {hint}",
+    "dragHint": "Trascina o usa i tasti freccia per cambiare il tempo di inizio.",
+    "clipTitle": "{name} · {delay}s",
+    "addMotionTo": "Aggiungi movimento a {name}",
+    "add": "Aggiungi",
+    "scrubPreview": "Scorri l'anteprima",
+    "playhead": "Cursore dell'animazione in secondi",
+    "lockedNote": "{reason}.",
+    "help": "Trascina le clip per ordinarle. I tasti freccia regolano di 0,1 s. La modifica della diapositiva è sospesa durante l'anteprima.",
+    "replaceTitle": "Sostituire le tue modifiche?",
+    "replaceDescription": "Hai modificato a mano il movimento di questa diapositiva. Rigenerarlo lo sostituisce con un nuovo piano dell'IA.",
+    "replace": "Sostituisci"
+  }
+}

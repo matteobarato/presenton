@@ -7,5 +7,5 @@ const unavailable = (c: BarContext) => c.locked || !!c.ctx.inlineEdit.value
 
 /** Group for a multi-selection; Arrange & order, Duplicate and Delete come from the common tail (no Appearance for multi). */
 export const multiBar: BarItem[] = [
-  { type: 'button', id: 'group', label: 'Group', title: 'Group (Ctrl+G)', icon: Group, disabled: unavailable, run: (c) => groupSelected(c.ctx) },
+  { type: 'button', id: 'group', label: 'editorCanvas.bar.labels.group', title: 'editorCanvas.bar.titles.group', icon: Group, disabled: unavailable, run: (c) => groupSelected(c.ctx) },
 ]

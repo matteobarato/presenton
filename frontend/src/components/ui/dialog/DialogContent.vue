@@ -3,11 +3,13 @@ import type { HTMLAttributes } from 'vue'
 import { reactiveOmit } from '@vueuse/core'
 import { X } from 'lucide-vue-next'
 import { type DialogContentEmits, type DialogContentProps, DialogClose, DialogContent, DialogPortal, useForwardPropsEmits } from 'reka-ui'
+import { useI18n } from 'vue-i18n'
 import { cn } from '@/lib/utils'
 import DialogOverlay from './DialogOverlay.vue'
 
 defineOptions({ inheritAttrs: false })
 const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>()
+const { t } = useI18n()
 const emits = defineEmits<DialogContentEmits>()
 const delegated = reactiveOmit(props, 'class')
 const forwarded = useForwardPropsEmits(delegated, emits)
@@ -29,7 +31,7 @@ const forwarded = useForwardPropsEmits(delegated, emits)
       <slot />
       <DialogClose
         class="absolute top-[13px] right-[13px] grid size-[26px] place-items-center rounded-full text-tx-a4bbc9 hover:bg-sx-3b4b55"
-        aria-label="Close dialog"
+        :aria-label="t('ui.dialog.close')"
       >
         <X :size="18" />
       </DialogClose>

@@ -1,3 +1,4 @@
+import { i18n } from '@/i18n'
 import { computed, type ComputedRef, type Ref } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import type { Presentation } from '@/api/types'
@@ -85,7 +86,7 @@ export function useDeckWizard(
       blockTemplateId(presentation.value.slides) ?? opts.templateId?.value ?? readDeckLook(id.value)?.template ?? null
     return (tid && templates.data.value?.find((t) => t.id === tid)) || null
   })
-  const templateName = computed(() => template.value?.name || 'Template')
+  const templateName = computed(() => template.value?.name || i18n.global.t('create.wizard.template'))
 
   const items = computed<WizardStepItem[]>(() => {
     const p = presentation.value
@@ -94,9 +95,9 @@ export function useDeckWizard(
     const summaries: Record<string, string> = {
       topic: [clip(p.content ?? '', 40), templateName.value].filter(Boolean).join(' · '),
       presenter: presenterSummary(Boolean(avatars.videos.value?.portrait)),
-      outline: n ? `${n} slides` : '',
+      outline: n ? i18n.global.t('create.wizard.outlineSummary', { count: n }) : '',
       preview: '',
-      avatar: n ? `${counts.ready + counts.translated} of ${n} narrated` : '',
+      avatar: n ? i18n.global.t('create.wizard.narratedSummary', { done: counts.ready + counts.translated, count: n }) : '',
       export: '',
     }
     return WIZARD_STEPS.map(({ key, label }) => {

@@ -1,0 +1,186 @@
+{
+  "motion": {
+    "ease": {
+      "smooth": "Fluida",
+      "soft": "Morbida",
+      "strong": "Intensa",
+      "sharp": "Netta",
+      "expo": "Expo",
+      "sine": "Sine",
+      "circ": "Circ",
+      "overshoot": "Overshoot"
+    },
+    "effect": {
+      "none": {
+        "name": "Nessuno",
+        "detail": "Resta fermo"
+      },
+      "fade": {
+        "name": "Dissolvenza",
+        "detail": "Appare gradualmente"
+      },
+      "rise": {
+        "name": "Sale",
+        "detail": "Sale mentre appare"
+      },
+      "slide": {
+        "name": "Scorri",
+        "detail": "Entra da sinistra"
+      },
+      "zoom": {
+        "name": "Zoom",
+        "detail": "Si ingrandisce al suo posto"
+      },
+      "turn": {
+        "name": "Ruota",
+        "detail": "Si raddrizza"
+      },
+      "blur": {
+        "name": "Sfocatura",
+        "detail": "Va a fuoco"
+      }
+    },
+    "names": {
+      "element": "Elemento"
+    }
+  },
+  "marker": {
+    "none": "Nessuna",
+    "arrow": "Freccia",
+    "stealth": "Freccia stealth",
+    "triangle": "Freccia piena",
+    "circle": "Cerchio",
+    "square": "Quadrato",
+    "diamond": "Rombo"
+  },
+  "chart": {
+    "type": {
+      "bar": "Grafico a barre",
+      "horizontalBar": "Barre orizzontali",
+      "stackedBar": "Barre in pila",
+      "horizontalStackedBar": "Barre orizz. in pila",
+      "line": "Grafico a linee",
+      "area": "Grafico ad area",
+      "pie": "Grafico a torta",
+      "donut": "Grafico ad anello",
+      "scatter": "Grafico a dispersione",
+      "radar": "Grafico radar",
+      "polarArea": "Area polare",
+      "bubble": "Grafico a bolle"
+    }
+  },
+  "insert": {
+    "item": {
+      "titleBlock": "Titolo",
+      "subtitle": "Sottotitolo",
+      "bodyText": "Corpo del testo",
+      "bulletList": "Elenco puntato",
+      "numberedList": "Elenco numerato",
+      "quote": "Citazione",
+      "image": "Immagine",
+      "imageText": "Immagine + testo",
+      "imageGrid": "Griglia di immagini",
+      "rectangle": "Rettangolo",
+      "roundedRectangle": "Rett. arrotondato",
+      "capsule": "Capsula",
+      "circle": "Cerchio",
+      "ellipse": "Ellisse",
+      "triangle": "Triangolo",
+      "rightTriangle": "Triangolo rettangolo",
+      "diamond": "Rombo",
+      "parallelogram": "Parallelogramma",
+      "trapezoid": "Trapezio",
+      "pentagon": "Pentagono",
+      "hexagon": "Esagono",
+      "octagon": "Ottagono",
+      "teardrop": "Goccia",
+      "line": "Linea",
+      "lineArrow": "Freccia",
+      "lineArrowBoth": "Freccia doppia",
+      "lineStealth": "Freccia stealth",
+      "lineFilled": "Freccia piena",
+      "lineFilledBoth": "Doppia piena",
+      "lineCircleArrow": "Cerchio + freccia",
+      "lineSquareArrow": "Quadrato + freccia",
+      "lineDiamondArrow": "Rombo + freccia",
+      "arrow": "Freccia a destra",
+      "arrowLeft": "Freccia a sinistra",
+      "arrowUp": "Freccia in alto",
+      "arrowDown": "Freccia in basso",
+      "arrowLeftRight": "Freccia sinistra–destra",
+      "arrowUpDown": "Freccia su–giù",
+      "chevronRight": "Chevron",
+      "notchedArrow": "Freccia dentellata",
+      "bentArrow": "Freccia piegata",
+      "fourWayArrow": "Freccia a quattro vie",
+      "plus": "Più",
+      "cross": "Croce",
+      "lightning": "Fulmine",
+      "home": "Casa",
+      "speechBubble": "Fumetto",
+      "cloud": "Nuvola",
+      "heart": "Cuore",
+      "star": "Stella",
+      "bookmark": "Segnalibro",
+      "shield": "Scudo",
+      "flag": "Bandiera",
+      "moon": "Luna",
+      "sun": "Sole",
+      "play": "Riproduci"
+    },
+    "group": {
+      "basicShapes": "Forme di base",
+      "linesArrows": "Linee e frecce",
+      "blockArrows": "Frecce a blocco",
+      "symbols": "Simboli"
+    }
+  },
+  "action": {
+    "bringForward": "Porta avanti",
+    "bringToFront": "Porta in primo piano",
+    "sendBackward": "Porta indietro",
+    "sendToBack": "Porta in secondo piano",
+    "duplicate": "Duplica",
+    "ungroup": "Separa",
+    "group": "Raggruppa",
+    "nudge": "Sposta leggermente",
+    "editText": "Modifica testo"
+  },
+  "layers": {
+    "type": {
+      "text": "Testo",
+      "list": "Elenco",
+      "image": "Immagine",
+      "chart": "Grafico",
+      "table": "Tabella",
+      "group": "Gruppo",
+      "layout": "Layout",
+      "container": "Contenitore",
+      "shape": "Forma",
+      "infographic": "Infografica",
+      "icon": "Icona",
+      "component": "Componente",
+      "element": "Elemento"
+    },
+    "videoPlaceholder": "Segnaposto video"
+  },
+  "selection": {
+    "text": "Testo",
+    "list": "Elenco",
+    "image": "Immagine",
+    "icon": "Icona",
+    "shape": "Forma",
+    "line": "Linea",
+    "video": "Video",
+    "table": "Tabella",
+    "chart": "Grafico",
+    "infographic": "Infografica",
+    "cell": "Cella",
+    "group": "Gruppo",
+    "element": "Elemento",
+    "flexLayout": "Layout flessibile",
+    "gridLayout": "Layout a griglia",
+    "container": "Contenitore",
+    "items": "un elemento | {count} elementi"
+  }
+}

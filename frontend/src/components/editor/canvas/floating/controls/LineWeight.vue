@@ -3,6 +3,9 @@ import { Minus, Plus } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
 import { useShapeControls } from '@/components/editor/inspector/element/useShapeControls'
 import { tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Bar control: line weight stepper (px). The buttons keep focus where it is.
 const props = defineProps<{ presentation: Presentation }>()
@@ -32,7 +35,7 @@ function commit(event: Event) {
 </script>
 
 <template>
-  <button type="button" :class="tool" aria-label="Decrease line weight" title="Decrease line weight" @mousedown.prevent @click="step(-1)">
+  <button type="button" :class="tool" :aria-label="t('editorCanvas.controls.lineWeight.decrease')" :title="t('editorCanvas.controls.lineWeight.decrease')" @mousedown.prevent @click="step(-1)">
     <Minus class="size-3.5" aria-hidden="true" />
   </button>
   <input
@@ -40,15 +43,15 @@ function commit(event: Event) {
     :min="MIN"
     :max="MAX"
     step="0.5"
-    aria-label="Line weight"
-    title="Line weight (px)"
+    :aria-label="t('editorCanvas.controls.lineWeight.label')"
+    :title="t('editorCanvas.controls.lineWeight.title')"
     class="h-[31px] w-9 rounded-control bg-transparent text-center text-[11px] text-tx-dce3e7 outline-none [appearance:textfield] hover:bg-sx-30373b focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
     :value="width()"
     data-bar-item="line-weight"
     @focus="hold"
     @change="commit"
   />
-  <button type="button" :class="tool" aria-label="Increase line weight" title="Increase line weight" @mousedown.prevent @click="step(1)">
+  <button type="button" :class="tool" :aria-label="t('editorCanvas.controls.lineWeight.increase')" :title="t('editorCanvas.controls.lineWeight.increase')" @mousedown.prevent @click="step(1)">
     <Plus class="size-3.5" aria-hidden="true" />
   </button>
 </template>

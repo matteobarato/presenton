@@ -1,0 +1,32 @@
+{
+  "kind": {
+    "all": "All",
+    "builtin": "Built-in",
+    "custom": "Custom"
+  },
+  "layoutCount": "{count} layout | {count} layouts",
+  "toolbar": {
+    "search": "Search templates",
+    "find": "Find a template",
+    "typeGroup": "Template type"
+  },
+  "card": {
+    "view": "View {name}",
+    "viewTemplate": "View template"
+  },
+  "deleteTemplate": {
+    "title": "Delete template?",
+    "description": "\"{name}\" will be permanently deleted. Presentations already made from it keep their slides."
+  },
+  "renameTemplate": {
+    "title": "Rename template",
+    "description": "Choose a new name for this template.",
+    "nameLabel": "Template name"
+  },
+  "lightbox": {
+    "title": "{title} — layout {index}",
+    "description": "Layout preview",
+    "previous": "Previous layout",
+    "next": "Next layout"
+  }
+}

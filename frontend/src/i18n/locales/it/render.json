@@ -1,0 +1,12 @@
+{
+  "error": {
+    "cannotRender": "Impossibile visualizzare questa diapositiva"
+  },
+  "smart": {
+    "title": "Diapositiva di presentazione smart",
+    "loadFailed": "Impossibile caricare la diapositiva smart"
+  },
+  "template": {
+    "avatar": "Avatar"
+  }
+}

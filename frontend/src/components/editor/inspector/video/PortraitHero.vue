@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { ImagePlus, Trash2 } from 'lucide-vue-next'
 import type { Portrait } from '@/api/videos'
 import { Button } from '@/components/ui/button'
+
+const { t } = useI18n()
 
 /** The deck's presenter portrait, large: it is the face of every avatar. */
 defineProps<{ portrait: Portrait | null | undefined; busy: boolean }>()
@@ -19,9 +22,9 @@ defineExpose({ pick: () => input.value?.click() })
 </script>
 
 <template>
-  <section class="flex flex-col gap-2" aria-label="Presenter portrait" data-testid="portrait-hero">
+  <section class="flex flex-col gap-2" :aria-label="t('editorInspector.avatar.portrait.ariaLabel')" data-testid="portrait-hero">
     <div class="relative aspect-[4/3] w-full overflow-hidden rounded-card border border-ov/[0.06] bg-black/20">
-      <img v-if="portrait" :src="portrait.url" alt="Presenter portrait" class="size-full object-cover" />
+      <img v-if="portrait" :src="portrait.url" :alt="t('editorInspector.avatar.portrait.ariaLabel')" class="size-full object-cover" />
       <button
         v-else
         type="button"
@@ -31,12 +34,12 @@ defineExpose({ pick: () => input.value?.click() })
       >
         <!-- Presenter silhouette framed by scan corners: a face goes here. -->
         <img src="/presenter-silhouette.png" alt="" class="absolute inset-0 m-auto max-h-full max-w-full object-contain opacity-30 transition-opacity group-hover:opacity-50" aria-hidden="true" />
-        <span class="relative flex items-center gap-1.5 text-[12px] font-semibold text-tx-f6f8f9"><ImagePlus class="size-3.5" aria-hidden="true" />Add your digital presenter</span>
-        <span class="relative text-[11px] leading-[1.4] text-muted">A clear front-facing photo becomes a talking presenter on your slides. JPEG, PNG or WebP, up to 10 MB.</span>
+        <span class="relative flex items-center gap-1.5 text-[12px] font-semibold text-tx-f6f8f9"><ImagePlus class="size-3.5" aria-hidden="true" />{{ t('editorInspector.avatar.portrait.add') }}</span>
+        <span class="relative text-[11px] leading-[1.4] text-muted">{{ t('editorInspector.avatar.portrait.addHint') }}</span>
       </button>
       <div v-if="portrait" class="absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-gradient-to-t from-black/70 to-transparent p-2 pt-8">
-        <Button size="sm" variant="secondary" :disabled="busy" @click="input?.click()">Replace</Button>
-        <Button size="sm" variant="secondary" class="px-2" :disabled="busy" aria-label="Remove portrait" @click="emit('remove')">
+        <Button size="sm" variant="secondary" :disabled="busy" @click="input?.click()">{{ t('editorInspector.avatar.portrait.replace') }}</Button>
+        <Button size="sm" variant="secondary" class="px-2" :disabled="busy" :aria-label="t('editorInspector.avatar.portrait.removeAria')" @click="emit('remove')">
           <Trash2 class="size-3.5" aria-hidden="true" />
         </Button>
       </div>

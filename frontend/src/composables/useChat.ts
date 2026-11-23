@@ -10,6 +10,7 @@ import { animationKeys } from '@/api/animations'
 import { presentationKeys } from '@/api/presentations'
 import { queryClient } from '@/api/query'
 import { useEditorStore } from '@/stores/editor'
+import { i18n } from '@/i18n'
 
 export interface ChatMsg {
   id: string
@@ -56,20 +57,20 @@ const nextId = () => `chat-${Date.now()}-${counter++}`
 function toolLabel(tool: string | undefined, done: boolean): string {
   switch (tool) {
     case 'searchSlide':
-      return done ? 'Found the relevant content.' : 'Looking through the content.'
+      return done ? i18n.global.t('editor.chat.activity.searchFound') : i18n.global.t('editor.chat.activity.searchLooking')
     case 'getSlideAtIndex':
-      return done ? 'Checked the slide.' : 'Checking the slide.'
+      return done ? i18n.global.t('editor.chat.activity.slideChecked') : i18n.global.t('editor.chat.activity.slideChecking')
     case 'deleteSlide':
     case 'deleteElement':
     case 'deleteComponent':
-      return done ? 'Removed the selected item.' : 'Removing the selected item.'
+      return done ? i18n.global.t('editor.chat.activity.itemRemoved') : i18n.global.t('editor.chat.activity.itemRemoving')
     case 'generateAssets':
-      return done ? 'Prepared the visual assets.' : 'Preparing visual assets.'
+      return done ? i18n.global.t('editor.chat.activity.assetsPrepared') : i18n.global.t('editor.chat.activity.assetsPreparing')
     case 'setPresentationTheme':
-      return done ? 'Updated the theme.' : 'Updating the theme.'
+      return done ? i18n.global.t('editor.chat.activity.themeUpdated') : i18n.global.t('editor.chat.activity.themeUpdating')
     default:
-      if (tool && MUTATING_TOOLS.has(tool)) return done ? 'Applied the change.' : 'Applying the change.'
-      return done ? 'Finished that step.' : 'Working on it.'
+      if (tool && MUTATING_TOOLS.has(tool)) return done ? i18n.global.t('editor.chat.activity.changeApplied') : i18n.global.t('editor.chat.activity.changeApplying')
+      return done ? i18n.global.t('editor.chat.activity.stepFinished') : i18n.global.t('editor.chat.activity.working')
   }
 }
 
@@ -86,7 +87,7 @@ export function traceToActivity(trace: unknown): Omit<ChatActivity, 'id'> | null
   if (tool && (status === 'start' || status === 'success')) {
     return { label: toolLabel(tool, status === 'success'), state, tool, round }
   }
-  if (tool && status === 'error') return { label: 'I could not finish that step.', state: 'error', tool, round }
+  if (tool && status === 'error') return { label: i18n.global.t('editor.chat.activity.stepFailed'), state: 'error', tool, round }
   return null
 }
 
@@ -217,7 +218,7 @@ export function useChat(presentationId: Ref<string>) {
           const row = traceToActivity(event.trace)
           if (row) pushActivity(row)
         } else if (event.type === 'error') {
-          messages.value.push({ id: nextId(), role: 'error', content: String(event.detail ?? 'Something went wrong') })
+          messages.value.push({ id: nextId(), role: 'error', content: String(event.detail ?? i18n.global.t('editor.chat.activity.somethingWrong')) })
           return
         } else if (event.type === 'complete') {
           const turn = (event.chat ?? {}) as { conversation_id?: string; response?: string; tool_calls?: string[] }

@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AdvancedTextSettings from '@/components/settings/AdvancedTextSettings.vue'
 import ProviderFields from '@/components/settings/ProviderFields.vue'
 import ProviderPicker from '@/components/settings/ProviderPicker.vue'
 import SignInProviderNotice from '@/components/settings/SignInProviderNotice.vue'
 import { Button } from '@/components/ui/button'
-import { DEFAULT_OLLAMA_URL, SIGN_IN_PROVIDERS, TEXT_PROVIDERS, textProvider } from '@/settings/providers'
+import { DEFAULT_OLLAMA_URL, SIGN_IN_PROVIDERS, TEXT_PROVIDERS, textProvider, tx } from '@/settings/providers'
 import type { ProviderConfig } from '@/settings/types'
 
 // `accountEmail` is the read-only Presenton Cloud account label; the draft itself never carries it.
+const { t } = useI18n()
 const props = defineProps<{ config: ProviderConfig; accountEmail?: string }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
 
-const OPTIONS = TEXT_PROVIDERS.map(({ value, label, description, icon }) => ({ value, label, description, icon }))
+const OPTIONS = computed(() => TEXT_PROVIDERS.map(({ value, label, description, icon }) => ({ value, label, description: tx(description), icon })))
 
 const llm = computed(() => (typeof props.config.LLM === 'string' ? props.config.LLM : ''))
 const signIn = computed(() => (llm.value === 'codex' || llm.value === 'presenton' ? SIGN_IN_PROVIDERS[llm.value] : undefined))
@@ -30,7 +32,7 @@ const detail = computed(() => {
   const model = signIn.value?.modelField ? props.config[signIn.value.modelField] : undefined
   const email = llm.value === 'presenton' ? (props.accountEmail ?? props.config.PRESENTON_EMAIL) : undefined
   const shown = typeof model === 'string' && model.trim() ? model : typeof email === 'string' && email.trim() ? email : ''
-  return shown || 'Connected account'
+  return shown || t('settings.text.connectedAccount')
 })
 
 function pick(value: string) {
@@ -54,7 +56,7 @@ function pick(value: string) {
       </div>
       <SignInProviderNotice />
       <div>
-        <Button type="button" variant="secondary" @click="switching = true">Switch to another provider</Button>
+        <Button type="button" variant="secondary" @click="switching = true">{{ t('settings.text.switchProvider') }}</Button>
       </div>
     </div>
 
@@ -63,9 +65,9 @@ function pick(value: string) {
         <ProviderPicker
           :model-value="row?.value ?? ''"
           :options="OPTIONS"
-          placeholder="Select text provider"
-          search-placeholder="Search text providers"
-          label="Text provider"
+          :placeholder="t('settings.text.selectPlaceholder')"
+          :search-placeholder="t('settings.text.searchPlaceholder')"
+          :label="t('settings.text.providerLabel')"
           @update:model-value="pick"
         />
         <SignInProviderNotice />

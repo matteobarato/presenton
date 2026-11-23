@@ -1,0 +1,11 @@
+{
+  "controls": {
+    "previous": "Diapositiva precedente",
+    "next": "Diapositiva successiva",
+    "pause": "Pausa",
+    "play": "Riproduci",
+    "audioOff": "Disattiva audio",
+    "audioOn": "Attiva audio",
+    "exit": "Esci dalla presentazione"
+  }
+}

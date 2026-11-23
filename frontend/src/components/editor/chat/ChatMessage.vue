@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import type { ChatMsg } from '@/composables/useChat'
 import { renderMarkdown } from '@/lib/mini-markdown'
 
 const props = defineProps<{ message: ChatMsg }>()
 const html = computed(() => (props.message.role === 'assistant' ? renderMarkdown(props.message.content) : ''))
+const { t } = useI18n()
 </script>
 
 <template>
@@ -21,7 +23,7 @@ const html = computed(() => (props.message.role === 'assistant' ? renderMarkdown
     <!-- eslint-disable-next-line vue/no-v-html -- sanitised by renderMarkdown (DOMPurify) -->
     <div v-if="message.role === 'assistant'" class="chat-md" v-html="html" />
     <p v-else class="whitespace-pre-wrap" :role="message.role === 'error' ? 'alert' : undefined">{{ message.content }}</p>
-    <p v-if="message.stopped" class="mt-1 text-[10px] text-muted">Stopped</p>
+    <p v-if="message.stopped" class="mt-1 text-[10px] text-muted">{{ t('editor.chat.stopped') }}</p>
   </div>
 </template>
 

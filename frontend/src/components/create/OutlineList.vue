@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { nextTick, ref, toRaw } from 'vue'
 import draggable from 'vuedraggable'
 import { Plus } from 'lucide-vue-next'
 import { MAX_OUTLINE_SLIDES, type OutlineItem as Item } from '@/api/outlines'
 import { Button } from '@/components/ui/button'
 import OutlineItem from './OutlineItem.vue'
+const { t } = useI18n()
 
 const props = defineProps<{ disabled?: boolean }>()
 const items = defineModel<Item[]>({ required: true })
@@ -88,7 +90,7 @@ function setContent(index: number, content: string) {
       @click="add"
     >
       <Plus class="size-4" aria-hidden="true" />
-      Add slide
+      {{ t('create.outline.list.addSlide') }}
     </Button>
   </div>
 </template>

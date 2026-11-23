@@ -6,9 +6,12 @@ const recent = ref<string[]>([])
 </script>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, watch } from 'vue'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { field, label as labelClass } from './styles'
+
+const { t } = useI18n()
 
 const props = defineProps<{ modelValue: string | null; palette: string[]; label: string; allowNone?: boolean }>()
 const emit = defineEmits<{ open: []; close: []; commit: [value: string | null] }>()
@@ -75,7 +78,7 @@ function onNative(event: Event) {
           :class="!current && 'bg-[linear-gradient(135deg,transparent_45%,#e5484d_45%,#e5484d_55%,transparent_55%)]'"
           :style="current ? { background: current } : undefined"
         />
-        <span class="truncate">{{ current ?? 'None' }}</span>
+        <span class="truncate">{{ current ?? t('editorInspector.controls.none') }}</span>
       </button>
     </PopoverTrigger>
     <PopoverContent class="w-[220px] p-3" data-inline-edit-ignore="true">
@@ -84,7 +87,7 @@ function onNative(event: Event) {
           v-if="allowNone"
           type="button"
           class="size-6 rounded-full border border-ov/20 bg-[linear-gradient(135deg,transparent_45%,#e5484d_45%,#e5484d_55%,transparent_55%)]"
-          aria-label="None"
+          :aria-label="t('editorInspector.controls.none')"
           @click="pick(null)"
         />
         <button
@@ -99,7 +102,7 @@ function onNative(event: Event) {
         />
       </div>
       <template v-if="recent.length">
-        <div :class="[labelClass, 'mb-2 mt-4']"><h3>Recent</h3></div>
+        <div :class="[labelClass, 'mb-2 mt-4']"><h3>{{ t('editorInspector.controls.recent') }}</h3></div>
         <div class="flex flex-wrap items-center gap-2.5">
           <button
             v-for="c in recent"
@@ -115,7 +118,7 @@ function onNative(event: Event) {
       <div class="mt-4 flex items-center gap-2">
         <input
           type="color"
-          :aria-label="`${label} picker`"
+          :aria-label="t('editorInspector.controls.picker', { label })"
           class="size-8 shrink-0 cursor-pointer rounded-control border-0 bg-transparent p-0"
           :value="draft ?? '#000000'"
           @input="onNative"
@@ -123,7 +126,7 @@ function onNative(event: Event) {
         <label :class="[field, 'flex-1']">
           <input
             type="text"
-            :aria-label="`${label} hex`"
+            :aria-label="t('editorInspector.controls.hex', { label })"
             maxlength="7"
             class="h-full w-full min-w-0 bg-transparent text-[10px] text-tx-dce3e7 outline-none"
             :value="hexText"

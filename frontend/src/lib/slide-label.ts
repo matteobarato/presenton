@@ -1,4 +1,5 @@
 import type { Slide } from '@/api/types'
+import { i18n } from '@/i18n'
 
 type Node = Record<string, unknown>
 
@@ -51,6 +52,6 @@ export function slideLabel(slide: Slide | null | undefined): string {
     largestText(slide.ui) ||
     (slide.html_content ? htmlHeading(slide.html_content) : '') ||
     layoutName(slide.layout) ||
-    'Untitled slide'
+    i18n.global.t('misc.slideLabel.untitled')
   )
 }

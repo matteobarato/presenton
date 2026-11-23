@@ -1,0 +1,164 @@
+{
+  "new": {
+    "title": "Nuova presentazione",
+    "steps": {
+      "topic": "Argomento",
+      "presenter": "Relatore",
+      "outline": "Scaletta",
+      "preview": "Anteprima",
+      "narration": "Narrazione",
+      "export": "Esporta"
+    },
+    "copy": {
+      "topicHeading": "Ogni grande storia comincia da qualche parte.",
+      "topicLede": "Di’ di cosa parla, scegli un aspetto e imposta le basi. Poi scegli chi presenta; rivedi la scaletta prima che venga creata qualsiasi diapositiva.",
+      "presenterHeading": "Chi presenta?",
+      "presenterLede": "Aggiungi una foto e il tuo relatore digitale appare come video parlante nelle diapositive che ne hanno bisogno. Oppure lascia la presentazione solo con la voce."
+    },
+    "locked": "Crea prima la scaletta",
+    "documentCount": "{count} documento | {count} documenti",
+    "topicTitle": "Di cosa parla?",
+    "topicHint": "Un prompt, dei documenti, o entrambi.",
+    "lookTitle": "Scegli un aspetto",
+    "lookPlaceholder": "Scegli un modello per le tue diapositive.",
+    "filesLost": "Aggiungi di nuovo i documenti; i file non vengono conservati dopo un ricaricamento.",
+    "languageNeeded": "I documenti richiedono una lingua.",
+    "chooseLanguage": "Scegline una",
+    "templatesFailed": "Impossibile caricare i modelli. Ricarica la pagina per riprovare.",
+    "noTemplates": "Non ci sono ancora modelli. Aggiungine uno in Modelli, poi torna a creare la scaletta.",
+    "languageError": "I documenti richiedono una lingua. Sceglila in Lingua, poi crea la scaletta.",
+    "stage": {
+      "documents": "Elaborazione dei documenti…",
+      "outline": "Preparazione della scaletta…",
+      "photo": "Caricamento della foto del relatore…"
+    },
+    "blockers": {
+      "topic": "Aggiungi un argomento o un documento",
+      "look": "Scegli un modello"
+    },
+    "lockedNotice": {
+      "presenter": "Crea prima la scaletta: apre i passaggi successivi",
+      "topic": "Crea prima la scaletta: continua con Relatore, poi scegli Crea scaletta"
+    },
+    "status": {
+      "noPhoto": "Ancora nessuna foto: questa presentazione sarà solo voce",
+      "outlineCount": "Scrive una scaletta per {count} diapositiva | Scrive una scaletta per {count} diapositive",
+      "outlineAuto": "Scrive una scaletta; il numero di diapositive è scelto automaticamente",
+      "noSlidesYet": "Nessuna diapositiva viene creata finché non la approvi."
+    },
+    "nextPresenter": "Avanti: Relatore",
+    "createOutline": "Crea scaletta",
+    "working": "Elaborazione…",
+    "startFailed": "Impossibile avviare la presentazione",
+    "startRetry": "Riprova con Crea scaletta; argomento e impostazioni sono conservati.",
+    "photoUploadFailed": "La foto del relatore non è stata caricata, quindi per ora la presentazione è solo voce. Aggiungila di nuovo in Relatore e lingua nel passaggio Narrazione."
+  },
+  "presentation": {
+    "loading": "Caricamento della presentazione",
+    "notFound": "Presentazione non trovata",
+    "loadFailed": "Impossibile caricare questa presentazione",
+    "mayBeDeleted": "Potrebbe essere stata eliminata.",
+    "tryAgain": "Riprova",
+    "backToLibrary": "Torna alla libreria"
+  },
+  "editor": {
+    "planningStage": "Pianificazione dei movimenti per ogni diapositiva…",
+    "planningLabel": "Pianificazione dei movimenti"
+  },
+  "present": {
+    "loadFailed": "Impossibile caricare questa presentazione."
+  },
+  "library": {
+    "title": "Le tue presentazioni",
+    "newPresentation": "Nuova presentazione",
+    "heading": "Cosa creerai oggi?",
+    "welcomeNamed": "Bentornato, {name}.",
+    "welcomeBare": "Bentornato.",
+    "tagline": "La tua prossima grande storia sta per nascere.",
+    "startTitle": "Parti da un’idea.",
+    "startBody": "Descrivila, allega un documento e ottieni una scaletta da trasformare in diapositive.",
+    "startCta": "Crea una presentazione",
+    "listTitle": "Le tue presentazioni",
+    "loadFailed": "Impossibile caricare le tue presentazioni",
+    "freshTitle": "Una tela bianca",
+    "freshBody": "Crea qualcosa che sia tuo.",
+    "duplicated": "“{title}” duplicata",
+    "duplicateFailed": "Impossibile duplicare la presentazione",
+    "deleteFailed": "Impossibile eliminare la presentazione"
+  },
+  "setup": {
+    "title": "Benvenuto in Slideshows",
+    "description": "Crea l’account amministratore per questo spazio di lavoro.",
+    "username": "Nome utente",
+    "password": "Password",
+    "confirm": "Conferma password",
+    "usernameRule": "Il nome utente deve avere almeno 3 caratteri, senza spazi.",
+    "passwordRule": "La password deve avere almeno 8 caratteri.",
+    "passwordMismatch": "Le password non coincidono.",
+    "submitting": "Creazione dell’account…",
+    "submit": "Crea account",
+    "failed": "Impossibile completare la configurazione. Controlla la connessione e riprova."
+  },
+  "login": {
+    "title": "Accedi a Slideshows",
+    "description": "Usa l’account creato durante la configurazione.",
+    "username": "Nome utente",
+    "password": "Password",
+    "failed": "Impossibile accedere. Controlla la connessione e riprova.",
+    "submitting": "Accesso in corso…",
+    "submit": "Accedi"
+  },
+  "templateDetail": {
+    "parent": "Modelli",
+    "fallbackTitle": "Modello",
+    "actions": "Azioni del modello",
+    "rename": "Rinomina",
+    "delete": "Elimina",
+    "use": "Usa questo modello",
+    "custom": "Personalizzato",
+    "builtIn": "Integrato",
+    "layoutCount": "{count} layout | {count} layout",
+    "notFound": "Modello non trovato",
+    "notFoundBody": "Potrebbe essere stato eliminato o rinominato.",
+    "backToTemplates": "Torna ai modelli",
+    "previewLayout": "Anteprima del layout {number}",
+    "layoutsFailed": "Impossibile caricare i layout di questo modello",
+    "noLayouts": "Questo modello non ha ancora layout.",
+    "retry": "Riprova",
+    "loadFailed": "Impossibile caricare i modelli",
+    "renamed": "Modello rinominato",
+    "renameFailed": "Impossibile rinominare il modello",
+    "deleted": "Modello eliminato",
+    "deleteFailed": "Impossibile eliminare il modello"
+  },
+  "templates": {
+    "title": "Modelli",
+    "heading": "Un buon punto di partenza.",
+    "intro": "Tutti i layout da cui può nascere la tua prossima presentazione.",
+    "noMatch": "Nessun modello corrisponde a “{query}”",
+    "noBuiltIn": "Nessun modello integrato",
+    "tryDifferent": "Prova un altro nome o tipo.",
+    "clear": "Cancella",
+    "noCustom": "Nessun modello personalizzato",
+    "customHint": "I modelli personalizzati compariranno qui una volta creati.",
+    "none": "Nessun modello",
+    "noneHint": "Non ci sono ancora modelli da mostrare.",
+    "loadFailed": "Impossibile caricare i modelli",
+    "retry": "Riprova"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "introAdmin": "Scegli i provider che scrivono, illustrano e ricercano le tue presentazioni, e gestisci chi può usarli.",
+    "introMember": "Gestisci il tuo account, la password e le chiavi API personali.",
+    "sections": {
+      "text": "Testo",
+      "images": "Immagini",
+      "webSearch": "Ricerca web",
+      "users": "Utenti",
+      "apiKeys": "Chiavi API",
+      "account": "Account"
+    },
+    "leavePrompt": "Ci sono modifiche non salvate. Uscire senza salvare?",
+    "retry": "Riprova"
+  }
+}

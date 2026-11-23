@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import type { PresentationSummary } from '@/api/presentations'
 import SlideView from '@/render/SlideView.vue'
@@ -9,6 +10,7 @@ import { coverSlide, deckEditPath, deckMeta, deckOpenPath, deckTitle } from './d
 const props = defineProps<{ presentation: PresentationSummary }>()
 defineEmits<{ duplicate: []; delete: [] }>()
 
+const { t } = useI18n()
 const title = computed(() => deckTitle(props.presentation))
 const cover = computed(() => coverSlide(props.presentation))
 </script>
@@ -18,7 +20,7 @@ const cover = computed(() => coverSlide(props.presentation))
     data-testid="deck"
     class="flex items-center gap-4 rounded-card border border-ov/[0.05] bg-sx-1e2427 p-2.5 transition-colors duration-200 hover:border-ov/[0.12]"
   >
-    <RouterLink :to="deckOpenPath(presentation)" :aria-label="`Open ${title}`" class="block aspect-video w-36 flex-none overflow-hidden rounded-[8px] bg-sx-101416 shadow-[0_6px_15px_#0002]">
+    <RouterLink :to="deckOpenPath(presentation)" :aria-label="t('library.deck.open', { title })" class="block aspect-video w-36 flex-none overflow-hidden rounded-[8px] bg-sx-101416 shadow-[0_6px_15px_#0002]">
       <SlideView v-if="cover" :slide="cover" :theme="presentation.theme" :fonts="presentation.fonts" fit="width" lazy />
     </RouterLink>
     <div class="min-w-0 flex-1">

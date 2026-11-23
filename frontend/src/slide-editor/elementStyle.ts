@@ -2,6 +2,7 @@
 // Every setter returns a new element and keeps unknown fields.
 // Curve and corner-radius rules ported from
 // servers/nextjs/components/slide-editor/shapes/ShapeToolbar.tsx.
+import { i18n } from '@/i18n'
 import { readNumber, readString, withHash, type RawElement } from '@/slide-editor/model'
 
 type Rec = Record<string, unknown>
@@ -36,13 +37,13 @@ export type Appearance = {
 }
 
 export const VECTOR_MARKERS: { label: string; value: VectorMarker }[] = [
-  { label: 'None', value: 'none' },
-  { label: 'Arrow', value: 'arrow' },
-  { label: 'Stealth arrow', value: 'stealth' },
-  { label: 'Filled arrow', value: 'triangle' },
-  { label: 'Circle', value: 'circle' },
-  { label: 'Square', value: 'square' },
-  { label: 'Diamond', value: 'diamond' },
+  { get label() { return i18n.global.t('slideEditor.marker.none') }, value: 'none' },
+  { get label() { return i18n.global.t('slideEditor.marker.arrow') }, value: 'arrow' },
+  { get label() { return i18n.global.t('slideEditor.marker.stealth') }, value: 'stealth' },
+  { get label() { return i18n.global.t('slideEditor.marker.triangle') }, value: 'triangle' },
+  { get label() { return i18n.global.t('slideEditor.marker.circle') }, value: 'circle' },
+  { get label() { return i18n.global.t('slideEditor.marker.square') }, value: 'square' },
+  { get label() { return i18n.global.t('slideEditor.marker.diamond') }, value: 'diamond' },
 ]
 
 function rec(value: unknown): Rec | null {

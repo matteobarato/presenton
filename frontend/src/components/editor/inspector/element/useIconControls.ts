@@ -2,6 +2,7 @@ import { computed, ref, type MaybeRefOrGetter, toValue } from 'vue'
 import type { Presentation } from '@/api/types'
 import { ICON_WEIGHTS } from '@/api/icons'
 import { toast } from '@/components/ui/sonner'
+import { i18n } from '@/i18n'
 import { resolveAssetUrl } from '@/render/legacy/lib/template-v2-json-to-html'
 import { setIcon, setIconColor, type IconWeight } from '@/slide-editor/elementStyle'
 import { getElementAtSelection, type ElementSelection } from '@/slide-editor/model'
@@ -51,7 +52,7 @@ export function useIconControls(presentation: MaybeRefOrGetter<Presentation>) {
     const at = takeAnchor() ?? capture()
     const ui = ctx.ui.value
     if (!at || !ui || !getElementAtSelection(ui, at)) {
-      toast.error('The icon was removed from the slide.')
+      toast.error(i18n.global.t('editorInspector.element.icon.removed'))
       return
     }
     patch('Change icon', (el) => setIcon(el, url, picked), at)

@@ -24,7 +24,9 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTemplateLayouts } from '@/composables/useTemplateLayouts'
 import SlideView from '@/render/SlideView.vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const queryClient = useQueryClient()
@@ -35,7 +37,7 @@ const { layouts, theme, fonts, pending, failed, retry } = useTemplateLayouts(tem
 
 const from = computed(() => (route.query.from === 'builtin' || route.query.from === 'custom' ? route.query.from : undefined))
 const parent = computed(() => ({
-  label: 'Templates',
+  label: t('views.templateDetail.parent'),
   to: from.value ? `/templates?kind=${from.value}` : '/templates',
 }))
 
@@ -71,10 +73,10 @@ const rename = useMutation({
     renameOpen.value = false
     return { previous }
   },
-  onSuccess: () => toast.success('Template renamed'),
+  onSuccess: () => toast.success(t('views.templateDetail.renamed')),
   onError: (error, _vars, ctx) => {
     if (ctx?.previous) queryClient.setQueryData(templatesKey, ctx.previous)
-    toast.error(errorMessage(error, 'Could not rename the template'))
+    toast.error(errorMessage(error, t('views.templateDetail.renameFailed')))
   },
   onSettled: () => queryClient.invalidateQueries({ queryKey: templatesKey }),
 })
@@ -87,11 +89,11 @@ const remove = useMutation({
     await router.replace({ name: 'templates' })
     queryClient.setQueryData<TemplateSummary[]>(templatesKey, (old) => old?.filter((t) => t.id !== id))
     void queryClient.invalidateQueries({ queryKey: templatesKey })
-    toast.success('Template deleted')
+    toast.success(t('views.templateDetail.deleted'))
   },
   onError: (error) => {
     deleteOpen.value = false
-    toast.error(errorMessage(error, 'Could not delete the template'))
+    toast.error(errorMessage(error, t('views.templateDetail.deleteFailed')))
   },
 })
 
@@ -106,22 +108,22 @@ function errorMessage(error: unknown, fallback: string): string {
 </script>
 
 <template>
-  <PageHeader :title="template?.name ?? 'Template'" :parent="parent">
+  <PageHeader :title="template?.name ?? t('views.templateDetail.fallbackTitle')" :parent="parent">
     <template v-if="template" #actions>
       <DropdownMenu v-if="isCustom">
         <DropdownMenuTrigger
           data-testid="template-actions"
           :class="buttonVariants({ variant: 'secondary', size: 'icon' })"
-          aria-label="Template actions"
+          :aria-label="t('views.templateDetail.actions')"
         >
           <MoreHorizontal class="size-4" aria-hidden="true" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" class="min-w-40">
-          <DropdownMenuItem @select="openRename"><Pencil class="size-3.5" aria-hidden="true" />Rename</DropdownMenuItem>
-          <DropdownMenuItem @select="openDelete"><Trash2 class="size-3.5" aria-hidden="true" />Delete</DropdownMenuItem>
+          <DropdownMenuItem @select="openRename"><Pencil class="size-3.5" aria-hidden="true" />{{ t('views.templateDetail.rename') }}</DropdownMenuItem>
+          <DropdownMenuItem @select="openDelete"><Trash2 class="size-3.5" aria-hidden="true" />{{ t('views.templateDetail.delete') }}</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Button :disabled="!count" @click="useTemplate">Use this template</Button>
+      <Button :disabled="!count" @click="useTemplate">{{ t('views.templateDetail.use') }}</Button>
     </template>
   </PageHeader>
 
@@ -134,21 +136,21 @@ function errorMessage(error: unknown, fallback: string): string {
       </div>
     </div>
     <Alert v-else-if="list.isError.value && !list.data.value" variant="destructive" class="flex items-center justify-between gap-4 py-2 text-[12px]">
-      <span>{{ errorMessage(list.error.value, 'Could not load templates') }}</span>
-      <Button variant="secondary" size="sm" @click="list.refetch()">Retry</Button>
+      <span>{{ errorMessage(list.error.value, t('views.templateDetail.loadFailed')) }}</span>
+      <Button variant="secondary" size="sm" @click="list.refetch()">{{ t('views.templateDetail.retry') }}</Button>
     </Alert>
     <div v-else-if="!template" class="flex flex-col items-center px-6 py-[55px] text-center text-tx-acc3d2">
-      <h2 class="mb-[7px] text-[20px] font-medium">Template not found</h2>
-      <p class="mb-5 text-[12px] text-tx-97aebc">It may have been deleted or renamed.</p>
-      <RouterLink to="/templates" :class="buttonVariants({ variant: 'secondary' })">Back to templates</RouterLink>
+      <h2 class="mb-[7px] text-[20px] font-medium">{{ t('views.templateDetail.notFound') }}</h2>
+      <p class="mb-5 text-[12px] text-tx-97aebc">{{ t('views.templateDetail.notFoundBody') }}</p>
+      <RouterLink to="/templates" :class="buttonVariants({ variant: 'secondary' })">{{ t('views.templateDetail.backToTemplates') }}</RouterLink>
     </div>
     <template v-else>
       <div>
         <div class="flex flex-wrap items-center gap-3">
           <h1 class="text-[34px] leading-[1.22] font-medium tracking-[-0.04em] text-tx-e4ecf0 max-[1050px]:text-[30px] max-[760px]:text-[27px] max-[450px]:text-[25px]">{{ template.name }}</h1>
-          <Badge :variant="isCustom ? 'default' : 'secondary'">{{ isCustom ? 'Custom' : 'Built-in' }}</Badge>
+          <Badge :variant="isCustom ? 'default' : 'secondary'">{{ isCustom ? t('views.templateDetail.custom') : t('views.templateDetail.builtIn') }}</Badge>
         </div>
-        <p class="mt-[13px] text-[12px] text-tx-9aabb4 max-[760px]:text-[11px]">{{ count }} {{ count === 1 ? 'layout' : 'layouts' }}</p>
+        <p class="mt-[13px] text-[12px] text-tx-9aabb4 max-[760px]:text-[11px]">{{ t('views.templateDetail.layoutCount', { count }, count) }}</p>
         <p v-if="template.description" class="mt-2 max-w-[640px] text-[12px] leading-[1.7] text-tx-9aabb4 max-[760px]:text-[11px]">{{ template.description }}</p>
       </div>
 
@@ -156,17 +158,17 @@ function errorMessage(error: unknown, fallback: string): string {
         <Skeleton v-for="n in Math.max(count, 1)" :key="n" class="aspect-video rounded-[9px]" />
       </div>
       <Alert v-else-if="failed" variant="destructive" class="mt-8 flex items-center justify-between gap-4 py-2 text-[12px]">
-        <span>Could not load this template’s layouts</span>
-        <Button variant="secondary" size="sm" @click="retry">Retry</Button>
+        <span>{{ t('views.templateDetail.layoutsFailed') }}</span>
+        <Button variant="secondary" size="sm" @click="retry">{{ t('views.templateDetail.retry') }}</Button>
       </Alert>
-      <p v-else-if="!layouts.length" class="mt-8 text-[12px] text-tx-97aebc">This template has no layouts yet.</p>
+      <p v-else-if="!layouts.length" class="mt-8 text-[12px] text-tx-97aebc">{{ t('views.templateDetail.noLayouts') }}</p>
       <div v-else class="mt-8 grid grid-cols-3 gap-x-[25px] gap-y-[30px] max-[1050px]:grid-cols-2 max-[760px]:grid-cols-1">
         <button
           v-for="(layout, i) in layouts"
           :key="i"
           type="button"
           data-testid="layout-card"
-          :aria-label="`Preview layout ${String(i + 1).padStart(2, '0')}`"
+          :aria-label="t('views.templateDetail.previewLayout', { number: String(i + 1).padStart(2, '0') })"
           class="group block min-w-0 rounded-[9px] p-0 text-left focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
           @click="openLightbox(i, $event)"
         >

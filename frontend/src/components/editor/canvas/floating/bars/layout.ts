@@ -17,5 +17,5 @@ export const layoutBar: BarItem[] = [
   { type: 'custom', id: 'layout-gap', component: LayoutGap, props: presentationProps },
   { type: 'custom', id: 'layout-items', component: LayoutItems, props: presentationProps },
   { type: 'custom', id: 'layout-fill', component: LayoutFill, props: presentationProps },
-  { type: 'panel', id: 'layout', label: 'Layout', icon: LayoutGrid, component: LayoutPanel, props: presentationProps },
+  { type: 'panel', id: 'layout', label: 'editorCanvas.bar.labels.layout', icon: LayoutGrid, component: LayoutPanel, props: presentationProps },
 ]

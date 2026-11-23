@@ -1,5 +1,6 @@
 import { computed, getCurrentScope, onScopeDispose, ref, watch, type ComputedRef, type Ref } from 'vue'
 import { ApiError, extractApiErrorMessage } from '@/api/errors'
+import { i18n } from '@/i18n'
 import { getTask, type AsyncTask } from '@/api/tasks'
 
 type TaskStatus = 'idle' | 'pending' | 'completed' | 'error'
@@ -99,7 +100,7 @@ export function useAsyncTask(
   const error = computed<string | null>(() => {
     const t = task.value
     if (t?.status !== 'error') return null
-    return extractApiErrorMessage(t.error, t.message || 'The task failed')
+    return extractApiErrorMessage(t.error, t.message || i18n.global.t('misc.asyncTask.failed'))
   })
 
   return { task, status, error, start, clear }

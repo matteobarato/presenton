@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { usePresentation } from '@/api/presentations'
@@ -9,6 +10,7 @@ import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { audioForSlide, narrationState } from '@/components/editor/inspector/narration/narration-state'
 
 const props = defineProps<{ presentationId: string; slideIndex: number }>()
+const { t } = useI18n()
 
 const idRef = computed(() => props.presentationId)
 const { data: presentation } = usePresentation(idRef, useEditorFetchGate())
@@ -23,8 +25,8 @@ const narration = computed(() => {
   return narrationState(slide.value, audioForSlide(slide.value, tts.value.audios))
 })
 const narrationDot = computed(() => {
-  if (narration.value === 'ready' || narration.value === 'translated') return { label: 'Narration ready', tone: 'bg-accent' }
-  if (narration.value === 'stale') return { label: 'Narration out of date', tone: 'bg-danger-text' }
+  if (narration.value === 'ready' || narration.value === 'translated') return { label: t('editor.navigator.narrationReady'), tone: 'bg-accent' }
+  if (narration.value === 'stale') return { label: t('editor.navigator.narrationOutOfDate'), tone: 'bg-danger-text' }
   return null
 })
 const hasVideo = computed(() => Boolean(slide.value?.id && videos.value?.videos?.some((v) => v.slide_id === slide.value?.id)))
@@ -33,6 +35,6 @@ const hasVideo = computed(() => Boolean(slide.value?.id && videos.value?.videos?
 <template>
   <span class="pointer-events-none absolute bottom-1.5 left-1.5 flex gap-1" data-testid="slide-status-dots">
     <span v-if="narrationDot" role="img" :aria-label="narrationDot.label" :title="narrationDot.label" :class="['size-2 rounded-full', narrationDot.tone]" />
-    <span v-if="hasVideo" role="img" aria-label="Avatar video" title="Avatar video" class="size-2 rounded-full bg-sx-9db3c0" />
+    <span v-if="hasVideo" role="img" :aria-label="t('editor.navigator.avatarVideo')" :title="t('editor.navigator.avatarVideo')" class="size-2 rounded-full bg-sx-9db3c0" />
   </span>
 </template>

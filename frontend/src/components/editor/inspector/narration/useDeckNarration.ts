@@ -1,4 +1,5 @@
 import { computed, inject, provide, ref, type InjectionKey, type Ref } from 'vue'
+import { i18n } from '@/i18n'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { Presentation, Slide } from '@/api/types'
 import { presentationKeys } from '@/api/presentations'
@@ -10,7 +11,7 @@ import { useTtsLanguage } from '@/composables/useTtsLanguage'
 import { toast } from '@/components/ui/sonner'
 import { audioForSlide, narrationState, type NarrationState } from './narration-state'
 
-export const failToast = (e: unknown) => toast.error(e instanceof Error ? e.message : 'Something went wrong')
+export const failToast = (e: unknown) => toast.error(e instanceof Error ? e.message : i18n.global.t('editorInspector.narration.genericError'))
 
 /**
  * Deck narration state shared by the per-slide and deck-wide parts of the Voice tab:
@@ -58,7 +59,7 @@ export function useDeckNarration(presentationId: Ref<string>, presentation: Ref<
       void refreshTts()
       // Present reads playback; it must not play the audio it had before.
       void qc.invalidateQueries({ queryKey: playbackKeys.one(presentationId.value) })
-      toast.success('Narration is ready')
+      toast.success(i18n.global.t('editorInspector.narration.ready'))
       clear()
     },
   })

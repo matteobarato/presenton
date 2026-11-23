@@ -1,12 +1,14 @@
 <script setup lang="ts">
 // Ported from servers/nextjs/components/VertexAzureManualFields.tsx
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SecretInput from '@/components/settings/SecretInput.vue'
 import { Input } from '@/components/ui/input'
 import type { ProviderConfig } from '@/settings/types'
 
 const props = defineProps<{ provider: 'vertex' | 'azure'; config: ProviderConfig }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
+const { t } = useI18n()
 
 function text(field: string): string {
   const value = props.config[field]
@@ -28,7 +30,7 @@ watch(
 )
 
 const keyField = computed(() => (props.provider === 'vertex' ? 'VERTEX_API_KEY' : 'AZURE_OPENAI_API_KEY'))
-const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API key' : 'Azure OpenAI API key'))
+const keyLabel = computed(() => (props.provider === 'vertex' ? t('settings.vertex.keyLabel') : t('settings.vertex.azureKeyLabel')))
 </script>
 
 <template>
@@ -37,20 +39,20 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
       :id="`${provider}-api-key`"
       :model-value="text(keyField)"
       :label="keyLabel"
-      :placeholder="`Enter your ${keyLabel}`"
+      :placeholder="t('settings.shared.enterYour', { name: keyLabel })"
       @update:model-value="emit('set', keyField, $event)"
     />
 
     <template v-if="provider === 'vertex'">
       <div class="min-w-0">
-        <label for="vertex-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Model</label>
+        <label for="vertex-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.vertex.model') }}</label>
         <Input
           id="vertex-model"
           type="text"
           autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
-          placeholder="e.g. gemini-2.5-flash"
+          :placeholder="t('settings.vertex.modelPlaceholder')"
           :model-value="text('VERTEX_MODEL')"
           @update:model-value="emit('set', 'VERTEX_MODEL', String($event))"
         />
@@ -64,44 +66,44 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
         <summary
           class="mb-2 cursor-pointer text-[12px] font-medium text-tx-dbe7ef focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
-          Advanced settings
+          {{ t('settings.shared.advancedSettings') }}
         </summary>
         <div class="grid gap-4">
           <div class="min-w-0">
-            <label for="vertex-project" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Project ID</label>
+            <label for="vertex-project" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.vertex.projectId') }}</label>
             <Input
               id="vertex-project"
               type="text"
               autocomplete="off"
               autocapitalize="off"
               spellcheck="false"
-              placeholder="Optional"
+              :placeholder="t('settings.shared.optional')"
               :model-value="text('VERTEX_PROJECT')"
               @update:model-value="emit('set', 'VERTEX_PROJECT', String($event))"
             />
           </div>
           <div class="min-w-0">
-            <label for="vertex-location" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Region</label>
+            <label for="vertex-location" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.vertex.region') }}</label>
             <Input
               id="vertex-location"
               type="text"
               autocomplete="off"
               autocapitalize="off"
               spellcheck="false"
-              placeholder="e.g. us-central1"
+              :placeholder="t('settings.vertex.regionPlaceholder')"
               :model-value="text('VERTEX_LOCATION')"
               @update:model-value="emit('set', 'VERTEX_LOCATION', String($event))"
             />
           </div>
           <div class="min-w-0">
-            <label for="vertex-base-url" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Custom endpoint</label>
+            <label for="vertex-base-url" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.vertex.customEndpoint') }}</label>
             <Input
               id="vertex-base-url"
               type="text"
               autocomplete="off"
               autocapitalize="off"
               spellcheck="false"
-              placeholder="Optional"
+              :placeholder="t('settings.shared.optional')"
               :model-value="text('VERTEX_BASE_URL')"
               @update:model-value="emit('set', 'VERTEX_BASE_URL', String($event))"
             />
@@ -112,7 +114,7 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
 
     <template v-else>
       <div class="min-w-0">
-        <label for="azure-endpoint" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Azure endpoint</label>
+        <label for="azure-endpoint" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.vertex.azureEndpoint') }}</label>
         <Input
           id="azure-endpoint"
           type="text"
@@ -125,27 +127,27 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
         />
       </div>
       <div class="min-w-0">
-        <label for="azure-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Model name</label>
+        <label for="azure-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.vertex.azureModel') }}</label>
         <Input
           id="azure-model"
           type="text"
           autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
-          placeholder="e.g. gpt-5.4-mini"
+          :placeholder="t('settings.vertex.azureModelPlaceholder')"
           :model-value="text('AZURE_OPENAI_MODEL')"
           @update:model-value="emit('set', 'AZURE_OPENAI_MODEL', String($event))"
         />
       </div>
       <div class="min-w-0">
-        <label for="azure-api-version" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">API version</label>
+        <label for="azure-api-version" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.vertex.apiVersion') }}</label>
         <Input
           id="azure-api-version"
           type="text"
           autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
-          placeholder="e.g. 2024-12-01-preview"
+          :placeholder="t('settings.vertex.apiVersionPlaceholder')"
           :model-value="text('AZURE_OPENAI_API_VERSION')"
           @update:model-value="emit('set', 'AZURE_OPENAI_API_VERSION', String($event))"
         />

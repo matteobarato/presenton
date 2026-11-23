@@ -1,0 +1,164 @@
+{
+  "new": {
+    "title": "New presentation",
+    "steps": {
+      "topic": "Topic",
+      "presenter": "Presenter",
+      "outline": "Outline",
+      "preview": "Preview",
+      "narration": "Narration",
+      "export": "Export"
+    },
+    "copy": {
+      "topicHeading": "Every great story starts somewhere.",
+      "topicLede": "Say what it’s about, pick a look and set the basics. Next you choose who presents; you review the outline before any slides are made.",
+      "presenterHeading": "Who presents?",
+      "presenterLede": "Add a photo and your digital presenter appears as a talking video on the slides that call for one. Or keep the deck voice-only."
+    },
+    "locked": "Create the outline first",
+    "documentCount": "{count} document | {count} documents",
+    "topicTitle": "What’s it about?",
+    "topicHint": "A prompt, documents, or both.",
+    "lookTitle": "Pick a look",
+    "lookPlaceholder": "Choose a template for your slides.",
+    "filesLost": "Re-add your documents; files aren't kept after a reload.",
+    "languageNeeded": "Documents need a language.",
+    "chooseLanguage": "Choose one",
+    "templatesFailed": "Templates couldn’t load. Reload the page to try again.",
+    "noTemplates": "No templates are available yet. Add one in Templates, then come back to create your outline.",
+    "languageError": "Documents need a language. Pick one under Language, then create the outline.",
+    "stage": {
+      "documents": "Processing documents…",
+      "outline": "Preparing outline…",
+      "photo": "Uploading your presenter photo…"
+    },
+    "blockers": {
+      "topic": "Add a topic or a document",
+      "look": "Pick a template"
+    },
+    "lockedNotice": {
+      "presenter": "Create the outline first: it opens the next steps",
+      "topic": "Create the outline first: continue to Presenter, then choose Create outline"
+    },
+    "status": {
+      "noPhoto": "No photo yet: this deck will be voice only",
+      "outlineCount": "Writes an outline for {count} slide | Writes an outline for {count} slides",
+      "outlineAuto": "Writes an outline; the slide count is chosen automatically",
+      "noSlidesYet": "No slides are made until you approve it."
+    },
+    "nextPresenter": "Next: Presenter",
+    "createOutline": "Create outline",
+    "working": "Working…",
+    "startFailed": "Couldn’t start your presentation",
+    "startRetry": "Try Create outline again; your topic and settings are kept.",
+    "photoUploadFailed": "Your presenter photo didn’t upload, so the deck is voice only for now. Add it again under Presenter and language on the Narration step."
+  },
+  "presentation": {
+    "loading": "Loading presentation",
+    "notFound": "Presentation not found",
+    "loadFailed": "Could not load this presentation",
+    "mayBeDeleted": "It may have been deleted.",
+    "tryAgain": "Try again",
+    "backToLibrary": "Back to library"
+  },
+  "editor": {
+    "planningStage": "Planning motion for every slide…",
+    "planningLabel": "Deck motion planning"
+  },
+  "present": {
+    "loadFailed": "Couldn't load this presentation."
+  },
+  "library": {
+    "title": "Your presentations",
+    "newPresentation": "New presentation",
+    "heading": "What will you create today?",
+    "welcomeNamed": "Welcome back, {name}.",
+    "welcomeBare": "Welcome back.",
+    "tagline": "Your next great story is waiting to happen.",
+    "startTitle": "Start with an idea.",
+    "startBody": "Describe it, attach a document, and get an outline you can shape into slides.",
+    "startCta": "Create a presentation",
+    "listTitle": "Your presentations",
+    "loadFailed": "Could not load your presentations",
+    "freshTitle": "A fresh canvas",
+    "freshBody": "Make something that’s yours.",
+    "duplicated": "Duplicated \"{title}\"",
+    "duplicateFailed": "Could not duplicate the presentation",
+    "deleteFailed": "Could not delete the presentation"
+  },
+  "setup": {
+    "title": "Welcome to Slideshows",
+    "description": "Create the administrator account for this workspace.",
+    "username": "Username",
+    "password": "Password",
+    "confirm": "Confirm password",
+    "usernameRule": "Username must be at least 3 characters, with no spaces.",
+    "passwordRule": "Password must be at least 8 characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "submitting": "Creating account…",
+    "submit": "Create account",
+    "failed": "Couldn't finish setup. Check your connection and try again."
+  },
+  "login": {
+    "title": "Sign in to Slideshows",
+    "description": "Use the account you created during setup.",
+    "username": "Username",
+    "password": "Password",
+    "failed": "Couldn't sign in. Check your connection and try again.",
+    "submitting": "Signing in…",
+    "submit": "Sign in"
+  },
+  "templateDetail": {
+    "parent": "Templates",
+    "fallbackTitle": "Template",
+    "actions": "Template actions",
+    "rename": "Rename",
+    "delete": "Delete",
+    "use": "Use this template",
+    "custom": "Custom",
+    "builtIn": "Built-in",
+    "layoutCount": "{count} layout | {count} layouts",
+    "notFound": "Template not found",
+    "notFoundBody": "It may have been deleted or renamed.",
+    "backToTemplates": "Back to templates",
+    "previewLayout": "Preview layout {number}",
+    "layoutsFailed": "Could not load this template’s layouts",
+    "noLayouts": "This template has no layouts yet.",
+    "retry": "Retry",
+    "loadFailed": "Could not load templates",
+    "renamed": "Template renamed",
+    "renameFailed": "Could not rename the template",
+    "deleted": "Template deleted",
+    "deleteFailed": "Could not delete the template"
+  },
+  "templates": {
+    "title": "Templates",
+    "heading": "A head start on something great.",
+    "intro": "Every layout your next deck can be built from.",
+    "noMatch": "No templates match “{query}”",
+    "noBuiltIn": "No built-in templates",
+    "tryDifferent": "Try a different name or type.",
+    "clear": "Clear",
+    "noCustom": "No custom templates",
+    "customHint": "Custom templates will appear here once they’re created.",
+    "none": "No templates",
+    "noneHint": "There are no templates to show yet.",
+    "loadFailed": "Could not load templates",
+    "retry": "Retry"
+  },
+  "settings": {
+    "title": "Settings",
+    "introAdmin": "Choose the providers that write, illustrate and research your decks, and manage who can use them.",
+    "introMember": "Manage your account, password and personal API keys.",
+    "sections": {
+      "text": "Text",
+      "images": "Images",
+      "webSearch": "Web search",
+      "users": "Users",
+      "apiKeys": "API keys",
+      "account": "Account"
+    },
+    "leavePrompt": "You have unsaved changes. Leave without saving?",
+    "retry": "Retry"
+  }
+}

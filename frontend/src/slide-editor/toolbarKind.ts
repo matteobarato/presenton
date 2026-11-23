@@ -1,3 +1,4 @@
+import { i18n } from '@/i18n'
 import { getElementAtSelection, type RawElement, type RawUi, type Selection } from '@/slide-editor/model'
 import { ungroupSelection } from '@/slide-editor/ops'
 import { isVideoPlaceholderElement } from '@/render/legacy/components/slide-editor/video/video-placeholder'
@@ -58,30 +59,34 @@ export function isGroupSelection(ui: RawUi | null, sel: Selection): boolean {
   return !!ui && sel?.kind === 'component' && ungroupSelection(ui, sel) !== null
 }
 
-/** Short name of what is selected: "Text", "List", "Image", "Icon", "Shape", "Line", "Video", "Table", "Chart", "Infographic", "Flex layout", "Grid layout", "Container", "Cell", "Group", "Element", or "N items". */
+/** Short, translated name of what is selected ("Text", "Flex layout", "Cell", "N items", ...). */
 export function selectionLabel(ui: RawUi | null, sel: Selection, cell?: TableCellRef | null): string | null {
   if (!sel) return null
-  if (sel.kind === 'multi-component') return `${sel.componentIndexes.length} items`
+  if (sel.kind === 'multi-component') return i18n.global.t('slideEditor.selection.items', { count: sel.componentIndexes.length }, sel.componentIndexes.length)
   const kind = toolbarKind(ui, sel)
-  if (kind === 'table' && cell) return 'Cell'
-  const names: Partial<Record<ToolbarKind, string>> = {
-    text: 'Text',
-    list: 'List',
-    image: 'Image',
-    icon: 'Icon',
-    shape: 'Shape',
-    line: 'Line',
-    video: 'Video',
-    table: 'Table',
-    chart: 'Chart',
-    infographic: 'Infographic',
+  if (kind === 'table' && cell) return i18n.global.t('slideEditor.selection.cell')
+  const nameKeys: Partial<Record<ToolbarKind, string>> = {
+    text: 'slideEditor.selection.text',
+    list: 'slideEditor.selection.list',
+    image: 'slideEditor.selection.image',
+    icon: 'slideEditor.selection.icon',
+    shape: 'slideEditor.selection.shape',
+    line: 'slideEditor.selection.line',
+    video: 'slideEditor.selection.video',
+    table: 'slideEditor.selection.table',
+    chart: 'slideEditor.selection.chart',
+    infographic: 'slideEditor.selection.infographic',
   }
   if (kind === 'layout') {
     const root = dataRoot(ui, sel, 'layout')
     const type = root ? getElementAtSelection(ui!, root)?.type : undefined
-    return type === 'flex' ? 'Flex layout' : type === 'grid' ? 'Grid layout' : 'Container'
+    return type === 'flex'
+      ? i18n.global.t('slideEditor.selection.flexLayout')
+      : type === 'grid'
+        ? i18n.global.t('slideEditor.selection.gridLayout')
+        : i18n.global.t('slideEditor.selection.container')
   }
-  if (names[kind]) return names[kind]!
-  if (isGroupSelection(ui, sel)) return 'Group'
-  return 'Element'
+  if (nameKeys[kind]) return i18n.global.t(nameKeys[kind]!)
+  if (isGroupSelection(ui, sel)) return i18n.global.t('slideEditor.selection.group')
+  return i18n.global.t('slideEditor.selection.element')
 }

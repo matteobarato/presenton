@@ -1,0 +1,603 @@
+{
+  "theme": {
+    "title": "Appearance",
+    "hint": "Choose a theme, or follow your device. Saved on this device.",
+    "options": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System"
+    }
+  },
+  "account": {
+    "signOut": "Sign out",
+    "username": "Username",
+    "role": "Role",
+    "roles": {
+      "admin": "Administrator",
+      "member": "Member"
+    },
+    "password": {
+      "title": "Change password",
+      "hint": "You stay signed in here; every other session is signed out.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "currentRequired": "Enter your current password.",
+      "minLength": "The new password must be at least {min} characters.",
+      "maxLength": "The new password must be at most {max} characters.",
+      "sameAsCurrent": "The new password must be different from the current one.",
+      "mismatch": "The new passwords do not match.",
+      "minHint": "At least {min} characters.",
+      "changed": "Password changed",
+      "changedDescription": "Your other sessions were signed out.",
+      "failed": "The password could not be changed."
+    }
+  },
+  "text": {
+    "providerLabel": "Text provider",
+    "selectPlaceholder": "Select text provider",
+    "searchPlaceholder": "Search text providers",
+    "connectedAccount": "Connected account",
+    "switchProvider": "Switch to another provider"
+  },
+  "readOnly": {
+    "locked": "Provider settings are locked by this deployment.",
+    "managed": "An administrator manages these settings.",
+    "text": "Text",
+    "images": "Images",
+    "webSearch": "Web search"
+  },
+  "saveBar": {
+    "unsaved": "You have unsaved changes.",
+    "discard": "Discard"
+  },
+  "signIn": {
+    "setupPrefix": "ChatGPT sign-in and Presenton Cloud are set up in the",
+    "classicApp": "classic app",
+    "setupSuffix": "."
+  },
+  "secret": {
+    "show": "Show API key",
+    "hide": "Hide API key"
+  },
+  "sidebar": {
+    "sections": {
+      "text": "Text",
+      "images": "Images",
+      "webSearch": "Web search",
+      "users": "Users",
+      "account": "Account",
+      "apiKeys": "API keys"
+    },
+    "label": "Settings sections"
+  },
+  "providerPicker": {
+    "searchDefault": "Search providers",
+    "noneFound": "No provider found."
+  },
+  "modelCombobox": {
+    "label": "{provider} model ID",
+    "placeholder": "Select a discovered model or enter any model ID",
+    "listLabel": "{provider} models",
+    "searchPlaceholder": "Search or enter a model ID…",
+    "searchLabel": "Search or enter a model ID",
+    "useCustom": "Use “{model}”",
+    "customHint": "Save as a custom model ID",
+    "noModels": "No discovered models yet.",
+    "hint": "Discovered models are suggestions. Custom aliases and provider-specific model IDs are accepted."
+  },
+  "shared": {
+    "optional": "Optional",
+    "optionalLabel": "{label} (optional)",
+    "advancedSettings": "Advanced settings",
+    "getApiKey": "Get an API key",
+    "enterYour": "Enter your {name}",
+    "tryAgain": "Please try again.",
+    "apiKey": "API key"
+  },
+  "images": {
+    "managedTitle": "Managed by Presenton Cloud",
+    "managedHint": "Image generation is handled for you, so there is nothing to configure here.",
+    "generate": "Generate images",
+    "providerLabel": "Image provider",
+    "providerPlaceholder": "Select image provider",
+    "providerSearch": "Search image providers",
+    "quality": {
+      "dalle3": "DALL·E 3 Image Quality",
+      "gptImage15": "GPT Image 1.5 Quality"
+    },
+    "comfyui": {
+      "url": "ComfyUI Server URL",
+      "workflow": "Workflow JSON",
+      "workflowPlaceholder": "Paste your ComfyUI workflow JSON here (export via \"Export (API)\" in ComfyUI)"
+    },
+    "webui": {
+      "url": "Open WebUI URL",
+      "keyLabel": "API Key"
+    },
+    "compat": {
+      "url": "OpenAI Compatible URL",
+      "urlPlaceholder": "Enter your URL",
+      "keyLabel": "OpenAI Compatible API Key",
+      "model": "Image model id",
+      "modelPlaceholder": "e.g. dall-e-3, gpt-image-1"
+    }
+  },
+  "webSearch": {
+    "managedTitle": "Managed by Presenton Cloud",
+    "managedHint": "Web search is handled for you, so there is nothing to configure here.",
+    "enable": "Web search",
+    "providerLabel": "Web search provider",
+    "providerPlaceholder": "Select web search provider",
+    "providerSearch": "Search web search providers",
+    "autoHint": "Model-native web grounding is preferred when available. Otherwise, external search fallback is used.",
+    "maxResults": "Maximum results"
+  },
+  "bedrock": {
+    "model": "Model",
+    "modelPlaceholder": "e.g. us.anthropic.claude-3-5-haiku-20241022-v1:0",
+    "region": "Region",
+    "regionPlaceholder": "e.g. us-east-1",
+    "apiKeyLabel": "Bedrock API key (optional)",
+    "apiKeyPlaceholder": "Use this OR AWS access keys below",
+    "accessKeyId": "AWS Access Key ID",
+    "accessKeyIdPlaceholder": "Use with AWS Secret Access Key",
+    "secretAccessKey": "AWS Secret Access Key",
+    "secretAccessKeyPlaceholder": "Use with AWS Access Key ID",
+    "authHint": "Authentication: set either Bedrock API key, or AWS access key ID + secret key.",
+    "sessionToken": "AWS Session Token",
+    "profileName": "AWS Profile Name"
+  },
+  "providerFields": {
+    "baseUrl": "Base URL",
+    "checkModels": "Check models",
+    "checkingModels": "Checking for models…",
+    "noModelsFound": "No models were discovered. You can still enter a valid model ID or alias manually above."
+  },
+  "vertex": {
+    "keyLabel": "Vertex AI API key",
+    "azureKeyLabel": "Azure OpenAI API key",
+    "model": "Model",
+    "modelPlaceholder": "e.g. gemini-2.5-flash",
+    "projectId": "Project ID",
+    "region": "Region",
+    "regionPlaceholder": "e.g. us-central1",
+    "customEndpoint": "Custom endpoint",
+    "azureEndpoint": "Azure endpoint",
+    "azureModel": "Model name",
+    "azureModelPlaceholder": "e.g. gpt-5.4-mini",
+    "apiVersion": "API version",
+    "apiVersionPlaceholder": "e.g. 2024-12-01-preview"
+  },
+  "advancedText": {
+    "title": "Advanced text-provider settings",
+    "optional": "(optional)",
+    "description": "Configure output limits and reasoning behaviour when needed.",
+    "reset": "Reset to defaults",
+    "generation": {
+      "heading": "Generation controls",
+      "help": "Set an output limit and control reasoning for supported models.",
+      "maxTokens": "Max output tokens",
+      "modelMaximum": "Model maximum",
+      "useModelMaximum": "Use the selected model's maximum output limit",
+      "limitHelp": "Leave blank to use the default, enter a manual limit, or select model maximum to use the selected model's advertised limit. The selected limit applies to every generation attempt, including retries.",
+      "effectiveDefault": "The effective default is shown in the field.",
+      "reasoningMode": "Reasoning mode",
+      "reasoningModeHelp": "Use the backend model default, force reasoning on, or turn it off for faster responses.",
+      "reasoningEffort": "Reasoning effort",
+      "reasoningEffortHelp": "Higher effort may improve difficult generations, but can increase latency and token usage."
+    },
+    "routing": {
+      "heading": "OpenRouter routing",
+      "help": "Leave the order empty to let OpenRouter route automatically.",
+      "load": "Load providers",
+      "add": "Add {name}",
+      "none": "No further providers are available for this model.",
+      "order": "Provider order",
+      "unverified": "(unverified)",
+      "moveUp": "Move {name} up",
+      "moveDown": "Move {name} down",
+      "remove": "Remove {name}",
+      "fallbacks": "Allow fallbacks",
+      "requireParameters": "Require parameters",
+      "dataCollection": "Data collection",
+      "zdr": "Zero data retention (ZDR)",
+      "needModelAndKey": "Enter an OpenRouter model and API key first.",
+      "loadFailed": "Could not load providers."
+    },
+    "options": {
+      "modelDefault": "Model default",
+      "on": "On",
+      "off": "Off",
+      "minimal": "Minimal",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "extraHigh": "Extra high",
+      "maximum": "Maximum",
+      "default": "Default",
+      "yes": "Yes",
+      "no": "No",
+      "allow": "Allow",
+      "deny": "Deny"
+    }
+  },
+  "ollama": {
+    "connectFallback": "Check the Ollama URL and try again.",
+    "unexpectedEnd": "Pull ended unexpectedly. Check the model list and try again.",
+    "connected": {
+      "title": "Connected to Ollama",
+      "foundModels": "Found {count} downloaded model | Found {count} downloaded models. {more} more available in library.",
+      "reachableEmpty": "Ollama is reachable. Browse the library to download models."
+    },
+    "inContainer": {
+      "title": "Using in-container Ollama",
+      "requested": "host.docker.internal did not respond, so the Ollama URL was switched to localhost.",
+      "notRequested": "host.docker.internal did not respond, so this check used localhost."
+    },
+    "connectError": {
+      "title": "Could not connect to Ollama",
+      "description": "{message} Check the URL and try again."
+    },
+    "pull": {
+      "starting": "Starting pull…",
+      "processing": "Processing…",
+      "downloading": "Downloading…",
+      "cancelling": "Cancelling…",
+      "cancelled": "Pull cancelled.",
+      "failed": "Pull failed",
+      "downloadedToast": "Model downloaded",
+      "downloadedStatus": "Model downloaded.",
+      "readyDescription": "{name} is ready to use."
+    },
+    "emptyWithLibrary": "Ollama is reachable, but no models are installed. Download one below, then check again.",
+    "emptyNoLibrary": "Ollama is reachable, but no models are installed. Pull a model in Ollama, then check again.",
+    "urlLabel": "Ollama URL",
+    "urlHelp": "Required for generation. Use {url}, or click Check models to detect localhost when Ollama runs in the same container.",
+    "chooseModel": "Choose an Ollama model",
+    "selectModel": "Select a model",
+    "library": "Available in library ({count})",
+    "pullLabel": "Pull {name}",
+    "downloadingLabel": "Downloading {name}",
+    "downloadingStatus": "Downloading {name}: {status}",
+    "cancel": "Cancel",
+    "downloadedDone": "{name} has been downloaded and selected as your active model.",
+    "downloadCancelled": "Download of {name} was cancelled.",
+    "pullButton": "Pull"
+  },
+  "apiKeys": {
+    "validation": {
+      "chooseUser": "Choose who the key acts as.",
+      "giveLabel": "Give the key a label.",
+      "labelMax": "Label must be at most {max} characters.",
+      "expiry": "Expiry must be {min}–{max} days."
+    },
+    "loadFailed": "The API keys could not be loaded.",
+    "copyFailed": "Could not copy to the clipboard",
+    "copyFailedDescription": "Reveal the key and copy it by hand.",
+    "createFailed": "Could not create API key",
+    "revealFailed": "Could not reveal API key",
+    "revealLegacy": "This key was created before keys could be revealed. Create a new one instead.",
+    "revealRevoked": "This key has been revoked.",
+    "revokeFailed": "Could not revoke API key",
+    "copiedKey": "Copied “{label}”",
+    "copied": "Copied",
+    "revokedKey": "Revoked “{label}”",
+    "status": {
+      "active": "Active",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
+    "personal": {
+      "actsAs": "Your keys act as you,",
+      "reach": ", and reach only your decks.",
+      "sendOne": "Send one as"
+    },
+    "intro": "A key lets the REST API and MCP clients act as one user. Send it as",
+    "createTitle": "Create API key",
+    "createButton": "Create key",
+    "actsAs": "Acts as",
+    "choosePlaceholder": "Choose a user",
+    "adminUser": "{name} (admin)",
+    "label": "Label",
+    "labelPlaceholder": "e.g. Zapier, Claude Desktop",
+    "expiresAfter": "Expires after",
+    "days": "{count} day | {count} days",
+    "yourKeys": "Your API keys",
+    "keysHeading": "API keys",
+    "keysHint": "Reveal or copy a key whenever you configure a client. Revoking is immediate.",
+    "refresh": "Refresh API keys",
+    "retry": "Retry",
+    "emptyTitle": "No API keys yet",
+    "emptyPersonal": "Create one above to connect a REST or MCP client to your account.",
+    "emptyShared": "Create one above to connect a REST or MCP client.",
+    "deletedUser": "Deleted user",
+    "createdOn": "created {date}",
+    "revokedOn": "revoked {date}",
+    "expiresOn": "expires {date}",
+    "expiredOn": "expired {date}",
+    "lastUsed": "last used {date}",
+    "neverUsed": "never used",
+    "show": "Show {label}",
+    "hide": "Hide {label}",
+    "copy": "Copy {label}",
+    "revoke": "Revoke {label}",
+    "createdDialogTitle": "API key created",
+    "createdDialogDescription": "Copy “{label}” into your client now. You can reveal it again from this page later.",
+    "done": "Done",
+    "copyKey": "Copy key",
+    "revokeTitle": "Revoke “{label}”?",
+    "revokeDescription": "Clients using this key lose REST API and MCP access straight away. This cannot be undone.",
+    "revokeKey": "Revoke key"
+  },
+  "users": {
+    "validation": {
+      "usernameMin": "Username must be at least {min} characters.",
+      "usernameMax": "Username must be at most {max} characters.",
+      "usernameSpaces": "Username cannot contain spaces.",
+      "passwordMin": "Password must be at least {min} characters.",
+      "passwordMax": "Password must be at most {max} characters."
+    },
+    "loadFailed": "The accounts could not be loaded.",
+    "addTitle": "Add user",
+    "addHint": "New accounts sign in with a username and password. They see their own decks only.",
+    "usernameLabel": "Username",
+    "passwordLabel": "Password",
+    "passwordHint": "At least {min} characters for the password.",
+    "addButton": "Add user",
+    "added": "Added {name}",
+    "addFailed": "Could not add user",
+    "accountsHeading": "Accounts",
+    "accounts": "{count} account | {count} accounts",
+    "refresh": "Refresh accounts",
+    "retry": "Retry",
+    "admin": "Admin",
+    "user": "User",
+    "addedOn": "Added {date}",
+    "addedAtSetup": "Added at setup",
+    "managedByDeployment": "Managed by deployment",
+    "resetLabel": "Reset password for {name}",
+    "deleteLabel": "Delete {name}",
+    "resetTitle": "Reset password",
+    "resetDescription": "Set a new password for {name}. They will be signed out everywhere.",
+    "newPassword": "New password",
+    "passwordMinHint": "At least {min} characters.",
+    "resetButton": "Reset password",
+    "resetToast": "Password reset for {name}",
+    "resetToastDescription": "Their existing sessions were signed out.",
+    "resetFailed": "Could not reset password",
+    "deleteTitle": "Delete {name}?",
+    "deleteDescription": "Their presentations, uploads, exports and API keys are removed permanently. This cannot be undone.",
+    "deleteButton": "Delete user",
+    "deleted": "Deleted {name}",
+    "deleteFailed": "Could not delete user"
+  },
+  "validate": {
+    "noProvider": "Select a text provider.",
+    "maxOutputTokens": "Max output tokens must be a whole number greater than zero.",
+    "noImageProvider": "Select an image provider, or turn off image generation.",
+    "openaiKey": "OpenAI API key is required.",
+    "openaiModel": "Enter or select an OpenAI chat model ID on the Text Provider tab.",
+    "deepseekKey": "DeepSeek API key is required.",
+    "deepseekModel": "Enter or select a DeepSeek model ID.",
+    "googleKey": "Google API key is required.",
+    "googleModel": "Enter or select a Google model ID.",
+    "vertexRequiresAuth": "Vertex AI requires either a Vertex API key or a GCP project.",
+    "vertexOneMode": "Use either Vertex API key mode or project/location mode, not both.",
+    "vertexModel": "Vertex model is required.",
+    "azureKey": "Azure OpenAI API key is required.",
+    "azureEndpoint": "Azure endpoint is required.",
+    "azureApiVersion": "Azure OpenAI API version is required.",
+    "azureModel": "Azure model name is required.",
+    "bedrockModel": "Bedrock model is required.",
+    "bedrockAuth": "Provide Bedrock API key, or AWS access key ID + secret key.",
+    "openrouterKey": "OpenRouter API key is required.",
+    "openrouterModel": "Select or enter an OpenRouter model id.",
+    "cerebrasKey": "Cerebras API key is required.",
+    "cerebrasModel": "Select or enter a Cerebras model id.",
+    "fireworksKey": "Fireworks API key is required.",
+    "fireworksModel": "Select or enter a Fireworks model id.",
+    "togetherKey": "Together API key is required.",
+    "togetherModel": "Select or enter a Together model id.",
+    "anthropicKey": "Anthropic API key is required.",
+    "anthropicModel": "Enter or select an Anthropic model ID.",
+    "ollamaUrl": "Ollama URL is required. Enter your Ollama server URL, or click \"Check models\" to fill the reachable default.",
+    "ollamaModel": "Select an Ollama model. If none appear, confirm Ollama is running and reachable.",
+    "customUrl": "Enter your custom LLM endpoint URL (OpenAI-compatible).",
+    "customModel": "Enter a model ID or alias for your custom endpoint.",
+    "litellmUrl": "LiteLLM base URL is required.",
+    "litellmModel": "Enter or select a LiteLLM model ID or alias.",
+    "lmstudioModel": "Enter or select an LM Studio model ID.",
+    "codexModel": "Select a Codex model.",
+    "codexSupported": "Select a supported Codex model.",
+    "unsupported": "Unsupported or unknown text provider.",
+    "pexelsKey": "Pexels API key is required.",
+    "pixabayKey": "Pixabay API key is required.",
+    "dalleKey": "OpenAI API key is required for DALL·E 3.",
+    "gptImageKey": "OpenAI API key is required for GPT Image 1.5.",
+    "geminiKey": "Google API key is required for Gemini Flash image generation.",
+    "nanobananaKey": "Google API key is required for NanoBanana Pro.",
+    "comfyuiUrl": "ComfyUI server URL is required.",
+    "openWebuiUrl": "Open WebUI URL is required.",
+    "compatibleImage": "OpenAI-compatible image API requires base URL, API key, and model.",
+    "invalidImage": "Select a valid image provider.",
+    "noWebSearch": "Select a web search provider, or turn off web search.",
+    "searxngUrl": "SearXNG base URL is required.",
+    "tavilyKey": "Tavily API key is required.",
+    "exaKey": "Exa API key is required.",
+    "braveKey": "Brave Search API key is required.",
+    "invalidWebSearch": "Select a valid web search provider."
+  },
+  "summary": {
+    "cloudImages": "Cloud images",
+    "imageDisabled": "Image generation disabled",
+    "noText": "No text provider",
+    "noImage": "No image provider",
+    "cloudWebSearch": "Cloud web search",
+    "webProvider": "Web: {name}",
+    "noWebProvider": "No provider",
+    "webDisabled": "Web search disabled",
+    "textWithModel": "{label} ({model})"
+  },
+  "providers": {
+    "text": {
+      "openai": {
+        "description": "OpenAI's latest text generation model",
+        "keyLabel": "OpenAI API key"
+      },
+      "deepseek": {
+        "description": "DeepSeek models via DeepSeek API",
+        "keyLabel": "DeepSeek API key",
+        "urlLabel": "DeepSeek base URL"
+      },
+      "google": {
+        "description": "Google's primary text generation model",
+        "keyLabel": "Google API key"
+      },
+      "vertex": {
+        "description": "Google Vertex AI models",
+        "keyLabel": "Vertex AI API key"
+      },
+      "azure": {
+        "description": "Azure-hosted OpenAI deployments",
+        "keyLabel": "Azure OpenAI API key"
+      },
+      "bedrock": {
+        "description": "AWS Bedrock foundation models",
+        "keyLabel": "Bedrock API key (optional)"
+      },
+      "openrouter": {
+        "description": "Many models through OpenRouter’s OpenAI-compatible API",
+        "keyLabel": "OpenRouter API key"
+      },
+      "cerebras": {
+        "description": "Cerebras Cloud via OpenAI-compatible API",
+        "keyLabel": "Cerebras API key"
+      },
+      "litellm": {
+        "description": "OpenAI-compatible LiteLLM proxy or gateway",
+        "keyLabel": "LiteLLM API key (optional)",
+        "keyPlaceholder": "Optional if your proxy does not require auth",
+        "urlLabel": "LiteLLM base URL",
+        "urlPlaceholder": "e.g. http://host.docker.internal:4000/v1"
+      },
+      "fireworks": {
+        "description": "Fireworks AI via OpenAI-compatible API",
+        "keyLabel": "Fireworks API key",
+        "urlLabel": "Fireworks base URL"
+      },
+      "together": {
+        "description": "Together AI via OpenAI-compatible API",
+        "keyLabel": "Together AI API key",
+        "urlLabel": "Together AI base URL"
+      },
+      "lmstudio": {
+        "description": "Local LM Studio OpenAI-compatible server",
+        "keyLabel": "LM Studio API key (optional)",
+        "urlLabel": "LM Studio base URL"
+      },
+      "anthropic": {
+        "description": "Anthropic's Claude models",
+        "keyLabel": "Anthropic API key"
+      },
+      "ollama": {
+        "description": "Ollama's primary text generation model",
+        "urlLabel": "Ollama URL"
+      },
+      "custom": {
+        "description": "OpenAI-compatible LLM",
+        "keyLabel": "Custom LLM API key",
+        "urlLabel": "Custom LLM URL",
+        "urlPlaceholder": "OpenAI-compatible URL"
+      }
+    },
+    "image": {
+      "pexels": {
+        "description": "Free stock photo and video platform",
+        "apiKeyFieldLabel": "Pexels API Key"
+      },
+      "pixabay": {
+        "description": "Free images and videos",
+        "apiKeyFieldLabel": "Pixabay API Key"
+      },
+      "dall-e-3": {
+        "description": "OpenAI's image generation model",
+        "apiKeyFieldLabel": "OpenAI API Key"
+      },
+      "gemini_flash": {
+        "description": "Google's fast image generation model",
+        "apiKeyFieldLabel": "Google API Key"
+      },
+      "nanobanana_pro": {
+        "description": "Google's advanced image generation model",
+        "apiKeyFieldLabel": "Google API Key"
+      },
+      "comfyui": {
+        "description": "Use your local ComfyUI server with custom workflows",
+        "apiKeyFieldLabel": "ComfyUI Server URL"
+      },
+      "open_webui": {
+        "description": "Use your Open WebUI server for image generation",
+        "apiKeyFieldLabel": "Open WebUI URL"
+      },
+      "openai_compatible": {
+        "description": "OpenAI-compatible /v1/images endpoint (LiteLLM, Azure, vLLM, etc.)",
+        "apiKeyFieldLabel": "OpenAI-compatible base URL"
+      },
+      "gpt_image_1_5": {
+        "description": "OpenAI's image generation model",
+        "apiKeyFieldLabel": "OpenAI API Key"
+      }
+    },
+    "web": {
+      "auto": {
+        "label": "Default (Model)",
+        "description": "Use model-native web grounding when available. Otherwise web search stays off until you choose an external provider."
+      },
+      "searxng": {
+        "description": "Use a self-hosted SearXNG instance.",
+        "urlLabel": "SearXNG base URL"
+      },
+      "tavily": {
+        "description": "Search API optimized for AI applications.",
+        "apiKeyLabel": "Tavily API key"
+      },
+      "exa": {
+        "description": "AI-native web search with extracted result highlights.",
+        "apiKeyLabel": "Exa API key"
+      },
+      "brave": {
+        "description": "Brave Search API for web search results.",
+        "apiKeyLabel": "Brave Search API key"
+      }
+    },
+    "quality": {
+      "brave": "Standard",
+      "standard": "HD",
+      "hd": "Low",
+      "low": "Medium",
+      "medium": "High"
+    }
+  },
+  "access": {
+    "loadFailed": "The provider settings could not be loaded."
+  },
+  "draft": {
+    "codexSignIn": "Sign in to ChatGPT again",
+    "codexSignInDescription": "Open the classic app to sign in, or switch to another provider.",
+    "presentonConnect": "Connect Presenton first",
+    "presentonConnectDescription": "Sign in to Presenton Cloud before selecting it as the text provider.",
+    "cannotSave": "Cannot save settings",
+    "saveFailed": "Could not save settings",
+    "saveFallback": "The settings could not be saved. Please try again.",
+    "providerCheckFailed": "The provider check failed.",
+    "ollamaModelMissing": "The selected model \"{model}\" is not available at {url}. Check models and select an available model.",
+    "saved": "Settings saved",
+    "savedDescription": "Your configuration was saved successfully."
+  },
+  "discovery": {
+    "fallbackMessage": "The provider did not return a model list.",
+    "loadFailed": "Could not load models",
+    "manualHint": "{message} You can enter a model ID manually."
+  }
+}

@@ -9,5 +9,5 @@ const InfographicPanel = framed(InfographicSection)
 /** Edit items (item-based infographics) and a panel with the full Infographic section. */
 export const infographicBar: BarItem[] = [
   { type: 'custom', id: 'infographic-edit-items', component: InfographicEditItems },
-  { type: 'panel', id: 'infographic', label: 'Infographic', icon: Workflow, component: InfographicPanel, props: (c: BarContext) => ({ presentation: c.presentation }) },
+  { type: 'panel', id: 'infographic', label: 'editorCanvas.bar.labels.infographic', icon: Workflow, component: InfographicPanel, props: (c: BarContext) => ({ presentation: c.presentation }) },
 ]

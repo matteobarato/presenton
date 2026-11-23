@@ -2,12 +2,13 @@ import { readListMarker, setListMarker } from '@/slide-editor/elementStyle'
 import { useSelectedElement } from '@/slide-editor/useSelectedElement'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import { computed } from 'vue'
+import { i18n } from '@/i18n'
 
 export type ListMarker = 'bullet' | 'number' | 'none'
 export const MARKERS = [
-  { value: 'bullet', label: 'Bullet' },
-  { value: 'number', label: 'Number' },
-  { value: 'none', label: 'None' },
+  { value: 'bullet', get label() { return i18n.global.t('editorInspector.element.list.bullet') } },
+  { value: 'number', get label() { return i18n.global.t('editorInspector.element.list.number') } },
+  { value: 'none', get label() { return i18n.global.t('editorInspector.element.list.none') } },
 ] as const
 
 /** The list marker of the selected list, shared by the List inspector section and the floating bar. */

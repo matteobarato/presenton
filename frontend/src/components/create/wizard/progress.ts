@@ -1,14 +1,16 @@
+import { i18n } from '@/i18n'
+
 /** URL keys: `avatar` is the Narration step (step 5). The keys are kept so existing links keep working. */
 export type WizardStepKey = 'topic' | 'presenter' | 'outline' | 'preview' | 'avatar' | 'export'
 export type DeckStepKey = 'outline' | 'preview' | 'avatar' | 'export'
 
-export const WIZARD_STEPS: readonly { key: WizardStepKey; label: string }[] = [
-  { key: 'topic', label: 'Topic' },
-  { key: 'presenter', label: 'Presenter' },
-  { key: 'outline', label: 'Outline' },
-  { key: 'preview', label: 'Preview' },
-  { key: 'avatar', label: 'Narration' },
-  { key: 'export', label: 'Export' },
+export const WIZARD_STEPS: readonly { key: WizardStepKey; readonly label: string }[] = [
+  { key: 'topic', get label() { return i18n.global.t('create.steps.topic') } },
+  { key: 'presenter', get label() { return i18n.global.t('create.steps.presenter') } },
+  { key: 'outline', get label() { return i18n.global.t('create.steps.outline') } },
+  { key: 'preview', get label() { return i18n.global.t('create.steps.preview') } },
+  { key: 'avatar', get label() { return i18n.global.t('create.steps.avatar') } },
+  { key: 'export', get label() { return i18n.global.t('create.steps.export') } },
 ]
 
 export type StepState = 'done' | 'available' | 'locked' | 'running'
@@ -47,8 +49,8 @@ export interface DeckProgress {
   resume: DeckStepKey
 }
 
-const PREVIEW_LOCK = 'Generate slides from the outline first'
-const AVATAR_LOCK = 'Slides must finish generating first'
+const previewLock = () => i18n.global.t('create.progress.generateFirst')
+const avatarLock = () => i18n.global.t('create.progress.slidesFinish')
 
 const status = (state: StepState, reason: string | null = null): StepStatus => ({
   state,
@@ -76,7 +78,7 @@ export function deckProgress(i: DeckProgressInput): DeckProgress {
         : slideCount > 0
           ? 'done'
           : 'available',
-    PREVIEW_LOCK,
+    previewLock(),
   )
   const previewDone = preview.state === 'done'
 
@@ -86,11 +88,11 @@ export function deckProgress(i: DeckProgressInput): DeckProgress {
     (!presenterWork || avatar.withVideo >= avatar.placeholderSlides)
   const avatarStep = status(
     !previewDone ? 'locked' : i.pipelineRunning ? 'running' : avatarDone ? 'done' : 'available',
-    AVATAR_LOCK,
+    avatarLock(),
   )
 
   // Export is open as soon as the slides are in; missing narration or presenter videos only warn (see ExportStep).
-  const exportStep = status(previewDone ? 'available' : 'locked', AVATAR_LOCK)
+  const exportStep = status(previewDone ? 'available' : 'locked', avatarLock())
 
   const steps: Record<DeckStepKey, StepStatus> = {
     outline,

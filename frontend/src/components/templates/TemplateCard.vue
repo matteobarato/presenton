@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { ArrowUpRight } from 'lucide-vue-next'
 import type { TemplateKind, TemplateSummary } from '@/api/templates'
@@ -15,9 +16,11 @@ const cover = computed(() => {
   const first = layouts.value[0]
   return first ? layoutToSlide(props.template.id, first, 0) : null
 })
+const { t } = useI18n()
 const count = computed(() => props.template.layouts.length)
 const meta = computed(
-  () => `${count.value} ${count.value === 1 ? 'layout' : 'layouts'} · ${props.template.kind === 'custom' ? 'Custom' : 'Built-in'}`,
+  () =>
+    `${t('templates.layoutCount', { count: count.value }, count.value)} · ${props.template.kind === 'custom' ? t('templates.kind.custom') : t('templates.kind.builtin')}`,
 )
 </script>
 
@@ -25,7 +28,7 @@ const meta = computed(
   <article data-testid="template-card" class="group min-w-0">
     <RouterLink
       :to="{ path: `/templates/${template.id}`, query: from ? { from } : undefined }"
-      :aria-label="`View ${template.name}`"
+      :aria-label="t('templates.card.view', { name: template.name })"
       class="block rounded-card focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
     >
       <div class="aspect-video overflow-hidden rounded-card bg-sx-101416 shadow-[0_6px_15px_#0002] transition-transform duration-200 motion-safe:group-hover:-translate-y-1">
@@ -41,7 +44,7 @@ const meta = computed(
         <span
           class="flex flex-none items-center gap-2 text-[10px] text-tx-a1bac9 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100 max-[760px]:opacity-100"
         >
-          View template <ArrowUpRight class="size-[15px]" aria-hidden="true" />
+          {{ t('templates.card.viewTemplate') }} <ArrowUpRight class="size-[15px]" aria-hidden="true" />
         </span>
       </div>
     </RouterLink>

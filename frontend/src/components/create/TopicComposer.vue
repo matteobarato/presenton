@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import { FileText, Paperclip, X } from 'lucide-vue-next'
 import { ALLOWED_EXTENSIONS, MAX_FILES } from '@/api/files'
+const { t } = useI18n()
 
 /** Step 1 (Topic): one prompt surface that also takes documents (click the clip or drop anywhere on it). */
 const props = defineProps<{ disabled?: boolean }>()
@@ -9,12 +11,8 @@ const prompt = defineModel<string>('prompt', { required: true })
 const files = defineModel<File[]>('files', { required: true })
 const emit = defineEmits<{ submit: [] }>()
 
-const STARTERS = [
-  'Quarterly business review for the leadership team: results, risks and next quarter’s plan',
-  'Pitch deck for a seed round: problem, product, market, traction and the ask',
-  'Onboarding guide for new hires: our mission, how we work and the first 30 days',
-  'Lecture on renewable energy for high school students, with simple examples',
-]
+const STARTER_KEYS = ['qbr', 'pitch', 'onboarding', 'lecture'] as const
+const starters = computed(() => STARTER_KEYS.map((key) => t(`create.topic.starters.${key}`)))
 
 const notice = ref('')
 const dragging = ref(false)
@@ -31,10 +29,10 @@ function add(candidates: File[]) {
   const allowed = candidates.filter(isAllowed)
   const messages: string[] = []
   if (allowed.length < candidates.length) {
-    messages.push('Some files are not supported. Use Word, PowerPoint, spreadsheets, PDF, TXT or images.')
+    messages.push(t('create.topic.unsupported'))
   }
   const next = [...files.value, ...allowed]
-  if (next.length > MAX_FILES) messages.push(`You can attach up to ${MAX_FILES} files.`)
+  if (next.length > MAX_FILES) messages.push(t('create.topic.tooMany', { max: MAX_FILES }))
   notice.value = messages.join(' ')
   files.value = next.slice(0, MAX_FILES)
 }
@@ -74,7 +72,7 @@ defineExpose({ focus: () => textarea.value?.focus() })
       @dragleave.self="dragging = false"
       @drop.prevent="onDrop"
     >
-      <label for="create-prompt" class="sr-only">What is your presentation about?</label>
+      <label for="create-prompt" class="sr-only">{{ t('create.topic.promptLabel') }}</label>
       <textarea
         id="create-prompt"
         ref="textarea"
@@ -82,10 +80,10 @@ defineExpose({ focus: () => textarea.value?.focus() })
         :disabled="disabled"
         rows="4"
         class="min-h-[112px] w-full resize-none bg-transparent px-5 pt-[18px] pb-2 text-[14px] leading-[1.75] text-tx-e2eef5 outline-none! placeholder:text-tx-8a9ba6 max-[760px]:min-h-[104px] max-[760px]:px-4 max-[760px]:text-[13px]"
-        placeholder="Describe the topic, who it’s for and what it should achieve…"
+        :placeholder="t('create.topic.placeholder')"
         @keydown="onKeydown"
       />
-      <ul v-if="files.length" class="flex flex-wrap gap-1.5 px-4 pb-1" aria-label="Attached files">
+      <ul v-if="files.length" class="flex flex-wrap gap-1.5 px-4 pb-1" :aria-label="t('create.topic.attachedFiles')">
         <li
           v-for="(file, i) in files"
           :key="`${file.name}-${file.size}-${i}`"
@@ -96,7 +94,7 @@ defineExpose({ focus: () => textarea.value?.focus() })
           <button
             type="button"
             :disabled="disabled"
-            :aria-label="`Remove ${file.name}`"
+            :aria-label="t('create.topic.removeFile', { name: file.name })"
             class="grid size-5 place-items-center rounded-full text-muted hover:bg-ov/[0.06] hover:text-text"
             @click="remove(i)"
           >
@@ -109,12 +107,12 @@ defineExpose({ focus: () => textarea.value?.focus() })
           class="inline-flex h-[30px] max-[559px]:h-11 cursor-pointer items-center gap-2 rounded-button px-2.5 text-[12px] text-tx-a9b8c0 transition-colors hover:bg-ov/[0.05] hover:text-text has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent"
         >
           <Paperclip :size="14" aria-hidden="true" />
-          <span>{{ files.length ? `Attach more (${files.length}/${MAX_FILES})` : 'Attach documents' }}</span>
+          <span>{{ files.length ? t('create.topic.attachMore', { count: files.length, max: MAX_FILES }) : t('create.topic.attachDocs') }}</span>
           <input type="file" class="sr-only" multiple :accept="accept" :disabled="disabled" data-testid="file-input" @change="onPick" />
         </label>
         <span class="flex items-center gap-3 text-[12px] text-tx-9aabb4 tabular-nums">
-          <span v-if="words" aria-hidden="true">{{ words }} {{ words === 1 ? 'word' : 'words' }}</span>
-          <span class="flex items-center gap-1 max-[760px]:hidden"><kbd>{{ modKey }}</kbd><kbd>Enter</kbd> for next: Presenter</span>
+          <span v-if="words" aria-hidden="true">{{ t('create.topic.words', { count: words }, words) }}</span>
+          <span class="flex items-center gap-1 max-[760px]:hidden"><kbd>{{ modKey }}</kbd><kbd>Enter</kbd> {{ t('create.topic.forNext') }}</span>
         </span>
       </div>
       <div
@@ -122,16 +120,16 @@ defineExpose({ focus: () => textarea.value?.focus() })
         class="pointer-events-none absolute inset-0 grid place-items-center rounded-[inherit] bg-sx-1b2328e6 text-[12px] font-medium text-accent"
         aria-hidden="true"
       >
-        Drop to attach
+        {{ t('create.topic.dropToAttach') }}
       </div>
     </div>
     <p v-if="notice" role="status" class="-mt-2 text-[12px] text-danger-text">{{ notice }}</p>
 
     <div v-if="!prompt.trim()" class="flex flex-col gap-2.5">
-      <span class="text-[12px] text-tx-8e9ca4">Need a starting point?</span>
+      <span class="text-[12px] text-tx-8e9ca4">{{ t('create.topic.startingPoint') }}</span>
       <div class="flex flex-wrap gap-2">
         <button
-          v-for="s in STARTERS"
+          v-for="s in starters"
           :key="s"
           type="button"
           :disabled="disabled"

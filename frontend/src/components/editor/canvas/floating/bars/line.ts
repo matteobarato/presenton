@@ -12,5 +12,5 @@ const presentationProps = (c: BarContext) => ({ presentation: c.presentation })
 export const lineBar: BarItem[] = [
   { type: 'custom', id: 'line-color', component: LineColor, props: presentationProps },
   { type: 'custom', id: 'line-weight', component: LineWeight, props: presentationProps },
-  { type: 'panel', id: 'line', label: 'Line', icon: Minus, component: LinePanel, props: presentationProps },
+  { type: 'panel', id: 'line', label: 'editorCanvas.bar.labels.line', icon: Minus, component: LinePanel, props: presentationProps },
 ]

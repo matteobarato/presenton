@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { RouterLink, type RouteLocationRaw } from 'vue-router'
 import { ChevronRight } from 'lucide-vue-next'
 
 /** Aera topbar for workspace pages: a quiet breadcrumb on the left, page actions on the right. */
 defineProps<{ title: string; parent?: { label: string; to: RouteLocationRaw } }>()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -11,8 +13,8 @@ defineProps<{ title: string; parent?: { label: string; to: RouteLocationRaw } }>
     :class="$slots.center ? 'center-grid' : ''"
     class="flex h-[83px] flex-none items-center justify-between gap-5 px-[27px] max-[1279px]:px-5 max-[760px]:h-[75px] max-[760px]:gap-3 max-[760px]:px-4 max-[450px]:px-[11px] [@media(max-height:780px)_and_(min-width:1051px)]:h-[69px]"
   >
-    <nav aria-label="Breadcrumb" class="flex min-w-0 items-center gap-[13px]">
-      <RouterLink to="/" class="text-[11px] whitespace-nowrap text-tx-929b9f hover:text-accent max-[760px]:hidden">Workspace</RouterLink>
+    <nav :aria-label="t('shell.breadcrumb.label')" class="flex min-w-0 items-center gap-[13px]">
+      <RouterLink to="/" class="text-[11px] whitespace-nowrap text-tx-929b9f hover:text-accent max-[760px]:hidden">{{ t('shell.breadcrumb.workspace') }}</RouterLink>
       <ChevronRight class="size-[13px] flex-none text-tx-667179 max-[760px]:hidden" aria-hidden="true" />
       <template v-if="parent">
         <RouterLink :to="parent.to" class="text-[11px] whitespace-nowrap text-tx-929b9f hover:text-accent max-[760px]:hidden">{{ parent.label }}</RouterLink>

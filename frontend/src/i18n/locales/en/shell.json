@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "main": "Main",
+    "new": "New",
+    "library": "Library",
+    "templates": "Templates",
+    "settings": "Settings",
+    "help": "Help",
+    "helpTitle": "Help and keyboard shortcuts",
+    "accountMenu": "Account menu",
+    "signOut": "Sign out"
+  },
+  "banner": {
+    "unreachable": "Can't reach the Slideshows backend at {url} (via this server's /api proxy). Retrying when you return to this window…"
+  },
+  "footer": {
+    "tagline": "Tomorrow's presentations, made today.",
+    "workspace": "{name}'s workspace",
+    "yourWorkspace": "Your workspace",
+    "backendUnreachable": "Backend unreachable",
+    "shortcuts": "Keyboard shortcuts"
+  },
+  "breadcrumb": {
+    "label": "Breadcrumb",
+    "workspace": "Workspace"
+  },
+  "aiProgress": {
+    "label": "Progress",
+    "elapsed": "{seconds}s elapsed"
+  },
+  "help": {
+    "title": "A little help along the way.",
+    "description": "Keyboard shortcuts for building and presenting your decks.",
+    "editor": "Editor",
+    "presenting": "Presenting",
+    "moveSlides": "Move between slides",
+    "addSlide": "Add a slide",
+    "deleteSlide": "Delete the selected slide",
+    "undo": "Undo a change",
+    "redo": "Redo a change",
+    "askAi": "Open or close Ask AI",
+    "nextPrevious": "Next and previous slide",
+    "exit": "Exit presentation",
+    "tip": "Drag thumbnails by their handle to reorder your story. Ask AI from the floating toolbar to rewrite the slide you are on."
+  }
+}

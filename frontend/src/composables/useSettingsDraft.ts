@@ -6,11 +6,11 @@ import { getCodexAuthStatus, getPresentonLinkStatus, saveProviderSettings } from
 import { migrateLegacyAzure, normaliseConfig } from '@/settings/normalise'
 import { OAUTH_MANAGED_FIELDS, type ProviderConfig, type SettingsSection } from '@/settings/types'
 import { validateConfig } from '@/settings/validate'
+import { i18n } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 
 export type SaveResult = { ok: true } | { ok: false; section?: SettingsSection }
 
-const SAVE_FALLBACK = 'The settings could not be saved. Please try again.'
 const SECRET_FIELD = /(KEY|TOKEN|SECRET|PASSWORD)/
 const MIN_SECRET_LENGTH = 6
 
@@ -111,14 +111,14 @@ export function useSettingsDraft(): {
 
   async function run(config: ProviderConfig): Promise<SaveResult> {
     if (config.LLM === 'codex' && (await getCodexAuthStatus()) !== 'authenticated') {
-      toast.error('Sign in to ChatGPT again', {
-        description: 'Open the classic app to sign in, or switch to another provider.',
+      toast.error(i18n.global.t('settings.draft.codexSignIn'), {
+        description: i18n.global.t('settings.draft.codexSignInDescription'),
       })
       return { ok: false }
     }
     if (config.LLM === 'presenton' && !(await getPresentonLinkStatus())) {
-      toast.warning('Connect Presenton first', {
-        description: 'Sign in to Presenton Cloud before selecting it as the text provider.',
+      toast.warning(i18n.global.t('settings.draft.presentonConnect'), {
+        description: i18n.global.t('settings.draft.presentonConnectDescription'),
       })
       return { ok: false }
     }
@@ -126,7 +126,7 @@ export function useSettingsDraft(): {
     const normalised = normaliseConfig(config)
     const issue = validateConfig(normalised)
     if (issue) {
-      toast.warning('Cannot save settings', { description: issue.message })
+      toast.warning(i18n.global.t('settings.draft.cannotSave'), { description: issue.message })
       return { ok: false, section: issue.section }
     }
 
@@ -145,14 +145,12 @@ export function useSettingsDraft(): {
         const url = String(normalised.OLLAMA_URL ?? '')
         const models = await listOllamaModels(url)
         if (!models.some((m) => m.name === model)) {
-          throw new Error(
-            `The selected model "${model}" is not available at ${url}. Check models and select an available model.`,
-          )
+          throw new Error(i18n.global.t('settings.draft.ollamaModelMissing', { model, url }))
         }
       }
     } catch (e) {
-      const message = e instanceof Error && e.message ? e.message : 'The provider check failed.'
-      toast.error('Cannot save settings', { description: redactSecrets(message, normalised) })
+      const message = e instanceof Error && e.message ? e.message : i18n.global.t('settings.draft.providerCheckFailed')
+      toast.error(i18n.global.t('settings.draft.cannotSave'), { description: redactSecrets(message, normalised) })
       return { ok: false }
     }
 
@@ -161,8 +159,8 @@ export function useSettingsDraft(): {
       load(response)
     } catch (e) {
       const body = e instanceof ApiError ? e.body : e instanceof BackendUnreachableError ? e.message : null
-      const message = extractApiErrorMessage(body, SAVE_FALLBACK, e instanceof ApiError ? e.status : undefined)
-      toast.error('Could not save settings', { description: redactSecrets(message, normalised) })
+      const message = extractApiErrorMessage(body, i18n.global.t('settings.draft.saveFallback'), e instanceof ApiError ? e.status : undefined)
+      toast.error(i18n.global.t('settings.draft.saveFailed'), { description: redactSecrets(message, normalised) })
       return { ok: false }
     }
 
@@ -171,7 +169,7 @@ export function useSettingsDraft(): {
     } catch {
       // The settings are saved; a failed runtime refresh keeps the previous runtime config.
     }
-    toast.success('Settings saved', { description: 'Your configuration was saved successfully.' })
+    toast.success(i18n.global.t('settings.draft.saved'), { description: i18n.global.t('settings.draft.savedDescription') })
     return { ok: true }
   }
 
@@ -181,7 +179,7 @@ export function useSettingsDraft(): {
     try {
       return await run(draft.value)
     } catch {
-      toast.error('Could not save settings', { description: SAVE_FALLBACK })
+      toast.error(i18n.global.t('settings.draft.saveFailed'), { description: i18n.global.t('settings.draft.saveFallback') })
       return { ok: false }
     } finally {
       saving.value = false

@@ -4,6 +4,7 @@ import { presentationKeys } from '@/api/presentations'
 import { updateSpeakerNotes } from '@/api/speakerNotes'
 import type { Presentation, Slide } from '@/api/types'
 import { slideKey } from '@/stores/editor'
+import { i18n } from '@/i18n'
 
 export const NOTE_SAVE_DELAY_MS = 800
 
@@ -53,7 +54,7 @@ export function useNoteDraft(presentationId: Ref<string>, slide: Ref<Slide | nul
     } catch (e) {
       pending ??= job
       if (slide.value && job.key === slideKey(slide.value)) dirty.value = true
-      failure.value = { key: job.key, message: e instanceof Error && e.message ? e.message : 'Could not save the notes.' }
+      failure.value = { key: job.key, message: e instanceof Error && e.message ? e.message : i18n.global.t('editor.notes.couldNotSave') }
     }
   }
 

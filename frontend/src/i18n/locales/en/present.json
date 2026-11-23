@@ -1,0 +1,11 @@
+{
+  "controls": {
+    "previous": "Previous slide",
+    "next": "Next slide",
+    "pause": "Pause",
+    "play": "Play",
+    "audioOff": "Turn audio off",
+    "audioOn": "Turn audio on",
+    "exit": "Exit presentation"
+  }
+}

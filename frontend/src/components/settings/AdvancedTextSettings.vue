@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Ported from servers/nextjs/components/AdvancedTextProviderSettings.tsx
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ChevronDown, ChevronUp, Loader2, RotateCcw, Trash2 } from 'lucide-vue-next'
 import { getGenerationDefaults, listOpenRouterProviders } from '@/api/providerModels'
 import { Button } from '@/components/ui/button'
@@ -11,10 +12,11 @@ import type { ProviderConfig } from '@/settings/types'
 
 const props = defineProps<{ config: ProviderConfig }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
+const { t } = useI18n()
 
 interface SelectOption {
   value: string
-  label: string
+  labelKey: string
 }
 
 const FALLBACK_DEFAULT_MAX_OUTPUT_TOKENS = 8192
@@ -22,28 +24,28 @@ const DEFAULTS_DEBOUNCE_MS = 500
 const MODEL_DEFAULT = 'model_default'
 
 const REASONING_MODE_OPTIONS: SelectOption[] = [
-  { value: MODEL_DEFAULT, label: 'Model default' },
-  { value: 'enabled', label: 'On' },
-  { value: 'disabled', label: 'Off' },
+  { value: MODEL_DEFAULT, labelKey: 'settings.advancedText.options.modelDefault' },
+  { value: 'enabled', labelKey: 'settings.advancedText.options.on' },
+  { value: 'disabled', labelKey: 'settings.advancedText.options.off' },
 ]
 const REASONING_EFFORT_OPTIONS: SelectOption[] = [
-  { value: MODEL_DEFAULT, label: 'Model default' },
-  { value: 'minimal', label: 'Minimal' },
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'xhigh', label: 'Extra high' },
-  { value: 'max', label: 'Maximum' },
+  { value: MODEL_DEFAULT, labelKey: 'settings.advancedText.options.modelDefault' },
+  { value: 'minimal', labelKey: 'settings.advancedText.options.minimal' },
+  { value: 'low', labelKey: 'settings.advancedText.options.low' },
+  { value: 'medium', labelKey: 'settings.advancedText.options.medium' },
+  { value: 'high', labelKey: 'settings.advancedText.options.high' },
+  { value: 'xhigh', labelKey: 'settings.advancedText.options.extraHigh' },
+  { value: 'max', labelKey: 'settings.advancedText.options.maximum' },
 ]
 const FLAG_OPTIONS: SelectOption[] = [
-  { value: '', label: 'Default' },
-  { value: 'true', label: 'Yes' },
-  { value: 'false', label: 'No' },
+  { value: '', labelKey: 'settings.advancedText.options.default' },
+  { value: 'true', labelKey: 'settings.advancedText.options.yes' },
+  { value: 'false', labelKey: 'settings.advancedText.options.no' },
 ]
 const DATA_COLLECTION_OPTIONS: SelectOption[] = [
-  { value: '', label: 'Default' },
-  { value: 'allow', label: 'Allow' },
-  { value: 'deny', label: 'Deny' },
+  { value: '', labelKey: 'settings.advancedText.options.default' },
+  { value: 'allow', labelKey: 'settings.advancedText.options.allow' },
+  { value: 'deny', labelKey: 'settings.advancedText.options.deny' },
 ]
 
 const uid = useId()
@@ -182,7 +184,7 @@ watch(() => providerInputs.value.join('\u0000'), resetProviders)
 async function loadProviders(): Promise<void> {
   const [model, apiKey, baseUrl] = providerInputs.value
   if (!model.trim() || !apiKey.trim()) {
-    providersMessage.value = 'Enter an OpenRouter model and API key first.'
+    providersMessage.value = t('settings.advancedText.routing.needModelAndKey')
     return
   }
   const request = ++providersRequest
@@ -196,7 +198,7 @@ async function loadProviders(): Promise<void> {
   } catch {
     if (request !== providersRequest) return
     // Never surface the thrown message: it can echo the request.
-    providersMessage.value = 'Could not load providers.'
+    providersMessage.value = t('settings.advancedText.routing.loadFailed')
   } finally {
     if (request === providersRequest) providersLoading.value = false
   }
@@ -253,9 +255,9 @@ onBeforeUnmount(() => {
     >
       <span class="min-w-0">
         <span class="block text-[12px] font-medium text-tx-dbe7ef">
-          Advanced text-provider settings <span class="font-normal text-tx-95aab7">(optional)</span>
+          {{ t('settings.advancedText.title') }} <span class="font-normal text-tx-95aab7">{{ t('settings.advancedText.optional') }}</span>
         </span>
-        <span class="mt-0.5 block text-[11px] text-tx-95aab7">Configure output limits and reasoning behaviour when needed.</span>
+        <span class="mt-0.5 block text-[11px] text-tx-95aab7">{{ t('settings.advancedText.description') }}</span>
       </span>
       <ChevronDown class="size-4 shrink-0 text-tx-95aab7 transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
     </summary>
@@ -264,18 +266,18 @@ onBeforeUnmount(() => {
       <div class="flex justify-end">
         <Button type="button" size="sm" variant="outline" @click="resetToDefaults">
           <RotateCcw class="size-3.5" aria-hidden="true" />
-          Reset to defaults
+          {{ t('settings.advancedText.reset') }}
         </Button>
       </div>
 
       <section class="grid min-w-0 gap-4" :aria-labelledby="id('generation-heading')">
         <div>
-          <h4 :id="id('generation-heading')" class="text-[12px] font-semibold text-tx-dbe7ef">Generation controls</h4>
-          <p :class="helpClass" class="!mt-1">Set an output limit and control reasoning for supported models.</p>
+          <h4 :id="id('generation-heading')" class="text-[12px] font-semibold text-tx-dbe7ef">{{ t('settings.advancedText.generation.heading') }}</h4>
+          <p :class="helpClass" class="!mt-1">{{ t('settings.advancedText.generation.help') }}</p>
         </div>
 
         <div class="min-w-0">
-          <label :for="id('limit')" :class="labelClass">Max output tokens</label>
+          <label :for="id('limit')" :class="labelClass">{{ t('settings.advancedText.generation.maxTokens') }}</label>
           <Input
             :id="id('limit')"
             type="number"
@@ -284,37 +286,36 @@ onBeforeUnmount(() => {
             inputmode="numeric"
             :aria-describedby="id('limit-help')"
             :disabled="useModelMaximum"
-            :placeholder="useModelMaximum ? 'Model maximum' : String(defaultMaxOutputTokens)"
+            :placeholder="useModelMaximum ? t('settings.advancedText.generation.modelMaximum') : String(defaultMaxOutputTokens)"
             :model-value="useModelMaximum ? '' : limitText"
             @update:model-value="onLimitInput"
           />
           <div class="mt-3 flex items-center gap-2">
             <Checkbox :id="id('model-max')" :model-value="useModelMaximum" @update:model-value="onModelMaximum" />
             <label :for="id('model-max')" class="cursor-pointer text-[12px] font-medium text-tx-dbe7ef">
-              Use the selected model's maximum output limit
+              {{ t('settings.advancedText.generation.useModelMaximum') }}
             </label>
           </div>
           <p :id="id('limit-help')" :class="helpClass">
-            Leave blank to use the default, enter a manual limit, or select model maximum to use the selected model's advertised limit.
-            The selected limit applies to every generation attempt, including retries.
-            <template v-if="!hasManualLimit && !useModelMaximum"> The effective default is shown in the field.</template>
+            {{ t('settings.advancedText.generation.limitHelp') }}
+            <template v-if="!hasManualLimit && !useModelMaximum"> {{ t('settings.advancedText.generation.effectiveDefault') }}</template>
           </p>
         </div>
 
         <div class="grid min-w-0 gap-4 sm:grid-cols-2">
           <div class="min-w-0">
-            <label :for="id('reasoning-mode')" :class="labelClass">Reasoning mode</label>
+            <label :for="id('reasoning-mode')" :class="labelClass">{{ t('settings.advancedText.generation.reasoningMode') }}</label>
             <select :id="id('reasoning-mode')" :value="reasoningMode" :class="selectClass" @change="onReasoningMode">
-              <option v-for="o in REASONING_MODE_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option>
+              <option v-for="o in REASONING_MODE_OPTIONS" :key="o.value" :value="o.value">{{ t(o.labelKey) }}</option>
             </select>
-            <p :class="helpClass">Use the backend model default, force reasoning on, or turn it off for faster responses.</p>
+            <p :class="helpClass">{{ t('settings.advancedText.generation.reasoningModeHelp') }}</p>
           </div>
           <div v-if="reasoningMode !== 'disabled'" class="min-w-0">
-            <label :for="id('reasoning-effort')" :class="labelClass">Reasoning effort</label>
+            <label :for="id('reasoning-effort')" :class="labelClass">{{ t('settings.advancedText.generation.reasoningEffort') }}</label>
             <select :id="id('reasoning-effort')" :value="reasoningEffort" :class="selectClass" @change="onReasoningEffort">
-              <option v-for="o in REASONING_EFFORT_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option>
+              <option v-for="o in REASONING_EFFORT_OPTIONS" :key="o.value" :value="o.value">{{ t(o.labelKey) }}</option>
             </select>
-            <p :class="helpClass">Higher effort may improve difficult generations, but can increase latency and token usage.</p>
+            <p :class="helpClass">{{ t('settings.advancedText.generation.reasoningEffortHelp') }}</p>
           </div>
         </div>
       </section>
@@ -322,36 +323,36 @@ onBeforeUnmount(() => {
       <section v-if="llm === 'openrouter'" class="grid min-w-0 gap-4" :aria-labelledby="id('routing-heading')">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h4 :id="id('routing-heading')" class="text-[12px] font-semibold text-tx-dbe7ef">OpenRouter routing</h4>
-            <p :class="helpClass" class="!mt-1">Leave the order empty to let OpenRouter route automatically.</p>
+            <h4 :id="id('routing-heading')" class="text-[12px] font-semibold text-tx-dbe7ef">{{ t('settings.advancedText.routing.heading') }}</h4>
+            <p :class="helpClass" class="!mt-1">{{ t('settings.advancedText.routing.help') }}</p>
           </div>
           <Button type="button" size="sm" variant="secondary" :disabled="providersLoading" @click="loadProviders">
             <Loader2 v-if="providersLoading" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-            {{ providersLoading ? 'Loading…' : 'Load providers' }}
+            {{ providersLoading ? t('common.actions.loading') : t('settings.advancedText.routing.load') }}
           </Button>
         </div>
 
         <p v-if="providersMessage" role="alert" class="text-[11px] text-tx-f0a3a3">{{ providersMessage }}</p>
 
         <div v-if="chips.length > 0" class="flex flex-wrap gap-1.5">
-          <Button v-for="p in chips" :key="p" type="button" size="sm" variant="outline" :aria-label="`Add ${p}`" @click="addProvider(p)">
+          <Button v-for="p in chips" :key="p" type="button" size="sm" variant="outline" :aria-label="t('settings.advancedText.routing.add', { name: p })" @click="addProvider(p)">
             + {{ p }}
           </Button>
         </div>
-        <p v-else-if="loaded" class="text-[11px] text-tx-95aab7">No further providers are available for this model.</p>
+        <p v-else-if="loaded" class="text-[11px] text-tx-95aab7">{{ t('settings.advancedText.routing.none') }}</p>
 
-        <ul v-if="order.length > 0" class="grid gap-1.5" aria-label="Provider order">
+        <ul v-if="order.length > 0" class="grid gap-1.5" :aria-label="t('settings.advancedText.routing.order')">
           <li v-for="(p, index) in order" :key="p" class="flex min-w-0 items-center gap-1 rounded-button bg-field px-3 py-1.5">
             <span class="min-w-0 flex-1 truncate text-[12px] text-tx-dce6ec">
-              {{ p }}<span v-if="loaded && !available.includes(p)" class="text-tx-95aab7"> (unverified)</span>
+              {{ p }}<span v-if="loaded && !available.includes(p)" class="text-tx-95aab7"> {{ t('settings.advancedText.routing.unverified') }}</span>
             </span>
-            <Button type="button" size="icon" variant="ghost" class="size-7" :aria-label="`Move ${p} up`" :disabled="index === 0" @click="move(index, -1)">
+            <Button type="button" size="icon" variant="ghost" class="size-7" :aria-label="t('settings.advancedText.routing.moveUp', { name: p })" :disabled="index === 0" @click="move(index, -1)">
               <ChevronUp class="size-4" aria-hidden="true" />
             </Button>
-            <Button type="button" size="icon" variant="ghost" class="size-7" :aria-label="`Move ${p} down`" :disabled="index === order.length - 1" @click="move(index, 1)">
+            <Button type="button" size="icon" variant="ghost" class="size-7" :aria-label="t('settings.advancedText.routing.moveDown', { name: p })" :disabled="index === order.length - 1" @click="move(index, 1)">
               <ChevronDown class="size-4" aria-hidden="true" />
             </Button>
-            <Button type="button" size="icon" variant="ghost" class="size-7" :aria-label="`Remove ${p}`" @click="remove(p)">
+            <Button type="button" size="icon" variant="ghost" class="size-7" :aria-label="t('settings.advancedText.routing.remove', { name: p })" @click="remove(p)">
               <Trash2 class="size-4" aria-hidden="true" />
             </Button>
           </li>
@@ -359,27 +360,27 @@ onBeforeUnmount(() => {
 
         <div class="grid min-w-0 gap-4 sm:grid-cols-2">
           <div class="min-w-0">
-            <label :for="id('fallbacks')" :class="labelClass">Allow fallbacks</label>
+            <label :for="id('fallbacks')" :class="labelClass">{{ t('settings.advancedText.routing.fallbacks') }}</label>
             <select :id="id('fallbacks')" :value="flag('OPENROUTER_ALLOW_FALLBACKS')" :class="selectClass" @change="onFlag('OPENROUTER_ALLOW_FALLBACKS', $event)">
-              <option v-for="o in FLAG_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option>
+              <option v-for="o in FLAG_OPTIONS" :key="o.value" :value="o.value">{{ t(o.labelKey) }}</option>
             </select>
           </div>
           <div class="min-w-0">
-            <label :for="id('require-parameters')" :class="labelClass">Require parameters</label>
+            <label :for="id('require-parameters')" :class="labelClass">{{ t('settings.advancedText.routing.requireParameters') }}</label>
             <select :id="id('require-parameters')" :value="flag('OPENROUTER_REQUIRE_PARAMETERS')" :class="selectClass" @change="onFlag('OPENROUTER_REQUIRE_PARAMETERS', $event)">
-              <option v-for="o in FLAG_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option>
+              <option v-for="o in FLAG_OPTIONS" :key="o.value" :value="o.value">{{ t(o.labelKey) }}</option>
             </select>
           </div>
           <div class="min-w-0">
-            <label :for="id('data-collection')" :class="labelClass">Data collection</label>
+            <label :for="id('data-collection')" :class="labelClass">{{ t('settings.advancedText.routing.dataCollection') }}</label>
             <select :id="id('data-collection')" :value="dataCollection" :class="selectClass" @change="onDataCollection">
-              <option v-for="o in DATA_COLLECTION_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option>
+              <option v-for="o in DATA_COLLECTION_OPTIONS" :key="o.value" :value="o.value">{{ t(o.labelKey) }}</option>
             </select>
           </div>
           <div class="min-w-0">
-            <label :for="id('zdr')" :class="labelClass">Zero data retention (ZDR)</label>
+            <label :for="id('zdr')" :class="labelClass">{{ t('settings.advancedText.routing.zdr') }}</label>
             <select :id="id('zdr')" :value="flag('OPENROUTER_ZDR')" :class="selectClass" @change="onFlag('OPENROUTER_ZDR', $event)">
-              <option v-for="o in FLAG_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option>
+              <option v-for="o in FLAG_OPTIONS" :key="o.value" :value="o.value">{{ t(o.labelKey) }}</option>
             </select>
           </div>
         </div>

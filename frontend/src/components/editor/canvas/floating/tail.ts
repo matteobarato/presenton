@@ -22,19 +22,19 @@ export function commonTail(kind: ToolbarKind): BarItem[] {
     items.push({
       type: 'panel',
       id: 'appearance',
-      label: 'Appearance',
+      label: 'editorCanvas.bar.labels.appearance',
       icon: SlidersHorizontal,
       component: AppearancePanel,
       props: (c) => ({ presentation: c.presentation }),
     })
   }
   items.push(
-    { type: 'panel', id: 'arrange', label: 'Arrange', icon: Layers, component: ArrangePanel },
+    { type: 'panel', id: 'arrange', label: 'editorCanvas.bar.labels.arrange', icon: Layers, component: ArrangePanel },
     {
       type: 'button',
       id: 'duplicate',
-      label: 'Duplicate',
-      title: 'Duplicate (Ctrl+D)',
+      label: 'editorCanvas.bar.labels.duplicate',
+      title: 'editorCanvas.bar.titles.duplicate',
       icon: CopyPlus,
       disabled: unavailable,
       run: (c) => void useEditingActions(c.ctx).run('Duplicate', (ui) => duplicateSelection(ui, c.ctx.selection.value)),
@@ -42,8 +42,8 @@ export function commonTail(kind: ToolbarKind): BarItem[] {
     {
       type: 'button',
       id: 'delete',
-      label: 'Delete',
-      title: 'Delete (Del)',
+      label: 'editorCanvas.bar.labels.delete',
+      title: 'editorCanvas.bar.titles.delete',
       icon: Trash2,
       disabled: unavailable,
       run: (c) => void useEditingActions(c.ctx).run('Delete', (ui) => deleteSelection(ui, c.ctx.selection.value)),

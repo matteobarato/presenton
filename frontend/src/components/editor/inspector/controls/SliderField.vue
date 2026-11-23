@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, watch } from 'vue'
 import NumberField from './NumberField.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{ modelValue: number; label: string; min: number; max: number; unit?: string }>()
 const emit = defineEmits<{ commit: [value: number]; focus: [] }>()
@@ -21,7 +24,7 @@ function onChange(event: Event) {
       type="range"
       :min="min"
       :max="max"
-      :aria-label="`${label} slider`"
+      :aria-label="t('editorInspector.controls.slider', { label })"
       class="h-1 min-w-0 flex-1 cursor-pointer accent-accent"
       @pointerdown="emit('focus')"
       @focus="emit('focus')"

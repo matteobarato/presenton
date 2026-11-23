@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue'
 import { useEventListener, useMediaQuery } from '@vueuse/core'
 import { Pause, Play, Plus, RotateCcw, Sparkles } from 'lucide-vue-next'
@@ -18,6 +19,7 @@ import { useEditorStore } from '@/stores/editor'
  */
 const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 const editor = useEditorStore()
+const { t } = useI18n()
 
 const NO_SLIDE = { id: null, index: -1 } as unknown as Slide
 const slide = computed(() => props.slide ?? NO_SLIDE)
@@ -25,7 +27,7 @@ const { animation, draft, busy, stale, patchTween, setEffect, generate } = useSl
 // The deck run would overwrite an edit made meanwhile; a stale plan names elements the slide no longer has.
 const deckRunning = useDeckAnimationRun(toRef(props, 'presentationId')).running
 const locked = computed(() => deckRunning.value || stale.value)
-const lockReason = computed(() => (deckRunning.value ? 'Unavailable while motion is planned for every slide' : undefined))
+const lockReason = computed(() => (deckRunning.value ? t('editor.motion.lockedByDeckRun') : undefined))
 
 const targets = computed(() => (animation.value?.status === 'unsupported' ? [] : (animation.value?.targets ?? [])))
 const names = computed(() => targetNames(targets.value))
@@ -49,7 +51,7 @@ function add(id: string) {
 }
 function clipName(id: string) {
   const effect = tweenEffect(tweenFor(id))
-  return effect === 'custom' ? 'Custom' : (effects.find((e) => e.id === effect)?.name ?? '')
+  return effect === 'custom' ? t('editor.motion.custom') : (effects.find((e) => e.id === effect)?.name ?? '')
 }
 
 // Transport: a frame loop advances the store's time; the canvas only seeks to it.
@@ -177,99 +179,99 @@ function askReplan() {
 </script>
 
 <template>
-  <section class="motion-timeline" aria-label="Animation timeline">
+  <section class="motion-timeline" :aria-label="t('editor.motion.animationTimeline')">
     <div class="motion-header">
-      <strong class="text-[11px] font-semibold text-tx-d4e7ef">Timeline</strong>
+      <strong class="text-[11px] font-semibold text-tx-d4e7ef">{{ t('editor.motion.timeline') }}</strong>
       <div class="motion-transport">
         <button
           type="button"
           class="motion-play"
-          :aria-label="playing ? 'Pause animation' : 'Play animation'"
+          :aria-label="playing ? t('editor.motion.pauseAnimation') : t('editor.motion.playAnimation')"
           :disabled="!canPlay"
           @click="play"
         >
-          <Pause v-if="playing" class="size-3" aria-hidden="true" /><Play v-else class="size-3" aria-hidden="true" />{{ playing ? 'Pause' : 'Play' }}
+          <Pause v-if="playing" class="size-3" aria-hidden="true" /><Play v-else class="size-3" aria-hidden="true" />{{ playing ? t('editor.motion.pause') : t('editor.motion.play') }}
         </button>
         <button
           type="button"
           class="motion-icon"
-          aria-label="Stop and restore slide"
-          title="Stop and restore slide"
+          :aria-label="t('editor.motion.stopRestore')"
+          :title="t('editor.motion.stopRestore')"
           :disabled="editor.motionTime === null"
           @click="stop"
         >
           <RotateCcw class="size-3.5" aria-hidden="true" />
         </button>
-        <output class="motion-time">{{ time.toFixed(1) }} <span>/ {{ MOTION_WINDOW.toFixed(1) }} s</span></output>
-        <label class="motion-loop"><input v-model="looping" type="checkbox" /> Loop</label>
+        <output class="motion-time">{{ time.toFixed(1) }} <span>{{ t('editor.motion.timeOfWindow', { seconds: MOTION_WINDOW.toFixed(1) }) }}</span></output>
+        <label class="motion-loop"><input v-model="looping" type="checkbox" /> {{ t('editor.motion.loop') }}</label>
       </div>
     </div>
 
     <p v-if="!targets.length" class="px-4 pb-3 text-[11px] leading-[1.6] text-muted max-[760px]:px-3">
-      {{ animation?.status === 'unsupported' || !props.slide ? "This slide can't be animated." : 'Nothing to animate on this slide.' }}
+      {{ animation?.status === 'unsupported' || !props.slide ? t('editor.motion.cannotAnimate') : t('editor.motion.nothingToAnimate') }}
     </p>
     <div v-else-if="stale" class="flex items-center justify-between gap-3 px-4 pb-3 max-[760px]:px-3" role="status">
       <p class="text-[11px] leading-[1.6] text-tx-dce3e7">
-        <b class="font-semibold">Layout changed — re-plan.</b>
-        <span class="text-muted"> This slide's elements changed since its motion was made.</span>
+        <b class="font-semibold">{{ t('editor.motion.layoutChanged') }}</b>
+        <span class="text-muted"> {{ t('editor.motion.elementsChanged') }}</span>
       </p>
       <Button size="sm" variant="secondary" :disabled="busy || replanning || deckRunning" :title="lockReason" @click="askReplan">
-        <Sparkles class="size-3.5" aria-hidden="true" />Re-plan
+        <Sparkles class="size-3.5" aria-hidden="true" />{{ t('editor.motion.replan') }}
       </Button>
     </div>
     <template v-else>
       <div class="motion-ruler" aria-hidden="true">
-        <span>ELEMENT</span>
-        <div><span v-for="s in TICKS" :key="s" :style="{ left: pct(s) }">{{ s }}s</span></div>
+        <span>{{ t('editor.motion.element') }}</span>
+        <div><span v-for="s in TICKS" :key="s" :style="{ left: pct(s) }">{{ t('editor.motion.tick', { seconds: s }) }}</span></div>
       </div>
       <div class="motion-tracks">
         <div
-          v-for="t in targets"
-          :key="t.id"
+          v-for="target in targets"
+          :key="target.id"
           data-motion-track
           class="motion-track"
-          :class="{ 'is-selected': editor.motionTarget === t.id }"
+          :class="{ 'is-selected': editor.motionTarget === target.id }"
         >
-          <button type="button" class="motion-track-name" :aria-pressed="editor.motionTarget === t.id" :title="names.get(t.id)" @click="choose(t.id)">
-            <span aria-hidden="true" /><b>{{ names.get(t.id) }}</b>
+          <button type="button" class="motion-track-name" :aria-pressed="editor.motionTarget === target.id" :title="names.get(target.id)" @click="choose(target.id)">
+            <span aria-hidden="true" /><b>{{ names.get(target.id) }}</b>
           </button>
           <div class="motion-lane">
             <button
-              v-if="tweenFor(t.id)"
+              v-if="tweenFor(target.id)"
               type="button"
               class="motion-clip"
-              :class="{ 'is-active': editor.motionTarget === t.id }"
-              :data-motion-clip="t.id"
-              :style="clipStyle(t.id)"
-              :aria-label="`${names.get(t.id)} animation. ${lockReason ?? 'Drag or use arrow keys to change its start time.'}`"
+              :class="{ 'is-active': editor.motionTarget === target.id }"
+              :data-motion-clip="target.id"
+              :style="clipStyle(target.id)"
+              :aria-label="t('editor.motion.clipAria', { name: names.get(target.id), hint: lockReason ?? t('editor.motion.dragHint') })"
               :aria-disabled="locked || undefined"
-              :title="lockReason ?? `${clipName(t.id)} · ${tweenFor(t.id)!.delay.toFixed(1)}s`"
-              @click="choose(t.id)"
-              @pointerdown="beginDrag($event, t.id)"
+              :title="lockReason ?? t('editor.motion.clipTitle', { name: clipName(target.id), delay: tweenFor(target.id)!.delay.toFixed(1) })"
+              @click="choose(target.id)"
+              @pointerdown="beginDrag($event, target.id)"
               @pointermove="moveDrag"
               @pointerup="endDrag"
               @pointercancel="drag = null"
-              @keydown="nudge($event, t.id)"
+              @keydown="nudge($event, target.id)"
             >
-              <span>{{ clipName(t.id) }}</span>
+              <span>{{ clipName(target.id) }}</span>
             </button>
             <button
               v-else
               type="button"
               class="motion-add"
-              :aria-label="`Add motion to ${names.get(t.id)}`"
+              :aria-label="t('editor.motion.addMotionTo', { name: names.get(target.id) })"
               :disabled="locked"
               :title="lockReason"
-              @click="add(t.id)"
+              @click="add(target.id)"
             >
-              <Plus class="size-2.5" aria-hidden="true" />Add
+              <Plus class="size-2.5" aria-hidden="true" />{{ t('editor.motion.add') }}
             </button>
             <span v-if="editor.motionTime !== null" class="motion-playhead" :style="{ left: pct(time) }" aria-hidden="true" />
           </div>
         </div>
       </div>
       <div class="motion-scrubber">
-        <span>Scrub preview</span>
+        <span>{{ t('editor.motion.scrubPreview') }}</span>
         <input
           type="range"
           min="0"
@@ -277,23 +279,23 @@ function askReplan() {
           step="0.01"
           :value="time"
           :disabled="!canPlay"
-          aria-label="Animation playhead in seconds"
+          :aria-label="t('editor.motion.playhead')"
           @input="scrub(Number(($event.target as HTMLInputElement).value))"
         />
       </div>
-      <p v-if="lockReason" class="motion-help">{{ lockReason }}.</p>
-      <p v-else class="motion-help">Drag clips to sequence. Arrow keys fine-tune by 0.1 s. Slide editing pauses while the preview plays.</p>
+      <p v-if="lockReason" class="motion-help">{{ t('editor.motion.lockedNote', { reason: lockReason }) }}</p>
+      <p v-else class="motion-help">{{ t('editor.motion.help') }}</p>
     </template>
 
     <Dialog v-model:open="confirmOpen">
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Replace your edits?</DialogTitle>
-          <DialogDescription>You've edited this slide's motion by hand. Regenerating replaces it with a new AI plan.</DialogDescription>
+          <DialogTitle>{{ t('editor.motion.replaceTitle') }}</DialogTitle>
+          <DialogDescription>{{ t('editor.motion.replaceDescription') }}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="ghost" @click="confirmOpen = false">Cancel</Button>
-          <Button @click="replan">Replace</Button>
+          <Button variant="ghost" @click="confirmOpen = false">{{ t('common.actions.cancel') }}</Button>
+          <Button @click="replan">{{ t('editor.motion.replace') }}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

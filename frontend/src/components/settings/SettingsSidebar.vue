@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { useMediaQuery } from '@vueuse/core'
 import { SECTION_ICONS } from '@/settings/sectionIcons'
 import { sectionSubtitle } from '@/settings/summary'
@@ -7,13 +8,18 @@ import type { ProviderConfig, SettingsSection } from '@/settings/types'
 const props = defineProps<{ section: SettingsSection; config: ProviderConfig; sections: SettingsSection[] }>()
 const emit = defineEmits<{ select: [section: SettingsSection] }>()
 
-const NAMES: Record<SettingsSection, string> = {
-  text: 'Text',
-  images: 'Images',
-  'web-search': 'Web search',
-  users: 'Users',
-  'api-keys': 'API keys',
-  account: 'Account',
+const { t } = useI18n()
+
+const SECTION_KEYS: Record<SettingsSection, string> = {
+  text: 'settings.sidebar.sections.text',
+  images: 'settings.sidebar.sections.images',
+  'web-search': 'settings.sidebar.sections.webSearch',
+  users: 'settings.sidebar.sections.users',
+  'api-keys': 'settings.sidebar.sections.apiKeys',
+  account: 'settings.sidebar.sections.account',
+}
+function sectionName(s: SettingsSection): string {
+  return t(SECTION_KEYS[s])
 }
 
 // Wide: a vertical list of ordinary buttons in the natural tab order.
@@ -55,7 +61,7 @@ function onTabKeydown(event: KeyboardEvent) {
   <div
     v-if="narrow"
     role="tablist"
-    aria-label="Settings sections"
+    :aria-label="t('settings.sidebar.label')"
     aria-orientation="horizontal"
     class="flex w-full flex-row gap-2 overflow-x-auto pb-1"
     @keydown="onTabKeydown"
@@ -73,10 +79,10 @@ function onTabKeydown(event: KeyboardEvent) {
       <span :class="[tile, s === section ? 'bg-sx-c2e5f5/12 text-tx-c2e5f5' : 'bg-ov/[0.04] text-tx-95aab7']">
         <component :is="SECTION_ICONS[s]" class="size-[14px] stroke-[1.75]" aria-hidden="true" />
       </span>
-      <span class="text-[13px] font-medium whitespace-nowrap" :class="s === section ? 'text-tx-c2e5f5' : 'text-tx-dbe7ef'">{{ NAMES[s] }}</span>
+      <span class="text-[13px] font-medium whitespace-nowrap" :class="s === section ? 'text-tx-c2e5f5' : 'text-tx-dbe7ef'">{{ sectionName(s) }}</span>
     </button>
   </div>
-  <nav v-else aria-label="Settings sections" class="flex w-[230px] flex-none flex-col gap-1 max-[1050px]:w-[190px]">
+  <nav v-else :aria-label="t('settings.sidebar.label')" class="flex w-[230px] flex-none flex-col gap-1 max-[1050px]:w-[190px]">
     <button
       v-for="s in sections"
       :key="s"
@@ -89,7 +95,7 @@ function onTabKeydown(event: KeyboardEvent) {
         <component :is="SECTION_ICONS[s]" class="size-4 stroke-[1.75]" aria-hidden="true" />
       </span>
       <span class="flex min-w-0 flex-col gap-[3px]">
-        <span class="text-[13px] font-medium whitespace-nowrap" :class="s === section ? 'text-tx-c2e5f5' : 'text-tx-dbe7ef'">{{ NAMES[s] }}</span>
+        <span class="text-[13px] font-medium whitespace-nowrap" :class="s === section ? 'text-tx-c2e5f5' : 'text-tx-dbe7ef'">{{ sectionName(s) }}</span>
         <span v-if="sectionSubtitle(s, config)" class="truncate text-[10px] text-tx-95aab7">{{ sectionSubtitle(s, config) }}</span>
       </span>
     </button>

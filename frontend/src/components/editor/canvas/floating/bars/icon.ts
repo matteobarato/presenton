@@ -12,5 +12,5 @@ const presentationProps = (c: BarContext) => ({ presentation: c.presentation })
 export const iconBar: BarItem[] = [
   { type: 'custom', id: 'change-icon', component: IconChange, props: presentationProps },
   { type: 'custom', id: 'icon-color', component: IconColor, props: presentationProps },
-  { type: 'panel', id: 'icon', label: 'Icon', icon: Shapes, component: IconPanel, props: presentationProps },
+  { type: 'panel', id: 'icon', label: 'editorCanvas.bar.labels.icon', icon: Shapes, component: IconPanel, props: presentationProps },
 ]

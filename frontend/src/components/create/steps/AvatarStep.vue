@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
@@ -11,6 +12,7 @@ import type { DeckProgress, DeckStepKey } from '@/components/create/wizard/progr
 import type { useNarrationAvatarPipeline } from '@/composables/useNarrationAvatarPipeline'
 import { injectDeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
 import { injectDeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
+const { t } = useI18n()
 
 type Pipeline = ReturnType<typeof useNarrationAvatarPipeline>
 type WorkPhase = 'notes' | 'voice' | 'avatars'
@@ -37,7 +39,6 @@ const { videos, placeholderSlides } = avatars
 
 const id = computed(() => props.presentation.id)
 const slides = computed(() => props.presentation.slides)
-const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
 
 // ── Setup ──
 /** The deck has presenter slides and the server can render their videos. */
@@ -118,33 +119,34 @@ function percent(k: WorkPhase): number | null {
 function detail(k: WorkPhase): string {
   const st = segmentState(k)
   const n = total.value
-  if (st === 'failed') return error.value ?? 'Failed. Retry below.'
+  if (st === 'failed') return error.value ?? t('create.narration.failedDetail')
   if (k === 'notes') {
-    if (st === 'running') return `Writing speaker notes for ${plural(n, 'slide')}…`
-    if (st === 'done') return `${plural(n, 'slide')} with speaker notes`
-    if (st === 'partial') return `${notesCount.value} of ${plural(n, 'slide')} with speaker notes`
-    return 'Speaker notes for every slide'
+    if (st === 'running') return t('create.narration.notesRunning', { count: n }, n)
+    if (st === 'done') return t('create.narration.notesDone', { count: n }, n)
+    if (st === 'partial') return t('create.narration.notesPartial', { done: notesCount.value, count: n }, n)
+    return t('create.narration.notesPending')
   }
   if (k === 'voice') {
-    if (st === 'running') return `Recording narration in ${languageName.value}…`
-    if (st === 'done') return `${plural(n, 'slide')} narrated in ${languageName.value}`
-    if (st === 'partial') return `${voicedCount.value} of ${plural(n, 'slide')} narrated in ${languageName.value}`
-    return `Narration in ${languageName.value}`
+    const language = languageName.value
+    if (st === 'running') return t('create.narration.voiceRunning', { language })
+    if (st === 'done') return t('create.narration.voiceDone', { count: n, language }, n)
+    if (st === 'partial') return t('create.narration.voicePartial', { done: voicedCount.value, count: n, language }, n)
+    return t('create.narration.voicePending', { language })
   }
-  if (st === 'skipped') return placeholderSlides.value.length ? 'Voice only: presenter videos can’t be rendered on this server' : 'No presenter slides in this deck'
+  if (st === 'skipped') return placeholderSlides.value.length ? t('create.narration.videosSkippedVoiceOnly') : t('create.narration.videosSkippedNoSlides')
   const videoCount = placeholderSlides.value.length
-  if (st === 'running') return `Rendering ${plural(videoCount, 'presenter video')}…`
-  if (st === 'done') return `${plural(videoCount, 'presenter video')} ready`
-  if (st === 'partial') return `${videosDone.value} of ${plural(videoCount, 'presenter video')} ready`
-  return `${plural(videoCount, 'presenter video')}`
+  if (st === 'running') return t('create.narration.videosRunning', { count: videoCount }, videoCount)
+  if (st === 'done') return t('create.narration.videosDone', { count: videoCount }, videoCount)
+  if (st === 'partial') return t('create.narration.videosPartial', { done: videosDone.value, count: videoCount }, videoCount)
+  return t('create.narration.videosPending', { count: videoCount }, videoCount)
 }
 
-const JOBS: { key: WorkPhase; label: string }[] = [
-  { key: 'notes', label: 'Notes' },
-  { key: 'voice', label: 'Voice' },
-  { key: 'avatars', label: 'Presenter' },
-]
-const activeJobs = computed(() => JOBS.filter((j) => segmentState(j.key) !== 'skipped'))
+const JOBS = computed<{ key: WorkPhase; label: string }[]>(() => [
+  { key: 'notes', label: t('create.narration.jobs.notes') },
+  { key: 'voice', label: t('create.narration.jobs.voice') },
+  { key: 'avatars', label: t('create.narration.jobs.presenter') },
+])
+const activeJobs = computed(() => JOBS.value.filter((j) => segmentState(j.key) !== 'skipped'))
 const overall = computed(() => {
   const list = activeJobs.value
   if (!list.length) return 0
@@ -152,13 +154,13 @@ const overall = computed(() => {
 })
 
 const heading = computed(() => {
-  if (phase.value === 'error') return 'Something needs another try'
-  if (running.value) return 'Bringing your deck to life'
-  if (complete.value) return 'Your deck is narrated'
-  if (!startedWork.value) return 'Ready to narrate'
-  if (slidesLeft.value > 0) return `${plural(slidesLeft.value, 'slide')} left to narrate`
-  if (plan.value.avatars > 0) return `${plural(plan.value.avatars, 'presenter video')} left to render`
-  return 'Ready to narrate'
+  if (phase.value === 'error') return t('create.narration.headingFailed')
+  if (running.value) return t('create.narration.headingRunning')
+  if (complete.value) return t('create.narration.headingComplete')
+  if (!startedWork.value) return t('create.narration.headingReady')
+  if (slidesLeft.value > 0) return t('create.narration.headingSlidesLeft', { count: slidesLeft.value }, slidesLeft.value)
+  if (plan.value.avatars > 0) return t('create.narration.headingVideosLeft', { count: plan.value.avatars }, plan.value.avatars)
+  return t('create.narration.headingReady')
 })
 
 // ── Footer ──
@@ -169,14 +171,17 @@ const narrow = useMediaQuery('(max-width: 520px)')
 const primaryLabel = computed(() => {
   const left = slidesLeft.value
   const videos = plan.value.avatars
-  const videoNoun = narrow.value ? 'video' : 'presenter video'
   if (left > 0) {
-    const remaining = left < total.value && !narrow.value ? 'remaining ' : ''
-    const slidePart = `${left} ${remaining}${left === 1 ? 'slide' : 'slides'}`
-    return `Narrate ${slidePart}${videos > 0 ? ` + ${plural(videos, videoNoun)}` : ''}`
+    const remaining = left < total.value && !narrow.value
+    const narrate = t(remaining ? 'create.narration.narrateRemaining' : 'create.narration.narrate', { count: left }, left)
+    if (!videos) return narrate
+    return `${narrate} + ${t(narrow.value ? 'create.narration.videoShort' : 'create.narration.videoLong', { count: videos }, videos)}`
   }
-  if (videos > 0) return `Render ${videos} ${videosDone.value > 0 && !narrow.value ? 'remaining ' : ''}${videos === 1 ? videoNoun : `${videoNoun}s`}`
-  return 'Narrate deck'
+  if (videos > 0) {
+    if (narrow.value) return t('create.narration.renderVideosShort', { count: videos }, videos)
+    return t(videosDone.value > 0 ? 'create.narration.renderVideosRemaining' : 'create.narration.renderVideos', { count: videos }, videos)
+  }
+  return t('create.narration.narrateDeck')
 })
 /**
  * What the primary will do, as counts only (no timing is known). Presenter videos are rendered by a paid service: the
@@ -185,26 +190,25 @@ const primaryLabel = computed(() => {
 const scope = computed(() => {
   const parts: string[] = []
   const notes = Math.max(0, total.value - notesCount.value)
-  if (plan.value.notes && notes > 0) parts.push(`writes speaker notes for ${plural(notes, 'slide')}`)
-  if (plan.value.voice && slidesLeft.value > 0) parts.push(`records ${plural(slidesLeft.value, 'voice clip')} in ${languageName.value}`)
-  if (plan.value.avatars > 0) parts.push(`renders ${plural(plan.value.avatars, 'presenter video')}`)
+  if (plan.value.notes && notes > 0) parts.push(t('create.narration.scopeNotes', { count: notes }, notes))
+  if (plan.value.voice && slidesLeft.value > 0) parts.push(t('create.narration.scopeVoice', { count: slidesLeft.value, language: languageName.value }, slidesLeft.value))
+  if (plan.value.avatars > 0) parts.push(t('create.narration.scopeVideos', { count: plan.value.avatars }, plan.value.avatars))
   if (!parts.length) return ''
-  const list = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0]
-  const paid = plan.value.avatars > 0 ? ' Presenter videos are rendered by a paid service and use credits.' : ''
+  const list = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} ${t('create.narration.listAnd')} ${parts[parts.length - 1]}` : parts[0]
+  const paid = plan.value.avatars > 0 ? ` ${t('create.narration.scopePaid')}` : ''
   return `${list[0].toUpperCase()}${list.slice(1)}.${paid}`
 })
 /** The footer keeps one short scope line; the full plan sentence lives in the card (`scope`). */
 const footerStatus = computed(() => {
-  if (running.value) return "You can leave this page; we'll keep going."
+  if (running.value) return t('create.narration.footerRunning')
   if (complete.value) return undefined
   if (blocker.value) return blocker.value
-  return plan.value.avatars > 0 ? `Includes ${plural(plan.value.avatars, 'presenter video')} · uses credits` : undefined
+  return plan.value.avatars > 0 ? t('create.narration.footerVideos', { count: plan.value.avatars }, plan.value.avatars) : undefined
 })
 const showPlan = computed(() => !running.value && !complete.value && !failed.value && !!scope.value)
 /** Skipping is safe: the editor has the same narration and presenter tools, and Export never needs narration. */
-const SKIP_REASON = 'Narration is optional: you can narrate later from the editor.'
 const showSkip = computed(() => (!complete.value || !!failed.value) && !running.value)
-const PHASE_LABEL: Record<WorkPhase, string> = { notes: 'Notes', voice: 'Voice', avatars: 'Presenter videos' }
+const phaseLabel = (k: WorkPhase) => t(`create.narration.phases.${k}`)
 const canGenerate = computed(() => !running.value && !blocker.value)
 const failed = computed(() => (phase.value === 'error' && failedPhase.value ? failedPhase.value : null))
 
@@ -217,9 +221,9 @@ function retryFailed() {
 }
 const actions = computed<FooterAction[]>(() => {
   const list: FooterAction[] = []
-  if (!failed.value && complete.value) list.push({ key: 'editor', label: 'Fine-tune in the editor', to: { name: 'editor', params: { id: id.value } } })
-  else if (blocker.value && !running.value) list.push({ key: 'setup', label: 'Set up presenter and language', onSelect: () => emit('edit-setup') })
-  if (showSkip.value) list.push({ key: 'skip', label: 'Skip to Export', link: true, testid: 'skip-to-export', onSelect: () => go('export') })
+  if (!failed.value && complete.value) list.push({ key: 'editor', label: t('create.narration.fineTune'), to: { name: 'editor', params: { id: id.value } } })
+  else if (blocker.value && !running.value) list.push({ key: 'setup', label: t('create.narration.setupPresenter'), onSelect: () => emit('edit-setup') })
+  if (showSkip.value) list.push({ key: 'skip', label: t('create.skipToExport'), link: true, testid: 'skip-to-export', onSelect: () => go('export') })
   return list
 })
 /** Keeps the rest of the query (template); the stream flag belongs to Preview only. */
@@ -235,14 +239,14 @@ function go(step: DeckStepKey) {
     <!-- Generation: live checklist -->
     <section
       class="flex flex-col gap-5 rounded-card border border-ov/[0.06] bg-ov/[0.015] p-6 max-[520px]:p-4"
-      aria-label="Progress"
+      :aria-label="t('create.narration.progressAria')"
       data-testid="avatar-progress"
     >
       <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div
           class="relative grid size-14 flex-none place-items-center"
           role="progressbar"
-          aria-label="Narration progress"
+          :aria-label="t('create.narration.progressLabel')"
           :aria-valuenow="overall"
           aria-valuemin="0"
           aria-valuemax="100"
@@ -275,12 +279,12 @@ function go(step: DeckStepKey) {
           <p class="flex flex-wrap items-center gap-x-2 text-[12px] text-muted">
             <span class="inline-flex items-center gap-1"><Languages class="size-3.5" aria-hidden="true" />{{ languageName }}</span>
             <span v-if="avatarWork && videos?.portrait" class="inline-flex items-center gap-1.5">
-              <img :src="videos.portrait.url" alt="" class="size-4 rounded-full object-cover" />Presenter set
+              <img :src="videos.portrait.url" alt="" class="size-4 rounded-full object-cover" />{{ t('create.narration.presenterSet') }}
             </span>
           </p>
         </div>
         <Button v-if="!running" type="button" size="sm" variant="ghost" class="max-[559px]:h-11" @click="emit('edit-setup')">
-          <Settings2 class="size-3.5" aria-hidden="true" />Presenter and language
+          <Settings2 class="size-3.5" aria-hidden="true" />{{ t('create.narration.presenterAndLanguage') }}
         </Button>
       </div>
 
@@ -302,13 +306,13 @@ function go(step: DeckStepKey) {
           >
             <Transition name="pop" mode="out-in">
               <span v-if="segmentState(j.key) === 'done'" key="done" class="grid size-7 place-items-center rounded-full bg-accent text-tx-0b1215">
-                <Check class="size-4" stroke-width="3" role="img" aria-label="Done" />
+                <Check class="size-4" stroke-width="3" role="img" :aria-label="t('create.done')" />
               </span>
               <Loader2 v-else-if="segmentState(j.key) === 'running'" key="run" class="size-5 animate-spin text-accent" aria-hidden="true" />
               <span v-else-if="segmentState(j.key) === 'failed'" key="fail" class="grid size-7 place-items-center rounded-full bg-sx-e8a2a2/15 text-tx-e8a2a2">
-                <X class="size-4" role="img" aria-label="Failed" />
+                <X class="size-4" role="img" :aria-label="t('create.narration.failedAria')" />
               </span>
-              <svg v-else-if="segmentState(j.key) === 'partial'" key="part" viewBox="0 0 20 20" class="size-5 -rotate-90 text-accent" role="img" :aria-label="`${percent(j.key)}% saved`">
+              <svg v-else-if="segmentState(j.key) === 'partial'" key="part" viewBox="0 0 20 20" class="size-5 -rotate-90 text-accent" role="img" :aria-label="t('create.narration.savedAria', { percent: percent(j.key) })">
                 <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-opacity="0.25" stroke-width="2.5" />
                 <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" :stroke-dasharray="`${((percent(j.key) ?? 0) / 100) * 50.3} 50.3`" />
               </svg>
@@ -341,16 +345,16 @@ function go(step: DeckStepKey) {
         </li>
       </ol>
     </section>
-    <p v-if="showSkip" class="text-[12px] leading-[1.6] text-tx-a9b8c0" data-testid="skip-reason">{{ SKIP_REASON }}</p>
+    <p v-if="showSkip" class="text-[12px] leading-[1.6] text-tx-a9b8c0" data-testid="skip-reason">{{ t('create.narration.skipReason') }}</p>
   </div>
 
   <WizardStepFooter :status="footerStatus" :busy="running" :actions="actions">
     <template #primary>
       <Button v-if="failed" type="button" :disabled="!canGenerate" @click="retryFailed">
-        <RotateCcw class="size-4" aria-hidden="true" />Retry {{ PHASE_LABEL[failed] }}
+        <RotateCcw class="size-4" aria-hidden="true" />{{ t('create.narration.retryPhase', { phase: phaseLabel(failed) }) }}
       </Button>
       <Button v-else-if="complete" type="button" @click="go('export')">
-        Continue to Export<ArrowRight class="size-4" aria-hidden="true" />
+        {{ t('create.narration.continueToExport') }}<ArrowRight class="size-4" aria-hidden="true" />
       </Button>
       <Button v-else type="button" class="max-w-full whitespace-nowrap" :disabled="!canGenerate" @click="generate">
         <Sparkles class="size-4" aria-hidden="true" />{{ primaryLabel }}

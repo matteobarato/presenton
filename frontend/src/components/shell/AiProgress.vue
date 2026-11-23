@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Sparkles } from 'lucide-vue-next'
 
 /**
@@ -9,9 +10,9 @@ import { Sparkles } from 'lucide-vue-next'
  */
 const props = withDefaults(defineProps<{ stage: string; detail?: string; label?: string; expectedMs?: number }>(), {
   detail: '',
-  label: 'Progress',
   expectedMs: 30_000,
 })
+const { t } = useI18n()
 
 const startedAt = performance.now()
 const now = ref(startedAt)
@@ -32,11 +33,11 @@ const progress = computed(() => Math.min(95, Math.round(95 * (1 - Math.exp(-elap
       <span class="ai-progress-stage" role="status" aria-live="polite">{{ stage }}</span>
       <span class="ai-progress-percent" aria-hidden="true">{{ progress }}%</span>
     </div>
-    <div class="ai-progress-track" role="progressbar" :aria-label="label" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100">
+    <div class="ai-progress-track" role="progressbar" :aria-label="label || t('shell.aiProgress.label')":aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100">
       <span class="ai-progress-fill" :style="{ transform: `scaleX(${progress / 100})` }" />
     </div>
     <div class="ai-progress-times">
-      <span>{{ (elapsed / 1000).toFixed(1) }}s elapsed</span>
+      <span>{{ t('shell.aiProgress.elapsed', { seconds: (elapsed / 1000).toFixed(1) }) }}</span>
       <span>{{ detail }}</span>
     </div>
   </div>

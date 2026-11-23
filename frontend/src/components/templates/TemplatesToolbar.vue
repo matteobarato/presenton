@@ -1,16 +1,14 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { Search } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import type { TemplateKind } from '@/api/templates'
 
 const search = defineModel<string>('search', { required: true })
 const kind = defineModel<'all' | TemplateKind>('kind', { required: true })
+const { t } = useI18n()
 
-const options: { value: 'all' | TemplateKind; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'builtin', label: 'Built-in' },
-  { value: 'custom', label: 'Custom' },
-]
+const options: { value: 'all' | TemplateKind }[] = [{ value: 'all' }, { value: 'builtin' }, { value: 'custom' }]
 </script>
 
 <template>
@@ -20,12 +18,12 @@ const options: { value: 'all' | TemplateKind; label: string }[] = [
       <input
         v-model="search"
         type="search"
-        aria-label="Search templates"
-        placeholder="Find a template"
+        :aria-label="t('templates.toolbar.search')"
+        :placeholder="t('templates.toolbar.find')"
         class="w-[170px] min-w-0 bg-transparent text-[11px] text-tx-d4e3eb placeholder:text-tx-96acb9 focus-visible:outline-none max-[760px]:w-full"
       />
     </label>
-    <div class="flex gap-1" role="group" aria-label="Template type">
+    <div class="flex gap-1" role="group" :aria-label="t('templates.toolbar.typeGroup')">
       <Button
         v-for="o in options"
         :key="o.value"
@@ -36,7 +34,7 @@ const options: { value: 'all' | TemplateKind; label: string }[] = [
         :class="kind === o.value && 'bg-sx-242d32 text-tx-d4e3eb'"
         @click="kind = o.value"
       >
-        {{ o.label }}
+        {{ t(`templates.kind.${o.value}`) }}
       </Button>
     </div>
   </div>

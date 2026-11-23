@@ -1,0 +1,186 @@
+{
+  "motion": {
+    "ease": {
+      "smooth": "Smooth",
+      "soft": "Soft",
+      "strong": "Strong",
+      "sharp": "Sharp",
+      "expo": "Expo",
+      "sine": "Sine",
+      "circ": "Circ",
+      "overshoot": "Overshoot"
+    },
+    "effect": {
+      "none": {
+        "name": "None",
+        "detail": "Stays still"
+      },
+      "fade": {
+        "name": "Fade",
+        "detail": "Fades in"
+      },
+      "rise": {
+        "name": "Rise",
+        "detail": "Floats up while fading in"
+      },
+      "slide": {
+        "name": "Slide",
+        "detail": "Slides in from the left"
+      },
+      "zoom": {
+        "name": "Zoom",
+        "detail": "Grows into place"
+      },
+      "turn": {
+        "name": "Turn",
+        "detail": "Straightens up"
+      },
+      "blur": {
+        "name": "Blur",
+        "detail": "Comes into focus"
+      }
+    },
+    "names": {
+      "element": "Element"
+    }
+  },
+  "marker": {
+    "none": "None",
+    "arrow": "Arrow",
+    "stealth": "Stealth arrow",
+    "triangle": "Filled arrow",
+    "circle": "Circle",
+    "square": "Square",
+    "diamond": "Diamond"
+  },
+  "chart": {
+    "type": {
+      "bar": "Bar Chart",
+      "horizontalBar": "Horizontal Bar",
+      "stackedBar": "Stacked Bar",
+      "horizontalStackedBar": "Horizontal Stack Bar",
+      "line": "Line Chart",
+      "area": "Area Chart",
+      "pie": "Pie Chart",
+      "donut": "Donut Chart",
+      "scatter": "Scatter Chart",
+      "radar": "Radar Chart",
+      "polarArea": "Polar Area",
+      "bubble": "Bubble Chart"
+    }
+  },
+  "insert": {
+    "item": {
+      "titleBlock": "Title",
+      "subtitle": "Subtitle",
+      "bodyText": "Body text",
+      "bulletList": "Bullet list",
+      "numberedList": "Numbered list",
+      "quote": "Quote",
+      "image": "Image",
+      "imageText": "Image + Text",
+      "imageGrid": "Image grid",
+      "rectangle": "Rectangle",
+      "roundedRectangle": "Rounded Rect",
+      "capsule": "Capsule",
+      "circle": "Circle",
+      "ellipse": "Ellipse",
+      "triangle": "Triangle",
+      "rightTriangle": "Right Triangle",
+      "diamond": "Diamond",
+      "parallelogram": "Parallelogram",
+      "trapezoid": "Trapezoid",
+      "pentagon": "Pentagon",
+      "hexagon": "Hexagon",
+      "octagon": "Octagon",
+      "teardrop": "Teardrop",
+      "line": "Line",
+      "lineArrow": "Arrow",
+      "lineArrowBoth": "Double Arrow",
+      "lineStealth": "Stealth Arrow",
+      "lineFilled": "Filled Arrow",
+      "lineFilledBoth": "Filled Double",
+      "lineCircleArrow": "Circle + Arrow",
+      "lineSquareArrow": "Square + Arrow",
+      "lineDiamondArrow": "Diamond + Arrow",
+      "arrow": "Right Arrow",
+      "arrowLeft": "Left Arrow",
+      "arrowUp": "Up Arrow",
+      "arrowDown": "Down Arrow",
+      "arrowLeftRight": "Left–Right Arrow",
+      "arrowUpDown": "Up–Down Arrow",
+      "chevronRight": "Chevron",
+      "notchedArrow": "Notched Arrow",
+      "bentArrow": "Bent Arrow",
+      "fourWayArrow": "Four-Way Arrow",
+      "plus": "Plus",
+      "cross": "Cross",
+      "lightning": "Lightning",
+      "home": "Home",
+      "speechBubble": "Speech Bubble",
+      "cloud": "Cloud",
+      "heart": "Heart",
+      "star": "Star",
+      "bookmark": "Bookmark",
+      "shield": "Shield",
+      "flag": "Flag",
+      "moon": "Moon",
+      "sun": "Sun",
+      "play": "Play"
+    },
+    "group": {
+      "basicShapes": "Basic Shapes",
+      "linesArrows": "Lines & Arrows",
+      "blockArrows": "Block Arrows",
+      "symbols": "Symbols"
+    }
+  },
+  "action": {
+    "bringForward": "Bring forward",
+    "bringToFront": "Bring to front",
+    "sendBackward": "Send backward",
+    "sendToBack": "Send to back",
+    "duplicate": "Duplicate",
+    "ungroup": "Ungroup",
+    "group": "Group",
+    "nudge": "Nudge",
+    "editText": "Edit text"
+  },
+  "layers": {
+    "type": {
+      "text": "Text",
+      "list": "List",
+      "image": "Image",
+      "chart": "Chart",
+      "table": "Table",
+      "group": "Group",
+      "layout": "Layout",
+      "container": "Container",
+      "shape": "Shape",
+      "infographic": "Infographic",
+      "icon": "Icon",
+      "component": "Component",
+      "element": "Element"
+    },
+    "videoPlaceholder": "Video placeholder"
+  },
+  "selection": {
+    "text": "Text",
+    "list": "List",
+    "image": "Image",
+    "icon": "Icon",
+    "shape": "Shape",
+    "line": "Line",
+    "video": "Video",
+    "table": "Table",
+    "chart": "Chart",
+    "infographic": "Infographic",
+    "cell": "Cell",
+    "group": "Group",
+    "element": "Element",
+    "flexLayout": "Flex layout",
+    "gridLayout": "Grid layout",
+    "container": "Container",
+    "items": "one item | {count} items"
+  }
+}

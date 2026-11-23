@@ -1,3 +1,4 @@
+import { i18n } from '@/i18n'
 import type { NarrationState } from '../narration/narration-state'
 import type { AvatarChipKind } from './avatar-state'
 
@@ -30,34 +31,35 @@ export interface OverviewInput {
 }
 
 const NONE: OverviewCell = { tone: 'none', text: '—' }
+const T = (key: string) => i18n.global.t(`editorInspector.avatar.overview.cell.${key}`)
 const count = (done: number, of: number, action?: CellAction): OverviewCell =>
   of === 0 ? NONE : done >= of ? { tone: 'ok', text: `${done}/${of}` } : { tone: 'todo', text: `${done}/${of}`, ...(action && { action }) }
 
 function narrationCell(state: NarrationState): OverviewCell {
-  if (state === 'ready') return { tone: 'ok', text: 'Ready' }
-  if (state === 'translated') return { tone: 'ok', text: 'Translated' }
-  if (state === 'stale') return { tone: 'warn', text: 'Outdated', action: 'open-voice' }
-  return { tone: 'todo', text: 'Missing', action: 'open-voice' }
+  if (state === 'ready') return { tone: 'ok', text: T('ready') }
+  if (state === 'translated') return { tone: 'ok', text: T('translated') }
+  if (state === 'stale') return { tone: 'warn', text: T('outdated'), action: 'open-voice' }
+  return { tone: 'todo', text: T('missing'), action: 'open-voice' }
 }
 
 function videoCell(chip: AvatarChipKind): OverviewCell {
   switch (chip) {
     case 'done':
-      return { tone: 'ok', text: 'Ready' }
+      return { tone: 'ok', text: T('ready') }
     case 'uploaded':
-      return { tone: 'ok', text: 'Uploaded' }
+      return { tone: 'ok', text: T('uploaded') }
     case 'video_stale':
-      return { tone: 'warn', text: 'Outdated' }
+      return { tone: 'warn', text: T('outdated') }
     case 'other_language':
-      return { tone: 'warn', text: 'Other language' }
+      return { tone: 'warn', text: T('otherLanguage') }
     case 'generating':
-      return { tone: 'busy', text: 'Generating' }
+      return { tone: 'busy', text: T('generating') }
     case 'failed':
-      return { tone: 'warn', text: 'Failed' }
+      return { tone: 'warn', text: T('failed') }
     case 'no_placeholder':
       return NONE
     default:
-      return { tone: 'todo', text: 'Missing' }
+      return { tone: 'todo', text: T('missing') }
   }
 }
 
@@ -70,25 +72,25 @@ export function buildOverview(i: OverviewInput): OverviewRow[] {
   return [
     {
       id: 'portrait',
-      label: 'Portrait',
-      deck: i.hasPortrait ? { tone: 'ok', text: 'Added' } : { tone: 'todo', text: 'Missing', action: 'add-portrait' },
-      slide: s && { tone: 'none', text: 'Shared' },
+      label: i18n.global.t('editorInspector.avatar.overview.row.portrait'),
+      deck: i.hasPortrait ? { tone: 'ok', text: T('added') } : { tone: 'todo', text: T('missing'), action: 'add-portrait' },
+      slide: s && { tone: 'none', text: T('shared') },
     },
     {
       id: 'narration',
-      label: 'Narration',
+      label: i18n.global.t('editorInspector.avatar.overview.row.narration'),
       deck: count(i.eligibleCount, i.placeholderCount, 'open-voice'),
       slide: s && narrationCell(s.narration),
     },
     {
       id: 'placeholder',
-      label: 'Placeholder',
-      deck: i.placeholderCount === 0 ? { tone: 'todo', text: 'None' } : { tone: 'ok', text: `${i.placeholderCount}/${i.totalSlides}` },
-      slide: s && (s.hasPlaceholder ? { tone: 'ok', text: 'On' } : { tone: 'todo', text: 'Off', action: 'add-placeholder' }),
+      label: i18n.global.t('editorInspector.avatar.overview.row.placeholder'),
+      deck: i.placeholderCount === 0 ? { tone: 'todo', text: T('none') } : { tone: 'ok', text: `${i.placeholderCount}/${i.totalSlides}` },
+      slide: s && (s.hasPlaceholder ? { tone: 'ok', text: T('on') } : { tone: 'todo', text: T('off'), action: 'add-placeholder' }),
     },
     {
       id: 'video',
-      label: 'Video',
+      label: i18n.global.t('editorInspector.avatar.overview.row.video'),
       deck: count(i.videoCount, i.placeholderCount),
       slide: s && videoCell(s.chip),
     },

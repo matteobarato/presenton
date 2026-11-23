@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { active, tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
 import type { BarContext, BarItem } from './barItems'
@@ -24,6 +25,7 @@ function keepForNestedLayer(e: Event) {
 }
 
 const panelProps = computed(() => props.item.props?.(props.context) ?? {})
+const { t } = useI18n()
 </script>
 
 <template>
@@ -32,8 +34,8 @@ const panelProps = computed(() => props.item.props?.(props.context) ?? {})
       <button
         type="button"
         :class="[tool, open && active]"
-        :aria-label="item.label"
-        :title="item.label"
+        :aria-label="t(item.label)"
+        :title="t(item.label)"
         :data-bar-item="item.id"
         @mousedown.prevent
       >
@@ -45,7 +47,7 @@ const panelProps = computed(() => props.item.props?.(props.context) ?? {})
       :side-offset="10"
       :collision-padding="8"
       class="max-h-[min(70vh,520px,var(--reka-popper-available-height))] w-[300px] max-w-[calc(100vw-16px)] overflow-y-auto"
-      :aria-label="item.label"
+      :aria-label="t(item.label)"
       data-inline-edit-ignore="true"
       data-floating-panel
       @interact-outside="keepForNestedLayer"

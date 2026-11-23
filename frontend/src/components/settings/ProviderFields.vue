@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, toRef, watch, type Component } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Loader2 } from 'lucide-vue-next'
 import BedrockFields from '@/components/settings/BedrockFields.vue'
 import OllamaFields from '@/components/settings/OllamaFields.vue'
@@ -9,11 +10,12 @@ import VertexAzureFields from '@/components/settings/VertexAzureFields.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useModelDiscovery } from '@/composables/useModelDiscovery'
-import { canDiscover, type TextProviderRow } from '@/settings/providers'
+import { canDiscover, type TextProviderRow, tx } from '@/settings/providers'
 import type { ProviderConfig } from '@/settings/types'
 
 const props = defineProps<{ row: TextProviderRow; config: ProviderConfig }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
+const { t } = useI18n()
 
 // Rows with `fields` use a dedicated component; each entry maps the row to that component's props
 // (every one emits `set: [field, value]`).
@@ -36,11 +38,17 @@ function text(field?: string): string {
   return typeof value === 'string' ? value : ''
 }
 
+const keyLabel = computed(() => tx(props.row.keyLabel) ?? t('settings.shared.apiKey'))
 const keyPlaceholder = computed(
-  () => props.row.keyPlaceholder ?? `Enter your ${(props.row.keyLabel ?? 'API key').replace(/\s*\(optional\)$/i, '')}`,
+  () =>
+    tx(props.row.keyPlaceholder) ??
+    t('settings.shared.enterYour', { name: keyLabel.value.replace(/\s*\(optional\)$/i, '') }),
 )
-const urlLabel = computed(() => `${props.row.urlLabel ?? 'Base URL'}${props.row.urlOptional ? ' (optional)' : ''}`)
-const urlPlaceholder = computed(() => props.row.urlPlaceholder ?? props.row.defaultUrl ?? '')
+const urlLabel = computed(() => {
+  const label = tx(props.row.urlLabel) ?? t('settings.providerFields.baseUrl')
+  return props.row.urlOptional ? t('settings.shared.optionalLabel', { label }) : label
+})
+const urlPlaceholder = computed(() => tx(props.row.urlPlaceholder) ?? props.row.defaultUrl ?? '')
 const discoverable = computed(() => canDiscover(props.row, props.config))
 const modelValue = computed(() => text(props.row.modelField))
 const showModels = computed(() => checked.value || modelValue.value !== '')
@@ -70,7 +78,7 @@ watch(
     <div v-if="row.keyField" class="min-w-0">
       <SecretInput
         :model-value="text(row.keyField)"
-        :label="row.keyLabel ?? 'API key'"
+        :label="keyLabel"
         :optional="row.keyOptional"
         :placeholder="keyPlaceholder"
         @update:model-value="emit('set', row.keyField!, $event)"
@@ -81,7 +89,7 @@ watch(
         target="_blank"
         rel="noopener noreferrer"
         class="mt-1.5 inline-block text-[11px] text-accent underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >Get an API key</a
+        >{{ t('settings.shared.getApiKey') }}</a
       >
     </div>
 
@@ -90,7 +98,7 @@ watch(
         v-if="row.advancedUrl"
         class="mb-2 cursor-pointer text-[12px] font-medium text-tx-dbe7ef focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
-        Advanced settings
+        {{ t('settings.shared.advancedSettings') }}
       </summary>
       <label :for="`url-${row.value}`" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ urlLabel }}</label>
       <Input
@@ -108,7 +116,7 @@ watch(
     <div>
       <Button type="button" variant="secondary" :disabled="!discoverable || loading" @click="check">
         <Loader2 v-if="loading" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-        {{ loading ? 'Checking for models…' : 'Check models' }}
+        {{ loading ? t('settings.providerFields.checkingModels') : t('settings.providerFields.checkModels') }}
       </Button>
     </div>
 
@@ -120,7 +128,7 @@ watch(
         @update:model-value="emit('set', row.modelField, $event)"
       />
       <p v-if="checked && models.length === 0" class="-mt-2 text-[11px] text-tx-95aab7">
-        No models were discovered. You can still enter a valid model ID or alias manually above.
+        {{ t('settings.providerFields.noModelsFound') }}
       </p>
     </template>
   </div>

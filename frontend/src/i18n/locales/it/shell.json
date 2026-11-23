@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "main": "Principale",
+    "new": "Nuova",
+    "library": "Libreria",
+    "templates": "Modelli",
+    "settings": "Impostazioni",
+    "help": "Aiuto",
+    "helpTitle": "Aiuto e scorciatoie da tastiera",
+    "accountMenu": "Menu account",
+    "signOut": "Esci"
+  },
+  "banner": {
+    "unreachable": "Impossibile raggiungere il backend di Slideshows su {url} (tramite il proxy /api di questo server). Nuovo tentativo quando torni a questa finestra…"
+  },
+  "footer": {
+    "tagline": "Le presentazioni di domani, create oggi.",
+    "workspace": "Spazio di lavoro di {name}",
+    "yourWorkspace": "Il tuo spazio di lavoro",
+    "backendUnreachable": "Backend non raggiungibile",
+    "shortcuts": "Scorciatoie da tastiera"
+  },
+  "breadcrumb": {
+    "label": "Percorso",
+    "workspace": "Spazio di lavoro"
+  },
+  "aiProgress": {
+    "label": "Avanzamento",
+    "elapsed": "{seconds}s trascorsi"
+  },
+  "help": {
+    "title": "Un piccolo aiuto lungo la strada.",
+    "description": "Scorciatoie da tastiera per creare e presentare le tue presentazioni.",
+    "editor": "Editor",
+    "presenting": "Presentazione",
+    "moveSlides": "Spostati tra le diapositive",
+    "addSlide": "Aggiungi una diapositiva",
+    "deleteSlide": "Elimina la diapositiva selezionata",
+    "undo": "Annulla una modifica",
+    "redo": "Ripeti una modifica",
+    "askAi": "Apri o chiudi Chiedi all’IA",
+    "nextPrevious": "Diapositiva successiva e precedente",
+    "exit": "Esci dalla presentazione",
+    "tip": "Trascina le miniature dalla maniglia per riordinare la storia. Usa Chiedi all’IA dalla barra mobile per riscrivere la diapositiva in cui ti trovi."
+  }
+}

@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { LayoutGrid, List, Search } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import type { LibraryLayout } from './deckMeta'
 
 const search = defineModel<string>('search', { required: true })
 const layout = defineModel<LibraryLayout>('layout', { required: true })
+const { t } = useI18n()
 </script>
 
 <template>
@@ -14,17 +16,17 @@ const layout = defineModel<LibraryLayout>('layout', { required: true })
       <input
         v-model="search"
         type="search"
-        aria-label="Search presentations"
-        placeholder="Find a presentation"
+        :aria-label="t('library.toolbar.search')"
+        :placeholder="t('library.toolbar.find')"
         class="w-[170px] min-w-0 bg-transparent text-[11px] text-tx-d4e3eb placeholder:text-tx-96acb9 focus-visible:outline-none max-[760px]:w-full"
       />
     </label>
-    <div class="flex gap-1" role="group" aria-label="Layout">
+    <div class="flex gap-1" role="group" :aria-label="t('library.toolbar.layout')">
       <Button
         variant="ghost"
         size="icon"
         class="size-[35px]"
-        aria-label="Grid view"
+        :aria-label="t('library.toolbar.grid')"
         :aria-pressed="layout === 'grid'"
         :class="layout === 'grid' && 'bg-sx-242d32 text-tx-d4e3eb'"
         @click="layout = 'grid'"
@@ -35,7 +37,7 @@ const layout = defineModel<LibraryLayout>('layout', { required: true })
         variant="ghost"
         size="icon"
         class="size-[35px]"
-        aria-label="List view"
+        :aria-label="t('library.toolbar.list')"
         :aria-pressed="layout === 'list'"
         :class="layout === 'list' && 'bg-sx-242d32 text-tx-d4e3eb'"
         @click="layout = 'list'"

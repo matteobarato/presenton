@@ -7,6 +7,7 @@ import { videoKeys } from '@/api/videos'
 import type { DeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
 import type { DeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
 import { isFreshVideo } from '@/components/editor/inspector/video/avatar-state'
+import { i18n } from '@/i18n'
 
 export type PipelinePhase = 'idle' | 'notes' | 'voice' | 'avatars' | 'done' | 'error'
 type WorkPhase = 'notes' | 'voice' | 'avatars'
@@ -16,14 +17,9 @@ export const pipelineKey = (presentationId: string) => `slideshows.pipeline.${pr
 
 /** Server messages may name the video provider; the product only ever says "presenter". */
 const plain = (text: string) => text.replace(/heygen('s)?( account)?/gi, 'the presenter video service')
-const FAILED_WHAT: Record<WorkPhase, string> = {
-  notes: 'Couldn’t write the speaker notes',
-  voice: 'Couldn’t record the narration',
-  avatars: 'Couldn’t render the presenter videos',
-}
 const message = (p: WorkPhase, e: unknown) => {
   const reason = e instanceof Error ? plain(e.message).trim().replace(/[.\s]+$/, '') : ''
-  return `${FAILED_WHAT[p]}${reason ? `: ${reason}` : ''}. Retry to try again.`
+  return i18n.global.t('editor.pipeline.failure', { what: i18n.global.t(`editor.pipeline.failedWhat.${p}`), detail: reason ? `: ${reason}` : '' })
 }
 
 interface Stored {
@@ -158,10 +154,10 @@ export function useNarrationAvatarPipeline(
     return Boolean(lang) && !(list?.length && !list.some((l) => l.code === lang))
   })
   const blocker = computed<string | null>(() => {
-    if (!languageOk.value) return 'Choose a narration language first, under Presenter and language.'
+    if (!languageOk.value) return i18n.global.t('editor.pipeline.chooseLanguage')
     // Until the videos answer, neither the portrait nor whether HeyGen is configured is known.
-    if (avatars.placeholderSlides.value.length && !avatars.videos.value) return 'Checking presenter setup…'
-    if (plan.value.avatars > 0 && !avatars.videos.value?.portrait) return 'Add a presenter photo first, under Presenter and language.'
+    if (avatars.placeholderSlides.value.length && !avatars.videos.value) return i18n.global.t('editor.pipeline.checkingPresenter')
+    if (plan.value.avatars > 0 && !avatars.videos.value?.portrait) return i18n.global.t('editor.pipeline.addPortrait')
     return null
   })
 
@@ -209,7 +205,7 @@ export function useNarrationAvatarPipeline(
     }
     if (avatarsStarted || plan.value.avatars === 0) return setPhase('done')
     const indices = avatars.eligibleSlides.value.map((s) => s.index)
-    if (!indices.length) return fail('avatars', 'Presenter videos need up-to-date narration first. Narrate the slides again, then retry.')
+    if (!indices.length) return fail('avatars', i18n.global.t('editor.pipeline.needsNarration'))
     setPhase('avatars', false)
     avatarsStarted = true
     avatars.pendingIndices.value = indices
@@ -250,7 +246,7 @@ export function useNarrationAvatarPipeline(
           waiting.value = false
           const failed = failedSlides.value
           if (avatars.taskError.value) fail('avatars', avatars.taskError.value)
-          else if (failed) fail('avatars', `${failed} presenter video${failed === 1 ? '' : 's'} didn’t render. Retry to render ${failed === 1 ? 'it' : 'them'} again.`)
+          else if (failed) fail('avatars', i18n.global.t('editor.pipeline.presenterVideosFailed', { count: failed }, failed))
           else setPhase('done')
         }
       }
@@ -305,7 +301,7 @@ export function useNarrationAvatarPipeline(
       if (saved.phase === 'avatars') avatarsStarted = true
       const serverRunning = saved.phase === 'voice' ? narration.running.value : avatars.running.value
       // The start request was cut off by the reload: whether a task began is unknown, so don't chain on.
-      if (!saved.confirmed && !serverRunning) fail(saved.phase, 'Interrupted, retry to continue')
+      if (!saved.confirmed && !serverRunning) fail(saved.phase, i18n.global.t('editor.pipeline.interrupted'))
       else waiting.value = true
     }
   }

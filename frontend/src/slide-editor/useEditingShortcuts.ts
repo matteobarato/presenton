@@ -1,5 +1,6 @@
 import { toValue, type MaybeRefOrGetter } from 'vue'
 import { useEventListener } from '@vueuse/core'
+import { i18n } from '@/i18n'
 import { getElementAtSelection, type ElementSelection, type RawUi, type Selection } from '@/slide-editor/model'
 import { dataRoot } from '@/slide-editor/dataRoot'
 import { sameSelection } from '@/slide-editor/layerTree'
@@ -29,8 +30,8 @@ function isEditableTarget(el: EventTarget | null): boolean {
 
 // Ctrl+] / Ctrl+[ move a layer up / down; with Shift, to the front / back. By code: Shift changes the key.
 const LAYER_KEYS: Record<string, [LayerAction, LayerAction, string, string]> = {
-  BracketRight: ['bring-forward', 'bring-to-front', 'Bring forward', 'Bring to front'],
-  BracketLeft: ['send-backward', 'send-to-back', 'Send backward', 'Send to back'],
+  BracketRight: ['bring-forward', 'bring-to-front', 'slideEditor.action.bringForward', 'slideEditor.action.bringToFront'],
+  BracketLeft: ['send-backward', 'send-to-back', 'slideEditor.action.sendBackward', 'slideEditor.action.sendToBack'],
 }
 
 const ARROWS: Record<string, [number, number]> = {
@@ -54,7 +55,8 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
   }
 
   const actions = useEditingActions(ctx)
-  const apply = (result: OpResult, label: string) => actions.run(label, result)
+  // `key` is an i18n key; the translated label is what the undo history shows.
+  const apply = (result: OpResult, key: string, opts?: { nudge?: boolean }) => actions.run(i18n.global.t(key), result, opts)
 
   useEventListener(window, 'keydown', (e: KeyboardEvent) => {
     if (e.defaultPrevented || e.isComposing || !usable(e.target)) return
@@ -78,7 +80,7 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
         const r = sel ? duplicateSelection(ui, sel) : null
         if (!r) return
         e.preventDefault()
-        void apply(r, 'Duplicate')
+        void apply(r, 'slideEditor.action.duplicate')
       } else if (key === 'c' && !e.shiftKey) {
         // Highlighted page text (notes, chat, a label) is what the user means to copy.
         if (!sel || window.getSelection()?.isCollapsed === false) return
@@ -88,7 +90,7 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
         const r = e.shiftKey ? ungroupSelection(ui, sel) : groupSelection(ui, sel)
         if (!r) return
         e.preventDefault()
-        void apply(r, e.shiftKey ? 'Ungroup' : 'Group')
+        void apply(r, e.shiftKey ? 'slideEditor.action.ungroup' : 'slideEditor.action.group')
       } else if (e.code in LAYER_KEYS) {
         const [step, end, stepLabel, endLabel] = LAYER_KEYS[e.code]!
         const r = reorderSelection(ui, sel, e.shiftKey ? end : step)
@@ -104,7 +106,7 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
       const r = deleteSelection(ui, sel)
       if (!r) return
       e.preventDefault()
-      void apply(r, 'Delete')
+      void apply(r, 'common.actions.delete')
     } else if (e.key in ARROWS) {
       if (!sel) return
       const step = e.shiftKey ? 10 : 1
@@ -113,7 +115,7 @@ export function useEditingShortcuts(ctx: SlideEditing, active: MaybeRefOrGetter<
       // Arrows stay with a movable selection even at the slide edge; layout-managed elements do nothing.
       if (!r && sel.kind === 'element' && isLayoutManagedElement(ui, sel)) return
       e.preventDefault()
-      void apply(r, 'Nudge')
+      void apply(r, 'slideEditor.action.nudge', { nudge: true })
     } else if (e.key === 'Enter') {
       // A picked cell of the selected table edits in place.
       const cell = ctx.tableCell.value

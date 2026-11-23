@@ -21,5 +21,6 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     include: ['tests/golden/**/*.test.ts'],
+    setupFiles: ['tests/unit/setup-i18n.ts'],
   },
 })

@@ -1,12 +1,14 @@
 <script setup lang="ts">
 // Ported from servers/nextjs/components/BedrockManualFields.tsx
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SecretInput from '@/components/settings/SecretInput.vue'
 import { Input } from '@/components/ui/input'
 import type { ProviderConfig } from '@/settings/types'
 
 const props = defineProps<{ config: ProviderConfig }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
+const { t } = useI18n()
 
 function text(field: string): string {
   const value = props.config[field]
@@ -28,59 +30,59 @@ watch(
 <template>
   <div class="grid min-w-0 gap-4">
     <div class="min-w-0">
-      <label for="bedrock-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Model</label>
+      <label for="bedrock-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.bedrock.model') }}</label>
       <Input
         id="bedrock-model"
         type="text"
         autocomplete="off"
         autocapitalize="off"
         spellcheck="false"
-        placeholder="e.g. us.anthropic.claude-3-5-haiku-20241022-v1:0"
+        :placeholder="t('settings.bedrock.modelPlaceholder')"
         :model-value="text('BEDROCK_MODEL')"
         @update:model-value="emit('set', 'BEDROCK_MODEL', String($event))"
       />
     </div>
     <div class="min-w-0">
-      <label for="bedrock-region" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Region</label>
+      <label for="bedrock-region" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.bedrock.region') }}</label>
       <Input
         id="bedrock-region"
         type="text"
         autocomplete="off"
         autocapitalize="off"
         spellcheck="false"
-        placeholder="e.g. us-east-1"
+        :placeholder="t('settings.bedrock.regionPlaceholder')"
         :model-value="text('BEDROCK_REGION')"
         @update:model-value="emit('set', 'BEDROCK_REGION', String($event))"
       />
     </div>
     <SecretInput
       :model-value="text('BEDROCK_API_KEY')"
-      label="Bedrock API key (optional)"
-      placeholder="Use this OR AWS access keys below"
+      :label="t('settings.bedrock.apiKeyLabel')"
+      :placeholder="t('settings.bedrock.apiKeyPlaceholder')"
       @update:model-value="emit('set', 'BEDROCK_API_KEY', $event)"
     />
     <div class="min-w-0">
-      <label for="bedrock-access-key-id" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">AWS Access Key ID</label>
+      <label for="bedrock-access-key-id" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.bedrock.accessKeyId') }}</label>
       <Input
         id="bedrock-access-key-id"
         type="text"
         autocomplete="off"
         autocapitalize="off"
         spellcheck="false"
-        placeholder="Use with AWS Secret Access Key"
+        :placeholder="t('settings.bedrock.accessKeyIdPlaceholder')"
         :model-value="text('BEDROCK_AWS_ACCESS_KEY_ID')"
         @update:model-value="emit('set', 'BEDROCK_AWS_ACCESS_KEY_ID', String($event))"
       />
     </div>
     <SecretInput
       :model-value="text('BEDROCK_AWS_SECRET_ACCESS_KEY')"
-      label="AWS Secret Access Key"
-      placeholder="Use with AWS Access Key ID"
+      :label="t('settings.bedrock.secretAccessKey')"
+      :placeholder="t('settings.bedrock.secretAccessKeyPlaceholder')"
       @update:model-value="emit('set', 'BEDROCK_AWS_SECRET_ACCESS_KEY', $event)"
     />
 
     <p class="text-[11px] text-tx-95aab7">
-      Authentication: set either Bedrock API key, or AWS access key ID + secret key.
+      {{ t('settings.bedrock.authHint') }}
     </p>
 
     <details
@@ -91,24 +93,24 @@ watch(
       <summary
         class="mb-2 cursor-pointer text-[12px] font-medium text-tx-dbe7ef focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
-        Advanced settings
+        {{ t('settings.shared.advancedSettings') }}
       </summary>
       <div class="grid gap-4">
         <SecretInput
           :model-value="text('BEDROCK_AWS_SESSION_TOKEN')"
-          label="AWS Session Token"
-          placeholder="Optional"
+          :label="t('settings.bedrock.sessionToken')"
+          :placeholder="t('settings.shared.optional')"
           @update:model-value="emit('set', 'BEDROCK_AWS_SESSION_TOKEN', $event)"
         />
         <div class="min-w-0">
-          <label for="bedrock-profile-name" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">AWS Profile Name</label>
+          <label for="bedrock-profile-name" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.bedrock.profileName') }}</label>
           <Input
             id="bedrock-profile-name"
             type="text"
             autocomplete="off"
             autocapitalize="off"
             spellcheck="false"
-            placeholder="Optional"
+            :placeholder="t('settings.shared.optional')"
             :model-value="text('BEDROCK_PROFILE_NAME')"
             @update:model-value="emit('set', 'BEDROCK_PROFILE_NAME', String($event))"
           />

@@ -1,6 +1,7 @@
 import { ref, watch, type Ref } from 'vue'
 import { animateFlagKey } from '@/components/create/options'
 import { toast } from '@/components/ui/sonner'
+import { i18n } from '@/i18n'
 import { provideDeckAnimationRun } from '@/composables/useDeckAnimationRun'
 import type { StreamStatus } from '@/composables/usePresentationStream'
 
@@ -30,7 +31,7 @@ export function usePlanMotionAfterGeneration(id: Ref<string>, status: Ref<Stream
     await deckRun.run()
     // Not started (an error, or the caller moved to another deck meanwhile): no progress to show.
     if (!deckRun.running.value) planning.value = false
-    if (deckRun.error.value) toast.error('Motion planning could not start', { description: deckRun.error.value })
+    if (deckRun.error.value) toast.error(i18n.global.t('editor.animation.couldNotStartPlanning'), { description: deckRun.error.value })
   }
 
   watch(status, (s) => {

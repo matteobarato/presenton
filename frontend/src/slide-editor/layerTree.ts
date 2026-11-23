@@ -9,6 +9,7 @@ import {
   type RawUi,
   type Selection,
 } from '@/slide-editor/model'
+import { i18n } from '@/i18n'
 
 /** One row of the Layers tab's list: something on the slide that can be selected. */
 export interface LayerNode {
@@ -24,24 +25,25 @@ export interface LayerNode {
   children: LayerNode[]
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  text: 'Text',
-  'text-list': 'List',
-  image: 'Image',
-  chart: 'Chart',
-  table: 'Table',
-  group: 'Group',
-  flex: 'Layout',
-  grid: 'Layout',
-  'list-view': 'Layout',
-  'grid-view': 'Layout',
-  container: 'Container',
-  vector: 'Shape',
-  smooth: 'Shape',
-  infographic: 'Infographic',
-  icon: 'Icon',
-  svg: 'Icon',
-  component: 'Component',
+// Layer type name shown in the Layers panel, keyed by raw element type.
+const TYPE_LABEL_KEYS: Record<string, string> = {
+  text: 'slideEditor.layers.type.text',
+  'text-list': 'slideEditor.layers.type.list',
+  image: 'slideEditor.layers.type.image',
+  chart: 'slideEditor.layers.type.chart',
+  table: 'slideEditor.layers.type.table',
+  group: 'slideEditor.layers.type.group',
+  flex: 'slideEditor.layers.type.layout',
+  grid: 'slideEditor.layers.type.layout',
+  'list-view': 'slideEditor.layers.type.layout',
+  'grid-view': 'slideEditor.layers.type.layout',
+  container: 'slideEditor.layers.type.container',
+  vector: 'slideEditor.layers.type.shape',
+  smooth: 'slideEditor.layers.type.shape',
+  infographic: 'slideEditor.layers.type.infographic',
+  icon: 'slideEditor.layers.type.icon',
+  svg: 'slideEditor.layers.type.icon',
+  component: 'slideEditor.layers.type.component',
 }
 
 const PREVIEW_MAX = 40
@@ -74,14 +76,15 @@ function fileName(src: unknown): string | null {
 function elementDetail(el: RawElement): string | null {
   if (el.type === 'text' || el.type === 'text-list') return textPreview(el)
   if (el.type === 'image') {
-    if (el.video_placeholder === true) return 'Video placeholder'
+    if (el.video_placeholder === true) return i18n.global.t('slideEditor.layers.videoPlaceholder')
     return (typeof el.alt === 'string' && truncate(el.alt)) || fileName(el.data ?? el.src)
   }
   if (typeof el.name === 'string') return truncate(el.name)
   return null
 }
 
-const labelFor = (type: string) => TYPE_LABELS[type] ?? (type ? type[0].toUpperCase() + type.slice(1) : 'Element')
+const labelFor = (type: string) =>
+  TYPE_LABEL_KEYS[type] ? i18n.global.t(TYPE_LABEL_KEYS[type]) : type ? type[0].toUpperCase() + type.slice(1) : i18n.global.t('slideEditor.layers.type.element')
 
 function elementChildren(el: RawElement, componentIndex: number, path: number[]): LayerNode[] {
   const items = childArrayInfo(el)?.items ?? []

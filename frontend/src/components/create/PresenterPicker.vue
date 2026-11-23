@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { onBeforeUnmount, ref, watch } from 'vue'
 import type { Portrait } from '@/api/videos'
 import PortraitHero from '@/components/editor/inspector/video/PortraitHero.vue'
 import { validatePortrait } from './options'
+const { t } = useI18n()
 
 /** The presenter photo, held in memory until the deck exists (see NewView). */
 defineProps<{ disabled?: boolean }>()
@@ -36,7 +38,7 @@ function upload(file: File) {
   <section class="flex flex-col gap-3" data-testid="presenter-picker">
     <PortraitHero class="mx-auto w-full max-w-[380px]" :portrait="portrait" :busy="!!disabled" @upload="upload" @remove="model = null" />
     <p class="text-center text-[12px] text-tx-8e9ca4" data-testid="presenter-picker-help">
-      {{ model ? 'This photo is used on the presenter slides.' : 'Add a photo to continue with a presenter, or choose voice only.' }}
+      {{ model ? t('create.presenter.pickerUsed') : t('create.presenter.pickerAdd') }}
     </p>
   </section>
 </template>

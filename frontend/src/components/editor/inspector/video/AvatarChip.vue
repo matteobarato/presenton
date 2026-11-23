@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { Badge } from '@/components/ui/badge'
-import { CHIP_LABEL, type AvatarChipKind } from './avatar-state'
+import type { AvatarChipKind } from './avatar-state'
+
+const { t } = useI18n()
 
 defineProps<{ kind: AvatarChipKind }>()
 const VARIANT: Partial<Record<AvatarChipKind, 'default' | 'secondary' | 'destructive' | 'outline'>> = {
@@ -15,5 +18,5 @@ const VARIANT: Partial<Record<AvatarChipKind, 'default' | 'secondary' | 'destruc
 </script>
 
 <template>
-  <Badge :variant="VARIANT[kind] ?? 'secondary'" :data-chip="kind">{{ CHIP_LABEL[kind] }}</Badge>
+  <Badge :variant="VARIANT[kind] ?? 'secondary'" :data-chip="kind">{{ t(`editorInspector.avatar.chip.${kind}`) }}</Badge>
 </template>

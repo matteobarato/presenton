@@ -1,4 +1,5 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { i18n } from '@/i18n'
 import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Italic, Underline } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
 import { resolvePresentationTheme } from '@/render/legacy/lib/template-theme'
@@ -18,17 +19,17 @@ export interface TextControlsProps {
 
 const LINE_HEIGHTS = [1, 1.15, 1.5, 2]
 export const ALL_ALIGNS = [
-  { value: 'left', label: 'Align left', icon: AlignLeft },
-  { value: 'center', label: 'Align center', icon: AlignCenter },
-  { value: 'right', label: 'Align right', icon: AlignRight },
-  { value: 'justify', label: 'Justify', icon: AlignJustify },
+  { value: 'left', get label() { return i18n.global.t('editorInspector.element.text.align.left') }, icon: AlignLeft },
+  { value: 'center', get label() { return i18n.global.t('editorInspector.element.text.align.center') }, icon: AlignCenter },
+  { value: 'right', get label() { return i18n.global.t('editorInspector.element.text.align.right') }, icon: AlignRight },
+  { value: 'justify', get label() { return i18n.global.t('editorInspector.element.text.align.justify') }, icon: AlignJustify },
 ] as const
 export type Align = (typeof ALL_ALIGNS)[number]['value']
 export type Mark = 'bold' | 'italic' | 'underline'
 export const MARKS = [
-  { mark: 'bold', label: 'Bold', title: 'Bold (Ctrl+B)', icon: Bold },
-  { mark: 'italic', label: 'Italic', title: 'Italic (Ctrl+I)', icon: Italic },
-  { mark: 'underline', label: 'Underline', title: 'Underline (Ctrl+U)', icon: Underline },
+  { mark: 'bold', get label() { return i18n.global.t('editorInspector.element.text.mark.bold') }, get title() { return i18n.global.t('editorInspector.element.text.markTitle.bold') }, icon: Bold },
+  { mark: 'italic', get label() { return i18n.global.t('editorInspector.element.text.mark.italic') }, get title() { return i18n.global.t('editorInspector.element.text.markTitle.italic') }, icon: Italic },
+  { mark: 'underline', get label() { return i18n.global.t('editorInspector.element.text.mark.underline') }, get title() { return i18n.global.t('editorInspector.element.text.markTitle.underline') }, icon: Underline },
 ] as const
 
 type FontPatch = Partial<Record<'family' | 'size' | 'color' | 'bold' | 'italic' | 'underline' | 'line_height', string | number | boolean>>

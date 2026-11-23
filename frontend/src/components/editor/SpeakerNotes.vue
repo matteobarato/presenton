@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useElementSize } from '@vueuse/core'
 import { AudioLines, ChevronDown, Clapperboard, MessageSquare } from 'lucide-vue-next'
@@ -15,11 +16,12 @@ import VoiceTab from './inspector/VoiceTab.vue'
  */
 const props = defineProps<{ presentationId: string; presentation: Presentation; slide: Slide | null }>()
 const editor = useEditorStore()
+const { t } = useI18n()
 
-const tabs: { id: FooterTab; label: string }[] = [
-  { id: 'notes', label: 'Notes' },
-  { id: 'voice', label: 'Voice' },
-  { id: 'motion', label: 'Motion' },
+const tabs: { id: FooterTab }[] = [
+  { id: 'notes' },
+  { id: 'voice' },
+  { id: 'motion' },
 ]
 
 // Notes mounts once opened and is dropped when its tab is left: unmounting NotesStrip flushes a pending note.
@@ -43,6 +45,7 @@ function onTabClick(id: FooterTab) {
 }
 
 const tabEls = useTemplateRef<HTMLButtonElement[]>('tabEls')
+const tabLabel = (id: FooterTab) => t(`editor.footer.tabs.${id}`)
 /** Roving tabindex: arrows select (and focus) the neighbouring tab without opening a collapsed bar. */
 async function onTabKeydown(e: KeyboardEvent, index: number) {
   const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0
@@ -100,7 +103,7 @@ function onHandleKeydown(e: KeyboardEvent) {
       v-if="editor.footerOpen"
       role="separator"
       aria-orientation="horizontal"
-      aria-label="Resize notes, voice and motion"
+      :aria-label="t('editor.footer.resize')"
       tabindex="0"
       :aria-valuenow="renderedHeight"
       :aria-valuemin="FOOTER_MIN_HEIGHT"
@@ -118,39 +121,39 @@ function onHandleKeydown(e: KeyboardEvent) {
     </div>
 
     <div class="flex h-10 items-center gap-1 px-4 max-[760px]:px-3">
-      <div role="tablist" aria-label="Notes, voice and motion" class="flex items-center gap-1">
+      <div role="tablist" :aria-label="t('editor.footer.tabsLabel')" class="flex items-center gap-1">
         <button
-          v-for="(t, i) in tabs"
-          :id="`footer-tab-${t.id}`"
+          v-for="(tab, i) in tabs"
+          :id="`footer-tab-${tab.id}`"
           ref="tabEls"
-          :key="t.id"
+          :key="tab.id"
           type="button"
           role="tab"
           aria-controls="footer-panel"
-          :aria-selected="editor.footerTab === t.id"
-          :tabindex="editor.footerTab === t.id ? 0 : -1"
+          :aria-selected="editor.footerTab === tab.id"
+          :tabindex="editor.footerTab === tab.id ? 0 : -1"
           class="inline-flex h-7 items-center gap-1.5 rounded-control px-2.5 text-[11px] leading-none hover:bg-ov/[0.04] hover:text-white"
-          :class="editor.footerTab !== t.id ? 'text-tx-919fa7' : editor.footerOpen ? 'bg-ov/[0.07] text-white' : 'text-white'"
-          @click="onTabClick(t.id)"
+          :class="editor.footerTab !== tab.id ? 'text-tx-919fa7' : editor.footerOpen ? 'bg-ov/[0.07] text-white' : 'text-white'"
+          @click="onTabClick(tab.id)"
           @keydown="onTabKeydown($event, i)"
         >
-          <MessageSquare v-if="t.id === 'notes'" class="size-3.5" aria-hidden="true" />
-          <AudioLines v-else-if="t.id === 'voice'" class="size-3.5" aria-hidden="true" />
+          <MessageSquare v-if="tab.id === 'notes'" class="size-3.5" aria-hidden="true" />
+          <AudioLines v-else-if="tab.id === 'voice'" class="size-3.5" aria-hidden="true" />
           <Clapperboard v-else class="size-3.5" aria-hidden="true" />
-          {{ t.label }}
+          {{ tabLabel(tab.id) }}
         </button>
       </div>
       <button
         type="button"
         class="inline-flex size-7 items-center justify-center rounded-control text-tx-919fa7 hover:bg-ov/[0.04] hover:text-white"
-        :aria-label="editor.footerOpen ? 'Collapse' : 'Expand'"
+        :aria-label="editor.footerOpen ? t('editor.footer.collapse') : t('editor.footer.expand')"
         :aria-expanded="editor.footerOpen"
         aria-controls="footer-panel"
         @click="editor.footerOpen = !editor.footerOpen"
       >
         <ChevronDown class="size-3.5 transition-transform duration-200" :class="editor.footerOpen && 'rotate-180'" aria-hidden="true" />
       </button>
-      <span v-if="editor.footerTab === 'notes'" class="ml-auto text-[10px] leading-none text-tx-97a3aa max-[1279px]:hidden">Only you can see these</span>
+      <span v-if="editor.footerTab === 'notes'" class="ml-auto text-[10px] leading-none text-tx-97a3aa max-[1279px]:hidden">{{ t('editor.footer.onlyYou') }}</span>
     </div>
 
     <div

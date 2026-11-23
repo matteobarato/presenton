@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { ArrowDown, ArrowUp, ImageIcon, Plus, Trash2 } from 'lucide-vue-next'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -18,6 +19,8 @@ import {
 } from '@/slide-editor/infographicOps'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import IconPickerDialog from './IconPickerDialog.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{ open: boolean; root: ElementSelection }>()
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
@@ -161,8 +164,8 @@ const ghost =
   <Dialog :open="props.open" @update:open="onOpenChange">
     <DialogContent class="w-[min(640px,calc(100vw-32px))] max-w-[640px]" data-inline-edit-ignore="true">
       <DialogHeader>
-        <DialogTitle>Edit items</DialogTitle>
-        <DialogDescription>Changes preview on the slide. Done saves them.</DialogDescription>
+        <DialogTitle>{{ t('editorInspector.element.itemsDialog.title') }}</DialogTitle>
+        <DialogDescription>{{ t('editorInspector.element.itemsDialog.description') }}</DialogDescription>
       </DialogHeader>
       <div class="mt-4 flex max-h-[min(420px,calc(100dvh-280px))] flex-col gap-2 overflow-auto">
         <div v-for="(item, i) in items" :key="i" class="flex items-start gap-2 rounded-control border border-ov/[0.06] p-2">
@@ -172,9 +175,9 @@ const ghost =
                 v-if="type === 'vertical_funnel'"
                 type="text"
                 inputmode="decimal"
-                :aria-label="`Value ${i + 1}`"
+                :aria-label="t('editorInspector.element.itemsDialog.valueAria', { n: i + 1 })"
                 :aria-invalid="!draftComplete(type, [item])"
-                placeholder="Value"
+                :placeholder="t('editorInspector.element.itemsDialog.valuePlaceholder')"
                 class="!w-20 shrink-0"
                 :class="input"
                 :value="item.value ?? ''"
@@ -183,40 +186,40 @@ const ghost =
               <button
                 v-else
                 type="button"
-                :aria-label="`Change icon ${i + 1}`"
-                title="Change icon"
+                :aria-label="t('editorInspector.element.itemsDialog.changeIcon', { n: i + 1 })"
+                :title="t('editorInspector.element.itemsDialog.changeIconTitle')"
                 class="inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-control border border-ov/[0.06] bg-field hover:bg-ov/[0.08]"
                 @click="pickerIndex = i"
               >
                 <img v-if="iconUrl(item)" :src="resolveAssetUrl(iconUrl(item))" alt="" class="size-5 object-contain" />
                 <ImageIcon v-else class="size-4 text-tx-9aa9b0" />
               </button>
-              <input type="text" :aria-label="`Heading ${i + 1}`" placeholder="Heading" :class="input" :value="item.heading" @input="setField(i, { heading: ($event.target as HTMLInputElement).value })" />
+              <input type="text" :aria-label="t('editorInspector.element.itemsDialog.headingAria', { n: i + 1 })" :placeholder="t('editorInspector.element.itemsDialog.heading')" :class="input" :value="item.heading" @input="setField(i, { heading: ($event.target as HTMLInputElement).value })" />
             </div>
             <textarea
               v-if="type === 'maturity_model'"
-              :aria-label="`Description ${i + 1}`"
+              :aria-label="t('editorInspector.element.itemsDialog.descriptionAria', { n: i + 1 })"
               rows="3"
-              placeholder="Description"
+              :placeholder="t('editorInspector.element.itemsDialog.description')"
               :class="area"
               :value="item.description"
               @input="setField(i, { description: ($event.target as HTMLTextAreaElement).value })"
             />
-            <input v-else type="text" :aria-label="`Description ${i + 1}`" placeholder="Description" :class="input" :value="item.description" @input="setField(i, { description: ($event.target as HTMLInputElement).value })" />
+            <input v-else type="text" :aria-label="t('editorInspector.element.itemsDialog.descriptionAria', { n: i + 1 })" :placeholder="t('editorInspector.element.itemsDialog.description')" :class="input" :value="item.description" @input="setField(i, { description: ($event.target as HTMLInputElement).value })" />
           </div>
           <div class="flex shrink-0 gap-0.5">
-            <button type="button" :aria-label="`Move item ${i + 1} up`" :class="[ghost, '!px-1.5']" :disabled="i === 0" @click="move(i, -1)"><ArrowUp class="size-3.5" /></button>
-            <button type="button" :aria-label="`Move item ${i + 1} down`" :class="[ghost, '!px-1.5']" :disabled="i === items.length - 1" @click="move(i, 1)"><ArrowDown class="size-3.5" /></button>
-            <button type="button" :aria-label="`Delete item ${i + 1}`" :class="[ghost, '!px-1.5']" :disabled="items.length <= limits.min" @click="remove(i)"><Trash2 class="size-3.5" /></button>
+            <button type="button" :aria-label="t('editorInspector.element.itemsDialog.moveUp', { n: i + 1 })" :class="[ghost, '!px-1.5']" :disabled="i === 0" @click="move(i, -1)"><ArrowUp class="size-3.5" /></button>
+            <button type="button" :aria-label="t('editorInspector.element.itemsDialog.moveDown', { n: i + 1 })" :class="[ghost, '!px-1.5']" :disabled="i === items.length - 1" @click="move(i, 1)"><ArrowDown class="size-3.5" /></button>
+            <button type="button" :aria-label="t('editorInspector.element.itemsDialog.deleteItem', { n: i + 1 })" :class="[ghost, '!px-1.5']" :disabled="items.length <= limits.min" @click="remove(i)"><Trash2 class="size-3.5" /></button>
           </div>
         </div>
       </div>
       <div class="mt-3 flex gap-2">
-        <button type="button" :class="ghost" :disabled="items.length >= limits.max" @click="add"><Plus class="size-3.5" />Add item</button>
+        <button type="button" :class="ghost" :disabled="items.length >= limits.max" @click="add"><Plus class="size-3.5" />{{ t('editorInspector.element.itemsDialog.addItem') }}</button>
       </div>
       <div class="mt-6 flex justify-end gap-2">
-        <button type="button" class="inline-flex h-9 items-center rounded-control px-3.5 text-[12px] text-tx-dce3e7 hover:bg-ov/[0.08]" @click="cancel">Cancel</button>
-        <button type="button" class="inline-flex h-9 items-center rounded-control bg-accent px-3.5 text-[12px] font-semibold text-tx-0b1a22 disabled:opacity-40" :disabled="!complete" @click="done">Done</button>
+        <button type="button" class="inline-flex h-9 items-center rounded-control px-3.5 text-[12px] text-tx-dce3e7 hover:bg-ov/[0.08]" @click="cancel">{{ t('common.actions.cancel') }}</button>
+        <button type="button" class="inline-flex h-9 items-center rounded-control bg-accent px-3.5 text-[12px] font-semibold text-tx-0b1a22 disabled:opacity-40" :disabled="!complete" @click="done">{{ t('editorInspector.element.itemsDialog.done') }}</button>
       </div>
     </DialogContent>
   </Dialog>

@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, useId } from 'vue'
 import { Check, ChevronDown, Loader2 } from 'lucide-vue-next'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import type { WizardStepItem, WizardStepKey } from './progress'
+const { t } = useI18n()
 
 /**
  * The six-step journey, as a compact row of header buttons (it lives in the app top bar). A locked step never
@@ -22,7 +24,7 @@ const tile =
 
 const uid = useId()
 const reasonId = (key: WizardStepKey) => `${uid}-reason-${key}`
-const STATE_TEXT: Partial<Record<WizardStepItem['state'], string>> = { done: 'Completed', running: 'In progress' }
+const stateText = (state: WizardStepItem['state']) => (state === 'done' ? t('create.stepState.completed') : state === 'running' ? t('create.stepState.inProgress') : '')
 
 function pick(item: WizardStepItem) {
   if (props.disabled) return
@@ -34,13 +36,13 @@ const tip = (s: WizardStepItem) => (s.state === 'locked' ? (s.reason ?? undefine
 </script>
 
 <template>
-  <nav aria-label="Wizard steps" class="flex-none">
+  <nav :aria-label="t('create.wizard.stepsAria')" class="flex-none">
     <!-- Phone: one button, the full list in a menu. -->
     <DropdownMenu>
       <DropdownMenuTrigger
         data-testid="steps-compact"
         :class="cn(tile, 'relative hidden max-[759px]:inline-flex max-[759px]:h-11', 'border-lx-bee3f347 bg-sx-bee3f30f text-tx-eef6fa')"
-        aria-label="Wizard steps"
+        :aria-label="t('create.wizard.stepsAria')"
       >
         <span class="tabular-nums">{{ index + 1 }}/{{ items.length }}</span>
         <span aria-hidden="true">·</span>
@@ -106,7 +108,7 @@ const tip = (s: WizardStepItem) => (s.state === 'locked' ? (s.reason ?? undefine
             <template v-else>{{ i + 1 }}</template>
           </span>
           <span :class="s.key !== current && 'max-[1279px]:sr-only'">{{ s.label }}</span>
-          <span v-if="STATE_TEXT[s.state]" class="sr-only" :data-testid="`step-${s.key}-state`">({{ STATE_TEXT[s.state] }})</span>
+          <span v-if="stateText(s.state)" class="sr-only" :data-testid="`step-${s.key}-state`">({{ stateText(s.state) }})</span>
           <!-- Summaries live in the tooltip and for screen readers, not in the bar. -->
           <span v-if="s.summary" class="sr-only">{{ s.summary }}</span>
           <span v-if="s.key === current" class="absolute inset-x-2.5 bottom-0 h-[2px] rounded-full bg-accent" data-testid="step-underline" aria-hidden="true" />

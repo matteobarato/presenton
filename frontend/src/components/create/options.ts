@@ -1,4 +1,5 @@
 import type { CreateBody } from '@/api/generation'
+import { i18n } from '@/i18n'
 
 export const MAX_SLIDES = 50
 
@@ -22,8 +23,14 @@ export interface CreateOptions {
 /** The groups of `GenerationOptions`, so a chip can show just the ones it owns. */
 export type OptionSection = 'length' | 'videos' | 'style' | 'extras' | 'instructions'
 
+// Labels are getters, so they are looked up when read (render time) and follow the UI locale.
 export const SLIDE_PRESETS: { value: string; label: string }[] = [
-  { value: '', label: 'Auto' },
+  {
+    value: '',
+    get label() {
+      return i18n.global.t('create.options.auto')
+    },
+  },
   { value: '5', label: '5' },
   { value: '8', label: '8' },
   { value: '12', label: '12' },
@@ -31,34 +38,111 @@ export const SLIDE_PRESETS: { value: string; label: string }[] = [
 ]
 
 export const IMAGE_PRESETS: { value: string; label: string }[] = [
-  { value: '', label: 'Auto' },
-  { value: '0', label: 'None' },
+  {
+    value: '',
+    get label() {
+      return i18n.global.t('create.options.auto')
+    },
+  },
+  {
+    value: '0',
+    get label() {
+      return i18n.global.t('create.options.none')
+    },
+  },
   { value: '3', label: '3' },
   { value: '5', label: '5' },
   { value: '8', label: '8' },
 ]
 
 export const VIDEO_PRESETS: { value: string; label: string }[] = [
-  { value: '', label: 'Auto' },
-  { value: '0', label: 'None' },
+  {
+    value: '',
+    get label() {
+      return i18n.global.t('create.options.auto')
+    },
+  },
+  {
+    value: '0',
+    get label() {
+      return i18n.global.t('create.options.none')
+    },
+  },
   { value: '1', label: '1' },
   { value: '3', label: '3' },
   { value: '5', label: '5' },
 ]
 
 export const TONES: { value: CreateBody['tone']; label: string }[] = [
-  { value: 'default', label: 'Default' },
-  { value: 'casual', label: 'Casual' },
-  { value: 'professional', label: 'Professional' },
-  { value: 'funny', label: 'Funny' },
-  { value: 'educational', label: 'Educational' },
-  { value: 'sales_pitch', label: 'Sales pitch' },
+  {
+    value: 'default',
+    get label() {
+      return i18n.global.t('create.tones.default')
+    },
+  },
+  {
+    value: 'casual',
+    get label() {
+      return i18n.global.t('create.tones.casual')
+    },
+  },
+  {
+    value: 'professional',
+    get label() {
+      return i18n.global.t('create.tones.professional')
+    },
+  },
+  {
+    value: 'funny',
+    get label() {
+      return i18n.global.t('create.tones.funny')
+    },
+  },
+  {
+    value: 'educational',
+    get label() {
+      return i18n.global.t('create.tones.educational')
+    },
+  },
+  {
+    value: 'sales_pitch',
+    get label() {
+      return i18n.global.t('create.tones.salesPitch')
+    },
+  },
 ]
 
 export const VERBOSITIES: { value: CreateBody['verbosity']; label: string; hint: string; lines: number }[] = [
-  { value: 'concise', label: 'Concise', hint: 'Short points, room to talk', lines: 2 },
-  { value: 'standard', label: 'Standard', hint: 'Balanced text and visuals', lines: 3 },
-  { value: 'text-heavy', label: 'Text-heavy', hint: 'Reads well without a speaker', lines: 4 },
+  {
+    value: 'concise',
+    get label() {
+      return i18n.global.t('create.verbosity.concise.label')
+    },
+    get hint() {
+      return i18n.global.t('create.verbosity.concise.hint')
+    },
+    lines: 2,
+  },
+  {
+    value: 'standard',
+    get label() {
+      return i18n.global.t('create.verbosity.standard.label')
+    },
+    get hint() {
+      return i18n.global.t('create.verbosity.standard.hint')
+    },
+    lines: 3,
+  },
+  {
+    value: 'text-heavy',
+    get label() {
+      return i18n.global.t('create.verbosity.textHeavy.label')
+    },
+    get hint() {
+      return i18n.global.t('create.verbosity.textHeavy.hint')
+    },
+    lines: 4,
+  },
 ]
 
 /**
@@ -89,8 +173,8 @@ const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 /** The reason a presenter photo is unusable, or null when it is fine. */
 export function validatePortrait(file: File): string | null {
-  if (!PHOTO_TYPES.includes(file.type)) return 'Use a JPEG, PNG or WebP photo.'
-  if (file.size > PHOTO_MAX_BYTES) return 'The photo is over 10 MB.'
+  if (!PHOTO_TYPES.includes(file.type)) return i18n.global.t('create.options.photoType')
+  if (file.size > PHOTO_MAX_BYTES) return i18n.global.t('create.options.photoSize')
   return null
 }
 

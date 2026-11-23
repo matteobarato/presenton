@@ -19,27 +19,28 @@ import { useSettingsDraft } from '@/composables/useSettingsDraft'
 import { defaultSettingsSection, isProviderSection, visibleSettingsSections, type ProviderSection, type SettingsSection } from '@/settings/types'
 import { SECTION_ICONS } from '@/settings/sectionIcons'
 import { useSessionStore } from '@/stores/session'
+import { useI18n } from 'vue-i18n'
 
-const TITLES: Record<SettingsSection, string> = {
-  text: 'Text',
-  images: 'Images',
-  'web-search': 'Web search',
-  users: 'Users',
-  'api-keys': 'API keys',
-  account: 'Account',
+const SECTION_KEYS: Record<SettingsSection, string> = {
+  text: 'text',
+  images: 'images',
+  'web-search': 'webSearch',
+  users: 'users',
+  'api-keys': 'apiKeys',
+  account: 'account',
 }
 const EDITORS: Record<ProviderSection, Component> = {
   text: TextSection,
   images: ImagesSection,
   'web-search': WebSearchSection,
 }
-const LEAVE_PROMPT = 'You have unsaved changes. Leave without saving?'
-
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const session = useSessionStore()
 const access = useSettingsAccess()
 const { draft, dirty, saving, load, set, discard, save } = useSettingsDraft()
+const sectionTitle = (s: SettingsSection) => t(`views.settings.sections.${SECTION_KEYS[s]}`)
 
 const isAdmin = computed(() => session.user?.role === 'admin')
 const sections = computed(() => visibleSettingsSections(isAdmin.value, session.user?.authDisabled === true))
@@ -82,7 +83,7 @@ function go(next: SettingsSection) {
 
 // Sign-out discards the draft first, so declining the prompt keeps the user signed in and the keys hidden.
 async function onSignOut() {
-  if (dirty.value && !window.confirm(LEAVE_PROMPT)) return
+  if (dirty.value && !window.confirm(t('views.settings.leavePrompt'))) return
   discard()
   await session.signOut().catch(() => {})
   await router.push({ name: 'login' })
@@ -94,7 +95,7 @@ async function onSave() {
 }
 
 onBeforeRouteLeave(() => {
-  if (dirty.value && !window.confirm(LEAVE_PROMPT)) return false
+  if (dirty.value && !window.confirm(t('views.settings.leavePrompt'))) return false
 })
 
 function warnOnUnload(event: BeforeUnloadEvent) {
@@ -113,15 +114,15 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
 </script>
 
 <template>
-  <PageHeader title="Settings" />
+  <PageHeader :title="t('views.settings.title')" />
 
   <section class="workspace-card">
     <div class="anim-rise-in mb-[33px]">
       <h1 class="text-[34px] leading-[1.22] font-medium tracking-[-0.04em] text-tx-e4ecf0 max-[1050px]:text-[30px] max-[760px]:text-[27px] max-[450px]:text-[25px]">
-        Settings
+        {{ t('views.settings.title') }}
       </h1>
       <p class="mt-[13px] text-[12px] text-tx-9aabb4 max-[760px]:text-[11px] max-[760px]:leading-[1.7]">
-        {{ isAdmin ? 'Choose the providers that write, illustrate and research your decks, and manage who can use them.' : 'Manage your account, password and personal API keys.' }}
+        {{ isAdmin ? t('views.settings.introAdmin') : t('views.settings.introMember') }}
       </p>
     </div>
 
@@ -130,7 +131,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
       <div class="min-w-0 flex-1">
         <h2 class="mb-5 flex items-center gap-2.5 text-[16px] font-medium text-tx-e4ecf0">
           <component :is="SECTION_ICONS[section]" class="size-[18px] stroke-[1.75] text-tx-c2e5f5" aria-hidden="true" />
-          {{ TITLES[section] }}
+          {{ sectionTitle(section) }}
         </h2>
         <UsersSection v-if="section === 'users'" />
         <ApiKeysSection v-else-if="section === 'api-keys'" :scope="isAdmin ? 'all' : 'mine'" />
@@ -144,7 +145,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
 
     <Alert v-else-if="access.mode.value === 'error'" variant="destructive" class="flex items-center justify-between gap-4 py-2 text-[12px]">
       <span>{{ access.error.value }}</span>
-      <Button variant="secondary" size="sm" @click="access.reload()">Retry</Button>
+      <Button variant="secondary" size="sm" @click="access.reload()">{{ t('views.settings.retry') }}</Button>
     </Alert>
 
     <div v-else class="flex gap-8 max-[760px]:flex-col max-[760px]:gap-5">
@@ -153,7 +154,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
       <div class="min-w-0 flex-1">
         <h2 class="mb-5 flex items-center gap-2.5 text-[16px] font-medium text-tx-e4ecf0">
           <component :is="SECTION_ICONS[section]" class="size-[18px] stroke-[1.75] text-tx-c2e5f5" aria-hidden="true" />
-          {{ TITLES[section] }}
+          {{ sectionTitle(section) }}
         </h2>
         <ReadOnlySummary v-if="readOnlyMode" :mode="readOnlyMode" :config="runtimeConfig" />
         <template v-else>

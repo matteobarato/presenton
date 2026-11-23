@@ -1,4 +1,5 @@
 import { computed } from 'vue'
+import { i18n } from '@/i18n'
 import { ArrowLeft, ArrowRight, Columns3, Rows3, Trash2 } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
 import { asRecord, getElementAtSelection, type ElementSelection, type RawElement } from '@/slide-editor/model'
@@ -53,17 +54,18 @@ export function useTableControls(presentation: () => Presentation) {
     const el = table.value
     const l = limits.value
     if (!el || !l) return []
-    const deleteRowWhy = row.value === 0 ? "The header row can't be deleted" : row.value == null ? 'Select a cell to delete its row' : `Tables need at least ${l.minRows} rows`
-    const deleteColWhy = col.value == null ? 'Select a cell to delete its column' : `Tables need at least ${l.minCols} column${l.minCols === 1 ? '' : 's'}`
-    const moveWhy = 'Select a cell to move its column'
-    const edge = (dir: -1 | 1) => (col.value == null ? moveWhy : dir < 0 ? 'This is the first column' : 'This is the last column')
+    const tr = i18n.global.t
+    const deleteRowWhy = row.value === 0 ? tr('editorInspector.element.table.why.headerRow') : row.value == null ? tr('editorInspector.element.table.why.selectRow') : tr('editorInspector.element.table.why.minRows', { count: l.minRows })
+    const deleteColWhy = col.value == null ? tr('editorInspector.element.table.why.selectColumn') : tr('editorInspector.element.table.why.minCols', { count: l.minCols }, l.minCols)
+    const moveWhy = tr('editorInspector.element.table.why.selectMove')
+    const edge = (dir: -1 | 1) => (col.value == null ? moveWhy : dir < 0 ? tr('editorInspector.element.table.why.firstColumn') : tr('editorInspector.element.table.why.lastColumn'))
     return [
-      { id: 'add-row', label: 'Add row', icon: Rows3, ok: canAddRow(el), why: `Tables have at most ${l.maxRows} rows`, run: () => patch('Add row', (t) => addRow(t, row.value), root.value ?? undefined) },
-      { id: 'add-column', label: 'Add column', icon: Columns3, ok: canAddColumn(el), why: `Tables have at most ${l.maxCols} columns`, run: () => patch('Add column', (t) => addColumn(t, col.value), root.value ?? undefined) },
-      { id: 'delete-row', label: 'Delete row', icon: Trash2, ok: canDeleteRow(el, row.value), why: deleteRowWhy, run: () => canDeleteRow(el, row.value) && patch('Delete row', (t) => deleteRow(t, row.value!), root.value ?? undefined) },
-      { id: 'delete-column', label: 'Delete column', icon: Trash2, ok: canDeleteColumn(el, col.value), why: deleteColWhy, run: () => canDeleteColumn(el, col.value) && patch('Delete column', (t) => deleteColumn(t, col.value!), root.value ?? undefined) },
-      { id: 'move-left', label: 'Move column left', icon: ArrowLeft, ok: canMoveColumn(el, col.value, -1), why: edge(-1), run: () => canMoveColumn(el, col.value, -1) && move(-1) },
-      { id: 'move-right', label: 'Move column right', icon: ArrowRight, ok: canMoveColumn(el, col.value, 1), why: edge(1), run: () => canMoveColumn(el, col.value, 1) && move(1) },
+      { id: 'add-row', label: tr('editorInspector.element.table.addRow'), icon: Rows3, ok: canAddRow(el), why: tr('editorInspector.element.table.why.maxRows', { count: l.maxRows }), run: () => patch('Add row', (t) => addRow(t, row.value), root.value ?? undefined) },
+      { id: 'add-column', label: tr('editorInspector.element.table.addColumn'), icon: Columns3, ok: canAddColumn(el), why: tr('editorInspector.element.table.why.maxCols', { count: l.maxCols }, l.maxCols), run: () => patch('Add column', (t) => addColumn(t, col.value), root.value ?? undefined) },
+      { id: 'delete-row', label: tr('editorInspector.element.table.deleteRow'), icon: Trash2, ok: canDeleteRow(el, row.value), why: deleteRowWhy, run: () => canDeleteRow(el, row.value) && patch('Delete row', (t) => deleteRow(t, row.value!), root.value ?? undefined) },
+      { id: 'delete-column', label: tr('editorInspector.element.table.deleteColumn'), icon: Trash2, ok: canDeleteColumn(el, col.value), why: deleteColWhy, run: () => canDeleteColumn(el, col.value) && patch('Delete column', (t) => deleteColumn(t, col.value!), root.value ?? undefined) },
+      { id: 'move-left', label: tr('editorInspector.element.table.moveLeft'), icon: ArrowLeft, ok: canMoveColumn(el, col.value, -1), why: edge(-1), run: () => canMoveColumn(el, col.value, -1) && move(-1) },
+      { id: 'move-right', label: tr('editorInspector.element.table.moveRight'), icon: ArrowRight, ok: canMoveColumn(el, col.value, 1), why: edge(1), run: () => canMoveColumn(el, col.value, 1) && move(1) },
     ]
   })
 

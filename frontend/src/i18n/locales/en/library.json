@@ -1,0 +1,30 @@
+{
+  "untitled": "Untitled presentation",
+  "slideCount": "{count} slide | {count} slides",
+  "deck": {
+    "open": "Open {title}",
+    "edit": "Edit {title}",
+    "editHint": "Edit in the editor",
+    "duplicate": "Duplicate {title}",
+    "delete": "Delete {title}"
+  },
+  "toolbar": {
+    "search": "Search presentations",
+    "find": "Find a presentation",
+    "layout": "Layout",
+    "grid": "Grid view",
+    "list": "List view"
+  },
+  "empty": {
+    "noMatch": "No presentations match “{query}”",
+    "tryAnother": "Try a different title, or start a new presentation.",
+    "clearSearch": "Clear search",
+    "noneYet": "No presentations yet",
+    "createFirst": "Create your first deck from a prompt or a document.",
+    "newPresentation": "New presentation"
+  },
+  "deleteDeck": {
+    "title": "Delete presentation?",
+    "description": "\"{title}\" and all of its slides will be permanently deleted."
+  }
+}

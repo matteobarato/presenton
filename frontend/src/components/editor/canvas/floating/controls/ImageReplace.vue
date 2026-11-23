@@ -4,6 +4,9 @@ import { ImageIcon } from 'lucide-vue-next'
 import ImagePickerDialog from '@/components/editor/canvas/ImagePickerDialog.vue'
 import { tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
 import { useImageControls } from '@/components/editor/inspector/element/useImageControls'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Bar control: Replace image. Owns the picker dialog, so it stays mounted while the bar is shown.
 const { replaceImage } = useImageControls()
@@ -14,8 +17,8 @@ const pickerOpen = ref(false)
   <button
     type="button"
     :class="tool"
-    aria-label="Replace image"
-    title="Replace image"
+    :aria-label="t('editorCanvas.controls.imageReplace')"
+    :title="t('editorCanvas.controls.imageReplace')"
     data-bar-item="replace-image"
     @mousedown.prevent
     @click="pickerOpen = true"

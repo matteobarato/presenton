@@ -1,12 +1,14 @@
 <script setup lang="ts">
 // Ported from servers/nextjs/components/CreatableModelInput.tsx
 import { computed, ref, useId, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Check, ChevronDown } from 'lucide-vue-next'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 const props = defineProps<{ modelValue: string; options: string[]; providerLabel: string }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
+const { t } = useI18n()
 
 const uid = useId()
 const triggerId = `model-trigger-${uid}`
@@ -45,7 +47,7 @@ function onEnter() {
 
 <template>
   <div class="min-w-0">
-    <label :id="labelId" :for="triggerId" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ providerLabel }} model ID</label>
+    <label :id="labelId" :for="triggerId" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.modelCombobox.label', { provider: providerLabel }) }}</label>
     <Popover v-model:open="open">
       <PopoverTrigger as-child>
         <button
@@ -59,7 +61,7 @@ function onEnter() {
           class="flex h-[42px] w-full items-center justify-between gap-3 rounded-button border border-transparent bg-field px-3 text-left text-[12px] transition-colors duration-200 hover:border-ov/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
         >
           <span class="min-w-0 flex-1 truncate" :class="modelValue ? 'font-medium text-tx-dce6ec' : 'text-muted'">
-            {{ modelValue || 'Select a discovered model or enter any model ID' }}
+            {{ modelValue || t('settings.modelCombobox.placeholder') }}
           </span>
           <ChevronDown class="size-4 shrink-0 text-muted transition-transform" :class="open && 'rotate-180'" aria-hidden="true" />
         </button>
@@ -68,14 +70,14 @@ function onEnter() {
         <Input
           v-model="query"
           type="text"
-          placeholder="Search or enter a model ID…"
-          aria-label="Search or enter a model ID"
+          :placeholder="t('settings.modelCombobox.searchPlaceholder')"
+          :aria-label="t('settings.modelCombobox.searchLabel')"
           autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
           @keydown.enter.prevent="onEnter"
         />
-        <div :id="listId" role="listbox" :aria-label="`${providerLabel} models`" class="mt-2 max-h-60 overflow-y-auto">
+        <div :id="listId" role="listbox" :aria-label="t('settings.modelCombobox.listLabel', { provider: providerLabel })" class="mt-2 max-h-60 overflow-y-auto">
           <button
             v-if="custom"
             type="button"
@@ -86,8 +88,8 @@ function onEnter() {
           >
             <span class="size-4 shrink-0" aria-hidden="true" />
             <span class="min-w-0 flex-1">
-              <span class="block break-all text-[12px] font-medium text-tx-dbe7ef">Use “{{ custom }}”</span>
-              <span class="block text-[10px] text-tx-95aab7">Save as a custom model ID</span>
+              <span class="block break-all text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.modelCombobox.useCustom', { model: custom }) }}</span>
+              <span class="block text-[10px] text-tx-95aab7">{{ t('settings.modelCombobox.customHint') }}</span>
             </span>
           </button>
           <button
@@ -103,10 +105,10 @@ function onEnter() {
             <Check class="size-4 shrink-0 text-accent" :class="m === modelValue ? 'opacity-100' : 'opacity-0'" aria-hidden="true" />
             <span class="min-w-0 flex-1 break-all text-[12px] font-medium text-tx-dbe7ef">{{ m }}</span>
           </button>
-          <p v-if="!custom && filtered.length === 0" class="px-3 py-5 text-center text-[12px] text-muted">No discovered models yet.</p>
+          <p v-if="!custom && filtered.length === 0" class="px-3 py-5 text-center text-[12px] text-muted">{{ t('settings.modelCombobox.noModels') }}</p>
         </div>
       </PopoverContent>
     </Popover>
-    <p class="mt-1.5 text-[10px] text-tx-95aab7">Discovered models are suggestions. Custom aliases and provider-specific model IDs are accepted.</p>
+    <p class="mt-1.5 text-[10px] text-tx-95aab7">{{ t('settings.modelCombobox.hint') }}</p>
   </div>
 </template>

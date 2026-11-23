@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { Palette, Type } from 'lucide-vue-next'
 import { field, label, muted, section, segment, segmentOn } from '@/components/editor/inspector/controls/styles'
 import { MARKS, useTextControls, type TextControlsProps } from './useTextControls'
+
+const { t } = useI18n()
 
 const props = defineProps<TextControlsProps>()
 
@@ -21,13 +24,13 @@ defineExpose({ families })
   <template v-if="element">
     <div :class="section">
       <div :class="label">
-        <h3>Typography</h3>
+        <h3>{{ t('editorInspector.element.text.typography') }}</h3>
         <span :class="muted">{{ family }}</span>
       </div>
       <label :class="field">
         <Type class="size-3.5 shrink-0 text-tx-a0aeb5" aria-hidden="true" />
         <select
-          aria-label="Font family"
+          :aria-label="t('editorInspector.element.text.fontFamily')"
           class="h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-tx-dce3e7 outline-none"
           :value="family"
           @change="setFamily(($event.target as HTMLSelectElement).value)"
@@ -41,7 +44,7 @@ defineExpose({ families })
             type="number"
             min="8"
             max="200"
-            aria-label="Font size"
+            :aria-label="t('editorInspector.element.text.fontSize')"
             class="h-full w-full min-w-0 bg-transparent text-[10px] text-tx-dce3e7 outline-none"
             :value="size"
             @change="commitSize"
@@ -65,7 +68,7 @@ defineExpose({ families })
 
     <div :class="section">
       <div :class="label">
-        <h3>Color</h3>
+        <h3>{{ t('editorInspector.element.text.color') }}</h3>
         <span class="text-[8px] font-normal tracking-[0.03em] text-tx-9caab2">{{ color }}</span>
       </div>
       <div class="flex flex-wrap items-center gap-2.5">
@@ -76,19 +79,19 @@ defineExpose({ families })
           class="size-6 rounded-full border-0 outline outline-1 outline-offset-[3px] transition-transform hover:-translate-y-0.5"
           :class="c === color ? 'outline-lx-a9c2ce' : 'outline-transparent'"
           :style="{ background: c }"
-          :aria-label="`Colour ${c}`"
+          :aria-label="t('editorInspector.element.text.colourValue', { value: c })"
           :aria-pressed="c === color"
           @mousedown.prevent
           @click="setColor(c)"
         />
         <label
           class="relative ml-auto grid size-6 cursor-pointer place-items-center overflow-hidden rounded-full border border-ov/[0.07] bg-sx-30373b text-tx-9daab2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent"
-          title="Custom colour"
+          :title="t('editorInspector.element.text.customColour')"
         >
           <Palette class="size-3" aria-hidden="true" />
           <input
             type="color"
-            aria-label="Custom colour"
+            :aria-label="t('editorInspector.element.text.customColour')"
             class="absolute inset-0 size-full cursor-pointer opacity-0"
             :value="color"
             @change="setColor(($event.target as HTMLInputElement).value)"
@@ -98,7 +101,7 @@ defineExpose({ families })
     </div>
 
     <div :class="section">
-      <div :class="label"><h3>Alignment</h3></div>
+      <div :class="label"><h3>{{ t('editorInspector.element.text.alignment') }}</h3></div>
       <div class="flex gap-2">
         <button
           v-for="a in ALIGNS"
@@ -115,12 +118,12 @@ defineExpose({ families })
         </button>
       </div>
       <div :class="[label, 'mt-4']">
-        <h3>Line height</h3>
+        <h3>{{ t('editorInspector.element.text.lineHeight') }}</h3>
         <span :class="muted">{{ lineHeight }}</span>
       </div>
       <label :class="field">
         <select
-          aria-label="Line height"
+          :aria-label="t('editorInspector.element.text.lineHeight')"
           class="h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-tx-dce3e7 outline-none"
           :value="String(lineHeight)"
           @change="setLineHeight(Number(($event.target as HTMLSelectElement).value))"

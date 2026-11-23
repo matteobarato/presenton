@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { AudioLines, Film, Trash2, Upload, Video } from 'lucide-vue-next'
@@ -10,6 +11,8 @@ import { injectDeckNarration } from '../narration/useDeckNarration'
 import AvatarChip from './AvatarChip.vue'
 import { failureText, hasVideoPlaceholder, otherAvatarLanguage } from './avatar-state'
 import { injectDeckAvatars } from './useDeckAvatars'
+
+const { t } = useI18n()
 
 /**
  * The active slide's presenter: the switch that puts it on the slide (its placeholder layer), then its video and
@@ -51,13 +54,13 @@ const videoLanguageName = computed(() => {
 /** Narration the presenter would lip-sync to is missing or out of date: one click to the Voice tab fixes it. */
 const narrationFix = computed(() => {
   if (!hasPlaceholder.value) return null
-  if (narration.value === 'stale') return { text: 'Narration changed since it was recorded. Regenerate it first.', tone: 'warn' }
-  if (narration.value === 'missing') return { text: "This slide has no narration yet. The presenter lip-syncs to it.", tone: 'todo' }
+  if (narration.value === 'stale') return { text: t('editorInspector.avatar.slide.narrationStale'), tone: 'warn' }
+  if (narration.value === 'missing') return { text: t('editorInspector.avatar.slide.narrationMissing'), tone: 'todo' }
   return null
 })
 /** Why "Generate avatar" is disabled when nothing above already says so. */
 const reason = computed(() => {
-  if (!hasPlaceholder.value) return blocker.value ? 'Turn the presenter on to generate a video for this slide.' : null
+  if (!hasPlaceholder.value) return blocker.value ? t('editorInspector.avatar.slide.turnOn') : null
   return deckBlocker.value
 })
 
@@ -75,21 +78,21 @@ const note = 'text-[10px] leading-[1.6]'
 </script>
 
 <template>
-  <section class="flex flex-col gap-3 border-t border-line py-[18px]" aria-label="Slide avatar video" :data-chip="chip" data-testid="slide-avatar">
+  <section class="flex flex-col gap-3 border-t border-line py-[18px]" :aria-label="t('editorInspector.avatar.slide.ariaLabel')" :data-chip="chip" data-testid="slide-avatar">
     <div class="flex items-center gap-2">
-      <h3 class="text-[12px] font-semibold whitespace-nowrap text-tx-f6f8f9">Slide {{ n }}</h3>
+      <h3 class="text-[12px] font-semibold whitespace-nowrap text-tx-f6f8f9">{{ t('editorInspector.avatar.slides.slide', { n }) }}</h3>
       <AvatarChip :kind="chip" class="ml-auto" />
     </div>
 
     <label class="flex cursor-pointer items-start justify-between gap-3 rounded-control bg-field px-3 py-2.5" :class="busy && 'cursor-default'">
       <span class="flex min-w-0 flex-col gap-0.5">
-        <span class="text-[11px] font-semibold text-tx-e5edf1">Presenter on this slide</span>
-        <span :class="[note, 'text-tx-a0abb1']">{{ hasPlaceholder ? 'Replaces the voice bubble here.' : 'Off: the voice bubble plays here.' }}</span>
+        <span class="text-[11px] font-semibold text-tx-e5edf1">{{ t('editorInspector.avatar.slide.presenterOn') }}</span>
+        <span :class="[note, 'text-tx-a0abb1']">{{ hasPlaceholder ? t('editorInspector.avatar.slide.presenterOnHint') : t('editorInspector.avatar.slide.presenterOffHint') }}</span>
       </span>
       <Switch
         :model-value="hasPlaceholder"
         :disabled="busy"
-        :aria-label="`Avatar placeholder on slide ${n}`"
+        :aria-label="t('editorInspector.avatar.slide.placeholderAria', { n })"
         class="mt-0.5 flex-none"
         @update:model-value="togglePlaceholder(slide, Boolean($event))"
       />
@@ -103,36 +106,35 @@ const note = 'text-[10px] leading-[1.6]'
         data-testid="slide-avatar-open-voice"
         @click="openVoice"
       >
-        <AudioLines class="size-3" aria-hidden="true" />Open Voice
+        <AudioLines class="size-3" aria-hidden="true" />{{ t('editorInspector.avatar.slide.openVoice') }}
       </button>
     </div>
     <p v-if="plan?.state === 'failed'" role="alert" :class="[note, 'text-danger-text']">{{ failureText(plan) }}</p>
     <p v-if="videoLanguageName" :class="[note, 'text-danger-text']" data-testid="slide-avatar-language">
-      This avatar was recorded for {{ videoLanguageName }} narration, so Present and the video export hide it while the
-      deck plays in {{ languageName }}. Switch the narration language, or generate or upload one for {{ languageName }}.
+      {{ t('editorInspector.avatar.slide.otherLanguage', { recorded: videoLanguageName, deck: languageName }) }}
     </p>
 
     <div v-if="video" class="flex flex-col gap-1">
       <div class="flex items-center gap-2 rounded-control border border-line py-1 pr-1 pl-2.5 text-[11px] text-tx-d4dadd">
         <Film class="size-3.5 shrink-0 text-muted" aria-hidden="true" />
-        <span class="min-w-0 truncate">{{ video.original_filename || (video.source === 'heygen' ? 'Generated avatar' : 'Uploaded video') }}</span>
+        <span class="min-w-0 truncate">{{ video.original_filename || (video.source === 'heygen' ? t('editorInspector.avatar.slide.generatedAvatar') : t('editorInspector.avatar.chip.uploaded')) }}</span>
         <Button
           size="sm"
           variant="ghost"
           class="ml-auto text-muted hover:text-danger-text"
           :disabled="busy"
-          :aria-label="`Remove video from slide ${n}`"
+          :aria-label="t('editorInspector.avatar.slide.removeVideoAria', { n })"
           @click="removeVideo(slide)"
         >
           <Trash2 class="size-3.5" aria-hidden="true" />
         </Button>
       </div>
       <p v-if="!hasPlaceholder" :class="[note, 'text-tx-a0abb1']" data-testid="slide-video-hidden">
-        Kept for later: this video won't play until the presenter is on.
+        {{ t('editorInspector.avatar.slide.keptForLater') }}
       </p>
     </div>
     <p v-else-if="hasPlaceholder" :class="[note, 'text-tx-a0abb1']" data-testid="slide-no-video">
-      No video yet. Generate one from the portrait and this slide's narration, or upload your own.
+      {{ t('editorInspector.avatar.slide.noVideo') }}
     </p>
 
     <div class="flex flex-col gap-2">
@@ -143,10 +145,10 @@ const note = 'text-[10px] leading-[1.6]'
         :aria-describedby="reason ? 'slide-avatar-reason' : undefined"
         @click="requestGenerate([slide.index])"
       >
-        <Video class="size-3.5" aria-hidden="true" />Generate avatar
+        <Video class="size-3.5" aria-hidden="true" />{{ t('editorInspector.avatar.slide.generate') }}
       </Button>
       <Button size="sm" variant="outline" :disabled="busy" @click="input?.click()">
-        <Upload class="size-3.5" aria-hidden="true" />{{ video ? 'Replace video' : 'Upload video' }}
+        <Upload class="size-3.5" aria-hidden="true" />{{ video ? t('editorInspector.avatar.slide.replaceVideo') : t('editorInspector.avatar.slide.uploadVideo') }}
       </Button>
     </div>
     <!-- Narration blockers are explained (with their fix) above; this names every other reason. -->
@@ -156,7 +158,7 @@ const note = 'text-[10px] leading-[1.6]'
       type="file"
       accept="video/mp4,video/webm"
       class="hidden"
-      :aria-label="`Video file for slide ${n}`"
+      :aria-label="t('editorInspector.avatar.slide.videoFileAria', { n })"
       @change="picked"
     />
   </section>

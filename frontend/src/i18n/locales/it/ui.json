@@ -1,0 +1,11 @@
+{
+  "dialog": {
+    "close": "Chiudi finestra"
+  },
+  "sheet": {
+    "close": "Chiudi pannello"
+  },
+  "slider": {
+    "value": "Valore"
+  }
+}

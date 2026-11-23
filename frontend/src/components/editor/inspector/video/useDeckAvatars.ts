@@ -1,4 +1,5 @@
 import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from 'vue'
+import { i18n } from '@/i18n'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { Presentation, Slide } from '@/api/types'
 import { ApiError } from '@/api/errors'
@@ -103,17 +104,17 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
 
   /** Why no avatar can be generated at all right now, or null. */
   const deckBlocker = computed<string | null>(() => {
-    if (videos.value && !videos.value.generation_available) return "Avatar generation isn't set up on this server (it needs OPENROUTER_API_KEY). You can still upload your own videos."
-    if (!videos.value?.portrait) return 'Upload a presenter portrait first.'
-    if (running.value) return 'An avatar generation is already running.'
-    if (!narration.tts.value) return 'Checking narration…'
+    const t = i18n.global.t
+    if (videos.value && !videos.value.generation_available) return t('editorInspector.avatar.deck.blocker.notSetUp')
+    if (!videos.value?.portrait) return t('editorInspector.avatar.deck.blocker.noPortrait')
+    if (running.value) return t('editorInspector.avatar.deck.blocker.running')
+    if (!narration.tts.value) return t('editorInspector.avatar.deck.blocker.checkingNarration')
     return null
   })
   /** Why this slide cannot get an avatar right now, or null. */
   const blockerFor = (s: Slide): string | null => {
     if (deckBlocker.value) return deckBlocker.value
-    const blocker = slideBlocker(hasVideoPlaceholder(s), narration.stateOf(s))
-    return blocker ? `This slide ${blocker}.` : null
+    return slideBlocker(hasVideoPlaceholder(s), narration.stateOf(s))
   }
   /** Slides a whole-deck run would cover: every placeholder slide with up-to-date narration. */
   const placeholderSlides = computed(() => slides.value.filter(hasVideoPlaceholder))
@@ -122,8 +123,8 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
   )
   const deckRunBlocker = computed<string | null>(() => {
     if (deckBlocker.value) return deckBlocker.value
-    if (!placeholderSlides.value.length) return 'Turn the presenter on for a slide to include it here.'
-    if (!eligibleSlides.value.length) return 'Presenter slides need up-to-date narration first. Generate it in the Voice tab.'
+    if (!placeholderSlides.value.length) return i18n.global.t('editorInspector.avatar.deck.blocker.noPresenter')
+    if (!eligibleSlides.value.length) return i18n.global.t('editorInspector.avatar.deck.blocker.noNarration')
     return null
   })
 

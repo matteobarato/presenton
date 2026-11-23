@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { KeyRound, Loader2, RefreshCw, ShieldCheck, Trash2, UserPlus } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { createUser, deleteUser, listUsers, resetUserPassword, type AdminUser } from '@/api/admin'
@@ -13,6 +14,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { formatDate } from '@/settings/adminFormat'
 
 // Mirrors `AuthCredentialsRequest` / `AdminResetPasswordRequest` in servers/fastapi/api/v1/auth/schemas.py.
+const { t } = useI18n()
+
 const USERNAME_MIN = 3
 const USERNAME_MAX = 128
 const PASSWORD_MIN = 8
@@ -37,14 +40,14 @@ const message = (e: unknown, fallback: string) => (e instanceof ApiError || e in
 
 function usernameProblem(value: string): string {
   const v = value.trim()
-  if (v.length < USERNAME_MIN) return `Username must be at least ${USERNAME_MIN} characters.`
-  if (v.length > USERNAME_MAX) return `Username must be at most ${USERNAME_MAX} characters.`
-  if (/\s/.test(v)) return 'Username cannot contain spaces.'
+  if (v.length < USERNAME_MIN) return t('settings.users.validation.usernameMin', { min: USERNAME_MIN })
+  if (v.length > USERNAME_MAX) return t('settings.users.validation.usernameMax', { max: USERNAME_MAX })
+  if (/\s/.test(v)) return t('settings.users.validation.usernameSpaces')
   return ''
 }
 function passwordProblem(value: string): string {
-  if (value.length < PASSWORD_MIN) return `Password must be at least ${PASSWORD_MIN} characters.`
-  if (value.length > PASSWORD_MAX) return `Password must be at most ${PASSWORD_MAX} characters.`
+  if (value.length < PASSWORD_MIN) return t('settings.users.validation.passwordMin', { min: PASSWORD_MIN })
+  if (value.length > PASSWORD_MAX) return t('settings.users.validation.passwordMax', { max: PASSWORD_MAX })
   return ''
 }
 
@@ -57,7 +60,7 @@ async function load() {
     users.value = await listUsers()
     loadError.value = ''
   } catch (e) {
-    loadError.value = message(e, 'The accounts could not be loaded.')
+    loadError.value = message(e, t('settings.users.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -71,9 +74,9 @@ async function onCreate() {
     users.value = [user, ...users.value]
     username.value = ''
     password.value = ''
-    toast.success(`Added ${user.username}`)
+    toast.success(t('settings.users.added', { name: user.username }))
   } catch (e) {
-    toast.error('Could not add user', { description: message(e, 'Please try again.') })
+    toast.error(t('settings.users.addFailed'), { description: message(e, t('settings.shared.tryAgain')) })
   } finally {
     creating.value = false
   }
@@ -90,11 +93,11 @@ async function onReset() {
   resetting.value = true
   try {
     await resetUserPassword(user.id, resetPassword.value)
-    toast.success(`Password reset for ${user.username}`, { description: 'Their existing sessions were signed out.' })
+    toast.success(t('settings.users.resetToast', { name: user.username }), { description: t('settings.users.resetToastDescription') })
     resetTarget.value = null
     resetPassword.value = ''
   } catch (e) {
-    toast.error('Could not reset password', { description: message(e, 'Please try again.') })
+    toast.error(t('settings.users.resetFailed'), { description: message(e, t('settings.shared.tryAgain')) })
   } finally {
     resetting.value = false
   }
@@ -107,10 +110,10 @@ async function onDelete() {
   try {
     await deleteUser(user.id)
     users.value = users.value.filter((u) => u.id !== user.id)
-    toast.success(`Deleted ${user.username}`)
+    toast.success(t('settings.users.deleted', { name: user.username }))
     deleteTarget.value = null
   } catch (e) {
-    toast.error('Could not delete user', { description: message(e, 'Please try again.') })
+    toast.error(t('settings.users.deleteFailed'), { description: message(e, t('settings.shared.tryAgain')) })
   } finally {
     deleting.value = false
   }
@@ -127,28 +130,28 @@ onMounted(load)
           <UserPlus class="size-4 stroke-[1.75]" />
         </span>
         <div>
-          <h3 class="text-[13px] font-medium text-tx-dbe7ef">Add user</h3>
-          <p class="mt-1 text-[11px] text-tx-95aab7">New accounts sign in with a username and password. They see their own decks only.</p>
+          <h3 class="text-[13px] font-medium text-tx-dbe7ef">{{ t('settings.users.addTitle') }}</h3>
+          <p class="mt-1 text-[11px] text-tx-95aab7">{{ t('settings.users.addHint') }}</p>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 max-[760px]:grid-cols-1">
         <div class="min-w-0">
-          <label for="new-user-username" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Username</label>
+          <label for="new-user-username" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.users.usernameLabel') }}</label>
           <Input id="new-user-username" v-model="username" autocomplete="off" autocapitalize="off" spellcheck="false" :maxlength="USERNAME_MAX" />
         </div>
         <div class="min-w-0">
-          <label for="new-user-password" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Password</label>
+          <label for="new-user-password" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.users.passwordLabel') }}</label>
           <Input id="new-user-password" v-model="password" type="password" autocomplete="new-password" :maxlength="PASSWORD_MAX" />
         </div>
       </div>
       <div class="flex items-center justify-between gap-3">
         <p class="text-[11px] text-tx-95aab7" aria-live="polite">
-          {{ username || password ? createProblem : `At least ${PASSWORD_MIN} characters for the password.` }}
+          {{ username || password ? createProblem : t('settings.users.passwordHint', { min: PASSWORD_MIN }) }}
         </p>
         <Button type="submit" :disabled="Boolean(createProblem) || creating">
           <Loader2 v-if="creating" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
           <UserPlus v-else class="size-3.5" aria-hidden="true" />
-          Add user
+          {{ t('settings.users.addButton') }}
         </Button>
       </div>
     </form>
@@ -156,12 +159,12 @@ onMounted(load)
     <section aria-labelledby="accounts-heading">
       <div class="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h3 id="accounts-heading" class="text-[13px] font-medium text-tx-dbe7ef">Accounts</h3>
+          <h3 id="accounts-heading" class="text-[13px] font-medium text-tx-dbe7ef">{{ t('settings.users.accountsHeading') }}</h3>
           <p v-if="!loading && !loadError" class="mt-1 text-[11px] text-tx-95aab7">
-            {{ users.length }} {{ users.length === 1 ? 'account' : 'accounts' }}
+            {{ t('settings.users.accounts', users.length) }}
           </p>
         </div>
-        <Button variant="ghost" size="icon" aria-label="Refresh accounts" :disabled="loading" @click="load">
+        <Button variant="ghost" size="icon" :aria-label="t('settings.users.refresh')" :disabled="loading" @click="load">
           <RefreshCw class="size-4" :class="loading ? 'animate-spin motion-reduce:animate-none' : ''" aria-hidden="true" />
         </Button>
       </div>
@@ -171,7 +174,7 @@ onMounted(load)
       </div>
       <Alert v-else-if="loadError" variant="destructive" class="flex items-center justify-between gap-4 py-2 text-[12px]">
         <span>{{ loadError }}</span>
-        <Button variant="secondary" size="sm" @click="load">Retry</Button>
+        <Button variant="secondary" size="sm" @click="load">{{ t('settings.users.retry') }}</Button>
       </Alert>
       <ul v-else class="grid gap-2" data-testid="user-list">
         <li
@@ -190,21 +193,21 @@ onMounted(load)
                 <span class="truncate text-[13px] font-medium text-tx-dbe7ef">{{ user.username }}</span>
                 <Badge :variant="user.role === 'admin' ? 'default' : 'secondary'">
                   <ShieldCheck v-if="user.role === 'admin'" class="size-3" aria-hidden="true" />
-                  {{ user.role === 'admin' ? 'Admin' : 'User' }}
+                  {{ user.role === 'admin' ? t('settings.users.admin') : t('settings.users.user') }}
                 </Badge>
               </div>
-              <p class="mt-1 text-[10px] text-tx-95aab7">{{ user.created_at ? `Added ${formatDate(user.created_at)}` : 'Added at setup' }}</p>
+              <p class="mt-1 text-[10px] text-tx-95aab7">{{ user.created_at ? t('settings.users.addedOn', { date: formatDate(user.created_at) }) : t('settings.users.addedAtSetup') }}</p>
             </div>
           </div>
           <div v-if="user.role !== 'admin'" class="flex flex-none items-center gap-1">
-            <Button variant="ghost" size="icon" :aria-label="`Reset password for ${user.username}`" @click="openReset(user)">
+            <Button variant="ghost" size="icon" :aria-label="t('settings.users.resetLabel', { name: user.username })" @click="openReset(user)">
               <KeyRound class="size-4" aria-hidden="true" />
             </Button>
-            <Button variant="ghost" size="icon" :aria-label="`Delete ${user.username}`" @click="deleteTarget = user">
+            <Button variant="ghost" size="icon" :aria-label="t('settings.users.deleteLabel', { name: user.username })" @click="deleteTarget = user">
               <Trash2 class="size-4" aria-hidden="true" />
             </Button>
           </div>
-          <p v-else class="flex-none text-[10px] text-tx-95aab7">Managed by deployment</p>
+          <p v-else class="flex-none text-[10px] text-tx-95aab7">{{ t('settings.users.managedByDeployment') }}</p>
         </li>
       </ul>
     </section>
@@ -213,19 +216,19 @@ onMounted(load)
       <DialogContent class="w-[min(440px,calc(100vw-32px))]">
         <form novalidate @submit.prevent="onReset">
           <DialogHeader>
-            <DialogTitle>Reset password</DialogTitle>
-            <DialogDescription>Set a new password for {{ resetTarget?.username }}. They will be signed out everywhere.</DialogDescription>
+            <DialogTitle>{{ t('settings.users.resetTitle') }}</DialogTitle>
+            <DialogDescription>{{ t('settings.users.resetDescription', { name: resetTarget?.username ?? '' }) }}</DialogDescription>
           </DialogHeader>
           <div class="mt-5">
-            <label for="reset-password" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">New password</label>
+            <label for="reset-password" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.users.newPassword') }}</label>
             <Input id="reset-password" v-model="resetPassword" type="password" autocomplete="new-password" :maxlength="PASSWORD_MAX" />
-            <p class="mt-2 text-[11px] text-tx-95aab7" aria-live="polite">{{ resetPassword ? resetProblem : `At least ${PASSWORD_MIN} characters.` }}</p>
+            <p class="mt-2 text-[11px] text-tx-95aab7" aria-live="polite">{{ resetPassword ? resetProblem : t('settings.users.passwordMinHint', { min: PASSWORD_MIN }) }}</p>
           </div>
           <DialogFooter class="mt-6">
-            <Button type="button" variant="ghost" :disabled="resetting" @click="resetTarget = null">Cancel</Button>
+            <Button type="button" variant="ghost" :disabled="resetting" @click="resetTarget = null">{{ t('common.actions.cancel') }}</Button>
             <Button type="submit" :disabled="Boolean(resetProblem) || resetting">
               <Loader2 v-if="resetting" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-              Reset password
+              {{ t('settings.users.resetButton') }}
             </Button>
           </DialogFooter>
         </form>
@@ -235,16 +238,16 @@ onMounted(load)
     <Dialog :open="deleteTarget !== null" @update:open="(open) => { if (!open && !deleting) deleteTarget = null }">
       <DialogContent class="w-[min(440px,calc(100vw-32px))]">
         <DialogHeader>
-          <DialogTitle>Delete {{ deleteTarget?.username }}?</DialogTitle>
+          <DialogTitle>{{ t('settings.users.deleteTitle', { name: deleteTarget?.username ?? '' }) }}</DialogTitle>
           <DialogDescription>
-            Their presentations, uploads, exports and API keys are removed permanently. This cannot be undone.
+            {{ t('settings.users.deleteDescription') }}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter class="mt-6">
-          <Button variant="ghost" :disabled="deleting" @click="deleteTarget = null">Cancel</Button>
+          <Button variant="ghost" :disabled="deleting" @click="deleteTarget = null">{{ t('common.actions.cancel') }}</Button>
           <Button variant="destructive" :disabled="deleting" @click="onDelete">
             <Loader2 v-if="deleting" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-            Delete user
+            {{ t('settings.users.deleteButton') }}
           </Button>
         </DialogFooter>
       </DialogContent>

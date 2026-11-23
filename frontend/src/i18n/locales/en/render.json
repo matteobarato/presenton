@@ -1,0 +1,12 @@
+{
+  "error": {
+    "cannotRender": "Can't render this slide"
+  },
+  "smart": {
+    "title": "Smart presentation slide",
+    "loadFailed": "Smart slide failed to load"
+  },
+  "template": {
+    "avatar": "Avatar"
+  }
+}

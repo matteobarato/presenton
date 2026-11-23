@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, reactive, ref, type Component } from 'vue'
 import { FileText, Film, Presentation as PresentationIcon } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
@@ -9,20 +10,21 @@ import VideoExportCard from './VideoExportCard.vue'
 defineProps<{ presentationId: string; presentation: Presentation; videoNote?: string }>()
 
 type Format = 'pptx' | 'pdf' | 'mp4'
-const formats: { id: Format; name: string; detail: string; icon: Component }[] = [
-  { id: 'pptx', name: 'PowerPoint', detail: 'Editable .pptx deck', icon: PresentationIcon },
-  { id: 'pdf', name: 'PDF', detail: 'Ready to print or share', icon: FileText },
-  { id: 'mp4', name: 'Video', detail: 'Narrated MP4', icon: Film },
+const formats: { id: Format; icon: Component }[] = [
+  { id: 'pptx', icon: PresentationIcon },
+  { id: 'pdf', icon: FileText },
+  { id: 'mp4', icon: Film },
 ]
 const format = ref<Format>('pptx')
 
 const running = reactive({ pptx: false, pdf: false })
 const anyRunning = computed(() => running.pptx || running.pdf)
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="flex flex-col" data-testid="export-options">
-    <div role="radiogroup" aria-label="Export format" class="grid grid-cols-3 gap-2.5 max-[520px]:grid-cols-1">
+    <div role="radiogroup" :aria-label="t('editor.export.format')" class="grid grid-cols-3 gap-2.5 max-[520px]:grid-cols-1">
       <button
         v-for="f in formats"
         :key="f.id"
@@ -46,8 +48,8 @@ const anyRunning = computed(() => running.pptx || running.pdf)
           <component :is="f.icon" class="size-[18px]" />
         </span>
         <span class="min-w-0">
-          <span class="block text-[13px] font-medium">{{ f.name }}</span>
-          <span class="mt-0.5 block truncate text-[12px] text-tx-97acb8">{{ f.detail }}</span>
+          <span class="block text-[13px] font-medium">{{ t(`editor.export.formats.${f.id}.name`) }}</span>
+          <span class="mt-0.5 block truncate text-[12px] text-tx-97acb8">{{ t(`editor.export.formats.${f.id}.detail`) }}</span>
         </span>
       </button>
     </div>

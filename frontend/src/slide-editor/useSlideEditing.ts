@@ -14,6 +14,7 @@ import {
 } from 'vue'
 import type { Editor } from '@tiptap/vue-3'
 import type { Slide } from '@/api/types'
+import { i18n } from '@/i18n'
 import { slideKind } from '@/render/slide-kind'
 import { useSlideMutations } from '@/composables/useSlideMutations'
 import { useEditorStore } from '@/stores/editor'
@@ -197,7 +198,7 @@ export function useSlideEditing(presentationId: Ref<string>, slide: Ref<Slide | 
     if (!edit || !commitEdit || !tiptap || tiptap.isDestroyed) return Promise.resolve(false)
     const next = inlineEditUi(edit, tiptap.getJSON())
     // The deck it was opened on: on back-navigation or a deck switch the route already names the next one.
-    return next ? commitTo(edit.slideId, next, 'Edit text', { deckId: edit.deckId }) : Promise.resolve(false)
+    return next ? commitTo(edit.slideId, next, i18n.global.t('slideEditor.action.editText'), { deckId: edit.deckId }) : Promise.resolve(false)
   }
 
   function requestInlineEdit(sel: ElementSelection) {

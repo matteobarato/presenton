@@ -29,6 +29,9 @@ import { useEditorShortcuts } from '@/composables/useEditorShortcuts'
 import { usePresentationStream } from '@/composables/usePresentationStream'
 import { slideKey, useEditorStore } from '@/stores/editor'
 import { useHistoryStore } from '@/stores/history'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -118,16 +121,16 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
   <div class="h-full min-h-0 bg-shell">
     <div v-if="isError && !presentation" class="grid h-full place-items-center p-6 text-center" role="alert">
       <div class="space-y-3">
-        <h1 class="font-display text-xl font-medium">{{ notFound ? 'Presentation not found' : 'Could not load this presentation' }}</h1>
-        <p class="text-[13px] text-muted">{{ notFound ? 'It may have been deleted.' : (error as Error)?.message }}</p>
+        <h1 class="font-display text-xl font-medium">{{ notFound ? t('views.presentation.notFound') : t('views.presentation.loadFailed') }}</h1>
+        <p class="text-[13px] text-muted">{{ notFound ? t('views.presentation.mayBeDeleted') : (error as Error)?.message }}</p>
         <div class="flex justify-center gap-3 text-[12px] font-semibold">
-          <button v-if="!notFound" type="button" class="rounded-button bg-secondary px-3 py-2 hover:bg-secondary-hover" @click="refetch()">Try again</button>
-          <RouterLink :to="{ name: 'library' }" class="rounded-button bg-secondary px-3 py-2 hover:bg-secondary-hover">Back to library</RouterLink>
+          <button v-if="!notFound" type="button" class="rounded-button bg-secondary px-3 py-2 hover:bg-secondary-hover" @click="refetch()">{{ t('views.presentation.tryAgain') }}</button>
+          <RouterLink :to="{ name: 'library' }" class="rounded-button bg-secondary px-3 py-2 hover:bg-secondary-hover">{{ t('views.presentation.backToLibrary') }}</RouterLink>
         </div>
       </div>
     </div>
 
-    <div v-else-if="!presentation" class="flex h-full flex-col" aria-busy="true" aria-label="Loading presentation">
+    <div v-else-if="!presentation" class="flex h-full flex-col" aria-busy="true" :aria-label="t('views.presentation.loading')">
       <div class="h-[83px] flex-none" />
       <div class="flex min-h-0 flex-1 gap-3 pr-4 pl-3">
         <Skeleton class="h-full w-[180px] rounded-panel max-[760px]:hidden" />
@@ -151,8 +154,8 @@ const notFound = computed(() => error.value instanceof ApiError && error.value.s
         <AiProgress
           v-if="planningAfterGeneration"
           class="mx-auto mb-2 w-full max-w-[520px]"
-          stage="Planning motion for every slide…"
-          label="Deck motion planning"
+          :stage="t('views.editor.planningStage')"
+          :label="t('views.editor.planningLabel')"
           :expected-ms="60_000"
         />
         <!-- Aera canvas card: floating tools, slide stage and status row, then the speaker-notes footer. -->

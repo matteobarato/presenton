@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import type { Presentation, Slide } from '@/api/types'
 import { injectDeckAvatars } from './video/useDeckAvatars'
@@ -11,6 +12,8 @@ import GenerateAvatarsDialog from './video/GenerateAvatarsDialog.vue'
 import PortraitHero from './video/PortraitHero.vue'
 import SlideAvatarSection from './video/SlideAvatarSection.vue'
 import SlideView from '@/render/SlideView.vue'
+
+const { t } = useI18n()
 
 /**
  * Avatar workspace, in the order a presenter gets made: the portrait (its face), this slide (the switch that puts
@@ -33,10 +36,10 @@ const note = 'text-[10px] leading-[1.6] text-tx-a0abb1'
 </script>
 
 <template>
-  <section class="flex flex-1 flex-col px-5 pb-[18px] max-[1279px]:px-4 min-[1600px]:px-[23px]" aria-label="Avatar">
+  <section class="flex flex-1 flex-col px-5 pb-[18px] max-[1279px]:px-4 min-[1600px]:px-[23px]" :aria-label="t('editorInspector.avatar.ariaLabel')">
     <div class="pt-6 pb-[18px] min-[1600px]:pt-7 [@media(max-height:780px)_and_(min-width:1051px)]:pt-[17px]">
-      <h2 class="text-[19px] font-medium tracking-[-0.04em] text-tx-f0f2f3 max-[1279px]:text-[18px] min-[1600px]:text-[22px]">Your presenter, on stage.</h2>
-      <p class="mt-[5px] text-[10px] leading-[1.6] text-tx-a0abb1">One portrait, lip-synced to each slide's narration.</p>
+      <h2 class="text-[19px] font-medium tracking-[-0.04em] text-tx-f0f2f3 max-[1279px]:text-[18px] min-[1600px]:text-[22px]">{{ t('editorInspector.avatar.title') }}</h2>
+      <p class="mt-[5px] text-[10px] leading-[1.6] text-tx-a0abb1">{{ t('editorInspector.avatar.intro') }}</p>
     </div>
 
     <PortraitHero
@@ -48,23 +51,23 @@ const note = 'text-[10px] leading-[1.6] text-tx-a0abb1'
     />
 
     <SlideAvatarSection v-if="activeSlide" :slide="activeSlide" />
-    <p v-else class="border-t border-line py-[18px] text-[11px] text-muted">Select a slide to put the presenter on it.</p>
+    <p v-else class="border-t border-line py-[18px] text-[11px] text-muted">{{ t('editorInspector.avatar.noSlide') }}</p>
 
     <AvatarGenerationCard />
     <AvatarSlideList :slides="presentation.slides" :active-slide="activeSlide" />
 
-    <section v-if="activeSlide" class="flex flex-col gap-2.5 border-t border-line pt-[18px]" aria-label="Voice bubble">
+    <section v-if="activeSlide" class="flex flex-col gap-2.5 border-t border-line pt-[18px]" :aria-label="t('editorInspector.avatar.bubble.ariaLabel')">
       <div>
-        <h3 :class="heading">Voice bubble</h3>
+        <h3 :class="heading">{{ t('editorInspector.avatar.bubble.title') }}</h3>
         <p :class="['mt-1', note]">
-          Plays the narration on slides without the presenter. Drag it to move it on every slide; drag the corner to resize.
+          {{ t('editorInspector.avatar.bubble.hint') }}
         </p>
       </div>
       <div class="relative overflow-hidden rounded-control border border-line">
         <SlideView :slide="activeSlide" :theme="props.presentation.theme" :fonts="props.presentation.fonts" fit="width" class="pointer-events-none" />
         <BubblePlacer :presentation-id="presentationId" :slide="activeSlide" :language="language" />
       </div>
-      <p v-if="presenterHere" :class="note" data-testid="bubble-presenter-note">This slide plays its presenter video instead, so the bubble stays hidden here.</p>
+      <p v-if="presenterHere" :class="note" data-testid="bubble-presenter-note">{{ t('editorInspector.avatar.bubble.presenterNote') }}</p>
     </section>
 
     <GenerateAvatarsDialog

@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import { toast } from '@/components/ui/sonner'
+import { i18n } from '@/i18n'
 import { animationKeys } from '@/api/animations'
 import { getPresentation, presentationKeys, updatePresentation } from '@/api/presentations'
 import type { Presentation, Slide } from '@/api/types'
@@ -32,8 +33,6 @@ const BLANK_LAYOUT = {
   ],
 }
 
-export const DELETE_NOTICE =
-  'Undo restores the slide content but not its narration audio or avatar video.'
 
 /** A save waiting in its deck's queue. */
 interface QueuedSave {
@@ -150,7 +149,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
         // elements, so the animations cache (its targets, statuses and signatures) must be refetched.
         if (withSlides) void queryClient.invalidateQueries({ queryKey: animationKeys.one(deckId) })
       } catch (error) {
-        toast.error(`Could not ${label.toLowerCase()}`, { description: error instanceof Error ? error.message : undefined })
+        toast.error(i18n.global.t('editor.mutations.couldNot', { action: label.toLowerCase() }), { description: error instanceof Error ? error.message : undefined })
         try {
           await queryClient.fetchQuery({ queryKey: keyOf(deckId), queryFn: () => getPresentation(deckId), staleTime: 0 })
         } catch {
@@ -197,7 +196,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
 
   /** A history body: apply, then wait for the save so undo/redo stay one at a time. */
   const body = (label: string, edit: (p: Presentation) => Presentation | null, withSlides = true, deckId?: string) => async () => {
-    if (editor.locked) throw new Error('The deck is busy.')
+    if (editor.locked) throw new Error(i18n.global.t('editor.mutations.deckBusy'))
     const r = await applyEdit(label, edit, withSlides, deckId)
     await r.saved
   }
@@ -242,7 +241,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
     if (!id || from === to) return
     let origin = from
     await commit(
-      'Reorder slides',
+      i18n.global.t('editor.mutations.labels.reorderSlides'),
       onSlides((l) => {
         const i = indexOfId(l, id)
         if (i < 0 || to < 0 || to >= l.length) return null
@@ -250,7 +249,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
         return i === to ? null : move(l, i, to)
       }),
       body(
-        'Reorder slides',
+        i18n.global.t('editor.mutations.labels.reorderSlides'),
         onSlides((l) => {
           const i = indexOfId(l, id)
           return i < 0 || i === origin ? null : move(l, i, Math.min(origin, l.length - 1))
@@ -264,7 +263,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
     let index = 0
     let neighbour: Slide | undefined
     const ok = await commit(
-      'Delete slide',
+      i18n.global.t('editor.mutations.labels.deleteSlide'),
       onSlides((l) => {
         const i = indexOfId(l, id)
         if (i < 0 || l.length <= 1) return null
@@ -274,7 +273,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
         return l.filter((s) => s.id !== id)
       }),
       body(
-        'Delete slide',
+        i18n.global.t('editor.mutations.labels.deleteSlide'),
         onSlides((l) => {
           if (!removed || indexOfId(l, id) >= 0) return null
           const at = Math.min(index, l.length)
@@ -286,7 +285,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
         if (editor.activeSlideId === id) editor.select(neighbour ? slideKey(neighbour) : null)
       },
     )
-    if (ok) toast.info('Slide deleted', { description: DELETE_NOTICE })
+    if (ok) toast.info(i18n.global.t('editor.mutations.slideDeleted'), { description: i18n.global.t('editor.mutations.deleteNotice') })
   }
 
   /** Insert `make()` at `at` (clamped); `make` runs on first apply, so redo reinserts the same slide. */
@@ -297,7 +296,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
       onSlides((l) => {
         if (created && indexOfId(l, created.id) >= 0) return null
         if (l.length >= MAX_SLIDES) {
-          toast.warning('Slide limit reached', { description: `You can have up to ${MAX_SLIDES} slides.` })
+          toast.warning(i18n.global.t('editor.mutations.slideLimit'), { description: i18n.global.t('editor.mutations.slideLimitDescription', { max: MAX_SLIDES }) })
           return null
         }
         created ??= make(l)
@@ -316,7 +315,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
   async function duplicateSlide(id: string) {
     let index = -1
     await insert(
-      'Duplicate slide',
+      i18n.global.t('editor.mutations.labels.duplicateSlide'),
       () => index + 1,
       (l) => {
         index = indexOfId(l, id)
@@ -329,7 +328,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
   /** Insert a slide after `afterIndex` (-1 for the very start). `null` adds a blank slide. */
   async function addSlide(afterIndex: number, layout: NewSlideLayout | null) {
     await insert(
-      'Add slide',
+      i18n.global.t('editor.mutations.labels.addSlide'),
       () => afterIndex + 1,
       (l) => ({
         id: crypto.randomUUID(),
@@ -350,10 +349,10 @@ export function useSlideMutations(presentationId: Ref<string>) {
     if (!next) return
     const setTitle = (value: string) => (p: Presentation) => (p.title === value ? null : { ...p, title: value })
     await commit(
-      'Rename presentation',
+      i18n.global.t('editor.mutations.labels.renamePresentation'),
       setTitle(next),
       // The endpoint ignores empty titles, so an untitled deck keeps the new name.
-      previous ? body('Rename presentation', setTitle(previous), false) : async () => {},
+      previous ? body(i18n.global.t('editor.mutations.labels.renamePresentation'), setTitle(previous), false) : async () => {},
       undefined,
       false, // title and theme only: `slides` would replace the whole set
     )
@@ -377,12 +376,12 @@ export function useSlideMutations(presentationId: Ref<string>) {
         return l.map((s, n) => (n === i ? { ...s, properties: props } : s))
       })
     return commit(
-      'Rename slide',
+      i18n.global.t('editor.mutations.labels.renameSlide'),
       setName(next, true),
       async () => {
-        if (editor.locked) throw new Error('The deck is busy.')
+        if (editor.locked) throw new Error(i18n.global.t('editor.mutations.deckBusy'))
         if (previous === undefined) return
-        const r = await applyEdit('Rename slide', setName(previous, false))
+        const r = await applyEdit(i18n.global.t('editor.mutations.labels.renameSlide'), setName(previous, false))
         await r.saved
       },
     )
@@ -409,7 +408,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
       label,
       setUi(nextUi, true),
       async () => {
-        if (editor.locked) throw new Error('The deck is busy.')
+        if (editor.locked) throw new Error(i18n.global.t('editor.mutations.deckBusy'))
         if (previous === undefined) return
         const r = await applyEdit(label, setUi(previous, false), true, deckId)
         await r.saved

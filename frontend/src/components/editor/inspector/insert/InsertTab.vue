@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import type { Presentation, Slide } from '@/api/types'
 import ImagePickerDialog from '@/components/editor/canvas/ImagePickerDialog.vue'
@@ -18,6 +19,8 @@ import BlocksSection from './BlocksSection.vue'
 import { section, sectionLabel, subLabel, tile } from './insertClasses'
 import { useInsert, type InsertTarget } from './useInsert'
 
+const { t } = useI18n()
+
 const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
 
 const ctx = useSlideEditingContext()
@@ -30,10 +33,10 @@ const templateId = computed(() => blockTemplateId(props.presentation.slides ?? [
 // Same copy and precedence as the toolbar's Insert button.
 const disabledTitle = computed<string | null>(() => {
   const slide = props.activeSlide
-  if (slide && slideKind(slide) === 'smart') return 'Insert is available for template slides'
-  if (!slide) return 'Select a slide to insert into'
-  if (editor.locked) return 'Insert is unavailable while the deck is busy'
-  if (!ctx.enabled.value) return 'Insert is available for template slides'
+  if (slide && slideKind(slide) === 'smart') return t('editorInspector.insert.disabled.templateOnly')
+  if (!slide) return t('editorInspector.insert.disabled.noSlide')
+  if (editor.locked) return t('editorInspector.insert.disabled.busy')
+  if (!ctx.enabled.value) return t('editorInspector.insert.disabled.templateOnly')
   return null
 })
 const disabled = computed(() => disabledTitle.value !== null)
@@ -77,10 +80,10 @@ const iconTile = [tile, 'flex aspect-square items-center justify-center']
 
 <template>
   <!-- data-inline-edit-ignore: focus moving into the inspector keeps the inline text editor open. -->
-  <section class="flex flex-1 flex-col px-5 pb-[18px] max-[1279px]:px-4 min-[1600px]:px-[23px]" aria-label="Insert" data-inline-edit-ignore="true">
+  <section class="flex flex-1 flex-col px-5 pb-[18px] max-[1279px]:px-4 min-[1600px]:px-[23px]" :aria-label="t('editorInspector.insert.ariaLabel')" data-inline-edit-ignore="true">
     <div class="pt-6 pb-[18px] min-[1600px]:pt-7 [@media(max-height:780px)_and_(min-width:1051px)]:pt-[17px]">
-      <h2 class="text-[19px] font-medium tracking-[-0.04em] text-tx-f0f2f3 max-[1279px]:text-[18px] min-[1600px]:text-[22px]">Insert</h2>
-      <p class="mt-[5px] text-[10px] leading-[1.6] text-tx-a0abb1">Click to add to this slide.</p>
+      <h2 class="text-[19px] font-medium tracking-[-0.04em] text-tx-f0f2f3 max-[1279px]:text-[18px] min-[1600px]:text-[22px]">{{ t('editorInspector.insert.title') }}</h2>
+      <p class="mt-[5px] text-[10px] leading-[1.6] text-tx-a0abb1">{{ t('editorInspector.insert.intro') }}</p>
     </div>
 
     <BlocksSection
@@ -92,14 +95,14 @@ const iconTile = [tile, 'flex aspect-square items-center justify-center']
     />
 
     <div :class="section">
-      <div :class="sectionLabel"><h3>Text</h3></div>
+      <div :class="sectionLabel"><h3>{{ t('editorInspector.insert.text') }}</h3></div>
       <div class="grid grid-cols-3 gap-2">
         <button
           v-for="item in TEXT_INSERT_ITEMS"
           :key="item.id"
           type="button"
           :class="labelledTile"
-          :aria-label="`Insert ${item.label}`"
+          :aria-label="t('editorInspector.insert.insertItem', { label: item.label })"
           :title="disabledTitle ?? item.label"
           :disabled="disabled"
           @mousedown.prevent
@@ -112,14 +115,14 @@ const iconTile = [tile, 'flex aspect-square items-center justify-center']
     </div>
 
     <div :class="section">
-      <div :class="sectionLabel"><h3>Images</h3></div>
+      <div :class="sectionLabel"><h3>{{ t('editorInspector.insert.images') }}</h3></div>
       <div class="grid grid-cols-3 gap-2">
         <button
           v-for="item in IMAGE_INSERT_ITEMS"
           :key="item.id"
           type="button"
           :class="labelledTile"
-          :aria-label="`Insert ${item.label}`"
+          :aria-label="t('editorInspector.insert.insertItem', { label: item.label })"
           :title="disabledTitle ?? item.label"
           :disabled="disabled"
           @mousedown.prevent
@@ -132,7 +135,7 @@ const iconTile = [tile, 'flex aspect-square items-center justify-center']
     </div>
 
     <div :class="section">
-      <div :class="sectionLabel"><h3>Shapes</h3></div>
+      <div :class="sectionLabel"><h3>{{ t('editorInspector.insert.shapes') }}</h3></div>
       <div v-for="(group, i) in ELEMENT_INSERT_GROUPS" :key="group.label" :class="i > 0 && 'mt-4'">
         <h4 :class="subLabel">{{ group.label }}</h4>
         <div class="grid grid-cols-6 gap-1.5">
@@ -141,7 +144,7 @@ const iconTile = [tile, 'flex aspect-square items-center justify-center']
             :key="item.id"
             type="button"
             :class="iconTile"
-            :aria-label="`Insert ${item.label}`"
+            :aria-label="t('editorInspector.insert.insertItem', { label: item.label })"
             :title="disabledTitle ?? item.label"
             :disabled="disabled"
             @mousedown.prevent

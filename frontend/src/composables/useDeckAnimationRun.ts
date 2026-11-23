@@ -5,6 +5,7 @@ import { ApiError } from '@/api/errors'
 import type { AsyncTask } from '@/api/types'
 import { useAsyncTask } from '@/composables/useAsyncTask'
 import { toast } from '@/components/ui/sonner'
+import { i18n } from '@/i18n'
 
 export interface DeckAnimationRun {
   /** A deck-wide planning task is in flight. */
@@ -72,7 +73,7 @@ export function createDeckAnimationRun(presentationId: Ref<string>): DeckAnimati
     if (now === 'error') {
       // Kept apart from the task: clearing it below would drop the message before anyone saw it.
       error.value = taskError.value
-      toast.error('Motion planning failed', { description: taskError.value ?? undefined })
+      toast.error(i18n.global.t('editor.animation.failed'), { description: taskError.value ?? undefined })
     }
     if (now !== 'idle') clear()
   })
@@ -90,7 +91,7 @@ export function createDeckAnimationRun(presentationId: Ref<string>): DeckAnimati
         if (presentationId.value === id) start(pendingId)
         return
       }
-      error.value = e instanceof Error && e.message ? e.message : 'Could not start planning the deck.'
+      error.value = e instanceof Error && e.message ? e.message : i18n.global.t('editor.animation.couldNotStartDeck')
     }
   }
 

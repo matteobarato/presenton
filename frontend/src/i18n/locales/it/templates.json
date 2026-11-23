@@ -1,0 +1,32 @@
+{
+  "kind": {
+    "all": "Tutti",
+    "builtin": "Integrati",
+    "custom": "Personalizzati"
+  },
+  "layoutCount": "{count} layout | {count} layout",
+  "toolbar": {
+    "search": "Cerca modelli",
+    "find": "Trova un modello",
+    "typeGroup": "Tipo di modello"
+  },
+  "card": {
+    "view": "Visualizza {name}",
+    "viewTemplate": "Visualizza modello"
+  },
+  "deleteTemplate": {
+    "title": "Eliminare il modello?",
+    "description": "“{name}” verrà eliminato definitivamente. Le presentazioni già create con esso conservano le loro diapositive."
+  },
+  "renameTemplate": {
+    "title": "Rinomina modello",
+    "description": "Scegli un nuovo nome per questo modello.",
+    "nameLabel": "Nome del modello"
+  },
+  "lightbox": {
+    "title": "{title} — layout {index}",
+    "description": "Anteprima del layout",
+    "previous": "Layout precedente",
+    "next": "Layout successivo"
+  }
+}

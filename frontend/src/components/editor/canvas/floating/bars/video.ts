@@ -10,7 +10,7 @@ export const videoBar: BarItem[] = [
   {
     type: 'panel',
     id: 'video',
-    label: 'Video',
+    label: 'editorCanvas.bar.labels.video',
     icon: Film,
     component: VideoPanel,
     props: (c: BarContext) => ({ presentationId: c.presentationId, slide: c.slide }),

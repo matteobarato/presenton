@@ -12,5 +12,5 @@ const presentationProps = (c: BarContext) => ({ presentation: c.presentation })
 export const tableBar: BarItem[] = [
   { type: 'custom', id: 'table-structure', component: TableStructure, props: presentationProps },
   { type: 'custom', id: 'cell-fill', component: TableCellFill, props: presentationProps },
-  { type: 'panel', id: 'table', label: 'Table', icon: Table2, component: TablePanel, props: presentationProps },
+  { type: 'panel', id: 'table', label: 'editorCanvas.bar.labels.table', icon: Table2, component: TablePanel, props: presentationProps },
 ]

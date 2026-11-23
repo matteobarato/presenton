@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import { ChevronDown, Search } from 'lucide-vue-next'
 import { useTemplateBlocks } from '@/composables/useTemplateBlocks'
 import type { TemplateBlock, TemplateBlockGroup } from '@/slide-editor/insert/templateBlocks'
 import BlockThumb from './BlockThumb.vue'
 import { muted, section, sectionLabel, tile } from './insertClasses'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   templateId: string | null
@@ -46,8 +49,8 @@ function insert(variant: TemplateBlock, label: string) {
 <template>
   <div :class="section">
     <div :class="sectionLabel">
-      <h3>Blocks</h3>
-      <span v-if="state === 'ready'" :class="muted">{{ blocks.groups.value.length }} from this template</span>
+      <h3>{{ t('editorInspector.insert.blocks.title') }}</h3>
+      <span v-if="state === 'ready'" :class="muted">{{ t('editorInspector.insert.blocks.count', { count: blocks.groups.value.length }) }}</span>
     </div>
 
     <div v-if="state === 'pending'" class="grid grid-cols-2 gap-2">
@@ -55,19 +58,19 @@ function insert(variant: TemplateBlock, label: string) {
     </div>
 
     <div v-else-if="state === 'error'" class="flex items-center justify-between gap-2 rounded-control border border-ov/[0.06] bg-field px-3 py-2.5">
-      <p class="text-[10px] text-tx-a0abb1">Couldn't load template blocks</p>
+      <p class="text-[10px] text-tx-a0abb1">{{ t('editorInspector.insert.blocks.loadError') }}</p>
       <button
         type="button"
         class="rounded-control px-2 py-1 text-[10px] font-medium text-tx-c4e4f4 transition-colors duration-150 hover:bg-ov/[0.04]"
-        aria-label="Retry"
+        :aria-label="t('editorInspector.insert.blocks.retry')"
         @mousedown.prevent
         @click="blocks.refetch()"
       >
-        Retry
+        {{ t('editorInspector.insert.blocks.retry') }}
       </button>
     </div>
 
-    <p v-else-if="state === 'none'" class="text-[10px] leading-[1.6] text-tx-a0abb1">This deck's template has no reusable blocks.</p>
+    <p v-else-if="state === 'none'" class="text-[10px] leading-[1.6] text-tx-a0abb1">{{ t('editorInspector.insert.blocks.empty') }}</p>
 
     <template v-else>
       <label class="relative mb-3 block">
@@ -75,19 +78,19 @@ function insert(variant: TemplateBlock, label: string) {
         <input
           v-model="query"
           type="search"
-          aria-label="Search blocks"
-          placeholder="Search blocks"
+          :aria-label="t('editorInspector.insert.blocks.searchAria')"
+          :placeholder="t('editorInspector.insert.blocks.searchPlaceholder')"
           class="h-8 w-full rounded-control border border-ov/[0.06] bg-field pr-2 pl-8 text-[10px] text-tx-d9e6ed placeholder:text-tx-7d8b92 focus:border-accent/50 focus:outline-none"
         />
       </label>
-      <p v-if="filtered.length === 0" class="text-[10px] text-tx-a0abb1">No blocks match “{{ query.trim() }}”.</p>
+      <p v-if="filtered.length === 0" class="text-[10px] text-tx-a0abb1">{{ t('editorInspector.insert.blocks.noMatch', { query: query.trim() }) }}</p>
       <div class="grid grid-flow-row-dense grid-cols-2 gap-2">
         <template v-for="group in filtered" :key="group.key">
           <div class="relative min-w-0">
             <button
               type="button"
               :class="[tile, 'block w-full overflow-hidden text-left']"
-              :aria-label="`Insert ${group.title}`"
+              :aria-label="t('editorInspector.insert.insertItem', { label: group.title })"
               :title="disabledTitle ?? (group.description || group.title)"
               :disabled="!!disabledTitle"
               @mousedown.prevent
@@ -100,9 +103,9 @@ function insert(variant: TemplateBlock, label: string) {
               v-if="group.variants.length > 1"
               type="button"
               class="absolute right-1 bottom-1 inline-flex size-5 items-center justify-center rounded-[4px] text-tx-9aa9b0 transition-colors duration-150 hover:bg-ov/[0.06] hover:text-white"
-              :aria-label="`Show variants of ${group.title}`"
+              :aria-label="t('editorInspector.insert.blocks.showVariants', { title: group.title })"
               :aria-expanded="expanded === group.key"
-              :title="`${group.variants.length} variants`"
+              :title="t('editorInspector.insert.blocks.variants', { count: group.variants.length })"
               @mousedown.prevent
               @click="toggle(group.key)"
             >
@@ -118,7 +121,7 @@ function insert(variant: TemplateBlock, label: string) {
               :key="variant.key"
               type="button"
               :class="[tile, 'block w-full overflow-hidden text-left']"
-              :aria-label="`Insert ${variant.title}`"
+              :aria-label="t('editorInspector.insert.insertItem', { label: variant.title })"
               :title="disabledTitle ?? variant.title"
               :disabled="!!disabledTitle"
               @mousedown.prevent

@@ -1,0 +1,30 @@
+{
+  "untitled": "Presentazione senza titolo",
+  "slideCount": "{count} diapositiva | {count} diapositive",
+  "deck": {
+    "open": "Apri {title}",
+    "edit": "Modifica {title}",
+    "editHint": "Modifica nell’editor",
+    "duplicate": "Duplica {title}",
+    "delete": "Elimina {title}"
+  },
+  "toolbar": {
+    "search": "Cerca presentazioni",
+    "find": "Trova una presentazione",
+    "layout": "Layout",
+    "grid": "Vista a griglia",
+    "list": "Vista a elenco"
+  },
+  "empty": {
+    "noMatch": "Nessuna presentazione corrisponde a “{query}”",
+    "tryAnother": "Prova un altro titolo, oppure inizia una nuova presentazione.",
+    "clearSearch": "Cancella ricerca",
+    "noneYet": "Ancora nessuna presentazione",
+    "createFirst": "Crea la tua prima presentazione da un prompt o da un documento.",
+    "newPresentation": "Nuova presentazione"
+  },
+  "deleteDeck": {
+    "title": "Eliminare la presentazione?",
+    "description": "“{title}” e tutte le sue diapositive verranno eliminate definitivamente."
+  }
+}

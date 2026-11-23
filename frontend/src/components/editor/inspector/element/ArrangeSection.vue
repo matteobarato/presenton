@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { Copy, CopyPlus, Group, Trash2, Ungroup } from 'lucide-vue-next'
 import { deleteSelection, duplicateSelection, ungroupSelection } from '@/slide-editor/ops'
@@ -7,6 +8,8 @@ import { useClipboard } from '@/slide-editor/useClipboard'
 import { useEditingActions } from '@/slide-editor/useEditingActions'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import { groupSelected } from './groupAction'
+
+const { t } = useI18n()
 
 const ctx = useSlideEditingContext()
 const actions = useEditingActions(ctx)
@@ -31,23 +34,23 @@ function copy() {
 <template>
   <div class="border-t border-line py-[18px] min-[1600px]:py-[22px]">
     <div class="mb-3 flex items-center justify-between text-[10px] font-medium text-tx-d0d7dc min-[1600px]:text-[11px]">
-      <h3>Arrange</h3>
+      <h3>{{ t('editorInspector.element.arrange.title') }}</h3>
     </div>
     <div class="grid grid-cols-3 gap-2">
-      <button v-if="isMulti" type="button" :class="button" :disabled="editingText" aria-label="Group" title="Group (Ctrl+G)" @mousedown.prevent @click="groupSelected(ctx)">
-        <Group class="size-3.5" aria-hidden="true" />Group
+      <button v-if="isMulti" type="button" :class="button" :disabled="editingText" :aria-label="t('editorInspector.element.arrange.group')" :title="t('editorInspector.element.arrange.groupShortcut')" @mousedown.prevent @click="groupSelected(ctx)">
+        <Group class="size-3.5" aria-hidden="true" />{{ t('editorInspector.element.arrange.group') }}
       </button>
-      <button v-if="isGroup" type="button" :class="button" :disabled="editingText" aria-label="Ungroup" title="Ungroup (Shift+Ctrl+G)" @mousedown.prevent @click="run('Ungroup', ungroupSelection)">
-        <Ungroup class="size-3.5" aria-hidden="true" />Ungroup
+      <button v-if="isGroup" type="button" :class="button" :disabled="editingText" :aria-label="t('editorInspector.element.arrange.ungroup')" :title="t('editorInspector.element.arrange.ungroupShortcut')" @mousedown.prevent @click="run('Ungroup', ungroupSelection)">
+        <Ungroup class="size-3.5" aria-hidden="true" />{{ t('editorInspector.element.arrange.ungroup') }}
       </button>
-      <button type="button" :class="button" :disabled="editingText" aria-label="Duplicate" title="Duplicate (Ctrl+D)" @mousedown.prevent @click="run('Duplicate', duplicateSelection)">
-        <CopyPlus class="size-3.5" aria-hidden="true" />Duplicate
+      <button type="button" :class="button" :disabled="editingText" :aria-label="t('editorInspector.element.arrange.duplicate')" :title="t('editorInspector.element.arrange.duplicateShortcut')" @mousedown.prevent @click="run('Duplicate', duplicateSelection)">
+        <CopyPlus class="size-3.5" aria-hidden="true" />{{ t('editorInspector.element.arrange.duplicate') }}
       </button>
-      <button v-if="!isMulti" type="button" :class="button" :disabled="editingText" aria-label="Copy" title="Copy (Ctrl+C)" @mousedown.prevent @click="copy">
-        <Copy class="size-3.5" aria-hidden="true" />Copy
+      <button v-if="!isMulti" type="button" :class="button" :disabled="editingText" :aria-label="t('editorInspector.element.arrange.copy')" :title="t('editorInspector.element.arrange.copyShortcut')" @mousedown.prevent @click="copy">
+        <Copy class="size-3.5" aria-hidden="true" />{{ t('editorInspector.element.arrange.copy') }}
       </button>
-      <button type="button" :class="button" :disabled="editingText" aria-label="Delete" title="Delete (Del)" @mousedown.prevent @click="run('Delete', deleteSelection)">
-        <Trash2 class="size-3.5" aria-hidden="true" />Delete
+      <button type="button" :class="button" :disabled="editingText" :aria-label="t('common.actions.delete')" :title="t('editorInspector.element.arrange.deleteShortcut')" @mousedown.prevent @click="run('Delete', deleteSelection)">
+        <Trash2 class="size-3.5" aria-hidden="true" />{{ t('common.actions.delete') }}
       </button>
     </div>
   </div>

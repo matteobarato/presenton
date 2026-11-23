@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { History, Plus, Trash2 } from 'lucide-vue-next'
 import type { ChatConversation } from '@/api/chat'
@@ -13,6 +14,7 @@ import {
 
 defineProps<{ conversations: ChatConversation[]; currentId: string | null }>()
 const emit = defineEmits<{ select: [id: string]; new: []; delete: [id: string] }>()
+const { t } = useI18n()
 
 const confirmId = ref<string | null>(null)
 function confirmDelete() {
@@ -25,12 +27,12 @@ function confirmDelete() {
   <div class="flex items-center gap-1">
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
-        <Button variant="ghost" size="sm" aria-label="Conversations"><History class="size-3.5" />Conversations</Button>
+        <Button variant="ghost" size="sm" :aria-label="t('editor.chat.conversations.menu')"><History class="size-3.5" />{{ t('editor.chat.conversations.menu') }}</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" class="w-64">
-        <DropdownMenuItem data-testid="new-conversation" @select="emit('new')"><Plus class="size-3.5" />New conversation</DropdownMenuItem>
+        <DropdownMenuItem data-testid="new-conversation" @select="emit('new')"><Plus class="size-3.5" />{{ t('editor.chat.conversations.new') }}</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel v-if="!conversations.length">No past conversations</DropdownMenuLabel>
+        <DropdownMenuLabel v-if="!conversations.length">{{ t('editor.chat.conversations.none') }}</DropdownMenuLabel>
         <DropdownMenuItem
           v-for="c in conversations"
           :key="c.conversation_id"
@@ -38,7 +40,7 @@ function confirmDelete() {
           class="flex-col items-start gap-0"
           @select="emit('select', c.conversation_id)"
         >
-          <span class="w-full truncate">{{ c.last_message_preview || 'Empty conversation' }}</span>
+          <span class="w-full truncate">{{ c.last_message_preview || t('editor.chat.conversations.empty') }}</span>
           <span v-if="c.updated_at" class="text-[10px] text-muted">{{ relativeTime(c.updated_at) }}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -47,7 +49,7 @@ function confirmDelete() {
       v-if="currentId"
       variant="ghost"
       size="sm"
-      aria-label="Delete conversation"
+      :aria-label="t('editor.chat.conversations.deleteAria')"
       data-testid="delete-conversation"
       @click="confirmId = currentId"
     >
@@ -57,12 +59,12 @@ function confirmDelete() {
     <Dialog :open="confirmId !== null" @update:open="(o: boolean) => !o && (confirmId = null)">
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete this conversation?</DialogTitle>
-          <DialogDescription>The messages are removed permanently. Slides are not affected.</DialogDescription>
+          <DialogTitle>{{ t('editor.chat.conversations.deleteTitle') }}</DialogTitle>
+          <DialogDescription>{{ t('editor.chat.conversations.deleteDescription') }}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="secondary" @click="confirmId = null">Cancel</Button>
-          <Button variant="destructive" data-testid="confirm-delete" @click="confirmDelete">Delete</Button>
+          <Button variant="secondary" @click="confirmId = null">{{ t('common.actions.cancel') }}</Button>
+          <Button variant="destructive" data-testid="confirm-delete" @click="confirmDelete">{{ t('common.actions.delete') }}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

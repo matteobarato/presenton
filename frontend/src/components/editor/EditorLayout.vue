@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { useEditorStore } from '@/stores/editor'
@@ -12,6 +13,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/
  * storyboard is a left drawer, and below 1280px Ask AI slides over as a drawer.
  */
 const editor = useEditorStore()
+const { t } = useI18n()
 const narrowInspector = useMediaQuery('(max-width: 1050px)')
 const narrowNavigator = useMediaQuery('(max-width: 760px)')
 
@@ -62,7 +64,7 @@ onMounted(() => {
         :inert="!navigatorDocked"
       >
         <aside
-          aria-label="Slides"
+          :aria-label="t('editor.layout.slides')"
           class="panel-collapse-inner flex h-full w-[var(--nav-w)] flex-col overflow-hidden rounded-panel bg-storyboard"
         >
           <slot name="navigator" />
@@ -70,8 +72,8 @@ onMounted(() => {
       </div>
       <Sheet v-else v-model:open="navigatorDrawer">
         <SheetContent side="left" class="w-[min(220px,calc(100vw-48px))] bg-storyboard">
-          <SheetTitle class="sr-only">Slides</SheetTitle>
-          <SheetDescription class="sr-only">Slide navigator</SheetDescription>
+          <SheetTitle class="sr-only">{{ t('editor.layout.slides') }}</SheetTitle>
+          <SheetDescription class="sr-only">{{ t('editor.layout.slideNavigator') }}</SheetDescription>
           <slot name="navigator" />
         </SheetContent>
       </Sheet>
@@ -86,7 +88,7 @@ onMounted(() => {
         :inert="!inspectorDocked"
       >
         <aside
-          aria-label="Inspector"
+          :aria-label="t('editor.layout.inspector')"
           class="panel-collapse-inner flex h-full w-[var(--insp-w)] flex-col overflow-hidden rounded-panel bg-inspector"
         >
           <slot name="inspector" />
@@ -94,8 +96,8 @@ onMounted(() => {
       </div>
       <Sheet v-else v-model:open="inspectorDrawer">
         <SheetContent side="right" class="w-[min(340px,calc(100vw-24px))]">
-          <SheetTitle class="sr-only">Inspector</SheetTitle>
-          <SheetDescription class="sr-only">Layers, insert and design tools</SheetDescription>
+          <SheetTitle class="sr-only">{{ t('editor.layout.inspector') }}</SheetTitle>
+          <SheetDescription class="sr-only">{{ t('editor.layout.inspectorDescription') }}</SheetDescription>
           <slot name="inspector" />
         </SheetContent>
       </Sheet>
@@ -116,7 +118,7 @@ onMounted(() => {
       >
         <aside
           id="ask-ai-panel"
-          aria-label="Ask AI"
+          :aria-label="t('editor.layout.askAi')"
           :data-state="editor.chatOpen ? 'open' : 'closed'"
           :inert="!editor.chatOpen"
           :role="narrowChat ? 'dialog' : undefined"

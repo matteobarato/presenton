@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { Plus } from 'lucide-vue-next'
@@ -17,6 +18,7 @@ const props = defineProps<{
   fonts?: unknown
 }>()
 const emit = defineEmits<{ 'update:open': [value: boolean]; select: [layout: NewSlideLayout | null] }>()
+const { t } = useI18n()
 
 const query = useQuery({
   queryKey: computed(() => templateDetailKey(props.templateId)),
@@ -53,14 +55,14 @@ function choose(layout: NewSlideLayout | null) {
   <Dialog :open="open" @update:open="emit('update:open', $event)">
     <DialogContent class="w-[min(880px,calc(100vw-32px))]">
       <DialogHeader>
-        <DialogTitle>Choose slide layout</DialogTitle>
+        <DialogTitle>{{ t('editor.layouts.chooseLayout') }}</DialogTitle>
         <DialogDescription>
-          {{ query.isPending.value && templateId ? 'Loading layouts' : `${options.length + 1} options` }}
+          {{ query.isPending.value && templateId ? t('editor.layouts.loading') : t('editor.layouts.optionCount', { count: options.length + 1 }, options.length + 1) }}
         </DialogDescription>
       </DialogHeader>
 
       <p v-if="query.isError.value" class="mt-3 rounded-control bg-danger px-3 py-2 text-[12px] text-danger-text" role="alert">
-        Could not load layouts for this template. You can still add a blank slide.
+        {{ t('editor.layouts.loadFailed') }}
       </p>
 
       <ul class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -68,10 +70,10 @@ function choose(layout: NewSlideLayout | null) {
           <button
             type="button"
             class="grid aspect-video w-full place-items-center rounded-card border border-dashed border-ov/20 bg-ov/[0.03] text-[12px] text-muted transition-colors duration-200 hover:border-accent hover:text-text"
-            aria-label="Add Blank slide layout"
+            :aria-label="t('editor.layouts.addBlankAria')"
             @click="choose(null)"
           >
-            <span class="flex flex-col items-center gap-1.5"><Plus class="size-4" aria-hidden="true" />Blank</span>
+            <span class="flex flex-col items-center gap-1.5"><Plus class="size-4" aria-hidden="true" />{{ t('editor.layouts.blank') }}</span>
           </button>
         </li>
         <li v-for="o in options" :key="o.id">
@@ -79,7 +81,7 @@ function choose(layout: NewSlideLayout | null) {
             type="button"
             class="relative block aspect-video w-full overflow-hidden rounded-card border border-ov/10 bg-white transition-[border-color,box-shadow] duration-200 hover:border-accent focus-visible:border-accent"
             :title="o.description"
-            :aria-label="`Add ${o.description} layout`"
+            :aria-label="t('editor.layouts.addLayoutAria', { name: o.description })"
             @click="choose({ id: o.id, ui: o.ui, group: templateId })"
           >
             <SlideView :slide="o.preview" :theme="theme" :fonts="fonts" show-placeholders fit="width" lazy class="pointer-events-none" />

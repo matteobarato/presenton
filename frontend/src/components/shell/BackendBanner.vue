@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { TriangleAlert } from 'lucide-vue-next'
 import { getAuthStatus } from '@/api/auth'
 import { backendStatus } from '@/api/client'
 import { useSessionStore } from '@/stores/session'
 
+const { t } = useI18n()
 const session = useSessionStore()
 const backendUrl = __SLIDESHOWS_BACKEND_URL__
 
@@ -28,6 +30,6 @@ onBeforeUnmount(() => window.removeEventListener('focus', retry))
     class="flex items-center gap-2.5 border-b border-danger-text/20 bg-danger px-4 py-2 text-[12px] text-danger-text"
   >
     <TriangleAlert class="size-4 shrink-0" aria-hidden="true" />
-    <span>Can't reach the Slideshows backend at {{ backendUrl }} (via this server's /api proxy). Retrying when you return to this window…</span>
+    <span>{{ t('shell.banner.unreachable', { url: backendUrl }) }}</span>
   </div>
 </template>

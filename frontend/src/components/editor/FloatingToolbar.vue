@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMediaQuery } from '@vueuse/core'
@@ -12,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { active, divider, tool } from './canvas/toolbars/toolbarClasses'
 
 const editor = useEditorStore()
+const { t } = useI18n()
 const route = useRoute()
 const { history, undo, redo } = useUndoRedo()
 const id = computed(() => String(route.params.id ?? ''))
@@ -27,7 +29,7 @@ const smart = computed(() => {
 const askDisabled = computed(() => smart.value || editor.generating)
 const askOpen = computed(() => editor.chatOpen)
 const askTitle = computed(() =>
-  smart.value ? 'AI edit is available for template slides' : 'Ask AI to edit this slide (Ctrl+K)',
+  smart.value ? t('editor.toolbar.askSmartUnavailable') : t('editor.toolbar.askTitle'),
 )
 
 const hasSlide = computed(() => Boolean(presentation.value?.slides.some((s) => s.id === editor.activeSlideId)))
@@ -35,12 +37,12 @@ const insertDisabled = computed(() => smart.value || !hasSlide.value || editor.l
 const insertActive = computed(() => editor.inspectorOpen && editor.inspectorTab === 'insert')
 const insertTitle = computed(() =>
   smart.value
-    ? 'Insert is available for template slides'
+    ? t('editor.toolbar.insertSmartUnavailable')
     : !hasSlide.value
-      ? 'Select a slide to insert into'
+      ? t('editor.toolbar.insertSelectSlide')
       : editor.locked
-        ? 'Insert is unavailable while the deck is busy'
-        : 'Insert (blocks, text, images, shapes)',
+        ? t('editor.toolbar.insertBusy')
+        : t('editor.toolbar.insertTitle'),
 )
 
 const slidesVisible = computed(() => (narrow.value ? editor.navigatorOpen : editor.navigatorVisible))
@@ -51,31 +53,31 @@ function toggleSlides() {
 </script>
 
 <template>
-  <div role="toolbar" aria-label="Slide tools" class="flex flex-none items-center gap-[3px] max-[1279px]:gap-0 max-[450px]:gap-1">
+  <div role="toolbar" :aria-label="t('editor.toolbar.slideTools')" class="flex flex-none items-center gap-[3px] max-[1279px]:gap-0 max-[450px]:gap-1">
     <DropdownMenu v-if="compact">
-      <DropdownMenuTrigger :class="tool" aria-label="Slide tools" title="Slide tools">
+      <DropdownMenuTrigger :class="tool" :aria-label="t('editor.toolbar.slideTools')" :title="t('editor.toolbar.slideTools')">
         <Ellipsis class="size-[17px]" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center" class="w-[min(230px,calc(100vw-24px))]">
         <DropdownMenuItem @select="toggleSlides">
-          <LayoutPanelLeft class="size-[15px]" aria-hidden="true" />{{ slidesVisible ? 'Hide slides' : 'Show slides' }}
+          <LayoutPanelLeft class="size-[15px]" aria-hidden="true" />{{ slidesVisible ? t('editor.toolbar.hideSlides') : t('editor.toolbar.showSlides') }}
         </DropdownMenuItem>
         <DropdownMenuItem @select="editor.inspectorOpen = !editor.inspectorOpen">
-          <PanelRight class="size-[15px]" aria-hidden="true" />{{ editor.inspectorOpen ? 'Hide inspector' : 'Show inspector' }}
+          <PanelRight class="size-[15px]" aria-hidden="true" />{{ editor.inspectorOpen ? t('editor.toolbar.hideInspector') : t('editor.toolbar.showInspector') }}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem @select="editor.prev()"><ChevronUp class="size-[15px]" aria-hidden="true" />Previous slide</DropdownMenuItem>
-        <DropdownMenuItem @select="editor.next()"><ChevronDown class="size-[15px]" aria-hidden="true" />Next slide</DropdownMenuItem>
+        <DropdownMenuItem @select="editor.prev()"><ChevronUp class="size-[15px]" aria-hidden="true" />{{ t('editor.toolbar.previousSlide') }}</DropdownMenuItem>
+        <DropdownMenuItem @select="editor.next()"><ChevronDown class="size-[15px]" aria-hidden="true" />{{ t('editor.toolbar.nextSlide') }}</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem :disabled="!history.canUndo || editor.locked" @select="undo">
-          <Undo2 class="size-[15px]" aria-hidden="true" />{{ history.undoLabel ? `Undo ${history.undoLabel.toLowerCase()}` : 'Undo' }}
+          <Undo2 class="size-[15px]" aria-hidden="true" />{{ history.undoLabel ? t('editor.toolbar.undoNamed', { label: history.undoLabel.toLowerCase() }) : t('editor.toolbar.undo') }}
         </DropdownMenuItem>
         <DropdownMenuItem :disabled="!history.canRedo || editor.locked" @select="redo">
-          <Redo2 class="size-[15px]" aria-hidden="true" />{{ history.redoLabel ? `Redo ${history.redoLabel.toLowerCase()}` : 'Redo' }}
+          <Redo2 class="size-[15px]" aria-hidden="true" />{{ history.redoLabel ? t('editor.toolbar.redoNamed', { label: history.redoLabel.toLowerCase() }) : t('editor.toolbar.redo') }}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem :disabled="insertDisabled" @select="editor.openInsert()">
-          <Plus class="size-[15px]" aria-hidden="true" />Insert
+          <Plus class="size-[15px]" aria-hidden="true" />{{ t('editor.toolbar.insert') }}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -84,8 +86,8 @@ function toggleSlides() {
       type="button"
       :class="[tool, slidesVisible && active]"
       :aria-expanded="slidesVisible"
-      :aria-label="slidesVisible ? 'Hide slides' : 'Show slides'"
-      :title="slidesVisible ? 'Hide slides' : 'Show slides'"
+      :aria-label="slidesVisible ? t('editor.toolbar.hideSlides') : t('editor.toolbar.showSlides')"
+      :title="slidesVisible ? t('editor.toolbar.hideSlides') : t('editor.toolbar.showSlides')"
       @click="toggleSlides"
     >
       <LayoutPanelLeft class="size-[17px]" aria-hidden="true" />
@@ -94,18 +96,18 @@ function toggleSlides() {
       type="button"
       :class="[tool, editor.inspectorOpen && active]"
       :aria-expanded="editor.inspectorOpen"
-      :aria-label="editor.inspectorOpen ? 'Hide inspector' : 'Show inspector'"
-      :title="editor.inspectorOpen ? 'Hide inspector' : 'Show inspector'"
+      :aria-label="editor.inspectorOpen ? t('editor.toolbar.hideInspector') : t('editor.toolbar.showInspector')"
+      :title="editor.inspectorOpen ? t('editor.toolbar.hideInspector') : t('editor.toolbar.showInspector')"
       @click="editor.inspectorOpen = !editor.inspectorOpen"
     >
       <PanelRight class="size-[17px]" aria-hidden="true" />
     </button>
     <span :class="divider" aria-hidden="true" />
 
-    <button type="button" :class="tool" aria-label="Previous slide" title="Previous slide (↑)" @click="editor.prev()">
+    <button type="button" :class="tool" :aria-label="t('editor.toolbar.previousSlide')" :title="t('editor.toolbar.previousSlideShortcut')" @click="editor.prev()">
       <ChevronUp class="size-[17px]" aria-hidden="true" />
     </button>
-    <button type="button" :class="tool" aria-label="Next slide" title="Next slide (↓)" @click="editor.next()">
+    <button type="button" :class="tool" :aria-label="t('editor.toolbar.nextSlide')" :title="t('editor.toolbar.nextSlideShortcut')" @click="editor.next()">
       <ChevronDown class="size-[17px]" aria-hidden="true" />
     </button>
     <span :class="divider" aria-hidden="true" />
@@ -114,8 +116,8 @@ function toggleSlides() {
       type="button"
       :class="tool"
       :disabled="!history.canUndo || editor.locked"
-      :aria-label="history.undoLabel ? `Undo ${history.undoLabel.toLowerCase()}` : 'Undo'"
-      title="Undo (Ctrl+Z)"
+      :aria-label="history.undoLabel ? t('editor.toolbar.undoNamed', { label: history.undoLabel.toLowerCase() }) : t('editor.toolbar.undo')"
+      :title="t('editor.toolbar.undoTitle')"
       @click="undo"
     >
       <Undo2 class="size-4" aria-hidden="true" />
@@ -124,8 +126,8 @@ function toggleSlides() {
       type="button"
       :class="tool"
       :disabled="!history.canRedo || editor.locked"
-      :aria-label="history.redoLabel ? `Redo ${history.redoLabel.toLowerCase()}` : 'Redo'"
-      title="Redo (Shift+Ctrl+Z)"
+      :aria-label="history.redoLabel ? t('editor.toolbar.redoNamed', { label: history.redoLabel.toLowerCase() }) : t('editor.toolbar.redo')"
+      :title="t('editor.toolbar.redoTitle')"
       @click="redo"
     >
       <Redo2 class="size-4" aria-hidden="true" />
@@ -136,7 +138,7 @@ function toggleSlides() {
       type="button"
       :class="[tool, insertActive && active]"
       :disabled="insertDisabled"
-      aria-label="Insert"
+      :aria-label="t('editor.toolbar.insert')"
       :title="insertTitle"
       @click="editor.openInsert()"
     >
@@ -153,7 +155,7 @@ function toggleSlides() {
       :title="askTitle"
       @click="editor.toggleAsk()"
     >
-      <Sparkles class="size-[15px] max-[450px]:size-[13px]" aria-hidden="true" />Ask AI
+      <Sparkles class="size-[15px] max-[450px]:size-[13px]" aria-hidden="true" />{{ t('editor.toolbar.askAi') }}
     </button>
   </div>
 </template>

@@ -12,5 +12,5 @@ const presentationProps = (c: BarContext) => ({ presentation: c.presentation })
 export const shapeBar: BarItem[] = [
   { type: 'custom', id: 'fill-color', component: ShapeFill, props: presentationProps },
   { type: 'custom', id: 'stroke-color', component: ShapeStroke, props: presentationProps },
-  { type: 'panel', id: 'shape', label: 'Shape', icon: Square, component: ShapePanel, props: presentationProps },
+  { type: 'panel', id: 'shape', label: 'editorCanvas.bar.labels.shape', icon: Square, component: ShapePanel, props: presentationProps },
 ]

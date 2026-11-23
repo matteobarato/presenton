@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { computed } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
@@ -10,6 +11,7 @@ import { inspectorTabs } from './inspector/tabs'
 
 const route = useRoute()
 const editor = useEditorStore()
+const { t } = useI18n()
 const id = computed(() => String(route.params.id ?? ''))
 const { data: presentation } = usePresentation(id, useEditorFetchGate())
 // In the drawer the sheet's close button sits at the top right; keep the tabs clear of it.
@@ -31,7 +33,7 @@ const activeSlide = computed(() => {
     <TabsList
       class="flex h-[57px] w-full flex-none gap-1.5 rounded-none border-b border-line bg-transparent px-3.5 py-[11px] [@media(max-height:780px)_and_(min-width:1051px)]:h-[49px]"
       :class="inDrawer && 'pr-12'"
-      aria-label="Inspector sections"
+      :aria-label="t('editor.inspector.sections')"
     >
       <TabsTrigger
         v-for="tab in inspectorTabs"

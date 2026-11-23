@@ -1,0 +1,45 @@
+{
+  "asyncTask": {
+    "failed": "The task failed"
+  },
+  "slideLabel": {
+    "untitled": "Untitled slide"
+  },
+  "relativeTime": {
+    "now": "now",
+    "past": {
+      "year": "{num} year ago | {num} years ago",
+      "month": "{num} month ago | {num} months ago",
+      "week": "{num} week ago | {num} weeks ago",
+      "day": "{num} day ago | {num} days ago",
+      "hour": "{num} hour ago | {num} hours ago",
+      "minute": "{num} minute ago | {num} minutes ago"
+    },
+    "future": {
+      "year": "in {num} year | in {num} years",
+      "month": "in {num} month | in {num} months",
+      "week": "in {num} week | in {num} weeks",
+      "day": "in {num} day | in {num} days",
+      "hour": "in {num} hour | in {num} hours",
+      "minute": "in {num} minute | in {num} minutes"
+    },
+    "auto": {
+      "year": {
+        "past": "last year",
+        "future": "next year"
+      },
+      "month": {
+        "past": "last month",
+        "future": "next month"
+      },
+      "week": {
+        "past": "last week",
+        "future": "next week"
+      },
+      "day": {
+        "past": "yesterday",
+        "future": "tomorrow"
+      }
+    }
+  }
+}

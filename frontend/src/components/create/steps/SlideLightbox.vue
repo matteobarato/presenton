@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import type { Presentation, Slide } from '@/api/types'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import SlideView from '@/render/SlideView.vue'
+const { t } = useI18n()
 
 /**
  * One generated slide at full width, with prev/next buttons and ←/→ keys; Esc closes (the Dialog's own).
@@ -48,15 +50,15 @@ function onCloseAutoFocus(e: Event) {
       @keydown="onKeydown"
     >
       <div>
-        <DialogTitle class="sr-only">{{ title }} — slide {{ (index ?? 0) + 1 }}</DialogTitle>
-        <DialogDescription class="sr-only">Slide preview. Use the arrow keys to move between slides.</DialogDescription>
+        <DialogTitle class="sr-only">{{ t('create.preview.lightbox.title', { title, n: (index ?? 0) + 1 }) }}</DialogTitle>
+        <DialogDescription class="sr-only">{{ t('create.preview.lightbox.description') }}</DialogDescription>
         <div class="overflow-hidden rounded-[9px] bg-sx-101416">
           <SlideView v-if="current" :key="current.id ?? index ?? 0" :slide="current" :theme="theme" :fonts="fonts" fit="width" />
         </div>
         <div class="mt-3 flex items-center justify-center gap-4 text-[12px] text-tx-9eb7c7 tabular-nums">
           <button
             type="button"
-            aria-label="Previous slide"
+            :aria-label="t('create.preview.lightbox.previous')"
             :aria-disabled="atStart"
             class="grid size-8 place-items-center rounded-full hover:bg-sx-3b4b55 aria-disabled:cursor-default aria-disabled:opacity-40"
             @click="step(-1)"
@@ -66,7 +68,7 @@ function onCloseAutoFocus(e: Event) {
           <span data-testid="lightbox-counter">{{ (index ?? 0) + 1 }} / {{ slides.length }}</span>
           <button
             type="button"
-            aria-label="Next slide"
+            :aria-label="t('create.preview.lightbox.next')"
             :aria-disabled="atEnd"
             class="grid size-8 place-items-center rounded-full hover:bg-sx-3b4b55 aria-disabled:cursor-default aria-disabled:opacity-40"
             @click="step(1)"

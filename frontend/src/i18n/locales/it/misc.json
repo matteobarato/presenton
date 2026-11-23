@@ -1,0 +1,45 @@
+{
+  "asyncTask": {
+    "failed": "Attività non riuscita"
+  },
+  "slideLabel": {
+    "untitled": "Diapositiva senza titolo"
+  },
+  "relativeTime": {
+    "now": "ora",
+    "past": {
+      "year": "{num} anno fa | {num} anni fa",
+      "month": "{num} mese fa | {num} mesi fa",
+      "week": "{num} settimana fa | {num} settimane fa",
+      "day": "{num} giorno fa | {num} giorni fa",
+      "hour": "{num} ora fa | {num} ore fa",
+      "minute": "{num} minuto fa | {num} minuti fa"
+    },
+    "future": {
+      "year": "tra {num} anno | tra {num} anni",
+      "month": "tra {num} mese | tra {num} mesi",
+      "week": "tra {num} settimana | tra {num} settimane",
+      "day": "tra {num} giorno | tra {num} giorni",
+      "hour": "tra {num} ora | tra {num} ore",
+      "minute": "tra {num} minuto | tra {num} minuti"
+    },
+    "auto": {
+      "year": {
+        "past": "anno scorso",
+        "future": "anno prossimo"
+      },
+      "month": {
+        "past": "mese scorso",
+        "future": "mese prossimo"
+      },
+      "week": {
+        "past": "settimana scorsa",
+        "future": "settimana prossima"
+      },
+      "day": {
+        "past": "ieri",
+        "future": "domani"
+      }
+    }
+  }
+}

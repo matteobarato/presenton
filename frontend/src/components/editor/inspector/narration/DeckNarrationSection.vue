@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 import { ChevronDown } from 'lucide-vue-next'
@@ -9,6 +10,8 @@ import { Progress } from '@/components/ui/progress'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import TtsLanguageSelect from './TtsLanguageSelect.vue'
 import { injectDeckNarration } from './useDeckNarration'
+
+const { t } = useI18n()
 
 /** Narration settings that apply to every slide: language, notes and audio generation. Avatars live in the Avatar tab. */
 const props = defineProps<{ presentation: Presentation }>()
@@ -35,7 +38,7 @@ const open = useLocalStorage('slideshows.editor.deck-narration-open', true)
 
 const total = computed(() => props.presentation.slides.length)
 const narrated = computed(() => counts.value.ready + counts.value.translated + counts.value.stale)
-const summary = computed(() => [languageName.value, tts.value ? `${narrated.value}/${total.value} narrated` : null].filter(Boolean).join(' · '))
+const summary = computed(() => [languageName.value, tts.value ? t('editorInspector.narration.deck.narratedCount', { narrated: narrated.value, total: total.value }) : null].filter(Boolean).join(' · '))
 
 const confirmDelete = ref(false)
 function deleteNarration() {
@@ -44,7 +47,7 @@ function deleteNarration() {
 </script>
 
 <template>
-  <section class="flex flex-col rounded-card border border-ov/[0.06] bg-ov/[0.015]" aria-label="Whole deck">
+  <section class="flex flex-col rounded-card border border-ov/[0.06] bg-ov/[0.015]" :aria-label="t('editorInspector.narration.deck.ariaLabel')">
     <button
       type="button"
       class="flex min-h-11 items-center gap-2 px-3 text-left transition-colors duration-200 hover:bg-ov/[0.03]"
@@ -53,21 +56,21 @@ function deleteNarration() {
       aria-controls="deck-narration-body"
       @click="open = !open"
     >
-      <span class="text-[12px] font-semibold text-tx-f6f8f9">Whole deck</span>
+      <span class="text-[12px] font-semibold text-tx-f6f8f9">{{ t('editorInspector.narration.deck.title') }}</span>
       <span class="min-w-0 flex-1 truncate text-right text-[11px] text-muted">{{ summary }}</span>
       <ChevronDown class="size-3.5 flex-none text-muted transition-transform duration-200" :class="open && 'rotate-180'" aria-hidden="true" />
     </button>
 
     <div v-if="running" class="flex flex-col gap-1 px-3 pb-3" role="status">
-      <Progress :model-value="progress" aria-label="Narration progress" />
-      <span class="text-[11px] text-muted">{{ task?.message || 'Generating narration…' }}</span>
+      <Progress :model-value="progress" :aria-label="t('editorInspector.narration.progressAria')" />
+      <span class="text-[11px] text-muted">{{ task?.message || t('editorInspector.narration.deck.generating') }}</span>
     </div>
 
     <div v-show="open" id="deck-narration-body" class="flex flex-1 flex-col gap-3 border-t border-ov/[0.06] p-3">
       <TtsLanguageSelect :model-value="language" :languages="languages ?? []" :disabled="running" @update:model-value="setLanguage" />
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
         <p v-if="tts" class="min-w-0 text-[11px] text-muted tabular-nums" data-testid="narration-counts">
-          {{ counts.ready + counts.translated }} up to date · {{ counts.stale }} out of date · {{ counts.missing }} without audio
+          {{ t('editorInspector.narration.deck.counts', { upToDate: counts.ready + counts.translated, outOfDate: counts.stale, withoutAudio: counts.missing }) }}
         </p>
         <Button
           size="sm"
@@ -76,14 +79,14 @@ function deleteNarration() {
           :disabled="running || !tts?.audios.length"
           @click="confirmDelete = true"
         >
-          Delete narration
+          {{ t('editorInspector.narration.deck.delete') }}
         </Button>
       </div>
       <div class="flex flex-wrap gap-2 [&>*]:min-w-[132px] [&>*]:flex-1">
         <Button size="sm" variant="secondary" :disabled="generateNotes.isPending.value || editor.generating" @click="generateNotes.mutate()">
-          Generate all notes
+          {{ t('editorInspector.narration.deck.generateNotes') }}
         </Button>
-        <Button size="sm" :disabled="!canStart" @click="generateAll">Generate narration</Button>
+        <Button size="sm" :disabled="!canStart" @click="generateAll">{{ t('editorInspector.narration.deck.generate') }}</Button>
       </div>
       <p v-if="taskError" role="alert" class="text-[11px] text-danger-text">{{ taskError }}</p>
     </div>
@@ -91,12 +94,12 @@ function deleteNarration() {
     <Dialog v-model:open="confirmDelete">
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete narration?</DialogTitle>
-          <DialogDescription>This removes the recorded audio for this language. Speaker notes are kept.</DialogDescription>
+          <DialogTitle>{{ t('editorInspector.narration.deck.deleteTitle') }}</DialogTitle>
+          <DialogDescription>{{ t('editorInspector.narration.deck.deleteDescription') }}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" @click="confirmDelete = false">Cancel</Button>
-          <Button variant="destructive" :disabled="removeTts.isPending.value" @click="deleteNarration">Delete</Button>
+          <Button variant="outline" @click="confirmDelete = false">{{ t('common.actions.cancel') }}</Button>
+          <Button variant="destructive" :disabled="removeTts.isPending.value" @click="deleteNarration">{{ t('common.actions.delete') }}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

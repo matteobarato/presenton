@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, onMounted, reactive, ref, toRef, watch } from 'vue'
 import { Download, Film, Loader2, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
@@ -32,6 +33,7 @@ const { language: ttsLanguage } = useTtsLanguage(
 // Motion summary. Animatable: a template slide with elements to animate (smart slides are "unsupported").
 // Animated: one of those with a stored plan that moves something.
 const editor = useEditorStore()
+const { t } = useI18n()
 const animations = useAnimations(toRef(() => props.presentationId))
 const motion = computed(() => {
   const list = animations.data.value?.slides
@@ -95,7 +97,7 @@ async function run() {
     const t = await startVideoExport(props.presentationId, body)
     if (t.id) start(t.id)
   } catch (e) {
-    startError.value = extractApiErrorMessage(e, 'Could not start the video export')
+    startError.value = extractApiErrorMessage(e, t('editor.export.video.couldNotStart'))
   } finally {
     starting.value = false
   }
@@ -107,7 +109,7 @@ async function remove() {
     await deleteVideoExport(props.presentationId, video.value?.language ?? form.language)
     video.value = null
   } catch (e) {
-    toast.error(extractApiErrorMessage(e, 'Could not delete the video'))
+    toast.error(extractApiErrorMessage(e, t('editor.export.video.couldNotDelete')))
   }
 }
 
@@ -132,32 +134,32 @@ onMounted(async () => {
     <VideoExportOptions :model-value="form" :languages="languages" :disabled="status === 'pending' || starting" />
 
     <p v-if="motion" class="flex flex-wrap items-center gap-x-2 text-[11px] text-muted" data-testid="mp4-animations">
-      <span>Animations: {{ motion.animated }} of {{ motion.total }} slides</span>
+      <span>{{ t('editor.export.video.animations', { animated: motion.animated, total: motion.total }) }}</span>
       <button
         type="button"
         class="text-accent underline-offset-2 hover:underline"
         data-testid="mp4-animations-edit"
         @click="editMotion"
       >
-        Edit in Motion tab
+        {{ t('editor.export.video.editInMotion') }}
       </button>
     </p>
 
     <Button :disabled="status === 'pending' || starting" data-testid="mp4-start" @click="run">
       <Loader2 v-if="status === 'pending' || starting" :size="14" class="animate-spin motion-reduce:animate-none" />
       <Film v-else :size="14" />
-      {{ video ? 'Render again' : 'Render MP4' }}
+      {{ video ? t('editor.export.video.renderAgain') : t('editor.export.video.renderMp4') }}
     </Button>
 
     <p v-if="startError" role="alert" class="text-[11px] text-danger-text" data-testid="mp4-start-error">{{ startError }}</p>
 
     <div v-if="status === 'pending'" class="flex flex-col gap-1.5" data-testid="mp4-progress">
       <Progress :model-value="progressPercent()" />
-      <p class="text-[11px] text-muted" data-testid="mp4-message">{{ task?.message || 'Queued...' }}</p>
+      <p class="text-[11px] text-muted" data-testid="mp4-message">{{ task?.message || t('editor.export.video.queued') }}</p>
     </div>
     <div v-if="status === 'error'" role="alert" class="text-[11px] text-danger-text" data-testid="mp4-task-error">
       {{ error }}
-      <button type="button" class="ml-1 underline" @click="clear">Dismiss</button>
+      <button type="button" class="ml-1 underline" @click="clear">{{ t('editor.export.video.dismiss') }}</button>
     </div>
 
     <div v-if="video" class="flex flex-col gap-2" data-testid="mp4-result">
@@ -169,10 +171,10 @@ onMounted(async () => {
           class="inline-flex items-center gap-1.5 text-[12px] text-accent underline-offset-2 hover:underline"
           data-testid="mp4-download"
         >
-          <Download :size="13" /> Download MP4
+          <Download :size="13" /> {{ t('editor.export.video.downloadMp4') }}
         </a>
         <Button variant="ghost" size="sm" class="ml-auto" data-testid="mp4-delete" @click="confirmDelete = true">
-          <Trash2 :size="13" /> Delete
+          <Trash2 :size="13" /> {{ t('common.actions.delete') }}
         </Button>
       </div>
     </div>
@@ -180,12 +182,12 @@ onMounted(async () => {
     <Dialog v-model:open="confirmDelete">
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete this video?</DialogTitle>
-          <DialogDescription>The rendered MP4 file will be removed. You can render it again later.</DialogDescription>
+          <DialogTitle>{{ t('editor.export.video.deleteTitle') }}</DialogTitle>
+          <DialogDescription>{{ t('editor.export.video.deleteDescription') }}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="ghost" @click="confirmDelete = false">Cancel</Button>
-          <Button variant="destructive" data-testid="mp4-delete-confirm" @click="remove">Delete</Button>
+          <Button variant="ghost" @click="confirmDelete = false">{{ t('common.actions.cancel') }}</Button>
+          <Button variant="destructive" data-testid="mp4-delete-confirm" @click="remove">{{ t('common.actions.delete') }}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

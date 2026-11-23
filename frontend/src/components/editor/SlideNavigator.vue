@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { nextTick, ref, toRef, watch } from 'vue'
 import Draggable from 'vuedraggable'
@@ -17,6 +18,7 @@ import { Button } from '@/components/ui/button'
 const props = defineProps<{ presentationId: string; slides: Slide[] }>()
 
 const editor = useEditorStore()
+const { t } = useI18n()
 const id = toRef(props, 'presentationId')
 const { data: presentation } = usePresentation(id, useEditorFetchGate())
 const mutations = useSlideMutations(id)
@@ -78,7 +80,7 @@ watch(
   <div ref="root" data-slide-navigator class="flex min-h-0 flex-1 flex-col" @keydown="onKeydown">
     <div class="flex h-[58px] flex-none items-center justify-between px-[15px] text-[12px] font-semibold [@media(max-height:780px)_and_(min-width:1051px)]:h-[49px]">
       <div class="flex items-center gap-2">
-        Slides
+        {{ t('editor.navigator.slides') }}
         <span class="inline-flex h-4 min-w-[17px] items-center justify-center rounded-[5px] bg-sx-2c3033 px-1 text-[9px] font-medium text-tx-a4adb2 tabular-nums">
           {{ slides.length }}
         </span>
@@ -117,7 +119,7 @@ watch(
               class="block w-full py-0.5 text-left"
               :data-slide-key="slideKey(element)"
               :aria-current="slideKey(element) === editor.activeSlideId ? 'true' : undefined"
-              :aria-label="`Slide ${index + 1}`"
+              :aria-label="t('editor.navigator.slideNumber', { n: index + 1 })"
               :title="slideLabel(element)"
               @click="editor.select(slideKey(element)); editor.navigatorOpen = false"
             >
@@ -152,8 +154,8 @@ watch(
                 <button
                   type="button"
                   class="grid h-6 w-[23px] flex-none place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-white"
-                  :aria-label="`Duplicate slide ${index + 1}`"
-                  title="Duplicate slide"
+                  :aria-label="t('editor.navigator.duplicateSlideNumber', { n: index + 1 })"
+                  :title="t('editor.navigator.duplicateSlide')"
                   @click="mutations.duplicateSlide(element.id)"
                 >
                   <Copy class="size-3" aria-hidden="true" />
@@ -162,8 +164,8 @@ watch(
                   type="button"
                   class="grid h-6 w-[23px] flex-none place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-danger-text disabled:opacity-35 disabled:hover:bg-transparent"
                   :disabled="slides.length <= 1"
-                  :aria-label="`Delete slide ${index + 1}`"
-                  title="Delete slide"
+                  :aria-label="t('editor.navigator.deleteSlideNumber', { n: index + 1 })"
+                  :title="t('editor.navigator.deleteSlide')"
                   @click="mutations.removeSlide(element.id)"
                 >
                   <Trash2 class="size-3" aria-hidden="true" />
@@ -182,11 +184,11 @@ watch(
         class="h-[34px] w-full justify-start border-dashed border-ov/[0.13] px-2.5 text-[11px]"
         @click="pickerOpen = true"
       >
-        <Plus class="size-4" aria-hidden="true" />Add slide
+        <Plus class="size-4" aria-hidden="true" />{{ t('editor.navigator.addSlide') }}
         <span class="ml-auto text-[9px] font-normal text-tx-919ca1 max-[1279px]:hidden" aria-hidden="true">{{ mod }} ↵</span>
       </Button>
       <span class="mt-[11px] block text-center text-[9px] text-tx-a0a8ae [@media(max-height:780px)_and_(min-width:1051px)]:hidden">
-        A little structure. Endless possibility.
+        {{ t('editor.navigator.tagline') }}
       </span>
     </div>
 

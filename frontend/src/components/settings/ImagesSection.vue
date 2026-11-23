@@ -1,25 +1,27 @@
 <script setup lang="ts">
 // Ported from servers/nextjs/app/(presentation-generator)/(dashboard)/settings/ImageProvider.tsx
 import { computed, useId } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ProviderPicker from '@/components/settings/ProviderPicker.vue'
 import SecretInput from '@/components/settings/SecretInput.vue'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { DALLE_3_QUALITY_OPTIONS, GPT_IMAGE_1_5_QUALITY_OPTIONS, IMAGE_PROVIDERS, type ImageProviderRow } from '@/settings/providers'
+import { DALLE_3_QUALITY_OPTIONS, GPT_IMAGE_1_5_QUALITY_OPTIONS, IMAGE_PROVIDERS, type ImageProviderRow, tx } from '@/settings/providers'
 import type { ProviderConfig } from '@/settings/types'
 
 const props = defineProps<{ config: ProviderConfig }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
+const { t } = useI18n()
 
 const uid = useId()
 const id = (name: string) => `images-${uid}-${name}`
 
-const OPTIONS = IMAGE_PROVIDERS.map(({ value, label, description, icon }) => ({ value, label, description, icon }))
-const QUALITY: Record<string, { label: string; field: string; fallback: string; options: { label: string; value: string }[] }> = {
-  'dall-e-3': { label: 'DALL·E 3 Image Quality', field: 'DALL_E_3_QUALITY', fallback: 'standard', options: DALLE_3_QUALITY_OPTIONS },
+const OPTIONS = computed(() => IMAGE_PROVIDERS.map(({ value, label, description, icon }) => ({ value, label, description: tx(description), icon })))
+const QUALITY: Record<string, { labelKey: string; field: string; fallback: string; options: { label: string; value: string }[] }> = {
+  'dall-e-3': { labelKey: 'settings.images.quality.dalle3', field: 'DALL_E_3_QUALITY', fallback: 'standard', options: DALLE_3_QUALITY_OPTIONS },
   'gpt-image-1.5': {
-    label: 'GPT Image 1.5 Quality',
+    labelKey: 'settings.images.quality.gptImage15',
     field: 'GPT_IMAGE_1_5_QUALITY',
     fallback: 'low',
     options: GPT_IMAGE_1_5_QUALITY_OPTIONS,
@@ -28,7 +30,6 @@ const QUALITY: Record<string, { label: string; field: string; fallback: string; 
 // Providers with a bespoke field set; every other row is a single API key.
 const CUSTOM = ['comfyui', 'open_webui', 'openai_compatible']
 
-const WORKFLOW_PLACEHOLDER = 'Paste your ComfyUI workflow JSON here (export via "Export (API)" in ComfyUI)'
 const labelClass = 'mb-2 block text-[12px] font-medium text-tx-dbe7ef'
 const selectClass =
   'flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-tx-dce6ec transition-colors duration-200 hover:border-ov/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40'
@@ -40,6 +41,7 @@ const enabled = computed(() => !props.config.DISABLE_IMAGE_GENERATION)
 const row = computed<ImageProviderRow | undefined>(() => IMAGE_PROVIDERS.find((p) => p.value === props.config.IMAGE_PROVIDER))
 const quality = computed(() => (row.value ? QUALITY[row.value.value] : undefined))
 const keyRow = computed(() => (row.value && !CUSTOM.includes(row.value.value) && row.value.apiKeyField ? row.value : undefined))
+const keyLabel = computed(() => tx(keyRow.value?.apiKeyFieldLabel) ?? t('settings.shared.apiKey'))
 
 function text(field?: string): string {
   const value = field ? props.config[field] : undefined
@@ -55,46 +57,46 @@ function onQuality(event: Event) {
 
 <template>
   <div v-if="managed" class="rounded-[11px] bg-sx-1d2427 px-4 py-3">
-    <p class="text-[13px] font-medium text-tx-dbe7ef">Managed by Presenton Cloud</p>
-    <p class="mt-0.5 text-[11px] leading-[1.6] text-tx-95aab7">Image generation is handled for you, so there is nothing to configure here.</p>
+    <p class="text-[13px] font-medium text-tx-dbe7ef">{{ t('settings.images.managedTitle') }}</p>
+    <p class="mt-0.5 text-[11px] leading-[1.6] text-tx-95aab7">{{ t('settings.images.managedHint') }}</p>
   </div>
 
   <div v-else class="grid gap-4">
     <div class="flex items-center gap-3">
       <Switch :id="id('enabled')" :model-value="enabled" @update:model-value="emit('set', 'DISABLE_IMAGE_GENERATION', !$event)" />
-      <label :for="id('enabled')" class="text-[12px] font-medium text-tx-dbe7ef">Generate images</label>
+      <label :for="id('enabled')" class="text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.images.generate') }}</label>
     </div>
 
     <template v-if="enabled">
       <ProviderPicker
         :model-value="row?.value ?? ''"
         :options="OPTIONS"
-        placeholder="Select image provider"
-        search-placeholder="Search image providers"
-        label="Image provider"
+        :placeholder="t('settings.images.providerPlaceholder')"
+        :search-placeholder="t('settings.images.providerSearch')"
+        :label="t('settings.images.providerLabel')"
         @update:model-value="emit('set', 'IMAGE_PROVIDER', $event)"
       />
 
       <div v-if="keyRow" class="min-w-0">
         <SecretInput
           :model-value="text(keyRow.apiKeyField)"
-          :label="keyRow.apiKeyFieldLabel ?? 'API key'"
-          :placeholder="`Enter your ${keyRow.apiKeyFieldLabel ?? 'API key'}`"
+          :label="keyLabel"
+          :placeholder="t('settings.shared.enterYour', { name: keyLabel })"
           @update:model-value="emit('set', keyRow.apiKeyField!, $event)"
         />
-        <a v-if="keyRow.getApiKeyUrl" :href="keyRow.getApiKeyUrl" target="_blank" rel="noopener noreferrer" :class="linkClass">Get an API key</a>
+        <a v-if="keyRow.getApiKeyUrl" :href="keyRow.getApiKeyUrl" target="_blank" rel="noopener noreferrer" :class="linkClass">{{ t('settings.shared.getApiKey') }}</a>
       </div>
 
       <div v-if="quality" class="min-w-0 sm:max-w-[240px]">
-        <label :for="id('quality')" :class="labelClass">{{ quality.label }}</label>
+        <label :for="id('quality')" :class="labelClass">{{ t(quality.labelKey) }}</label>
         <select :id="id('quality')" :value="qualityValue()" :class="selectClass" @change="onQuality">
-          <option v-for="o in quality.options" :key="o.value" :value="o.value">{{ o.label }}</option>
+          <option v-for="o in quality.options" :key="o.value" :value="o.value">{{ tx(o.label) }}</option>
         </select>
       </div>
 
       <template v-if="row?.value === 'comfyui'">
         <div class="min-w-0">
-          <label :for="id('comfyui-url')" :class="labelClass">ComfyUI Server URL</label>
+          <label :for="id('comfyui-url')" :class="labelClass">{{ t('settings.images.comfyui.url') }}</label>
           <Input
             :id="id('comfyui-url')"
             type="text"
@@ -107,13 +109,13 @@ function onQuality(event: Event) {
           />
         </div>
         <div class="min-w-0">
-          <label :for="id('comfyui-workflow')" :class="labelClass">Workflow JSON</label>
+          <label :for="id('comfyui-workflow')" :class="labelClass">{{ t('settings.images.comfyui.workflow') }}</label>
           <Textarea
             :id="id('comfyui-workflow')"
             rows="3"
             spellcheck="false"
             class="font-mono text-[11px]"
-            :placeholder="WORKFLOW_PLACEHOLDER"
+            :placeholder="t('settings.images.comfyui.workflowPlaceholder')"
             :model-value="text('COMFYUI_WORKFLOW')"
             @update:model-value="emit('set', 'COMFYUI_WORKFLOW', String($event))"
           />
@@ -122,7 +124,7 @@ function onQuality(event: Event) {
 
       <template v-else-if="row?.value === 'open_webui'">
         <div class="min-w-0">
-          <label :for="id('webui-url')" :class="labelClass">Open WebUI URL</label>
+          <label :for="id('webui-url')" :class="labelClass">{{ t('settings.images.webui.url') }}</label>
           <Input
             :id="id('webui-url')"
             type="text"
@@ -136,42 +138,42 @@ function onQuality(event: Event) {
         </div>
         <SecretInput
           :model-value="text('OPEN_WEBUI_IMAGE_API_KEY')"
-          label="API Key"
+          :label="t('settings.images.webui.keyLabel')"
           optional
-          placeholder="API key"
+          :placeholder="t('settings.shared.apiKey')"
           @update:model-value="emit('set', 'OPEN_WEBUI_IMAGE_API_KEY', $event)"
         />
       </template>
 
       <template v-else-if="row?.value === 'openai_compatible'">
         <div class="min-w-0">
-          <label :for="id('compat-url')" :class="labelClass">OpenAI Compatible URL</label>
+          <label :for="id('compat-url')" :class="labelClass">{{ t('settings.images.compat.url') }}</label>
           <Input
             :id="id('compat-url')"
             type="text"
             autocomplete="off"
             autocapitalize="off"
             spellcheck="false"
-            placeholder="Enter your URL"
+            :placeholder="t('settings.images.compat.urlPlaceholder')"
             :model-value="text('OPENAI_COMPAT_IMAGE_BASE_URL')"
             @update:model-value="emit('set', 'OPENAI_COMPAT_IMAGE_BASE_URL', String($event))"
           />
         </div>
         <SecretInput
           :model-value="text('OPENAI_COMPAT_IMAGE_API_KEY')"
-          label="OpenAI Compatible API Key"
-          placeholder="Enter your API Key"
+          :label="t('settings.images.compat.keyLabel')"
+          :placeholder="t('settings.shared.enterYour', { name: 'API Key' })"
           @update:model-value="emit('set', 'OPENAI_COMPAT_IMAGE_API_KEY', $event)"
         />
         <div class="min-w-0">
-          <label :for="id('compat-model')" :class="labelClass">Image model id</label>
+          <label :for="id('compat-model')" :class="labelClass">{{ t('settings.images.compat.model') }}</label>
           <Input
             :id="id('compat-model')"
             type="text"
             autocomplete="off"
             autocapitalize="off"
             spellcheck="false"
-            placeholder="e.g. dall-e-3, gpt-image-1"
+            :placeholder="t('settings.images.compat.modelPlaceholder')"
             :model-value="text('OPENAI_COMPAT_IMAGE_MODEL')"
             @update:model-value="emit('set', 'OPENAI_COMPAT_IMAGE_MODEL', String($event))"
           />

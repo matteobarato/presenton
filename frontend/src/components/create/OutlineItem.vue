@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import { GripVertical, Trash2 } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { renderMarkdown } from '@/lib/mini-markdown'
+const { t } = useI18n()
 
 const props = defineProps<{ index: number; disabled?: boolean; active?: boolean }>()
 const content = defineModel<string>({ required: true })
@@ -57,14 +59,14 @@ function onKeydown(e: KeyboardEvent) {
         <p v-if="parts.title" class="text-[14px] leading-[1.5] font-medium tracking-[-0.01em] text-tx-e9f1f5" data-testid="outline-title">
           {{ parts.title }}
         </p>
-        <p v-else class="text-[13px] leading-[1.5] text-tx-7f8d95">Empty slide. Click to write.</p>
+        <p v-else class="text-[13px] leading-[1.5] text-tx-7f8d95">{{ t('create.outline.item.emptySlide') }}</p>
         <!-- eslint-disable-next-line vue/no-v-html -- sanitised by renderMarkdown (DOMPurify) -->
         <div v-if="parts.rest" class="outline-md mt-1 text-[12px] leading-[1.65] text-tx-93a5ae" data-testid="outline-preview" v-html="html" />
       </div>
       <textarea
         v-model="content"
         :disabled="disabled"
-        :aria-label="`Slide ${index + 1} outline`"
+        :aria-label="t('create.outline.item.slideAria', { n: index + 1 })"
         class="w-full resize-none rounded-control text-[13px] leading-[1.65] text-tx-e2eef5 outline-none! [field-sizing:content]"
         :class="showSource ? 'relative min-h-[72px] bg-sx-1b2226 px-2.5 py-2 ring-1 ring-lx-bee3f355' : 'absolute inset-0 h-full cursor-text opacity-0 disabled:cursor-default'"
         @focus="editing = true"
@@ -80,7 +82,7 @@ function onKeydown(e: KeyboardEvent) {
         type="button"
         class="drag-handle grid size-8 max-[760px]:size-11 cursor-grab place-items-center rounded text-muted hover:text-tx-f6f8f9 disabled:cursor-default"
         :disabled="disabled"
-        :aria-label="`Reorder slide ${index + 1} (Alt+Up or Alt+Down)`"
+        :aria-label="t('create.outline.item.reorderAria', { n: index + 1 })"
       >
         <GripVertical class="size-4" aria-hidden="true" />
       </button>
@@ -90,7 +92,7 @@ function onKeydown(e: KeyboardEvent) {
         class="max-[760px]:size-11"
         type="button"
         :disabled="disabled"
-        :aria-label="`Delete slide ${index + 1}`"
+        :aria-label="t('create.outline.item.deleteAria', { n: index + 1 })"
         @click="emit('remove')"
       >
         <Trash2 class="size-4" aria-hidden="true" />

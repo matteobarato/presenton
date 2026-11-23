@@ -1,0 +1,145 @@
+{
+  "announcer": {
+    "multiSelected": "{label} selected",
+    "selected": "Selected: {label}",
+    "cleared": "Selection cleared"
+  },
+  "imagePicker": {
+    "title": "Replace image",
+    "description": "Upload a picture, pick one you already have, generate one, or search stock photos.",
+    "tabs": {
+      "upload": "Upload",
+      "uploaded": "Uploaded",
+      "generate": "Generate",
+      "stock": "Stock"
+    },
+    "errors": {
+      "chooseImage": "Choose an image file.",
+      "uploadFailed": "Failed to upload image.",
+      "generateFailed": "Failed to generate image.",
+      "stockFailed": "Failed to search stock images.",
+      "loadFailed": "Failed to load images."
+    },
+    "upload": {
+      "uploading": "Uploading...",
+      "dropzone": "Choose an image or drop it here"
+    },
+    "uploaded": {
+      "loading": "Loading...",
+      "empty": "No uploaded images yet."
+    },
+    "generate": {
+      "promptLabel": "Image prompt",
+      "placeholder": "Describe the image",
+      "submitLabel": "Generate image",
+      "generatingLabel": "Generating image",
+      "generating": "Generating...",
+      "cancelLabel": "Cancel generation",
+      "cancel": "Cancel",
+      "useGenerated": "Use generated image",
+      "useEarlier": "Use earlier image {n}"
+    },
+    "stock": {
+      "searchLabel": "Search stock images",
+      "placeholder": "Search stock photos",
+      "search": "Search",
+      "empty": "No results."
+    },
+    "useImage": "Use image {n}"
+  },
+  "selection": {
+    "rotate": "Rotate"
+  },
+  "controls": {
+    "colour": {
+      "titleWith": "{label} {value}",
+      "none": "none",
+      "swatch": "Colour {color}",
+      "custom": "Custom colour"
+    },
+    "iconColour": {
+      "label": "Icon colour",
+      "title": "Icon colour {value}"
+    },
+    "chart": {
+      "editData": "Edit data",
+      "type": "Chart type"
+    },
+    "iconChange": "Change icon",
+    "imageFit": {
+      "cover": "Cover",
+      "contain": "Contain",
+      "title": "{fit} fit"
+    },
+    "imageReplace": "Replace image",
+    "infographic": {
+      "editItems": "Edit items"
+    },
+    "layout": {
+      "fillColour": "Fill colour",
+      "decreaseGap": "Decrease gap",
+      "increaseGap": "Increase gap",
+      "gap": "Gap",
+      "gapTitle": "Gap (px)",
+      "addItem": "Add item",
+      "removeLastItem": "Remove last item"
+    },
+    "lineColour": "Line colour",
+    "lineWeight": {
+      "decrease": "Decrease line weight",
+      "increase": "Increase line weight",
+      "label": "Line weight",
+      "title": "Line weight (px)"
+    },
+    "listMarker": {
+      "bullet": "Bullet list",
+      "number": "Numbered list",
+      "none": "No marker"
+    },
+    "shape": {
+      "fillColour": "Fill colour",
+      "noFill": "No fill",
+      "strokeColour": "Stroke colour",
+      "noStroke": "No stroke"
+    },
+    "cell": {
+      "background": "Cell background",
+      "noBackground": "No background"
+    },
+    "textColour": {
+      "label": "Text colour",
+      "title": "Text colour {value}"
+    },
+    "font": {
+      "family": "Font family",
+      "decreaseSize": "Decrease font size",
+      "size": "Font size",
+      "increaseSize": "Increase font size"
+    }
+  },
+  "bar": {
+    "toolbarLabel": "Element tools",
+    "labels": {
+      "chart": "Chart",
+      "icon": "Icon",
+      "image": "Image",
+      "infographic": "Infographic",
+      "layout": "Layout",
+      "line": "Line",
+      "text": "Text",
+      "shape": "Shape",
+      "table": "Table",
+      "video": "Video",
+      "group": "Group",
+      "appearance": "Appearance",
+      "arrange": "Arrange",
+      "duplicate": "Duplicate",
+      "delete": "Delete"
+    },
+    "titles": {
+      "group": "Group (Ctrl+G)",
+      "duplicate": "Duplicate (Ctrl+D)",
+      "delete": "Delete (Del)"
+    }
+  }
+}

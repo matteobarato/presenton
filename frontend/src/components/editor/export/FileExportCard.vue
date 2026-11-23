@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { Check, Download, Loader2 } from 'lucide-vue-next'
 import { extractApiErrorMessage } from '@/api/errors'
@@ -7,14 +8,11 @@ import { Button } from '@/components/ui/button'
 
 const props = defineProps<{ presentationId: string; format: 'pptx' | 'pdf'; busy: boolean }>()
 const emit = defineEmits<{ (e: 'running', value: boolean): void }>()
+const { t } = useI18n()
 
 const url = ref<string | null>(null)
 const error = ref<string | null>(null)
 const running = ref(false)
-const blurb = {
-  pptx: 'Every slide as an editable PowerPoint file, with your theme and fonts.',
-  pdf: 'A fixed-layout document, one slide per page.',
-}
 
 async function run() {
   running.value = true
@@ -24,7 +22,7 @@ async function run() {
     url.value = (await exportPresentation(props.presentationId, props.format)).path
   } catch (e) {
     url.value = null
-    error.value = extractApiErrorMessage(e, 'Export failed')
+    error.value = extractApiErrorMessage(e, t('editor.export.file.exportFailed'))
   } finally {
     running.value = false
     emit('running', false)
@@ -34,11 +32,11 @@ async function run() {
 
 <template>
   <div class="flex flex-col gap-4" :data-testid="`export-${format}`">
-    <p class="text-[11px] leading-[1.7] text-tx-a2b7c5">{{ blurb[format] }}</p>
+    <p class="text-[11px] leading-[1.7] text-tx-a2b7c5">{{ t(`editor.export.file.blurb.${format}`) }}</p>
     <Button class="h-[43px] w-full" :disabled="busy" :data-testid="`export-${format}-button`" @click="run">
       <Loader2 v-if="running" :size="15" class="animate-spin motion-reduce:animate-none" />
       <Download v-else :size="15" />
-      {{ running ? `Exporting ${format.toUpperCase()}...` : `Export ${format.toUpperCase()}` }}
+      {{ running ? t('editor.export.file.exporting', { format: format.toUpperCase() }) : t('editor.export.file.export', { format: format.toUpperCase() }) }}
     </Button>
     <div
       v-if="url"
@@ -47,14 +45,14 @@ async function run() {
       <span class="grid size-5 flex-none place-items-center rounded-full bg-sx-bad4cd text-tx-2d5146" aria-hidden="true">
         <Check :size="12" :stroke-width="3" />
       </span>
-      Your {{ format.toUpperCase() }} is ready.
+      {{ t('editor.export.file.ready', { format: format.toUpperCase() }) }}
       <a
         :href="url"
         download
         class="ml-auto inline-flex items-center gap-1.5 font-semibold text-accent underline-offset-2 hover:underline"
         :data-testid="`download-${format}`"
       >
-        <Download :size="13" /> Download {{ format.toUpperCase() }}
+        <Download :size="13" /> {{ t('editor.export.file.download', { format: format.toUpperCase() }) }}
       </a>
     </div>
     <p v-if="error" role="alert" class="text-[11px] text-danger-text">{{ error }}</p>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { FlipHorizontal2, FlipVertical2, RotateCcw, RotateCw } from 'lucide-vue-next'
 import type { Presentation } from '@/api/types'
@@ -29,6 +30,8 @@ import { themePalette } from '@/slide-editor/themePalette'
 import { useEditingActions } from '@/slide-editor/useEditingActions'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import { useImageControls } from './useImageControls'
+
+const { t } = useI18n()
 
 const props = defineProps<{ presentation: Presentation }>()
 
@@ -87,52 +90,52 @@ const turnButton = [segment, 'h-[34px] w-[34px] flex-none']
 
 <template>
   <div v-if="appearance" :class="section">
-    <div :class="label"><h3>Appearance</h3></div>
-    <div :class="[sub, 'mt-0']">Rotation</div>
+    <div :class="label"><h3>{{ t('editorInspector.element.appearance.title') }}</h3></div>
+    <div :class="[sub, 'mt-0']">{{ t('editorInspector.element.appearance.rotation') }}</div>
     <div class="flex items-center gap-2">
-      <NumberField class="min-w-0 flex-1" :model-value="rotation" label="Rotation" unit="°" :step="1" @focus="hold" @commit="rotate($event, true)" />
-      <button type="button" :class="turnButton" aria-label="Rotate -90°" title="Rotate -90°" @click="turn(-90)">
+      <NumberField class="min-w-0 flex-1" :model-value="rotation" :label="t('editorInspector.element.appearance.rotation')" unit="°" :step="1" @focus="hold" @commit="rotate($event, true)" />
+      <button type="button" :class="turnButton" :aria-label="t('editorInspector.element.appearance.rotateLeft')" :title="t('editorInspector.element.appearance.rotateLeft')" @click="turn(-90)">
         <RotateCcw class="size-4" aria-hidden="true" />
       </button>
-      <button type="button" :class="turnButton" aria-label="Rotate +90°" title="Rotate +90°" @click="turn(90)">
+      <button type="button" :class="turnButton" :aria-label="t('editorInspector.element.appearance.rotateRight')" :title="t('editorInspector.element.appearance.rotateRight')" @click="turn(90)">
         <RotateCw class="size-4" aria-hidden="true" />
       </button>
     </div>
 
-    <div :class="sub">Flip</div>
+    <div :class="sub">{{ t('editorInspector.element.appearance.flip') }}</div>
     <div class="flex gap-2">
-      <button type="button" :class="[segment, appearance.flipH && segmentOn]" aria-label="Flip H" title="Flip horizontally" :aria-pressed="appearance.flipH" @click="flip('h')">
+      <button type="button" :class="[segment, appearance.flipH && segmentOn]" :aria-label="t('editorInspector.element.appearance.flipH')" :title="t('editorInspector.element.appearance.flipHTitle')" :aria-pressed="appearance.flipH" @click="flip('h')">
         <FlipHorizontal2 class="size-4" aria-hidden="true" />
       </button>
-      <button type="button" :class="[segment, appearance.flipV && segmentOn]" aria-label="Flip V" title="Flip vertically" :aria-pressed="appearance.flipV" @click="flip('v')">
+      <button type="button" :class="[segment, appearance.flipV && segmentOn]" :aria-label="t('editorInspector.element.appearance.flipV')" :title="t('editorInspector.element.appearance.flipVTitle')" :aria-pressed="appearance.flipV" @click="flip('v')">
         <FlipVertical2 class="size-4" aria-hidden="true" />
       </button>
     </div>
 
-    <div :class="sub">Opacity</div>
-    <SliderField :model-value="Math.round(appearance.opacity * 100)" label="Opacity" :min="0" :max="100" unit="%" @focus="hold" @commit="opacity" />
+    <div :class="sub">{{ t('editorInspector.element.appearance.opacity') }}</div>
+    <SliderField :model-value="Math.round(appearance.opacity * 100)" :label="t('editorInspector.element.appearance.opacity')" :min="0" :max="100" unit="%" @focus="hold" @commit="opacity" />
 
     <template v-if="roundable">
-      <div :class="sub">Corner radius</div>
-      <SliderField :model-value="radiusPercent" label="Corner radius" :min="0" :max="100" unit="%" @commit="setRadius($event / 100 * maxRadius)" />
+      <div :class="sub">{{ t('editorInspector.element.appearance.cornerRadius') }}</div>
+      <SliderField :model-value="radiusPercent" :label="t('editorInspector.element.appearance.cornerRadius')" :min="0" :max="100" unit="%" @commit="setRadius($event / 100 * maxRadius)" />
     </template>
 
-    <ToggleRow class="mt-5" :model-value="appearance.shadowEnabled" label="Shadow" @update:model-value="shadowOn">
-      <ColorField :model-value="appearance.shadow.color" :palette="palette" label="Shadow colour" @open="hold" @commit="(c: string | null) => c && shadowPatch({ color: c })" />
-      <div :class="sub">Blur</div>
-      <NumberField :model-value="appearance.shadow.blur" label="Blur" :min="0" :max="100" @focus="hold" @commit="shadowPatch({ blur: $event })" />
+    <ToggleRow class="mt-5" :model-value="appearance.shadowEnabled" :label="t('editorInspector.element.appearance.shadow')" @update:model-value="shadowOn">
+      <ColorField :model-value="appearance.shadow.color" :palette="palette" :label="t('editorInspector.element.appearance.shadowColour')" @open="hold" @commit="(c: string | null) => c && shadowPatch({ color: c })" />
+      <div :class="sub">{{ t('editorInspector.element.appearance.blur') }}</div>
+      <NumberField :model-value="appearance.shadow.blur" :label="t('editorInspector.element.appearance.blur')" :min="0" :max="100" @focus="hold" @commit="shadowPatch({ blur: $event })" />
       <div class="mt-4 grid grid-cols-2 gap-2">
         <div>
-          <div class="mb-2 text-[10px] text-tx-9aa9b0">X</div>
-          <NumberField :model-value="appearance.shadow.offset_x" label="Shadow X" :min="-100" :max="100" @focus="hold" @commit="shadowPatch({ offset_x: $event })" />
+          <div class="mb-2 text-[10px] text-tx-9aa9b0">{{ t('editorInspector.element.appearance.offsetX') }}</div>
+          <NumberField :model-value="appearance.shadow.offset_x" :label="t('editorInspector.element.appearance.shadowX')" :min="-100" :max="100" @focus="hold" @commit="shadowPatch({ offset_x: $event })" />
         </div>
         <div>
-          <div class="mb-2 text-[10px] text-tx-9aa9b0">Y</div>
-          <NumberField :model-value="appearance.shadow.offset_y" label="Shadow Y" :min="-100" :max="100" @focus="hold" @commit="shadowPatch({ offset_y: $event })" />
+          <div class="mb-2 text-[10px] text-tx-9aa9b0">{{ t('editorInspector.element.appearance.offsetY') }}</div>
+          <NumberField :model-value="appearance.shadow.offset_y" :label="t('editorInspector.element.appearance.shadowY')" :min="-100" :max="100" @focus="hold" @commit="shadowPatch({ offset_y: $event })" />
         </div>
       </div>
-      <div :class="sub">Shadow opacity</div>
-      <SliderField :model-value="Math.round(appearance.shadow.opacity * 100)" label="Shadow opacity" :min="0" :max="100" unit="%" @focus="hold" @commit="shadowPatch({ opacity: $event / 100 })" />
+      <div :class="sub">{{ t('editorInspector.element.appearance.shadowOpacity') }}</div>
+      <SliderField :model-value="Math.round(appearance.shadow.opacity * 100)" :label="t('editorInspector.element.appearance.shadowOpacity')" :min="0" :max="100" unit="%" @focus="hold" @commit="shadowPatch({ opacity: $event / 100 })" />
     </ToggleRow>
   </div>
 </template>

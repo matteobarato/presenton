@@ -1,3 +1,4 @@
+import { i18n } from '@/i18n'
 import { onScopeDispose, ref, watch, type Ref } from 'vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import { toast } from '@/components/ui/sonner'
@@ -55,7 +56,7 @@ export function usePresentationStream(id: Ref<string>, enabled: Ref<boolean>) {
         for await (const ev of streamEvents(`/api/v1/ppt/presentation/stream/${presentationId}`, { signal })) {
           if (signal.aborted) return
           if (ev.type === 'error') {
-            const detail = String((ev as { detail?: unknown }).detail ?? 'Generation failed.')
+            const detail = String((ev as { detail?: unknown }).detail ?? i18n.global.t('create.stream.generationFailed'))
             const e = ev as Extract<StreamEvent, { type: 'error' }>
             if (e.retryable === false) throw Object.assign(new Error(detail), { fatal: true, event: e })
             throw new Error(detail)
@@ -72,7 +73,7 @@ export function usePresentationStream(id: Ref<string>, enabled: Ref<boolean>) {
           for (const detail of acc.warnings ?? []) {
             if (shownWarnings.has(detail)) continue
             shownWarnings.add(detail)
-            toast.warning('Some images could not be generated', { description: detail, duration: 12_000 })
+            toast.warning(i18n.global.t('create.stream.imagesWarning'), { description: detail, duration: 12_000 })
           }
           metrics.value = acc.metrics ?? null
           if (ev.type === 'complete' || ev.type === 'closing') {
@@ -83,7 +84,7 @@ export function usePresentationStream(id: Ref<string>, enabled: Ref<boolean>) {
           }
         }
         if (signal.aborted) return
-        throw new Error('The connection closed before generation finished.')
+        throw new Error(i18n.global.t('create.stream.connectionClosed'))
       } catch (error) {
         if (signal.aborted) return
         const fatal = (error as { fatal?: boolean }).fatal
@@ -94,9 +95,9 @@ export function usePresentationStream(id: Ref<string>, enabled: Ref<boolean>) {
         }
         status.value = 'error'
         const done = (error as { event?: { completed_slides?: number } }).event?.completed_slides
-        const message = error instanceof Error ? error.message : 'Generation failed.'
-        toast.error('Presentation streaming failed', {
-          description: done && done > 0 ? `${message} ${done} slides were saved and will be reused.` : message,
+        const message = error instanceof Error ? error.message : i18n.global.t('create.stream.generationFailed')
+        toast.error(i18n.global.t('create.stream.failed'), {
+          description: done && done > 0 ? i18n.global.t('create.stream.savedNote', { message, count: done }) : message,
         })
         return
       }

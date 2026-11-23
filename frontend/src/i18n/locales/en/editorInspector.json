@@ -1,0 +1,680 @@
+{
+  "tabs": {
+    "insert": "Insert",
+    "avatar": "Avatar",
+    "motion": "Motion",
+    "layers": "Layers"
+  },
+  "layers": {
+    "title": "Layers",
+    "hint": "Select something on the slide to edit it. Double-click text to type.",
+    "unavailable": "This slide can't be edited on the canvas."
+  },
+  "voice": {
+    "ariaLabel": "Voice",
+    "slideCount": "Slide {current} of {total}",
+    "noSlide": "Select a slide to edit its narration."
+  },
+  "avatar": {
+    "ariaLabel": "Avatar",
+    "title": "Your presenter, on stage.",
+    "intro": "One portrait, lip-synced to each slide's narration.",
+    "noSlide": "Select a slide to put the presenter on it.",
+    "bubble": {
+      "ariaLabel": "Voice bubble",
+      "title": "Voice bubble",
+      "hint": "Plays the narration on slides without the presenter. Drag it to move it on every slide; drag the corner to resize.",
+      "presenterNote": "This slide plays its presenter video instead, so the bubble stays hidden here.",
+      "loadError": "Couldn't load the voice bubble",
+      "saveError": "Couldn't save the voice bubble position",
+      "keyHint": "Drag, or use the arrow keys to move. Hold Shift to move faster."
+    },
+    "portrait": {
+      "ariaLabel": "Presenter portrait",
+      "add": "Add your digital presenter",
+      "addHint": "A clear front-facing photo becomes a talking presenter on your slides. JPEG, PNG or WebP, up to 10 MB.",
+      "replace": "Replace",
+      "removeAria": "Remove portrait",
+      "cardHint": "The picture avatars are lip-synced from. JPEG, PNG or WebP, up to 10 MB.",
+      "cardReplace": "Replace portrait",
+      "cardUpload": "Upload portrait",
+      "cardRemove": "Remove portrait"
+    },
+    "chip": {
+      "failed": "Failed",
+      "audio_stale": "Narration changed",
+      "video_stale": "Out of date",
+      "ready": "Ready",
+      "no_placeholder": "Presenter off",
+      "no_audio": "No narration",
+      "unsupported_audio": "Audio format",
+      "generating": "Generating",
+      "done": "Generated",
+      "uploaded": "Uploaded video",
+      "other_language": "Other language"
+    },
+    "dialog": {
+      "title": "Generate avatars",
+      "lead": "{count} slide will get a lip-synced avatar in | {count} slides will get a lip-synced avatar in",
+      "narrationLanguage": "the narration language",
+      "tail": ", made from the presenter portrait and each slide's narration. Avatars are tied to that language. HeyGen credits are spent for every slide that is not skipped.",
+      "force": "Regenerate slides whose avatar is already up to date",
+      "generate": "Generate"
+    },
+    "deck": {
+      "ariaLabel": "Whole deck avatars",
+      "title": "Whole deck",
+      "generatingDetail": "Generating avatars…",
+      "state": {
+        "generating": "Generating",
+        "notUsed": "Not used yet",
+        "needsUpdate": "Needs update",
+        "toGenerate": "To generate",
+        "upToDate": "Up to date"
+      },
+      "parts": {
+        "outOfDate": "{count} out of date",
+        "failed": "{count} failed",
+        "withoutVideo": "{count} without video"
+      },
+      "noVideoYet": "{count} presenter slide has no video yet. | {count} presenter slides have no video yet.",
+      "currentVideo": "The presenter slide has a current video. | All {count} presenter slides have a current video.",
+      "generateCount": "Generate {count} avatars",
+      "generate": "Generate avatars",
+      "readyText": " · {eligible} of {total} presenter slide ready to generate | · {eligible} of {total} presenter slides ready to generate",
+      "langLead": "Lip-synced to",
+      "langTail": "narration{readyText}.",
+      "progressAria": "Avatar generation progress",
+      "checking": "Checking what this server can generate…",
+      "blocker": {
+        "notSetUp": "Avatar generation isn't set up on this server (it needs OPENROUTER_API_KEY). You can still upload your own videos.",
+        "noPortrait": "Upload a presenter portrait first.",
+        "running": "An avatar generation is already running.",
+        "checkingNarration": "Checking narration…",
+        "noPresenter": "Turn the presenter on for a slide to include it here.",
+        "noNarration": "Presenter slides need up-to-date narration first. Generate it in the Voice tab."
+      },
+      "section": {
+        "summary": "{eligible}/{total} ready",
+        "lead": "Avatars are lip-synced to",
+        "tail": "narration. Change the language in the Voice tab.",
+        "avatars": "Avatars",
+        "readyCount": "{eligible} of {total} placeholder slide is ready to generate. | {eligible} of {total} placeholder slides are ready to generate.",
+        "bubbleHint": "Where the narrator sits on slides without an avatar. Drag it here; it applies to every slide."
+      }
+    },
+    "slides": {
+      "title": "Slides",
+      "withPresenter": "{count} of {total} with presenter",
+      "slide": "Slide {n}",
+      "voiceBubble": "Voice bubble",
+      "noVideo": "No video"
+    },
+    "failure": {
+      "fallback": "Generation failed",
+      "timeout": "Timed out",
+      "internal_error": "Internal error",
+      "invalid_output": "Invalid video returned",
+      "configuration": "HeyGen is not configured",
+      "request_error": "Request failed",
+      "audio_error": "Narration audio could not be read",
+      "unknown": "Unknown error"
+    },
+    "slideBlocker": {
+      "noPlaceholder": "This slide has no avatar placeholder.",
+      "noNarration": "This slide has no narration yet.",
+      "narrationChanged": "This slide narration changed since it was recorded."
+    },
+    "slide": {
+      "ariaLabel": "Slide avatar video",
+      "narrationStale": "Narration changed since it was recorded. Regenerate it first.",
+      "narrationMissing": "This slide has no narration yet. The presenter lip-syncs to it.",
+      "turnOn": "Turn the presenter on to generate a video for this slide.",
+      "presenterOn": "Presenter on this slide",
+      "presenterOnHint": "Replaces the voice bubble here.",
+      "presenterOffHint": "Off: the voice bubble plays here.",
+      "placeholderAria": "Avatar placeholder on slide {n}",
+      "openVoice": "Open Voice",
+      "otherLanguage": "This avatar was recorded for {recorded} narration, so Present and the video export hide it while the deck plays in {deck}. Switch the narration language, or generate or upload one for {deck}.",
+      "generatedAvatar": "Generated avatar",
+      "removeVideoAria": "Remove video from slide {n}",
+      "keptForLater": "Kept for later: this video won't play until the presenter is on.",
+      "noVideo": "No video yet. Generate one from the portrait and this slide's narration, or upload your own.",
+      "generate": "Generate avatar",
+      "replaceVideo": "Replace video",
+      "uploadVideo": "Upload video",
+      "videoFileAria": "Video file for slide {n}"
+    },
+    "overview": {
+      "title": "Avatar generation",
+      "caption": "What an avatar is made from",
+      "requirement": "Requirement",
+      "deck": "Deck",
+      "slide": "Slide {n}",
+      "row": {
+        "portrait": "Portrait",
+        "narration": "Narration",
+        "placeholder": "Placeholder",
+        "video": "Video"
+      },
+      "cell": {
+        "ready": "Ready",
+        "translated": "Translated",
+        "outdated": "Outdated",
+        "missing": "Missing",
+        "added": "Added",
+        "shared": "Shared",
+        "none": "None",
+        "on": "On",
+        "off": "Off",
+        "uploaded": "Uploaded",
+        "otherLanguage": "Other language",
+        "generating": "Generating",
+        "failed": "Failed"
+      },
+      "capability": {
+        "busy": {
+          "label": "Generating",
+          "detail": "Generating avatars…"
+        },
+        "checking": {
+          "label": "Checking…",
+          "detail": "Checking what this server can generate."
+        },
+        "off": {
+          "label": "Not set up",
+          "detail": "Set OPENROUTER_API_KEY on the server to generate avatars. You can still upload your own videos."
+        },
+        "on": {
+          "label": "Available",
+          "detail": "Turns your presenter portrait and each slide's narration into a lip-synced video, generated with HeyGen."
+        }
+      }
+    }
+  },
+  "controls": {
+    "none": "None",
+    "recent": "Recent",
+    "picker": "{label} picker",
+    "hex": "{label} hex",
+    "slider": "{label} slider"
+  },
+  "motion": {
+    "ariaLabel": "Motion",
+    "title": "Motion, with intent.",
+    "intro": "Shape how each element arrives on the slide.",
+    "noSlide": "Select a slide to edit its motion.",
+    "loadError": "Could not load this deck's motion.",
+    "notReady": "Motion for this slide isn't ready yet.",
+    "unsupported": "This slide can't be animated. Motion works on slides built from a template.",
+    "nothingToAnimate": "Nothing to animate on this slide.",
+    "resetNotice": "Your edits were reset because the layout changed.",
+    "dismiss": "Dismiss",
+    "planningSlide": "Planning this slide's motion…",
+    "planningSlideLabel": "Motion planning",
+    "planningDeck": "Planning motion for every slide…",
+    "planningDeckLabel": "Deck motion planning",
+    "stale": {
+      "title": "Layout changed — re-plan",
+      "hint": "This slide's elements changed since its motion was made, so the plan no longer matches them. Re-plan it to edit motion again.",
+      "replan": "Re-plan this slide"
+    },
+    "missing": {
+      "title": "No motion yet",
+      "hint": "Let AI plan how this slide's elements arrive, or start from a sequence below.",
+      "generate": "Generate with AI"
+    },
+    "lockReason": "Unavailable while motion is planned for every slide",
+    "selectedElement": "Selected element",
+    "findEffect": "Find an effect…",
+    "searchEffects": "Search motion effects",
+    "effectsLegend": "Effects",
+    "effectsLegendLocked": "Effects ({reason})",
+    "timingLegend": "Timing",
+    "timingLegendLocked": "Timing ({reason})",
+    "noEffects": "No effects found.",
+    "stillElement": "This element stays still. Pick an effect to animate it.",
+    "custom": "Custom",
+    "none": "None",
+    "start": "Start",
+    "duration": "Duration",
+    "ease": "Ease",
+    "customValues": "Custom values",
+    "fromField": {
+      "opacity": "Opacity",
+      "x": "x",
+      "y": "y",
+      "scale": "Scale",
+      "rotation": "Rotation",
+      "blur": "Blur"
+    },
+    "fromAria": "From {field}",
+    "sequence": {
+      "title": "Whole-slide sequence",
+      "ariaLabel": "Sequence preset",
+      "apply": "Apply a preset…",
+      "cinematic": "Cinematic reveal",
+      "cascade": "Staggered cascade",
+      "subtle": "Soft & subtle",
+      "clear": "Remove all effects"
+    },
+    "regenerate": "Regenerate",
+    "generateAll": "Generate for all slides",
+    "clearPlan": "Clear plan",
+    "replaceDialog": {
+      "title": "Replace your edits?",
+      "description": "You've edited this slide's motion by hand. Regenerating replaces it with a new AI plan.",
+      "replace": "Replace"
+    }
+  },
+  "insert": {
+    "ariaLabel": "Insert",
+    "title": "Insert",
+    "intro": "Click to add to this slide.",
+    "text": "Text",
+    "images": "Images",
+    "shapes": "Shapes",
+    "insertItem": "Insert {label}",
+    "disabled": {
+      "templateOnly": "Insert is available for template slides",
+      "noSlide": "Select a slide to insert into",
+      "busy": "Insert is unavailable while the deck is busy"
+    },
+    "blocks": {
+      "title": "Blocks",
+      "count": "{count} from this template",
+      "loadError": "Couldn't load template blocks",
+      "retry": "Retry",
+      "empty": "This deck's template has no reusable blocks.",
+      "searchAria": "Search blocks",
+      "searchPlaceholder": "Search blocks",
+      "noMatch": "No blocks match “{query}”.",
+      "variants": "{count} variants",
+      "showVariants": "Show variants of {title}"
+    }
+  },
+  "narration": {
+    "progressAria": "Narration progress",
+    "genericError": "Something went wrong",
+    "ready": "Narration is ready",
+    "language": "Narration language",
+    "slide": {
+      "ariaLabel": "Slide voice",
+      "title": "This slide",
+      "state": {
+        "missing": "No audio",
+        "ready": "Up to date",
+        "stale": "Out of date",
+        "translated": "Translated"
+      },
+      "translatedHint": "Translated narration can't be checked against note edits. Regenerate this slide if you changed its note.",
+      "staleNote": "The note changed since this audio was made.",
+      "noteFirst": "Write a note first, then generate its audio.",
+      "audioAria": "Narration for slide {n}",
+      "generating": "Generating audio…",
+      "regenerate": "Regenerate audio",
+      "generate": "Generate audio"
+    },
+    "deck": {
+      "ariaLabel": "Whole deck",
+      "title": "Whole deck",
+      "narratedCount": "{narrated}/{total} narrated",
+      "generating": "Generating narration…",
+      "counts": "{upToDate} up to date · {outOfDate} out of date · {withoutAudio} without audio",
+      "delete": "Delete narration",
+      "generateNotes": "Generate all notes",
+      "generate": "Generate narration",
+      "deleteTitle": "Delete narration?",
+      "deleteDescription": "This removes the recorded audio for this language. Speaker notes are kept."
+    }
+  },
+  "element": {
+    "list": {
+      "marker": "Marker",
+      "bullet": "Bullet",
+      "number": "Number",
+      "none": "None"
+    },
+    "line": {
+      "colour": "Colour",
+      "width": "Width",
+      "none": "None",
+      "markerList": "{end} marker",
+      "swap": "Swap ends",
+      "dash": {
+        "title": "Dash",
+        "solid": "Solid",
+        "dashed": "Dashed",
+        "dotted": "Dotted"
+      },
+      "ends": {
+        "title": "Line ends",
+        "start": "Start",
+        "end": "End"
+      },
+      "title": "Line"
+    },
+    "video": {
+      "title": "Video",
+      "preview": "Video preview",
+      "loading": "Loading video…",
+      "empty": "No video on this slide yet. Generate or upload one below.",
+      "generatedAvatar": "Generated avatar",
+      "uploaded": "Uploaded video"
+    },
+    "arrange": {
+      "title": "Arrange",
+      "group": "Group",
+      "groupShortcut": "Group (Ctrl+G)",
+      "ungroup": "Ungroup",
+      "ungroupShortcut": "Ungroup (Shift+Ctrl+G)",
+      "duplicate": "Duplicate",
+      "duplicateShortcut": "Duplicate (Ctrl+D)",
+      "copy": "Copy",
+      "copyShortcut": "Copy (Ctrl+C)",
+      "deleteShortcut": "Delete (Del)"
+    },
+    "order": {
+      "title": "Layer order",
+      "front": {
+        "label": "Bring to front",
+        "short": "Front"
+      },
+      "up": {
+        "label": "Bring forward",
+        "short": "Up"
+      },
+      "down": {
+        "label": "Send backward",
+        "short": "Down"
+      },
+      "back": {
+        "label": "Send to back",
+        "short": "Back"
+      }
+    },
+    "layout": {
+      "title": "Layout",
+      "gap": "Gap",
+      "items": "Items",
+      "addItem": "Add item",
+      "removeItem": "Remove last item",
+      "fill": "Fill",
+      "fillColour": "Fill colour",
+      "fillOpacity": "Fill opacity",
+      "stroke": "Stroke",
+      "strokeColour": "Stroke colour",
+      "strokeWidth": "Stroke width",
+      "strokeOpacity": "Stroke opacity",
+      "cornerRadius": "Corner radius",
+      "alignment": "Alignment",
+      "paddingX": "Padding X",
+      "paddingY": "Padding Y",
+      "alignCell": "{h} {v}",
+      "align": {
+        "left": "Left",
+        "center": "Center",
+        "right": "Right",
+        "top": "Top",
+        "middle": "Middle",
+        "bottom": "Bottom"
+      }
+    },
+    "text": {
+      "typography": "Typography",
+      "fontFamily": "Font family",
+      "fontSize": "Font size",
+      "color": "Color",
+      "colourValue": "Colour {value}",
+      "customColour": "Custom colour",
+      "alignment": "Alignment",
+      "lineHeight": "Line height",
+      "align": {
+        "left": "Align left",
+        "center": "Align center",
+        "right": "Align right",
+        "justify": "Justify"
+      },
+      "mark": {
+        "bold": "Bold",
+        "italic": "Italic",
+        "underline": "Underline"
+      },
+      "markTitle": {
+        "bold": "Bold (Ctrl+B)",
+        "italic": "Italic (Ctrl+I)",
+        "underline": "Underline (Ctrl+U)"
+      }
+    },
+    "table": {
+      "title": "Table",
+      "cell": "Cell",
+      "cellBackground": "Cell background",
+      "alignment": "Alignment",
+      "cellAlignment": "Cell alignment",
+      "addRow": "Add row",
+      "addColumn": "Add column",
+      "deleteRow": "Delete row",
+      "deleteColumn": "Delete column",
+      "moveLeft": "Move column left",
+      "moveRight": "Move column right",
+      "align": {
+        "left": "Cell align left",
+        "center": "Cell align center",
+        "right": "Cell align right"
+      },
+      "why": {
+        "headerRow": "The header row can't be deleted",
+        "selectRow": "Select a cell to delete its row",
+        "minRows": "Tables need at least {count} rows",
+        "selectColumn": "Select a cell to delete its column",
+        "minCols": "Tables need at least {count} column | Tables need at least {count} columns",
+        "selectMove": "Select a cell to move its column",
+        "firstColumn": "This is the first column",
+        "lastColumn": "This is the last column",
+        "maxRows": "Tables have at most {count} rows",
+        "maxCols": "Tables have at most {count} columns"
+      }
+    },
+    "shape": {
+      "title": "Shape",
+      "fill": "Fill",
+      "fillColour": "Fill colour",
+      "opacity": "Opacity",
+      "stroke": "Stroke",
+      "strokeColour": "Stroke colour",
+      "width": "Width",
+      "cornerRadius": "Corner radius",
+      "dash": {
+        "title": "Dash",
+        "solid": "Solid",
+        "dashed": "Dashed",
+        "dotted": "Dotted"
+      },
+      "curve": {
+        "title": "Curve",
+        "none": "Sharp",
+        "smooth": "Smooth"
+      }
+    },
+    "image": {
+      "title": "Image",
+      "previewAria": "Image preview, click to replace",
+      "replace": "Replace image",
+      "replaceButton": "Replace",
+      "fitTitle": "Fit",
+      "fit": {
+        "cover": "Cover",
+        "contain": "Contain",
+        "fill": "Fill"
+      },
+      "focusTitle": "Crop focus",
+      "adjustFocus": "Adjust focus",
+      "focusAria": "Focus {position}",
+      "focus": {
+        "topLeft": "top left",
+        "top": "top",
+        "topRight": "top right",
+        "left": "left",
+        "center": "center",
+        "right": "right",
+        "bottomLeft": "bottom left",
+        "bottom": "bottom",
+        "bottomRight": "bottom right"
+      }
+    },
+    "icon": {
+      "title": "Icon",
+      "colour": "Icon colour",
+      "change": "Change icon",
+      "removed": "The icon was removed from the slide."
+    },
+    "layers": {
+      "tree": "Slide layers",
+      "empty": "This slide is empty.",
+      "collapse": "Collapse {label}",
+      "expand": "Expand {label}"
+    },
+    "children": {
+      "selected": "Selected",
+      "contains": "Contains",
+      "path": "Selection path",
+      "slide": "Slide"
+    },
+    "swatches": {
+      "colourAria": "Chart colour {n}",
+      "add": "Add chart colour",
+      "remove": "Remove chart colour",
+      "removeLast": "Remove the last chart colour"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "rotation": "Rotation",
+      "rotateLeft": "Rotate -90°",
+      "rotateRight": "Rotate +90°",
+      "flip": "Flip",
+      "flipH": "Flip H",
+      "flipHTitle": "Flip horizontally",
+      "flipV": "Flip V",
+      "flipVTitle": "Flip vertically",
+      "opacity": "Opacity",
+      "cornerRadius": "Corner radius",
+      "shadow": "Shadow",
+      "shadowColour": "Shadow colour",
+      "blur": "Blur",
+      "offsetX": "X",
+      "offsetY": "Y",
+      "shadowX": "Shadow X",
+      "shadowY": "Shadow Y",
+      "shadowOpacity": "Shadow opacity"
+    },
+    "infographic": {
+      "title": "Infographic",
+      "value": "Value",
+      "min": "Min",
+      "max": "Max",
+      "items": "Items",
+      "addItem": "Add item",
+      "removeItem": "Remove last item",
+      "editItems": "Edit items…",
+      "colours": "Colours",
+      "colourN": "Colour {n}",
+      "textColour": "Text colour"
+    },
+    "chart": {
+      "title": "Chart",
+      "type": "Chart type",
+      "data": "Data",
+      "noData": "No data",
+      "moreRows": "+{count} more",
+      "moreSeparator": ", ",
+      "moreSeries": "+{count} more series",
+      "editData": "Edit data",
+      "colours": "Colours",
+      "titleSection": "Title",
+      "titleAria": "Chart title",
+      "noTitle": "No title",
+      "colour": "Colour",
+      "titleColour": "Title colour",
+      "axes": "Axes",
+      "categories": "Categories",
+      "xAxis": "X axis",
+      "xAxisTitle": "X axis title",
+      "values": "Values",
+      "yAxis": "Y axis",
+      "yAxisTitle": "Y axis title",
+      "categoryLabels": "Category labels",
+      "spokes": "Spokes",
+      "showAxis": "Show axis",
+      "showGrid": "Show grid",
+      "valueLabels": "Value labels",
+      "rings": "Rings",
+      "legend": "Legend",
+      "showLegend": "Show legend",
+      "legendColour": "Legend colour",
+      "dataLabels": "Data labels",
+      "labelPos": {
+        "off": "Off",
+        "base": "Base",
+        "mid": "Middle",
+        "top": "Top",
+        "outside": "Outside"
+      },
+      "frame": "Frame",
+      "axisColour": "Axis colour",
+      "gridColour": "Grid colour"
+    },
+    "chartData": {
+      "title": "Edit chart data",
+      "description": "Changes preview on the slide. Done applies them as one edit.",
+      "category": "Category",
+      "seriesName": "Series {n} name",
+      "seriesActions": "Series {n} actions",
+      "moveLeft": "Move left",
+      "moveRight": "Move right",
+      "deleteSeries": "Delete series",
+      "deleteRow": "Delete row {n}",
+      "categoryName": "Category {n}",
+      "valueAria": "Value {row},{col}",
+      "addRow": "Add row",
+      "addSeries": "Add series",
+      "done": "Done"
+    },
+    "itemsDialog": {
+      "title": "Edit items",
+      "description": "Description",
+      "valueAria": "Value {n}",
+      "valuePlaceholder": "Value",
+      "changeIcon": "Change icon {n}",
+      "changeIconTitle": "Change icon",
+      "headingAria": "Heading {n}",
+      "heading": "Heading",
+      "descriptionAria": "Description {n}",
+      "moveUp": "Move item {n} up",
+      "moveDown": "Move item {n} down",
+      "deleteItem": "Delete item {n}",
+      "addItem": "Add item",
+      "done": "Done"
+    },
+    "iconPicker": {
+      "title": "Change icon",
+      "description": "Search for an icon and choose its weight.",
+      "searchAria": "Search icons",
+      "weightAria": "Icon weight",
+      "weight": {
+        "thin": "Thin",
+        "light": "Light",
+        "regular": "Regular",
+        "bold": "Bold",
+        "fill": "Fill",
+        "duotone": "Duotone"
+      },
+      "searchFailed": "Failed to search icons.",
+      "retry": "Retry",
+      "searching": "Searching...",
+      "noIcons": "No icons for \"{query}\"",
+      "iconN": "Icon {n}",
+      "replace": "Replace"
+    }
+  }
+}

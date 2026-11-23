@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { normalizeSelection, sameSelection, type LayerNode } from '@/slide-editor/layerTree'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
 import LayerRow from './LayerRow.vue'
+
+const { t } = useI18n()
 
 /** Everything on the slide; containers start collapsed and expand on demand. */
 const props = defineProps<{ nodes: LayerNode[] }>()
@@ -70,7 +73,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="root" role="tree" aria-label="Slide layers" class="-mx-2 flex flex-col">
+  <div ref="root" :aria-label="t('editorInspector.element.layers.tree')" role="tree" class="-mx-2 flex flex-col">
     <div v-for="(row, i) in rows" :key="row.node.key" role="treeitem" :aria-level="row.depth + 1" @keydown="onKeydown($event, i)">
       <LayerRow
         :node="row.node"
@@ -83,6 +86,6 @@ onBeforeUnmount(() => {
         @hover="hover(row.node, $event)"
       />
     </div>
-    <p v-if="rows.length === 0" class="px-2 text-[10px] text-tx-a0abb1">This slide is empty.</p>
+    <p v-if="rows.length === 0" class="px-2 text-[10px] text-tx-a0abb1">{{ t('editorInspector.element.layers.empty') }}</p>
   </div>
 </template>

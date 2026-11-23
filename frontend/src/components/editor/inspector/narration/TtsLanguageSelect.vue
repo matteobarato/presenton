@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { TtsLanguage } from '@/api/tts'
+
+const { t } = useI18n()
 
 defineProps<{ languages: TtsLanguage[]; modelValue: string; disabled?: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [code: string] }>()
@@ -7,7 +10,7 @@ const emit = defineEmits<{ 'update:modelValue': [code: string] }>()
 
 <template>
   <label class="flex items-center gap-3 text-[11px] text-muted">
-    <span class="flex-none whitespace-nowrap">Narration language</span>
+    <span class="flex-none whitespace-nowrap">{{ t('editorInspector.narration.language') }}</span>
     <select
       :value="modelValue"
       :disabled="disabled || languages.length === 0"

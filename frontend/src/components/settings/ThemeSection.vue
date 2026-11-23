@@ -1,21 +1,23 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { Monitor, Moon, Sun } from 'lucide-vue-next'
 import { useTheme, type ThemePreference } from '@/composables/useTheme'
 
+const { t } = useI18n()
 const { preference, setPreference } = useTheme()
 
-const OPTIONS: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'system', label: 'System', icon: Monitor },
+const OPTIONS: { value: ThemePreference; icon: typeof Sun }[] = [
+  { value: 'dark', icon: Moon },
+  { value: 'light', icon: Sun },
+  { value: 'system', icon: Monitor },
 ]
 </script>
 
 <template>
   <div class="grid gap-3 rounded-[11px] bg-inspector p-4" data-testid="theme-section">
     <div>
-      <h3 id="theme-label" class="text-[13px] font-medium text-foreground">Appearance</h3>
-      <p class="mt-1 text-[11px] text-muted-foreground">Choose a theme, or follow your device. Saved on this device.</p>
+      <h3 id="theme-label" class="text-[13px] font-medium text-foreground">{{ t('settings.theme.title') }}</h3>
+      <p class="mt-1 text-[11px] text-muted-foreground">{{ t('settings.theme.hint') }}</p>
     </div>
     <div role="radiogroup" aria-labelledby="theme-label" class="inline-grid grid-cols-3 gap-1 rounded-[10px] bg-field p-1">
       <button
@@ -27,7 +29,7 @@ const OPTIONS: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
         class="flex items-center justify-center gap-2 rounded-[8px] px-4 py-2 text-[12px] font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground aria-checked:bg-accent aria-checked:text-accent-ink"
         @click="setPreference(o.value)"
       >
-        <component :is="o.icon" class="size-3.5 stroke-[1.75]" aria-hidden="true" />{{ o.label }}
+        <component :is="o.icon" class="size-3.5 stroke-[1.75]" aria-hidden="true" />{{ t(`settings.theme.options.${o.value}`) }}
       </button>
     </div>
   </div>

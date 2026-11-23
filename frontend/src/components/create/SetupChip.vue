@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, type Component } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { ChevronDown } from 'lucide-vue-next'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+const { t } = useI18n()
 
 /**
  * One setting on the chip row: a button showing the current value that opens its controls. From 560px it is a popover
@@ -46,7 +48,7 @@ const aria = computed(() => (props.value.startsWith(props.label) ? props.value :
       <div class="flex flex-col gap-4" :data-testid="`${testid}-panel`"><slot /></div>
       <!-- Closing in the thumb zone: the X is out of reach at the top. -->
       <div class="sticky -bottom-5 -mx-5 -mb-5 mt-1 bg-inspector px-5 pt-2 pb-5">
-        <SheetClose as-child><button type="button" class="h-11 w-full rounded-button bg-accent text-[12px] font-semibold text-accent-ink" data-testid="chip-done">Done</button></SheetClose>
+        <SheetClose as-child><button type="button" class="h-11 w-full rounded-button bg-accent text-[12px] font-semibold text-accent-ink" data-testid="chip-done">{{ t('create.done') }}</button></SheetClose>
       </div>
     </SheetContent>
   </Sheet>

@@ -1,4 +1,5 @@
 // Ported from servers/nextjs/utils/storeHelpers.ts
+import { i18n } from '@/i18n'
 import { isSupportedCodexModel } from './codexModels'
 import { isProvided, normaliseConfig } from './normalise'
 import type { ProviderConfig, SettingsSection } from './types'
@@ -8,9 +9,10 @@ export interface ConfigIssue {
   section: Exclude<SettingsSection, 'account'>
 }
 
-const text = (message: string): ConfigIssue => ({ message, section: 'text' })
-const images = (message: string): ConfigIssue => ({ message, section: 'images' })
-const webSearch = (message: string): ConfigIssue => ({ message, section: 'web-search' })
+// Messages are looked up when the issue is built, so they follow the current UI locale.
+const text = (key: string): ConfigIssue => ({ message: i18n.global.t(key), section: 'text' })
+const images = (key: string): ConfigIssue => ({ message: i18n.global.t(key), section: 'images' })
+const webSearch = (key: string): ConfigIssue => ({ message: i18n.global.t(key), section: 'web-search' })
 
 function trimmed(value: unknown): unknown {
   return typeof value === 'string' ? value.trim() : value
@@ -21,7 +23,7 @@ export function validateConfig(input: ProviderConfig): ConfigIssue | null {
   const config = normaliseConfig(input)
 
   if (!config.LLM) {
-    return text('Select a text provider.')
+    return text('settings.validate.noProvider')
   }
 
   const llm = config.LLM
@@ -34,183 +36,183 @@ export function validateConfig(input: ProviderConfig): ConfigIssue | null {
     isProvided(maxOutputTokens) &&
     (typeof maxOutputTokens !== 'number' || !Number.isInteger(maxOutputTokens) || maxOutputTokens <= 0)
   ) {
-    return text('Max output tokens must be a whole number greater than zero.')
+    return text('settings.validate.maxOutputTokens')
   }
 
   if (!config.DISABLE_IMAGE_GENERATION && !config.IMAGE_PROVIDER) {
-    return images('Select an image provider, or turn off image generation.')
+    return images('settings.validate.noImageProvider')
   }
 
   if (llm === 'openai') {
     if (!isProvided(config.OPENAI_API_KEY)) {
-      return text('OpenAI API key is required.')
+      return text('settings.validate.openaiKey')
     }
     if (!isProvided(config.OPENAI_MODEL)) {
-      return text('Enter or select an OpenAI chat model ID on the Text Provider tab.')
+      return text('settings.validate.openaiModel')
     }
   } else if (llm === 'deepseek') {
     if (!isProvided(config.DEEPSEEK_API_KEY)) {
-      return text('DeepSeek API key is required.')
+      return text('settings.validate.deepseekKey')
     }
     if (!isProvided(config.DEEPSEEK_MODEL)) {
-      return text('Enter or select a DeepSeek model ID.')
+      return text('settings.validate.deepseekModel')
     }
   } else if (llm === 'google') {
     if (!isProvided(config.GOOGLE_API_KEY)) {
-      return text('Google API key is required.')
+      return text('settings.validate.googleKey')
     }
     if (!isProvided(config.GOOGLE_MODEL)) {
-      return text('Enter or select a Google model ID.')
+      return text('settings.validate.googleModel')
     }
   } else if (llm === 'vertex') {
     const hasApiKey = isProvided(config.VERTEX_API_KEY)
     const hasProject = isProvided(config.VERTEX_PROJECT)
     const hasLocation = isProvided(config.VERTEX_LOCATION)
     if (!hasApiKey && !hasProject) {
-      return text('Vertex AI requires either a Vertex API key or a GCP project.')
+      return text('settings.validate.vertexRequiresAuth')
     }
     if (hasApiKey && (hasProject || hasLocation)) {
-      return text('Use either Vertex API key mode or project/location mode, not both.')
+      return text('settings.validate.vertexOneMode')
     }
     if (!isProvided(config.VERTEX_MODEL)) {
-      return text('Vertex model is required.')
+      return text('settings.validate.vertexModel')
     }
   } else if (llm === 'azure') {
     if (!isProvided(config.AZURE_OPENAI_API_KEY)) {
-      return text('Azure OpenAI API key is required.')
+      return text('settings.validate.azureKey')
     }
     if (!isProvided(config.AZURE_OPENAI_ENDPOINT)) {
-      return text('Azure endpoint is required.')
+      return text('settings.validate.azureEndpoint')
     }
     if (!isProvided(config.AZURE_OPENAI_API_VERSION)) {
-      return text('Azure OpenAI API version is required.')
+      return text('settings.validate.azureApiVersion')
     }
     if (!isProvided(config.AZURE_OPENAI_MODEL)) {
-      return text('Azure model name is required.')
+      return text('settings.validate.azureModel')
     }
   } else if (llm === 'bedrock') {
     if (!isProvided(config.BEDROCK_MODEL)) {
-      return text('Bedrock model is required.')
+      return text('settings.validate.bedrockModel')
     }
     const hasApiKey = isProvided(config.BEDROCK_API_KEY)
     const hasAwsAccess = isProvided(config.BEDROCK_AWS_ACCESS_KEY_ID)
     const hasAwsSecret = isProvided(config.BEDROCK_AWS_SECRET_ACCESS_KEY)
     if (!hasApiKey && !(hasAwsAccess && hasAwsSecret)) {
-      return text('Provide Bedrock API key, or AWS access key ID + secret key.')
+      return text('settings.validate.bedrockAuth')
     }
   } else if (llm === 'openrouter') {
     if (!isProvided(config.OPENROUTER_API_KEY)) {
-      return text('OpenRouter API key is required.')
+      return text('settings.validate.openrouterKey')
     }
     if (!isProvided(config.OPENROUTER_MODEL)) {
-      return text('Select or enter an OpenRouter model id.')
+      return text('settings.validate.openrouterModel')
     }
   } else if (llm === 'cerebras') {
     if (!isProvided(config.CEREBRAS_API_KEY)) {
-      return text('Cerebras API key is required.')
+      return text('settings.validate.cerebrasKey')
     }
     if (!isProvided(config.CEREBRAS_MODEL)) {
-      return text('Select or enter a Cerebras model id.')
+      return text('settings.validate.cerebrasModel')
     }
   } else if (llm === 'fireworks') {
     if (!isProvided(config.FIREWORKS_API_KEY)) {
-      return text('Fireworks API key is required.')
+      return text('settings.validate.fireworksKey')
     }
     if (!isProvided(config.FIREWORKS_MODEL)) {
-      return text('Select or enter a Fireworks model id.')
+      return text('settings.validate.fireworksModel')
     }
   } else if (llm === 'together') {
     if (!isProvided(config.TOGETHER_API_KEY)) {
-      return text('Together API key is required.')
+      return text('settings.validate.togetherKey')
     }
     if (!isProvided(config.TOGETHER_MODEL)) {
-      return text('Select or enter a Together model id.')
+      return text('settings.validate.togetherModel')
     }
   } else if (llm === 'anthropic') {
     if (!isProvided(config.ANTHROPIC_API_KEY)) {
-      return text('Anthropic API key is required.')
+      return text('settings.validate.anthropicKey')
     }
     if (!isProvided(config.ANTHROPIC_MODEL)) {
-      return text('Enter or select an Anthropic model ID.')
+      return text('settings.validate.anthropicModel')
     }
   } else if (llm === 'ollama') {
     if (!isProvided(trimmed(config.OLLAMA_URL))) {
       return text(
-        'Ollama URL is required. Enter your Ollama server URL, or click "Check models" to fill the reachable default.',
+        'settings.validate.ollamaUrl',
       )
     }
     if (!isProvided(config.OLLAMA_MODEL)) {
-      return text('Select an Ollama model. If none appear, confirm Ollama is running and reachable.')
+      return text('settings.validate.ollamaModel')
     }
   } else if (llm === 'custom') {
     if (!isProvided(config.CUSTOM_LLM_URL)) {
-      return text('Enter your custom LLM endpoint URL (OpenAI-compatible).')
+      return text('settings.validate.customUrl')
     }
     if (!isProvided(config.CUSTOM_MODEL)) {
-      return text('Enter a model ID or alias for your custom endpoint.')
+      return text('settings.validate.customModel')
     }
   } else if (llm === 'litellm') {
     if (!isProvided(config.LITELLM_BASE_URL)) {
-      return text('LiteLLM base URL is required.')
+      return text('settings.validate.litellmUrl')
     }
     if (!isProvided(config.LITELLM_MODEL)) {
-      return text('Enter or select a LiteLLM model ID or alias.')
+      return text('settings.validate.litellmModel')
     }
   } else if (llm === 'lmstudio') {
     if (!isProvided(config.LMSTUDIO_MODEL)) {
-      return text('Enter or select an LM Studio model ID.')
+      return text('settings.validate.lmstudioModel')
     }
   } else if (llm === 'codex' || llm === 'chatgpt') {
     if (!isProvided(config.CODEX_MODEL)) {
-      return text('Select a Codex model.')
+      return text('settings.validate.codexModel')
     }
     if (!isSupportedCodexModel(config.CODEX_MODEL)) {
-      return text('Select a supported Codex model.')
+      return text('settings.validate.codexSupported')
     }
   } else {
-    return text('Unsupported or unknown text provider.')
+    return text('settings.validate.unsupported')
   }
 
   if (!config.DISABLE_IMAGE_GENERATION) {
     switch (config.IMAGE_PROVIDER) {
       case 'pexels':
         if (!isProvided(config.PEXELS_API_KEY)) {
-          return images('Pexels API key is required.')
+          return images('settings.validate.pexelsKey')
         }
         break
       case 'pixabay':
         if (!isProvided(config.PIXABAY_API_KEY)) {
-          return images('Pixabay API key is required.')
+          return images('settings.validate.pixabayKey')
         }
         break
       case 'dall-e-3':
         if (!isProvided(config.OPENAI_API_KEY)) {
-          return images('OpenAI API key is required for DALL·E 3.')
+          return images('settings.validate.dalleKey')
         }
         break
       case 'gpt-image-1.5':
         if (!isProvided(config.OPENAI_API_KEY)) {
-          return images('OpenAI API key is required for GPT Image 1.5.')
+          return images('settings.validate.gptImageKey')
         }
         break
       case 'gemini_flash':
         if (!isProvided(config.GOOGLE_API_KEY)) {
-          return images('Google API key is required for Gemini Flash image generation.')
+          return images('settings.validate.geminiKey')
         }
         break
       case 'nanobanana_pro':
         if (!isProvided(config.GOOGLE_API_KEY)) {
-          return images('Google API key is required for NanoBanana Pro.')
+          return images('settings.validate.nanobananaKey')
         }
         break
       case 'comfyui':
         if (!isProvided(config.COMFYUI_URL)) {
-          return images('ComfyUI server URL is required.')
+          return images('settings.validate.comfyuiUrl')
         }
         break
       case 'open_webui':
         if (!isProvided(config.OPEN_WEBUI_IMAGE_URL)) {
-          return images('Open WebUI URL is required.')
+          return images('settings.validate.openWebuiUrl')
         }
         break
       case 'openai_compatible':
@@ -219,43 +221,43 @@ export function validateConfig(input: ProviderConfig): ConfigIssue | null {
           !isProvided(trimmed(config.OPENAI_COMPAT_IMAGE_API_KEY)) ||
           !isProvided(trimmed(config.OPENAI_COMPAT_IMAGE_MODEL))
         ) {
-          return images('OpenAI-compatible image API requires base URL, API key, and model.')
+          return images('settings.validate.compatibleImage')
         }
         break
       default:
-        return images('Select a valid image provider.')
+        return images('settings.validate.invalidImage')
     }
   }
 
   if (config.WEB_GROUNDING) {
     if (!isProvided(config.WEB_SEARCH_PROVIDER)) {
-      return webSearch('Select a web search provider, or turn off web search.')
+      return webSearch('settings.validate.noWebSearch')
     }
     switch (config.WEB_SEARCH_PROVIDER) {
       case 'searxng':
         if (!isProvided(config.SEARXNG_BASE_URL)) {
-          return webSearch('SearXNG base URL is required.')
+          return webSearch('settings.validate.searxngUrl')
         }
         break
       case 'tavily':
         if (!isProvided(config.TAVILY_API_KEY)) {
-          return webSearch('Tavily API key is required.')
+          return webSearch('settings.validate.tavilyKey')
         }
         break
       case 'exa':
         if (!isProvided(config.EXA_API_KEY)) {
-          return webSearch('Exa API key is required.')
+          return webSearch('settings.validate.exaKey')
         }
         break
       case 'brave':
         if (!isProvided(config.BRAVE_SEARCH_API_KEY)) {
-          return webSearch('Brave Search API key is required.')
+          return webSearch('settings.validate.braveKey')
         }
         break
       case 'auto':
         break
       default:
-        return webSearch('Select a valid web search provider.')
+        return webSearch('settings.validate.invalidWebSearch')
     }
   }
 

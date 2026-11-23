@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowRight, Pencil, Play, UserRound } from 'lucide-vue-next'
@@ -14,6 +15,7 @@ import { usePresentationStream } from '@/composables/usePresentationStream'
 import { usePlanMotionAfterGeneration } from '@/composables/usePlanMotionAfterGeneration'
 import SlideView from '@/render/SlideView.vue'
 import SlideLightbox from './SlideLightbox.vue'
+const { t } = useI18n()
 
 /**
  * Step 4: watch the slides arrive (`?stream=1`), then look them over. Thumbnails open a lightbox; tuning a
@@ -62,7 +64,7 @@ const total = computed(() =>
 )
 const pending = computed(() => (streaming.value ? Math.max(0, total.value - slides.value.length) : 0))
 const generatingLabel = computed(() =>
-  slides.value.length >= total.value ? 'Finishing up…' : `Generating slide ${slides.value.length + 1} of ${total.value}…`,
+  slides.value.length >= total.value ? t('create.preview.finishing') : t('create.preview.generating', { current: slides.value.length + 1, total: total.value }),
 )
 const showMetrics = computed(() => streamFlag.value || streaming.value)
 
@@ -76,17 +78,14 @@ function openSlide(i: number, e: MouseEvent) {
 const restoreFocus = () => opener?.focus()
 
 // ── Footer ──
-const streamError = computed(() =>
-  status.value === 'error' ? 'Slide generation stopped before all slides were made. Choose Retry to try again.' : null,
-)
+const streamError = computed(() => (status.value === 'error' ? t('create.preview.streamError') : null))
 const footerStatus = computed(() => {
-  if (streaming.value) return `${generatingLabel.value} Other actions open when it finishes.`
-  if (!slides.value.length) return status.value === 'error' ? 'Retry to generate the slides' : 'No slides yet. Go back to the outline to generate them.'
+  if (streaming.value) return t('create.preview.footerStreaming', { label: generatingLabel.value })
+  if (!slides.value.length) return status.value === 'error' ? t('create.preview.footerRetry') : t('create.preview.footerNoSlides')
   const n = slides.value.length
-  return `${n} ${n === 1 ? 'slide' : 'slides'} ready`
+  return t('create.preview.footerReady', { count: n }, n)
 })
 /** Why Skip to Export is safe: narration can be added later (the editor has the same narration and presenter tools). */
-const SKIP_REASON = 'Narration is optional: you can narrate later from the editor.'
 const canContinue = computed(() => !streaming.value && slides.value.length > 0)
 
 /** Leaves Preview: the stream flag belongs to this step only. */
@@ -98,9 +97,9 @@ function go(step: DeckStepKey) {
 // Secondary actions: buttons beside the primary on wide screens, the More menu on phones. Narration is recommended: one
 // primary, and Export stays a quiet text link past it.
 const actions = computed<FooterAction[]>(() => [
-  { key: 'present', label: 'Present', icon: Play, to: { name: 'present', params: { id: id.value } }, disabled: streaming.value },
-  { key: 'edit', label: 'Edit slides', icon: Pencil, variant: 'outline', onSelect: editSlides, disabled: streaming.value },
-  { key: 'skip', label: 'Skip to Export', link: true, testid: 'skip-to-export', onSelect: () => go('export'), disabled: !canContinue.value },
+  { key: 'present', label: t('create.actions.present'), icon: Play, to: { name: 'present', params: { id: id.value } }, disabled: streaming.value },
+  { key: 'edit', label: t('create.actions.editSlides'), icon: Pencil, variant: 'outline', onSelect: editSlides, disabled: streaming.value },
+  { key: 'skip', label: t('create.skipToExport'), link: true, testid: 'skip-to-export', onSelect: () => go('export'), disabled: !canContinue.value },
 ])
 function editSlides() {
   void router.push({ name: 'editor', params: { id: id.value } })
@@ -114,8 +113,8 @@ function editSlides() {
       <AiProgress
         v-if="planning"
         class="mx-auto w-full max-w-[520px]"
-        stage="Planning motion for every slide…"
-        label="Deck motion planning"
+        :stage="t('create.preview.planning')"
+        :label="t('create.preview.motionLabel')"
         :expected-ms="60_000"
       />
     </Transition>
@@ -125,7 +124,7 @@ function editSlides() {
         <button
           type="button"
           class="group relative block overflow-hidden rounded-[9px] border border-ov/[0.07] bg-sx-101416 p-0 text-left transition-colors duration-200 hover:border-lx-7f9fab focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
-          :aria-label="`Open slide ${i + 1}`"
+          :aria-label="t('create.preview.openSlide', { n: i + 1 })"
           @click="openSlide(i, $event)"
         >
           <SlideView
@@ -141,7 +140,7 @@ function editSlides() {
             class="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-sx-0c1114d9 px-2 py-0.5 text-[12px] font-medium text-tx-d4dee3 backdrop-blur-sm"
             data-testid="presenter-marker"
           >
-            <UserRound class="size-3" aria-hidden="true" />Presenter
+            <UserRound class="size-3" aria-hidden="true" />{{ t('create.preview.presenterMarker') }}
           </span>
         </button>
         <span class="px-0.5 text-[12px] text-tx-899296 tabular-nums" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
@@ -151,7 +150,7 @@ function editSlides() {
         <span class="px-0.5 text-[12px] text-tx-7b878d tabular-nums">{{ String(slides.length + n).padStart(2, '0') }}</span>
       </li>
     </ol>
-    <p v-if="canContinue" class="text-[12px] leading-[1.6] text-tx-a9b8c0" data-testid="skip-reason">{{ SKIP_REASON }}</p>
+    <p v-if="canContinue" class="text-[12px] leading-[1.6] text-tx-a9b8c0" data-testid="skip-reason">{{ t('create.narration.skipReason') }}</p>
   </div>
 
   <SlideLightbox
@@ -167,7 +166,7 @@ function editSlides() {
   <WizardStepFooter :status="footerStatus" :error="streamError" :busy="streaming" :back-disabled="streaming" :actions="actions" @retry="retry">
     <template #primary>
       <Button type="button" data-testid="continue-narration" :disabled="!canContinue" @click="go('avatar')">
-        Continue to Narration<ArrowRight class="size-4" aria-hidden="true" />
+        {{ t('create.preview.continueToNarration') }}<ArrowRight class="size-4" aria-hidden="true" />
       </Button>
     </template>
   </WizardStepFooter>

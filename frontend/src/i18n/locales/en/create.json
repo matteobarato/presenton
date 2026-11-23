@@ -1,0 +1,367 @@
+{
+  "steps": {
+    "topic": "Topic",
+    "presenter": "Presenter",
+    "outline": "Outline",
+    "preview": "Preview",
+    "avatar": "Narration",
+    "export": "Export"
+  },
+  "stepState": {
+    "completed": "Completed",
+    "inProgress": "In progress"
+  },
+  "done": "Done",
+  "skipToExport": "Skip to Export",
+  "actions": {
+    "present": "Present",
+    "editSlides": "Edit slides",
+    "openInEditor": "Open in editor",
+    "backToLibrary": "Back to library",
+    "retry": "Retry"
+  },
+  "chips": {
+    "deckSettings": "Deck settings",
+    "language": "Language",
+    "languageHint": "What language the slides are written in",
+    "lengthMedia": "Length & media",
+    "lengthMediaHint": "How long the deck is and what goes on the slides",
+    "style": "Style",
+    "styleHint": "How it sounds and how much text each slide carries",
+    "extras": "Extras",
+    "extrasHint": "Optional additions and instructions for the writer",
+    "extrasValue": "Extras: {summary}"
+  },
+  "summary": {
+    "autoLength": "Auto length",
+    "slides": "{count} slide | {count} slides",
+    "autoImages": "Auto images",
+    "noImages": "No images",
+    "withImages": "{count} with images",
+    "tone": "Tone: {tone}",
+    "textPerSlide": "Text per slide: {level}",
+    "none": "None",
+    "titleSlide": "Title slide",
+    "contents": "Contents",
+    "webSearch": "Web search",
+    "animated": "Animated",
+    "instructions": "Instructions",
+    "photoSet": "Photo set",
+    "photoNeeded": "Photo needed",
+    "voiceOnly": "Voice only",
+    "presenterNone": "No presenter videos requested, so the photo will not be used on any slide.",
+    "presenterAdds": "Adds {count} presenter video at the Narration step | Adds {count} presenter videos at the Narration step",
+    "presenterAuto": "Presenter videos are rendered at the Narration step. The writer and template decide how many slides get one."
+  },
+  "tones": {
+    "default": "Default",
+    "casual": "Casual",
+    "professional": "Professional",
+    "funny": "Funny",
+    "educational": "Educational",
+    "salesPitch": "Sales pitch"
+  },
+  "verbosity": {
+    "concise": {
+      "label": "Concise",
+      "hint": "Short points, room to talk"
+    },
+    "standard": {
+      "label": "Standard",
+      "hint": "Balanced text and visuals"
+    },
+    "textHeavy": {
+      "label": "Text-heavy",
+      "hint": "Reads well without a speaker"
+    }
+  },
+  "options": {
+    "auto": "Auto",
+    "none": "None",
+    "photoType": "Use a JPEG, PNG or WebP photo.",
+    "photoSize": "The photo is over 10 MB.",
+    "lengthTitle": "Length & media",
+    "videosTitle": "Presenter videos",
+    "lengthHint": "How long the deck is and what goes on the slides",
+    "slidesQuestion": "How many slides?",
+    "slidesHint": "Auto lets the outline decide",
+    "slideCountGroup": "Slide count",
+    "orExactly": "or exactly",
+    "slidesExactlyAria": "Slides, 1 to {max}, blank for auto",
+    "imagesQuestion": "How many slides with images?",
+    "imagesHint": "Auto lets the template decide",
+    "imagesGroup": "Image count",
+    "videosQuestion": "How many slides with a presenter video?",
+    "videosHint": "Shown as placeholders until rendered at the Narration step",
+    "videosGroup": "Presenter video count",
+    "videosNeedPhoto": "Add a presenter photo to choose",
+    "countAria": "{group}, 0 to {max}, blank for auto",
+    "toneTitle": "Tone",
+    "textPerSlide": "Text per slide",
+    "styleTitle": "Style",
+    "styleHint": "How it sounds and how much text each slide carries",
+    "extrasTitle": "Extras",
+    "extrasHint": "Optional additions to the deck",
+    "titleSlide": "Title slide",
+    "titleSlideHint": "Open with a cover",
+    "toc": "Table of contents",
+    "tocHint": "List the sections",
+    "webSearch": "Web search",
+    "webSearchHint": "Ground facts online",
+    "animate": "Animate slides",
+    "animateHint": "Plan entrance motion once generated",
+    "anythingElse": "Anything else?",
+    "anythingElseHint": "Free-form instructions for the writer",
+    "instructionsPlaceholder": "E.g. keep it under 10 minutes, avoid jargon, end with a call to action"
+  },
+  "topic": {
+    "promptLabel": "What is your presentation about?",
+    "placeholder": "Describe the topic, who it’s for and what it should achieve…",
+    "attachedFiles": "Attached files",
+    "attachMore": "Attach more ({count}/{max})",
+    "attachDocs": "Attach documents",
+    "removeFile": "Remove {name}",
+    "unsupported": "Some files are not supported. Use Word, PowerPoint, spreadsheets, PDF, TXT or images.",
+    "tooMany": "You can attach up to {max} files.",
+    "dropToAttach": "Drop to attach",
+    "words": "{count} word | {count} words",
+    "forNext": "for next: Presenter",
+    "startingPoint": "Need a starting point?",
+    "starters": {
+      "qbr": "Quarterly business review for the leadership team: results, risks and next quarter’s plan",
+      "pitch": "Pitch deck for a seed round: problem, product, market, traction and the ask",
+      "onboarding": "Onboarding guide for new hires: our mission, how we work and the first 30 days",
+      "lecture": "Lecture on renewable energy for high school students, with simple examples"
+    }
+  },
+  "presenter": {
+    "title": "Presenter",
+    "addTitle": "Add a digital presenter",
+    "addHint": "Your photo becomes a talking presenter on the slides that call for one.",
+    "voiceTitle": "No presenter — voice only",
+    "voiceHint": "Slides are narrated with a voice. No slide gets a presenter video.",
+    "photoAgain": "Add your presenter photo again: photos aren’t kept after a reload.",
+    "rendersLater": "Presenter videos are rendered at the Narration step, once you add a photo.",
+    "voiceOnlyNote": "Voice only: no presenter videos will be rendered. To add a presenter later, choose one above before you create the outline.",
+    "pickerUsed": "This photo is used on the presenter slides.",
+    "pickerAdd": "Add a photo to continue with a presenter, or choose voice only."
+  },
+  "presenterStep": {
+    "languageHint": "The voice speaks in this language",
+    "yourPresenter": "Your presenter for this deck",
+    "addPhoto": "Add a photo of your presenter",
+    "voiceOnlyReason": "This deck has no presenter slides, so it is narrated with a voice only. Presenter videos are rendered at the Narration step, for the slides that have one."
+  },
+  "templates": {
+    "aria": "Template",
+    "decideLater": "Decide later",
+    "pickAfterOutline": "Pick after the outline",
+    "layoutCount": "{count} layout | {count} layouts",
+    "noPreview": "No preview"
+  },
+  "wizard": {
+    "stepsAria": "Wizard steps",
+    "footerMore": "More actions",
+    "copy": {
+      "topic": {
+        "heading": "Topic and look",
+        "lede": "What this deck is about, the template it’s built from and its settings. These were fixed when the deck was created."
+      },
+      "presenter": {
+        "heading": "Presenter and language",
+        "lede": "Your digital presenter and the narration language. The Narration step uses what you set here."
+      },
+      "outline": {
+        "heading": "Shape the story",
+        "lede": "Each card becomes one slide. Read it through, then generate the slides."
+      },
+      "preview": {
+        "heading": "Preview your slides",
+        "lede": "Your deck, slide by slide. Fine-tuning lives in the editor."
+      },
+      "avatar": {
+        "heading": "Narration",
+        "lede": "Recommended: narrate every slide in the language you chose, with your presenter on the slides that have one. You can skip it, export now and narrate later from the editor."
+      },
+      "export": {
+        "heading": "Export",
+        "lede": "Download the deck, or the narrated video."
+      }
+    },
+    "newPresentation": "New presentation",
+    "generatedFromDocs": "Generated from uploaded documents.",
+    "look": "Look",
+    "template": "Template",
+    "created": "Created {date}",
+    "library": "Library",
+    "next": "Next: {step}",
+    "loadingStep": "Loading step",
+    "fixedAtCreate": "Topic and look were fixed when the deck was created",
+    "waitGenerating": "Wait for the slides to finish generating",
+    "outlineSummary": "{count} slides",
+    "narratedSummary": "{done} of {count} narrated"
+  },
+  "progress": {
+    "generateFirst": "Generate slides from the outline first",
+    "slidesFinish": "Slides must finish generating first"
+  },
+  "outline": {
+    "item": {
+      "emptySlide": "Empty slide. Click to write.",
+      "slideAria": "Slide {n} outline",
+      "reorderAria": "Reorder slide {n} (Alt+Up or Alt+Down)",
+      "deleteAria": "Delete slide {n}"
+    },
+    "list": {
+      "addSlide": "Add slide"
+    },
+    "step": {
+      "drafted": "{count} slide drafted | {count} slides drafted",
+      "starting": "Starting…",
+      "progressLabel": "Outline progress",
+      "countLabel": "{count} slide · max {max} | {count} slides · max {max}",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "saveError": "Couldn’t save your outline edits",
+      "saveErrorNext": "Retry before you leave.",
+      "startError": "Couldn’t start generating slides",
+      "startErrorNext": "Your outline is kept; choose Generate slides to try again.",
+      "streamError": "The outline stopped before it was finished",
+      "streamErrorNext": "Retry to write it again.",
+      "noTemplate": "This deck has no template, so slides can’t be generated. Start a new deck and pick one.",
+      "pickTemplate": "Pick a template to generate slides",
+      "narrationBusy": "Narration is running; wait for it to finish",
+      "loadingTemplate": "Loading the template…",
+      "writing": "Writing your outline…",
+      "atLeastOne": "Add at least one slide to continue",
+      "removeToContinue": "Remove {count} slide to continue (max {max}) | Remove {count} slides to continue (max {max})",
+      "preparing": "Preparing your slides…",
+      "loadingOutline": "Loading the outline…",
+      "generatedFromOutline": "These slides were generated from this outline",
+      "needsTemplate": "Regenerating needs a template, and this deck has none",
+      "generates": "Generates {count} slide from this outline | Generates {count} slides from this outline",
+      "inTemplate": " in {name}",
+      "nothingNarrated": "Nothing is narrated yet.",
+      "overLimit": "{count} slides — a deck can have at most {max}. Remove {remove} to continue (max {max}).",
+      "pickerLabel": "Pick a template",
+      "pickerHint": "This deck has no template yet. Pick one to generate its slides.",
+      "noTemplateName": "No template",
+      "regenerate": "Regenerate slides from outline…",
+      "continueToPreview": "Continue to Preview",
+      "generate": "Generate slides",
+      "generating": "Preparing…"
+    },
+    "regenerate": {
+      "title": "Regenerate slides from the outline?",
+      "description": "Regenerating replaces every slide. Your slide edits, narration and presenter videos will be lost.",
+      "confirm": "Regenerate slides"
+    }
+  },
+  "preview": {
+    "streamError": "Slide generation stopped before all slides were made. Choose Retry to try again.",
+    "finishing": "Finishing up…",
+    "generating": "Generating slide {current} of {total}…",
+    "footerStreaming": "{label} Other actions open when it finishes.",
+    "footerNoSlides": "No slides yet. Go back to the outline to generate them.",
+    "footerRetry": "Retry to generate the slides",
+    "footerReady": "{count} slide ready | {count} slides ready",
+    "continueToNarration": "Continue to Narration",
+    "openSlide": "Open slide {n}",
+    "presenterMarker": "Presenter",
+    "planning": "Planning motion for every slide…",
+    "motionLabel": "Deck motion planning",
+    "lightbox": {
+      "title": "{title} — slide {n}",
+      "description": "Slide preview. Use the arrow keys to move between slides.",
+      "previous": "Previous slide",
+      "next": "Next slide"
+    }
+  },
+  "narration": {
+    "skipReason": "Narration is optional: you can narrate later from the editor.",
+    "headingFailed": "Something needs another try",
+    "headingRunning": "Bringing your deck to life",
+    "headingComplete": "Your deck is narrated",
+    "headingReady": "Ready to narrate",
+    "headingSlidesLeft": "{count} slide left to narrate | {count} slides left to narrate",
+    "headingVideosLeft": "{count} presenter video left to render | {count} presenter videos left to render",
+    "failedDetail": "Failed. Retry below.",
+    "notesRunning": "Writing speaker notes for {count} slide | Writing speaker notes for {count} slides",
+    "notesDone": "{count} slide with speaker notes | {count} slides with speaker notes",
+    "notesPartial": "{done} of {count} slide with speaker notes | {done} of {count} slides with speaker notes",
+    "notesPending": "Speaker notes for every slide",
+    "voiceRunning": "Recording narration in {language}…",
+    "voiceDone": "{count} slide narrated in {language} | {count} slides narrated in {language}",
+    "voicePartial": "{done} of {count} slide narrated in {language} | {done} of {count} slides narrated in {language}",
+    "voicePending": "Narration in {language}",
+    "videosSkippedVoiceOnly": "Voice only: presenter videos can’t be rendered on this server",
+    "videosSkippedNoSlides": "No presenter slides in this deck",
+    "videosRunning": "Rendering {count} presenter video | Rendering {count} presenter videos",
+    "videosDone": "{count} presenter video ready | {count} presenter videos ready",
+    "videosPartial": "{done} of {count} presenter video ready | {done} of {count} presenter videos ready",
+    "videosPending": "{count} presenter video | {count} presenter videos",
+    "jobs": {
+      "notes": "Notes",
+      "voice": "Voice",
+      "presenter": "Presenter"
+    },
+    "phases": {
+      "notes": "Notes",
+      "voice": "Voice",
+      "avatars": "Presenter videos"
+    },
+    "progressAria": "Progress",
+    "progressLabel": "Narration progress",
+    "savedAria": "{percent}% saved",
+    "failedAria": "Failed",
+    "presenterSet": "Presenter set",
+    "presenterAndLanguage": "Presenter and language",
+    "scopeNotes": "writes speaker notes for {count} slide | writes speaker notes for {count} slides",
+    "scopeVoice": "records {count} voice clip in {language} | records {count} voice clips in {language}",
+    "scopeVideos": "renders {count} presenter video | renders {count} presenter videos",
+    "listAnd": "and",
+    "scopePaid": "Presenter videos are rendered by a paid service and use credits.",
+    "footerRunning": "You can leave this page; we'll keep going.",
+    "footerVideos": "Includes {count} presenter video · uses credits | Includes {count} presenter videos · uses credits",
+    "narrate": "Narrate {count} slide | Narrate {count} slides",
+    "narrateRemaining": "Narrate {count} remaining slide | Narrate {count} remaining slides",
+    "videoLong": "{count} presenter video | {count} presenter videos",
+    "videoShort": "{count} video | {count} videos",
+    "renderVideos": "Render {count} presenter video | Render {count} presenter videos",
+    "renderVideosRemaining": "Render {count} remaining presenter video | Render {count} remaining presenter videos",
+    "renderVideosShort": "Render {count} video | Render {count} videos",
+    "narrateDeck": "Narrate deck",
+    "fineTune": "Fine-tune in the editor",
+    "setupPresenter": "Set up presenter and language",
+    "retryPhase": "Retry {phase}",
+    "continueToExport": "Continue to Export"
+  },
+  "stream": {
+    "imagesWarning": "Some images could not be generated",
+    "failed": "Presentation streaming failed",
+    "savedNote": "{message} {count} slides were saved and will be reused.",
+    "generationFailed": "Generation failed.",
+    "connectionClosed": "The connection closed before generation finished."
+  },
+  "outlineStream": {
+    "preparing": "Preparing your presentation outline",
+    "ready": "Outline ready",
+    "couldNotLoadStatus": "Could not load the outline",
+    "couldNotLoad": "Could not load the outline.",
+    "reconnecting": "Reconnecting to outline stream",
+    "parseFailed": "Failed to parse presentation data.",
+    "streamFailed": "Outline streaming failed.",
+    "connectionLost": "Connection lost."
+  },
+  "export": {
+    "headingFallback": "Presentation",
+    "heading": "{title} · {count} slide | {title} · {count} slides",
+    "presenterSlidesNoVideo": "{count} presenter slide has no video | {count} presenter slides have no video",
+    "slidesNoNarration": "{count} slide has no narration | {count} slides have no narration",
+    "videoNote": "The narrated video is best with narration and presenter videos in place ({gaps}).",
+    "gapsLine": "{gaps}.",
+    "goToNarration": "Go to Narration",
+    "canExportNow": "You can still export now.",
+    "afterExporting": "After exporting"
+  }
+}

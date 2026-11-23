@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { Slide } from '@/api/types'
 import { getPlayback, playbackKeys, updateBubble, type BubbleBox } from '@/api/playback'
 import { toast } from '@/components/ui/sonner'
+
+const { t } = useI18n()
 
 /**
  * Overlay for the voice bubble, laid over a rendered slide. Everything is kept in
@@ -56,7 +59,7 @@ function fit(b: BubbleBox): BubbleBox {
 const save = useMutation({
   mutationFn: (b: BubbleBox) => updateBubble(props.presentationId, b),
   onSuccess: () => qc.invalidateQueries({ queryKey: ['playback', props.presentationId] }),
-  onError: (e) => toast.error(e instanceof Error ? e.message : "Couldn't save the voice bubble position"),
+  onError: (e) => toast.error(e instanceof Error ? e.message : t('editorInspector.avatar.bubble.saveError')),
   onSettled: () => {
     if (!timer) dirty = false
   },
@@ -125,7 +128,7 @@ const style = computed(() => {
       role="alert"
       class="absolute inset-x-2 bottom-2 rounded-control bg-black/60 px-2 py-1 text-[11px] text-danger-text"
     >
-      Couldn't load the voice bubble
+      {{ t('editorInspector.avatar.bubble.loadError') }}
     </p>
     <div
       v-if="box"
@@ -133,7 +136,7 @@ const style = computed(() => {
       :style="style"
       tabindex="0"
       role="group"
-      aria-label="Voice bubble"
+      :aria-label="t('editorInspector.avatar.bubble.ariaLabel')"
       aria-describedby="bubble-hint"
       data-testid="bubble"
       @pointerdown="down($event, 'move')"
@@ -142,7 +145,7 @@ const style = computed(() => {
       @pointercancel="up"
       @keydown="key"
     >
-      <span id="bubble-hint" class="sr-only">Drag, or use the arrow keys to move. Hold Shift to move faster.</span>
+      <span id="bubble-hint" class="sr-only">{{ t('editorInspector.avatar.bubble.keyHint') }}</span>
       <span
         class="absolute right-0 bottom-0 size-3 translate-x-1/3 translate-y-1/3 cursor-nwse-resize touch-none rounded-sm bg-accent"
         data-testid="bubble-resize"

@@ -1,10 +1,10 @@
 import { ref, watch, type Ref } from 'vue'
 import { toast } from 'vue-sonner'
+import { i18n } from '@/i18n'
 import { listAnthropicModels, listGoogleModels, listOpenAiCompatibleModels } from '@/api/providerModels'
 import { canDiscover, resolveDiscoveryUrl, type TextProviderRow } from '@/settings/providers'
 import type { ProviderConfig } from '@/settings/types'
 
-const FALLBACK_MESSAGE = 'The provider did not return a model list.'
 const MIN_SECRET_LENGTH = 6
 
 function configString(config: ProviderConfig, field?: string): string {
@@ -15,7 +15,7 @@ function configString(config: ProviderConfig, field?: string): string {
 
 /** A failure message for a toast, with the API key masked should the provider echo it back. */
 function failureMessage(error: unknown, apiKey: string): string {
-  let message = error instanceof Error && error.message.trim() ? error.message.trim() : FALLBACK_MESSAGE
+  let message = error instanceof Error && error.message.trim() ? error.message.trim() : i18n.global.t('settings.discovery.fallbackMessage')
   if (apiKey.length >= MIN_SECRET_LENGTH) message = message.split(apiKey).join('[redacted]')
   return /[.!?]$/.test(message) ? message : `${message}.`
 }
@@ -80,8 +80,8 @@ export function useModelDiscovery(opts: {
       if (id !== requestId) return
       models.value = []
       checked.value = true
-      toast.error('Could not load models', {
-        description: `${failureMessage(error, apiKey)} You can enter a model ID manually.`,
+      toast.error(i18n.global.t('settings.discovery.loadFailed'), {
+        description: i18n.global.t('settings.discovery.manualHint', { message: failureMessage(error, apiKey) }),
       })
     } finally {
       if (id === requestId) loading.value = false

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { Check, Circle, Loader, TriangleAlert } from 'lucide-vue-next'
@@ -10,6 +11,8 @@ import { injectDeckNarration } from '../narration/useDeckNarration'
 import { buildOverview, type CellAction, type OverviewCell } from './avatar-overview'
 import { hasVideoPlaceholder } from './avatar-state'
 import { injectDeckAvatars } from './useDeckAvatars'
+
+const { t } = useI18n()
 
 /**
  * What this platform can do with avatars, and what each avatar is made from, for the whole deck and for the
@@ -25,20 +28,20 @@ const { stateOf } = injectDeckNarration()
 const { videos, videoBySlide, placeholderSlides, eligibleSlides, chipOf, busy, running, progress, task, togglePlaceholder } = injectDeckAvatars()
 
 const capability = computed(() => {
-  if (running.value) return { state: 'busy', label: 'Generating', detail: task.value?.message || 'Generating avatars…', variant: 'secondary' as const }
-  if (!videos.value) return { state: 'checking', label: 'Checking…', detail: 'Checking what this server can generate.', variant: 'secondary' as const }
+  if (running.value) return { state: 'busy', label: t('editorInspector.avatar.overview.capability.busy.label'), detail: task.value?.message || t('editorInspector.avatar.overview.capability.busy.detail'), variant: 'secondary' as const }
+  if (!videos.value) return { state: 'checking', label: t('editorInspector.avatar.overview.capability.checking.label'), detail: t('editorInspector.avatar.overview.capability.checking.detail'), variant: 'secondary' as const }
   if (!videos.value.generation_available) {
     return {
       state: 'off',
-      label: 'Not set up',
-      detail: 'Set OPENROUTER_API_KEY on the server to generate avatars. You can still upload your own videos.',
+      label: t('editorInspector.avatar.overview.capability.off.label'),
+      detail: t('editorInspector.avatar.overview.capability.off.detail'),
       variant: 'secondary' as const,
     }
   }
   return {
     state: 'on',
-    label: 'Available',
-    detail: "Turns your presenter portrait and each slide's narration into a lip-synced video, generated with HeyGen.",
+    label: t('editorInspector.avatar.overview.capability.on.label'),
+    detail: t('editorInspector.avatar.overview.capability.on.detail'),
     variant: 'default' as const,
   }
 })
@@ -68,26 +71,26 @@ const TONE = { ok: 'text-accent', todo: 'text-muted', warn: 'text-danger-text', 
 </script>
 
 <template>
-  <section class="flex flex-col rounded-card border border-ov/[0.06]" aria-label="Avatar generation" data-testid="avatar-overview">
+  <section class="flex flex-col rounded-card border border-ov/[0.06]" :aria-label="t('editorInspector.avatar.overview.title')" data-testid="avatar-overview">
     <header class="flex flex-col gap-1 px-3 pt-3 pb-2.5">
       <div class="flex items-center gap-2">
-        <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Avatar generation</h3>
+        <h3 class="text-[12px] font-semibold text-tx-f6f8f9">{{ t('editorInspector.avatar.overview.title') }}</h3>
         <Badge :variant="capability.variant" class="ml-auto" data-testid="avatar-capability" :data-state="capability.state">{{ capability.label }}</Badge>
       </div>
       <p class="text-[11px] leading-[1.5] text-muted">{{ capability.detail }}</p>
     </header>
 
     <div v-if="running" class="px-3 pb-2.5" role="status">
-      <Progress :model-value="progress" aria-label="Avatar generation progress" />
+      <Progress :model-value="progress" :aria-label="t('editorInspector.avatar.deck.progressAria')" />
     </div>
 
     <table class="w-full border-t border-ov/[0.06] text-[11px]">
-      <caption class="sr-only">What an avatar is made from</caption>
+      <caption class="sr-only">{{ t('editorInspector.avatar.overview.caption') }}</caption>
       <thead>
         <tr class="text-left text-muted">
-          <th scope="col" class="px-3 py-1.5 font-normal"><span class="sr-only">Requirement</span></th>
-          <th scope="col" class="py-1.5 pr-2 font-semibold whitespace-nowrap">Deck</th>
-          <th v-if="slide" scope="col" class="py-1.5 pr-3 font-semibold whitespace-nowrap">Slide {{ slide.index + 1 }}</th>
+          <th scope="col" class="px-3 py-1.5 font-normal"><span class="sr-only">{{ t('editorInspector.avatar.overview.requirement') }}</span></th>
+          <th scope="col" class="py-1.5 pr-2 font-semibold whitespace-nowrap">{{ t('editorInspector.avatar.overview.deck') }}</th>
+          <th v-if="slide" scope="col" class="py-1.5 pr-3 font-semibold whitespace-nowrap">{{ t('editorInspector.avatar.overview.slide', { n: slide.index + 1 }) }}</th>
         </tr>
       </thead>
       <tbody>

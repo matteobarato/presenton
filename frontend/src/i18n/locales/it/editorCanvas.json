@@ -1,0 +1,145 @@
+{
+  "announcer": {
+    "multiSelected": "{label} selezionati",
+    "selected": "Selezionato: {label}",
+    "cleared": "Selezione annullata"
+  },
+  "imagePicker": {
+    "title": "Sostituisci immagine",
+    "description": "Carica un'immagine, scegline una che hai già, generane una o cerca tra le foto stock.",
+    "tabs": {
+      "upload": "Carica",
+      "uploaded": "Caricate",
+      "generate": "Genera",
+      "stock": "Stock"
+    },
+    "errors": {
+      "chooseImage": "Scegli un file immagine.",
+      "uploadFailed": "Caricamento dell'immagine non riuscito.",
+      "generateFailed": "Generazione dell'immagine non riuscita.",
+      "stockFailed": "Ricerca delle immagini stock non riuscita.",
+      "loadFailed": "Caricamento delle immagini non riuscito."
+    },
+    "upload": {
+      "uploading": "Caricamento...",
+      "dropzone": "Scegli un'immagine o trascinala qui"
+    },
+    "uploaded": {
+      "loading": "Caricamento...",
+      "empty": "Ancora nessuna immagine caricata."
+    },
+    "generate": {
+      "promptLabel": "Prompt dell'immagine",
+      "placeholder": "Descrivi l'immagine",
+      "submitLabel": "Genera immagine",
+      "generatingLabel": "Generazione dell'immagine",
+      "generating": "Generazione...",
+      "cancelLabel": "Annulla generazione",
+      "cancel": "Annulla",
+      "useGenerated": "Usa l'immagine generata",
+      "useEarlier": "Usa l'immagine precedente {n}"
+    },
+    "stock": {
+      "searchLabel": "Cerca immagini stock",
+      "placeholder": "Cerca foto stock",
+      "search": "Cerca",
+      "empty": "Nessun risultato."
+    },
+    "useImage": "Usa l'immagine {n}"
+  },
+  "selection": {
+    "rotate": "Ruota"
+  },
+  "controls": {
+    "colour": {
+      "titleWith": "{label} {value}",
+      "none": "nessuno",
+      "swatch": "Colore {color}",
+      "custom": "Colore personalizzato"
+    },
+    "iconColour": {
+      "label": "Colore icona",
+      "title": "Colore icona {value}"
+    },
+    "chart": {
+      "editData": "Modifica dati",
+      "type": "Tipo di grafico"
+    },
+    "iconChange": "Cambia icona",
+    "imageFit": {
+      "cover": "Riempi",
+      "contain": "Contieni",
+      "title": "Adattamento: {fit}"
+    },
+    "imageReplace": "Sostituisci immagine",
+    "infographic": {
+      "editItems": "Modifica elementi"
+    },
+    "layout": {
+      "fillColour": "Colore di riempimento",
+      "decreaseGap": "Riduci spaziatura",
+      "increaseGap": "Aumenta spaziatura",
+      "gap": "Spaziatura",
+      "gapTitle": "Spaziatura (px)",
+      "addItem": "Aggiungi elemento",
+      "removeLastItem": "Rimuovi l'ultimo elemento"
+    },
+    "lineColour": "Colore linea",
+    "lineWeight": {
+      "decrease": "Riduci spessore linea",
+      "increase": "Aumenta spessore linea",
+      "label": "Spessore linea",
+      "title": "Spessore linea (px)"
+    },
+    "listMarker": {
+      "bullet": "Elenco puntato",
+      "number": "Elenco numerato",
+      "none": "Nessun indicatore"
+    },
+    "shape": {
+      "fillColour": "Colore di riempimento",
+      "noFill": "Nessun riempimento",
+      "strokeColour": "Colore contorno",
+      "noStroke": "Nessun contorno"
+    },
+    "cell": {
+      "background": "Sfondo cella",
+      "noBackground": "Nessuno sfondo"
+    },
+    "textColour": {
+      "label": "Colore testo",
+      "title": "Colore testo {value}"
+    },
+    "font": {
+      "family": "Famiglia di font",
+      "decreaseSize": "Riduci dimensione font",
+      "size": "Dimensione font",
+      "increaseSize": "Aumenta dimensione font"
+    }
+  },
+  "bar": {
+    "toolbarLabel": "Strumenti elemento",
+    "labels": {
+      "chart": "Grafico",
+      "icon": "Icona",
+      "image": "Immagine",
+      "infographic": "Infografica",
+      "layout": "Layout",
+      "line": "Linea",
+      "text": "Testo",
+      "shape": "Forma",
+      "table": "Tabella",
+      "video": "Video",
+      "group": "Gruppo",
+      "appearance": "Aspetto",
+      "arrange": "Disponi",
+      "duplicate": "Duplica",
+      "delete": "Elimina"
+    },
+    "titles": {
+      "group": "Raggruppa (Ctrl+G)",
+      "duplicate": "Duplica (Ctrl+D)",
+      "delete": "Elimina (Canc)"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowRight, CalendarDays, Palette, PencilLine } from 'lucide-vue-next'
@@ -23,6 +24,7 @@ import WizardFooter from './WizardFooter.vue'
 import WizardLayout from './WizardLayout.vue'
 import type { DeckStepKey, WizardStepItem, WizardStepKey } from './progress'
 import { provideWizardFooter, useFooterNotice } from './stepFooter'
+const { t } = useI18n()
 
 /**
  * All six steps of the create wizard for one deck, each at its own URL. Steps 3–6 (Outline, Preview, Narration,
@@ -125,7 +127,7 @@ watch(
 
 const current = computed<WizardStepKey>(() => summary.value ?? step.value ?? requested.value ?? progress.value.resume)
 
-const GENERATING = 'Wait for the slides to finish generating'
+const generatingMessage = () => t('create.wizard.waitGenerating')
 // Why a step is closed, in the footer's status line (the toast alone vanishes and never reaches a screen reader).
 const notice = useFooterNotice()
 function explainLocked(item: WizardStepItem) {
@@ -137,8 +139,8 @@ const heldOnPreview = (target: DeckStepKey | null) =>
 
 function select(key: WizardStepKey) {
   if (!isSummaryKey(key) && heldOnPreview(key)) {
-    toast.info(GENERATING)
-    notice.show(GENERATING)
+    toast.info(generatingMessage())
+    notice.show(generatingMessage())
     return
   }
   notice.clear()
@@ -161,8 +163,8 @@ const nextLockReason = computed(() => {
 function navigate(dir: 'back' | 'next') {
   const target = neighbour(dir)
   if (target && !isSummaryKey(target) && heldOnPreview(target)) {
-    toast.info(GENERATING)
-    notice.show(GENERATING)
+    toast.info(generatingMessage())
+    notice.show(generatingMessage())
     return
   }
   if (target) void go(target)
@@ -181,18 +183,18 @@ const footer = provideWizardFooter(
 )
 const setFooterTarget = (el: unknown) => (footer.target.value = el instanceof HTMLElement ? el : null)
 
-const COPY: Record<WizardStepKey, { heading: string; lede: string }> = {
-  topic: { heading: 'Topic and look', lede: 'What this deck is about, the template it’s built from and its settings. These were fixed when the deck was created.' },
-  presenter: { heading: 'Presenter and language', lede: 'Your digital presenter and the narration language. The Narration step uses what you set here.' },
-  outline: { heading: 'Shape the story', lede: 'Each card becomes one slide. Read it through, then generate the slides.' },
-  preview: { heading: 'Preview your slides', lede: 'Your deck, slide by slide. Fine-tuning lives in the editor.' },
-  avatar: { heading: 'Narration', lede: 'Recommended: narrate every slide in the language you chose, with your presenter on the slides that have one. You can skip it, export now and narrate later from the editor.' },
-  export: { heading: 'Export', lede: 'Download the deck, or the narrated video.' },
-}
-const copy = computed(() => COPY[current.value])
+const COPY = computed<Record<WizardStepKey, { heading: string; lede: string }>>(() => ({
+  topic: { heading: t('create.wizard.copy.topic.heading'), lede: t('create.wizard.copy.topic.lede') },
+  presenter: { heading: t('create.wizard.copy.presenter.heading'), lede: t('create.wizard.copy.presenter.lede') },
+  outline: { heading: t('create.wizard.copy.outline.heading'), lede: t('create.wizard.copy.outline.lede') },
+  preview: { heading: t('create.wizard.copy.preview.heading'), lede: t('create.wizard.copy.preview.lede') },
+  avatar: { heading: t('create.wizard.copy.avatar.heading'), lede: t('create.wizard.copy.avatar.lede') },
+  export: { heading: t('create.wizard.copy.export.heading'), lede: t('create.wizard.copy.export.lede') },
+}))
+const copy = computed(() => COPY.value[current.value])
 // The body is keyed by the deck step only: a summary shown over it must not remount it (and abort its stream).
 const panelKey = computed(() => step.value ?? requested.value ?? progress.value.resume)
-const title = computed(() => props.presentation.title?.trim() || 'New presentation')
+const title = computed(() => props.presentation.title?.trim() || t('create.wizard.newPresentation'))
 
 const created = computed(() => {
   const d = new Date(props.presentation.created_at)
@@ -212,31 +214,31 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
     :items="items"
     :current="current"
     :panel-key="panelKey"
-    :parent="{ label: 'Library', to: { name: 'library' } }"
+    :parent="{ label: t('create.wizard.library'), to: { name: 'library' } }"
     @select="select"
     @blocked="explainLocked"
     @navigate="navigate"
   >
     <section v-if="summary === 'topic'" data-testid="summary-topic" class="grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-4 max-[760px]:grid-cols-1">
       <article class="summary-card flex min-w-0 flex-col gap-3">
-        <header class="summary-kicker"><PencilLine class="size-3.5" aria-hidden="true" />Topic</header>
+        <header class="summary-kicker"><PencilLine class="size-3.5" aria-hidden="true" />{{ t('create.steps.topic') }}</header>
         <blockquote class="relative max-h-[320px] overflow-y-auto border-l-2 border-accent/60 pl-4 text-[13.5px] leading-[1.75] whitespace-pre-wrap text-tx-dbe5ea">
-          {{ presentation.content?.trim() || 'Generated from uploaded documents.' }}
+          {{ presentation.content?.trim() || t('create.wizard.generatedFromDocs') }}
         </blockquote>
         <footer v-if="created" class="mt-auto flex items-center gap-1.5 pt-1 text-[12px] text-tx-8e9ca4">
-          <CalendarDays class="size-3.5" aria-hidden="true" />Created {{ created }}
+          <CalendarDays class="size-3.5" aria-hidden="true" />{{ t('create.wizard.created', { date: created }) }}
         </footer>
       </article>
       <article data-testid="summary-look" class="summary-card flex min-w-0 flex-col gap-3">
-        <header class="summary-kicker"><Palette class="size-3.5" aria-hidden="true" />Look</header>
+        <header class="summary-kicker"><Palette class="size-3.5" aria-hidden="true" />{{ t('create.wizard.look') }}</header>
         <div ref="thumbBox" class="w-full">
           <TemplateCardThumb v-if="template" :template="template" :width="thumbWidth" />
-          <div v-else class="grid aspect-video w-full place-items-center rounded border border-dashed border-ov/[0.1] text-[12px] text-tx-8e9ca4">No preview</div>
+          <div v-else class="grid aspect-video w-full place-items-center rounded border border-dashed border-ov/[0.1] text-[12px] text-tx-8e9ca4">{{ t('create.templates.noPreview') }}</div>
         </div>
         <div class="flex min-w-0 flex-col gap-1">
-          <p class="truncate text-[14px] font-medium text-tx-eef6fa">{{ template?.name ?? 'Template' }}</p>
+          <p class="truncate text-[14px] font-medium text-tx-eef6fa">{{ template?.name ?? t('create.wizard.template') }}</p>
           <p class="flex flex-wrap items-center gap-1.5 text-[12px] text-tx-8e9ca4">
-            <span v-if="template">{{ template.layouts.length }} {{ template.layouts.length === 1 ? 'layout' : 'layouts' }}</span>
+            <span v-if="template">{{ t('create.templates.layoutCount', { count: template.layouts.length }, template.layouts.length) }}</span>
           </p>
         </div>
       </article>
@@ -264,19 +266,19 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
     <section v-else-if="step === 'export'" v-show="!summary" data-testid="step-body-export">
       <ExportStep :presentation="presentation" :progress="progress" />
     </section>
-    <div v-else-if="!summary" aria-busy="true" aria-label="Loading step">
+    <div v-else-if="!summary" aria-busy="true" :aria-label="t('create.wizard.loadingStep')">
       <Skeleton class="h-[320px] w-full rounded-panel" />
     </div>
 
     <template #footer>
       <div :ref="setFooterTarget" class="contents" />
-      <WizardFooter v-if="summary || !footer.claims.value" :status="notice.text.value || (summary === 'topic' ? 'Topic and look were fixed when the deck was created' : summary ? undefined : (nextLockReason ?? undefined))">
+      <WizardFooter v-if="summary || !footer.claims.value" :status="notice.text.value || (summary === 'topic' ? t('create.wizard.fixedAtCreate') : summary ? undefined : (nextLockReason ?? undefined))">
         <template #back>
           <WizardBackButton v-if="neighbour('back')" @click="navigate('back')" />
         </template>
         <template #primary>
           <Button v-if="nextStep" type="button" :disabled="!!nextLockReason" @click="navigate('next')">
-            Next: {{ labelOf(nextStep) }}<ArrowRight class="size-4" aria-hidden="true" />
+            {{ t('create.wizard.next', { step: labelOf(nextStep) }) }}<ArrowRight class="size-4" aria-hidden="true" />
           </Button>
         </template>
       </WizardFooter>

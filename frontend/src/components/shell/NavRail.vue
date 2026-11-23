@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import { CircleHelp, FolderOpen, LayoutTemplate, Plus, Settings2, Presentation } from 'lucide-vue-next'
 import { useHelpDialog } from '@/composables/useHelpDialog'
@@ -7,6 +8,7 @@ import { defaultSettingsSection } from '@/settings/types'
 import { useSessionStore } from '@/stores/session'
 import UserMenu from './UserMenu.vue'
 
+const { t } = useI18n()
 const route = useRoute()
 const help = useHelpDialog()
 const session = useSessionStore()
@@ -24,7 +26,7 @@ const settingsSection = computed(() => defaultSettingsSection(session.user?.role
 
 <template>
   <nav
-    aria-label="Main"
+    :aria-label="t('shell.nav.main')"
     class="z-35 flex w-[76px] flex-none flex-col items-center border-r border-ov/[0.02] bg-rail pt-[25px] pb-5 max-[760px]:pt-[22px] max-[760px]:pb-4 [@media(max-height:780px)_and_(min-width:1051px)]:pt-[18px] max-[1279px]:w-[65px] max-[760px]:w-14"
   >
     <RouterLink
@@ -43,22 +45,22 @@ const settingsSection = computed(() => defaultSettingsSection(session.user?.role
       >
         <span :class="['grid size-10 place-items-center rounded-full bg-sx-c2e5f5/12 transition-colors duration-200 group-hover:bg-sx-c2e5f5/20 max-[760px]:size-9', newActive && 'bg-sx-c2e5f5/25']">
           <Plus class="size-[19px] stroke-[1.5]" aria-hidden="true" />
-        </span>New
+        </span>{{ t('shell.nav.new') }}
       </RouterLink>
       <RouterLink :to="{ name: 'library' }" :class="[link, libraryActive && active]" :aria-current="libraryActive ? 'page' : undefined">
-        <FolderOpen class="size-[19px] stroke-[1.5]" aria-hidden="true" />Library
+        <FolderOpen class="size-[19px] stroke-[1.5]" aria-hidden="true" />{{ t('shell.nav.library') }}
       </RouterLink>
       <RouterLink :to="{ name: 'templates' }" :class="[link, templatesActive && active]" :aria-current="templatesActive ? 'page' : undefined">
-        <LayoutTemplate class="size-[19px] stroke-[1.5]" aria-hidden="true" />Templates
+        <LayoutTemplate class="size-[19px] stroke-[1.5]" aria-hidden="true" />{{ t('shell.nav.templates') }}
       </RouterLink>
       <RouterLink :to="{ name: 'settings', params: { section: settingsSection } }" :class="[link, settingsActive && active]" :aria-current="settingsActive ? 'page' : undefined">
-        <Settings2 class="size-[19px] stroke-[1.5]" aria-hidden="true" />Settings
+        <Settings2 class="size-[19px] stroke-[1.5]" aria-hidden="true" />{{ t('shell.nav.settings') }}
       </RouterLink>
     </div>
 
     <div class="mt-auto flex w-full flex-col items-center gap-[25px] px-2 max-[760px]:px-[5px]">
-      <button type="button" :class="link" title="Help and keyboard shortcuts" @click="help.show">
-        <CircleHelp class="size-[19px] stroke-[1.5]" aria-hidden="true" />Help
+      <button type="button" :class="link" :title="t('shell.nav.helpTitle')" @click="help.show">
+        <CircleHelp class="size-[19px] stroke-[1.5]" aria-hidden="true" />{{ t('shell.nav.help') }}
       </button>
       <UserMenu />
     </div>

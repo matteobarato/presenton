@@ -11,5 +11,5 @@ const ImagePanel = framed(ImageSection)
 export const imageBar: BarItem[] = [
   { type: 'custom', id: 'replace', component: ImageReplace },
   { type: 'custom', id: 'fit', component: ImageFit },
-  { type: 'panel', id: 'image', label: 'Image', icon: Crop, component: ImagePanel },
+  { type: 'panel', id: 'image', label: 'editorCanvas.bar.labels.image', icon: Crop, component: ImagePanel },
 ]

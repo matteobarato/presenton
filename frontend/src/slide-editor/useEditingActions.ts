@@ -11,7 +11,7 @@ export interface EditingActions {
    * Given a builder, an open inline edit (text or cell) is closed and its text committed first, and the
    * op is built on the ui that holds it: the editor's snapshot would otherwise revert the op on close.
    */
-  run: (label: string, source: OpSource) => Promise<void>
+  run: (label: string, source: OpSource, opts?: { nudge?: boolean }) => Promise<void>
   /** True while any commit is being applied (its save may outlive this). */
   busy: () => boolean
   /** True while a structural (non-nudge) commit is being applied. */
@@ -30,8 +30,8 @@ function createActions(ctx: SlideEditing): EditingActions {
   // share a merge key, so a held arrow is one history entry.
   let inflight = 0
   let structuralInflight = 0
-  async function run(label: string, source: OpSource) {
-    const structural = label !== 'Nudge'
+  async function run(label: string, source: OpSource, opts: { nudge?: boolean } = {}) {
+    const structural = !opts.nudge
     if (!source || (structural ? inflight > 0 : structuralInflight > 0)) return
     let result: OpResult
     if (typeof source === 'function') {

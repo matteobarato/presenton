@@ -1,3 +1,4 @@
+import { i18n } from '@/i18n'
 import { onScopeDispose, ref, watch, type Ref } from 'vue'
 import { jsonrepair } from 'jsonrepair'
 import { streamEvents } from '@/api/sse'
@@ -5,7 +6,7 @@ import { getOutline, MAX_OUTLINE_SLIDES, type OutlineItem } from '@/api/outlines
 
 const MAX_RETRIES = 3
 const RETRY_DELAY_MS = 1_000
-const DEFAULT_STATUS = 'Preparing your presentation outline'
+const defaultStatus = () => i18n.global.t('create.outlineStream.preparing')
 
 function toItems(slides: unknown): OutlineItem[] | null {
   if (!Array.isArray(slides)) return null
@@ -37,7 +38,7 @@ function completePayload(event: Record<string, unknown>): OutlineItem[] | null {
  */
 export function useOutlineStream(id: Ref<string>) {
   const items = ref<OutlineItem[]>([])
-  const status = ref(DEFAULT_STATUS)
+  const status = ref(defaultStatus())
   const streaming = ref(false)
   const error = ref<string | null>(null)
   let controller: AbortController | null = null
@@ -57,7 +58,7 @@ export function useOutlineStream(id: Ref<string>) {
     controller = ctrl
     error.value = null
     items.value = []
-    status.value = DEFAULT_STATUS
+    status.value = defaultStatus()
     streaming.value = true
 
     // Only an OK response with no slides means "generate". A failed load must not stream: the stream
@@ -67,15 +68,15 @@ export function useOutlineStream(id: Ref<string>) {
       existing = await getOutline(presentationId)
     } catch (e) {
       if (ctrl.signal.aborted) return
-      error.value = e instanceof Error && e.message ? e.message : 'Could not load the outline.'
-      status.value = 'Could not load the outline'
+      error.value = e instanceof Error && e.message ? e.message : i18n.global.t('create.outlineStream.couldNotLoad')
+      status.value = i18n.global.t('create.outlineStream.couldNotLoadStatus')
       streaming.value = false
       return
     }
     if (ctrl.signal.aborted) return
     if (existing.length) {
       items.value = existing.slice(0, MAX_OUTLINE_SLIDES)
-      status.value = 'Outline ready'
+      status.value = i18n.global.t('create.outlineStream.ready')
       streaming.value = false
       return
     }
@@ -99,22 +100,22 @@ export function useOutlineStream(id: Ref<string>) {
             const done = completePayload(event)
             if (!done) {
               failure = {
-                message: 'Failed to parse presentation data.',
+                message: i18n.global.t('create.outlineStream.parseFailed'),
                 retry: true,
               }
               break
             }
             items.value = done
-            status.value = 'Outline ready'
+            status.value = i18n.global.t('create.outlineStream.ready')
             streaming.value = false
             return
           } else if (event.type === 'closing') {
-            status.value = 'Outline ready'
+            status.value = i18n.global.t('create.outlineStream.ready')
             streaming.value = false
             return
           } else if (event.type === 'error') {
             failure = {
-              message: typeof event.detail === 'string' && event.detail ? event.detail : 'Outline streaming failed.',
+              message: typeof event.detail === 'string' && event.detail ? event.detail : i18n.global.t('create.outlineStream.streamFailed'),
               retry: event.retryable === true,
             }
             break
@@ -128,7 +129,7 @@ export function useOutlineStream(id: Ref<string>) {
       } catch (e) {
         if (ctrl.signal.aborted) return
         failure = {
-          message: e instanceof Error ? e.message : 'Connection lost.',
+          message: e instanceof Error ? e.message : i18n.global.t('create.outlineStream.connectionLost'),
           retry: true,
         }
       }
@@ -139,7 +140,7 @@ export function useOutlineStream(id: Ref<string>) {
         return
       }
       attempt += 1
-      status.value = 'Reconnecting to outline stream'
+      status.value = i18n.global.t('create.outlineStream.reconnecting')
       items.value = []
       await new Promise<void>((resolve) => {
         retryTimer = setTimeout(resolve, RETRY_DELAY_MS * attempt)

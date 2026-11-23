@@ -1,0 +1,319 @@
+{
+  "header": {
+    "breadcrumb": "Breadcrumb",
+    "library": "Library",
+    "presentationTitle": "Presentation title",
+    "presentationActions": "Presentation actions",
+    "rename": "Rename",
+    "duplicatePresentation": "Duplicate presentation",
+    "setup": "Setup",
+    "continueSetup": "Continue: {step}",
+    "openSetupWizard": "Open the setup wizard",
+    "continueSetupTitle": "Continue setup: {step}",
+    "couldNotDuplicate": "Could not duplicate the presentation",
+    "couldNotDelete": "Could not delete the presentation",
+    "deletePresentation": "Delete presentation",
+    "saving": "Saving changes…",
+    "saved": "All changes saved",
+    "export": "Export",
+    "present": "Present",
+    "presentOptions": "Presentation and export options",
+    "presentFromCurrent": "Present from current slide",
+    "presentFromBeginning": "Present from beginning",
+    "narration": "Narration",
+    "motion": "Motion",
+    "avatars": "Avatars",
+    "exportFormats": "Export PPTX, PDF or video…",
+    "untitled": "Untitled presentation"
+  },
+  "toolbar": {
+    "slideTools": "Slide tools",
+    "showSlides": "Show slides",
+    "hideSlides": "Hide slides",
+    "showInspector": "Show inspector",
+    "hideInspector": "Hide inspector",
+    "previousSlide": "Previous slide",
+    "previousSlideShortcut": "Previous slide (↑)",
+    "nextSlide": "Next slide",
+    "nextSlideShortcut": "Next slide (↓)",
+    "undo": "Undo",
+    "undoNamed": "Undo {label}",
+    "undoTitle": "Undo (Ctrl+Z)",
+    "redo": "Redo",
+    "redoNamed": "Redo {label}",
+    "redoTitle": "Redo (Shift+Ctrl+Z)",
+    "insert": "Insert",
+    "insertTitle": "Insert (blocks, text, images, shapes)",
+    "insertSmartUnavailable": "Insert is available for template slides",
+    "insertSelectSlide": "Select a slide to insert into",
+    "insertBusy": "Insert is unavailable while the deck is busy",
+    "askAi": "Ask AI",
+    "askTitle": "Ask AI to edit this slide (Ctrl+K)",
+    "askSmartUnavailable": "AI edit is available for template slides"
+  },
+  "generation": {
+    "generating": "Generating your presentation",
+    "stopped": "Generation stopped",
+    "complete": "Generation complete",
+    "slideCount": "{count} slide | {count} slides",
+    "outputTokens": "{count} output tokens",
+    "thinking": "{count} thinking",
+    "tokensPerSecond": "{rate} tok/s",
+    "seconds": "{seconds}s"
+  },
+  "layouts": {
+    "chooseLayout": "Choose slide layout",
+    "loading": "Loading layouts",
+    "optionCount": "{count} option | {count} options",
+    "loadFailed": "Could not load layouts for this template. You can still add a blank slide.",
+    "addBlankAria": "Add Blank slide layout",
+    "blank": "Blank",
+    "addLayoutAria": "Add {name} layout"
+  },
+  "notes": {
+    "speakerNotes": "Speaker notes",
+    "placeholder": "Give your story a little direction. Add speaker notes…",
+    "writing": "Writing notes…",
+    "writeWithAi": "Write notes with AI",
+    "couldNotGenerate": "Could not generate notes.",
+    "couldNotSave": "Could not save the notes."
+  },
+  "navigator": {
+    "slides": "Slides",
+    "slideNumber": "Slide {n}",
+    "duplicateSlideNumber": "Duplicate slide {n}",
+    "deleteSlideNumber": "Delete slide {n}",
+    "duplicateSlide": "Duplicate slide",
+    "deleteSlide": "Delete slide",
+    "addSlide": "Add slide",
+    "tagline": "A little structure. Endless possibility.",
+    "narrationReady": "Narration ready",
+    "narrationOutOfDate": "Narration out of date",
+    "avatarVideo": "Avatar video"
+  },
+  "footer": {
+    "tabs": {
+      "notes": "Notes",
+      "voice": "Voice",
+      "motion": "Motion"
+    },
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "resize": "Resize notes, voice and motion",
+    "tabsLabel": "Notes, voice and motion",
+    "onlyYou": "Only you can see these"
+  },
+  "inspector": {
+    "sections": "Inspector sections"
+  },
+  "canvas": {
+    "slideCanvas": "Slide canvas",
+    "avatarLanguage": "{avatar} avatar · hidden in {language}",
+    "avatarLanguageTitle": "This avatar was recorded for another narration language; Present and the video export hide it.",
+    "noSlides": "No slides yet."
+  },
+  "layout": {
+    "slides": "Slides",
+    "slideNavigator": "Slide navigator",
+    "inspector": "Inspector",
+    "inspectorDescription": "Layers, insert and design tools",
+    "askAi": "Ask AI"
+  },
+  "statusBar": {
+    "slideOfTotal": "Slide {position} of {total}",
+    "slideName": "Slide name",
+    "zoom": "Zoom",
+    "zoomOut": "Zoom out",
+    "zoomIn": "Zoom in",
+    "fitToCanvas": "Fit to canvas",
+    "presentFromSlide": "Present from this slide"
+  },
+  "exportDialog": {
+    "title": "Take your presentation with you.",
+    "description": "Download an editable deck or a PDF, or render a narrated video."
+  },
+  "export": {
+    "format": "Export format",
+    "formats": {
+      "pptx": {
+        "name": "PowerPoint",
+        "detail": "Editable .pptx deck"
+      },
+      "pdf": {
+        "name": "PDF",
+        "detail": "Ready to print or share"
+      },
+      "mp4": {
+        "name": "Video",
+        "detail": "Narrated MP4"
+      }
+    },
+    "file": {
+      "blurb": {
+        "pptx": "Every slide as an editable PowerPoint file, with your theme and fonts.",
+        "pdf": "A fixed-layout document, one slide per page."
+      },
+      "exportFailed": "Export failed",
+      "exporting": "Exporting {format}...",
+      "export": "Export {format}",
+      "ready": "Your {format} is ready.",
+      "download": "Download {format}"
+    },
+    "video": {
+      "couldNotStart": "Could not start the video export",
+      "couldNotDelete": "Could not delete the video",
+      "animations": "Animations: {animated} of {total} slides",
+      "editInMotion": "Edit in Motion tab",
+      "renderAgain": "Render again",
+      "renderMp4": "Render MP4",
+      "queued": "Queued...",
+      "dismiss": "Dismiss",
+      "downloadMp4": "Download MP4",
+      "deleteTitle": "Delete this video?",
+      "deleteDescription": "The rendered MP4 file will be removed. You can render it again later."
+    },
+    "options": {
+      "language": "Language",
+      "resolution": "Resolution",
+      "subtitles": "Subtitles",
+      "subtitleOptions": {
+        "soft": "Soft (toggle in player)",
+        "burned": "Burned into video",
+        "none": "None"
+      },
+      "chooseLanguage": "Choose a language",
+      "avatars": "Avatars",
+      "animate": "Animate",
+      "advanced": "Advanced",
+      "voice": "Voice",
+      "providerDefault": "Provider default",
+      "fps": "Frames per second",
+      "minSeconds": "Minimum seconds per slide",
+      "padding": "Padding seconds",
+      "crossfade": "Crossfade seconds",
+      "generateAudio": "Generate missing audio",
+      "speakerIndicator": "Speaker indicator",
+      "regenerate": "Regenerate"
+    }
+  },
+  "chat": {
+    "title": "Ask AI",
+    "busyDefault": "Working on it",
+    "stopped": "Stopped",
+    "suggestions": {
+      "concise": "Say more with less",
+      "headline": "Sharpen the headline",
+      "ending": "Give it a great ending"
+    },
+    "couldNotDelete": "Could not delete the conversation",
+    "closeAria": "Close Ask AI",
+    "closeTitle": "Close (Ctrl+K)",
+    "emptyHeadlineStart": "Your idea.",
+    "emptyHeadlineEnd": "A little more extraordinary.",
+    "emptyBody": "Ask Slideshows to change the deck, rewrite a slide or answer questions about it.",
+    "placeholder": "What are you imagining?",
+    "messageAria": "Message",
+    "slideNumber": "Slide {n}",
+    "wholeDeck": "Whole deck",
+    "stop": "Stop",
+    "send": "Send",
+    "conversations": {
+      "menu": "Conversations",
+      "new": "New conversation",
+      "none": "No past conversations",
+      "empty": "Empty conversation",
+      "deleteAria": "Delete conversation",
+      "deleteTitle": "Delete this conversation?",
+      "deleteDescription": "The messages are removed permanently. Slides are not affected."
+    },
+    "activity": {
+      "searchFound": "Found the relevant content.",
+      "searchLooking": "Looking through the content.",
+      "slideChecked": "Checked the slide.",
+      "slideChecking": "Checking the slide.",
+      "itemRemoved": "Removed the selected item.",
+      "itemRemoving": "Removing the selected item.",
+      "assetsPrepared": "Prepared the visual assets.",
+      "assetsPreparing": "Preparing visual assets.",
+      "themeUpdated": "Updated the theme.",
+      "themeUpdating": "Updating the theme.",
+      "changeApplied": "Applied the change.",
+      "changeApplying": "Applying the change.",
+      "stepFinished": "Finished that step.",
+      "working": "Working on it.",
+      "stepFailed": "I could not finish that step.",
+      "somethingWrong": "Something went wrong"
+    }
+  },
+  "mutations": {
+    "deckBusy": "The deck is busy.",
+    "couldNot": "Could not {action}",
+    "slideDeleted": "Slide deleted",
+    "deleteNotice": "Undo restores the slide content but not its narration audio or avatar video.",
+    "slideLimit": "Slide limit reached",
+    "slideLimitDescription": "You can have up to {max} slides.",
+    "labels": {
+      "reorderSlides": "Reorder slides",
+      "deleteSlide": "Delete slide",
+      "duplicateSlide": "Duplicate slide",
+      "addSlide": "Add slide",
+      "renamePresentation": "Rename presentation",
+      "renameSlide": "Rename slide"
+    }
+  },
+  "pipeline": {
+    "failure": "{what}{detail}. Retry to try again.",
+    "failedWhat": {
+      "notes": "Couldn’t write the speaker notes",
+      "voice": "Couldn’t record the narration",
+      "avatars": "Couldn’t render the presenter videos"
+    },
+    "chooseLanguage": "Choose a narration language first, under Presenter and language.",
+    "checkingPresenter": "Checking presenter setup…",
+    "addPortrait": "Add a presenter photo first, under Presenter and language.",
+    "needsNarration": "Presenter videos need up-to-date narration first. Narrate the slides again, then retry.",
+    "presenterVideosFailed": "{count} presenter video didn’t render. Retry to render it again. | {count} presenter videos didn’t render. Retry to render them again.",
+    "interrupted": "Interrupted, retry to continue"
+  },
+  "animation": {
+    "failed": "Motion planning failed",
+    "couldNotStartPlanning": "Motion planning could not start",
+    "couldNotStartDeck": "Could not start planning the deck."
+  },
+  "undo": {
+    "couldNotUndo": "Could not undo",
+    "couldNotRedo": "Could not redo"
+  },
+  "motion": {
+    "lockedByDeckRun": "Unavailable while motion is planned for every slide",
+    "custom": "Custom",
+    "animationTimeline": "Animation timeline",
+    "timeline": "Timeline",
+    "pauseAnimation": "Pause animation",
+    "playAnimation": "Play animation",
+    "pause": "Pause",
+    "play": "Play",
+    "stopRestore": "Stop and restore slide",
+    "timeOfWindow": "/ {seconds} s",
+    "loop": "Loop",
+    "element": "ELEMENT",
+    "tick": "{seconds}s",
+    "cannotAnimate": "This slide can't be animated.",
+    "nothingToAnimate": "Nothing to animate on this slide.",
+    "layoutChanged": "Layout changed — re-plan.",
+    "elementsChanged": "This slide's elements changed since its motion was made.",
+    "replan": "Re-plan",
+    "clipAria": "{name} animation. {hint}",
+    "dragHint": "Drag or use arrow keys to change its start time.",
+    "clipTitle": "{name} · {delay}s",
+    "addMotionTo": "Add motion to {name}",
+    "add": "Add",
+    "scrubPreview": "Scrub preview",
+    "playhead": "Animation playhead in seconds",
+    "lockedNote": "{reason}.",
+    "help": "Drag clips to sequence. Arrow keys fine-tune by 0.1 s. Slide editing pauses while the preview plays.",
+    "replaceTitle": "Replace your edits?",
+    "replaceDescription": "You've edited this slide's motion by hand. Regenerating replaces it with a new AI plan.",
+    "replace": "Replace"
+  }
+}

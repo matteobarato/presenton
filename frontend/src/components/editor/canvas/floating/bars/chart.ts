@@ -11,5 +11,5 @@ const ChartPanel = framed(ChartSection)
 export const chartBar: BarItem[] = [
   { type: 'custom', id: 'chart-type', component: ChartType },
   { type: 'custom', id: 'chart-edit-data', component: ChartEditData },
-  { type: 'panel', id: 'chart', label: 'Chart', icon: ChartColumn, component: ChartPanel, props: (c: BarContext) => ({ presentation: c.presentation }) },
+  { type: 'panel', id: 'chart', label: 'editorCanvas.bar.labels.chart', icon: ChartColumn, component: ChartPanel, props: (c: BarContext) => ({ presentation: c.presentation }) },
 ]

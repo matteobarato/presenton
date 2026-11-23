@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import type { Slide } from '@/api/types'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
@@ -8,6 +9,7 @@ import SlideView from '@/render/SlideView.vue'
 const props = defineProps<{ slides: Slide[]; theme?: unknown; fonts?: unknown; title: string }>()
 const index = defineModel<number | null>('index', { required: true })
 const emit = defineEmits<{ closed: [] }>()
+const { t } = useI18n()
 
 const open = computed(() => index.value !== null)
 const current = computed(() => (index.value === null ? undefined : props.slides[index.value]))
@@ -39,17 +41,17 @@ function onOpenChange(v: boolean) {
       @close-auto-focus="emit('closed')"
     >
       <div @keydown="onKeydown">
-        <DialogTitle class="sr-only">{{ title }} — layout {{ (index ?? 0) + 1 }}</DialogTitle>
-        <DialogDescription class="sr-only">Layout preview</DialogDescription>
+        <DialogTitle class="sr-only">{{ t('templates.lightbox.title', { title, index: (index ?? 0) + 1 }) }}</DialogTitle>
+        <DialogDescription class="sr-only">{{ t('templates.lightbox.description') }}</DialogDescription>
         <div class="overflow-hidden rounded-[9px] bg-sx-101416">
           <SlideView v-if="current" :key="current.id" :slide="current" :theme="theme as never" :fonts="fonts as never" show-placeholders fit="width" />
         </div>
         <div class="mt-3 flex items-center justify-center gap-4 text-[12px] text-tx-9eb7c7 tabular-nums">
-          <button type="button" aria-label="Previous layout" :aria-disabled="atStart" class="grid size-8 place-items-center rounded-full hover:bg-sx-3b4b55 aria-disabled:cursor-default aria-disabled:opacity-40" @click="step(-1)">
+          <button type="button" :aria-label="t('templates.lightbox.previous')":aria-disabled="atStart" class="grid size-8 place-items-center rounded-full hover:bg-sx-3b4b55 aria-disabled:cursor-default aria-disabled:opacity-40" @click="step(-1)">
             <ChevronLeft class="size-5" aria-hidden="true" />
           </button>
           <span data-testid="lightbox-counter">{{ (index ?? 0) + 1 }} / {{ slides.length }}</span>
-          <button type="button" aria-label="Next layout" :aria-disabled="atEnd" class="grid size-8 place-items-center rounded-full hover:bg-sx-3b4b55 aria-disabled:cursor-default aria-disabled:opacity-40" @click="step(1)">
+          <button type="button" :aria-label="t('templates.lightbox.next')":aria-disabled="atEnd" class="grid size-8 place-items-center rounded-full hover:bg-sx-3b4b55 aria-disabled:cursor-default aria-disabled:opacity-40" @click="step(1)">
             <ChevronRight class="size-5" aria-hidden="true" />
           </button>
         </div>

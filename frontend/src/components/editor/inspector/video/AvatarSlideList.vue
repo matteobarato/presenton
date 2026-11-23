@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import type { Slide } from '@/api/types'
 import { useEditorStore } from '@/stores/editor'
 import { hasVideoPlaceholder } from './avatar-state'
 import { injectDeckAvatars } from './useDeckAvatars'
 import AvatarChip from './AvatarChip.vue'
+
+const { t } = useI18n()
 
 /** Every slide with its presenter state and video stats. The active slide is highlighted; a click jumps to it. */
 const props = defineProps<{ slides: Slide[]; activeSlide: Slide | null }>()
@@ -19,7 +22,7 @@ const duration = (s?: number | null) => (s ? `${Math.floor(s / 60)}:${String(Mat
 function stats(s: Slide) {
   const v = videoBySlide.value.get(s.id)
   if (v) return [duration(v.duration_seconds), size(v.size_bytes), v.format?.toUpperCase()].filter(Boolean).join(' · ')
-  return chipOf(s) === 'no_placeholder' ? 'Voice bubble' : 'No video'
+  return chipOf(s) === 'no_placeholder' ? t('editorInspector.avatar.slides.voiceBubble') : t('editorInspector.avatar.slides.noVideo')
 }
 function select(s: Slide) {
   if (s.id) editor.select(s.id)
@@ -27,10 +30,10 @@ function select(s: Slide) {
 </script>
 
 <template>
-  <section class="flex flex-col gap-2.5 border-t border-line py-[18px]" aria-label="Slides" data-testid="avatar-slide-list">
+  <section class="flex flex-col gap-2.5 border-t border-line py-[18px]" :aria-label="t('editorInspector.avatar.slides.title')" data-testid="avatar-slide-list">
     <div class="flex items-baseline gap-2">
-      <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Slides</h3>
-      <span class="ml-auto text-[10px] text-tx-a0abb1 tabular-nums">{{ withPresenter }} of {{ slides.length }} with presenter</span>
+      <h3 class="text-[12px] font-semibold text-tx-f6f8f9">{{ t('editorInspector.avatar.slides.title') }}</h3>
+      <span class="ml-auto text-[10px] text-tx-a0abb1 tabular-nums">{{ t('editorInspector.avatar.slides.withPresenter', { count: withPresenter, total: slides.length }) }}</span>
     </div>
     <ul class="-mx-2 flex max-h-72 flex-col gap-px overflow-y-auto">
       <li v-for="s in sorted" :key="s.id ?? s.index">
@@ -52,7 +55,7 @@ function select(s: Slide) {
           <span v-else class="grid aspect-video w-12 flex-none place-items-center rounded-control border border-line text-[10px] text-faint tabular-nums">{{ s.index + 1 }}</span>
           <span class="flex min-w-0 flex-1 flex-col gap-0.5">
             <span class="flex items-center gap-1.5">
-              <span class="text-[11px] font-semibold whitespace-nowrap text-tx-d4dadd">Slide {{ s.index + 1 }}</span>
+              <span class="text-[11px] font-semibold whitespace-nowrap text-tx-d4dadd">{{ t('editorInspector.avatar.slides.slide', { n: s.index + 1 }) }}</span>
               <!-- Presenter-off rows stay quiet (their line says "Voice bubble"); badges mark the slides that have a presenter. -->
               <AvatarChip v-if="chipOf(s) !== 'no_placeholder' || videoBySlide.has(s.id)" :kind="chipOf(s)" class="ml-auto shrink-0" />
             </span>

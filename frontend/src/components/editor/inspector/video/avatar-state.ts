@@ -1,5 +1,6 @@
 import type { Slide } from '@/api/types'
 import type { AvatarSlidePlan, SlideVideo } from '@/api/videos'
+import { i18n } from '@/i18n'
 import type { NarrationState } from '../narration/narration-state'
 
 export type AvatarChipKind =
@@ -15,33 +16,14 @@ export type AvatarChipKind =
   | 'video_stale'
   | 'other_language'
 
-export const CHIP_LABEL: Record<AvatarChipKind, string> = {
-  ready: 'Ready',
-  no_placeholder: 'Presenter off',
-  no_audio: 'No narration',
-  audio_stale: 'Narration changed',
-  unsupported_audio: 'Audio format',
-  generating: 'Generating',
-  failed: 'Failed',
-  done: 'Generated',
-  uploaded: 'Uploaded video',
-  video_stale: 'Out of date',
-  other_language: 'Other language',
-}
-
-const FAILURE_LABELS: Record<string, string> = {
-  timeout: 'Timed out',
-  internal_error: 'Internal error',
-  invalid_output: 'Invalid video returned',
-  configuration: 'HeyGen is not configured',
-  request_error: 'Request failed',
-  audio_error: 'Narration audio could not be read',
-  unknown: 'Unknown error',
-}
+const FAILURE_REASONS = new Set(['timeout', 'internal_error', 'invalid_output', 'configuration', 'request_error', 'audio_error', 'unknown'])
 
 /** The provider's message for a failed slide, else a label for its reason. */
 export function failureText(plan: Pick<AvatarSlidePlan, 'reason' | 'message'>): string {
-  return plan.message || (plan.reason ? (FAILURE_LABELS[plan.reason] ?? plan.reason) : 'Generation failed')
+  const t = i18n.global.t
+  if (plan.message) return plan.message
+  if (!plan.reason) return t('editorInspector.avatar.failure.fallback')
+  return FAILURE_REASONS.has(plan.reason) ? t(`editorInspector.avatar.failure.${plan.reason}`) : plan.reason
 }
 
 /** Does the slide's `ui` carry the avatar placeholder layer (an element flagged `video_placeholder`)? */
@@ -59,9 +41,10 @@ export function hasVideoPlaceholder(slide: Pick<Slide, 'ui'>): boolean {
 
 /** Why a slide cannot get an avatar right now, or null. Narration must be up to date: avatars are lip-synced to it. */
 export function slideBlocker(hasPlaceholder: boolean, narration: NarrationState): string | null {
-  if (!hasPlaceholder) return 'has no avatar placeholder'
-  if (narration === 'missing') return 'has no narration yet'
-  if (narration === 'stale') return 'narration changed since it was recorded'
+  const t = i18n.global.t
+  if (!hasPlaceholder) return t('editorInspector.avatar.slideBlocker.noPlaceholder')
+  if (narration === 'missing') return t('editorInspector.avatar.slideBlocker.noNarration')
+  if (narration === 'stale') return t('editorInspector.avatar.slideBlocker.narrationChanged')
   return null
 }
 

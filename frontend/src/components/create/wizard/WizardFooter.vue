@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { getCurrentInstance } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { RouterLink } from 'vue-router'
@@ -7,6 +8,7 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import type { FooterAction } from './stepFooter'
+const { t } = useI18n()
 
 /** Sticky action bar shared by every wizard step. Always say why a primary action is unavailable via `status`. */
 defineProps<{ status?: string; error?: string | null; busy?: boolean; actions?: FooterAction[] }>()
@@ -26,7 +28,7 @@ const hasRetry = !!getCurrentInstance()?.vnode.props?.onRetry
   >
     <Alert v-if="error" variant="destructive" role="alert" class="flex items-center justify-between gap-3 py-2 text-[12px]">
       <span>{{ error }}</span>
-      <Button v-if="hasRetry" type="button" size="sm" variant="outline" data-testid="footer-retry" @click="$emit('retry')">Retry</Button>
+      <Button v-if="hasRetry" type="button" size="sm" variant="outline" data-testid="footer-retry" @click="$emit('retry')">{{ t('create.actions.retry') }}</Button>
     </Alert>
     <div class="flex items-center gap-2.5 max-[559px]:flex-wrap max-[559px]:gap-x-2 max-[559px]:gap-y-2">
       <slot name="back" />
@@ -39,7 +41,7 @@ const hasRetry = !!getCurrentInstance()?.vnode.props?.onRetry
       <template v-if="actions?.length">
         <DropdownMenu v-if="compact">
           <DropdownMenuTrigger as-child>
-            <Button type="button" variant="outline" class="size-11 flex-none p-0" aria-label="More actions" data-testid="footer-more">
+            <Button type="button" variant="outline" class="size-11 flex-none p-0" :aria-label="t('create.wizard.footerMore')" data-testid="footer-more">
               <Ellipsis class="size-4" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>

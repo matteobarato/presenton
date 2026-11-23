@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { Check, Languages, UserRound } from 'lucide-vue-next'
 import TtsLanguageSelect from '@/components/editor/inspector/narration/TtsLanguageSelect.vue'
 import { injectDeckNarration } from '@/components/editor/inspector/narration/useDeckNarration'
 import PortraitHero from '@/components/editor/inspector/video/PortraitHero.vue'
 import { injectDeckAvatars } from '@/components/editor/inspector/video/useDeckAvatars'
+const { t } = useI18n()
 
 /**
  * Step 2 (Presenter) of a created deck: the presenter photo and the narration language, editable. Generation
@@ -20,7 +22,6 @@ const portraitOk = computed(() => Boolean(videos.value?.portrait))
 const running = computed(() => props.running)
 const languageOk = computed(() => props.languageOk)
 const avatarWork = computed(() => props.avatarWork)
-const voiceOnlyReason = 'This deck has no presenter slides, so it is narrated with a voice only. Presenter videos are rendered at the Narration step, for the slides that have one.'
 </script>
 
 <template>
@@ -34,20 +35,20 @@ const voiceOnlyReason = 'This deck has no presenter slides, so it is narrated wi
         <div class="flex min-w-0 flex-1 items-center gap-2.5">
           <span class="grid size-8 flex-none place-items-center rounded-full bg-accent/10 text-accent"><Languages class="size-4" aria-hidden="true" /></span>
           <div class="flex min-w-0 flex-col">
-            <h3 class="text-[13px] font-semibold text-tx-f6f8f9">Language</h3>
-            <span class="text-[12px] text-muted">The voice speaks in this language</span>
+            <h3 class="text-[13px] font-semibold text-tx-f6f8f9">{{ t('create.chips.language') }}</h3>
+            <span class="text-[12px] text-muted">{{ t('create.presenterStep.languageHint') }}</span>
           </div>
         </div>
         <div class="flex w-[260px] flex-none items-center gap-2 max-[560px]:w-full">
           <div class="min-w-0 flex-1">
             <TtsLanguageSelect :languages="languages ?? []" :model-value="language" :disabled="running" @update:model-value="setLanguage" />
           </div>
-          <Check v-if="languageOk" class="size-4 flex-none text-accent" role="img" aria-label="Done" />
+          <Check v-if="languageOk" class="size-4 flex-none text-accent" role="img" :aria-label="t('create.done')" />
         </div>
       </section>
 
       <p v-if="!avatarWork" class="rounded-card border border-ov/[0.06] bg-ov/[0.015] px-4 py-3 text-[12px] text-muted" data-testid="setup-voice-only">
-        {{ voiceOnlyReason }}
+        {{ t('create.presenterStep.voiceOnlyReason') }}
       </p>
 
       <!-- Presenter: the big card -->
@@ -60,10 +61,10 @@ const voiceOnlyReason = 'This deck has no presenter slides, so it is narrated wi
         <div class="flex items-center gap-2.5">
           <span class="grid size-8 flex-none place-items-center rounded-full bg-accent/10 text-accent"><UserRound class="size-4" aria-hidden="true" /></span>
           <div class="flex flex-col">
-            <h3 class="text-[13px] font-semibold text-tx-f6f8f9">Presenter</h3>
-            <span class="text-[12px] text-muted">{{ portraitOk ? 'Your presenter for this deck' : 'Add a photo of your presenter' }}</span>
+            <h3 class="text-[13px] font-semibold text-tx-f6f8f9">{{ t('create.presenter.title') }}</h3>
+            <span class="text-[12px] text-muted">{{ portraitOk ? t('create.presenterStep.yourPresenter') : t('create.presenterStep.addPhoto') }}</span>
           </div>
-          <Check v-if="portraitOk" class="ml-auto size-4 text-accent" role="img" aria-label="Done" />
+          <Check v-if="portraitOk" class="ml-auto size-4 text-accent" role="img" :aria-label="t('create.done')" />
         </div>
         <PortraitHero
           class="mx-auto w-full max-w-[380px]"

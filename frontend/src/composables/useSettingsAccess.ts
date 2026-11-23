@@ -2,11 +2,10 @@ import { ref, type Ref } from 'vue'
 import { getProviderSettings } from '@/api/providerSettings'
 import { ApiError, BackendUnreachableError, extractApiErrorMessage } from '@/api/errors'
 import type { ProviderConfig } from '@/settings/types'
+import { i18n } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 
 export type AccessMode = 'loading' | 'edit' | 'locked' | 'managed' | 'error'
-
-const FALLBACK_ERROR = 'The provider settings could not be loaded.'
 
 /**
  * Who may do what on `/settings`. Only admins are sent to the admin endpoint; everyone else
@@ -50,7 +49,7 @@ export function useSettingsAccess(): {
         return
       }
       const body = e instanceof ApiError ? e.body : e instanceof BackendUnreachableError ? e.message : null
-      error.value = extractApiErrorMessage(body, FALLBACK_ERROR, e instanceof ApiError ? e.status : undefined)
+      error.value = extractApiErrorMessage(body, i18n.global.t('settings.access.loadFailed'), e instanceof ApiError ? e.status : undefined)
       mode.value = 'error'
     }
   }

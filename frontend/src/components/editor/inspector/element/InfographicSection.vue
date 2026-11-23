@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import type { Presentation } from '@/api/types'
 import ColorField from '@/components/editor/inspector/controls/ColorField.vue'
@@ -22,6 +23,8 @@ import { useEditingActions } from '@/slide-editor/useEditingActions'
 
 import InfographicItemsDialog from './InfographicItemsDialog.vue'
 import { useInfographicControls } from './useInfographicControls'
+
+const { t } = useI18n()
 
 const props = defineProps<{ presentation: Presentation }>()
 
@@ -81,44 +84,44 @@ const action = `${field} cursor-pointer justify-center hover:bg-sx-303a3f disabl
 
 <template>
   <div v-if="raw && group" :class="section">
-    <div :class="label"><h3>Infographic</h3></div>
+    <div :class="label"><h3>{{ t('editorInspector.element.infographic.title') }}</h3></div>
 
     <template v-if="group === 'meter' && meter">
-      <div :class="[sub, '!mt-0']">Value</div>
-      <NumberField :model-value="meter.value" label="Value" :step="1" @focus="hold" @commit="(v) => setMeterField('value', 'Infographic value', v)" />
-      <div :class="sub">Min</div>
-      <NumberField :model-value="meter.min" label="Min" :step="1" @focus="hold" @commit="(v) => setMeterField('min', 'Infographic range', v)" />
-      <div :class="sub">Max</div>
-      <NumberField :model-value="meter.max" label="Max" :step="1" @focus="hold" @commit="(v) => setMeterField('max', 'Infographic range', v)" />
+      <div :class="[sub, '!mt-0']">{{ t('editorInspector.element.infographic.value') }}</div>
+      <NumberField :model-value="meter.value" :label="t('editorInspector.element.infographic.value')" :step="1" @focus="hold" @commit="(v) => setMeterField('value', 'Infographic value', v)" />
+      <div :class="sub">{{ t('editorInspector.element.infographic.min') }}</div>
+      <NumberField :model-value="meter.min" :label="t('editorInspector.element.infographic.min')" :step="1" @focus="hold" @commit="(v) => setMeterField('min', 'Infographic range', v)" />
+      <div :class="sub">{{ t('editorInspector.element.infographic.max') }}</div>
+      <NumberField :model-value="meter.max" :label="t('editorInspector.element.infographic.max')" :step="1" @focus="hold" @commit="(v) => setMeterField('max', 'Infographic range', v)" />
     </template>
 
     <template v-if="group === 'items' && stats">
       <div :class="[sub, 'flex items-center justify-between', '!mt-0']">
-        <span>Items</span>
+        <span>{{ t('editorInspector.element.infographic.items') }}</span>
         <span class="text-tx-dce3e7">{{ stats.count }}</span>
       </div>
       <div class="flex gap-2">
-        <button type="button" :class="[action, 'flex-1']" :disabled="!stats.canAdd" @mousedown.prevent @click="add">Add item</button>
-        <button type="button" :class="[action, 'flex-1']" :disabled="!stats.canRemove" @mousedown.prevent @click="remove">Remove last item</button>
+        <button type="button" :class="[action, 'flex-1']" :disabled="!stats.canAdd" @mousedown.prevent @click="add">{{ t('editorInspector.element.infographic.addItem') }}</button>
+        <button type="button" :class="[action, 'flex-1']" :disabled="!stats.canRemove" @mousedown.prevent @click="remove">{{ t('editorInspector.element.infographic.removeItem') }}</button>
       </div>
-      <button type="button" :class="[action, 'mt-2 w-full']" @mousedown.prevent @click="itemsOpen = true">Edit items…</button>
+      <button type="button" :class="[action, 'mt-2 w-full']" @mousedown.prevent @click="itemsOpen = true">{{ t('editorInspector.element.infographic.editItems') }}</button>
     </template>
 
-    <div :class="[sub, group === 'other' && '!mt-0']">Colours</div>
+    <div :class="[sub, group === 'other' && '!mt-0']">{{ t('editorInspector.element.infographic.colours') }}</div>
     <div class="flex flex-col gap-2">
       <ColorField
         v-for="(c, i) in colours"
         :key="i"
         :model-value="c"
         :palette="palette"
-        :label="`Colour ${i + 1}`"
+        :label="t('editorInspector.element.infographic.colourN', { n: i + 1 })"
         @open="hold"
         @close="anchor = null"
         @commit="(v) => colour(i, v)"
       />
     </div>
-    <div :class="sub">Text colour</div>
-    <ColorField :model-value="textColour ?? colours[0] ?? null" :palette="palette" label="Text colour" @open="hold" @close="anchor = null" @commit="textColourCommit" />
+    <div :class="sub">{{ t('editorInspector.element.infographic.textColour') }}</div>
+    <ColorField :model-value="textColour ?? colours[0] ?? null" :palette="palette" :label="t('editorInspector.element.infographic.textColour')" @open="hold" @close="anchor = null" @commit="textColourCommit" />
   </div>
 
   <InfographicItemsDialog v-if="root && group === 'items'" v-model:open="itemsOpen" :root="root" />

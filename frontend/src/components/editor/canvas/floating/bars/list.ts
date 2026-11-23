@@ -8,5 +8,5 @@ import { textBar } from './text'
 export const listBar: BarItem[] = [
   ...textBar.filter((item) => item.id !== 'text'),
   { type: 'custom', id: 'list-marker', component: ListMarkerButtons },
-  { type: 'panel', id: 'text', label: 'Text', icon: Type, component: ListPanel, props: (c) => ({ presentation: c.presentation }) },
+  { type: 'panel', id: 'text', label: 'editorCanvas.bar.labels.text', icon: Type, component: ListPanel, props: (c) => ({ presentation: c.presentation }) },
 ]

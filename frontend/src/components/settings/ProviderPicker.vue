@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, useId, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Check, ChevronDown } from 'lucide-vue-next'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -19,6 +20,7 @@ const props = defineProps<{
   label?: string
 }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
+const { t } = useI18n()
 
 const uid = useId()
 const triggerId = `provider-trigger-${uid}`
@@ -67,7 +69,7 @@ function choose(value: string) {
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" class="w-[min(420px,calc(100vw-24px))] min-w-(--reka-popover-trigger-width) p-2">
-        <Input v-model="query" type="text" :placeholder="searchPlaceholder ?? 'Search providers'" :aria-label="searchPlaceholder ?? 'Search providers'" autocomplete="off" />
+        <Input v-model="query" type="text" :placeholder="searchPlaceholder ?? t('settings.providerPicker.searchDefault')" :aria-label="searchPlaceholder ?? t('settings.providerPicker.searchDefault')" autocomplete="off" />
         <div :id="listId" role="listbox" :aria-label="label ?? placeholder" class="mt-2 max-h-64 overflow-y-auto">
           <button
             v-for="o in filtered"
@@ -86,7 +88,7 @@ function choose(value: string) {
             </span>
             <Check class="size-4 shrink-0 text-accent" :class="o.value === modelValue ? 'opacity-100' : 'opacity-0'" aria-hidden="true" />
           </button>
-          <p v-if="filtered.length === 0" class="px-3 py-5 text-center text-[12px] text-muted">No provider found.</p>
+          <p v-if="filtered.length === 0" class="px-3 py-5 text-center text-[12px] text-muted">{{ t('settings.providerPicker.noneFound') }}</p>
         </div>
       </PopoverContent>
     </Popover>

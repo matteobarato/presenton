@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, nextTick, onMounted, ref, toRef, watch } from 'vue'
 import { ArrowUp, ArrowUpRight, Layers, Square, Sparkles, Type, WandSparkles, X } from 'lucide-vue-next'
 import { toast } from '@/components/ui/sonner'
@@ -12,11 +13,12 @@ import ConversationMenu from './ConversationMenu.vue'
 const props = defineProps<{ presentationId: string; presentation: Presentation; activeSlide: Slide | null }>()
 
 const editor = useEditorStore()
+const { t } = useI18n()
 const chat = useChat(toRef(props, 'presentationId'))
 const draft = ref('')
 const list = ref<HTMLElement | null>(null)
 const input = ref<HTMLTextAreaElement | null>(null)
-const busyLabel = computed(() => chat.status.value || 'Working on it')
+const busyLabel = computed(() => chat.status.value || t('editor.chat.busyDefault'))
 
 onMounted(() => void chat.loadHistory())
 
@@ -46,9 +48,9 @@ const slideIndex = computed(() => {
 
 // Aera-style starters: one click sends a real request about the current slide.
 const suggestions = [
-  { icon: WandSparkles, label: 'Say more with less', prompt: 'Make this slide more concise without losing its point.' },
-  { icon: Type, label: 'Sharpen the headline', prompt: 'Rewrite the headline of this slide so it is clearer and more memorable.' },
-  { icon: Sparkles, label: 'Give it a great ending', prompt: 'Add a strong closing slide at the end of the deck.' },
+  { icon: WandSparkles, key: 'concise', prompt: 'Make this slide more concise without losing its point.' },
+  { icon: Type, key: 'headline', prompt: 'Rewrite the headline of this slide so it is clearer and more memorable.' },
+  { icon: Sparkles, key: 'ending', prompt: 'Add a strong closing slide at the end of the deck.' },
 ]
 function suggest(prompt: string) {
   draft.value = prompt
@@ -73,20 +75,20 @@ async function removeConversation(id: string) {
   try {
     await chat.deleteConversation(id)
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : 'Could not delete the conversation')
+    toast.error(e instanceof Error ? e.message : t('editor.chat.couldNotDelete'))
   }
 }
 </script>
 
 <template>
-  <section class="flex min-h-0 flex-1 flex-col" aria-label="Ask AI">
+  <section class="flex min-h-0 flex-1 flex-col" :aria-label="t('editor.chat.title')">
     <header
       class="flex h-[57px] flex-none items-center gap-2 border-b border-line pr-2.5 pl-4 [@media(max-height:780px)_and_(min-width:1051px)]:h-[49px]"
     >
       <span class="grid size-[26px] place-items-center rounded-[8px] bg-sx-3c4c552e text-tx-c9e5f2" aria-hidden="true">
         <Sparkles class="size-3.5" />
       </span>
-      <h2 class="text-[12px] font-semibold text-tx-edf1f2">Ask AI</h2>
+      <h2 class="text-[12px] font-semibold text-tx-edf1f2">{{ t('editor.chat.title') }}</h2>
       <div class="ml-auto flex items-center gap-0.5">
         <ConversationMenu
           :conversations="chat.conversations.value"
@@ -98,8 +100,8 @@ async function removeConversation(id: string) {
         <button
           type="button"
           class="grid size-7 place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-white"
-          aria-label="Close Ask AI"
-          title="Close (Ctrl+K)"
+          :aria-label="t('editor.chat.closeAria')"
+          :title="t('editor.chat.closeTitle')"
           @click="editor.chatOpen = false"
         >
           <X class="size-4" aria-hidden="true" />
@@ -115,21 +117,21 @@ async function removeConversation(id: string) {
         >
           <Sparkles class="size-[26px]" />
         </div>
-        <h2 class="text-[20px] leading-[1.28] font-medium tracking-[-0.04em] text-tx-e4ecf1">Your idea.<br />A little more extraordinary.</h2>
+        <h2 class="text-[20px] leading-[1.28] font-medium tracking-[-0.04em] text-tx-e4ecf1">{{ t('editor.chat.emptyHeadlineStart') }}<br />{{ t('editor.chat.emptyHeadlineEnd') }}</h2>
         <p class="mt-3 text-[11px] leading-[1.8] text-tx-a3b1b8">
-          Ask Slideshows to change the deck, rewrite a slide or answer questions about it.
+          {{ t('editor.chat.emptyBody') }}
         </p>
         <div class="mt-[27px] flex flex-col gap-2">
           <button
             v-for="s in suggestions"
-            :key="s.label"
+            :key="s.key"
             type="button"
             :disabled="chat.sending.value || editor.generating"
             class="flex items-center gap-2.5 rounded-[9px] border border-ov/[0.02] bg-sx-282f33 px-2.5 py-3 text-left text-[11px] text-tx-c0cdd5 hover:bg-sx-34434c hover:text-tx-e3f6ff disabled:opacity-50"
             @click="suggest(s.prompt)"
           >
             <component :is="s.icon" class="size-4 text-tx-b8d9eb" aria-hidden="true" />
-            <span>{{ s.label }}</span>
+            <span>{{ t(`editor.chat.suggestions.${s.key}`) }}</span>
             <ArrowUpRight class="ml-auto size-3.5 text-tx-9aacb7" aria-hidden="true" />
           </button>
         </div>
@@ -152,21 +154,21 @@ async function removeConversation(id: string) {
           ref="input"
           v-model="draft"
           rows="3"
-          placeholder="What are you imagining?"
-          aria-label="Message"
+          :placeholder="t('editor.chat.placeholder')"
+          :aria-label="t('editor.chat.messageAria')"
           :disabled="chat.sending.value"
           class="h-[65px] w-full resize-none bg-transparent text-[11px] leading-[1.6] text-tx-dce7ef placeholder:text-tx-8d9ea8 focus-visible:outline-none disabled:opacity-60"
           @keydown="onKeydown"
         />
         <div class="flex items-center justify-between">
           <span class="flex items-center gap-[5px] text-[10px] text-tx-a4b7c3">
-            <Layers class="size-3" aria-hidden="true" />{{ slideIndex !== null ? `Slide ${slideIndex + 1}` : 'Whole deck' }}
+            <Layers class="size-3" aria-hidden="true" />{{ slideIndex !== null ? t('editor.chat.slideNumber', { n: slideIndex + 1 }) : t('editor.chat.wholeDeck') }}
           </span>
           <button
             v-if="chat.sending.value"
             type="button"
             class="grid size-[29px] place-items-center rounded-[8px] bg-secondary text-secondary-text hover:bg-secondary-hover"
-            aria-label="Stop"
+            :aria-label="t('editor.chat.stop')"
             @click="chat.stop()"
           >
             <Square class="size-3.5" aria-hidden="true" />
@@ -175,7 +177,7 @@ async function removeConversation(id: string) {
             v-else
             type="submit"
             class="grid size-[29px] place-items-center rounded-[8px] bg-accent text-tx-26424e hover:bg-sx-e3f5ff disabled:opacity-50 disabled:hover:bg-accent"
-            aria-label="Send"
+            :aria-label="t('editor.chat.send')"
             :disabled="!draft.trim() || editor.generating"
           >
             <ArrowUp class="size-[17px]" aria-hidden="true" />

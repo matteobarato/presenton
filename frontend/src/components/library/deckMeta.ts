@@ -1,8 +1,9 @@
 import type { PresentationSummary } from '@/api/presentations'
+import { i18n } from '@/i18n'
 import { relativeTime } from '@/lib/relativeTime'
 
 export function deckTitle(p: PresentationSummary): string {
-  return p.title?.trim() || 'Untitled presentation'
+  return p.title?.trim() || i18n.global.t('library.untitled')
 }
 
 export function coverSlide(p: PresentationSummary) {
@@ -11,7 +12,7 @@ export function coverSlide(p: PresentationSummary) {
 
 export function deckMeta(p: PresentationSummary): string {
   const n = p.slides.length
-  return `${n} ${n === 1 ? 'slide' : 'slides'} · ${relativeTime(p.updated_at)}`
+  return `${i18n.global.t('library.slideCount', { count: n }, n)} · ${relativeTime(p.updated_at)}`
 }
 
 /**

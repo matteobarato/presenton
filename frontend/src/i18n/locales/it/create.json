@@ -1,0 +1,367 @@
+{
+  "steps": {
+    "topic": "Argomento",
+    "presenter": "Relatore",
+    "outline": "Scaletta",
+    "preview": "Anteprima",
+    "avatar": "Narrazione",
+    "export": "Esporta"
+  },
+  "stepState": {
+    "completed": "Completato",
+    "inProgress": "In corso"
+  },
+  "done": "Fatto",
+  "skipToExport": "Vai all’esportazione",
+  "actions": {
+    "present": "Presenta",
+    "editSlides": "Modifica diapositive",
+    "openInEditor": "Apri nell’editor",
+    "backToLibrary": "Torna alla libreria",
+    "retry": "Riprova"
+  },
+  "chips": {
+    "deckSettings": "Impostazioni presentazione",
+    "language": "Lingua",
+    "languageHint": "La lingua in cui sono scritte le diapositive",
+    "lengthMedia": "Durata e media",
+    "lengthMediaHint": "Quanto è lunga la presentazione e cosa c’è nelle diapositive",
+    "style": "Stile",
+    "styleHint": "Come suona e quanto testo ha ogni diapositiva",
+    "extras": "Extra",
+    "extrasHint": "Aggiunte facoltative e istruzioni per l’autore",
+    "extrasValue": "Extra: {summary}"
+  },
+  "summary": {
+    "autoLength": "Durata auto",
+    "slides": "{count} diapositiva | {count} diapositive",
+    "autoImages": "Immagini auto",
+    "noImages": "Nessuna immagine",
+    "withImages": "{count} con immagini",
+    "tone": "Tono: {tone}",
+    "textPerSlide": "Testo per diapositiva: {level}",
+    "none": "Nessuno",
+    "titleSlide": "Diapositiva del titolo",
+    "contents": "Indice",
+    "webSearch": "Ricerca web",
+    "animated": "Animata",
+    "instructions": "Istruzioni",
+    "photoSet": "Foto impostata",
+    "photoNeeded": "Foto necessaria",
+    "voiceOnly": "Solo voce",
+    "presenterNone": "Nessun video del relatore richiesto, quindi la foto non verrà usata in nessuna diapositiva.",
+    "presenterAdds": "Aggiunge {count} video del relatore nel passaggio Narrazione | Aggiunge {count} video del relatore nel passaggio Narrazione",
+    "presenterAuto": "I video del relatore vengono generati nel passaggio Narrazione. L’autore e il modello decidono a quante diapositive assegnarne uno."
+  },
+  "tones": {
+    "default": "Predefinito",
+    "casual": "Informale",
+    "professional": "Professionale",
+    "funny": "Divertente",
+    "educational": "Didattico",
+    "salesPitch": "Presentazione commerciale"
+  },
+  "verbosity": {
+    "concise": {
+      "label": "Conciso",
+      "hint": "Punti brevi, spazio per parlare"
+    },
+    "standard": {
+      "label": "Standard",
+      "hint": "Testo e immagini bilanciati"
+    },
+    "textHeavy": {
+      "label": "Molto testo",
+      "hint": "Si legge bene anche senza relatore"
+    }
+  },
+  "options": {
+    "auto": "Auto",
+    "none": "Nessuno",
+    "photoType": "Usa una foto JPEG, PNG o WebP.",
+    "photoSize": "La foto supera i 10 MB.",
+    "lengthTitle": "Durata e media",
+    "videosTitle": "Video del relatore",
+    "lengthHint": "Quanto è lunga la presentazione e cosa c’è nelle diapositive",
+    "slidesQuestion": "Quante diapositive?",
+    "slidesHint": "Con Auto decide la scaletta",
+    "slideCountGroup": "Numero di diapositive",
+    "orExactly": "o esattamente",
+    "slidesExactlyAria": "Diapositive, da 1 a {max}, vuoto per auto",
+    "imagesQuestion": "Quante diapositive con immagini?",
+    "imagesHint": "Con Auto decide il modello",
+    "imagesGroup": "Numero di immagini",
+    "videosQuestion": "Quante diapositive con un video del relatore?",
+    "videosHint": "Mostrati come segnaposto finché non vengono generati nel passaggio Narrazione",
+    "videosGroup": "Numero di video del relatore",
+    "videosNeedPhoto": "Aggiungi una foto del relatore per scegliere",
+    "countAria": "{group}, da 0 a {max}, vuoto per auto",
+    "toneTitle": "Tono",
+    "textPerSlide": "Testo per diapositiva",
+    "styleTitle": "Stile",
+    "styleHint": "Come suona e quanto testo ha ogni diapositiva",
+    "extrasTitle": "Extra",
+    "extrasHint": "Aggiunte facoltative alla presentazione",
+    "titleSlide": "Diapositiva del titolo",
+    "titleSlideHint": "Apri con una copertina",
+    "toc": "Indice",
+    "tocHint": "Elenca le sezioni",
+    "webSearch": "Ricerca web",
+    "webSearchHint": "Verifica i fatti online",
+    "animate": "Anima le diapositive",
+    "animateHint": "Pianifica i movimenti d’ingresso dopo la generazione",
+    "anythingElse": "Altro?",
+    "anythingElseHint": "Istruzioni libere per l’autore",
+    "instructionsPlaceholder": "Es. resta sotto i 10 minuti, evita il gergo, chiudi con un invito all’azione"
+  },
+  "topic": {
+    "promptLabel": "Di cosa parla la tua presentazione?",
+    "placeholder": "Descrivi l’argomento, a chi è rivolta e cosa deve ottenere…",
+    "attachedFiles": "File allegati",
+    "attachMore": "Allega altri ({count}/{max})",
+    "attachDocs": "Allega documenti",
+    "removeFile": "Rimuovi {name}",
+    "unsupported": "Alcuni file non sono supportati. Usa Word, PowerPoint, fogli di calcolo, PDF, TXT o immagini.",
+    "tooMany": "Puoi allegare fino a {max} file.",
+    "dropToAttach": "Rilascia per allegare",
+    "words": "{count} parola | {count} parole",
+    "forNext": "per il prossimo: Relatore",
+    "startingPoint": "Serve uno spunto?",
+    "starters": {
+      "qbr": "Revisione trimestrale per la direzione: risultati, rischi e piano del prossimo trimestre",
+      "pitch": "Presentazione per un round seed: problema, prodotto, mercato, trazione e richiesta",
+      "onboarding": "Guida di benvenuto per i nuovi assunti: la nostra missione, come lavoriamo e i primi 30 giorni",
+      "lecture": "Lezione sulle energie rinnovabili per studenti delle superiori, con esempi semplici"
+    }
+  },
+  "presenter": {
+    "title": "Relatore",
+    "addTitle": "Aggiungi un relatore digitale",
+    "addHint": "La tua foto diventa un relatore parlante nelle diapositive che ne hanno bisogno.",
+    "voiceTitle": "Nessun relatore: solo voce",
+    "voiceHint": "Le diapositive sono narrate con una voce. Nessuna diapositiva avrà un video del relatore.",
+    "photoAgain": "Aggiungi di nuovo la foto del relatore: le foto non vengono conservate dopo un ricaricamento.",
+    "rendersLater": "I video del relatore vengono generati nel passaggio Narrazione, dopo aver aggiunto una foto.",
+    "voiceOnlyNote": "Solo voce: nessun video del relatore verrà generato. Per aggiungere un relatore in seguito, sceglilo qui sopra prima di creare la scaletta.",
+    "pickerUsed": "Questa foto viene usata nelle diapositive con il relatore.",
+    "pickerAdd": "Aggiungi una foto per continuare con un relatore, oppure scegli solo voce."
+  },
+  "presenterStep": {
+    "languageHint": "La voce parla in questa lingua",
+    "yourPresenter": "Il tuo relatore per questa presentazione",
+    "addPhoto": "Aggiungi una foto del tuo relatore",
+    "voiceOnlyReason": "Questa presentazione non ha diapositive con il relatore, quindi è narrata solo con una voce. I video del relatore vengono generati nel passaggio Narrazione, per le diapositive che ne hanno uno."
+  },
+  "templates": {
+    "aria": "Modello",
+    "decideLater": "Decidi dopo",
+    "pickAfterOutline": "Scegli dopo la scaletta",
+    "layoutCount": "{count} layout | {count} layout",
+    "noPreview": "Nessuna anteprima"
+  },
+  "wizard": {
+    "stepsAria": "Passaggi della procedura",
+    "footerMore": "Altre azioni",
+    "copy": {
+      "topic": {
+        "heading": "Argomento e aspetto",
+        "lede": "Di cosa parla la presentazione, il modello su cui è costruita e le sue impostazioni. Sono state fissate alla creazione."
+      },
+      "presenter": {
+        "heading": "Relatore e lingua",
+        "lede": "Il tuo relatore digitale e la lingua della narrazione. Il passaggio Narrazione usa quanto imposti qui."
+      },
+      "outline": {
+        "heading": "Dai forma alla storia",
+        "lede": "Ogni scheda diventa una diapositiva. Leggila con attenzione, poi genera le diapositive."
+      },
+      "preview": {
+        "heading": "Anteprima delle diapositive",
+        "lede": "La tua presentazione, diapositiva per diapositiva. Le rifiniture si fanno nell’editor."
+      },
+      "avatar": {
+        "heading": "Narrazione",
+        "lede": "Consigliato: narra ogni diapositiva nella lingua scelta, con il tuo relatore nelle diapositive che ne hanno uno. Puoi saltare, esportare subito e narrare più tardi dall’editor."
+      },
+      "export": {
+        "heading": "Esporta",
+        "lede": "Scarica la presentazione o il video narrato."
+      }
+    },
+    "newPresentation": "Nuova presentazione",
+    "generatedFromDocs": "Generata dai documenti caricati.",
+    "look": "Aspetto",
+    "template": "Modello",
+    "created": "Creata il {date}",
+    "library": "Libreria",
+    "next": "Avanti: {step}",
+    "loadingStep": "Caricamento del passaggio",
+    "fixedAtCreate": "Argomento e aspetto sono stati fissati alla creazione",
+    "waitGenerating": "Attendi la fine della generazione delle diapositive",
+    "outlineSummary": "{count} diapositive",
+    "narratedSummary": "{done} di {count} narrate"
+  },
+  "progress": {
+    "generateFirst": "Genera prima le diapositive dalla scaletta",
+    "slidesFinish": "Prima deve finire la generazione delle diapositive"
+  },
+  "outline": {
+    "item": {
+      "emptySlide": "Diapositiva vuota. Clicca per scrivere.",
+      "slideAria": "Scaletta della diapositiva {n}",
+      "reorderAria": "Riordina la diapositiva {n} (Alt+Su o Alt+Giù)",
+      "deleteAria": "Elimina la diapositiva {n}"
+    },
+    "list": {
+      "addSlide": "Aggiungi diapositiva"
+    },
+    "step": {
+      "drafted": "{count} diapositiva abbozzata | {count} diapositive abbozzate",
+      "starting": "Avvio…",
+      "progressLabel": "Avanzamento della scaletta",
+      "countLabel": "{count} diapositiva · max {max} | {count} diapositive · max {max}",
+      "saving": "Salvataggio…",
+      "saved": "Salvato",
+      "saveError": "Impossibile salvare le modifiche alla scaletta",
+      "saveErrorNext": "Riprova prima di uscire.",
+      "startError": "Impossibile avviare la generazione delle diapositive",
+      "startErrorNext": "La scaletta è conservata; scegli Genera diapositive per riprovare.",
+      "streamError": "La scaletta si è interrotta prima di essere completata",
+      "streamErrorNext": "Riprova per scriverla di nuovo.",
+      "noTemplate": "Questa presentazione non ha un modello, quindi non è possibile generare le diapositive. Creane una nuova e scegline uno.",
+      "pickTemplate": "Scegli un modello per generare le diapositive",
+      "narrationBusy": "La narrazione è in corso; attendi che finisca",
+      "loadingTemplate": "Caricamento del modello…",
+      "writing": "Scrittura della scaletta…",
+      "atLeastOne": "Aggiungi almeno una diapositiva per continuare",
+      "removeToContinue": "Rimuovi {count} diapositiva per continuare (max {max}) | Rimuovi {count} diapositive per continuare (max {max})",
+      "preparing": "Preparazione delle diapositive…",
+      "loadingOutline": "Caricamento della scaletta…",
+      "generatedFromOutline": "Queste diapositive sono state generate da questa scaletta",
+      "needsTemplate": "Per rigenerare serve un modello, e questa presentazione non ne ha",
+      "generates": "Genera {count} diapositiva da questa scaletta | Genera {count} diapositive da questa scaletta",
+      "inTemplate": " in {name}",
+      "nothingNarrated": "Ancora nulla di narrato.",
+      "overLimit": "{count} diapositive: una presentazione può averne al massimo {max}. Rimuovine {remove} per continuare (max {max}).",
+      "pickerLabel": "Scegli un modello",
+      "pickerHint": "Questa presentazione non ha ancora un modello. Sceglilo per generare le diapositive.",
+      "noTemplateName": "Nessun modello",
+      "regenerate": "Rigenera le diapositive dalla scaletta…",
+      "continueToPreview": "Continua con l’anteprima",
+      "generate": "Genera diapositive",
+      "generating": "Preparazione…"
+    },
+    "regenerate": {
+      "title": "Rigenerare le diapositive dalla scaletta?",
+      "description": "La rigenerazione sostituisce tutte le diapositive. Modifiche, narrazione e video del relatore andranno persi.",
+      "confirm": "Rigenera diapositive"
+    }
+  },
+  "preview": {
+    "streamError": "La generazione si è interrotta prima di creare tutte le diapositive. Scegli Riprova per ritentare.",
+    "finishing": "Ultimi ritocchi…",
+    "generating": "Generazione della diapositiva {current} di {total}…",
+    "footerStreaming": "{label} Le altre azioni si aprono al termine.",
+    "footerNoSlides": "Ancora nessuna diapositiva. Torna alla scaletta per generarle.",
+    "footerRetry": "Riprova per generare le diapositive",
+    "footerReady": "{count} diapositiva pronta | {count} diapositive pronte",
+    "continueToNarration": "Continua con la narrazione",
+    "openSlide": "Apri la diapositiva {n}",
+    "presenterMarker": "Relatore",
+    "planning": "Pianificazione dei movimenti per ogni diapositiva…",
+    "motionLabel": "Pianificazione dei movimenti",
+    "lightbox": {
+      "title": "{title} — diapositiva {n}",
+      "description": "Anteprima della diapositiva. Usa le frecce per spostarti tra le diapositive.",
+      "previous": "Diapositiva precedente",
+      "next": "Diapositiva successiva"
+    }
+  },
+  "narration": {
+    "skipReason": "La narrazione è facoltativa: puoi narrare più tardi dall’editor.",
+    "headingFailed": "Serve un altro tentativo",
+    "headingRunning": "Diamo vita alla tua presentazione",
+    "headingComplete": "La tua presentazione è narrata",
+    "headingReady": "Pronto a narrare",
+    "headingSlidesLeft": "{count} diapositiva ancora da narrare | {count} diapositive ancora da narrare",
+    "headingVideosLeft": "{count} video del relatore ancora da generare | {count} video del relatore ancora da generare",
+    "failedDetail": "Non riuscito. Riprova qui sotto.",
+    "notesRunning": "Scrittura delle note del relatore per {count} diapositiva | Scrittura delle note del relatore per {count} diapositive",
+    "notesDone": "{count} diapositiva con note del relatore | {count} diapositive con note del relatore",
+    "notesPartial": "{done} di {count} diapositiva con note del relatore | {done} di {count} diapositive con note del relatore",
+    "notesPending": "Note del relatore per ogni diapositiva",
+    "voiceRunning": "Registrazione della narrazione in {language}…",
+    "voiceDone": "{count} diapositiva narrata in {language} | {count} diapositive narrate in {language}",
+    "voicePartial": "{done} di {count} diapositiva narrata in {language} | {done} di {count} diapositive narrate in {language}",
+    "voicePending": "Narrazione in {language}",
+    "videosSkippedVoiceOnly": "Solo voce: i video del relatore non possono essere generati su questo server",
+    "videosSkippedNoSlides": "Nessuna diapositiva con relatore in questa presentazione",
+    "videosRunning": "Generazione di {count} video del relatore | Generazione di {count} video del relatore",
+    "videosDone": "{count} video del relatore pronto | {count} video del relatore pronti",
+    "videosPartial": "{done} di {count} video del relatore pronto | {done} di {count} video del relatore pronti",
+    "videosPending": "{count} video del relatore | {count} video del relatore",
+    "jobs": {
+      "notes": "Note",
+      "voice": "Voce",
+      "presenter": "Relatore"
+    },
+    "phases": {
+      "notes": "Note",
+      "voice": "Voce",
+      "avatars": "Video del relatore"
+    },
+    "progressAria": "Avanzamento",
+    "progressLabel": "Avanzamento della narrazione",
+    "savedAria": "{percent}% salvato",
+    "failedAria": "Non riuscito",
+    "presenterSet": "Relatore impostato",
+    "presenterAndLanguage": "Relatore e lingua",
+    "scopeNotes": "scrive le note del relatore per {count} diapositiva | scrive le note del relatore per {count} diapositive",
+    "scopeVoice": "registra {count} clip vocale in {language} | registra {count} clip vocali in {language}",
+    "scopeVideos": "genera {count} video del relatore | genera {count} video del relatore",
+    "listAnd": "e",
+    "scopePaid": "I video del relatore sono generati da un servizio a pagamento e consumano crediti.",
+    "footerRunning": "Puoi lasciare questa pagina; noi continuiamo.",
+    "footerVideos": "Include {count} video del relatore · consuma crediti | Include {count} video del relatore · consuma crediti",
+    "narrate": "Narra {count} diapositiva | Narra {count} diapositive",
+    "narrateRemaining": "Narra {count} diapositiva rimasta | Narra {count} diapositive rimaste",
+    "videoLong": "{count} video del relatore | {count} video del relatore",
+    "videoShort": "{count} video | {count} video",
+    "renderVideos": "Genera {count} video del relatore | Genera {count} video del relatore",
+    "renderVideosRemaining": "Genera {count} video del relatore rimasto | Genera {count} video del relatore rimasti",
+    "renderVideosShort": "Genera {count} video | Genera {count} video",
+    "narrateDeck": "Narra la presentazione",
+    "fineTune": "Rifinisci nell’editor",
+    "setupPresenter": "Imposta relatore e lingua",
+    "retryPhase": "Riprova: {phase}",
+    "continueToExport": "Continua con l’esportazione"
+  },
+  "stream": {
+    "imagesWarning": "Non è stato possibile generare alcune immagini",
+    "failed": "Streaming della presentazione non riuscito",
+    "savedNote": "{message} {count} diapositive sono state salvate e verranno riutilizzate.",
+    "generationFailed": "Generazione non riuscita.",
+    "connectionClosed": "La connessione si è chiusa prima del termine della generazione."
+  },
+  "outlineStream": {
+    "preparing": "Preparazione della scaletta della presentazione",
+    "ready": "Scaletta pronta",
+    "couldNotLoadStatus": "Impossibile caricare la scaletta",
+    "couldNotLoad": "Impossibile caricare la scaletta.",
+    "reconnecting": "Riconnessione allo streaming della scaletta",
+    "parseFailed": "Impossibile leggere i dati della presentazione.",
+    "streamFailed": "Streaming della scaletta non riuscito.",
+    "connectionLost": "Connessione persa."
+  },
+  "export": {
+    "headingFallback": "Presentazione",
+    "heading": "{title} · {count} diapositiva | {title} · {count} diapositive",
+    "presenterSlidesNoVideo": "{count} diapositiva del relatore senza video | {count} diapositive del relatore senza video",
+    "slidesNoNarration": "{count} diapositiva senza narrazione | {count} diapositive senza narrazione",
+    "videoNote": "Il video narrato rende al meglio con narrazione e video del relatore al loro posto ({gaps}).",
+    "gapsLine": "{gaps}.",
+    "goToNarration": "Vai alla narrazione",
+    "canExportNow": "Puoi comunque esportare ora.",
+    "afterExporting": "Dopo l’esportazione"
+  }
+}

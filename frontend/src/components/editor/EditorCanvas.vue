@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { useEditorFetchGate } from '@/composables/useEditorFetchGate'
 import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue'
 import { usePresentation } from '@/api/presentations'
@@ -16,6 +17,7 @@ import SelectionAnnouncer from './canvas/SelectionAnnouncer.vue'
 const props = defineProps<{ presentationId: string; slide: Slide | null }>()
 
 const editor = useEditorStore()
+const { t } = useI18n()
 const scrollerEl = ref<HTMLElement | null>(null)
 const stageEl = ref<HTMLElement | null>(null)
 const { data: presentation } = usePresentation(toRef(props, 'presentationId'), useEditorFetchGate())
@@ -31,7 +33,7 @@ const languageBadge = computed(() => {
   const box = video.value?.placeholder
   if (!code || !box) return null
   return {
-    text: `${nameOf(code)} avatar · hidden in ${nameOf(language)}`,
+    text: t('editor.canvas.avatarLanguage', { avatar: nameOf(code), language: nameOf(language) }),
     style: { left: `${(box.position.x / 1280) * 100}%`, top: `${(box.position.y / 720) * 100}%`, maxWidth: `${(box.size.width / 1280) * 100}%` },
   }
 })
@@ -60,7 +62,7 @@ const slideWidth = computed(() => {
 
 <template>
   <section
-    aria-label="Slide canvas"
+    :aria-label="t('editor.canvas.slideCanvas')"
     class="dotted-canvas relative flex min-h-0 flex-1 flex-col rounded-t-panel p-2 pt-2.5 max-[760px]:pt-2"
   >
     <div
@@ -94,11 +96,11 @@ const slideWidth = computed(() => {
           v-if="languageBadge"
           class="pointer-events-none absolute z-10 m-1.5 truncate rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-danger-text"
           :style="languageBadge.style"
-          :title="`This avatar was recorded for another narration language; Present and the video export hide it.`"
+          :title="t('editor.canvas.avatarLanguageTitle')"
           data-testid="avatar-language-badge"
         >{{ languageBadge.text }}</span>
       </div>
-      <p v-else class="m-auto text-[12px] text-muted">No slides yet.</p>
+      <p v-else class="m-auto text-[12px] text-muted">{{ t('editor.canvas.noSlides') }}</p>
     </div>
     <slot name="status" />
     <FloatingElementEditor

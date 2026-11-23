@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import {
   BarChart3,
@@ -16,6 +17,8 @@ import {
   Type,
 } from 'lucide-vue-next'
 import type { LayerNode } from '@/slide-editor/layerTree'
+
+const { t } = useI18n()
 
 const props = withDefaults(
   defineProps<{ node: LayerNode; depth?: number; expanded?: boolean; expandable?: boolean; selected?: boolean }>(),
@@ -56,7 +59,7 @@ const icon = computed(() => ICONS[props.node.type] ?? Box)
       v-if="expandable"
       type="button"
       class="inline-flex size-6 shrink-0 items-center justify-center rounded-control text-tx-9aa9b0 hover:text-white"
-      :aria-label="expanded ? `Collapse ${node.label}` : `Expand ${node.label}`"
+      :aria-label="expanded ? t('editorInspector.element.layers.collapse', { label: node.label }) : t('editorInspector.element.layers.expand', { label: node.label })"
       :aria-expanded="expanded"
       tabindex="-1"
       @mousedown.prevent

@@ -4,6 +4,9 @@ import { ListPlus } from 'lucide-vue-next'
 import { tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
 import InfographicItemsDialog from '@/components/editor/inspector/element/InfographicItemsDialog.vue'
 import { useInfographicControls } from '@/components/editor/inspector/element/useInfographicControls'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Bar control: Edit items (item-based infographics only). Owns the dialog, so it stays mounted while the bar is shown.
 const { root, group } = useInfographicControls()
@@ -15,8 +18,8 @@ const open = ref(false)
     v-if="root && group === 'items'"
     type="button"
     :class="tool"
-    aria-label="Edit items"
-    title="Edit items"
+    :aria-label="t('editorCanvas.controls.infographic.editItems')"
+    :title="t('editorCanvas.controls.infographic.editItems')"
     data-bar-item="infographic-edit-items"
     @mousedown.prevent
     @click="open = true"

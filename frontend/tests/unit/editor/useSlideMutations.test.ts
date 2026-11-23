@@ -22,7 +22,8 @@ const toastError = vi.hoisted(() => vi.fn())
 const toastInfo = vi.hoisted(() => vi.fn())
 vi.mock('@/components/ui/sonner', () => ({ toast: { error: toastError, warning: vi.fn(), info: toastInfo } }))
 
-import { DELETE_NOTICE, deckSaveSettled, useSlideMutations } from '@/composables/useSlideMutations'
+import { i18n } from '@/i18n'
+import { deckSaveSettled, useSlideMutations } from '@/composables/useSlideMutations'
 import { useHistoryStore } from '@/stores/history'
 
 const slide = (id: string, index: number) => ({ id, index, presentation: 'p1', layout: 'modern:a', layout_group: 'modern', content: {}, properties: null })
@@ -211,7 +212,7 @@ describe('useSlideMutations', () => {
   it('warns that undoing a delete does not restore narration or video', async () => {
     const m = useSlideMutations(ref('p1'))
     await m.removeSlide('b')
-    expect(toastInfo).toHaveBeenCalledWith('Slide deleted', { description: DELETE_NOTICE })
+    expect(toastInfo).toHaveBeenCalledWith('Slide deleted', { description: i18n.global.t('editor.mutations.deleteNotice') })
   })
 
   it('an in-flight refetch resolving later does not revert an optimistic reorder', async () => {

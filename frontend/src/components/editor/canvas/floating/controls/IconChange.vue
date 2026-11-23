@@ -4,6 +4,9 @@ import type { Presentation } from '@/api/types'
 import { tool } from '@/components/editor/canvas/toolbars/toolbarClasses'
 import IconPickerDialog from '@/components/editor/inspector/element/IconPickerDialog.vue'
 import { useIconControls } from '@/components/editor/inspector/element/useIconControls'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Bar control: Change icon. Owns the picker dialog, so it stays mounted while the bar is shown.
 const props = defineProps<{ presentation: Presentation }>()
@@ -14,8 +17,8 @@ const { currentUrl, weight, pickerOpen, openPicker, onPick } = useIconControls((
   <button
     type="button"
     :class="tool"
-    aria-label="Change icon"
-    title="Change icon"
+    :aria-label="t('editorCanvas.controls.iconChange')"
+    :title="t('editorCanvas.controls.iconChange')"
     data-bar-item="change-icon"
     @mousedown.prevent
     @click="openPicker"

@@ -1,20 +1,24 @@
 <script setup lang="ts">
 // Ported from servers/nextjs/app/(presentation-generator)/(dashboard)/settings/WebSearchProvider.tsx
 import { computed, useId } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ProviderPicker from '@/components/settings/ProviderPicker.vue'
 import SecretInput from '@/components/settings/SecretInput.vue'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { WEB_SEARCH_PROVIDERS, type WebSearchProviderRow } from '@/settings/providers'
+import { WEB_SEARCH_PROVIDERS, type WebSearchProviderRow, tx, webSearchLabel } from '@/settings/providers'
 import type { ProviderConfig } from '@/settings/types'
 
 const props = defineProps<{ config: ProviderConfig }>()
 const emit = defineEmits<{ set: [field: string, value: unknown] }>()
+const { t } = useI18n()
 
 const uid = useId()
 const id = (name: string) => `web-search-${uid}-${name}`
 
-const OPTIONS = WEB_SEARCH_PROVIDERS.map(({ value, label, description, icon }) => ({ value, label, description, icon }))
+const OPTIONS = computed(() =>
+  WEB_SEARCH_PROVIDERS.map((row) => ({ value: row.value, label: webSearchLabel(row), description: tx(row.description), icon: row.icon })),
+)
 const DEFAULT_MAX_RESULTS = '5'
 const labelClass = 'mb-2 block text-[12px] font-medium text-tx-dbe7ef'
 
@@ -45,32 +49,32 @@ function onToggle(checked: boolean) {
 
 <template>
   <div v-if="managed" class="rounded-[11px] bg-sx-1d2427 px-4 py-3">
-    <p class="text-[13px] font-medium text-tx-dbe7ef">Managed by Presenton Cloud</p>
-    <p class="mt-0.5 text-[11px] leading-[1.6] text-tx-95aab7">Web search is handled for you, so there is nothing to configure here.</p>
+    <p class="text-[13px] font-medium text-tx-dbe7ef">{{ t('settings.webSearch.managedTitle') }}</p>
+    <p class="mt-0.5 text-[11px] leading-[1.6] text-tx-95aab7">{{ t('settings.webSearch.managedHint') }}</p>
   </div>
 
   <div v-else class="grid gap-4">
     <div class="flex items-center gap-3">
       <Switch :id="id('enabled')" :model-value="enabled" @update:model-value="onToggle($event)" />
-      <label :for="id('enabled')" class="text-[12px] font-medium text-tx-dbe7ef">Web search</label>
+      <label :for="id('enabled')" class="text-[12px] font-medium text-tx-dbe7ef">{{ t('settings.webSearch.enable') }}</label>
     </div>
 
     <template v-if="enabled">
       <ProviderPicker
         :model-value="row?.value ?? ''"
         :options="OPTIONS"
-        placeholder="Select web search provider"
-        search-placeholder="Search web search providers"
-        label="Web search provider"
+        :placeholder="t('settings.webSearch.providerPlaceholder')"
+        :search-placeholder="t('settings.webSearch.providerSearch')"
+        :label="t('settings.webSearch.providerLabel')"
         @update:model-value="emit('set', 'WEB_SEARCH_PROVIDER', $event)"
       />
 
       <p v-if="row?.value === 'auto'" class="rounded-[11px] bg-sx-1d2427 px-4 py-3 text-[11px] leading-[1.6] text-tx-95aab7">
-        Model-native web grounding is preferred when available. Otherwise, external search fallback is used.
+        {{ t('settings.webSearch.autoHint') }}
       </p>
 
       <div v-if="row?.urlField" class="min-w-0">
-        <label :for="id('url')" :class="labelClass">{{ row?.urlLabel }}</label>
+        <label :for="id('url')" :class="labelClass">{{ tx(row?.urlLabel) }}</label>
         <Input
           :id="id('url')"
           type="text"
@@ -87,12 +91,12 @@ function onToggle(checked: boolean) {
       <SecretInput
         v-if="row?.apiKeyField"
         :model-value="text(row?.apiKeyField)"
-        :label="row?.apiKeyLabel ?? 'API key'"
+        :label="tx(row?.apiKeyLabel) ?? t('settings.shared.apiKey')"
         @update:model-value="emit('set', row.apiKeyField!, $event)"
       />
 
       <div v-if="row && row.value !== 'auto'" class="min-w-0 sm:max-w-[240px]">
-        <label :for="id('max-results')" :class="labelClass">Maximum results</label>
+        <label :for="id('max-results')" :class="labelClass">{{ t('settings.webSearch.maxResults') }}</label>
         <Input
           :id="id('max-results')"
           type="number"

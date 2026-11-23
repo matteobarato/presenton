@@ -19,25 +19,26 @@ import {
   resolvedChartCategories,
   resolvedChartDatasets,
 } from '@/render/legacy/components/slide-editor/charts/chart-data'
+import { i18n } from '@/i18n'
 import { editorChartToRawChart, rawChartToEditorChart, type RawElement } from '@/slide-editor/model'
 
 export const CHART_TYPE_OPTIONS: { value: ChartType; label: string }[] = [
-  { value: 'bar', label: 'Bar Chart' },
-  { value: 'horizontal_bar', label: 'Horizontal Bar' },
-  { value: 'stacked_bar', label: 'Stacked Bar' },
-  { value: 'horizontal_stacked_bar', label: 'Horizontal Stack Bar' },
-  { value: 'line', label: 'Line Chart' },
-  { value: 'area', label: 'Area Chart' },
-  { value: 'pie', label: 'Pie Chart' },
-  { value: 'donut', label: 'Donut Chart' },
-  { value: 'scatter', label: 'Scatter Chart' },
-  { value: 'radar', label: 'Radar Chart' },
-  { value: 'polar_area', label: 'Polar Area' },
+  { value: 'bar', get label() { return i18n.global.t('slideEditor.chart.type.bar') } },
+  { value: 'horizontal_bar', get label() { return i18n.global.t('slideEditor.chart.type.horizontalBar') } },
+  { value: 'stacked_bar', get label() { return i18n.global.t('slideEditor.chart.type.stackedBar') } },
+  { value: 'horizontal_stacked_bar', get label() { return i18n.global.t('slideEditor.chart.type.horizontalStackedBar') } },
+  { value: 'line', get label() { return i18n.global.t('slideEditor.chart.type.line') } },
+  { value: 'area', get label() { return i18n.global.t('slideEditor.chart.type.area') } },
+  { value: 'pie', get label() { return i18n.global.t('slideEditor.chart.type.pie') } },
+  { value: 'donut', get label() { return i18n.global.t('slideEditor.chart.type.donut') } },
+  { value: 'scatter', get label() { return i18n.global.t('slideEditor.chart.type.scatter') } },
+  { value: 'radar', get label() { return i18n.global.t('slideEditor.chart.type.radar') } },
+  { value: 'polar_area', get label() { return i18n.global.t('slideEditor.chart.type.polarArea') } },
 ]
 
 export function chartTypeOptions(current: ChartType): { value: ChartType; label: string }[] {
   return current === 'bubble'
-    ? [...CHART_TYPE_OPTIONS, { value: 'bubble', label: 'Bubble Chart' }]
+    ? [...CHART_TYPE_OPTIONS, { value: 'bubble', get label() { return i18n.global.t('slideEditor.chart.type.bubble') } }]
     : CHART_TYPE_OPTIONS
 }
 

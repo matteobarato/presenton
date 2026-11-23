@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, ref, watch } from 'vue'
 import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, Trash2 } from 'lucide-vue-next'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -25,6 +26,8 @@ import {
   type ChartGrid,
 } from '@/slide-editor/chartOps'
 import { useSlideEditingContext } from '@/slide-editor/useSlideEditing'
+
+const { t } = useI18n()
 
 const props = defineProps<{ open: boolean; root: ElementSelection }>()
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
@@ -149,20 +152,20 @@ const ghost =
   <Dialog :open="props.open" @update:open="onOpenChange">
     <DialogContent class="w-[min(880px,calc(100vw-32px))] max-w-[880px]" data-inline-edit-ignore="true">
       <DialogHeader>
-        <DialogTitle>Edit chart data</DialogTitle>
-        <DialogDescription>Changes preview on the slide. Done applies them as one edit.</DialogDescription>
+        <DialogTitle>{{ t('editorInspector.element.chartData.title') }}</DialogTitle>
+        <DialogDescription>{{ t('editorInspector.element.chartData.description') }}</DialogDescription>
       </DialogHeader>
       <div class="mt-4 max-h-[min(420px,calc(100dvh-280px))] overflow-auto">
         <table class="w-full border-separate border-spacing-1.5 text-[12px]">
           <thead>
             <tr>
               <th class="w-8" />
-              <th class="min-w-[140px] text-left text-[11px] font-normal text-tx-9aa9b0">Category</th>
+              <th class="min-w-[140px] text-left text-[11px] font-normal text-tx-9aa9b0">{{ t('editorInspector.element.chartData.category') }}</th>
               <th v-for="(s, si) in grid.series" :key="si" class="min-w-[130px] font-normal">
                 <div class="flex items-center gap-1">
                   <input
                     type="text"
-                    :aria-label="`Series ${si + 1} name`"
+                    :aria-label="t('editorInspector.element.chartData.seriesName', { n: si + 1 })"
                     :maxlength="CHART_TEXT_MAX_LENGTH"
                     :class="input"
                     :value="s.name"
@@ -170,12 +173,12 @@ const ghost =
                   />
                   <DropdownMenu v-if="multi">
                     <DropdownMenuTrigger as-child>
-                      <button type="button" :aria-label="`Series ${si + 1} actions`" :class="[ghost, '!px-1.5']"><MoreHorizontal class="size-4" /></button>
+                      <button type="button" :aria-label="t('editorInspector.element.chartData.seriesActions', { n: si + 1 })" :class="[ghost, '!px-1.5']"><MoreHorizontal class="size-4" /></button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem :disabled="si === 0" @select="restructure(moveSeries(grid, si, -1))"><ChevronLeft class="size-3.5" />Move left</DropdownMenuItem>
-                      <DropdownMenuItem :disabled="si === grid.series.length - 1" @select="restructure(moveSeries(grid, si, 1))"><ChevronRight class="size-3.5" />Move right</DropdownMenuItem>
-                      <DropdownMenuItem :disabled="grid.series.length <= 1" @select="restructure(deleteSeries(grid, si))"><Trash2 class="size-3.5" />Delete series</DropdownMenuItem>
+                      <DropdownMenuItem :disabled="si === 0" @select="restructure(moveSeries(grid, si, -1))"><ChevronLeft class="size-3.5" />{{ t('editorInspector.element.chartData.moveLeft') }}</DropdownMenuItem>
+                      <DropdownMenuItem :disabled="si === grid.series.length - 1" @select="restructure(moveSeries(grid, si, 1))"><ChevronRight class="size-3.5" />{{ t('editorInspector.element.chartData.moveRight') }}</DropdownMenuItem>
+                      <DropdownMenuItem :disabled="grid.series.length <= 1" @select="restructure(deleteSeries(grid, si))"><Trash2 class="size-3.5" />{{ t('editorInspector.element.chartData.deleteSeries') }}</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -185,18 +188,18 @@ const ghost =
           <tbody>
             <tr v-for="(c, ri) in grid.categories" :key="ri">
               <td>
-                <button type="button" :aria-label="`Delete row ${ri + 1}`" :class="[ghost, '!px-1.5']" :disabled="grid.categories.length <= 1" @click="restructure(deleteCategory(grid, ri))">
+                <button type="button" :aria-label="t('editorInspector.element.chartData.deleteRow', { n: ri + 1 })" :class="[ghost, '!px-1.5']" :disabled="grid.categories.length <= 1" @click="restructure(deleteCategory(grid, ri))">
                   <Trash2 class="size-3.5" />
                 </button>
               </td>
               <td>
-                <input type="text" :aria-label="`Category ${ri + 1}`" :maxlength="CHART_TEXT_MAX_LENGTH" :class="input" :value="c" @input="edit(setCategory(grid, ri, ($event.target as HTMLInputElement).value))" />
+                <input type="text" :aria-label="t('editorInspector.element.chartData.categoryName', { n: ri + 1 })" :maxlength="CHART_TEXT_MAX_LENGTH" :class="input" :value="c" @input="edit(setCategory(grid, ri, ($event.target as HTMLInputElement).value))" />
               </td>
               <td v-for="(_, si) in grid.series" :key="si">
                 <input
                   type="text"
                   inputmode="decimal"
-                  :aria-label="`Value ${ri + 1},${si + 1}`"
+                  :aria-label="t('editorInspector.element.chartData.valueAria', { row: ri + 1, col: si + 1 })"
                   :class="input"
                   :value="cellText(ri, si)"
                   @input="onValue(ri, si, ($event.target as HTMLInputElement).value)"
@@ -208,12 +211,12 @@ const ghost =
         </table>
       </div>
       <div class="mt-3 flex gap-2">
-        <button type="button" :class="ghost" :disabled="!canAddCategory(grid)" @click="restructure(addCategory(grid))"><Plus class="size-3.5" />Add row</button>
-        <button v-if="multi" type="button" :class="ghost" :disabled="!canAddSeries(grid, type)" @click="restructure(addSeries(grid))"><Plus class="size-3.5" />Add series</button>
+        <button type="button" :class="ghost" :disabled="!canAddCategory(grid)" @click="restructure(addCategory(grid))"><Plus class="size-3.5" />{{ t('editorInspector.element.chartData.addRow') }}</button>
+        <button v-if="multi" type="button" :class="ghost" :disabled="!canAddSeries(grid, type)" @click="restructure(addSeries(grid))"><Plus class="size-3.5" />{{ t('editorInspector.element.chartData.addSeries') }}</button>
       </div>
       <div class="mt-6 flex justify-end gap-2">
-        <button type="button" class="inline-flex h-9 items-center rounded-control px-3.5 text-[12px] text-tx-dce3e7 hover:bg-ov/[0.08]" @click="cancel">Cancel</button>
-        <button type="button" class="inline-flex h-9 items-center rounded-control bg-accent px-3.5 text-[12px] font-semibold text-tx-0b1a22" @click="done">Done</button>
+        <button type="button" class="inline-flex h-9 items-center rounded-control px-3.5 text-[12px] text-tx-dce3e7 hover:bg-ov/[0.08]" @click="cancel">{{ t('common.actions.cancel') }}</button>
+        <button type="button" class="inline-flex h-9 items-center rounded-control bg-accent px-3.5 text-[12px] font-semibold text-tx-0b1a22" @click="done">{{ t('editorInspector.element.chartData.done') }}</button>
       </div>
     </DialogContent>
   </Dialog>

@@ -23,7 +23,9 @@ import { ArrowUpRight, Asterisk, Plus, Sparkles } from 'lucide-vue-next'
 import PageHeader from '@/components/shell/PageHeader.vue'
 import { buttonVariants } from '@/components/ui/button'
 import { useSessionStore } from '@/stores/session'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const queryClient = useQueryClient()
 const session = useSessionStore()
 const query = useQuery({ queryKey: presentationKeys.all, queryFn: listPresentations })
@@ -47,9 +49,9 @@ const duplicate = useMutation({
   mutationFn: (p: PresentationSummary) => duplicatePresentation(p.id),
   onSuccess: (_copy, p) => {
     void queryClient.invalidateQueries({ queryKey: presentationKeys.all })
-    toast.success(`Duplicated "${deckTitle(p)}"`)
+    toast.success(t('views.library.duplicated', { title: deckTitle(p) }))
   },
-  onError: (error) => toast.error(errorMessage(error, 'Could not duplicate the presentation')),
+  onError: (error) => toast.error(errorMessage(error, t('views.library.duplicateFailed'))),
 })
 
 const remove = useMutation({
@@ -62,7 +64,7 @@ const remove = useMutation({
   },
   onError: (error, _p, ctx) => {
     if (ctx?.previous) queryClient.setQueryData(presentationKeys.all, ctx.previous)
-    toast.error(errorMessage(error, 'Could not delete the presentation'))
+    toast.error(errorMessage(error, t('views.library.deleteFailed')))
   },
 })
 
@@ -85,9 +87,9 @@ function confirmDelete() {
 </script>
 
 <template>
-  <PageHeader title="Your presentations">
+  <PageHeader :title="t('views.library.title')">
     <template #actions>
-      <RouterLink to="/new" :class="buttonVariants()"><Plus class="size-4" aria-hidden="true" />New presentation</RouterLink>
+      <RouterLink to="/new" :class="buttonVariants()"><Plus class="size-4" aria-hidden="true" />{{ t('views.library.newPresentation') }}</RouterLink>
     </template>
   </PageHeader>
 
@@ -95,10 +97,10 @@ function confirmDelete() {
     <div class="mb-[33px] flex items-center justify-between">
       <div>
         <h1 class="text-[34px] leading-[1.22] font-medium tracking-[-0.04em] text-tx-e4ecf0 max-[1050px]:text-[30px] max-[760px]:text-[27px] max-[450px]:text-[25px]">
-          What will you create today?
+          {{ t('views.library.heading') }}
         </h1>
         <p class="mt-[13px] text-[12px] text-tx-9aabb4 max-[760px]:text-[11px] max-[760px]:leading-[1.7]">
-          {{ session.user?.username ? `Welcome back, ${session.user.username}.` : 'Welcome back.' }} Your next great story is waiting to happen.
+          {{ session.user?.username ? t('views.library.welcomeNamed', { name: session.user.username }) : t('views.library.welcomeBare') }} {{ t('views.library.tagline') }}
         </p>
       </div>
       <Asterisk class="mr-[18px] size-[95px] rotate-[15deg] text-tx-a8c6d4 max-[760px]:hidden" :stroke-width="1" aria-hidden="true" />
@@ -112,19 +114,19 @@ function confirmDelete() {
         <Sparkles class="size-[22px] max-[450px]:size-[15px]" aria-hidden="true" />
       </span>
       <span class="max-[760px]:flex-1">
-        <strong class="block text-[17px] font-medium max-[760px]:text-[15px]">Start with an idea.</strong>
+        <strong class="block text-[17px] font-medium max-[760px]:text-[15px]">{{ t('views.library.startTitle') }}</strong>
         <span class="mt-[5px] block text-[11px] text-tx-a9bdc8 max-[760px]:max-w-[250px] max-[760px]:leading-[1.6]">
-          Describe it, attach a document, and get an outline you can shape into slides.
+          {{ t('views.library.startBody') }}
         </span>
       </span>
       <span class="ml-auto flex items-center gap-2.5 text-[11px] text-tx-cee7f5 max-[1050px]:text-[10px] max-[760px]:ml-[60px] max-[450px]:ml-[49px]">
-        Create a presentation <ArrowUpRight class="size-[18px]" aria-hidden="true" />
+        {{ t('views.library.startCta') }} <ArrowUpRight class="size-[18px]" aria-hidden="true" />
       </span>
     </RouterLink>
 
     <div class="mb-[22px] flex items-center justify-between gap-5 max-[760px]:flex-col max-[760px]:items-start">
       <h2 class="flex items-center text-[16px] font-medium max-[760px]:text-[14px]">
-        Your presentations
+        {{ t('views.library.listTitle') }}
         <span v-if="query.data.value" class="ml-2 rounded-[6px] bg-sx-303d45 px-[7px] py-[3px] text-[10px] text-tx-9db3c0 tabular-nums">{{ query.data.value.length }}</span>
       </h2>
       <LibraryToolbar v-model:search="search" v-model:layout="layout" />
@@ -134,7 +136,7 @@ function confirmDelete() {
       <Skeleton v-for="n in 6" :key="n" class="aspect-video rounded-card" />
     </div>
     <p v-else-if="query.isError.value" role="alert" class="text-[13px] text-danger-text">
-      {{ errorMessage(query.error.value, 'Could not load your presentations') }}
+      {{ errorMessage(query.error.value, t('views.library.loadFailed')) }}
     </p>
     <EmptyLibrary v-else-if="!visible.length" :searching="Boolean(search.trim())" :query="search.trim()" @clear="search = ''" />
     <div v-else-if="layout === 'list'" class="flex flex-col gap-2.5">
@@ -148,8 +150,8 @@ function confirmDelete() {
         class="flex aspect-video flex-col items-center justify-center self-start rounded-card border border-dashed border-lx-829caa3d bg-sx-24303829 text-tx-a2bac8 hover:border-lx-b8d7e86b hover:bg-sx-2f46502e max-[760px]:aspect-auto max-[760px]:min-h-[140px]"
       >
         <Plus class="size-[25px]" aria-hidden="true" />
-        <span class="mt-3 text-[12px] text-tx-c5d7e3">A fresh canvas</span>
-        <span class="mt-1.5 text-[10px] text-tx-95acb9">Make something that’s yours.</span>
+        <span class="mt-3 text-[12px] text-tx-c5d7e3">{{ t('views.library.freshTitle') }}</span>
+        <span class="mt-1.5 text-[10px] text-tx-95acb9">{{ t('views.library.freshBody') }}</span>
       </RouterLink>
     </div>
 
