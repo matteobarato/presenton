@@ -58,4 +58,73 @@
 :root {
   --ease: var(--ease-out-expo);
   color-scheme: dark;
+
+  /* Non-colour-utility surfaces (consumed by base.css utilities). Dark values = original literals. */
+  --glass-tools: #282f32e8;
+  --glass-tools-shadow: #0003;
+  --glass-prompt: linear-gradient(125deg, #2c3439c4, #23292ddb);
+  --glass-prompt-border: #8ca7b42e;
+  --glass-prompt-shadow: #0002;
+  --glass-overlay: #080e12b3;
+  --glass-popover: #22292df2;
+  --glass-popover-border: #a3c7db20;
+  --glass-popover-shadow: #0006;
+  --dotted-dot: #6e7c8217;
+  --scrollbar: #485054;
+  --scrollbar-card: #556169;
+  --kbd-fg: #abc2d3;
+  --kbd-bg: #1c2730;
+  --kbd-border: #cce6f528;
+  --selection-bg: #9cd4ec;
+  --selection-fg: #14242c;
+  --workspace-bg: #191d1f;
+}
+
+/* Light theme: the Aera look with lightness inverted. Unlayered, so it beats the @theme layer. */
+.light {
+  color-scheme: light;
+
+  --color-rail: #e3e8eb;
+  --color-shell: #eaeef0;
+  --color-canvas: #eef2f4;
+  --color-storyboard: #f1f4f6;
+  --color-inspector: #f6f8f9;
+  --color-dialog: #ffffff;
+  --color-field: #e8edf0;
+
+  --color-accent: #1f7aa5;
+  --color-accent-ink: #ffffff;
+  --color-accent-hover: #2b8fbd;
+
+  --color-text: #1d2427;
+  --color-muted: #566269;
+  --color-faint: #66727a;
+  --color-secondary: #e0e6e9;
+  --color-secondary-text: #26323a;
+  --color-secondary-hover: #d3dbe0;
+  --color-danger: #fbe3e1;
+  --color-danger-text: #8f2a24;
+  --color-line: rgb(0 0 0 / 0.09);
+
+  --color-background: #e7ebed;
+  --color-popover-foreground: #1d2427;
+
+  --glass-tools: #ffffffeb;
+  --glass-tools-shadow: #1d242722;
+  --glass-prompt: linear-gradient(125deg, #ffffffe0, #f3f6f8ec);
+  --glass-prompt-border: #4a63711f;
+  --glass-prompt-shadow: #1d24271a;
+  --glass-overlay: #1d242766;
+  --glass-popover: #fffffff5;
+  --glass-popover-border: #0000001a;
+  --glass-popover-shadow: #1d242730;
+  --dotted-dot: #4a5a6322;
+  --scrollbar: #b4bec3;
+  --scrollbar-card: #aab5ba;
+  --kbd-fg: #47606f;
+  --kbd-bg: #eaf0f4;
+  --kbd-border: #0000001f;
+  --selection-bg: #a8d8ee;
+  --selection-fg: #14242c;
+  --workspace-bg: #f7f9fa;
 }

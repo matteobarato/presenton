@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Toaster as Sonner, type ToasterProps } from 'vue-sonner'
 import 'vue-sonner/style.css'
+import { useTheme } from '@/composables/useTheme'
+
+const { resolved } = useTheme()
 
 const props = defineProps<ToasterProps>()
 
@@ -12,5 +15,5 @@ const toastOptions = {
 </script>
 
 <template>
-  <Sonner v-bind="props" theme="dark" :toast-options="toastOptions" />
+  <Sonner v-bind="props" :theme="resolved" :toast-options="toastOptions" />
 </template>

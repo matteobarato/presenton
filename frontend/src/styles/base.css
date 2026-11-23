@@ -32,48 +32,48 @@ input, textarea { caret-color: var(--color-accent); }
 input::placeholder, textarea::placeholder { color: var(--color-muted); }
 button svg { flex-shrink: 0; }
 img { display: block; max-width: 100%; }
-::selection { background: #9cd4ec; color: #14242c; }
+::selection { background: var(--selection-bg); color: var(--selection-fg); }
 }
 
 /* Glass materials: floating tool groups, prompts and overlays sit on blur. */
 @utility glass-tools {
-  background: #282f32e8;
+  background: var(--glass-tools);
   backdrop-filter: blur(18px);
   border-radius: var(--radius-toolbar);
-  box-shadow: 0 6px 18px #0003;
+  box-shadow: 0 6px 18px var(--glass-tools-shadow);
 }
 @utility glass-prompt {
-  background: linear-gradient(125deg, #2c3439c4, #23292ddb);
+  background: var(--glass-prompt);
   backdrop-filter: blur(18px);
-  border: 1px solid #8ca7b42e;
+  border: 1px solid var(--glass-prompt-border);
   border-radius: var(--radius-prompt);
-  box-shadow: 0 8px 22px #0002;
+  box-shadow: 0 8px 22px var(--glass-prompt-shadow);
   transition: border-color 200ms, box-shadow 200ms;
 }
 @utility glass-overlay {
-  background: #080e12b3;
+  background: var(--glass-overlay);
   backdrop-filter: blur(9px);
 }
 @utility glass-popover {
-  background: #22292df2;
+  background: var(--glass-popover);
   backdrop-filter: blur(18px);
-  border: 1px solid #a3c7db20;
+  border: 1px solid var(--glass-popover-border);
   border-radius: var(--radius-card);
-  box-shadow: 0 18px 50px #0006;
+  box-shadow: 0 18px 50px var(--glass-popover-shadow);
 }
 @utility dotted-canvas {
-  background-image: radial-gradient(#6e7c8217 0.65px, transparent 0.65px);
+  background-image: radial-gradient(var(--dotted-dot) 0.65px, transparent 0.65px);
   background-size: 17px 17px;
 }
 
 /* Browser surfaces carry the studio palette too. */
 @layer base {
-  * { scrollbar-width: thin; scrollbar-color: #485054 transparent; }
+  * { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
   button { transition: background 180ms, color 180ms, border-color 180ms, box-shadow 180ms, transform 180ms; }
   kbd {
     font-family: inherit; font-size: 9px; min-width: 23px; height: 23px; padding: 0 5px;
-    display: inline-grid; place-items: center; color: #abc2d3; background: #1c2730;
-    border: 1px solid #cce6f528; border-bottom-width: 2px; border-radius: 5px;
+    display: inline-grid; place-items: center; color: var(--kbd-fg); background: var(--kbd-bg);
+    border: 1px solid var(--kbd-border); border-bottom-width: 2px; border-radius: 5px;
   }
 }
 
@@ -82,10 +82,10 @@ img { display: block; max-width: 100%; }
   flex: 1;
   overflow: auto;
   padding: 44px 7%;
-  background: #191d1f;
+  background: var(--workspace-bg);
   border-radius: 18px;
   margin: 0 16px 0 12px;
-  scrollbar-color: #556169 transparent;
+  scrollbar-color: var(--scrollbar-card) transparent;
   @media (max-width: 1050px) { padding: 38px 5%; }
   @media (max-width: 760px) { padding: 30px 22px; margin: 0 10px; border-radius: 14px; }
   @media (max-width: 450px) { padding: 27px 18px; }
