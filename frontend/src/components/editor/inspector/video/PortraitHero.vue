@@ -36,7 +36,7 @@ defineExpose({ pick: () => input.value?.click() })
       </button>
       <div v-if="portrait" class="absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-gradient-to-t from-black/70 to-transparent p-2 pt-8">
         <Button size="sm" variant="secondary" :disabled="busy" @click="input?.click()">Replace</Button>
-        <Button size="sm" variant="ghost" :disabled="busy" aria-label="Remove portrait" @click="emit('remove')">
+        <Button size="sm" variant="secondary" class="px-2" :disabled="busy" aria-label="Remove portrait" @click="emit('remove')">
           <Trash2 class="size-3.5" aria-hidden="true" />
         </Button>
       </div>

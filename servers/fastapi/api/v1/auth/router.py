@@ -4,7 +4,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
-from api.v1.auth.schemas import AuthCredentialsRequest, LoginCredentialsRequest
+from api.v1.auth.schemas import (
+    AuthCredentialsRequest,
+    ChangePasswordRequest,
+    LoginCredentialsRequest,
+)
 from api.v1.auth.assets import is_app_data_path_authorized
 from api.v1.auth.principal import resolve_request_principal
 from api.v1.auth.users import (
@@ -21,11 +25,13 @@ from api.v1.auth.config import (
     SESSION_TTL_SECONDS,
     persist_admin_credentials,
 )
+from api.v1.auth.personal_keys import PERSONAL_API_KEYS_ROUTER
 from api.v1.auth.presenton_oauth import PRESENTON_OAUTH_ROUTER
 
 
 API_V1_AUTH_ROUTER = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 API_V1_AUTH_ROUTER.include_router(PRESENTON_OAUTH_ROUTER)
+API_V1_AUTH_ROUTER.include_router(PERSONAL_API_KEYS_ROUTER)
 
 
 def normalize_username(username: str) -> str:
@@ -184,6 +190,50 @@ async def login(
             **serialize_user(user),
         }
     )
+    _set_login_cookie(response, token, request)
+    return response
+
+
+@API_V1_AUTH_ROUTER.post("/password")
+async def change_password(
+    body: ChangePasswordRequest,
+    request: Request,
+    session: AsyncSession = Depends(get_async_session),
+    user: User | None = Depends(read_user_from_cookie),
+):
+    """Let the signed-in user change their own password.
+
+    Bumping ``auth_version`` signs every other session out; this one gets a fresh
+    cookie so the user stays signed in. API keys are unaffected.
+    """
+    if is_disable_auth_enabled():
+        raise HTTPException(
+            status_code=409,
+            detail="Passwords are not used when authentication is disabled",
+        )
+    if user is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    # 400, not 401: a wrong current password must not look like an expired session.
+    verified, _ = PASSWORD_HELPER.verify_and_update(
+        body.current_password, user.hashed_password
+    )
+    if not verified:
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if body.new_password == body.current_password:
+        raise HTTPException(
+            status_code=422,
+            detail="The new password must be different from the current one",
+        )
+    user.hashed_password = PASSWORD_HELPER.hash(body.new_password)
+    user.auth_version += 1
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    if user.is_superuser:
+        # Keep the rollback/recovery copy in userConfig.json in step with the database.
+        persist_admin_credentials(user.username, user.hashed_password)
+    token = await get_jwt_strategy().write_token(user)
+    response = JSONResponse({"success": True, **serialize_user(user)})
     _set_login_cookie(response, token, request)
     return response
 

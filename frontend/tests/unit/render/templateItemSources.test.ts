@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   templateV2AnimationTargets,
   templateV2ItemSources,
+  templateV2UiToHtmlFragment,
 } from '@/render/legacy/lib/template-v2-json-to-html'
 import { uiWithText, uiWithVideoPlaceholder } from '../slide-editor/fixtures'
 
@@ -49,5 +50,26 @@ describe('templateV2ItemSources', () => {
 
   it('is empty for an empty ui', () => {
     expect(templateV2ItemSources({})).toEqual([])
+  })
+})
+
+describe('animation layer pivot', () => {
+  const origin = (html: string, id: string) =>
+    new RegExp(`data-hf-el="${id}"[^>]*transform-origin:([\\d.]+)px ([\\d.]+)px`).exec(html)?.slice(1).map(Number)
+
+  it('pivots a component layer on the box its elements draw, so a live rotation turns it in place', () => {
+    const ui = {
+      components: [
+        {
+          position: { x: 100, y: 50 },
+          elements: [
+            { type: 'text', position: { x: 0, y: 0 }, size: { width: 200, height: 40 }, text: 'a' },
+            { type: 'text', position: { x: 0, y: 60 }, size: { width: 300, height: 40 }, text: 'b' },
+          ],
+        },
+      ],
+    }
+    const html = templateV2UiToHtmlFragment(ui, { annotateElements: true })!
+    expect(origin(html, 'e0')).toEqual([250, 100])
   })
 })

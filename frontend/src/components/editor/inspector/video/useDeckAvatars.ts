@@ -103,7 +103,7 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
 
   /** Why no avatar can be generated at all right now, or null. */
   const deckBlocker = computed<string | null>(() => {
-    if (videos.value && !videos.value.generation_available) return 'Set OPENROUTER_API_KEY on the server to generate avatars.'
+    if (videos.value && !videos.value.generation_available) return "Avatar generation isn't set up on this server (it needs OPENROUTER_API_KEY). You can still upload your own videos."
     if (!videos.value?.portrait) return 'Upload a presenter portrait first.'
     if (running.value) return 'An avatar generation is already running.'
     if (!narration.tts.value) return 'Checking narration…'
@@ -122,8 +122,8 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
   )
   const deckRunBlocker = computed<string | null>(() => {
     if (deckBlocker.value) return deckBlocker.value
-    if (!placeholderSlides.value.length) return 'No slide has an avatar placeholder yet.'
-    if (!eligibleSlides.value.length) return 'Every placeholder slide needs up-to-date narration first.'
+    if (!placeholderSlides.value.length) return 'Turn the presenter on for a slide to include it here.'
+    if (!eligibleSlides.value.length) return 'Presenter slides need up-to-date narration first. Generate it in the Voice tab.'
     return null
   })
 

@@ -3,16 +3,19 @@ import { mount, type VueWrapper } from '@vue/test-utils'
 import SettingsSidebar from '@/components/settings/SettingsSidebar.vue'
 import { SETTINGS_SECTIONS, type SettingsSection } from '@/settings/types'
 
+// The sidebar renders whatever list it is given; these tests use the provider + account list.
+const FOUR: SettingsSection[] = ['text', 'images', 'web-search', 'account']
+
 let wrapper: VueWrapper | null = null
 
-function mountSidebar(narrow: boolean, section: SettingsSection = 'images') {
+function mountSidebar(narrow: boolean, section: SettingsSection = 'images', sections?: SettingsSection[]) {
   vi.stubGlobal('matchMedia', (q: string) => ({
     matches: narrow && q.includes('max-width: 760px'),
     media: q,
     addEventListener() {},
     removeEventListener() {},
   }))
-  wrapper = mount(SettingsSidebar, { props: { section, config: { LLM: 'openai', OPENAI_MODEL: 'gpt-4.1' } }, attachTo: document.body })
+  wrapper = mount(SettingsSidebar, { props: { section, config: { LLM: 'openai', OPENAI_MODEL: 'gpt-4.1' }, sections: sections ?? FOUR }, attachTo: document.body })
   return wrapper
 }
 
@@ -29,7 +32,7 @@ describe('SettingsSidebar wide list', () => {
     const nav = w.get('nav[aria-label="Settings sections"]')
     expect(w.find('[role="tablist"]').exists()).toBe(false)
     const buttons = nav.findAll('button')
-    expect(buttons).toHaveLength(SETTINGS_SECTIONS.length)
+    expect(buttons).toHaveLength(FOUR.length)
     for (const b of buttons) {
       expect(b.attributes('tabindex')).toBeUndefined()
       expect(b.attributes('role')).toBeUndefined()
@@ -70,7 +73,7 @@ describe('SettingsSidebar narrow tablist', () => {
     for (const [from, key, focusIndex, expected] of cases) {
       await w.setProps({ section: from })
       w.emitted('select')?.splice(0)
-      await tabs[SETTINGS_SECTIONS.indexOf(from)]!.trigger('keydown', { key })
+      await tabs[FOUR.indexOf(from)]!.trigger('keydown', { key })
       expect(w.emitted('select')).toEqual([[expected]])
       expect(document.activeElement).toBe(tabs[focusIndex]!.element)
     }
@@ -80,5 +83,34 @@ describe('SettingsSidebar narrow tablist', () => {
     const w = mountSidebar(true)
     await w.findAll('[role="tab"]')[1]!.trigger('keydown', { key: 'a' })
     expect(w.emitted('select')).toBeUndefined()
+  })
+})
+
+describe('SettingsSidebar admin sections', () => {
+  it('lists the sections it is given, including Users and API keys', () => {
+    const w = mountSidebar(false, 'users', SETTINGS_SECTIONS)
+    const buttons = w.get('nav').findAll('button')
+    expect(buttons.map((b) => b.text())).toEqual([
+      expect.stringContaining('Text'),
+      expect.stringContaining('Images'),
+      expect.stringContaining('Web search'),
+      'Users',
+      'API keys',
+      'Account',
+    ])
+    expect(buttons[3]!.attributes('aria-current')).toBe('page')
+  })
+
+  it('wraps the keyboard over the visible sections only', async () => {
+    const w = mountSidebar(true, 'account', SETTINGS_SECTIONS)
+    const tabs = w.findAll('[role="tab"]')
+    expect(tabs).toHaveLength(6)
+    await tabs[5]!.trigger('keydown', { key: 'ArrowLeft' })
+    expect(w.emitted('select')).toEqual([['api-keys']])
+    await w.setProps({ section: 'api-keys' })
+    w.emitted('select')!.splice(0)
+    await tabs[4]!.trigger('keydown', { key: 'End' })
+    expect(w.emitted('select')).toEqual([['account']])
+    expect(document.activeElement).toBe(tabs[5]!.element)
   })
 })

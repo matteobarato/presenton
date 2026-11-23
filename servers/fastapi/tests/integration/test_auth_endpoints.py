@@ -238,3 +238,192 @@ def test_admin_provider_settings_include_safe_global_presenton_status(
     assert "PRESENTON_ACCESS_TOKEN" not in response.json()
     assert "PRESENTON_REFRESH_TOKEN" not in response.json()
     asyncio.run(engine.dispose())
+
+
+def _setup_admin_and_login(client) -> None:
+    client.post("/api/v1/auth/setup", json={"username": "admin", "password": "secret123"})
+    client.post("/api/v1/auth/login", json={"username": "admin", "password": "secret123"})
+
+
+def test_user_can_change_own_password_and_stays_signed_in(monkeypatch, tmp_path):
+    monkeypatch.setenv("USER_CONFIG_PATH", str(tmp_path / "userConfig.json"))
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    client, engine = _build_client(tmp_path)
+    _setup_admin_and_login(client)
+    client.post("/api/v1/admin/users", json={"username": "bob", "password": "bobpass123"})
+    client.cookies.clear()
+    client.post("/api/v1/auth/login", json={"username": "bob", "password": "bobpass123"})
+    old_cookie = client.cookies.get(SESSION_COOKIE_NAME)
+
+    response = client.post(
+        "/api/v1/auth/password",
+        json={"current_password": "bobpass123", "new_password": "newpass456"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["username"] == "bob"
+    assert client.get("/api/v1/auth/status").json()["authenticated"] is True
+    # The previous session token is no longer valid.
+    client.cookies.set(SESSION_COOKIE_NAME, old_cookie)
+    assert client.get("/api/v1/auth/status").json()["authenticated"] is False
+    client.cookies.clear()
+    assert (
+        client.post("/api/v1/auth/login", json={"username": "bob", "password": "bobpass123"}).status_code
+        == 401
+    )
+    assert (
+        client.post("/api/v1/auth/login", json={"username": "bob", "password": "newpass456"}).status_code
+        == 200
+    )
+    asyncio.run(engine.dispose())
+
+
+def test_change_password_rejects_wrong_current_password_without_401(monkeypatch, tmp_path):
+    monkeypatch.setenv("USER_CONFIG_PATH", str(tmp_path / "userConfig.json"))
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    client, engine = _build_client(tmp_path)
+    _setup_admin_and_login(client)
+
+    wrong = client.post(
+        "/api/v1/auth/password",
+        json={"current_password": "nope-nope", "new_password": "newpass456"},
+    )
+    same = client.post(
+        "/api/v1/auth/password",
+        json={"current_password": "secret123", "new_password": "secret123"},
+    )
+    short = client.post(
+        "/api/v1/auth/password",
+        json={"current_password": "secret123", "new_password": "short"},
+    )
+    client.cookies.clear()
+    anonymous = client.post(
+        "/api/v1/auth/password",
+        json={"current_password": "secret123", "new_password": "newpass456"},
+    )
+
+    assert wrong.status_code == 400
+    assert same.status_code == 422
+    assert short.status_code == 422
+    assert anonymous.status_code == 401
+    asyncio.run(engine.dispose())
+
+
+def test_admin_password_change_updates_recovery_copy(monkeypatch, tmp_path):
+    import json
+
+    config_path = tmp_path / "userConfig.json"
+    monkeypatch.setenv("USER_CONFIG_PATH", str(config_path))
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    client, engine = _build_client(tmp_path)
+    _setup_admin_and_login(client)
+    before = json.loads(config_path.read_text())["AUTH_PASSWORD_HASH"]
+
+    response = client.post(
+        "/api/v1/auth/password",
+        json={"current_password": "secret123", "new_password": "newadmin456"},
+    )
+
+    after = json.loads(config_path.read_text())["AUTH_PASSWORD_HASH"]
+    assert response.status_code == 200
+    assert after != before
+    assert PASSWORD_HELPER.verify_and_update("newadmin456", after)[0]
+    asyncio.run(engine.dispose())
+
+
+def _login_as_new_user(client, username: str, password: str) -> None:
+    client.post("/api/v1/admin/users", json={"username": username, "password": password})
+    client.cookies.clear()
+    client.post("/api/v1/auth/login", json={"username": username, "password": password})
+
+
+def test_user_manages_personal_api_keys_that_act_as_themselves(monkeypatch, tmp_path):
+    monkeypatch.setenv("USER_CONFIG_PATH", str(tmp_path / "userConfig.json"))
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    client, engine = _build_client(tmp_path)
+    _setup_admin_and_login(client)
+    _login_as_new_user(client, "bob", "bobpass123")
+
+    created = client.post("/api/v1/auth/api-keys", json={"label": "Laptop", "expiry_days": 30})
+    assert created.status_code == 201
+    key = created.json()
+    me = client.get("/api/v1/auth/status").json()
+    assert key["user_id"] == me["user_id"]
+    assert key["created_by_id"] == me["user_id"]
+
+    listed = client.get("/api/v1/auth/api-keys").json()
+    assert [k["id"] for k in listed] == [key["id"]]
+    revealed = client.get(f"/api/v1/auth/api-keys/{key['id']}/token")
+    assert revealed.json()["token"] == key["token"]
+    assert revealed.headers["cache-control"] == "no-store"
+
+    client.cookies.clear()
+    verify = client.get("/api/v1/auth/verify", headers={"Authorization": f"Bearer {key['token']}"})
+    assert verify.json()["username"] == "bob"
+
+    client.post("/api/v1/auth/login", json={"username": "bob", "password": "bobpass123"})
+    revoked = client.post(f"/api/v1/auth/api-keys/{key['id']}/revoke")
+    assert revoked.json()["revoked_at"] is not None
+    client.cookies.clear()
+    assert (
+        client.get("/api/v1/auth/verify", headers={"Authorization": f"Bearer {key['token']}"}).status_code
+        == 401
+    )
+    asyncio.run(engine.dispose())
+
+
+def test_personal_api_keys_cannot_target_another_user(monkeypatch, tmp_path):
+    monkeypatch.setenv("USER_CONFIG_PATH", str(tmp_path / "userConfig.json"))
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    client, engine = _build_client(tmp_path)
+    _setup_admin_and_login(client)
+    admin_id = client.get("/api/v1/auth/status").json()["user_id"]
+    admin_key = client.post("/api/v1/auth/api-keys", json={"label": "Admin own"}).json()
+    _login_as_new_user(client, "mallory", "malpass123")
+
+    smuggled = client.post(
+        "/api/v1/auth/api-keys", json={"label": "Sneaky", "user_id": admin_id}
+    )
+    assert smuggled.status_code == 422
+    assert client.get("/api/v1/auth/api-keys").json() == []
+    assert client.get(f"/api/v1/auth/api-keys/{admin_key['id']}/token").status_code == 404
+    assert client.post(f"/api/v1/auth/api-keys/{admin_key['id']}/revoke").status_code == 404
+    assert client.get("/api/v1/admin/api-keys").status_code == 403
+    asyncio.run(engine.dispose())
+
+
+def test_api_key_cannot_manage_api_keys(monkeypatch, tmp_path):
+    monkeypatch.setenv("USER_CONFIG_PATH", str(tmp_path / "userConfig.json"))
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    client, engine = _build_client(tmp_path)
+    _setup_admin_and_login(client)
+    _login_as_new_user(client, "bob", "bobpass123")
+    token = client.post("/api/v1/auth/api-keys", json={"label": "CI"}).json()["token"]
+    client.cookies.clear()
+
+    bearer = {"Authorization": f"Bearer {token}"}
+    assert client.post("/api/v1/auth/api-keys", json={"label": "More"}, headers=bearer).status_code == 401
+    assert client.get("/api/v1/auth/api-keys", headers=bearer).status_code == 401
+    asyncio.run(engine.dispose())
+
+
+def test_personal_api_keys_are_capped_for_non_admins(monkeypatch, tmp_path):
+    from api.v1.auth.personal_keys import MAX_ACTIVE_PERSONAL_KEYS
+
+    monkeypatch.setenv("USER_CONFIG_PATH", str(tmp_path / "userConfig.json"))
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    client, engine = _build_client(tmp_path)
+    _setup_admin_and_login(client)
+    _login_as_new_user(client, "bob", "bobpass123")
+    ids = [
+        client.post("/api/v1/auth/api-keys", json={"label": f"k{i}"}).json()["id"]
+        for i in range(MAX_ACTIVE_PERSONAL_KEYS)
+    ]
+
+    over = client.post("/api/v1/auth/api-keys", json={"label": "one too many"})
+    client.post(f"/api/v1/auth/api-keys/{ids[0]}/revoke")
+    after_revoke = client.post("/api/v1/auth/api-keys", json={"label": "replacement"})
+
+    assert over.status_code == 409
+    assert after_revoke.status_code == 201
+    asyncio.run(engine.dispose())

@@ -342,7 +342,7 @@ function annotateAnimationTarget(
   height: number
 ): string {
   if (!html) return html;
-  const box = readBox(item);
+  const box = renderedBox(item);
   const originX = box.x + (box.width ?? 0) / 2;
   const originY = box.y + (box.height ?? 0) / 2;
   // The layer covers the whole slide at its origin, so the absolutely
@@ -357,7 +357,23 @@ function annotateAnimationTarget(
   )}px ${cssNumber(originY)}px">${html}</div>`;
 }
 
-export type TemplateV2ItemSource = { kind: "element" | "component"; index: number };
+// The box `renderItem` lays the item out in, so the layer's pivot is its centre. A
+// component is drawn as a group sized by its elements (its own `size` is dropped),
+// and a group without a size by its children.
+function renderedBox(item: JsonRecord): Box {
+  if (isComponent(item)) {
+    return {
+      ...readBox(item),
+      ...childrenBounds(readArray(item.elements).map(readRecord)),
+    };
+  }
+  if (readString(item.type) === "group") {
+    return readBox(item, childrenBounds(readArray(item.children).map(readRecord)));
+  }
+  return readBox(item);
+}
+
+export type TemplateV2ItemSource ={ kind: "element" | "component"; index: number };
 
 // Where each rendered item came from in `ui`, in `templateV2RenderPayload`'s
 // order: root elements (minus placeholders lifted out), components, then the

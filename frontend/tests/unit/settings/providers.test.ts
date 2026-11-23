@@ -119,7 +119,7 @@ describe('other tables', () => {
     expect(CLASSIC_SETTINGS_URL).toBe('http://backend.test:5001/settings')
   })
   it('defines sections and oauth-managed fields', () => {
-    expect(SETTINGS_SECTIONS).toEqual(['text', 'images', 'web-search', 'account'])
+    expect(SETTINGS_SECTIONS).toEqual(['text', 'images', 'web-search', 'users', 'api-keys', 'account'])
     expect(OAUTH_MANAGED_FIELDS).toEqual([
       'CODEX_ACCESS_TOKEN', 'CODEX_REFRESH_TOKEN', 'CODEX_TOKEN_EXPIRES',
       'CODEX_ACCOUNT_ID', 'PRESENTON_CONNECTED', 'PRESENTON_EMAIL',
