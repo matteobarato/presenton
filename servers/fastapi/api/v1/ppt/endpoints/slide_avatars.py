@@ -262,20 +262,20 @@ async def generate_slide_avatars(
     body: Optional[SlideAvatarGenerationRequest] = None,
     sql_session: AsyncSession = Depends(get_async_session),
 ):
-    """Generate lip-synced avatars with HeyGen, as a task to poll.
+    """Generate lip-synced avatars with HeyGen Avatar 6 Turbo (via OpenRouter), as a task to poll.
 
     Each chosen slide that has a placeholder and up-to-date narration gets a
     video made from the deck's portrait and the slide's audio. Slides whose
     avatar is already up to date are skipped unless `force` is set; the task's
     `data.slides` says what happens to each slide and why. Generating spends
-    HeyGen credits for every slide that is not skipped.
+    OpenRouter credits for every slide that is not skipped.
     """
     body = body or SlideAvatarGenerationRequest()
     presentation, slides = await _presentation_with_slides_for_speaker_notes(
         id, sql_session
     )
     if not generation_available():
-        raise HTTPException(status_code=503, detail="HEYGEN_API_KEY is not set")
+        raise HTTPException(status_code=503, detail="OPENROUTER_API_KEY is not set")
     if portrait_response(presentation) is None:
         raise HTTPException(
             status_code=422,

@@ -409,7 +409,7 @@ describe('AvatarTab: overview', () => {
     m.getVideos.mockResolvedValue({ presentation_id: 'p1', generation_available: false, portrait: null, videos: [] })
     const { wrapper } = await mountTab()
     expect(overview(wrapper).find('[data-testid="avatar-capability"]').attributes('data-state')).toBe('off')
-    expect(overview(wrapper).text()).toContain('HEYGEN_API_KEY')
+    expect(overview(wrapper).text()).toContain('OPENROUTER_API_KEY')
     expect(overview(wrapper).text()).toContain('upload')
   })
 

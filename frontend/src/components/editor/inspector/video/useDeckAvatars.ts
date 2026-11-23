@@ -103,7 +103,7 @@ export function useDeckAvatars(presentationId: Ref<string>, presentation: Ref<Pr
 
   /** Why no avatar can be generated at all right now, or null. */
   const deckBlocker = computed<string | null>(() => {
-    if (videos.value && !videos.value.generation_available) return 'Set HEYGEN_API_KEY on the server to generate avatars.'
+    if (videos.value && !videos.value.generation_available) return 'Set OPENROUTER_API_KEY on the server to generate avatars.'
     if (!videos.value?.portrait) return 'Upload a presenter portrait first.'
     if (running.value) return 'An avatar generation is already running.'
     if (!narration.tts.value) return 'Checking narration…'
