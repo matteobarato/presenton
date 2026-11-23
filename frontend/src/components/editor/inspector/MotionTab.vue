@@ -140,15 +140,15 @@ const showReset = computed(() => {
 })
 
 const alert = computed(() => error.value ?? deckRun.error.value)
-const fieldLabel = 'mb-2 block text-[10px] text-[#b8cad4]'
-const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-[#dce3e7] outline-none'
+const fieldLabel = 'mb-2 block text-[10px] text-tx-b8cad4'
+const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-tx-dce3e7 outline-none'
 </script>
 
 <template>
   <section class="flex flex-1 flex-col px-5 pb-[18px] max-[1279px]:px-4 min-[1600px]:px-[23px]" aria-label="Motion">
     <div class="pt-6 pb-[22px] min-[1600px]:pt-7 min-[1600px]:pb-[26px] [@media(max-height:780px)_and_(min-width:1051px)]:pt-[17px] [@media(max-height:780px)_and_(min-width:1051px)]:pb-4">
-      <h2 class="text-[19px] font-medium tracking-[-0.04em] text-[#f0f2f3] max-[1279px]:text-[18px] min-[1600px]:text-[22px]">Motion, with intent.</h2>
-      <p class="mt-[5px] text-[10px] leading-[1.6] text-[#a0abb1]">Shape how each element arrives on the slide.</p>
+      <h2 class="text-[19px] font-medium tracking-[-0.04em] text-tx-f0f2f3 max-[1279px]:text-[18px] min-[1600px]:text-[22px]">Motion, with intent.</h2>
+      <p class="mt-[5px] text-[10px] leading-[1.6] text-tx-a0abb1">Shape how each element arrives on the slide.</p>
     </div>
 
     <p v-if="!activeSlide" class="text-[11px] text-muted">Select a slide to edit its motion.</p>
@@ -166,13 +166,13 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
     <template v-else>
       <div
         v-if="showReset"
-        class="mb-4 flex items-start gap-2 rounded-control border border-white/[0.06] bg-field px-2.5 py-2 text-[10px] leading-[1.5] text-[#dce3e7]"
+        class="mb-4 flex items-start gap-2 rounded-control border border-white/[0.06] bg-field px-2.5 py-2 text-[10px] leading-[1.5] text-tx-dce3e7"
         role="status"
       >
         <span class="flex-1">Your edits were reset because the layout changed.</span>
         <button
           type="button"
-          class="-m-0.5 grid size-5 shrink-0 place-items-center rounded-control text-[#9aa9b0] hover:bg-white/[0.04] hover:text-white"
+          class="-m-0.5 grid size-5 shrink-0 place-items-center rounded-control text-tx-9aa9b0 hover:bg-white/[0.04] hover:text-white"
           aria-label="Dismiss"
           @click="dismissedFor = animation.slide_id"
         >
@@ -186,8 +186,8 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
 
       <div v-if="stale" class="flex flex-col items-start gap-3 pb-[18px]" role="status">
         <div>
-          <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Layout changed — re-plan</h3>
-          <p class="mt-1 text-[10px] leading-[1.6] text-[#a0abb1]">
+          <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Layout changed — re-plan</h3>
+          <p class="mt-1 text-[10px] leading-[1.6] text-tx-a0abb1">
             This slide's elements changed since its motion was made, so the plan no longer matches them. Re-plan it to edit motion again.
           </p>
         </div>
@@ -198,8 +198,8 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
 
       <div v-else-if="animation.status === 'missing' && !planning" class="flex flex-col items-start gap-3 pb-[18px]">
         <div>
-          <h3 class="text-[12px] font-semibold text-[#f6f8f9]">No motion yet</h3>
-          <p class="mt-1 text-[10px] leading-[1.6] text-[#a0abb1]">Let AI plan how this slide's elements arrive, or start from a sequence below.</p>
+          <h3 class="text-[12px] font-semibold text-tx-f6f8f9">No motion yet</h3>
+          <p class="mt-1 text-[10px] leading-[1.6] text-tx-a0abb1">Let AI plan how this slide's elements arrive, or start from a sequence below.</p>
         </div>
         <Button size="sm" :disabled="busy || deckRunning" :title="lockReason" @click="runGenerate(false)">
           <Sparkles class="size-3.5" aria-hidden="true" />Generate with AI
@@ -207,26 +207,26 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
       </div>
 
       <template v-else-if="animation.status !== 'missing'">
-        <label class="mb-2 block text-[10px] text-[#c0cfd6]" for="motion-element">Selected element</label>
+        <label class="mb-2 block text-[10px] text-tx-c0cfd6" for="motion-element">Selected element</label>
         <div :class="field">
           <select id="motion-element" :class="select" :value="selected ?? ''" @change="editor.motionTarget = ($event.target as HTMLSelectElement).value">
             <option v-for="t in targets" :key="t.id" :value="t.id" class="bg-dialog">{{ names.get(t.id) }}</option>
           </select>
-          <ChevronDown class="size-3 shrink-0 text-[#a0aeb5]" aria-hidden="true" />
+          <ChevronDown class="size-3 shrink-0 text-tx-a0aeb5" aria-hidden="true" />
         </div>
 
         <div class="flex flex-col gap-[13px] pt-[19px] pb-[18px]">
           <label :class="[field, 'cursor-text']">
-            <Search class="size-3.5 shrink-0 text-[#aebfc8]" aria-hidden="true" />
+            <Search class="size-3.5 shrink-0 text-tx-aebfc8" aria-hidden="true" />
             <input
               ref="search"
               v-model="query"
-              class="h-full w-full min-w-0 bg-transparent text-[11px] text-[#e5edf1] outline-none placeholder:text-[#9aa9b0]"
+              class="h-full w-full min-w-0 bg-transparent text-[11px] text-tx-e5edf1 outline-none placeholder:text-tx-9aa9b0"
               placeholder="Find an effect…"
               aria-label="Search motion effects"
               @keydown.enter.prevent="filtered[0] && pick(filtered[0].id)"
             />
-            <kbd class="whitespace-nowrap text-[9px] text-[#b1c3cd]">{{ isMac ? '⌘ K' : 'Ctrl K' }}</kbd>
+            <kbd class="whitespace-nowrap text-[9px] text-tx-b1c3cd">{{ isMac ? '⌘ K' : 'Ctrl K' }}</kbd>
           </label>
           <fieldset class="motion-effects grid min-w-0 grid-cols-3 gap-[5px]" :disabled="locked" :title="lockReason">
             <legend class="sr-only">Effects{{ lockReason ? ` (${lockReason.toLowerCase()})` : '' }}</legend>
@@ -236,20 +236,20 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
               type="button"
               :aria-pressed="current === e.id"
               :title="e.detail"
-              class="flex flex-col items-center justify-center gap-2 rounded-control border border-transparent px-1 py-[11px] text-[10px] text-[#b9c9d1] hover:bg-[#2d383d] aria-pressed:border-[#829eac] aria-pressed:bg-[#30414b] aria-pressed:text-[#e5f4fc] disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent"
+              class="flex flex-col items-center justify-center gap-2 rounded-control border border-transparent px-1 py-[11px] text-[10px] text-tx-b9c9d1 hover:bg-sx-2d383d aria-pressed:border-lx-829eac aria-pressed:bg-sx-30414b aria-pressed:text-tx-e5f4fc disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent"
               @click="pick(e.id)"
             >
               <span class="effect-glyph" :class="`effect-${e.id}`" aria-hidden="true"><i /></span>{{ e.name }}
             </button>
-            <p v-if="!filtered.length" class="col-span-full py-[15px] text-[11px] text-[#afbdc5]">No effects found.</p>
+            <p v-if="!filtered.length" class="col-span-full py-[15px] text-[11px] text-tx-afbdc5">No effects found.</p>
           </fieldset>
         </div>
 
         <fieldset class="min-w-0 border-y border-line py-[17px]" :disabled="locked" :title="lockReason">
           <legend class="sr-only">Timing{{ lockReason ? ` (${lockReason.toLowerCase()})` : '' }}</legend>
-          <div class="mb-3 flex justify-between gap-2 text-[11px] text-[#cfdee6]">
+          <div class="mb-3 flex justify-between gap-2 text-[11px] text-tx-cfdee6">
             <span class="truncate">{{ selected ? names.get(selected) : '' }}</span>
-            <b class="shrink-0 text-[10px] font-medium text-[#bee3f3]">{{ currentName }}</b>
+            <b class="shrink-0 text-[10px] font-medium text-accent">{{ currentName }}</b>
           </div>
           <p v-if="!tween" class="text-[10px] leading-[1.6] text-muted">This element stays still. Pick an effect to animate it.</p>
           <template v-else>
@@ -268,20 +268,20 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
                   <select aria-label="Ease" :class="select" :value="tween.ease" @change="patch({ ease: ($event.target as HTMLSelectElement).value })">
                     <option v-for="ease in EASES" :key="ease.id" :value="ease.id" class="bg-dialog">{{ ease.label }}</option>
                   </select>
-                  <ChevronDown class="size-3 shrink-0 text-[#a0aeb5]" aria-hidden="true" />
+                  <ChevronDown class="size-3 shrink-0 text-tx-a0aeb5" aria-hidden="true" />
                 </div>
               </div>
             </div>
 
             <button
               type="button"
-              class="mt-3.5 flex w-full items-center justify-between text-[10px] font-medium text-[#d0d7dc] hover:text-white"
+              class="mt-3.5 flex w-full items-center justify-between text-[10px] font-medium text-tx-d0d7dc hover:text-white"
               :aria-expanded="customOpen"
               aria-controls="motion-custom"
               @click="customOpen = !customOpen"
             >
               Custom values
-              <ChevronDown class="size-3 text-[#a0aeb5] transition-transform" :class="customOpen && 'rotate-180'" aria-hidden="true" />
+              <ChevronDown class="size-3 text-tx-a0aeb5 transition-transform" :class="customOpen && 'rotate-180'" aria-hidden="true" />
             </button>
             <div v-show="customOpen" id="motion-custom" class="mt-3 grid grid-cols-2 gap-x-2.5 gap-y-3">
               <div v-for="f in FROM_FIELDS" :key="f.key">
@@ -311,7 +311,7 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
             <option value="subtle" class="bg-dialog">Soft &amp; subtle</option>
             <option value="clear" class="bg-dialog">Remove all effects</option>
           </select>
-          <ChevronDown class="size-3 shrink-0 text-[#a0aeb5]" aria-hidden="true" />
+          <ChevronDown class="size-3 shrink-0 text-tx-a0aeb5" aria-hidden="true" />
         </div>
       </div>
 

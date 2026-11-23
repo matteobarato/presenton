@@ -3,7 +3,7 @@ import { CLASSIC_SETTINGS_URL } from '@/settings/providers'
 </script>
 
 <template>
-  <p class="text-[11px] leading-[1.6] text-[#95aab7]">
+  <p class="text-[11px] leading-[1.6] text-tx-95aab7">
     ChatGPT sign-in and Presenton Cloud are set up in the
     <a
       :href="CLASSIC_SETTINGS_URL"

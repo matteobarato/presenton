@@ -49,14 +49,14 @@ const summary = computed(() => [languageName.value, `${eligibleSlides.value.leng
       aria-controls="deck-avatars-body"
       @click="open = !open"
     >
-      <span class="text-[12px] font-semibold text-[#f6f8f9]">Whole deck</span>
+      <span class="text-[12px] font-semibold text-tx-f6f8f9">Whole deck</span>
       <span class="min-w-0 flex-1 truncate text-right text-[11px] text-muted">{{ summary }}</span>
       <ChevronDown class="size-3.5 flex-none text-muted transition-transform duration-200" :class="open && 'rotate-180'" aria-hidden="true" />
     </button>
 
     <div v-show="open" id="deck-avatars-body" class="flex flex-col gap-5 border-t border-white/[0.06] p-3">
       <p class="text-[11px] text-muted" data-testid="avatar-language">
-        Avatars are lip-synced to <strong class="font-semibold text-[#d4dadd]">{{ languageName }}</strong> narration. Change the language in the Voice tab.
+        Avatars are lip-synced to <strong class="font-semibold text-tx-d4dadd">{{ languageName }}</strong> narration. Change the language in the Voice tab.
       </p>
 
       <PortraitCard
@@ -67,7 +67,7 @@ const summary = computed(() => [languageName.value, `${eligibleSlides.value.leng
       />
 
       <div class="flex flex-col gap-2">
-        <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Avatars</h3>
+        <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Avatars</h3>
         <p class="text-[11px] text-muted">
           {{ eligibleSlides.length }} of {{ placeholderSlides.length }} placeholder
           {{ placeholderSlides.length === 1 ? 'slide is' : 'slides are' }} ready to generate.
@@ -85,7 +85,7 @@ const summary = computed(() => [languageName.value, `${eligibleSlides.value.leng
       </div>
 
       <div v-if="activeSlide" class="flex flex-col gap-2">
-        <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Voice bubble</h3>
+        <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Voice bubble</h3>
         <p class="text-[11px] text-muted">Where the narrator sits on slides without an avatar. Drag it here; it applies to every slide.</p>
         <div class="relative overflow-hidden rounded-control border border-white/[0.06]">
           <SlideView :slide="activeSlide" :theme="props.presentation.theme" :fonts="props.presentation.fonts" fit="width" class="pointer-events-none" />

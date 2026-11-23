@@ -32,7 +32,7 @@ const hasRetry = !!getCurrentInstance()?.vnode.props?.onRetry
       <slot name="back" />
       <p
         role="status"
-        class="min-w-0 flex-1 text-right leading-snug text-[12px] text-[#a2b7c5] max-[559px]:order-first max-[559px]:basis-full max-[559px]:text-left max-[559px]:empty:sr-only"
+        class="min-w-0 flex-1 text-right leading-snug text-[12px] text-tx-a2b7c5 max-[559px]:order-first max-[559px]:basis-full max-[559px]:text-left max-[559px]:empty:sr-only"
       >
         <slot name="status">{{ status }}</slot>
       </p>

@@ -222,15 +222,15 @@ function continueToPreview() {
   <div class="grid grid-cols-[minmax(0,1fr)_196px] items-start gap-7 max-[900px]:grid-cols-1 max-[900px]:gap-4">
     <div class="flex min-w-0 flex-col gap-4">
       <div class="flex min-h-[24px] flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[12px]">
-        <span class="text-[#9aabb4] tabular-nums" data-testid="outline-count">{{ countLabel }}</span>
+        <span class="text-tx-9aabb4 tabular-nums" data-testid="outline-count">{{ countLabel }}</span>
         <span class="flex items-center gap-1.5" aria-live="polite" data-testid="outline-save">
           <template v-if="saveState === 'saving'">
-            <LoaderCircle class="size-3 animate-spin text-[#9aabb4]" aria-hidden="true" />
-            <span class="text-[#9aabb4]">Saving…</span>
+            <LoaderCircle class="size-3 animate-spin text-tx-9aabb4" aria-hidden="true" />
+            <span class="text-tx-9aabb4">Saving…</span>
           </template>
           <template v-else-if="saveState === 'saved'">
-            <Check class="size-3 text-[#9fd3b4]" aria-hidden="true" />
-            <span class="text-[#9aabb4]">Saved</span>
+            <Check class="size-3 text-tx-9fd3b4" aria-hidden="true" />
+            <span class="text-tx-9aabb4">Saved</span>
           </template>
           <template v-else-if="saveState === 'error'">
             <TriangleAlert class="size-3 text-danger-text" aria-hidden="true" />
@@ -251,7 +251,7 @@ function continueToPreview() {
 
       <p
         v-if="overLimit > 0"
-        class="flex items-center gap-2 rounded-card border border-[#e3b04b33] bg-[#e3b04b0d] px-3 py-2 text-[12px] text-[#e8c987]"
+        class="flex items-center gap-2 rounded-card border border-lx-e3b04b33 bg-sx-e3b04b0d px-3 py-2 text-[12px] text-tx-e8c987"
         role="alert"
         data-testid="outline-limit"
       >
@@ -260,7 +260,7 @@ function continueToPreview() {
       </p>
 
       <section v-if="showPicker" class="flex flex-col gap-3" aria-label="Pick a template" data-testid="outline-template-picker">
-        <p class="text-[12px] text-[#d4dee3]">This deck has no template yet. Pick one to generate its slides.</p>
+        <p class="text-[12px] text-tx-d4dee3">This deck has no template yet. Pick one to generate its slides.</p>
         <NewTemplateSelector v-model="pickedTemplate" :templates="templates.data.value ?? []" :allow-later="false" :disabled="generating" />
       </section>
 
@@ -283,7 +283,7 @@ function continueToPreview() {
     >
       <TemplateCardThumb v-if="chosenTemplate" :template="chosenTemplate" :width="compact ? 84 : 170" />
       <div class="flex min-w-0 flex-col gap-1.5">
-        <span class="truncate text-[12px] font-medium text-[#e4ecf0]">{{ chosenTemplate?.name ?? 'No template' }}</span>
+        <span class="truncate text-[12px] font-medium text-tx-e4ecf0">{{ chosenTemplate?.name ?? 'No template' }}</span>
       </div>
     </aside>
   </div>

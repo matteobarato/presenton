@@ -33,27 +33,27 @@ const anyRunning = computed(() => running.pptx || running.pdf)
         class="flex items-center gap-3 rounded-card border px-3.5 py-3 text-left transition-[background,border-color] duration-200 max-[520px]:py-2.5"
         :class="
           format === f.id
-            ? 'border-[#a4d2e77a] bg-[#303c42] text-[#e4f2f9]'
-            : 'border-white/[0.05] bg-[#272d30] text-[#c0cdd5] hover:bg-[#2e373b]'
+            ? 'border-lx-a4d2e77a bg-sx-303c42 text-tx-e4f2f9'
+            : 'border-white/[0.05] bg-field text-tx-c0cdd5 hover:bg-sx-2e373b'
         "
         @click="format = f.id"
       >
         <span
           class="grid size-9 flex-none place-items-center rounded-[10px]"
-          :class="format === f.id ? 'bg-[#badbef1f] text-[#c4e4f4]' : 'bg-white/[0.04] text-[#9fb2bd]'"
+          :class="format === f.id ? 'bg-sx-badbef1f text-tx-c4e4f4' : 'bg-white/[0.04] text-tx-9fb2bd'"
           aria-hidden="true"
         >
           <component :is="f.icon" class="size-[18px]" />
         </span>
         <span class="min-w-0">
           <span class="block text-[13px] font-medium">{{ f.name }}</span>
-          <span class="mt-0.5 block truncate text-[12px] text-[#97acb8]">{{ f.detail }}</span>
+          <span class="mt-0.5 block truncate text-[12px] text-tx-97acb8">{{ f.detail }}</span>
         </span>
       </button>
     </div>
 
     <!-- v-show keeps every format mounted, so a running export survives switching tabs. -->
-    <div class="mt-6 border-t border-[#a7cbe012] pt-6">
+    <div class="mt-6 border-t border-lx-a7cbe012 pt-6">
       <div v-show="format === 'pptx'">
         <FileExportCard :presentation-id="presentationId" format="pptx" :busy="anyRunning" @running="running.pptx = $event" />
       </div>
@@ -61,7 +61,7 @@ const anyRunning = computed(() => running.pptx || running.pdf)
         <FileExportCard :presentation-id="presentationId" format="pdf" :busy="anyRunning" @running="running.pdf = $event" />
       </div>
       <div v-show="format === 'mp4'">
-        <p v-if="videoNote" class="mb-3 text-[12px] leading-[1.6] text-[#a9c4d2]" data-testid="mp4-note">{{ videoNote }}</p>
+        <p v-if="videoNote" class="mb-3 text-[12px] leading-[1.6] text-tx-a9c4d2" data-testid="mp4-note">{{ videoNote }}</p>
         <VideoExportCard :presentation-id="presentationId" :presentation="presentation" />
       </div>
     </div>

@@ -43,7 +43,7 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
 
     <template v-if="provider === 'vertex'">
       <div class="min-w-0">
-        <label for="vertex-model" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Model</label>
+        <label for="vertex-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Model</label>
         <Input
           id="vertex-model"
           type="text"
@@ -62,13 +62,13 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
         @toggle="advancedOpen = ($event.target as HTMLDetailsElement).open"
       >
         <summary
-          class="mb-2 cursor-pointer text-[12px] font-medium text-[#dbe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          class="mb-2 cursor-pointer text-[12px] font-medium text-tx-dbe7ef focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
           Advanced settings
         </summary>
         <div class="grid gap-4">
           <div class="min-w-0">
-            <label for="vertex-project" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Project ID</label>
+            <label for="vertex-project" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Project ID</label>
             <Input
               id="vertex-project"
               type="text"
@@ -81,7 +81,7 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
             />
           </div>
           <div class="min-w-0">
-            <label for="vertex-location" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Region</label>
+            <label for="vertex-location" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Region</label>
             <Input
               id="vertex-location"
               type="text"
@@ -94,7 +94,7 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
             />
           </div>
           <div class="min-w-0">
-            <label for="vertex-base-url" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Custom endpoint</label>
+            <label for="vertex-base-url" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Custom endpoint</label>
             <Input
               id="vertex-base-url"
               type="text"
@@ -112,7 +112,7 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
 
     <template v-else>
       <div class="min-w-0">
-        <label for="azure-endpoint" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Azure endpoint</label>
+        <label for="azure-endpoint" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Azure endpoint</label>
         <Input
           id="azure-endpoint"
           type="text"
@@ -125,7 +125,7 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
         />
       </div>
       <div class="min-w-0">
-        <label for="azure-model" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Model name</label>
+        <label for="azure-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Model name</label>
         <Input
           id="azure-model"
           type="text"
@@ -138,7 +138,7 @@ const keyLabel = computed(() => (props.provider === 'vertex' ? 'Vertex AI API ke
         />
       </div>
       <div class="min-w-0">
-        <label for="azure-api-version" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">API version</label>
+        <label for="azure-api-version" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">API version</label>
         <Input
           id="azure-api-version"
           type="text"

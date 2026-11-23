@@ -11,10 +11,10 @@ const route = useRoute()
 const help = useHelpDialog()
 const session = useSessionStore()
 const link =
-  'flex w-full flex-col items-center gap-2 rounded-[11px] py-3 text-[9px] font-medium text-[#9aa3a8] transition-colors duration-200 hover:bg-[#1d2225] hover:text-[#d9e0e4] max-[760px]:gap-1.5 max-[760px]:text-[7px]'
+  'flex w-full flex-col items-center gap-2 rounded-[11px] py-3 text-[9px] font-medium text-tx-9aa3a8 transition-colors duration-200 hover:bg-sx-1d2225 hover:text-tx-d9e0e4 max-[760px]:gap-1.5 max-[760px]:text-[7px]'
 const cta =
-  'flex w-full flex-col items-center gap-1.5 py-1 text-[9px] font-medium text-[#c2e5f5] max-[760px]:text-[7px]'
-const active = 'bg-[#222b30] text-[#c2e5f5]'
+  'flex w-full flex-col items-center gap-1.5 py-1 text-[9px] font-medium text-tx-c2e5f5 max-[760px]:text-[7px]'
+const active = 'bg-sx-222b30 text-tx-c2e5f5'
 const libraryActive = computed(() => route.name === 'library' || route.name === 'editor')
 const newActive = computed(() => route.name === 'new' || route.name === 'create')
 const templatesActive = computed(() => route.name === 'templates' || route.name === 'template')
@@ -41,7 +41,7 @@ const settingsSection = computed(() => defaultSettingsSection(session.user?.role
         :class="[cta, 'group']"
         :aria-current="newActive ? 'page' : undefined"
       >
-        <span :class="['grid size-10 place-items-center rounded-full bg-[#c2e5f5]/12 transition-colors duration-200 group-hover:bg-[#c2e5f5]/20 max-[760px]:size-9', newActive && 'bg-[#c2e5f5]/25']">
+        <span :class="['grid size-10 place-items-center rounded-full bg-sx-c2e5f5/12 transition-colors duration-200 group-hover:bg-sx-c2e5f5/20 max-[760px]:size-9', newActive && 'bg-sx-c2e5f5/25']">
           <Plus class="size-[19px] stroke-[1.5]" aria-hidden="true" />
         </span>New
       </RouterLink>

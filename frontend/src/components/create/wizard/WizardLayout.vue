@@ -57,11 +57,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
               <h2
                 ref="headingEl"
                 tabindex="-1"
-                class="text-[22px] leading-[1.22] font-medium tracking-[-0.03em] text-balance text-[#e4ecf0] outline-none max-[760px]:text-[19px]"
+                class="text-[22px] leading-[1.22] font-medium tracking-[-0.03em] text-balance text-tx-e4ecf0 outline-none max-[760px]:text-[19px]"
               >
                 {{ heading }}
               </h2>
-              <p class="mt-[9px] max-w-[60ch] text-[12px] leading-[1.7] text-[#9aabb4]">{{ lede }}</p>
+              <p class="mt-[9px] max-w-[60ch] text-[12px] leading-[1.7] text-tx-9aabb4">{{ lede }}</p>
             </header>
             <slot />
           </section>

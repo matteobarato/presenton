@@ -25,10 +25,10 @@ defineExpose({ families })
         <span :class="muted">{{ family }}</span>
       </div>
       <label :class="field">
-        <Type class="size-3.5 shrink-0 text-[#a0aeb5]" aria-hidden="true" />
+        <Type class="size-3.5 shrink-0 text-tx-a0aeb5" aria-hidden="true" />
         <select
           aria-label="Font family"
-          class="h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-[#dce3e7] outline-none"
+          class="h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-tx-dce3e7 outline-none"
           :value="family"
           @change="setFamily(($event.target as HTMLSelectElement).value)"
         >
@@ -42,7 +42,7 @@ defineExpose({ families })
             min="8"
             max="200"
             aria-label="Font size"
-            class="h-full w-full min-w-0 bg-transparent text-[10px] text-[#dce3e7] outline-none"
+            class="h-full w-full min-w-0 bg-transparent text-[10px] text-tx-dce3e7 outline-none"
             :value="size"
             @change="commitSize"
           />
@@ -66,7 +66,7 @@ defineExpose({ families })
     <div :class="section">
       <div :class="label">
         <h3>Color</h3>
-        <span class="text-[8px] font-normal tracking-[0.03em] text-[#9caab2]">{{ color }}</span>
+        <span class="text-[8px] font-normal tracking-[0.03em] text-tx-9caab2">{{ color }}</span>
       </div>
       <div class="flex flex-wrap items-center gap-2.5">
         <button
@@ -74,7 +74,7 @@ defineExpose({ families })
           :key="c"
           type="button"
           class="size-6 rounded-full border-0 outline outline-1 outline-offset-[3px] transition-transform hover:-translate-y-0.5"
-          :class="c === color ? 'outline-[#a9c2ce]' : 'outline-transparent'"
+          :class="c === color ? 'outline-lx-a9c2ce' : 'outline-transparent'"
           :style="{ background: c }"
           :aria-label="`Colour ${c}`"
           :aria-pressed="c === color"
@@ -82,7 +82,7 @@ defineExpose({ families })
           @click="setColor(c)"
         />
         <label
-          class="relative ml-auto grid size-6 cursor-pointer place-items-center overflow-hidden rounded-full border border-white/[0.07] bg-[#30373b] text-[#9daab2] focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent"
+          class="relative ml-auto grid size-6 cursor-pointer place-items-center overflow-hidden rounded-full border border-white/[0.07] bg-sx-30373b text-tx-9daab2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent"
           title="Custom colour"
         >
           <Palette class="size-3" aria-hidden="true" />
@@ -121,7 +121,7 @@ defineExpose({ families })
       <label :class="field">
         <select
           aria-label="Line height"
-          class="h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-[#dce3e7] outline-none"
+          class="h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-transparent text-[10px] text-tx-dce3e7 outline-none"
           :value="String(lineHeight)"
           @change="setLineHeight(Number(($event.target as HTMLSelectElement).value))"
         >

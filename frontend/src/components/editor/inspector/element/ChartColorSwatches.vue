@@ -28,7 +28,7 @@ const canRemove = computed(() => targets.value.length > 1)
           @commit="(v) => v && emit('pick', t.index, v)"
         />
       </div>
-      <span class="w-16 shrink-0 truncate text-[9px] text-[#9aa9b0]" :title="t.label">{{ t.label }}</span>
+      <span class="w-16 shrink-0 truncate text-[9px] text-tx-9aa9b0" :title="t.label">{{ t.label }}</span>
     </div>
     <div class="flex gap-2">
       <button type="button" :class="[segment, 'disabled:cursor-not-allowed disabled:opacity-40']" aria-label="Add chart colour" title="Add chart colour" :disabled="!canAdd" @mousedown.prevent @click="emit('add')">

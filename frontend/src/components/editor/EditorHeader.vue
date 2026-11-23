@@ -128,8 +128,8 @@ const iconBtn =
   >
     <div class="flex min-w-0 items-center gap-[13px] max-[760px]:gap-[7px]">
       <nav aria-label="Breadcrumb" class="flex min-w-0 items-center gap-[13px]">
-        <RouterLink :to="{ name: 'library' }" class="text-[11px] whitespace-nowrap text-[#929b9f] hover:text-accent max-[760px]:hidden">Library</RouterLink>
-        <ChevronRight class="size-[13px] flex-none text-[#667179] max-[760px]:hidden" aria-hidden="true" />
+        <RouterLink :to="{ name: 'library' }" class="text-[11px] whitespace-nowrap text-tx-929b9f hover:text-accent max-[760px]:hidden">Library</RouterLink>
+        <ChevronRight class="size-[13px] flex-none text-tx-667179 max-[760px]:hidden" aria-hidden="true" />
         <input
           ref="titleInput"
           v-model="draft"
@@ -138,7 +138,7 @@ const iconBtn =
           :disabled="editor.locked"
           maxlength="200"
           :size="Math.max(8, Math.min(draft.length, 40))"
-          class="h-8 max-w-[min(360px,40vw)] min-w-0 [field-sizing:content] truncate rounded-control border border-transparent bg-transparent px-1.5 text-[12px] font-semibold text-[#e4e8ea] hover:border-line focus:border-accent focus:bg-field max-[450px]:text-[11px]"
+          class="h-8 max-w-[min(360px,40vw)] min-w-0 [field-sizing:content] truncate rounded-control border border-transparent bg-transparent px-1.5 text-[12px] font-semibold text-tx-e4e8ea hover:border-line focus:border-accent focus:bg-field max-[450px]:text-[11px]"
           @blur="commitTitle"
           @keydown.enter.prevent="($event.target as HTMLInputElement).blur()"
           @keydown.esc.prevent="((draft = presentation.title ?? ''), ($event.target as HTMLInputElement).blur())"
@@ -146,7 +146,7 @@ const iconBtn =
       </nav>
 
       <DropdownMenu>
-        <DropdownMenuTrigger :class="cn(iconBtn, '-ml-2.5 size-7 text-[#879298]')" aria-label="Presentation actions" title="Presentation actions">
+        <DropdownMenuTrigger :class="cn(iconBtn, '-ml-2.5 size-7 text-tx-879298')" aria-label="Presentation actions" title="Presentation actions">
           <Loader2 v-if="duplicating" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
           <ChevronDown v-else class="size-[13px]" aria-hidden="true" />
         </DropdownMenuTrigger>
@@ -158,7 +158,7 @@ const iconBtn =
             <Copy class="size-3.5" aria-hidden="true" />Duplicate presentation
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuLabel class="px-2 pt-1 pb-0.5 text-[10px] font-semibold tracking-wide text-[#879298] uppercase">Setup</DropdownMenuLabel>
+          <DropdownMenuLabel class="px-2 pt-1 pb-0.5 text-[10px] font-semibold tracking-wide text-tx-879298 uppercase">Setup</DropdownMenuLabel>
           <DropdownMenuItem
             v-for="step in setupSteps"
             :key="step.key"
@@ -169,7 +169,7 @@ const iconBtn =
             @select="openSetup(step.key)"
           >
             <span class="flex items-center gap-2"><Wand2 class="size-3.5" aria-hidden="true" />{{ step.label }}</span>
-            <span v-if="progress.steps[step.key].reason" class="pl-[22px] text-[10px] font-normal text-[#879298]">{{ progress.steps[step.key].reason }}</span>
+            <span v-if="progress.steps[step.key].reason" class="pl-[22px] text-[10px] font-normal text-tx-879298">{{ progress.steps[step.key].reason }}</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -183,12 +183,12 @@ const iconBtn =
       </DropdownMenu>
 
       <span
-        class="ml-3 flex items-center gap-[7px] text-[10px] whitespace-nowrap text-[#899397] transition-opacity duration-200 max-[1279px]:ml-[3px] max-[760px]:ml-0 max-[450px]:hidden"
+        class="ml-3 flex items-center gap-[7px] text-[10px] whitespace-nowrap text-tx-899397 transition-opacity duration-200 max-[1279px]:ml-[3px] max-[760px]:ml-0 max-[450px]:hidden"
         :class="saving && 'opacity-60'"
         role="status"
       >
-        <Loader2 v-if="saving" class="size-[15px] animate-spin text-[#98b7a8] motion-reduce:animate-none" aria-hidden="true" />
-        <CloudCheck v-else class="size-[15px] text-[#98b7a8]" aria-hidden="true" />
+        <Loader2 v-if="saving" class="size-[15px] animate-spin text-tx-98b7a8 motion-reduce:animate-none" aria-hidden="true" />
+        <CloudCheck v-else class="size-[15px] text-tx-98b7a8" aria-hidden="true" />
         <span class="max-[1279px]:sr-only">{{ saving ? 'Saving changes…' : 'All changes saved' }}</span>
       </span>
     </div>
@@ -225,7 +225,7 @@ const iconBtn =
         </RouterLink>
         <DropdownMenu>
           <DropdownMenuTrigger
-            :class="cn(buttonVariants(), 'w-[34px] rounded-l-none border-l-[#1b333e38] px-0 data-[state=open]:bg-accent-hover max-[760px]:h-[33px] max-[760px]:w-8 max-[450px]:h-[31px] max-[450px]:w-7')"
+            :class="cn(buttonVariants(), 'w-[34px] rounded-l-none border-l-lx-1b333e38 px-0 data-[state=open]:bg-accent-hover max-[760px]:h-[33px] max-[760px]:w-8 max-[450px]:h-[31px] max-[450px]:w-7')"
             aria-label="Presentation and export options"
             title="Presentation and export options"
           >
@@ -233,23 +233,23 @@ const iconBtn =
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="w-[min(230px,calc(100vw-24px))]">
             <DropdownMenuItem @select="present(activeIndex)">
-              <Play class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Present from current slide
+              <Play class="size-[15px] text-tx-b6ceda" aria-hidden="true" />Present from current slide
             </DropdownMenuItem>
             <DropdownMenuItem @select="present(0)">
-              <SkipBack class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Present from beginning
+              <SkipBack class="size-[15px] text-tx-b6ceda" aria-hidden="true" />Present from beginning
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem @select="editor.openFooter('voice')">
-              <AudioLines class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Narration
+              <AudioLines class="size-[15px] text-tx-b6ceda" aria-hidden="true" />Narration
             </DropdownMenuItem>
             <DropdownMenuItem @select="editor.openFooter('motion')">
-              <Clapperboard class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Motion
+              <Clapperboard class="size-[15px] text-tx-b6ceda" aria-hidden="true" />Motion
             </DropdownMenuItem>
             <DropdownMenuItem @select="editor.openAvatar()">
-              <UserRound class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Avatars
+              <UserRound class="size-[15px] text-tx-b6ceda" aria-hidden="true" />Avatars
             </DropdownMenuItem>
             <DropdownMenuItem @select="editor.exportOpen = true">
-              <Download class="size-[15px] text-[#b6ceda]" aria-hidden="true" />Export PPTX, PDF or video…
+              <Download class="size-[15px] text-tx-b6ceda" aria-hidden="true" />Export PPTX, PDF or video…
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

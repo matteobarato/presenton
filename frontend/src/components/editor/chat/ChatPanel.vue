@@ -83,10 +83,10 @@ async function removeConversation(id: string) {
     <header
       class="flex h-[57px] flex-none items-center gap-2 border-b border-line pr-2.5 pl-4 [@media(max-height:780px)_and_(min-width:1051px)]:h-[49px]"
     >
-      <span class="grid size-[26px] place-items-center rounded-[8px] bg-[#3c4c552e] text-[#c9e5f2]" aria-hidden="true">
+      <span class="grid size-[26px] place-items-center rounded-[8px] bg-sx-3c4c552e text-tx-c9e5f2" aria-hidden="true">
         <Sparkles class="size-3.5" />
       </span>
-      <h2 class="text-[12px] font-semibold text-[#edf1f2]">Ask AI</h2>
+      <h2 class="text-[12px] font-semibold text-tx-edf1f2">Ask AI</h2>
       <div class="ml-auto flex items-center gap-0.5">
         <ConversationMenu
           :conversations="chat.conversations.value"
@@ -110,13 +110,13 @@ async function removeConversation(id: string) {
     <div ref="list" class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-5 pt-5 pb-4" aria-live="polite">
       <div v-if="!chat.messages.value.length && !chat.loading.value" class="anim-fade-in pt-2">
         <div
-          class="mb-[21px] grid size-[55px] place-items-center rounded-[17px] border border-[#c7e9ff12] bg-[linear-gradient(135deg,#4f6c7d6b,#243c4966)] text-[#c5e6f5] shadow-[0_10px_20px_#0002]"
+          class="mb-[21px] grid size-[55px] place-items-center rounded-[17px] border border-lx-c7e9ff12 bg-[linear-gradient(135deg,#4f6c7d6b,#243c4966)] text-tx-c5e6f5 shadow-[0_10px_20px_#0002]"
           aria-hidden="true"
         >
           <Sparkles class="size-[26px]" />
         </div>
-        <h2 class="text-[20px] leading-[1.28] font-medium tracking-[-0.04em] text-[#e4ecf1]">Your idea.<br />A little more extraordinary.</h2>
-        <p class="mt-3 text-[11px] leading-[1.8] text-[#a3b1b8]">
+        <h2 class="text-[20px] leading-[1.28] font-medium tracking-[-0.04em] text-tx-e4ecf1">Your idea.<br />A little more extraordinary.</h2>
+        <p class="mt-3 text-[11px] leading-[1.8] text-tx-a3b1b8">
           Ask Slideshows to change the deck, rewrite a slide or answer questions about it.
         </p>
         <div class="mt-[27px] flex flex-col gap-2">
@@ -125,12 +125,12 @@ async function removeConversation(id: string) {
             :key="s.label"
             type="button"
             :disabled="chat.sending.value || editor.generating"
-            class="flex items-center gap-2.5 rounded-[9px] border border-white/[0.02] bg-[#282f33] px-2.5 py-3 text-left text-[11px] text-[#c0cdd5] hover:bg-[#34434c] hover:text-[#e3f6ff] disabled:opacity-50"
+            class="flex items-center gap-2.5 rounded-[9px] border border-white/[0.02] bg-sx-282f33 px-2.5 py-3 text-left text-[11px] text-tx-c0cdd5 hover:bg-sx-34434c hover:text-tx-e3f6ff disabled:opacity-50"
             @click="suggest(s.prompt)"
           >
-            <component :is="s.icon" class="size-4 text-[#b8d9eb]" aria-hidden="true" />
+            <component :is="s.icon" class="size-4 text-tx-b8d9eb" aria-hidden="true" />
             <span>{{ s.label }}</span>
-            <ArrowUpRight class="ml-auto size-3.5 text-[#9aacb7]" aria-hidden="true" />
+            <ArrowUpRight class="ml-auto size-3.5 text-tx-9aacb7" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -145,7 +145,7 @@ async function removeConversation(id: string) {
 
     <div class="flex-none px-4 pt-3.5 pb-5">
       <form
-        class="rounded-card border border-[#b7d8e722] bg-[#272f34] p-3 transition-[border-color] duration-200 focus-within:border-[#b7d8e766]"
+        class="rounded-card border border-lx-b7d8e722 bg-sx-272f34 p-3 transition-[border-color] duration-200 focus-within:border-lx-b7d8e766"
         @submit.prevent="submit"
       >
         <textarea
@@ -155,11 +155,11 @@ async function removeConversation(id: string) {
           placeholder="What are you imagining?"
           aria-label="Message"
           :disabled="chat.sending.value"
-          class="h-[65px] w-full resize-none bg-transparent text-[11px] leading-[1.6] text-[#dce7ef] placeholder:text-[#8d9ea8] focus-visible:outline-none disabled:opacity-60"
+          class="h-[65px] w-full resize-none bg-transparent text-[11px] leading-[1.6] text-tx-dce7ef placeholder:text-tx-8d9ea8 focus-visible:outline-none disabled:opacity-60"
           @keydown="onKeydown"
         />
         <div class="flex items-center justify-between">
-          <span class="flex items-center gap-[5px] text-[10px] text-[#a4b7c3]">
+          <span class="flex items-center gap-[5px] text-[10px] text-tx-a4b7c3">
             <Layers class="size-3" aria-hidden="true" />{{ slideIndex !== null ? `Slide ${slideIndex + 1}` : 'Whole deck' }}
           </span>
           <button
@@ -174,7 +174,7 @@ async function removeConversation(id: string) {
           <button
             v-else
             type="submit"
-            class="grid size-[29px] place-items-center rounded-[8px] bg-accent text-[#26424e] hover:bg-[#e3f5ff] disabled:opacity-50 disabled:hover:bg-accent"
+            class="grid size-[29px] place-items-center rounded-[8px] bg-accent text-tx-26424e hover:bg-sx-e3f5ff disabled:opacity-50 disabled:hover:bg-accent"
             aria-label="Send"
             :disabled="!draft.trim() || editor.generating"
           >

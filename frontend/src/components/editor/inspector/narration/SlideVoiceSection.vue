@@ -30,7 +30,7 @@ function onGenerate() {
 <template>
   <section class="flex flex-col rounded-card border border-white/[0.06] bg-white/[0.015]" aria-label="Slide voice" :data-state="state" data-testid="slide-voice">
     <div class="flex min-h-11 items-center gap-2 px-3">
-      <span class="text-[12px] font-semibold text-[#f6f8f9]">This slide</span>
+      <span class="text-[12px] font-semibold text-tx-f6f8f9">This slide</span>
       <Badge
         :title="state === 'translated' ? TRANSLATED_HINT : undefined"
         :variant="state === 'stale' ? 'destructive' : state === 'ready' ? 'default' : 'secondary'"

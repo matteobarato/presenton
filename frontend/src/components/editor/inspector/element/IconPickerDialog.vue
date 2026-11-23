@@ -96,7 +96,7 @@ function replace() {
 onBeforeUnmount(stop)
 
 const fieldClass =
-  'h-9 min-w-0 flex-1 rounded-control border border-white/[0.06] bg-field px-3 text-[12px] text-[#dce3e7] outline-none focus:border-accent/60'
+  'h-9 min-w-0 flex-1 rounded-control border border-white/[0.06] bg-field px-3 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60'
 const thumb =
   'grid aspect-square place-items-center rounded-control border border-white/[0.06] bg-field hover:border-accent/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent'
 const alertClass = 'flex items-center justify-between gap-2 rounded-control bg-danger px-3 py-2 text-[12px] text-danger-text'
@@ -112,7 +112,7 @@ const alertClass = 'flex items-center justify-between gap-2 rounded-control bg-d
       <div class="mt-4 flex flex-col gap-3">
         <div class="flex gap-2">
           <input v-model="query" type="search" aria-label="Search icons" placeholder="Search icons" :class="fieldClass" />
-          <span class="grid size-9 place-items-center text-[#9aa9b0]" aria-hidden="true">
+          <span class="grid size-9 place-items-center text-tx-9aa9b0" aria-hidden="true">
             <Loader2 v-if="loading" class="size-4 animate-spin" />
             <Search v-else class="size-4" />
           </span>
@@ -122,20 +122,20 @@ const alertClass = 'flex items-center justify-between gap-2 rounded-control bg-d
           <span>{{ error }}</span>
           <button type="button" class="rounded-control px-2 py-1 hover:bg-white/[0.08]" @click="run">Retry</button>
         </p>
-        <p v-else-if="loading && !results.length" class="text-[12px] text-[#9aa9b0]">Searching...</p>
-        <p v-else-if="searched && !results.length" class="text-[12px] text-[#9aa9b0]">No icons for "{{ query.trim() }}"</p>
+        <p v-else-if="loading && !results.length" class="text-[12px] text-tx-9aa9b0">Searching...</p>
+        <p v-else-if="searched && !results.length" class="text-[12px] text-tx-9aa9b0">No icons for "{{ query.trim() }}"</p>
         <div v-else-if="results.length" class="grid max-h-[320px] grid-cols-6 gap-2 overflow-y-auto">
           <button
             v-for="(url, i) in results"
             :key="url"
             type="button"
-            :class="[thumb, selected === url && '!border-accent !bg-[#303c42]']"
+            :class="[thumb, selected === url && '!border-accent !bg-sx-303c42']"
             :aria-label="`Icon ${i + 1}`"
             :aria-pressed="selected === url"
             @click="selected = url"
           >
             <span
-              class="size-6 bg-[#d0d7dc]"
+              class="size-6 bg-sx-d0d7dc"
               :style="{ maskImage: `url(${resolveAssetUrl(url)})`, WebkitMaskImage: `url(${resolveAssetUrl(url)})`, maskSize: 'contain', WebkitMaskSize: 'contain', maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat', maskPosition: 'center', WebkitMaskPosition: 'center' }"
             />
           </button>
@@ -143,7 +143,7 @@ const alertClass = 'flex items-center justify-between gap-2 rounded-control bg-d
         <div class="flex justify-end">
           <button
             type="button"
-            class="inline-flex h-9 items-center rounded-control bg-accent px-3.5 text-[12px] font-semibold text-[#0b1a22] disabled:opacity-40"
+            class="inline-flex h-9 items-center rounded-control bg-accent px-3.5 text-[12px] font-semibold text-tx-0b1a22 disabled:opacity-40"
             :disabled="!selected"
             @click="replace"
           >

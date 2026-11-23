@@ -53,7 +53,7 @@ function deleteNarration() {
       aria-controls="deck-narration-body"
       @click="open = !open"
     >
-      <span class="text-[12px] font-semibold text-[#f6f8f9]">Whole deck</span>
+      <span class="text-[12px] font-semibold text-tx-f6f8f9">Whole deck</span>
       <span class="min-w-0 flex-1 truncate text-right text-[11px] text-muted">{{ summary }}</span>
       <ChevronDown class="size-3.5 flex-none text-muted transition-transform duration-200" :class="open && 'rotate-180'" aria-hidden="true" />
     </button>

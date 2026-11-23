@@ -88,11 +88,11 @@ watch(
     <component :is="row.advancedUrl ? 'details' : 'div'" v-if="row.urlField" v-bind="row.advancedUrl ? { open: advancedOpen, onToggle: (e: Event) => (advancedOpen = (e.target as HTMLDetailsElement).open) } : {}" class="min-w-0">
       <summary
         v-if="row.advancedUrl"
-        class="mb-2 cursor-pointer text-[12px] font-medium text-[#dbe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="mb-2 cursor-pointer text-[12px] font-medium text-tx-dbe7ef focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         Advanced settings
       </summary>
-      <label :for="`url-${row.value}`" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">{{ urlLabel }}</label>
+      <label :for="`url-${row.value}`" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ urlLabel }}</label>
       <Input
         :id="`url-${row.value}`"
         type="text"
@@ -119,7 +119,7 @@ watch(
         :provider-label="row.label"
         @update:model-value="emit('set', row.modelField, $event)"
       />
-      <p v-if="checked && models.length === 0" class="-mt-2 text-[11px] text-[#95aab7]">
+      <p v-if="checked && models.length === 0" class="-mt-2 text-[11px] text-tx-95aab7">
         No models were discovered. You can still enter a valid model ID or alias manually above.
       </p>
     </template>

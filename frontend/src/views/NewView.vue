@@ -318,28 +318,28 @@ watch(
       <template v-if="step === 'topic'">
       <section class="flex flex-col gap-3" aria-labelledby="new-topic-h">
         <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h3 id="new-topic-h" class="flex items-center gap-2 text-[13px] font-medium text-[#e4ecf0]">
-            <span class="grid size-5 place-items-center rounded-full bg-[#bee3f31f] text-[12px] font-semibold text-accent">1</span>
+          <h3 id="new-topic-h" class="flex items-center gap-2 text-[13px] font-medium text-tx-e4ecf0">
+            <span class="grid size-5 place-items-center rounded-full bg-sx-bee3f31f text-[12px] font-semibold text-accent">1</span>
             What’s it about?
           </h3>
-          <span class="text-[12px] text-[#8e9ca4]">A prompt, documents, or both.</span>
+          <span class="text-[12px] text-tx-8e9ca4">A prompt, documents, or both.</span>
         </div>
         <TopicComposer ref="composer" v-model:prompt="prompt" v-model:files="files" :disabled="pending" @submit="onCreate" />
         <NewSetupChips ref="chips" v-model:options="options" :has-photo="hasPhoto" :disabled="pending" />
-        <p v-if="filesLost" role="note" class="text-[12px] text-[#a9c4d2]">Re-add your documents; files aren't kept after a reload.</p>
-        <p v-if="languageNeeded" role="note" class="text-[12px] text-[#a9c4d2]">
+        <p v-if="filesLost" role="note" class="text-[12px] text-tx-a9c4d2">Re-add your documents; files aren't kept after a reload.</p>
+        <p v-if="languageNeeded" role="note" class="text-[12px] text-tx-a9c4d2">
           Documents need a language.
-          <button type="button" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center" @click="chips?.openLanguage()">Choose one</button>
+          <button type="button" class="underline decoration-tx-bee3f366 underline-offset-[3px] hover:text-accent max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center" @click="chips?.openLanguage()">Choose one</button>
         </p>
       </section>
 
       <section ref="look" class="flex flex-col gap-3 border-t border-white/[0.06] pt-5" aria-labelledby="new-look-h">
         <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h3 id="new-look-h" class="flex items-center gap-2 text-[13px] font-medium text-[#e4ecf0]">
-            <span class="grid size-5 place-items-center rounded-full bg-[#bee3f31f] text-[12px] font-semibold text-accent">2</span>
+          <h3 id="new-look-h" class="flex items-center gap-2 text-[13px] font-medium text-tx-e4ecf0">
+            <span class="grid size-5 place-items-center rounded-full bg-sx-bee3f31f text-[12px] font-semibold text-accent">2</span>
             Pick a look
           </h3>
-          <span class="text-[12px] text-[#8e9ca4]">{{ chosen ? chosen.name : 'Choose a template for your slides.' }}</span>
+          <span class="text-[12px] text-tx-8e9ca4">{{ chosen ? chosen.name : 'Choose a template for your slides.' }}</span>
         </div>
         <Skeleton v-if="templates.isPending.value" class="h-[260px] w-full" />
         <Alert v-else-if="templates.isError.value" class="py-2 text-[12px]">Templates couldn’t load. Reload the page to try again.</Alert>
@@ -384,7 +384,7 @@ watch(
         <template v-if="!pending && blockers.length && !notice.text.value" #status>
           <template v-for="(b, i) in blockers" :key="b.id">
             <span v-if="i > 0" aria-hidden="true"> · </span>
-            <button type="button" :data-testid="`fix-${b.id}`" class="underline decoration-[#bee3f366] underline-offset-[3px] hover:text-accent max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" @click="fixMissing(b.id)">{{ b.text }}</button>
+            <button type="button" :data-testid="`fix-${b.id}`" class="underline decoration-tx-bee3f366 underline-offset-[3px] hover:text-accent max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" @click="fixMissing(b.id)">{{ b.text }}</button>
           </template>
         </template>
       </WizardFooter>

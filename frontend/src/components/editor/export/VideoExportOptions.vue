@@ -66,7 +66,7 @@ function num(v: string | number): number | null {
 
     <button
       type="button"
-      class="flex items-center gap-1 self-start text-[11px] text-muted hover:text-[#f6f8f9]"
+      class="flex items-center gap-1 self-start text-[11px] text-muted hover:text-tx-f6f8f9"
       :aria-expanded="advanced"
       data-testid="mp4-advanced-toggle"
       @click="advanced = !advanced"

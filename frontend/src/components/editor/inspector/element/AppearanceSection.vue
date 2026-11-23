@@ -81,7 +81,7 @@ const shadowOn = (on: boolean) => style('Shadow', (el) => setShadow(el, on ? { .
 const shadowPatch = (part: Partial<Shadow>) =>
   style('Shadow', (el) => setShadow(el, { ...readAppearance(el).shadow, ...part }), true)
 
-const sub = 'mb-2 mt-4 text-[10px] text-[#9aa9b0]'
+const sub = 'mb-2 mt-4 text-[10px] text-tx-9aa9b0'
 const turnButton = [segment, 'h-[34px] w-[34px] flex-none']
 </script>
 
@@ -123,11 +123,11 @@ const turnButton = [segment, 'h-[34px] w-[34px] flex-none']
       <NumberField :model-value="appearance.shadow.blur" label="Blur" :min="0" :max="100" @focus="hold" @commit="shadowPatch({ blur: $event })" />
       <div class="mt-4 grid grid-cols-2 gap-2">
         <div>
-          <div class="mb-2 text-[10px] text-[#9aa9b0]">X</div>
+          <div class="mb-2 text-[10px] text-tx-9aa9b0">X</div>
           <NumberField :model-value="appearance.shadow.offset_x" label="Shadow X" :min="-100" :max="100" @focus="hold" @commit="shadowPatch({ offset_x: $event })" />
         </div>
         <div>
-          <div class="mb-2 text-[10px] text-[#9aa9b0]">Y</div>
+          <div class="mb-2 text-[10px] text-tx-9aa9b0">Y</div>
           <NumberField :model-value="appearance.shadow.offset_y" label="Shadow Y" :min="-100" :max="100" @focus="hold" @commit="shadowPatch({ offset_y: $event })" />
         </div>
       </div>

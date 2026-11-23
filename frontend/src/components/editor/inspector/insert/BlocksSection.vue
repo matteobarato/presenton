@@ -55,10 +55,10 @@ function insert(variant: TemplateBlock, label: string) {
     </div>
 
     <div v-else-if="state === 'error'" class="flex items-center justify-between gap-2 rounded-control border border-white/[0.06] bg-field px-3 py-2.5">
-      <p class="text-[10px] text-[#a0abb1]">Couldn't load template blocks</p>
+      <p class="text-[10px] text-tx-a0abb1">Couldn't load template blocks</p>
       <button
         type="button"
-        class="rounded-control px-2 py-1 text-[10px] font-medium text-[#c4e4f4] transition-colors duration-150 hover:bg-white/[0.04]"
+        class="rounded-control px-2 py-1 text-[10px] font-medium text-tx-c4e4f4 transition-colors duration-150 hover:bg-white/[0.04]"
         aria-label="Retry"
         @mousedown.prevent
         @click="blocks.refetch()"
@@ -67,20 +67,20 @@ function insert(variant: TemplateBlock, label: string) {
       </button>
     </div>
 
-    <p v-else-if="state === 'none'" class="text-[10px] leading-[1.6] text-[#a0abb1]">This deck's template has no reusable blocks.</p>
+    <p v-else-if="state === 'none'" class="text-[10px] leading-[1.6] text-tx-a0abb1">This deck's template has no reusable blocks.</p>
 
     <template v-else>
       <label class="relative mb-3 block">
-        <Search class="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-[#7d8b92]" aria-hidden="true" />
+        <Search class="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-tx-7d8b92" aria-hidden="true" />
         <input
           v-model="query"
           type="search"
           aria-label="Search blocks"
           placeholder="Search blocks"
-          class="h-8 w-full rounded-control border border-white/[0.06] bg-field pr-2 pl-8 text-[10px] text-[#d9e6ed] placeholder:text-[#7d8b92] focus:border-accent/50 focus:outline-none"
+          class="h-8 w-full rounded-control border border-white/[0.06] bg-field pr-2 pl-8 text-[10px] text-tx-d9e6ed placeholder:text-tx-7d8b92 focus:border-accent/50 focus:outline-none"
         />
       </label>
-      <p v-if="filtered.length === 0" class="text-[10px] text-[#a0abb1]">No blocks match “{{ query.trim() }}”.</p>
+      <p v-if="filtered.length === 0" class="text-[10px] text-tx-a0abb1">No blocks match “{{ query.trim() }}”.</p>
       <div class="grid grid-flow-row-dense grid-cols-2 gap-2">
         <template v-for="group in filtered" :key="group.key">
           <div class="relative min-w-0">
@@ -99,7 +99,7 @@ function insert(variant: TemplateBlock, label: string) {
             <button
               v-if="group.variants.length > 1"
               type="button"
-              class="absolute right-1 bottom-1 inline-flex size-5 items-center justify-center rounded-[4px] text-[#9aa9b0] transition-colors duration-150 hover:bg-white/[0.06] hover:text-white"
+              class="absolute right-1 bottom-1 inline-flex size-5 items-center justify-center rounded-[4px] text-tx-9aa9b0 transition-colors duration-150 hover:bg-white/[0.06] hover:text-white"
               :aria-label="`Show variants of ${group.title}`"
               :aria-expanded="expanded === group.key"
               :title="`${group.variants.length} variants`"

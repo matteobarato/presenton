@@ -17,7 +17,7 @@ const isMulti = computed(() => toolbarKind(ctx.ui.value, ctx.selection.value) ==
 const editingText = computed(() => !!ctx.inlineEdit.value)
 
 const button =
-  'inline-flex h-8 items-center justify-center gap-1.5 rounded-control border border-white/[0.06] bg-field px-2 text-[10px] font-normal text-[#c6ced3] hover:bg-[#303a3f] hover:text-white disabled:opacity-35 disabled:hover:bg-field'
+  'inline-flex h-8 items-center justify-center gap-1.5 rounded-control border border-white/[0.06] bg-field px-2 text-[10px] font-normal text-tx-c6ced3 hover:bg-sx-303a3f hover:text-white disabled:opacity-35 disabled:hover:bg-field'
 
 function run(label: string, op: typeof duplicateSelection) {
   void actions.run(label, (ui) => op(ui, ctx.selection.value))
@@ -30,7 +30,7 @@ function copy() {
 
 <template>
   <div class="border-t border-line py-[18px] min-[1600px]:py-[22px]">
-    <div class="mb-3 flex items-center justify-between text-[10px] font-medium text-[#d0d7dc] min-[1600px]:text-[11px]">
+    <div class="mb-3 flex items-center justify-between text-[10px] font-medium text-tx-d0d7dc min-[1600px]:text-[11px]">
       <h3>Arrange</h3>
     </div>
     <div class="grid grid-cols-3 gap-2">

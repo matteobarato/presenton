@@ -146,8 +146,8 @@ function setLabels(v: string) {
   }, at)
 }
 
-const sub = 'mb-2 mt-4 text-[10px] text-[#9aa9b0]'
-const textField = 'h-full w-full min-w-0 bg-transparent text-[10px] text-[#dce3e7] outline-none placeholder:text-[#6f7d84]'
+const sub = 'mb-2 mt-4 text-[10px] text-tx-9aa9b0'
+const textField = 'h-full w-full min-w-0 bg-transparent text-[10px] text-tx-dce3e7 outline-none placeholder:text-tx-6f7d84'
 const xLabels = computed(() => (radial.value ? { axis: 'Category labels', grid: 'Spokes' } : { axis: 'Show axis', grid: 'Show grid' }))
 const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Rings' } : { axis: 'Show axis', grid: 'Show grid' }))
 </script>
@@ -159,22 +159,22 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
       <label :class="[field, 'w-full']">
         <select
           aria-label="Chart type"
-          class="h-full w-full min-w-0 bg-transparent text-[10px] text-[#dce3e7] outline-none"
+          class="h-full w-full min-w-0 bg-transparent text-[10px] text-tx-dce3e7 outline-none"
           :value="type"
           @change="changeType(($event.target as HTMLSelectElement).value as ChartElement['chart_type'])"
         >
-          <option v-for="o in options" :key="o.value" :value="o.value" class="bg-[#232b2f]">{{ o.label }}</option>
+          <option v-for="o in options" :key="o.value" :value="o.value" class="bg-sx-232b2f">{{ o.label }}</option>
         </select>
       </label>
     </div>
 
     <div :class="section">
       <div :class="label"><h3>Data</h3></div>
-      <div data-chart-mini class="overflow-hidden rounded-control border border-white/[0.06] bg-field text-[10px] text-[#dce3e7]">
-        <p v-if="empty" class="px-2.5 py-2 text-[#9aa9b0]">No data</p>
+      <div data-chart-mini class="overflow-hidden rounded-control border border-white/[0.06] bg-field text-[10px] text-tx-dce3e7">
+        <p v-if="empty" class="px-2.5 py-2 text-tx-9aa9b0">No data</p>
         <table v-else class="w-full table-fixed">
           <thead>
-            <tr class="text-left text-[9px] text-[#9aa9b0]">
+            <tr class="text-left text-[9px] text-tx-9aa9b0">
               <th class="truncate px-2 py-1 font-normal" />
               <th v-for="(s, i) in mini.series" :key="i" class="truncate px-2 py-1 font-normal">{{ s.name }}</th>
             </tr>
@@ -186,7 +186,7 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
             </tr>
           </tbody>
         </table>
-        <p v-if="!empty && (mini.moreRows || mini.moreSeries)" class="border-t border-white/[0.05] px-2 py-1 text-[9px] text-[#9aa9b0]">
+        <p v-if="!empty && (mini.moreRows || mini.moreSeries)" class="border-t border-white/[0.05] px-2 py-1 text-[9px] text-tx-9aa9b0">
           <template v-if="mini.moreRows">+{{ mini.moreRows }} more</template>
           <template v-if="mini.moreRows && mini.moreSeries">, </template>
           <template v-if="mini.moreSeries">+{{ mini.moreSeries }} more series</template>

@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './fonts.css';
 @import './tokens.css';
+@import './tokens.generated.css';
 @import './motion.css';
 
 /* Resets and global element behaviour, ported from aera-frontend/src/style.css.

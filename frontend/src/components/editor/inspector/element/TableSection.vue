@@ -17,7 +17,7 @@ const ALIGNS = [
   { value: 'right', label: 'Cell align right', icon: AlignRight },
 ]
 
-const sub = 'mb-2 mt-4 text-[10px] text-[#9aa9b0]'
+const sub = 'mb-2 mt-4 text-[10px] text-tx-9aa9b0'
 </script>
 
 <template>

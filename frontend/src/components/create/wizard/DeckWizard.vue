@@ -220,10 +220,10 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
     <section v-if="summary === 'topic'" data-testid="summary-topic" class="grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-4 max-[760px]:grid-cols-1">
       <article class="summary-card flex min-w-0 flex-col gap-3">
         <header class="summary-kicker"><PencilLine class="size-3.5" aria-hidden="true" />Topic</header>
-        <blockquote class="relative max-h-[320px] overflow-y-auto border-l-2 border-accent/60 pl-4 text-[13.5px] leading-[1.75] whitespace-pre-wrap text-[#dbe5ea]">
+        <blockquote class="relative max-h-[320px] overflow-y-auto border-l-2 border-accent/60 pl-4 text-[13.5px] leading-[1.75] whitespace-pre-wrap text-tx-dbe5ea">
           {{ presentation.content?.trim() || 'Generated from uploaded documents.' }}
         </blockquote>
-        <footer v-if="created" class="mt-auto flex items-center gap-1.5 pt-1 text-[12px] text-[#8e9ca4]">
+        <footer v-if="created" class="mt-auto flex items-center gap-1.5 pt-1 text-[12px] text-tx-8e9ca4">
           <CalendarDays class="size-3.5" aria-hidden="true" />Created {{ created }}
         </footer>
       </article>
@@ -231,11 +231,11 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
         <header class="summary-kicker"><Palette class="size-3.5" aria-hidden="true" />Look</header>
         <div ref="thumbBox" class="w-full">
           <TemplateCardThumb v-if="template" :template="template" :width="thumbWidth" />
-          <div v-else class="grid aspect-video w-full place-items-center rounded border border-dashed border-white/[0.1] text-[12px] text-[#8e9ca4]">No preview</div>
+          <div v-else class="grid aspect-video w-full place-items-center rounded border border-dashed border-white/[0.1] text-[12px] text-tx-8e9ca4">No preview</div>
         </div>
         <div class="flex min-w-0 flex-col gap-1">
-          <p class="truncate text-[14px] font-medium text-[#eef6fa]">{{ template?.name ?? 'Template' }}</p>
-          <p class="flex flex-wrap items-center gap-1.5 text-[12px] text-[#8e9ca4]">
+          <p class="truncate text-[14px] font-medium text-tx-eef6fa">{{ template?.name ?? 'Template' }}</p>
+          <p class="flex flex-wrap items-center gap-1.5 text-[12px] text-tx-8e9ca4">
             <span v-if="template">{{ template.layouts.length }} {{ template.layouts.length === 1 ? 'layout' : 'layouts' }}</span>
           </p>
         </div>

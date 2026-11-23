@@ -198,20 +198,20 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="grid gap-8">
-    <form class="grid gap-4 rounded-[11px] bg-[#1d2427] p-4" novalidate @submit.prevent="onCreate">
+    <form class="grid gap-4 rounded-[11px] bg-sx-1d2427 p-4" novalidate @submit.prevent="onCreate">
       <div class="flex items-start gap-3">
-        <span class="grid size-8 flex-none place-items-center rounded-[9px] bg-[#c2e5f5]/12 text-[#c2e5f5]" aria-hidden="true">
+        <span class="grid size-8 flex-none place-items-center rounded-[9px] bg-sx-c2e5f5/12 text-tx-c2e5f5" aria-hidden="true">
           <KeyRound class="size-4 stroke-[1.75]" />
         </span>
         <div>
-          <h3 class="text-[13px] font-medium text-[#dbe7ef]">Create API key</h3>
-          <p v-if="personal" class="mt-1 text-[11px] text-[#95aab7]" data-testid="acts-as-you">
-            Your keys act as you, <span class="text-[#dbe7ef]">{{ session.user?.username }}</span>, and reach only your decks.
-            Send one as <code class="text-[#c2e5f5]">Authorization: Bearer &lt;key&gt;</code>.
+          <h3 class="text-[13px] font-medium text-tx-dbe7ef">Create API key</h3>
+          <p v-if="personal" class="mt-1 text-[11px] text-tx-95aab7" data-testid="acts-as-you">
+            Your keys act as you, <span class="text-tx-dbe7ef">{{ session.user?.username }}</span>, and reach only your decks.
+            Send one as <code class="text-tx-c2e5f5">Authorization: Bearer &lt;key&gt;</code>.
           </p>
-          <p v-else class="mt-1 text-[11px] text-[#95aab7]">
+          <p v-else class="mt-1 text-[11px] text-tx-95aab7">
             A key lets the REST API and MCP clients act as one user. Send it as
-            <code class="text-[#c2e5f5]">Authorization: Bearer &lt;key&gt;</code>.
+            <code class="text-tx-c2e5f5">Authorization: Bearer &lt;key&gt;</code>.
           </p>
         </div>
       </div>
@@ -220,7 +220,7 @@ onBeforeUnmount(() => {
         :class="personal ? 'grid-cols-[1fr_140px]' : 'grid-cols-[1fr_1fr_140px] max-[1050px]:grid-cols-2'"
       >
         <div v-if="!personal" class="min-w-0">
-          <label for="api-key-user" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Acts as</label>
+          <label for="api-key-user" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Acts as</label>
           <Select v-model="form.userId" :disabled="loading || !users.length">
             <SelectTrigger id="api-key-user" data-testid="api-key-user">
               <SelectValue placeholder="Choose a user" />
@@ -233,11 +233,11 @@ onBeforeUnmount(() => {
           </Select>
         </div>
         <div class="min-w-0">
-          <label for="api-key-label" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Label</label>
+          <label for="api-key-label" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Label</label>
           <Input id="api-key-label" v-model="form.label" autocomplete="off" :maxlength="LABEL_MAX" placeholder="e.g. Zapier, Claude Desktop" />
         </div>
         <div class="min-w-0">
-          <label for="api-key-expiry" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Expires after</label>
+          <label for="api-key-expiry" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Expires after</label>
           <Select v-model="form.expiryDays">
             <SelectTrigger id="api-key-expiry" data-testid="api-key-expiry">
               <SelectValue />
@@ -249,7 +249,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
       <div class="flex items-center justify-between gap-3">
-        <p class="text-[11px] text-[#95aab7]" aria-live="polite">{{ loading ? '' : formProblem }}</p>
+        <p class="text-[11px] text-tx-95aab7" aria-live="polite">{{ loading ? '' : formProblem }}</p>
         <Button type="submit" :disabled="Boolean(formProblem) || creating || loading">
           <Loader2 v-if="creating" class="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
           <Plus v-else class="size-3.5" aria-hidden="true" />
@@ -261,8 +261,8 @@ onBeforeUnmount(() => {
     <section aria-labelledby="api-keys-heading">
       <div class="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h3 id="api-keys-heading" class="text-[13px] font-medium text-[#dbe7ef]">{{ personal ? 'Your API keys' : 'API keys' }}</h3>
-          <p class="mt-1 text-[11px] text-[#95aab7]">Reveal or copy a key whenever you configure a client. Revoking is immediate.</p>
+          <h3 id="api-keys-heading" class="text-[13px] font-medium text-tx-dbe7ef">{{ personal ? 'Your API keys' : 'API keys' }}</h3>
+          <p class="mt-1 text-[11px] text-tx-95aab7">Reveal or copy a key whenever you configure a client. Revoking is immediate.</p>
         </div>
         <Button variant="ghost" size="icon" aria-label="Refresh API keys" :disabled="loading" @click="load">
           <RefreshCw class="size-4" :class="loading ? 'animate-spin motion-reduce:animate-none' : ''" aria-hidden="true" />
@@ -281,11 +281,11 @@ onBeforeUnmount(() => {
         class="flex flex-col items-center gap-2 rounded-[11px] border border-dashed border-white/[0.08] px-4 py-7 text-center"
         data-testid="api-keys-empty"
       >
-        <span class="grid size-10 place-items-center rounded-full bg-white/[0.04] text-[#95aab7]" aria-hidden="true">
+        <span class="grid size-10 place-items-center rounded-full bg-white/[0.04] text-tx-95aab7" aria-hidden="true">
           <KeyRound class="size-[18px] stroke-[1.75]" />
         </span>
-        <p class="text-[12px] font-medium text-[#dbe7ef]">No API keys yet</p>
-        <p class="max-w-[320px] text-[11px] text-[#95aab7]">
+        <p class="text-[12px] font-medium text-tx-dbe7ef">No API keys yet</p>
+        <p class="max-w-[320px] text-[11px] text-tx-95aab7">
           {{ personal ? 'Create one above to connect a REST or MCP client to your account.' : 'Create one above to connect a REST or MCP client.' }}
         </p>
       </div>
@@ -293,7 +293,7 @@ onBeforeUnmount(() => {
         <li
           v-for="key in keys"
           :key="key.id"
-          class="rounded-[11px] bg-[#1d2427] px-4 py-3"
+          class="rounded-[11px] bg-sx-1d2427 px-4 py-3"
           :class="apiKeyStatus(key) === 'active' ? '' : 'opacity-70'"
           data-testid="api-key-row"
         >
@@ -301,19 +301,19 @@ onBeforeUnmount(() => {
             <div class="flex min-w-0 items-start gap-3">
               <span
                 class="grid size-9 flex-none place-items-center rounded-[10px]"
-                :class="apiKeyStatus(key) === 'active' ? 'bg-[#c2e5f5]/12 text-[#c2e5f5]' : 'bg-white/[0.04] text-[#95aab7]'"
+                :class="apiKeyStatus(key) === 'active' ? 'bg-sx-c2e5f5/12 text-tx-c2e5f5' : 'bg-white/[0.04] text-tx-95aab7'"
                 aria-hidden="true"
               >
                 <KeyRound class="size-4 stroke-[1.75]" />
               </span>
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
-                  <span class="truncate text-[13px] font-medium text-[#dbe7ef]">{{ key.label }}</span>
+                  <span class="truncate text-[13px] font-medium text-tx-dbe7ef">{{ key.label }}</span>
                   <Badge :variant="apiKeyStatus(key) === 'active' ? 'secondary' : apiKeyStatus(key) === 'revoked' ? 'destructive' : 'outline'">
                     {{ STATUS_LABEL[apiKeyStatus(key)] }}
                   </Badge>
                 </div>
-                <p class="mt-1 text-[10px] text-[#95aab7]">
+                <p class="mt-1 text-[10px] text-tx-95aab7">
                   <template v-if="!personal">{{ ownerName(key.user_id) }} · </template>created {{ formatDate(key.created_at) }} ·
                   <template v-if="key.revoked_at">revoked {{ formatDate(key.revoked_at) }}</template>
                   <template v-else>{{ apiKeyStatus(key) === 'expired' ? 'expired' : 'expires' }} {{ formatDate(key.expires_at) }}</template>
@@ -343,7 +343,7 @@ onBeforeUnmount(() => {
           </div>
           <code
             v-if="visible.has(key.id) && tokens[key.id]"
-            class="mt-3 block rounded-[8px] bg-[#151b1e] px-3 py-2 font-mono text-[11px] break-all text-[#c2e5f5] select-all"
+            class="mt-3 block rounded-[8px] bg-sx-151b1e px-3 py-2 font-mono text-[11px] break-all text-tx-c2e5f5 select-all"
             data-testid="api-key-token"
           >{{ tokens[key.id] }}</code>
         </li>
@@ -357,7 +357,7 @@ onBeforeUnmount(() => {
           <DialogDescription>Copy “{{ created?.label }}” into your client now. You can reveal it again from this page later.</DialogDescription>
         </DialogHeader>
         <code
-          class="mt-5 block rounded-[8px] bg-[#151b1e] px-3 py-2.5 font-mono text-[12px] break-all text-[#c2e5f5] select-all"
+          class="mt-5 block rounded-[8px] bg-sx-151b1e px-3 py-2.5 font-mono text-[12px] break-all text-tx-c2e5f5 select-all"
           data-testid="created-token"
         >{{ created?.token }}</code>
         <DialogFooter class="mt-6">

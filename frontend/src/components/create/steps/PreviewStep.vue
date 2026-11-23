@@ -124,7 +124,7 @@ function editSlides() {
       <li v-for="(slide, i) in slides" :key="slide.id ?? `slide-${i}`" class="flex min-w-0 flex-col gap-1.5">
         <button
           type="button"
-          class="group relative block overflow-hidden rounded-[9px] border border-white/[0.07] bg-[#101416] p-0 text-left transition-colors duration-200 hover:border-[#7f9fab] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
+          class="group relative block overflow-hidden rounded-[9px] border border-white/[0.07] bg-sx-101416 p-0 text-left transition-colors duration-200 hover:border-lx-7f9fab focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
           :aria-label="`Open slide ${i + 1}`"
           @click="openSlide(i, $event)"
         >
@@ -138,20 +138,20 @@ function editSlides() {
           />
           <span
             v-if="hasVideoPlaceholder(slide)"
-            class="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-[#0c1114d9] px-2 py-0.5 text-[12px] font-medium text-[#d4dee3] backdrop-blur-sm"
+            class="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-sx-0c1114d9 px-2 py-0.5 text-[12px] font-medium text-tx-d4dee3 backdrop-blur-sm"
             data-testid="presenter-marker"
           >
             <UserRound class="size-3" aria-hidden="true" />Presenter
           </span>
         </button>
-        <span class="px-0.5 text-[12px] text-[#899296] tabular-nums" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
+        <span class="px-0.5 text-[12px] text-tx-899296 tabular-nums" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
       </li>
       <li v-for="n in pending" :key="`pending-${n}`" class="flex flex-col gap-1.5" aria-hidden="true">
         <div class="skeleton-shimmer aspect-video rounded-[9px]" data-testid="preview-skeleton" />
-        <span class="px-0.5 text-[12px] text-[#7b878d] tabular-nums">{{ String(slides.length + n).padStart(2, '0') }}</span>
+        <span class="px-0.5 text-[12px] text-tx-7b878d tabular-nums">{{ String(slides.length + n).padStart(2, '0') }}</span>
       </li>
     </ol>
-    <p v-if="canContinue" class="text-[12px] leading-[1.6] text-[#a9b8c0]" data-testid="skip-reason">{{ SKIP_REASON }}</p>
+    <p v-if="canContinue" class="text-[12px] leading-[1.6] text-tx-a9b8c0" data-testid="skip-reason">{{ SKIP_REASON }}</p>
   </div>
 
   <SlideLightbox

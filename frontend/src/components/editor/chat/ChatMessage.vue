@@ -14,7 +14,7 @@ const html = computed(() => (props.message.role === 'assistant' ? renderMarkdown
     :class="[
       'max-w-[92%] rounded-xl px-3 py-2 text-[12px] leading-[1.6]',
       message.role === 'user' && 'ml-auto bg-secondary text-secondary-text',
-      message.role === 'assistant' && 'mr-auto bg-field text-[#dce6ec]',
+      message.role === 'assistant' && 'mr-auto bg-field text-tx-dce6ec',
       message.role === 'error' && 'mr-auto bg-danger text-danger-text',
     ]"
   >

@@ -38,7 +38,7 @@ const generating = computed(() => generate.isPending.value)
       placeholder="Give your story a little direction. Add speaker notes…"
       :disabled="generating"
       :readonly="editor.generating"
-      class="max-h-[150px] min-h-[82px] w-full resize-y [field-sizing:content] rounded-control border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[12px] leading-[1.65] text-[#c3cdd2] transition-colors hover:border-white/[0.1] focus:border-accent focus:bg-white/[0.03] focus:text-[#e3eaee] focus-visible:outline-none read-only:hover:border-white/[0.06] disabled:opacity-60"
+      class="max-h-[150px] min-h-[82px] w-full resize-y [field-sizing:content] rounded-control border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-[12px] leading-[1.65] text-tx-c3cdd2 transition-colors hover:border-white/[0.1] focus:border-accent focus:bg-white/[0.03] focus:text-tx-e3eaee focus-visible:outline-none read-only:hover:border-white/[0.06] disabled:opacity-60"
       @input="onInput"
     />
     <div class="flex items-center justify-between gap-2">
@@ -46,7 +46,7 @@ const generating = computed(() => generate.isPending.value)
       <button
         type="button"
         :disabled="generating || editor.generating"
-        class="ml-auto inline-flex h-7 items-center gap-1.5 rounded-control border border-white/[0.08] px-2.5 text-[11px] font-medium text-[#c9e5f2] hover:border-white/[0.14] hover:bg-[#475e6c80] hover:text-[#e3f5fe] disabled:pointer-events-none disabled:opacity-35"
+        class="ml-auto inline-flex h-7 items-center gap-1.5 rounded-control border border-white/[0.08] px-2.5 text-[11px] font-medium text-tx-c9e5f2 hover:border-white/[0.14] hover:bg-sx-475e6c80 hover:text-tx-e3f5fe disabled:pointer-events-none disabled:opacity-35"
         @click="onGenerate"
       >
         <Sparkles class="size-3.5" aria-hidden="true" />{{ generating ? 'Writing notes…' : 'Write notes with AI' }}

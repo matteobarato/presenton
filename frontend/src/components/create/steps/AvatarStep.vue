@@ -261,17 +261,17 @@ function go(step: DeckStepKey) {
               stroke-linecap="round"
               :stroke-dasharray="`${(overall / 100) * 100.5} 100.5`"
               class="transition-[stroke-dasharray] duration-500"
-              :class="phase === 'error' ? 'text-[#e8a2a2]' : 'text-accent'"
+              :class="phase === 'error' ? 'text-tx-e8a2a2' : 'text-accent'"
             />
           </svg>
           <Transition name="pop" mode="out-in">
             <Check v-if="complete && !running && phase !== 'error'" key="ok" class="size-6 text-accent" aria-hidden="true" />
-            <span v-else key="pct" class="text-[12px] font-semibold tabular-nums text-[#f6f8f9]">{{ overall }}%</span>
+            <span v-else key="pct" class="text-[12px] font-semibold tabular-nums text-tx-f6f8f9">{{ overall }}%</span>
           </Transition>
         </div>
         <div class="flex min-w-[8rem] flex-1 flex-col gap-0.5">
           <!-- Polite, and only the heading: it changes per phase, so a run is announced a few times, not on every percent. -->
-          <div role="status" aria-live="polite" aria-atomic="true"><h3 class="text-[15px] font-semibold text-[#f6f8f9]">{{ heading }}</h3></div>
+          <div role="status" aria-live="polite" aria-atomic="true"><h3 class="text-[15px] font-semibold text-tx-f6f8f9">{{ heading }}</h3></div>
           <p class="flex flex-wrap items-center gap-x-2 text-[12px] text-muted">
             <span class="inline-flex items-center gap-1"><Languages class="size-3.5" aria-hidden="true" />{{ languageName }}</span>
             <span v-if="avatarWork && videos?.portrait" class="inline-flex items-center gap-1.5">
@@ -284,7 +284,7 @@ function go(step: DeckStepKey) {
         </Button>
       </div>
 
-      <p v-if="showPlan" class="max-w-[60ch] text-[12px] leading-[1.6] text-[#b4c3cb]" data-testid="avatar-plan">{{ scope }}</p>
+      <p v-if="showPlan" class="max-w-[60ch] text-[12px] leading-[1.6] text-tx-b4c3cb" data-testid="avatar-plan">{{ scope }}</p>
 
       <ol class="flex list-none flex-col gap-2">
         <li
@@ -301,11 +301,11 @@ function go(step: DeckStepKey) {
             :class="{ 'opacity-50': segmentState(j.key) === 'pending' || segmentState(j.key) === 'skipped' }"
           >
             <Transition name="pop" mode="out-in">
-              <span v-if="segmentState(j.key) === 'done'" key="done" class="grid size-7 place-items-center rounded-full bg-accent text-[#0b1215]">
+              <span v-if="segmentState(j.key) === 'done'" key="done" class="grid size-7 place-items-center rounded-full bg-accent text-tx-0b1215">
                 <Check class="size-4" stroke-width="3" role="img" aria-label="Done" />
               </span>
               <Loader2 v-else-if="segmentState(j.key) === 'running'" key="run" class="size-5 animate-spin text-accent" aria-hidden="true" />
-              <span v-else-if="segmentState(j.key) === 'failed'" key="fail" class="grid size-7 place-items-center rounded-full bg-[#e8a2a2]/15 text-[#e8a2a2]">
+              <span v-else-if="segmentState(j.key) === 'failed'" key="fail" class="grid size-7 place-items-center rounded-full bg-sx-e8a2a2/15 text-tx-e8a2a2">
                 <X class="size-4" role="img" aria-label="Failed" />
               </span>
               <svg v-else-if="segmentState(j.key) === 'partial'" key="part" viewBox="0 0 20 20" class="size-5 -rotate-90 text-accent" role="img" :aria-label="`${percent(j.key)}% saved`">
@@ -317,9 +317,9 @@ function go(step: DeckStepKey) {
           </span>
           <div class="flex min-w-0 flex-1 flex-col gap-1.5">
             <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span class="text-[13px] font-semibold text-[#f6f8f9]">{{ j.label }}</span>
-              <span class="min-w-0 flex-1 text-[12px] leading-snug max-[520px]:order-last max-[520px]:basis-full" :class="segmentState(j.key) === 'failed' ? 'text-[#e8a2a2]' : 'text-muted'">{{ detail(j.key) }}</span>
-              <span v-if="segmentState(j.key) === 'running' && percent(j.key) !== null" class="text-[12px] tabular-nums text-[#d4dee3] max-[520px]:ml-auto">{{ percent(j.key) }}%</span>
+              <span class="text-[13px] font-semibold text-tx-f6f8f9">{{ j.label }}</span>
+              <span class="min-w-0 flex-1 text-[12px] leading-snug max-[520px]:order-last max-[520px]:basis-full" :class="segmentState(j.key) === 'failed' ? 'text-tx-e8a2a2' : 'text-muted'">{{ detail(j.key) }}</span>
+              <span v-if="segmentState(j.key) === 'running' && percent(j.key) !== null" class="text-[12px] tabular-nums text-tx-d4dee3 max-[520px]:ml-auto">{{ percent(j.key) }}%</span>
             </div>
             <div
               v-if="segmentState(j.key) !== 'skipped'"
@@ -333,7 +333,7 @@ function go(step: DeckStepKey) {
               <div
                 v-else
                 class="h-full rounded-full transition-[width] duration-500"
-                :class="segmentState(j.key) === 'failed' ? 'bg-[#e8a2a2]' : 'bg-accent'"
+                :class="segmentState(j.key) === 'failed' ? 'bg-sx-e8a2a2' : 'bg-accent'"
                 :style="{ width: `${percent(j.key) ?? 0}%` }"
               />
             </div>
@@ -341,7 +341,7 @@ function go(step: DeckStepKey) {
         </li>
       </ol>
     </section>
-    <p v-if="showSkip" class="text-[12px] leading-[1.6] text-[#a9b8c0]" data-testid="skip-reason">{{ SKIP_REASON }}</p>
+    <p v-if="showSkip" class="text-[12px] leading-[1.6] text-tx-a9b8c0" data-testid="skip-reason">{{ SKIP_REASON }}</p>
   </div>
 
   <WizardStepFooter :status="footerStatus" :busy="running" :actions="actions">

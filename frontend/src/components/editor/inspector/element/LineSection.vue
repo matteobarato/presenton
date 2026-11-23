@@ -32,7 +32,7 @@ const DASHES = [
   { value: 'dashed', label: 'Dashed' },
   { value: 'dotted', label: 'Dotted' },
 ]
-const sub = 'mb-2 mt-4 text-[10px] text-[#9aa9b0]'
+const sub = 'mb-2 mt-4 text-[10px] text-tx-9aa9b0'
 </script>
 
 <template>
@@ -47,7 +47,7 @@ const sub = 'mb-2 mt-4 text-[10px] text-[#9aa9b0]'
     <div :class="[label, 'mt-5']"><h3>Line ends</h3></div>
     <div class="flex items-end gap-2">
       <div v-for="end in ENDS" :key="end.side" class="min-w-0 flex-1">
-        <div class="mb-2 text-[10px] text-[#9aa9b0]">{{ end.label }}</div>
+        <div class="mb-2 text-[10px] text-tx-9aa9b0">{{ end.label }}</div>
         <Popover v-model:open="open[end.side]">
           <PopoverTrigger as-child>
             <button type="button" :class="[field, 'w-full cursor-pointer']" :aria-label="end.label" aria-haspopup="listbox">
@@ -63,8 +63,8 @@ const sub = 'mb-2 mt-4 text-[10px] text-[#9aa9b0]'
                 role="option"
                 tabindex="0"
                 :aria-selected="markers[end.side] === m.value"
-                class="flex h-8 cursor-pointer items-center gap-2.5 rounded-control px-2 text-[10px] text-[#dce3e7] hover:bg-white/[0.06]"
-                :class="markers[end.side] === m.value && 'bg-[#303c42] text-[#c4e4f4]'"
+                class="flex h-8 cursor-pointer items-center gap-2.5 rounded-control px-2 text-[10px] text-tx-dce3e7 hover:bg-white/[0.06]"
+                :class="markers[end.side] === m.value && 'bg-sx-303c42 text-tx-c4e4f4'"
                 @click="pick(end.side, m.value)"
                 @keydown.enter.prevent="pick(end.side, m.value)"
                 @keydown.space.prevent="pick(end.side, m.value)"

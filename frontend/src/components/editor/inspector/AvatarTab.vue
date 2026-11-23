@@ -28,15 +28,15 @@ const presenterHere = computed(() => {
   return Boolean(s && hasVideoPlaceholder(s) && videoBySlide.value.has(s.id) && !otherAvatarLanguage(videoBySlide.value.get(s.id), language.value))
 })
 
-const heading = 'text-[12px] font-semibold text-[#f6f8f9]'
-const note = 'text-[10px] leading-[1.6] text-[#a0abb1]'
+const heading = 'text-[12px] font-semibold text-tx-f6f8f9'
+const note = 'text-[10px] leading-[1.6] text-tx-a0abb1'
 </script>
 
 <template>
   <section class="flex flex-1 flex-col px-5 pb-[18px] max-[1279px]:px-4 min-[1600px]:px-[23px]" aria-label="Avatar">
     <div class="pt-6 pb-[18px] min-[1600px]:pt-7 [@media(max-height:780px)_and_(min-width:1051px)]:pt-[17px]">
-      <h2 class="text-[19px] font-medium tracking-[-0.04em] text-[#f0f2f3] max-[1279px]:text-[18px] min-[1600px]:text-[22px]">Your presenter, on stage.</h2>
-      <p class="mt-[5px] text-[10px] leading-[1.6] text-[#a0abb1]">One portrait, lip-synced to each slide's narration.</p>
+      <h2 class="text-[19px] font-medium tracking-[-0.04em] text-tx-f0f2f3 max-[1279px]:text-[18px] min-[1600px]:text-[22px]">Your presenter, on stage.</h2>
+      <p class="mt-[5px] text-[10px] leading-[1.6] text-tx-a0abb1">One portrait, lip-synced to each slide's narration.</p>
     </div>
 
     <PortraitHero

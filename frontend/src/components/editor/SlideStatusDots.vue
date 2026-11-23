@@ -33,6 +33,6 @@ const hasVideo = computed(() => Boolean(slide.value?.id && videos.value?.videos?
 <template>
   <span class="pointer-events-none absolute bottom-1.5 left-1.5 flex gap-1" data-testid="slide-status-dots">
     <span v-if="narrationDot" role="img" :aria-label="narrationDot.label" :title="narrationDot.label" :class="['size-2 rounded-full', narrationDot.tone]" />
-    <span v-if="hasVideo" role="img" aria-label="Avatar video" title="Avatar video" class="size-2 rounded-full bg-[#9db3c0]" />
+    <span v-if="hasVideo" role="img" aria-label="Avatar video" title="Avatar video" class="size-2 rounded-full bg-sx-9db3c0" />
   </span>
 </template>

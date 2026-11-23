@@ -16,7 +16,7 @@ const labelText = computed(() =>
 
 <template>
   <div class="min-w-0">
-    <label :for="inputId" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">{{ labelText }}</label>
+    <label :for="inputId" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ labelText }}</label>
     <div class="relative">
       <Input
         :id="inputId"
@@ -32,7 +32,7 @@ const labelText = computed(() =>
       <button
         type="button"
         :aria-label="shown ? 'Hide API key' : 'Show API key'"
-        class="absolute inset-y-0 right-0 grid w-9 place-items-center rounded-button text-muted transition-colors hover:text-[#f6f8f9] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+        class="absolute inset-y-0 right-0 grid w-9 place-items-center rounded-button text-muted transition-colors hover:text-tx-f6f8f9 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
         @click="shown = !shown"
       >
         <EyeOff v-if="shown" class="size-4" aria-hidden="true" />

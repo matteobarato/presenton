@@ -33,7 +33,7 @@ const checked = <T extends { value: string }>(list: readonly T[], value: string)
 const chip =
   'h-8 max-[559px]:h-11 max-[559px]:min-w-11 rounded-full border px-3.5 max-[559px]:px-4 text-[12px] font-medium transition-[background,border-color,color] duration-150 disabled:opacity-40'
 const chipOn = 'border-accent bg-accent text-accent-ink'
-const chipOff = 'border-white/[0.08] bg-white/[0.02] text-[#c3d1d8] hover:border-white/[0.16] hover:bg-white/[0.05] hover:text-[#eef4f7]'
+const chipOff = 'border-white/[0.08] bg-white/[0.02] text-tx-c3d1d8 hover:border-white/[0.16] hover:bg-white/[0.05] hover:text-tx-eef4f7'
 const mediaCounts = [
   {
     key: 'images',
@@ -56,14 +56,14 @@ const mediaCounts = [
 /** Images belong to Length & media, the presenter video count to the Presenter step. */
 const visibleCounts = computed(() => mediaCounts.filter((m) => (m.key === 'images' ? show('length') : show('videos'))))
 
-const groupLabel = 'text-[12px] font-medium text-[#dbe5ea]'
+const groupLabel = 'text-[12px] font-medium text-tx-dbe5ea'
 const cardChrome = 'flex flex-col gap-6 rounded-card border border-white/[0.07] bg-gradient-to-b from-white/[0.03] to-white/[0.01] p-5 shadow-[inset_0_1px_0_#ffffff0a] max-[520px]:p-4'
 const card = computed(() => (props.bare ? 'flex flex-col gap-6' : cardChrome))
 const head = 'flex items-center gap-3'
-const headIcon = 'grid size-8 flex-none place-items-center rounded-full bg-[#bee3f31a] text-accent'
-const headTitle = 'text-[13px] font-semibold tracking-[-0.01em] text-[#eef4f7]'
-const headSub = 'text-[12px] text-[#8e9ca4]'
-const hint = 'text-[12px] text-[#8e9ca4]'
+const headIcon = 'grid size-8 flex-none place-items-center rounded-full bg-sx-bee3f31a text-accent'
+const headTitle = 'text-[13px] font-semibold tracking-[-0.01em] text-tx-eef4f7'
+const headSub = 'text-[12px] text-tx-8e9ca4'
+const hint = 'text-[12px] text-tx-8e9ca4'
 </script>
 
 <template>
@@ -96,7 +96,7 @@ const hint = 'text-[12px] text-[#8e9ca4]'
               {{ p.label }}
             </button>
             <span class="ml-1 flex items-center gap-2">
-              <Label for="opt-slides" class="text-[12px] text-[#8e9ca4]">or exactly</Label>
+              <Label for="opt-slides" class="text-[12px] text-tx-8e9ca4">or exactly</Label>
               <Input
                 id="opt-slides"
                 inputmode="numeric"
@@ -131,7 +131,7 @@ const hint = 'text-[12px] text-[#8e9ca4]'
               {{ p.label }}
             </button>
             <span class="ml-1 flex items-center gap-2">
-              <Label :for="m.inputId" class="text-[12px] text-[#8e9ca4]">or exactly</Label>
+              <Label :for="m.inputId" class="text-[12px] text-tx-8e9ca4">or exactly</Label>
               <Input
                 :id="m.inputId"
                 inputmode="numeric"
@@ -185,7 +185,7 @@ const hint = 'text-[12px] text-[#8e9ca4]'
               :aria-checked="model.verbosity === v.value"
               :disabled="disabled"
               class="flex flex-col gap-2 rounded-card border p-3 text-left transition-[background,border-color] duration-150 disabled:opacity-40"
-              :class="model.verbosity === v.value ? 'border-accent bg-[#bee3f30d]' : 'border-white/[0.07] bg-white/[0.02] hover:border-white/[0.14] hover:bg-white/[0.04]'"
+              :class="model.verbosity === v.value ? 'border-accent bg-sx-bee3f30d' : 'border-white/[0.07] bg-white/[0.02] hover:border-white/[0.14] hover:bg-white/[0.04]'"
               @click="patch({ verbosity: v.value })"
             >
               <span class="flex h-[22px] flex-col justify-center gap-[3px]" aria-hidden="true">
@@ -198,8 +198,8 @@ const hint = 'text-[12px] text-[#8e9ca4]'
                 />
               </span>
               <span class="flex flex-col gap-0.5">
-                <span class="text-[12px] font-medium text-[#e4ecf0]">{{ v.label }}</span>
-                <span class="text-[12px] leading-[1.5] text-[#8e9ca4]">{{ v.hint }}</span>
+                <span class="text-[12px] font-medium text-tx-e4ecf0">{{ v.label }}</span>
+                <span class="text-[12px] leading-[1.5] text-tx-8e9ca4">{{ v.hint }}</span>
               </span>
             </button>
           </div>
@@ -216,35 +216,35 @@ const hint = 'text-[12px] text-[#8e9ca4]'
         <fieldset class="flex flex-col">
           <legend class="sr-only">Extras</legend>
           <div class="grid gap-2" :class="bare ? 'grid-cols-1' : 'grid-cols-3 max-[640px]:grid-cols-1'">
-            <label for="opt-title" class="flex cursor-pointer items-start gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 hover:bg-white/[0.04] has-[[data-state=checked]]:border-[#bee3f355]">
-              <Presentation class="mt-px size-4 text-[#8fb4c6]" aria-hidden="true" />
+            <label for="opt-title" class="flex cursor-pointer items-start gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 hover:bg-white/[0.04] has-[[data-state=checked]]:border-lx-bee3f355">
+              <Presentation class="mt-px size-4 text-tx-8fb4c6" aria-hidden="true" />
               <span class="flex flex-1 flex-col gap-0.5">
-                <span class="text-[12px] font-medium text-[#e4ecf0]">Title slide</span>
-                <span class="text-[12px] text-[#8e9ca4]">Open with a cover</span>
+                <span class="text-[12px] font-medium text-tx-e4ecf0">Title slide</span>
+                <span class="text-[12px] text-tx-8e9ca4">Open with a cover</span>
               </span>
               <Checkbox id="opt-title" :model-value="model.includeTitleSlide" :disabled="disabled" @update:model-value="patch({ includeTitleSlide: $event === true })" />
             </label>
-            <label for="opt-toc" class="flex cursor-pointer items-start gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 hover:bg-white/[0.04] has-[[data-state=checked]]:border-[#bee3f355]">
-              <ListOrdered class="mt-px size-4 text-[#8fb4c6]" aria-hidden="true" />
+            <label for="opt-toc" class="flex cursor-pointer items-start gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 hover:bg-white/[0.04] has-[[data-state=checked]]:border-lx-bee3f355">
+              <ListOrdered class="mt-px size-4 text-tx-8fb4c6" aria-hidden="true" />
               <span class="flex flex-1 flex-col gap-0.5">
-                <span class="text-[12px] font-medium text-[#e4ecf0]">Table of contents</span>
-                <span class="text-[12px] text-[#8e9ca4]">List the sections</span>
+                <span class="text-[12px] font-medium text-tx-e4ecf0">Table of contents</span>
+                <span class="text-[12px] text-tx-8e9ca4">List the sections</span>
               </span>
               <Checkbox id="opt-toc" :model-value="model.includeTableOfContents" :disabled="disabled" @update:model-value="patch({ includeTableOfContents: $event === true })" />
             </label>
-            <label for="opt-web" class="flex cursor-pointer items-start gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 hover:bg-white/[0.04] has-[[data-state=checked]]:border-[#bee3f355]">
-              <Globe class="mt-px size-4 text-[#8fb4c6]" aria-hidden="true" />
+            <label for="opt-web" class="flex cursor-pointer items-start gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 hover:bg-white/[0.04] has-[[data-state=checked]]:border-lx-bee3f355">
+              <Globe class="mt-px size-4 text-tx-8fb4c6" aria-hidden="true" />
               <span class="flex flex-1 flex-col gap-0.5">
-                <span class="text-[12px] font-medium text-[#e4ecf0]">Web search</span>
-                <span class="text-[12px] text-[#8e9ca4]">Ground facts online</span>
+                <span class="text-[12px] font-medium text-tx-e4ecf0">Web search</span>
+                <span class="text-[12px] text-tx-8e9ca4">Ground facts online</span>
               </span>
               <Switch id="opt-web" :model-value="model.webSearch" :disabled="disabled" @update:model-value="patch({ webSearch: $event === true })" />
             </label>
-            <label for="opt-animate" class="flex cursor-pointer items-start gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 hover:bg-white/[0.04] has-[[data-state=checked]]:border-[#bee3f355]">
-              <Clapperboard class="mt-px size-4 text-[#8fb4c6]" aria-hidden="true" />
+            <label for="opt-animate" class="flex cursor-pointer items-start gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 hover:bg-white/[0.04] has-[[data-state=checked]]:border-lx-bee3f355">
+              <Clapperboard class="mt-px size-4 text-tx-8fb4c6" aria-hidden="true" />
               <span class="flex flex-1 flex-col gap-0.5">
-                <span class="text-[12px] font-medium text-[#e4ecf0]">Animate slides</span>
-                <span class="text-[12px] text-[#8e9ca4]">Plan entrance motion once generated</span>
+                <span class="text-[12px] font-medium text-tx-e4ecf0">Animate slides</span>
+                <span class="text-[12px] text-tx-8e9ca4">Plan entrance motion once generated</span>
               </span>
               <Switch id="opt-animate" :model-value="model.animate" :disabled="disabled" @update:model-value="patch({ animate: $event === true })" />
             </label>

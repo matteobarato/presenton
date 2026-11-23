@@ -51,22 +51,22 @@ async function onSubmit() {
 
 <template>
   <div class="grid gap-8">
-    <div class="flex items-center justify-between gap-4 rounded-[11px] bg-[#1d2427] px-4 py-4 max-[450px]:flex-col max-[450px]:items-start">
+    <div class="flex items-center justify-between gap-4 rounded-[11px] bg-sx-1d2427 px-4 py-4 max-[450px]:flex-col max-[450px]:items-start">
       <div class="flex min-w-0 items-center gap-3.5">
         <span
-          class="grid size-11 flex-none place-items-center rounded-full border-[3px] border-[#2e2b28] bg-[#ddccb9] text-[15px] font-bold text-[#493c2e]"
+          class="grid size-11 flex-none place-items-center rounded-full border-[3px] border-lx-2e2b28 bg-sx-ddccb9 text-[15px] font-bold text-tx-493c2e"
           aria-hidden="true"
         >{{ initial }}</span>
         <dl class="min-w-0">
           <dt class="sr-only">Username</dt>
-          <dd class="flex items-center gap-1.5 truncate text-[14px] font-medium text-[#e4ecf0]">
-            <UserRound class="size-3.5 flex-none stroke-[1.75] text-[#95aab7]" aria-hidden="true" />
+          <dd class="flex items-center gap-1.5 truncate text-[14px] font-medium text-tx-e4ecf0">
+            <UserRound class="size-3.5 flex-none stroke-[1.75] text-tx-95aab7" aria-hidden="true" />
             {{ session.user?.username }}
           </dd>
           <template v-if="session.user?.role">
             <dt class="sr-only">Role</dt>
-            <dd class="mt-1 flex items-center gap-1.5 text-[11px] text-[#95aab7]">
-              <ShieldCheck v-if="isAdmin" class="size-3.5 flex-none stroke-[1.75] text-[#c2e5f5]" aria-hidden="true" />
+            <dd class="mt-1 flex items-center gap-1.5 text-[11px] text-tx-95aab7">
+              <ShieldCheck v-if="isAdmin" class="size-3.5 flex-none stroke-[1.75] text-tx-c2e5f5" aria-hidden="true" />
               <UserRound v-else class="size-3.5 flex-none stroke-[1.75]" aria-hidden="true" />
               {{ isAdmin ? 'Administrator' : 'Member' }}
             </dd>
@@ -78,38 +78,38 @@ async function onSubmit() {
 
     <form
       v-if="!session.user?.authDisabled"
-      class="grid gap-4 rounded-[11px] bg-[#1d2427] p-4"
+      class="grid gap-4 rounded-[11px] bg-sx-1d2427 p-4"
       novalidate
       data-testid="change-password"
       @submit.prevent="onSubmit"
     >
       <div class="flex items-start gap-3">
-        <span class="grid size-8 flex-none place-items-center rounded-[9px] bg-[#c2e5f5]/12 text-[#c2e5f5]" aria-hidden="true">
+        <span class="grid size-8 flex-none place-items-center rounded-[9px] bg-sx-c2e5f5/12 text-tx-c2e5f5" aria-hidden="true">
           <LockKeyhole class="size-4 stroke-[1.75]" />
         </span>
         <div>
-          <h3 class="text-[13px] font-medium text-[#dbe7ef]">Change password</h3>
-          <p class="mt-1 text-[11px] text-[#95aab7]">You stay signed in here; every other session is signed out.</p>
+          <h3 class="text-[13px] font-medium text-tx-dbe7ef">Change password</h3>
+          <p class="mt-1 text-[11px] text-tx-95aab7">You stay signed in here; every other session is signed out.</p>
         </div>
       </div>
       <!-- Lets password managers pair the new password with this account. -->
       <input type="text" name="username" autocomplete="username" :value="session.user?.username ?? ''" hidden readonly />
       <div class="min-w-0">
-        <label for="current-password" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Current password</label>
+        <label for="current-password" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Current password</label>
         <Input id="current-password" v-model="current" type="password" autocomplete="current-password" :maxlength="PASSWORD_MAX" />
       </div>
       <div class="grid grid-cols-2 gap-3 max-[760px]:grid-cols-1">
         <div class="min-w-0">
-          <label for="new-password" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">New password</label>
+          <label for="new-password" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">New password</label>
           <Input id="new-password" v-model="next" type="password" autocomplete="new-password" :maxlength="PASSWORD_MAX" />
         </div>
         <div class="min-w-0">
-          <label for="confirm-password" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Confirm new password</label>
+          <label for="confirm-password" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Confirm new password</label>
           <Input id="confirm-password" v-model="confirm" type="password" autocomplete="new-password" :maxlength="PASSWORD_MAX" />
         </div>
       </div>
       <div class="flex items-center justify-between gap-3">
-        <p class="text-[11px]" :class="error ? 'text-danger-text' : 'text-[#95aab7]'" role="status" aria-live="polite">
+        <p class="text-[11px]" :class="error ? 'text-danger-text' : 'text-tx-95aab7'" role="status" aria-live="polite">
           {{ error || (touched ? problem : `At least ${PASSWORD_MIN} characters.`) }}
         </p>
         <Button type="submit" :disabled="Boolean(problem) || saving">

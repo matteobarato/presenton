@@ -9,7 +9,7 @@ export const alertVariants = cva(
     variants: {
       variant: {
         default: 'border-line bg-secondary text-secondary-text',
-        destructive: 'border-[#f4c0bc33] bg-danger text-danger-text',
+        destructive: 'border-lx-f4c0bc33 bg-danger text-danger-text',
       },
     },
     defaultVariants: { variant: 'default' },

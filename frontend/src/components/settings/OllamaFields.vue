@@ -302,7 +302,7 @@ const emptyMessage = computed(() =>
 <template>
   <div class="grid min-w-0 gap-4">
     <div class="min-w-0">
-      <label for="ollama-url" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Ollama URL</label>
+      <label for="ollama-url" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Ollama URL</label>
       <Input
         id="ollama-url"
         type="text"
@@ -314,7 +314,7 @@ const emptyMessage = computed(() =>
         :model-value="url"
         @update:model-value="onUrlInput"
       />
-      <p id="ollama-url-help" class="mt-1.5 text-[11px] text-[#95aab7]">
+      <p id="ollama-url-help" class="mt-1.5 text-[11px] text-tx-95aab7">
         Required for generation. Use {{ DEFAULT_OLLAMA_URL }}, or click Check models to detect localhost when Ollama runs in the same container.
       </p>
     </div>
@@ -327,11 +327,11 @@ const emptyMessage = computed(() =>
     </div>
 
     <div v-if="checked && installed.length > 0" class="min-w-0">
-      <label for="ollama-model" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Choose an Ollama model</label>
+      <label for="ollama-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Choose an Ollama model</label>
       <select
         id="ollama-model"
         :value="selected"
-        class="flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-[#dce6ec] transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none"
+        class="flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-tx-dce6ec transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none"
         @change="onModelChange"
       >
         <option value="" disabled>Select a model</option>
@@ -339,12 +339,12 @@ const emptyMessage = computed(() =>
       </select>
     </div>
 
-    <p v-if="checked && installed.length === 0 && checkError" class="text-[11px] text-[#95aab7]">{{ checkError }}</p>
-    <p v-else-if="checked && installed.length === 0" class="text-[11px] text-[#95aab7]">{{ emptyMessage }}</p>
+    <p v-if="checked && installed.length === 0 && checkError" class="text-[11px] text-tx-95aab7">{{ checkError }}</p>
+    <p v-else-if="checked && installed.length === 0" class="text-[11px] text-tx-95aab7">{{ emptyMessage }}</p>
 
     <details v-if="checked && downloadable.length > 0" class="min-w-0">
       <summary
-        class="mb-2 cursor-pointer text-[12px] font-medium text-[#dbe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="mb-2 cursor-pointer text-[12px] font-medium text-tx-dbe7ef focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         Available in library ({{ downloadable.length }})
       </summary>
@@ -355,10 +355,10 @@ const emptyMessage = computed(() =>
           class="flex min-w-0 items-center justify-between gap-3 rounded-button bg-field px-3 py-2"
         >
           <div class="min-w-0">
-            <p class="truncate text-[12px] font-medium text-[#dce6ec]">
-              {{ m.name }}<span v-if="m.parameters || m.size" class="text-[#95aab7]"> · {{ [m.parameters, m.size].filter(Boolean).join(' · ') }}</span>
+            <p class="truncate text-[12px] font-medium text-tx-dce6ec">
+              {{ m.name }}<span v-if="m.parameters || m.size" class="text-tx-95aab7"> · {{ [m.parameters, m.size].filter(Boolean).join(' · ') }}</span>
             </p>
-            <p v-if="m.description" class="truncate text-[11px] text-[#95aab7]">{{ m.description }}</p>
+            <p v-if="m.description" class="truncate text-[11px] text-tx-95aab7">{{ m.description }}</p>
           </div>
           <Button type="button" size="sm" variant="outline" :aria-label="`Pull ${m.name}`" :disabled="pulling" @click="startPull(m.name)">
             <Download class="size-3.5" aria-hidden="true" />
@@ -370,12 +370,12 @@ const emptyMessage = computed(() =>
 
     <div v-if="pull" class="grid min-w-0 gap-2 rounded-button border border-white/[0.09] p-3">
       <template v-if="pull.phase === 'running'">
-        <div class="flex items-center justify-between gap-2 text-[12px] text-[#dce6ec]">
+        <div class="flex items-center justify-between gap-2 text-[12px] text-tx-dce6ec">
           <span class="truncate" aria-live="polite">Downloading {{ pull.name }}: {{ pull.status }}</span>
           <span v-if="pull.percent !== null" class="shrink-0 font-medium">{{ pull.percent.toFixed(1) }}%</span>
         </div>
         <Progress :model-value="pullPercent" :max="100" :aria-label="`Downloading ${pull.name}`" />
-        <p v-if="pullBytes" class="text-[11px] text-[#95aab7]">{{ pullBytes }}</p>
+        <p v-if="pullBytes" class="text-[11px] text-tx-95aab7">{{ pullBytes }}</p>
         <div>
           <Button type="button" size="sm" variant="outline" @click="cancelPull">
             <X class="size-3.5" aria-hidden="true" />
@@ -383,10 +383,10 @@ const emptyMessage = computed(() =>
           </Button>
         </div>
       </template>
-      <p v-else-if="pull.phase === 'error'" role="alert" class="text-[12px] text-[#f0a3a3]">
+      <p v-else-if="pull.phase === 'error'" role="alert" class="text-[12px] text-tx-f0a3a3">
         {{ pull.name }}: {{ pull.error }}
       </p>
-      <p v-else role="status" class="text-[12px] text-[#dce6ec]">
+      <p v-else role="status" class="text-[12px] text-tx-dce6ec">
         <template v-if="pull.phase === 'done'">{{ pull.name }} has been downloaded and selected as your active model.</template>
         <template v-else>Download of {{ pull.name }} was cancelled.</template>
       </p>

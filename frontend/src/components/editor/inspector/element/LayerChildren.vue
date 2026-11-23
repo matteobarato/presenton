@@ -37,11 +37,11 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="border-t border-line py-[18px] min-[1600px]:py-[22px]" data-testid="layer-children">
-    <nav v-if="path.length > 0" aria-label="Selection path" class="mb-3 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[10px] text-[#9aa9b0] min-[1600px]:text-[11px]">
+    <nav v-if="path.length > 0" aria-label="Selection path" class="mb-3 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[10px] text-tx-9aa9b0 min-[1600px]:text-[11px]">
       <button type="button" class="hover:text-white" @mousedown.prevent @click="select(null)">Slide</button>
       <template v-for="(node, i) in path" :key="node.key">
         <ChevronRight class="size-3 shrink-0 opacity-60" aria-hidden="true" />
-        <span v-if="i === path.length - 1" class="font-medium text-[#f0f2f3]" aria-current="location">{{ node.label }}</span>
+        <span v-if="i === path.length - 1" class="font-medium text-tx-f0f2f3" aria-current="location">{{ node.label }}</span>
         <button
           v-else
           type="button"
@@ -56,7 +56,7 @@ onBeforeUnmount(() => {
       </template>
     </nav>
     <template v-if="items.length > 0">
-      <h3 class="mb-2 text-[10px] font-medium text-[#d0d7dc] min-[1600px]:text-[11px]">{{ heading }}</h3>
+      <h3 class="mb-2 text-[10px] font-medium text-tx-d0d7dc min-[1600px]:text-[11px]">{{ heading }}</h3>
       <div class="-mx-2 flex flex-col" role="list">
         <div v-for="node in items" :key="node.key" role="listitem">
           <LayerRow :node="node" @select="select(node)" @hover="hover(node, $event)" />

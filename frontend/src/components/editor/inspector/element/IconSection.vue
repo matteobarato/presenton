@@ -14,7 +14,7 @@ const { element, palette, src, color, weight, currentUrl, hold, setColor, picker
 <template>
   <div v-if="element" :class="section">
     <div :class="label"><h3>Icon</h3></div>
-    <div class="mb-3 grid h-20 place-items-center rounded-control border border-white/[0.05] bg-[#11171a]">
+    <div class="mb-3 grid h-20 place-items-center rounded-control border border-white/[0.05] bg-sx-11171a">
       <span
         v-if="src"
         class="size-10"
@@ -35,7 +35,7 @@ const { element, palette, src, color, weight, currentUrl, hold, setColor, picker
     <ColorField :model-value="color" :palette="palette" label="Icon colour" @open="hold" @commit="setColor" />
     <button
       type="button"
-      class="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-control border border-white/[0.05] bg-field text-[10px] text-[#909fa7] hover:bg-[#303a3f] hover:text-[#d9e6ed]"
+      class="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-control border border-white/[0.05] bg-field text-[10px] text-tx-909fa7 hover:bg-sx-303a3f hover:text-tx-d9e6ed"
       aria-label="Change icon"
       @mousedown.prevent
       @click="openPicker"

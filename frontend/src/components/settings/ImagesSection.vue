@@ -29,9 +29,9 @@ const QUALITY: Record<string, { label: string; field: string; fallback: string; 
 const CUSTOM = ['comfyui', 'open_webui', 'openai_compatible']
 
 const WORKFLOW_PLACEHOLDER = 'Paste your ComfyUI workflow JSON here (export via "Export (API)" in ComfyUI)'
-const labelClass = 'mb-2 block text-[12px] font-medium text-[#dbe7ef]'
+const labelClass = 'mb-2 block text-[12px] font-medium text-tx-dbe7ef'
 const selectClass =
-  'flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-[#dce6ec] transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40'
+  'flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-tx-dce6ec transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40'
 const linkClass =
   'mt-1.5 inline-block text-[11px] text-accent underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
@@ -54,15 +54,15 @@ function onQuality(event: Event) {
 </script>
 
 <template>
-  <div v-if="managed" class="rounded-[11px] bg-[#1d2427] px-4 py-3">
-    <p class="text-[13px] font-medium text-[#dbe7ef]">Managed by Presenton Cloud</p>
-    <p class="mt-0.5 text-[11px] leading-[1.6] text-[#95aab7]">Image generation is handled for you, so there is nothing to configure here.</p>
+  <div v-if="managed" class="rounded-[11px] bg-sx-1d2427 px-4 py-3">
+    <p class="text-[13px] font-medium text-tx-dbe7ef">Managed by Presenton Cloud</p>
+    <p class="mt-0.5 text-[11px] leading-[1.6] text-tx-95aab7">Image generation is handled for you, so there is nothing to configure here.</p>
   </div>
 
   <div v-else class="grid gap-4">
     <div class="flex items-center gap-3">
       <Switch :id="id('enabled')" :model-value="enabled" @update:model-value="emit('set', 'DISABLE_IMAGE_GENERATION', !$event)" />
-      <label :for="id('enabled')" class="text-[12px] font-medium text-[#dbe7ef]">Generate images</label>
+      <label :for="id('enabled')" class="text-[12px] font-medium text-tx-dbe7ef">Generate images</label>
     </div>
 
     <template v-if="enabled">

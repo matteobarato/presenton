@@ -534,14 +534,14 @@ onBeforeUnmount(() => finish(false))
     <div
       v-if="hoverBox"
       data-hover-box
-      class="pointer-events-none absolute box-border border border-dashed border-[#4bb3e6]"
+      class="pointer-events-none absolute box-border border border-dashed border-lx-4bb3e6"
       :style="boxStyle(hoverBox)"
     />
     <div
       v-for="(f, i) in selected"
       :key="i"
       data-selection-box
-      class="pointer-events-none absolute box-border border-[1.5px] border-solid border-[#4bb3e6]"
+      class="pointer-events-none absolute box-border border-[1.5px] border-solid border-lx-4bb3e6"
       :style="boxStyle(f)"
     >
       <template v-if="i === 0 && showHandles">
@@ -549,21 +549,21 @@ onBeforeUnmount(() => finish(false))
           v-for="h in HANDLES"
           :key="h"
           :data-handle="h"
-          class="pointer-events-auto absolute box-border size-2 -translate-x-1/2 -translate-y-1/2 border border-[#4bb3e6] bg-white"
+          class="pointer-events-auto absolute box-border size-2 -translate-x-1/2 -translate-y-1/2 border border-lx-4bb3e6 bg-white"
           :style="[handleStyle(h), { cursor: handleCursor(h, f.rotation) }]"
           @pointerdown="onHandleDown($event, h)"
         />
       </template>
       <template v-if="i === 0 && showRotate">
         <div
-          class="pointer-events-none absolute w-px -translate-x-1/2 bg-[#4bb3e6]"
+          class="pointer-events-none absolute w-px -translate-x-1/2 bg-sx-4bb3e6"
           :style="{ left: '50%', top: '100%', height: `${ROTATE_STEM_PX}px` }"
         />
         <div
           data-rotate-handle
           role="button"
           aria-label="Rotate"
-          class="pointer-events-auto absolute box-border size-3 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border border-[#4bb3e6] bg-white"
+          class="pointer-events-auto absolute box-border size-3 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border border-lx-4bb3e6 bg-white"
           :style="{ left: '50%', top: `calc(100% + ${ROTATE_STEM_PX}px)` }"
           @pointerdown="onRotateDown"
         />
@@ -574,13 +574,13 @@ onBeforeUnmount(() => finish(false))
       data-table-cell-outline
       :data-row="cellOutline.row"
       :data-col="cellOutline.col"
-      class="pointer-events-none absolute box-border border-2 border-solid border-[#4bb3e6]"
+      class="pointer-events-none absolute box-border border-2 border-solid border-lx-4bb3e6"
       :style="boxStyle(cellOutline.frame)"
     />
     <div
       v-if="rotateAngle != null"
       data-rotate-badge
-      class="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded bg-[#0f1417] px-1.5 py-0.5 text-xs text-white"
+      class="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded bg-sx-0f1417 px-1.5 py-0.5 text-xs text-white"
       :style="rotateBadgeStyle"
     >
       {{ normalizeRotation(Math.round(rotateAngle)) }}°
@@ -589,7 +589,7 @@ onBeforeUnmount(() => finish(false))
       v-for="(g, i) in guideStyles"
       :key="`g${i}`"
       data-guide
-      class="pointer-events-none absolute bg-[#ff3d8b]"
+      class="pointer-events-none absolute bg-sx-ff3d8b"
       :style="g"
     />
   </div>

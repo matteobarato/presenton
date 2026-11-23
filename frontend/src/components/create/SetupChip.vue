@@ -24,7 +24,7 @@ const open = defineModel<boolean>('open', { default: false })
 
 const compact = useMediaQuery('(max-width: 559px)')
 const chip =
-  'group inline-flex h-9 max-[559px]:h-11 max-w-full min-w-0 items-center gap-2 rounded-full border border-white/[0.09] bg-white/[0.025] pr-2.5 pl-3 text-left text-[12px] text-[#d4dee3] transition-[background,border-color] duration-150 hover:border-white/[0.18] hover:bg-white/[0.05] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-40 data-[state=open]:border-[#bee3f366] data-[state=open]:bg-[#bee3f30f]'
+  'group inline-flex h-9 max-[559px]:h-11 max-w-full min-w-0 items-center gap-2 rounded-full border border-white/[0.09] bg-white/[0.025] pr-2.5 pl-3 text-left text-[12px] text-tx-d4dee3 transition-[background,border-color] duration-150 hover:border-white/[0.18] hover:bg-white/[0.05] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-40 data-[state=open]:border-lx-bee3f366 data-[state=open]:bg-sx-bee3f30f'
 // The button's name says which setting it is, unless the value already does ("Extras: None").
 const aria = computed(() => (props.value.startsWith(props.label) ? props.value : `${props.label}: ${props.value}`))
 </script>
@@ -35,7 +35,7 @@ const aria = computed(() => (props.value.startsWith(props.label) ? props.value :
       <button type="button" :class="chip" :disabled="disabled" :aria-label="aria" :data-testid="testid">
         <component :is="icon" class="size-3.5 flex-none text-accent" aria-hidden="true" />
         <span class="min-w-0 truncate">{{ value }}</span>
-        <ChevronDown class="size-3.5 flex-none text-[#8e9ca4]" aria-hidden="true" />
+        <ChevronDown class="size-3.5 flex-none text-tx-8e9ca4" aria-hidden="true" />
       </button>
     </SheetTrigger>
     <SheetContent side="bottom" class="gap-4 p-5">
@@ -55,7 +55,7 @@ const aria = computed(() => (props.value.startsWith(props.label) ? props.value :
       <button type="button" :class="chip" :disabled="disabled" :aria-label="aria" :data-testid="testid">
         <component :is="icon" class="size-3.5 flex-none text-accent" aria-hidden="true" />
         <span class="min-w-0 truncate">{{ value }}</span>
-        <ChevronDown class="size-3.5 flex-none text-[#8e9ca4] transition-transform duration-150 group-data-[state=open]:rotate-180" aria-hidden="true" />
+        <ChevronDown class="size-3.5 flex-none text-tx-8e9ca4 transition-transform duration-150 group-data-[state=open]:rotate-180" aria-hidden="true" />
       </button>
     </PopoverTrigger>
     <PopoverContent
@@ -66,8 +66,8 @@ const aria = computed(() => (props.value.startsWith(props.label) ? props.value :
       :data-testid="`${testid}-panel`"
     >
       <div class="mb-4 flex flex-col gap-0.5">
-        <h3 class="text-[13px] font-semibold tracking-[-0.01em] text-[#eef4f7]">{{ label }}</h3>
-        <p v-if="description" class="text-[12px] text-[#8e9ca4]">{{ description }}</p>
+        <h3 class="text-[13px] font-semibold tracking-[-0.01em] text-tx-eef4f7">{{ label }}</h3>
+        <p v-if="description" class="text-[12px] text-tx-8e9ca4">{{ description }}</p>
       </div>
       <slot />
     </PopoverContent>

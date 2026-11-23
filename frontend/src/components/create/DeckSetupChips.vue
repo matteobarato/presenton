@@ -15,7 +15,7 @@ const style = computed(() => {
   const p = props.presentation
   return styleSummary((p.tone || 'default') as CreateOptions['tone'], (p.verbosity || 'standard') as CreateOptions['verbosity'])
 })
-const fixed = 'inline-flex h-9 max-w-full min-w-0 items-center gap-2 rounded-full border border-white/[0.05] px-3 text-[12px] text-[#a2b1b9]'
+const fixed = 'inline-flex h-9 max-w-full min-w-0 items-center gap-2 rounded-full border border-white/[0.05] px-3 text-[12px] text-tx-a2b1b9'
 </script>
 
 <template>

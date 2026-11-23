@@ -45,17 +45,17 @@ const narrationTo = computed(() => {
 
 <template>
   <div class="flex flex-col gap-5">
-    <p class="min-w-0 truncate text-[13px] font-medium text-[#d4dee3]" data-testid="export-heading">{{ heading }}</p>
+    <p class="min-w-0 truncate text-[13px] font-medium text-tx-d4dee3" data-testid="export-heading">{{ heading }}</p>
     <p
       v-if="gaps"
       role="status"
       data-testid="export-gaps"
-      class="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-card border border-[#e8c9a233] bg-[#e8c9a210] px-3.5 py-2.5 text-[12px] text-[#e9d6bb]"
+      class="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-card border border-lx-e8c9a233 bg-sx-e8c9a210 px-3.5 py-2.5 text-[12px] text-tx-e9d6bb"
     >
       <AlertTriangle class="size-4 flex-none" aria-hidden="true" />
       <span>{{ gaps }}.</span>
-      <RouterLink :to="narrationTo" data-testid="export-gaps-link" class="underline decoration-[#e9d6bb66] underline-offset-[3px] hover:text-white max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center">Go to Narration</RouterLink>
-      <span class="text-[#c9b99f]">You can still export now.</span>
+      <RouterLink :to="narrationTo" data-testid="export-gaps-link" class="underline decoration-tx-e9d6bb66 underline-offset-[3px] hover:text-white max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center">Go to Narration</RouterLink>
+      <span class="text-tx-c9b99f">You can still export now.</span>
     </p>
     <section class="rounded-card border border-white/[0.06] bg-white/[0.015] p-4">
       <ExportOptions :presentation-id="id" :presentation="presentation" :video-note="videoNote" />

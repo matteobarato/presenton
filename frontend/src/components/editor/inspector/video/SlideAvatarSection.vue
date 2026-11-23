@@ -77,14 +77,14 @@ const note = 'text-[10px] leading-[1.6]'
 <template>
   <section class="flex flex-col gap-3 border-t border-line py-[18px]" aria-label="Slide avatar video" :data-chip="chip" data-testid="slide-avatar">
     <div class="flex items-center gap-2">
-      <h3 class="text-[12px] font-semibold whitespace-nowrap text-[#f6f8f9]">Slide {{ n }}</h3>
+      <h3 class="text-[12px] font-semibold whitespace-nowrap text-tx-f6f8f9">Slide {{ n }}</h3>
       <AvatarChip :kind="chip" class="ml-auto" />
     </div>
 
     <label class="flex cursor-pointer items-start justify-between gap-3 rounded-control bg-field px-3 py-2.5" :class="busy && 'cursor-default'">
       <span class="flex min-w-0 flex-col gap-0.5">
-        <span class="text-[11px] font-semibold text-[#e5edf1]">Presenter on this slide</span>
-        <span :class="[note, 'text-[#a0abb1]']">{{ hasPlaceholder ? 'Replaces the voice bubble here.' : 'Off: the voice bubble plays here.' }}</span>
+        <span class="text-[11px] font-semibold text-tx-e5edf1">Presenter on this slide</span>
+        <span :class="[note, 'text-tx-a0abb1']">{{ hasPlaceholder ? 'Replaces the voice bubble here.' : 'Off: the voice bubble plays here.' }}</span>
       </span>
       <Switch
         :model-value="hasPlaceholder"
@@ -95,7 +95,7 @@ const note = 'text-[10px] leading-[1.6]'
       />
     </label>
 
-    <div v-if="narrationFix" class="flex items-start gap-2" :class="[note, narrationFix.tone === 'warn' ? 'text-danger-text' : 'text-[#a0abb1]']">
+    <div v-if="narrationFix" class="flex items-start gap-2" :class="[note, narrationFix.tone === 'warn' ? 'text-danger-text' : 'text-tx-a0abb1']">
       <p class="flex-1">{{ narrationFix.text }}</p>
       <button
         type="button"
@@ -113,7 +113,7 @@ const note = 'text-[10px] leading-[1.6]'
     </p>
 
     <div v-if="video" class="flex flex-col gap-1">
-      <div class="flex items-center gap-2 rounded-control border border-line py-1 pr-1 pl-2.5 text-[11px] text-[#d4dadd]">
+      <div class="flex items-center gap-2 rounded-control border border-line py-1 pr-1 pl-2.5 text-[11px] text-tx-d4dadd">
         <Film class="size-3.5 shrink-0 text-muted" aria-hidden="true" />
         <span class="min-w-0 truncate">{{ video.original_filename || (video.source === 'heygen' ? 'Generated avatar' : 'Uploaded video') }}</span>
         <Button
@@ -127,11 +127,11 @@ const note = 'text-[10px] leading-[1.6]'
           <Trash2 class="size-3.5" aria-hidden="true" />
         </Button>
       </div>
-      <p v-if="!hasPlaceholder" :class="[note, 'text-[#a0abb1]']" data-testid="slide-video-hidden">
+      <p v-if="!hasPlaceholder" :class="[note, 'text-tx-a0abb1']" data-testid="slide-video-hidden">
         Kept for later: this video won't play until the presenter is on.
       </p>
     </div>
-    <p v-else-if="hasPlaceholder" :class="[note, 'text-[#a0abb1]']" data-testid="slide-no-video">
+    <p v-else-if="hasPlaceholder" :class="[note, 'text-tx-a0abb1']" data-testid="slide-no-video">
       No video yet. Generate one from the portrait and this slide's narration, or upload your own.
     </p>
 
@@ -150,7 +150,7 @@ const note = 'text-[10px] leading-[1.6]'
       </Button>
     </div>
     <!-- Narration blockers are explained (with their fix) above; this names every other reason. -->
-    <p v-if="reason" id="slide-avatar-reason" :class="[note, 'text-[#a0abb1]']" data-testid="slide-avatar-reason">{{ reason }}</p>
+    <p v-if="reason" id="slide-avatar-reason" :class="[note, 'text-tx-a0abb1']" data-testid="slide-avatar-reason">{{ reason }}</p>
     <input
       ref="input"
       type="file"

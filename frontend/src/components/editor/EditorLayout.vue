@@ -103,7 +103,7 @@ onMounted(() => {
       <Transition name="backdrop">
         <div
           v-if="narrowChat && editor.chatOpen"
-          class="fixed inset-0 z-50 bg-[#080e1266]"
+          class="fixed inset-0 z-50 bg-sx-080e1266"
           aria-hidden="true"
           @click="editor.chatOpen = false"
         />

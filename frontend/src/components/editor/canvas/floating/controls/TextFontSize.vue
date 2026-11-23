@@ -24,7 +24,7 @@ function commit(event: Event) {
     max="200"
     aria-label="Font size"
     title="Font size"
-    class="h-[31px] w-9 rounded-control bg-transparent text-center text-[11px] text-[#dce3e7] outline-none [appearance:textfield] hover:bg-[#30373b] focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+    class="h-[31px] w-9 rounded-control bg-transparent text-center text-[11px] text-tx-dce3e7 outline-none [appearance:textfield] hover:bg-sx-30373b focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
     :value="size"
     data-bar-item="font-size"
     @change="commit"

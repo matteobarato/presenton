@@ -137,19 +137,19 @@ function errorMessage(error: unknown, fallback: string): string {
       <span>{{ errorMessage(list.error.value, 'Could not load templates') }}</span>
       <Button variant="secondary" size="sm" @click="list.refetch()">Retry</Button>
     </Alert>
-    <div v-else-if="!template" class="flex flex-col items-center px-6 py-[55px] text-center text-[#acc3d2]">
+    <div v-else-if="!template" class="flex flex-col items-center px-6 py-[55px] text-center text-tx-acc3d2">
       <h2 class="mb-[7px] text-[20px] font-medium">Template not found</h2>
-      <p class="mb-5 text-[12px] text-[#97aebc]">It may have been deleted or renamed.</p>
+      <p class="mb-5 text-[12px] text-tx-97aebc">It may have been deleted or renamed.</p>
       <RouterLink to="/templates" :class="buttonVariants({ variant: 'secondary' })">Back to templates</RouterLink>
     </div>
     <template v-else>
       <div>
         <div class="flex flex-wrap items-center gap-3">
-          <h1 class="text-[34px] leading-[1.22] font-medium tracking-[-0.04em] text-[#e4ecf0] max-[1050px]:text-[30px] max-[760px]:text-[27px] max-[450px]:text-[25px]">{{ template.name }}</h1>
+          <h1 class="text-[34px] leading-[1.22] font-medium tracking-[-0.04em] text-tx-e4ecf0 max-[1050px]:text-[30px] max-[760px]:text-[27px] max-[450px]:text-[25px]">{{ template.name }}</h1>
           <Badge :variant="isCustom ? 'default' : 'secondary'">{{ isCustom ? 'Custom' : 'Built-in' }}</Badge>
         </div>
-        <p class="mt-[13px] text-[12px] text-[#9aabb4] max-[760px]:text-[11px]">{{ count }} {{ count === 1 ? 'layout' : 'layouts' }}</p>
-        <p v-if="template.description" class="mt-2 max-w-[640px] text-[12px] leading-[1.7] text-[#9aabb4] max-[760px]:text-[11px]">{{ template.description }}</p>
+        <p class="mt-[13px] text-[12px] text-tx-9aabb4 max-[760px]:text-[11px]">{{ count }} {{ count === 1 ? 'layout' : 'layouts' }}</p>
+        <p v-if="template.description" class="mt-2 max-w-[640px] text-[12px] leading-[1.7] text-tx-9aabb4 max-[760px]:text-[11px]">{{ template.description }}</p>
       </div>
 
       <div v-if="pending" class="mt-8 grid grid-cols-3 gap-x-[25px] gap-y-[30px] max-[1050px]:grid-cols-2 max-[760px]:grid-cols-1" aria-busy="true">
@@ -159,7 +159,7 @@ function errorMessage(error: unknown, fallback: string): string {
         <span>Could not load this template’s layouts</span>
         <Button variant="secondary" size="sm" @click="retry">Retry</Button>
       </Alert>
-      <p v-else-if="!layouts.length" class="mt-8 text-[12px] text-[#97aebc]">This template has no layouts yet.</p>
+      <p v-else-if="!layouts.length" class="mt-8 text-[12px] text-tx-97aebc">This template has no layouts yet.</p>
       <div v-else class="mt-8 grid grid-cols-3 gap-x-[25px] gap-y-[30px] max-[1050px]:grid-cols-2 max-[760px]:grid-cols-1">
         <button
           v-for="(layout, i) in layouts"
@@ -170,10 +170,10 @@ function errorMessage(error: unknown, fallback: string): string {
           class="group block min-w-0 rounded-[9px] p-0 text-left focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
           @click="openLightbox(i, $event)"
         >
-          <div class="aspect-video overflow-hidden rounded-[9px] bg-[#101416] shadow-[0_6px_15px_#0002] transition-transform duration-[180ms] motion-safe:group-hover:-translate-y-[3px]">
+          <div class="aspect-video overflow-hidden rounded-[9px] bg-sx-101416 shadow-[0_6px_15px_#0002] transition-transform duration-[180ms] motion-safe:group-hover:-translate-y-[3px]">
             <SlideView :slide="layoutToSlide(template.id, layout, i)" :theme="theme" :fonts="fonts" show-placeholders fit="width" lazy />
           </div>
-          <span class="mt-[11px] block text-[10px] text-[#9eb7c7] tabular-nums">{{ String(i + 1).padStart(2, '0') }}</span>
+          <span class="mt-[11px] block text-[10px] text-tx-9eb7c7 tabular-nums">{{ String(i + 1).padStart(2, '0') }}</span>
         </button>
       </div>
     </template>

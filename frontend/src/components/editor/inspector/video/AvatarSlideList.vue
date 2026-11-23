@@ -29,8 +29,8 @@ function select(s: Slide) {
 <template>
   <section class="flex flex-col gap-2.5 border-t border-line py-[18px]" aria-label="Slides" data-testid="avatar-slide-list">
     <div class="flex items-baseline gap-2">
-      <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Slides</h3>
-      <span class="ml-auto text-[10px] text-[#a0abb1] tabular-nums">{{ withPresenter }} of {{ slides.length }} with presenter</span>
+      <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Slides</h3>
+      <span class="ml-auto text-[10px] text-tx-a0abb1 tabular-nums">{{ withPresenter }} of {{ slides.length }} with presenter</span>
     </div>
     <ul class="-mx-2 flex max-h-72 flex-col gap-px overflow-y-auto">
       <li v-for="s in sorted" :key="s.id ?? s.index">
@@ -52,11 +52,11 @@ function select(s: Slide) {
           <span v-else class="grid aspect-video w-12 flex-none place-items-center rounded-control border border-line text-[10px] text-faint tabular-nums">{{ s.index + 1 }}</span>
           <span class="flex min-w-0 flex-1 flex-col gap-0.5">
             <span class="flex items-center gap-1.5">
-              <span class="text-[11px] font-semibold whitespace-nowrap text-[#d4dadd]">Slide {{ s.index + 1 }}</span>
+              <span class="text-[11px] font-semibold whitespace-nowrap text-tx-d4dadd">Slide {{ s.index + 1 }}</span>
               <!-- Presenter-off rows stay quiet (their line says "Voice bubble"); badges mark the slides that have a presenter. -->
               <AvatarChip v-if="chipOf(s) !== 'no_placeholder' || videoBySlide.has(s.id)" :kind="chipOf(s)" class="ml-auto shrink-0" />
             </span>
-            <span class="truncate text-[10px] text-[#a0abb1] tabular-nums">{{ stats(s) }}</span>
+            <span class="truncate text-[10px] text-tx-a0abb1 tabular-nums">{{ stats(s) }}</span>
           </span>
         </button>
       </li>

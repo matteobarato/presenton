@@ -29,7 +29,7 @@ async function signOut() {
       <button
         type="button"
         aria-label="Account menu"
-        class="grid size-[33px] place-items-center rounded-full border-[3px] border-[#2e2b28] bg-[#ddccb9] text-[12px] font-bold text-[#493c2e]"
+        class="grid size-[33px] place-items-center rounded-full border-[3px] border-lx-2e2b28 bg-sx-ddccb9 text-[12px] font-bold text-tx-493c2e"
       >
         {{ initial }}
       </button>

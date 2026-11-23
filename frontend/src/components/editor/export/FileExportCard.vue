@@ -34,7 +34,7 @@ async function run() {
 
 <template>
   <div class="flex flex-col gap-4" :data-testid="`export-${format}`">
-    <p class="text-[11px] leading-[1.7] text-[#a2b7c5]">{{ blurb[format] }}</p>
+    <p class="text-[11px] leading-[1.7] text-tx-a2b7c5">{{ blurb[format] }}</p>
     <Button class="h-[43px] w-full" :disabled="busy" :data-testid="`export-${format}-button`" @click="run">
       <Loader2 v-if="running" :size="15" class="animate-spin motion-reduce:animate-none" />
       <Download v-else :size="15" />
@@ -42,9 +42,9 @@ async function run() {
     </Button>
     <div
       v-if="url"
-      class="anim-fade-in flex items-center gap-3 rounded-[9px] bg-[#3449554d] px-[13px] py-3 text-[11px] text-[#aec6d7]"
+      class="anim-fade-in flex items-center gap-3 rounded-[9px] bg-sx-3449554d px-[13px] py-3 text-[11px] text-tx-aec6d7"
     >
-      <span class="grid size-5 flex-none place-items-center rounded-full bg-[#bad4cd] text-[#2d5146]" aria-hidden="true">
+      <span class="grid size-5 flex-none place-items-center rounded-full bg-sx-bad4cd text-tx-2d5146" aria-hidden="true">
         <Check :size="12" :stroke-width="3" />
       </span>
       Your {{ format.toUpperCase() }} is ready.

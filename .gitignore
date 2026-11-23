@@ -37,3 +37,4 @@ servers/fastapi/fastembed_cache/
 servers/fastapi/*.egg-info/
 pptxcollection/
 *.pyc
+frontend/scripts/.theme/

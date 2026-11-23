@@ -45,11 +45,11 @@ function pick(value: string) {
 <template>
   <div class="grid gap-4">
     <div v-if="signIn && readOnly" class="grid gap-3">
-      <div class="flex items-center gap-3 rounded-[11px] bg-[#1d2427] px-4 py-3">
+      <div class="flex items-center gap-3 rounded-[11px] bg-sx-1d2427 px-4 py-3">
         <img :src="signIn.icon" alt="" class="size-6 shrink-0 rounded-[4px] object-contain" />
         <div class="min-w-0">
-          <p class="text-[13px] font-medium text-[#dbe7ef]">{{ signIn.label }}</p>
-          <p class="mt-0.5 truncate text-[11px] text-[#95aab7]">{{ detail }}</p>
+          <p class="text-[13px] font-medium text-tx-dbe7ef">{{ signIn.label }}</p>
+          <p class="mt-0.5 truncate text-[11px] text-tx-95aab7">{{ detail }}</p>
         </div>
       </div>
       <SignInProviderNotice />

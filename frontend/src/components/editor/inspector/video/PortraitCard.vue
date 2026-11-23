@@ -18,7 +18,7 @@ function picked(e: Event) {
 
 <template>
   <section class="flex flex-col gap-2" aria-label="Presenter portrait">
-    <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Presenter portrait</h3>
+    <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Presenter portrait</h3>
     <p class="text-[11px] text-muted">The picture avatars are lip-synced from. JPEG, PNG or WebP, up to 10 MB.</p>
     <div class="flex items-center gap-3">
       <img

@@ -9,7 +9,7 @@ const delegated = reactiveOmit(props, 'class')
 </script>
 
 <template>
-  <ProgressRoot v-bind="delegated" :class="cn('relative h-1.5 w-full overflow-hidden rounded-full bg-[#424c52]', props.class)">
+  <ProgressRoot v-bind="delegated" :class="cn('relative h-1.5 w-full overflow-hidden rounded-full bg-sx-424c52', props.class)">
     <ProgressIndicator
       class="h-full w-full rounded-full bg-accent transition-transform duration-200 ease-out"
       :style="`transform: translateX(-${100 - (props.modelValue ?? 0)}%)`"

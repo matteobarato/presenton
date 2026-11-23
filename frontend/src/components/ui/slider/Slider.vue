@@ -12,14 +12,14 @@ const forwarded = useForwardPropsEmits(delegated, emits)
 
 <template>
   <SliderRoot v-slot="{ modelValue }" v-bind="forwarded" :class="cn('relative flex h-4 w-full touch-none items-center select-none', props.class)">
-    <SliderTrack class="relative h-[3px] grow overflow-hidden rounded-full bg-[#424c52]">
-      <SliderRange class="absolute h-full rounded-full bg-[#a9cbdc]" />
+    <SliderTrack class="relative h-[3px] grow overflow-hidden rounded-full bg-sx-424c52">
+      <SliderRange class="absolute h-full rounded-full bg-sx-a9cbdc" />
     </SliderTrack>
     <SliderThumb
       v-for="(_, i) in modelValue"
       :key="i"
       :aria-label="label ?? 'Value'"
-      class="block size-2.5 rounded-full bg-[#cee6f2] shadow-[0_2px_6px_#0004] outline-none focus-visible:shadow-[0_0_0_3px_#bde3f333]"
+      class="block size-2.5 rounded-full bg-sx-cee6f2 shadow-[0_2px_6px_#0004] outline-none focus-visible:shadow-[0_0_0_3px_#bde3f333]"
     />
   </SliderRoot>
 </template>

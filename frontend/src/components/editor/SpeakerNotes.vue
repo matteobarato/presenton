@@ -95,7 +95,7 @@ function onHandleKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div ref="rootEl" class="relative flex-none rounded-b-panel border-t border-line bg-[#1b1f21]">
+  <div ref="rootEl" class="relative flex-none rounded-b-panel border-t border-line bg-sx-1b1f21">
     <div
       v-if="editor.footerOpen"
       role="separator"
@@ -130,7 +130,7 @@ function onHandleKeydown(e: KeyboardEvent) {
           :aria-selected="editor.footerTab === t.id"
           :tabindex="editor.footerTab === t.id ? 0 : -1"
           class="inline-flex h-7 items-center gap-1.5 rounded-control px-2.5 text-[11px] leading-none hover:bg-white/[0.04] hover:text-white"
-          :class="editor.footerTab !== t.id ? 'text-[#919fa7]' : editor.footerOpen ? 'bg-white/[0.07] text-white' : 'text-white'"
+          :class="editor.footerTab !== t.id ? 'text-tx-919fa7' : editor.footerOpen ? 'bg-white/[0.07] text-white' : 'text-white'"
           @click="onTabClick(t.id)"
           @keydown="onTabKeydown($event, i)"
         >
@@ -142,7 +142,7 @@ function onHandleKeydown(e: KeyboardEvent) {
       </div>
       <button
         type="button"
-        class="inline-flex size-7 items-center justify-center rounded-control text-[#919fa7] hover:bg-white/[0.04] hover:text-white"
+        class="inline-flex size-7 items-center justify-center rounded-control text-tx-919fa7 hover:bg-white/[0.04] hover:text-white"
         :aria-label="editor.footerOpen ? 'Collapse' : 'Expand'"
         :aria-expanded="editor.footerOpen"
         aria-controls="footer-panel"
@@ -150,7 +150,7 @@ function onHandleKeydown(e: KeyboardEvent) {
       >
         <ChevronDown class="size-3.5 transition-transform duration-200" :class="editor.footerOpen && 'rotate-180'" aria-hidden="true" />
       </button>
-      <span v-if="editor.footerTab === 'notes'" class="ml-auto text-[10px] leading-none text-[#97a3aa] max-[1279px]:hidden">Only you can see these</span>
+      <span v-if="editor.footerTab === 'notes'" class="ml-auto text-[10px] leading-none text-tx-97a3aa max-[1279px]:hidden">Only you can see these</span>
     </div>
 
     <div

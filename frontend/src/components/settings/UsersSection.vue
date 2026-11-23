@@ -121,28 +121,28 @@ onMounted(load)
 
 <template>
   <div class="grid gap-8">
-    <form class="grid gap-4 rounded-[11px] bg-[#1d2427] p-4" novalidate @submit.prevent="onCreate">
+    <form class="grid gap-4 rounded-[11px] bg-sx-1d2427 p-4" novalidate @submit.prevent="onCreate">
       <div class="flex items-start gap-3">
-        <span class="grid size-8 flex-none place-items-center rounded-[9px] bg-[#c2e5f5]/12 text-[#c2e5f5]" aria-hidden="true">
+        <span class="grid size-8 flex-none place-items-center rounded-[9px] bg-sx-c2e5f5/12 text-tx-c2e5f5" aria-hidden="true">
           <UserPlus class="size-4 stroke-[1.75]" />
         </span>
         <div>
-          <h3 class="text-[13px] font-medium text-[#dbe7ef]">Add user</h3>
-          <p class="mt-1 text-[11px] text-[#95aab7]">New accounts sign in with a username and password. They see their own decks only.</p>
+          <h3 class="text-[13px] font-medium text-tx-dbe7ef">Add user</h3>
+          <p class="mt-1 text-[11px] text-tx-95aab7">New accounts sign in with a username and password. They see their own decks only.</p>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3 max-[760px]:grid-cols-1">
         <div class="min-w-0">
-          <label for="new-user-username" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Username</label>
+          <label for="new-user-username" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Username</label>
           <Input id="new-user-username" v-model="username" autocomplete="off" autocapitalize="off" spellcheck="false" :maxlength="USERNAME_MAX" />
         </div>
         <div class="min-w-0">
-          <label for="new-user-password" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Password</label>
+          <label for="new-user-password" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Password</label>
           <Input id="new-user-password" v-model="password" type="password" autocomplete="new-password" :maxlength="PASSWORD_MAX" />
         </div>
       </div>
       <div class="flex items-center justify-between gap-3">
-        <p class="text-[11px] text-[#95aab7]" aria-live="polite">
+        <p class="text-[11px] text-tx-95aab7" aria-live="polite">
           {{ username || password ? createProblem : `At least ${PASSWORD_MIN} characters for the password.` }}
         </p>
         <Button type="submit" :disabled="Boolean(createProblem) || creating">
@@ -156,8 +156,8 @@ onMounted(load)
     <section aria-labelledby="accounts-heading">
       <div class="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h3 id="accounts-heading" class="text-[13px] font-medium text-[#dbe7ef]">Accounts</h3>
-          <p v-if="!loading && !loadError" class="mt-1 text-[11px] text-[#95aab7]">
+          <h3 id="accounts-heading" class="text-[13px] font-medium text-tx-dbe7ef">Accounts</h3>
+          <p v-if="!loading && !loadError" class="mt-1 text-[11px] text-tx-95aab7">
             {{ users.length }} {{ users.length === 1 ? 'account' : 'accounts' }}
           </p>
         </div>
@@ -177,23 +177,23 @@ onMounted(load)
         <li
           v-for="user in users"
           :key="user.id"
-          class="flex items-center justify-between gap-3 rounded-[11px] bg-[#1d2427] px-4 py-3"
+          class="flex items-center justify-between gap-3 rounded-[11px] bg-sx-1d2427 px-4 py-3"
           data-testid="user-row"
         >
           <div class="flex min-w-0 items-center gap-3">
             <span
-              class="grid size-9 flex-none place-items-center rounded-full border-[3px] border-[#2e2b28] bg-[#ddccb9] text-[12px] font-bold text-[#493c2e]"
+              class="grid size-9 flex-none place-items-center rounded-full border-[3px] border-lx-2e2b28 bg-sx-ddccb9 text-[12px] font-bold text-tx-493c2e"
               aria-hidden="true"
             >{{ user.username.charAt(0).toUpperCase() }}</span>
             <div class="min-w-0">
               <div class="flex items-center gap-2">
-                <span class="truncate text-[13px] font-medium text-[#dbe7ef]">{{ user.username }}</span>
+                <span class="truncate text-[13px] font-medium text-tx-dbe7ef">{{ user.username }}</span>
                 <Badge :variant="user.role === 'admin' ? 'default' : 'secondary'">
                   <ShieldCheck v-if="user.role === 'admin'" class="size-3" aria-hidden="true" />
                   {{ user.role === 'admin' ? 'Admin' : 'User' }}
                 </Badge>
               </div>
-              <p class="mt-1 text-[10px] text-[#95aab7]">{{ user.created_at ? `Added ${formatDate(user.created_at)}` : 'Added at setup' }}</p>
+              <p class="mt-1 text-[10px] text-tx-95aab7">{{ user.created_at ? `Added ${formatDate(user.created_at)}` : 'Added at setup' }}</p>
             </div>
           </div>
           <div v-if="user.role !== 'admin'" class="flex flex-none items-center gap-1">
@@ -204,7 +204,7 @@ onMounted(load)
               <Trash2 class="size-4" aria-hidden="true" />
             </Button>
           </div>
-          <p v-else class="flex-none text-[10px] text-[#95aab7]">Managed by deployment</p>
+          <p v-else class="flex-none text-[10px] text-tx-95aab7">Managed by deployment</p>
         </li>
       </ul>
     </section>
@@ -217,9 +217,9 @@ onMounted(load)
             <DialogDescription>Set a new password for {{ resetTarget?.username }}. They will be signed out everywhere.</DialogDescription>
           </DialogHeader>
           <div class="mt-5">
-            <label for="reset-password" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">New password</label>
+            <label for="reset-password" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">New password</label>
             <Input id="reset-password" v-model="resetPassword" type="password" autocomplete="new-password" :maxlength="PASSWORD_MAX" />
-            <p class="mt-2 text-[11px] text-[#95aab7]" aria-live="polite">{{ resetPassword ? resetProblem : `At least ${PASSWORD_MIN} characters.` }}</p>
+            <p class="mt-2 text-[11px] text-tx-95aab7" aria-live="polite">{{ resetPassword ? resetProblem : `At least ${PASSWORD_MIN} characters.` }}</p>
           </div>
           <DialogFooter class="mt-6">
             <Button type="button" variant="ghost" :disabled="resetting" @click="resetTarget = null">Cancel</Button>

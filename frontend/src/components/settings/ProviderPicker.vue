@@ -46,7 +46,7 @@ function choose(value: string) {
 
 <template>
   <div class="min-w-0">
-    <label v-if="label" :id="labelId" :for="triggerId" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">{{ label }}</label>
+    <label v-if="label" :id="labelId" :for="triggerId" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">{{ label }}</label>
     <Popover v-model:open="open">
       <PopoverTrigger as-child>
         <button
@@ -59,7 +59,7 @@ function choose(value: string) {
           :aria-labelledby="label ? `${labelId} ${triggerId}` : undefined"
           class="flex h-[42px] w-full items-center justify-between gap-3 rounded-button border border-transparent bg-field px-3 text-left text-[12px] transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <span class="flex min-w-0 flex-1 items-center gap-2.5" :class="selected ? 'text-[#dce6ec]' : 'text-muted'">
+          <span class="flex min-w-0 flex-1 items-center gap-2.5" :class="selected ? 'text-tx-dce6ec' : 'text-muted'">
             <img v-if="selected?.icon" :src="selected.icon" alt="" class="size-5 shrink-0 rounded-[4px] object-contain" />
             <span class="truncate">{{ selected ? selected.label : placeholder }}</span>
           </span>
@@ -81,8 +81,8 @@ function choose(value: string) {
           >
             <img v-if="o.icon" :src="o.icon" alt="" class="size-5 shrink-0 rounded-[4px] object-contain" />
             <span class="min-w-0 flex-1">
-              <span class="block truncate text-[12px] font-medium text-[#dbe7ef]">{{ o.label }}</span>
-              <span v-if="o.description" class="block truncate text-[10px] text-[#95aab7]">{{ o.description }}</span>
+              <span class="block truncate text-[12px] font-medium text-tx-dbe7ef">{{ o.label }}</span>
+              <span v-if="o.description" class="block truncate text-[10px] text-tx-95aab7">{{ o.description }}</span>
             </span>
             <Check class="size-4 shrink-0 text-accent" :class="o.value === modelValue ? 'opacity-100' : 'opacity-0'" aria-hidden="true" />
           </button>

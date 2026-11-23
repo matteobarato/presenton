@@ -17,7 +17,7 @@ const forwarded = useForwardPropsEmits(delegated, emits)
 
 <template>
   <DialogPortal>
-    <DialogOverlay class="anim-fade-in fixed inset-0 z-50 bg-[#080c0f80] backdrop-blur-[3px]" />
+    <DialogOverlay class="anim-fade-in fixed inset-0 z-50 bg-sx-080c0f80 backdrop-blur-[3px]" />
     <DialogContent
       v-bind="forwarded"
       :class="

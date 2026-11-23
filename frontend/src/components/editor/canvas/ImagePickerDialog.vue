@@ -144,9 +144,9 @@ const assets = (list: ImageAsset[] | undefined) => list ?? []
 
 const tabClass = 'mt-4 flex flex-col gap-3 outline-none'
 const fieldClass =
-  'h-9 min-w-0 flex-1 rounded-control border border-white/[0.06] bg-field px-3 text-[12px] text-[#dce3e7] outline-none focus:border-accent/60'
+  'h-9 min-w-0 flex-1 rounded-control border border-white/[0.06] bg-field px-3 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60'
 const primary =
-  'inline-flex h-9 items-center gap-2 rounded-control bg-accent px-3.5 text-[12px] font-semibold text-[#0b1a22] disabled:opacity-40'
+  'inline-flex h-9 items-center gap-2 rounded-control bg-accent px-3.5 text-[12px] font-semibold text-tx-0b1a22 disabled:opacity-40'
 const gridClass = 'grid grid-cols-3 gap-2'
 const thumb =
   'aspect-[4/3] w-full overflow-hidden rounded-control border border-white/[0.06] bg-field hover:border-accent/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent'

@@ -50,9 +50,9 @@ const uid = useId()
 const id = (name: string) => `${uid}-${name}`
 
 const selectClass =
-  'flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-[#dce6ec] transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40'
-const labelClass = 'mb-2 block text-[12px] font-medium text-[#dbe7ef]'
-const helpClass = 'mt-1.5 text-[11px] leading-5 text-[#95aab7]'
+  'flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-tx-dce6ec transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40'
+const labelClass = 'mb-2 block text-[12px] font-medium text-tx-dbe7ef'
+const helpClass = 'mt-1.5 text-[11px] leading-5 text-tx-95aab7'
 
 // ---- Config readers ---------------------------------------------------------
 
@@ -252,12 +252,12 @@ onBeforeUnmount(() => {
       class="flex cursor-pointer list-none items-center justify-between gap-4 rounded-button border border-white/[0.09] px-4 py-3 select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden"
     >
       <span class="min-w-0">
-        <span class="block text-[12px] font-medium text-[#dbe7ef]">
-          Advanced text-provider settings <span class="font-normal text-[#95aab7]">(optional)</span>
+        <span class="block text-[12px] font-medium text-tx-dbe7ef">
+          Advanced text-provider settings <span class="font-normal text-tx-95aab7">(optional)</span>
         </span>
-        <span class="mt-0.5 block text-[11px] text-[#95aab7]">Configure output limits and reasoning behaviour when needed.</span>
+        <span class="mt-0.5 block text-[11px] text-tx-95aab7">Configure output limits and reasoning behaviour when needed.</span>
       </span>
-      <ChevronDown class="size-4 shrink-0 text-[#95aab7] transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
+      <ChevronDown class="size-4 shrink-0 text-tx-95aab7 transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
     </summary>
 
     <div class="mt-4 grid min-w-0 gap-5">
@@ -270,7 +270,7 @@ onBeforeUnmount(() => {
 
       <section class="grid min-w-0 gap-4" :aria-labelledby="id('generation-heading')">
         <div>
-          <h4 :id="id('generation-heading')" class="text-[12px] font-semibold text-[#dbe7ef]">Generation controls</h4>
+          <h4 :id="id('generation-heading')" class="text-[12px] font-semibold text-tx-dbe7ef">Generation controls</h4>
           <p :class="helpClass" class="!mt-1">Set an output limit and control reasoning for supported models.</p>
         </div>
 
@@ -290,7 +290,7 @@ onBeforeUnmount(() => {
           />
           <div class="mt-3 flex items-center gap-2">
             <Checkbox :id="id('model-max')" :model-value="useModelMaximum" @update:model-value="onModelMaximum" />
-            <label :for="id('model-max')" class="cursor-pointer text-[12px] font-medium text-[#dbe7ef]">
+            <label :for="id('model-max')" class="cursor-pointer text-[12px] font-medium text-tx-dbe7ef">
               Use the selected model's maximum output limit
             </label>
           </div>
@@ -322,7 +322,7 @@ onBeforeUnmount(() => {
       <section v-if="llm === 'openrouter'" class="grid min-w-0 gap-4" :aria-labelledby="id('routing-heading')">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h4 :id="id('routing-heading')" class="text-[12px] font-semibold text-[#dbe7ef]">OpenRouter routing</h4>
+            <h4 :id="id('routing-heading')" class="text-[12px] font-semibold text-tx-dbe7ef">OpenRouter routing</h4>
             <p :class="helpClass" class="!mt-1">Leave the order empty to let OpenRouter route automatically.</p>
           </div>
           <Button type="button" size="sm" variant="secondary" :disabled="providersLoading" @click="loadProviders">
@@ -331,19 +331,19 @@ onBeforeUnmount(() => {
           </Button>
         </div>
 
-        <p v-if="providersMessage" role="alert" class="text-[11px] text-[#f0a3a3]">{{ providersMessage }}</p>
+        <p v-if="providersMessage" role="alert" class="text-[11px] text-tx-f0a3a3">{{ providersMessage }}</p>
 
         <div v-if="chips.length > 0" class="flex flex-wrap gap-1.5">
           <Button v-for="p in chips" :key="p" type="button" size="sm" variant="outline" :aria-label="`Add ${p}`" @click="addProvider(p)">
             + {{ p }}
           </Button>
         </div>
-        <p v-else-if="loaded" class="text-[11px] text-[#95aab7]">No further providers are available for this model.</p>
+        <p v-else-if="loaded" class="text-[11px] text-tx-95aab7">No further providers are available for this model.</p>
 
         <ul v-if="order.length > 0" class="grid gap-1.5" aria-label="Provider order">
           <li v-for="(p, index) in order" :key="p" class="flex min-w-0 items-center gap-1 rounded-button bg-field px-3 py-1.5">
-            <span class="min-w-0 flex-1 truncate text-[12px] text-[#dce6ec]">
-              {{ p }}<span v-if="loaded && !available.includes(p)" class="text-[#95aab7]"> (unverified)</span>
+            <span class="min-w-0 flex-1 truncate text-[12px] text-tx-dce6ec">
+              {{ p }}<span v-if="loaded && !available.includes(p)" class="text-tx-95aab7"> (unverified)</span>
             </span>
             <Button type="button" size="icon" variant="ghost" class="size-7" :aria-label="`Move ${p} up`" :disabled="index === 0" @click="move(index, -1)">
               <ChevronUp class="size-4" aria-hidden="true" />

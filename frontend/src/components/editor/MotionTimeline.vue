@@ -179,7 +179,7 @@ function askReplan() {
 <template>
   <section class="motion-timeline" aria-label="Animation timeline">
     <div class="motion-header">
-      <strong class="text-[11px] font-semibold text-[#d4e7ef]">Timeline</strong>
+      <strong class="text-[11px] font-semibold text-tx-d4e7ef">Timeline</strong>
       <div class="motion-transport">
         <button
           type="button"
@@ -209,7 +209,7 @@ function askReplan() {
       {{ animation?.status === 'unsupported' || !props.slide ? "This slide can't be animated." : 'Nothing to animate on this slide.' }}
     </p>
     <div v-else-if="stale" class="flex items-center justify-between gap-3 px-4 pb-3 max-[760px]:px-3" role="status">
-      <p class="text-[11px] leading-[1.6] text-[#dce3e7]">
+      <p class="text-[11px] leading-[1.6] text-tx-dce3e7">
         <b class="font-semibold">Layout changed — re-plan.</b>
         <span class="text-muted"> This slide's elements changed since its motion was made.</span>
       </p>

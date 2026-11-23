@@ -15,7 +15,7 @@ const forwarded = useForwardPropsEmits(delegated, emits)
   <PopoverPortal>
     <PopoverContent
       v-bind="{ ...forwarded, ...$attrs }"
-      :class="cn('glass-popover anim-pop-in z-80 w-72 p-4 text-[#dce8ee] outline-none', props.class)"
+      :class="cn('glass-popover anim-pop-in z-80 w-72 p-4 text-popover-foreground outline-none', props.class)"
     >
       <slot />
     </PopoverContent>

@@ -67,13 +67,13 @@ function onTabKeydown(event: KeyboardEvent) {
       role="tab"
       :aria-selected="s === section"
       :tabindex="s === section ? 0 : -1"
-      :class="[item, s === section ? 'bg-[#222b30]' : '']"
+      :class="[item, s === section ? 'bg-sx-222b30' : '']"
       @click="emit('select', s)"
     >
-      <span :class="[tile, s === section ? 'bg-[#c2e5f5]/12 text-[#c2e5f5]' : 'bg-white/[0.04] text-[#95aab7]']">
+      <span :class="[tile, s === section ? 'bg-sx-c2e5f5/12 text-tx-c2e5f5' : 'bg-white/[0.04] text-tx-95aab7']">
         <component :is="SECTION_ICONS[s]" class="size-[14px] stroke-[1.75]" aria-hidden="true" />
       </span>
-      <span class="text-[13px] font-medium whitespace-nowrap" :class="s === section ? 'text-[#c2e5f5]' : 'text-[#dbe7ef]'">{{ NAMES[s] }}</span>
+      <span class="text-[13px] font-medium whitespace-nowrap" :class="s === section ? 'text-tx-c2e5f5' : 'text-tx-dbe7ef'">{{ NAMES[s] }}</span>
     </button>
   </div>
   <nav v-else aria-label="Settings sections" class="flex w-[230px] flex-none flex-col gap-1 max-[1050px]:w-[190px]">
@@ -82,15 +82,15 @@ function onTabKeydown(event: KeyboardEvent) {
       :key="s"
       type="button"
       :aria-current="s === section ? 'page' : undefined"
-      :class="[item, s === section ? 'bg-[#222b30]' : '']"
+      :class="[item, s === section ? 'bg-sx-222b30' : '']"
       @click="emit('select', s)"
     >
-      <span :class="[tile, s === section ? 'bg-[#c2e5f5]/12 text-[#c2e5f5]' : 'bg-white/[0.04] text-[#95aab7]']">
+      <span :class="[tile, s === section ? 'bg-sx-c2e5f5/12 text-tx-c2e5f5' : 'bg-white/[0.04] text-tx-95aab7']">
         <component :is="SECTION_ICONS[s]" class="size-4 stroke-[1.75]" aria-hidden="true" />
       </span>
       <span class="flex min-w-0 flex-col gap-[3px]">
-        <span class="text-[13px] font-medium whitespace-nowrap" :class="s === section ? 'text-[#c2e5f5]' : 'text-[#dbe7ef]'">{{ NAMES[s] }}</span>
-        <span v-if="sectionSubtitle(s, config)" class="truncate text-[10px] text-[#95aab7]">{{ sectionSubtitle(s, config) }}</span>
+        <span class="text-[13px] font-medium whitespace-nowrap" :class="s === section ? 'text-tx-c2e5f5' : 'text-tx-dbe7ef'">{{ NAMES[s] }}</span>
+        <span v-if="sectionSubtitle(s, config)" class="truncate text-[10px] text-tx-95aab7">{{ sectionSubtitle(s, config) }}</span>
       </span>
     </button>
   </nav>

@@ -28,7 +28,7 @@ watch(
 <template>
   <div class="grid min-w-0 gap-4">
     <div class="min-w-0">
-      <label for="bedrock-model" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Model</label>
+      <label for="bedrock-model" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Model</label>
       <Input
         id="bedrock-model"
         type="text"
@@ -41,7 +41,7 @@ watch(
       />
     </div>
     <div class="min-w-0">
-      <label for="bedrock-region" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">Region</label>
+      <label for="bedrock-region" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">Region</label>
       <Input
         id="bedrock-region"
         type="text"
@@ -60,7 +60,7 @@ watch(
       @update:model-value="emit('set', 'BEDROCK_API_KEY', $event)"
     />
     <div class="min-w-0">
-      <label for="bedrock-access-key-id" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">AWS Access Key ID</label>
+      <label for="bedrock-access-key-id" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">AWS Access Key ID</label>
       <Input
         id="bedrock-access-key-id"
         type="text"
@@ -79,7 +79,7 @@ watch(
       @update:model-value="emit('set', 'BEDROCK_AWS_SECRET_ACCESS_KEY', $event)"
     />
 
-    <p class="text-[11px] text-[#95aab7]">
+    <p class="text-[11px] text-tx-95aab7">
       Authentication: set either Bedrock API key, or AWS access key ID + secret key.
     </p>
 
@@ -89,7 +89,7 @@ watch(
       @toggle="advancedOpen = ($event.target as HTMLDetailsElement).open"
     >
       <summary
-        class="mb-2 cursor-pointer text-[12px] font-medium text-[#dbe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        class="mb-2 cursor-pointer text-[12px] font-medium text-tx-dbe7ef focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         Advanced settings
       </summary>
@@ -101,7 +101,7 @@ watch(
           @update:model-value="emit('set', 'BEDROCK_AWS_SESSION_TOKEN', $event)"
         />
         <div class="min-w-0">
-          <label for="bedrock-profile-name" class="mb-2 block text-[12px] font-medium text-[#dbe7ef]">AWS Profile Name</label>
+          <label for="bedrock-profile-name" class="mb-2 block text-[12px] font-medium text-tx-dbe7ef">AWS Profile Name</label>
           <Input
             id="bedrock-profile-name"
             type="text"

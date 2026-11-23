@@ -59,11 +59,11 @@ function onKeydown(event: KeyboardEvent) {
       type="text"
       :inputmode="numericInputMode(options())"
       :aria-label="label"
-      class="h-full w-full min-w-0 bg-transparent text-[10px] text-[#dce3e7] outline-none"
+      class="h-full w-full min-w-0 bg-transparent text-[10px] text-tx-dce3e7 outline-none"
       @focus="emit('focus')"
       @keydown="onKeydown"
       @blur="commitText"
     />
-    <span v-if="unit" class="shrink-0 text-[9px] text-[#9aa9b0]">{{ unit }}</span>
+    <span v-if="unit" class="shrink-0 text-[9px] text-tx-9aa9b0">{{ unit }}</span>
   </label>
 </template>

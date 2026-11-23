@@ -10,5 +10,5 @@ const forwarded = useForwardProps(delegated)
 </script>
 
 <template>
-  <DialogDescription v-bind="forwarded" :class="cn('text-[11px] leading-[1.8] text-[#9fb4c1] max-w-[94%]', props.class)"><slot /></DialogDescription>
+  <DialogDescription v-bind="forwarded" :class="cn('text-[11px] leading-[1.8] text-tx-9fb4c1 max-w-[94%]', props.class)"><slot /></DialogDescription>
 </template>

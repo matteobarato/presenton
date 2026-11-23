@@ -75,7 +75,7 @@ describe('SelectionOverlay table cells', () => {
     expect(current.api().tableCell.value).toEqual({ root, row: 1, col: 1 })
     const outline = overlay().get('[data-table-cell-outline][data-row="1"][data-col="1"]')
     expect(outline.attributes('style')).toContain('left: 23.4375%') // cell x 300 of 1280
-    expect(outline.classes().join(' ')).toContain('border-[#4bb3e6]')
+    expect(outline.classes().join(' ')).toContain('border-lx-4bb3e6')
     expect(outline.classes().join(' ')).toContain('border-2')
   })
 

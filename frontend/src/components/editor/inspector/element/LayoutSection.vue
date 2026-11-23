@@ -36,8 +36,8 @@ const HORIZONTALS: Horizontal[] = ['left', 'center', 'right']
 const VERTICALS: Vertical[] = ['top', 'middle', 'bottom']
 const cells = VERTICALS.flatMap((v) => HORIZONTALS.map((h) => ({ h, v })))
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
-const sub = 'mb-2 mt-4 text-[10px] text-[#9aa9b0]'
-const action = `${field} cursor-pointer justify-center hover:bg-[#303a3f] disabled:cursor-not-allowed disabled:opacity-40`
+const sub = 'mb-2 mt-4 text-[10px] text-tx-9aa9b0'
+const action = `${field} cursor-pointer justify-center hover:bg-sx-303a3f disabled:cursor-not-allowed disabled:opacity-40`
 </script>
 
 <template>
@@ -49,7 +49,7 @@ const action = `${field} cursor-pointer justify-center hover:bg-[#303a3f] disabl
       <NumberField :model-value="gap" label="Gap" :min="0" :step="1" unit="px" @focus="hold" @commit="setGap" />
       <div :class="[sub, 'flex items-center justify-between']">
         <span>Items</span>
-        <span class="text-[#dce3e7]">{{ stats?.children.length ?? 0 }}</span>
+        <span class="text-tx-dce3e7">{{ stats?.children.length ?? 0 }}</span>
       </div>
       <div class="flex gap-2">
         <button type="button" :class="[action, 'flex-1']" @mousedown.prevent @click="addItem">Add item</button>

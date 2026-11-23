@@ -5,7 +5,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
 
 <template>
   <div>
-    <div class="flex items-center justify-between text-[10px] font-medium text-[#d0d7dc]">
+    <div class="flex items-center justify-between text-[10px] font-medium text-tx-d0d7dc">
       <span>{{ label }}</span>
       <button
         type="button"
@@ -17,7 +17,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
         @click="emit('update:modelValue', !modelValue)"
       >
         <span
-          class="absolute left-0.5 top-0.5 size-3 rounded-full bg-[#dce3e7] transition-transform"
+          class="absolute left-0.5 top-0.5 size-3 rounded-full bg-sx-dce3e7 transition-transform"
           :class="modelValue && 'translate-x-3'"
         />
       </button>

@@ -43,22 +43,22 @@ function onCloseAutoFocus(e: Event) {
 <template>
   <Dialog :open="open" @update:open="onOpenChange">
     <DialogContent
-      class="w-[min(1100px,calc(100vw-32px))] max-w-none bg-[#0c1114ee] p-4 backdrop-blur-xl"
+      class="w-[min(1100px,calc(100vw-32px))] max-w-none bg-sx-0c1114ee p-4 backdrop-blur-xl"
       @close-auto-focus="onCloseAutoFocus"
       @keydown="onKeydown"
     >
       <div>
         <DialogTitle class="sr-only">{{ title }} — slide {{ (index ?? 0) + 1 }}</DialogTitle>
         <DialogDescription class="sr-only">Slide preview. Use the arrow keys to move between slides.</DialogDescription>
-        <div class="overflow-hidden rounded-[9px] bg-[#101416]">
+        <div class="overflow-hidden rounded-[9px] bg-sx-101416">
           <SlideView v-if="current" :key="current.id ?? index ?? 0" :slide="current" :theme="theme" :fonts="fonts" fit="width" />
         </div>
-        <div class="mt-3 flex items-center justify-center gap-4 text-[12px] text-[#9eb7c7] tabular-nums">
+        <div class="mt-3 flex items-center justify-center gap-4 text-[12px] text-tx-9eb7c7 tabular-nums">
           <button
             type="button"
             aria-label="Previous slide"
             :aria-disabled="atStart"
-            class="grid size-8 place-items-center rounded-full hover:bg-[#3b4b55] aria-disabled:cursor-default aria-disabled:opacity-40"
+            class="grid size-8 place-items-center rounded-full hover:bg-sx-3b4b55 aria-disabled:cursor-default aria-disabled:opacity-40"
             @click="step(-1)"
           >
             <ChevronLeft class="size-5" aria-hidden="true" />
@@ -68,7 +68,7 @@ function onCloseAutoFocus(e: Event) {
             type="button"
             aria-label="Next slide"
             :aria-disabled="atEnd"
-            class="grid size-8 place-items-center rounded-full hover:bg-[#3b4b55] aria-disabled:cursor-default aria-disabled:opacity-40"
+            class="grid size-8 place-items-center rounded-full hover:bg-sx-3b4b55 aria-disabled:cursor-default aria-disabled:opacity-40"
             @click="step(1)"
           >
             <ChevronRight class="size-5" aria-hidden="true" />

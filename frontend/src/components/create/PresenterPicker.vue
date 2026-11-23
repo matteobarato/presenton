@@ -35,7 +35,7 @@ function upload(file: File) {
 <template>
   <section class="flex flex-col gap-3" data-testid="presenter-picker">
     <PortraitHero class="mx-auto w-full max-w-[380px]" :portrait="portrait" :busy="!!disabled" @upload="upload" @remove="model = null" />
-    <p class="text-center text-[12px] text-[#8e9ca4]" data-testid="presenter-picker-help">
+    <p class="text-center text-[12px] text-tx-8e9ca4" data-testid="presenter-picker-help">
       {{ model ? 'This photo is used on the presenter slides.' : 'Add a photo to continue with a presenter, or choose voice only.' }}
     </p>
   </section>

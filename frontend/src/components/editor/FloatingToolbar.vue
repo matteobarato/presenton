@@ -145,8 +145,8 @@ function toggleSlides() {
     </template>
     <button
       type="button"
-      class="flex h-[31px] items-center justify-center gap-[7px] rounded-[8px] bg-[#3c4c552e] px-2.5 text-[10px] font-medium whitespace-nowrap text-[#c9e5f2] hover:bg-[#475e6c80] hover:text-[#e3f5fe] max-[760px]:px-[9px] max-[450px]:gap-[5px] max-[450px]:px-[7px] max-[450px]:text-[9px] max-[380px]:px-[5px]"
-      :class="[askOpen && 'bg-[#475e6c80] text-[#e3f5fe]', askDisabled && 'opacity-50']"
+      class="flex h-[31px] items-center justify-center gap-[7px] rounded-[8px] bg-sx-3c4c552e px-2.5 text-[10px] font-medium whitespace-nowrap text-tx-c9e5f2 hover:bg-sx-475e6c80 hover:text-tx-e3f5fe max-[760px]:px-[9px] max-[450px]:gap-[5px] max-[450px]:px-[7px] max-[450px]:text-[9px] max-[380px]:px-[5px]"
+      :class="[askOpen && 'bg-sx-475e6c80 text-tx-e3f5fe', askDisabled && 'opacity-50']"
       data-ask-button
       :aria-expanded="askOpen"
       aria-controls="ask-ai-panel"

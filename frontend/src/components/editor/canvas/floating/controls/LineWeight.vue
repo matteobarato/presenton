@@ -42,7 +42,7 @@ function commit(event: Event) {
     step="0.5"
     aria-label="Line weight"
     title="Line weight (px)"
-    class="h-[31px] w-9 rounded-control bg-transparent text-center text-[11px] text-[#dce3e7] outline-none [appearance:textfield] hover:bg-[#30373b] focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+    class="h-[31px] w-9 rounded-control bg-transparent text-center text-[11px] text-tx-dce3e7 outline-none [appearance:textfield] hover:bg-sx-30373b focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
     :value="width()"
     data-bar-item="line-weight"
     @focus="hold"

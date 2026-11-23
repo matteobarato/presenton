@@ -28,12 +28,12 @@ function run(action: LayerAction, label: string) {
 }
 
 const button =
-  'inline-flex h-11 flex-col items-center justify-center gap-0.5 rounded-control border border-white/[0.06] bg-field px-1 text-[9px] font-normal text-[#c6ced3] hover:bg-[#303a3f] hover:text-white disabled:opacity-35 disabled:hover:bg-field'
+  'inline-flex h-11 flex-col items-center justify-center gap-0.5 rounded-control border border-white/[0.06] bg-field px-1 text-[9px] font-normal text-tx-c6ced3 hover:bg-sx-303a3f hover:text-white disabled:opacity-35 disabled:hover:bg-field'
 </script>
 
 <template>
   <div class="border-t border-line py-[18px] min-[1600px]:py-[22px]">
-    <div class="mb-3 flex items-center justify-between text-[10px] font-medium text-[#d0d7dc] min-[1600px]:text-[11px]">
+    <div class="mb-3 flex items-center justify-between text-[10px] font-medium text-tx-d0d7dc min-[1600px]:text-[11px]">
       <h3>Layer order</h3>
     </div>
     <div class="grid grid-cols-4 gap-2" role="group" aria-label="Layer order">

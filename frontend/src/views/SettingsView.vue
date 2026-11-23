@@ -117,10 +117,10 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
 
   <section class="workspace-card">
     <div class="anim-rise-in mb-[33px]">
-      <h1 class="text-[34px] leading-[1.22] font-medium tracking-[-0.04em] text-[#e4ecf0] max-[1050px]:text-[30px] max-[760px]:text-[27px] max-[450px]:text-[25px]">
+      <h1 class="text-[34px] leading-[1.22] font-medium tracking-[-0.04em] text-tx-e4ecf0 max-[1050px]:text-[30px] max-[760px]:text-[27px] max-[450px]:text-[25px]">
         Settings
       </h1>
-      <p class="mt-[13px] text-[12px] text-[#9aabb4] max-[760px]:text-[11px] max-[760px]:leading-[1.7]">
+      <p class="mt-[13px] text-[12px] text-tx-9aabb4 max-[760px]:text-[11px] max-[760px]:leading-[1.7]">
         {{ isAdmin ? 'Choose the providers that write, illustrate and research your decks, and manage who can use them.' : 'Manage your account, password and personal API keys.' }}
       </p>
     </div>
@@ -128,8 +128,8 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
     <div v-if="standalone" class="flex gap-8 max-[760px]:flex-col max-[760px]:gap-5">
       <SettingsSidebar v-if="sections.length > 1" :section="section" :sections="sections" :config="readOnlyMode ? runtimeConfig : draft" @select="go" />
       <div class="min-w-0 flex-1">
-        <h2 class="mb-5 flex items-center gap-2.5 text-[16px] font-medium text-[#e4ecf0]">
-          <component :is="SECTION_ICONS[section]" class="size-[18px] stroke-[1.75] text-[#c2e5f5]" aria-hidden="true" />
+        <h2 class="mb-5 flex items-center gap-2.5 text-[16px] font-medium text-tx-e4ecf0">
+          <component :is="SECTION_ICONS[section]" class="size-[18px] stroke-[1.75] text-tx-c2e5f5" aria-hidden="true" />
           {{ TITLES[section] }}
         </h2>
         <UsersSection v-if="section === 'users'" />
@@ -151,8 +151,8 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
       <SettingsSidebar :section="section" :sections="sections" :config="readOnlyMode ? runtimeConfig : draft" @select="go" />
 
       <div class="min-w-0 flex-1">
-        <h2 class="mb-5 flex items-center gap-2.5 text-[16px] font-medium text-[#e4ecf0]">
-          <component :is="SECTION_ICONS[section]" class="size-[18px] stroke-[1.75] text-[#c2e5f5]" aria-hidden="true" />
+        <h2 class="mb-5 flex items-center gap-2.5 text-[16px] font-medium text-tx-e4ecf0">
+          <component :is="SECTION_ICONS[section]" class="size-[18px] stroke-[1.75] text-tx-c2e5f5" aria-hidden="true" />
           {{ TITLES[section] }}
         </h2>
         <ReadOnlySummary v-if="readOnlyMode" :mode="readOnlyMode" :config="runtimeConfig" />

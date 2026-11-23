@@ -92,7 +92,7 @@ function onNative(event: Event) {
           :key="c"
           type="button"
           class="size-6 rounded-full border-0 outline outline-1 outline-offset-[3px] transition-transform hover:-translate-y-0.5"
-          :class="c === current ? 'outline-[#a9c2ce]' : 'outline-transparent'"
+          :class="c === current ? 'outline-lx-a9c2ce' : 'outline-transparent'"
           :style="{ background: c }"
           :aria-label="c"
           @click="pick(c)"
@@ -125,7 +125,7 @@ function onNative(event: Event) {
             type="text"
             :aria-label="`${label} hex`"
             maxlength="7"
-            class="h-full w-full min-w-0 bg-transparent text-[10px] text-[#dce3e7] outline-none"
+            class="h-full w-full min-w-0 bg-transparent text-[10px] text-tx-dce3e7 outline-none"
             :value="hexText"
             @input="onHex"
           />

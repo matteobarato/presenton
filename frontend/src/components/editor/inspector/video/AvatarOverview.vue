@@ -71,7 +71,7 @@ const TONE = { ok: 'text-accent', todo: 'text-muted', warn: 'text-danger-text', 
   <section class="flex flex-col rounded-card border border-white/[0.06]" aria-label="Avatar generation" data-testid="avatar-overview">
     <header class="flex flex-col gap-1 px-3 pt-3 pb-2.5">
       <div class="flex items-center gap-2">
-        <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Avatar generation</h3>
+        <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Avatar generation</h3>
         <Badge :variant="capability.variant" class="ml-auto" data-testid="avatar-capability" :data-state="capability.state">{{ capability.label }}</Badge>
       </div>
       <p class="text-[11px] leading-[1.5] text-muted">{{ capability.detail }}</p>
@@ -92,7 +92,7 @@ const TONE = { ok: 'text-accent', todo: 'text-muted', warn: 'text-danger-text', 
       </thead>
       <tbody>
         <tr v-for="row in rows" :key="row.id" class="border-t border-white/[0.04]">
-          <th scope="row" class="py-1.5 pr-2 pl-3 text-left font-normal whitespace-nowrap text-[#d4dadd]">{{ row.label }}</th>
+          <th scope="row" class="py-1.5 pr-2 pl-3 text-left font-normal whitespace-nowrap text-tx-d4dadd">{{ row.label }}</th>
           <template v-for="col in (['deck', 'slide'] as const)" :key="col">
             <td v-if="col === 'deck' || row.slide" class="py-1.5 pr-2 align-middle last:pr-3" :data-testid="`overview-${row.id}-${col}`">
               <component

@@ -23,11 +23,11 @@ const rows = computed(() => [
 
 <template>
   <div>
-    <p class="mb-5 text-[12px] text-[#9aabb4]">{{ MESSAGES[mode] }}</p>
+    <p class="mb-5 text-[12px] text-tx-9aabb4">{{ MESSAGES[mode] }}</p>
     <dl class="grid gap-3">
-      <div v-for="row in rows" :key="row.label" class="rounded-[11px] bg-[#1d2427] px-4 py-3">
-        <dt class="text-[10px] text-[#95aab7]">{{ row.label }}</dt>
-        <dd class="mt-1.5 text-[13px] font-medium text-[#dbe7ef]">{{ row.value }}</dd>
+      <div v-for="row in rows" :key="row.label" class="rounded-[11px] bg-sx-1d2427 px-4 py-3">
+        <dt class="text-[10px] text-tx-95aab7">{{ row.label }}</dt>
+        <dd class="mt-1.5 text-[13px] font-medium text-tx-dbe7ef">{{ row.value }}</dd>
       </div>
     </dl>
   </div>

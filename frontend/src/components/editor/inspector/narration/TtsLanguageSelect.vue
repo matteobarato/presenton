@@ -12,7 +12,7 @@ const emit = defineEmits<{ 'update:modelValue': [code: string] }>()
       :value="modelValue"
       :disabled="disabled || languages.length === 0"
       data-testid="tts-language"
-      class="h-8 min-w-0 flex-1 rounded-control border border-white/[0.09] bg-transparent px-2 text-[12px] text-[#d4dadd] outline-none hover:border-white/[0.16] focus-visible:border-accent disabled:cursor-not-allowed disabled:opacity-50"
+      class="h-8 min-w-0 flex-1 rounded-control border border-white/[0.09] bg-transparent px-2 text-[12px] text-tx-d4dadd outline-none hover:border-white/[0.16] focus-visible:border-accent disabled:cursor-not-allowed disabled:opacity-50"
       @change="emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
     >
       <option v-for="l in languages" :key="l.code" :value="l.code" class="bg-dialog">{{ l.name }}</option>

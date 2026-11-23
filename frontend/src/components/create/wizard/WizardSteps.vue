@@ -39,7 +39,7 @@ const tip = (s: WizardStepItem) => (s.state === 'locked' ? (s.reason ?? undefine
     <DropdownMenu>
       <DropdownMenuTrigger
         data-testid="steps-compact"
-        :class="cn(tile, 'relative hidden max-[759px]:inline-flex max-[759px]:h-11', 'border-[#bee3f347] bg-[#bee3f30f] text-[#eef6fa]')"
+        :class="cn(tile, 'relative hidden max-[759px]:inline-flex max-[759px]:h-11', 'border-lx-bee3f347 bg-sx-bee3f30f text-tx-eef6fa')"
         aria-label="Wizard steps"
       >
         <span class="tabular-nums">{{ index + 1 }}/{{ items.length }}</span>
@@ -68,8 +68,8 @@ const tip = (s: WizardStepItem) => (s.state === 'locked' ? (s.reason ?? undefine
           </span>
           <span class="flex min-w-0 flex-col">
             <span class="font-semibold">{{ s.label }}</span>
-            <span v-if="s.summary && s.state !== 'locked'" class="text-[12px] font-normal break-words text-[#9aabb4]">{{ s.summary }}</span>
-            <span v-else-if="s.state === 'locked' && s.reason" class="text-[12px] font-normal text-[#9aabb4]">{{ s.reason }}</span>
+            <span v-if="s.summary && s.state !== 'locked'" class="text-[12px] font-normal break-words text-tx-9aabb4">{{ s.summary }}</span>
+            <span v-else-if="s.state === 'locked' && s.reason" class="text-[12px] font-normal text-tx-9aabb4">{{ s.reason }}</span>
           </span>
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -90,7 +90,7 @@ const tip = (s: WizardStepItem) => (s.state === 'locked' ? (s.reason ?? undefine
             cn(
               tile,
               'relative overflow-hidden',
-              s.key === current ? 'border-[#bee3f347] bg-[#bee3f30f] text-[#eef6fa]' : s.state === 'done' ? 'border-[#bee3f31f] bg-white/[0.015] text-[#dbe8ee]' : 'border-white/[0.06] bg-white/[0.015] text-[#c9d5db]',
+              s.key === current ? 'border-lx-bee3f347 bg-sx-bee3f30f text-tx-eef6fa' : s.state === 'done' ? 'border-lx-bee3f31f bg-white/[0.015] text-tx-dbe8ee' : 'border-white/[0.06] bg-white/[0.015] text-tx-c9d5db',
               s.state === 'locked' ? 'cursor-not-allowed opacity-55' : s.key !== current && 'hover:border-white/[0.12] hover:bg-white/[0.035]',
             )
           "
@@ -98,7 +98,7 @@ const tip = (s: WizardStepItem) => (s.state === 'locked' ? (s.reason ?? undefine
         >
           <span
             class="grid size-[22px] flex-none place-items-center rounded-full text-[12px] leading-none font-semibold tabular-nums transition-colors duration-200"
-            :class="s.key === current ? 'bg-accent text-accent-ink' : s.state === 'done' ? 'border border-[#bee3f373] bg-[#bee3f333] text-accent' : 'border border-white/[0.14] text-[#a5b3ba]'"
+            :class="s.key === current ? 'bg-accent text-accent-ink' : s.state === 'done' ? 'border border-lx-bee3f373 bg-sx-bee3f333 text-accent' : 'border border-white/[0.14] text-tx-a5b3ba'"
             aria-hidden="true"
           >
             <Loader2 v-if="s.state === 'running'" data-icon="spinner" class="size-3.5 animate-spin motion-reduce:animate-none" />

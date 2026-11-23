@@ -45,19 +45,19 @@ const readyText = computed(() => {
   if (!total || deckState.value.label === 'Up to date') return ''
   return ` · ${count.value} of ${total} presenter ${total === 1 ? 'slide' : 'slides'} ready to generate`
 })
-const note = 'text-[10px] leading-[1.6] text-[#a0abb1]'
+const note = 'text-[10px] leading-[1.6] text-tx-a0abb1'
 </script>
 
 <template>
   <section class="flex flex-col gap-3 border-t border-line py-[18px]" aria-label="Whole deck avatars" data-testid="avatar-overview">
     <div class="flex items-center gap-2">
-      <h3 class="text-[12px] font-semibold text-[#f6f8f9]">Whole deck</h3>
+      <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Whole deck</h3>
       <Badge :variant="deckState.variant" class="ml-auto" data-testid="deck-avatar-state">{{ deckState.label }}</Badge>
     </div>
     <div class="flex flex-col gap-1">
-      <p v-if="deckState.detail" class="text-[11px] leading-[1.5] text-[#d4dadd]">{{ deckState.detail }}</p>
+      <p v-if="deckState.detail" class="text-[11px] leading-[1.5] text-tx-d4dadd">{{ deckState.detail }}</p>
       <p :class="note" data-testid="avatar-language">
-        Lip-synced to <strong class="font-semibold text-[#d4dadd]">{{ languageName }}</strong> narration{{ readyText }}.
+        Lip-synced to <strong class="font-semibold text-tx-d4dadd">{{ languageName }}</strong> narration{{ readyText }}.
       </p>
     </div>
     <div v-if="running" role="status"><Progress :model-value="progress" aria-label="Avatar generation progress" /></div>

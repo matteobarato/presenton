@@ -8,9 +8,9 @@ export const buttonVariants = cva(
       variant: {
         default: 'bg-accent text-accent-ink hover:bg-accent-hover hover:shadow-[0_3px_15px_#b2dced17] active:translate-y-px',
         secondary: 'bg-secondary text-secondary-text hover:bg-secondary-hover',
-        ghost: 'bg-transparent text-muted hover:bg-white/[0.04] hover:text-[#f6f8f9]',
-        outline: 'border-white/[0.09] bg-transparent text-[#d4dadd] hover:border-white/[0.16] hover:bg-white/[0.03]',
-        destructive: 'bg-danger text-danger-text hover:bg-[#6a3131]',
+        ghost: 'bg-transparent text-muted hover:bg-white/[0.04] hover:text-tx-f6f8f9',
+        outline: 'border-white/[0.09] bg-transparent text-tx-d4dadd hover:border-white/[0.16] hover:bg-white/[0.03]',
+        destructive: 'bg-danger text-danger-text hover:bg-sx-6a3131',
       },
       size: {
         default: 'h-[37px] px-3.5',

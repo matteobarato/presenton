@@ -34,7 +34,7 @@ const voiceOnlyReason = 'This deck has no presenter slides, so it is narrated wi
         <div class="flex min-w-0 flex-1 items-center gap-2.5">
           <span class="grid size-8 flex-none place-items-center rounded-full bg-accent/10 text-accent"><Languages class="size-4" aria-hidden="true" /></span>
           <div class="flex min-w-0 flex-col">
-            <h3 class="text-[13px] font-semibold text-[#f6f8f9]">Language</h3>
+            <h3 class="text-[13px] font-semibold text-tx-f6f8f9">Language</h3>
             <span class="text-[12px] text-muted">The voice speaks in this language</span>
           </div>
         </div>
@@ -60,7 +60,7 @@ const voiceOnlyReason = 'This deck has no presenter slides, so it is narrated wi
         <div class="flex items-center gap-2.5">
           <span class="grid size-8 flex-none place-items-center rounded-full bg-accent/10 text-accent"><UserRound class="size-4" aria-hidden="true" /></span>
           <div class="flex flex-col">
-            <h3 class="text-[13px] font-semibold text-[#f6f8f9]">Presenter</h3>
+            <h3 class="text-[13px] font-semibold text-tx-f6f8f9">Presenter</h3>
             <span class="text-[12px] text-muted">{{ portraitOk ? 'Your presenter for this deck' : 'Add a photo of your presenter' }}</span>
           </div>
           <Check v-if="portraitOk" class="ml-auto size-4 text-accent" role="img" aria-label="Done" />

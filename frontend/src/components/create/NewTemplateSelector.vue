@@ -38,7 +38,7 @@ const thumbWidth = computed(() => {
 
 const cardClass =
   'group relative flex min-w-0 flex-col gap-2.5 rounded-card border p-[7px] pb-2.5 text-left transition-[border-color,background,box-shadow,translate] duration-200 hover:-translate-y-px hover:bg-white/[0.04] scroll-mb-28 focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-40 disabled:hover:translate-y-0'
-const on = 'border-accent bg-[#bee3f30d] shadow-[0_8px_24px_#0000004d]'
+const on = 'border-accent bg-sx-bee3f30d shadow-[0_8px_24px_#0000004d]'
 const off = 'border-white/[0.07] bg-white/[0.02]'
 </script>
 
@@ -63,13 +63,13 @@ const off = 'border-white/[0.07] bg-white/[0.02]'
       @click="pick(null)"
     >
       <span
-        class="grid aspect-video w-full place-items-center rounded border border-dashed border-white/[0.1] bg-white/[0.02] text-[#93a6b0] group-hover:text-[#c8dbe4]"
+        class="grid aspect-video w-full place-items-center rounded border border-dashed border-white/[0.1] bg-white/[0.02] text-tx-93a6b0 group-hover:text-tx-c8dbe4"
       >
         <Clock3 class="size-5" aria-hidden="true" />
       </span>
       <span class="flex flex-col gap-0.5 px-1">
-        <span class="truncate text-[12px] font-medium text-[#e4ecf0]">Decide later</span>
-        <span class="truncate text-[12px] text-[#8e9ca4]">Pick after the outline</span>
+        <span class="truncate text-[12px] font-medium text-tx-e4ecf0">Decide later</span>
+        <span class="truncate text-[12px] text-tx-8e9ca4">Pick after the outline</span>
       </span>
       <Check v-if="none" class="absolute top-3 right-3 size-[18px] rounded-full bg-accent p-[3px] text-accent-ink" aria-hidden="true" />
     </button>
@@ -87,8 +87,8 @@ const off = 'border-white/[0.07] bg-white/[0.02]'
     >
       <TemplateCardThumb :template="t" :width="thumbWidth" />
       <span class="flex flex-col gap-0.5 px-1">
-        <span class="truncate text-[12px] font-medium text-[#e4ecf0]">{{ t.name }}</span>
-        <span class="truncate text-[12px] text-[#8e9ca4]">{{ t.layouts.length }} {{ t.layouts.length === 1 ? 'layout' : 'layouts' }}</span>
+        <span class="truncate text-[12px] font-medium text-tx-e4ecf0">{{ t.name }}</span>
+        <span class="truncate text-[12px] text-tx-8e9ca4">{{ t.layouts.length }} {{ t.layouts.length === 1 ? 'layout' : 'layouts' }}</span>
       </span>
       <Check v-if="selected === t.id" class="absolute top-3 right-3 size-[18px] rounded-full bg-accent p-[3px] text-accent-ink" aria-hidden="true" />
     </button>

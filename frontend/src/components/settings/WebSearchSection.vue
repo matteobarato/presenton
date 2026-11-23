@@ -16,7 +16,7 @@ const id = (name: string) => `web-search-${uid}-${name}`
 
 const OPTIONS = WEB_SEARCH_PROVIDERS.map(({ value, label, description, icon }) => ({ value, label, description, icon }))
 const DEFAULT_MAX_RESULTS = '5'
-const labelClass = 'mb-2 block text-[12px] font-medium text-[#dbe7ef]'
+const labelClass = 'mb-2 block text-[12px] font-medium text-tx-dbe7ef'
 
 const managed = computed(() => props.config.LLM === 'presenton')
 const enabled = computed(() => !!props.config.WEB_GROUNDING)
@@ -44,15 +44,15 @@ function onToggle(checked: boolean) {
 </script>
 
 <template>
-  <div v-if="managed" class="rounded-[11px] bg-[#1d2427] px-4 py-3">
-    <p class="text-[13px] font-medium text-[#dbe7ef]">Managed by Presenton Cloud</p>
-    <p class="mt-0.5 text-[11px] leading-[1.6] text-[#95aab7]">Web search is handled for you, so there is nothing to configure here.</p>
+  <div v-if="managed" class="rounded-[11px] bg-sx-1d2427 px-4 py-3">
+    <p class="text-[13px] font-medium text-tx-dbe7ef">Managed by Presenton Cloud</p>
+    <p class="mt-0.5 text-[11px] leading-[1.6] text-tx-95aab7">Web search is handled for you, so there is nothing to configure here.</p>
   </div>
 
   <div v-else class="grid gap-4">
     <div class="flex items-center gap-3">
       <Switch :id="id('enabled')" :model-value="enabled" @update:model-value="onToggle($event)" />
-      <label :for="id('enabled')" class="text-[12px] font-medium text-[#dbe7ef]">Web search</label>
+      <label :for="id('enabled')" class="text-[12px] font-medium text-tx-dbe7ef">Web search</label>
     </div>
 
     <template v-if="enabled">
@@ -65,7 +65,7 @@ function onToggle(checked: boolean) {
         @update:model-value="emit('set', 'WEB_SEARCH_PROVIDER', $event)"
       />
 
-      <p v-if="row?.value === 'auto'" class="rounded-[11px] bg-[#1d2427] px-4 py-3 text-[11px] leading-[1.6] text-[#95aab7]">
+      <p v-if="row?.value === 'auto'" class="rounded-[11px] bg-sx-1d2427 px-4 py-3 text-[11px] leading-[1.6] text-tx-95aab7">
         Model-native web grounding is preferred when available. Otherwise, external search fallback is used.
       </p>
 

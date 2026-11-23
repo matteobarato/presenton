@@ -79,7 +79,7 @@ watch(
     <div class="flex h-[58px] flex-none items-center justify-between px-[15px] text-[12px] font-semibold [@media(max-height:780px)_and_(min-width:1051px)]:h-[49px]">
       <div class="flex items-center gap-2">
         Slides
-        <span class="inline-flex h-4 min-w-[17px] items-center justify-center rounded-[5px] bg-[#2c3033] px-1 text-[9px] font-medium text-[#a4adb2] tabular-nums">
+        <span class="inline-flex h-4 min-w-[17px] items-center justify-center rounded-[5px] bg-sx-2c3033 px-1 text-[9px] font-medium text-tx-a4adb2 tabular-nums">
           {{ slides.length }}
         </span>
       </div>
@@ -102,7 +102,7 @@ watch(
           :class="slideKey(element) === editor.activeSlideId && 'is-selected'"
         >
           <div
-            class="flex w-3.5 flex-none flex-col items-center gap-[9px] pt-[5px] text-[9px] text-[#899296] tabular-nums group-[.is-selected]:text-accent max-[1279px]:w-3"
+            class="flex w-3.5 flex-none flex-col items-center gap-[9px] pt-[5px] text-[9px] text-tx-899296 tabular-nums group-[.is-selected]:text-accent max-[1279px]:w-3"
           >
             {{ String(index + 1).padStart(2, '0') }}
             <GripVertical
@@ -122,7 +122,7 @@ watch(
               @click="editor.select(slideKey(element)); editor.navigatorOpen = false"
             >
               <span
-                class="relative block rounded-[7px] border-2 border-transparent p-0.5 transition-colors duration-200 group-[:not(.is-selected):hover]:border-[#7f9fab] group-[.is-selected]:border-accent"
+                class="relative block rounded-[7px] border-2 border-transparent p-0.5 transition-colors duration-200 group-[:not(.is-selected):hover]:border-lx-7f9fab group-[.is-selected]:border-accent"
               >
                 <SlideView
                   :slide="element"
@@ -136,7 +136,7 @@ watch(
                 <SlideStatusDots :presentation-id="presentationId" :slide-index="index" />
                 <span
                   v-if="slideKey(element) === editor.activeSlideId"
-                  class="absolute right-[7px] bottom-[7px] grid size-3.5 place-items-center rounded-full bg-accent text-[#19323e]"
+                  class="absolute right-[7px] bottom-[7px] grid size-3.5 place-items-center rounded-full bg-accent text-tx-19323e"
                   aria-hidden="true"
                 >
                   <Check class="size-2.5" :stroke-width="3" />
@@ -145,7 +145,7 @@ watch(
             </button>
             <div class="flex items-center gap-0.5 pr-0.5 pl-[5px]">
               <span
-                class="min-w-0 flex-1 truncate text-[9px] leading-[1.3] text-[#9aa3a7] group-[.is-selected]:text-[#d9e5e9]"
+                class="min-w-0 flex-1 truncate text-[9px] leading-[1.3] text-tx-9aa3a7 group-[.is-selected]:text-tx-d9e5e9"
                 aria-hidden="true"
               >{{ slideLabel(element) }}</span>
               <template v-if="element.id && !editor.locked">
@@ -183,9 +183,9 @@ watch(
         @click="pickerOpen = true"
       >
         <Plus class="size-4" aria-hidden="true" />Add slide
-        <span class="ml-auto text-[9px] font-normal text-[#919ca1] max-[1279px]:hidden" aria-hidden="true">{{ mod }} ↵</span>
+        <span class="ml-auto text-[9px] font-normal text-tx-919ca1 max-[1279px]:hidden" aria-hidden="true">{{ mod }} ↵</span>
       </Button>
-      <span class="mt-[11px] block text-center text-[9px] text-[#a0a8ae] [@media(max-height:780px)_and_(min-width:1051px)]:hidden">
+      <span class="mt-[11px] block text-center text-[9px] text-tx-a0a8ae [@media(max-height:780px)_and_(min-width:1051px)]:hidden">
         A little structure. Endless possibility.
       </span>
     </div>

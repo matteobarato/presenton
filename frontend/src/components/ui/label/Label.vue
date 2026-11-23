@@ -10,5 +10,5 @@ const forwarded = useForwardProps(delegated)
 </script>
 
 <template>
-  <Label v-bind="forwarded" :class="cn('text-[11px] font-medium text-[#c0cfd6] select-none', props.class)"><slot /></Label>
+  <Label v-bind="forwarded" :class="cn('text-[11px] font-medium text-tx-c0cfd6 select-none', props.class)"><slot /></Label>
 </template>

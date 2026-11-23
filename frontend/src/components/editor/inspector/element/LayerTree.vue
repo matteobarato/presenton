@@ -83,6 +83,6 @@ onBeforeUnmount(() => {
         @hover="hover(row.node, $event)"
       />
     </div>
-    <p v-if="rows.length === 0" class="px-2 text-[10px] text-[#a0abb1]">This slide is empty.</p>
+    <p v-if="rows.length === 0" class="px-2 text-[10px] text-tx-a0abb1">This slide is empty.</p>
   </div>
 </template>

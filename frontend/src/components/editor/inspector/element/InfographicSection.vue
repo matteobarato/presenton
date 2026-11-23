@@ -75,8 +75,8 @@ const textColourCommit = (value: string | null) => value && edit('Text colour', 
 const add = () => edit('Add item', addItem)
 const remove = () => edit('Remove item', removeLastItem)
 
-const sub = 'mb-2 mt-4 text-[10px] text-[#9aa9b0]'
-const action = `${field} cursor-pointer justify-center hover:bg-[#303a3f] disabled:cursor-not-allowed disabled:opacity-40`
+const sub = 'mb-2 mt-4 text-[10px] text-tx-9aa9b0'
+const action = `${field} cursor-pointer justify-center hover:bg-sx-303a3f disabled:cursor-not-allowed disabled:opacity-40`
 </script>
 
 <template>
@@ -95,7 +95,7 @@ const action = `${field} cursor-pointer justify-center hover:bg-[#303a3f] disabl
     <template v-if="group === 'items' && stats">
       <div :class="[sub, 'flex items-center justify-between', '!mt-0']">
         <span>Items</span>
-        <span class="text-[#dce3e7]">{{ stats.count }}</span>
+        <span class="text-tx-dce3e7">{{ stats.count }}</span>
       </div>
       <div class="flex gap-2">
         <button type="button" :class="[action, 'flex-1']" :disabled="!stats.canAdd" @mousedown.prevent @click="add">Add item</button>

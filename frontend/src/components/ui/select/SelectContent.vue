@@ -15,7 +15,7 @@ const forwarded = useForwardPropsEmits(delegated, emits)
   <SelectPortal>
     <SelectContent
       v-bind="{ ...forwarded, ...$attrs }"
-      :class="cn('glass-popover anim-pop-in z-80 max-h-72 min-w-[var(--reka-select-trigger-width)] overflow-hidden text-[#dce8ee]', props.class)"
+      :class="cn('glass-popover anim-pop-in z-80 max-h-72 min-w-[var(--reka-select-trigger-width)] overflow-hidden text-popover-foreground', props.class)"
     >
       <SelectViewport class="p-1.5"><slot /></SelectViewport>
     </SelectContent>

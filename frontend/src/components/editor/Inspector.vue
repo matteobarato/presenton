@@ -38,7 +38,7 @@ const activeSlide = computed(() => {
         :key="tab.id"
         :value="tab.id"
         :title="tab.label"
-        class="group/tab h-8 flex-1 gap-2 rounded-[8px] px-2 text-[11px] font-normal text-[#a2adb3] data-[state=active]:bg-[#353b3e] data-[state=active]:text-[#edf1f2] data-[state=active]:shadow-[0_2px_4px_#0001]"
+        class="group/tab h-8 flex-1 gap-2 rounded-[8px] px-2 text-[11px] font-normal text-tx-a2adb3 data-[state=active]:bg-sx-353b3e data-[state=active]:text-tx-edf1f2 data-[state=active]:shadow-[0_2px_4px_#0001]"
       >
         <component :is="tab.icon" class="size-3.5" aria-hidden="true" />
         <!-- Five tabs don't fit the docked width with labels: inactive tabs show the icon (the label stays as their accessible name). -->

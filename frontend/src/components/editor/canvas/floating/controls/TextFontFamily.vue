@@ -11,7 +11,7 @@ const { family, families, setFamily } = useTextControls(props)
   <select
     aria-label="Font family"
     title="Font family"
-    class="h-[31px] w-[112px] min-w-0 cursor-pointer appearance-none truncate rounded-control bg-transparent px-2 text-[11px] text-[#c4ccd1] outline-none hover:bg-[#30373b] hover:text-[#f1f5f8] focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent max-[760px]:w-[88px]"
+    class="h-[31px] w-[112px] min-w-0 cursor-pointer appearance-none truncate rounded-control bg-transparent px-2 text-[11px] text-tx-c4ccd1 outline-none hover:bg-sx-30373b hover:text-tx-f1f5f8 focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent max-[760px]:w-[88px]"
     :value="family"
     data-bar-item="font-family"
     @change="setFamily(($event.target as HTMLSelectElement).value)"
