@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 const props = defineProps<{ count: number; language: string; pending: boolean }>()
@@ -24,8 +25,8 @@ watch(open, (o) => {
           slide's narration. Avatars are tied to that language. HeyGen credits are spent for every slide that is not skipped.
         </DialogDescription>
       </DialogHeader>
-      <label class="mt-3 flex items-center gap-2 text-[12px] text-[#d4dadd]">
-        <input v-model="force" type="checkbox" />
+      <label class="mt-3 flex cursor-pointer items-center gap-2.5 text-[12px] text-[#d4dadd]">
+        <Checkbox :model-value="force" data-testid="avatar-force" @update:model-value="force = $event === true" />
         Regenerate slides whose avatar is already up to date
       </label>
       <DialogFooter>

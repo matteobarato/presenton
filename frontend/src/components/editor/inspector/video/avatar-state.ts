@@ -17,7 +17,7 @@ export type AvatarChipKind =
 
 export const CHIP_LABEL: Record<AvatarChipKind, string> = {
   ready: 'Ready',
-  no_placeholder: 'No placeholder',
+  no_placeholder: 'Presenter off',
   no_audio: 'No narration',
   audio_stale: 'Narration changed',
   unsupported_audio: 'Audio format',
