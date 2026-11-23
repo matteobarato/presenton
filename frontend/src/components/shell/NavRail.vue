@@ -25,7 +25,7 @@ const settingsSection = computed(() => defaultSettingsSection(session.user?.role
 <template>
   <nav
     aria-label="Main"
-    class="z-35 flex w-[76px] flex-none flex-col items-center border-r border-white/[0.02] bg-rail pt-[25px] pb-5 max-[760px]:pt-[22px] max-[760px]:pb-4 [@media(max-height:780px)_and_(min-width:1051px)]:pt-[18px] max-[1279px]:w-[65px] max-[760px]:w-14"
+    class="z-35 flex w-[76px] flex-none flex-col items-center border-r border-ov/[0.02] bg-rail pt-[25px] pb-5 max-[760px]:pt-[22px] max-[760px]:pb-4 [@media(max-height:780px)_and_(min-width:1051px)]:pt-[18px] max-[1279px]:w-[65px] max-[760px]:w-14"
   >
     <RouterLink
       :to="{ name: 'library' }"

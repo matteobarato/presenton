@@ -17,6 +17,7 @@ const BODIES: Record<string, unknown> = {
   '/api/v1/ppt/chat/conversations': [],
   '/api/templates': [],
   '/api/v1/ppt/template/all': fixture('templates'),
+  '/api/v1/ppt/template/c1': fixture('template'),
 }
 
 async function mock(page: Page) {
@@ -37,6 +38,7 @@ const PAGES: [string, string][] = [
   ['editor', `/p/${DECK_ID}`],
   ['settings-account', '/settings/account'],
   ['templates', '/templates'],
+  ['template-detail', '/templates/c1'],
 ]
 
 for (const theme of ['dark', 'light'] as const) {

@@ -56,7 +56,7 @@ function onEnter() {
           :aria-expanded="open"
           :aria-controls="open ? listId : undefined"
           :aria-labelledby="`${labelId} ${triggerId}`"
-          class="flex h-[42px] w-full items-center justify-between gap-3 rounded-button border border-transparent bg-field px-3 text-left text-[12px] transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+          class="flex h-[42px] w-full items-center justify-between gap-3 rounded-button border border-transparent bg-field px-3 text-left text-[12px] transition-colors duration-200 hover:border-ov/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
         >
           <span class="min-w-0 flex-1 truncate" :class="modelValue ? 'font-medium text-tx-dce6ec' : 'text-muted'">
             {{ modelValue || 'Select a discovered model or enter any model ID' }}
@@ -81,7 +81,7 @@ function onEnter() {
             type="button"
             role="option"
             :aria-selected="false"
-            class="flex w-full items-center gap-2 rounded-button px-2.5 py-2 text-left transition-colors hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+            class="flex w-full items-center gap-2 rounded-button px-2.5 py-2 text-left transition-colors hover:bg-ov/[0.05] focus-visible:bg-ov/[0.05] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
             @click="select(custom)"
           >
             <span class="size-4 shrink-0" aria-hidden="true" />
@@ -96,8 +96,8 @@ function onEnter() {
             type="button"
             role="option"
             :aria-selected="m === modelValue"
-            class="flex w-full items-center gap-2 rounded-button px-2.5 py-2 text-left transition-colors hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
-            :class="m === modelValue && 'bg-white/[0.04]'"
+            class="flex w-full items-center gap-2 rounded-button px-2.5 py-2 text-left transition-colors hover:bg-ov/[0.05] focus-visible:bg-ov/[0.05] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+            :class="m === modelValue && 'bg-ov/[0.04]'"
             @click="select(m)"
           >
             <Check class="size-4 shrink-0 text-accent" :class="m === modelValue ? 'opacity-100' : 'opacity-0'" aria-hidden="true" />

@@ -8,7 +8,7 @@ export const badgeVariants = cva(
       variant: {
         default: 'bg-accent text-accent-ink',
         secondary: 'bg-sx-303d45 text-tx-9db3c0',
-        outline: 'border border-white/15 text-tx-d4dadd',
+        outline: 'border border-ov/15 text-tx-d4dadd',
         destructive: 'bg-danger text-danger-text',
       },
     },

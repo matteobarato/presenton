@@ -278,10 +278,10 @@ onBeforeUnmount(() => {
       </Alert>
       <div
         v-else-if="!keys.length"
-        class="flex flex-col items-center gap-2 rounded-[11px] border border-dashed border-white/[0.08] px-4 py-7 text-center"
+        class="flex flex-col items-center gap-2 rounded-[11px] border border-dashed border-ov/[0.08] px-4 py-7 text-center"
         data-testid="api-keys-empty"
       >
-        <span class="grid size-10 place-items-center rounded-full bg-white/[0.04] text-tx-95aab7" aria-hidden="true">
+        <span class="grid size-10 place-items-center rounded-full bg-ov/[0.04] text-tx-95aab7" aria-hidden="true">
           <KeyRound class="size-[18px] stroke-[1.75]" />
         </span>
         <p class="text-[12px] font-medium text-tx-dbe7ef">No API keys yet</p>
@@ -301,7 +301,7 @@ onBeforeUnmount(() => {
             <div class="flex min-w-0 items-start gap-3">
               <span
                 class="grid size-9 flex-none place-items-center rounded-[10px]"
-                :class="apiKeyStatus(key) === 'active' ? 'bg-sx-c2e5f5/12 text-tx-c2e5f5' : 'bg-white/[0.04] text-tx-95aab7'"
+                :class="apiKeyStatus(key) === 'active' ? 'bg-sx-c2e5f5/12 text-tx-c2e5f5' : 'bg-ov/[0.04] text-tx-95aab7'"
                 aria-hidden="true"
               >
                 <KeyRound class="size-4 stroke-[1.75]" />

@@ -41,10 +41,10 @@ const summary = computed(() => [languageName.value, `${eligibleSlides.value.leng
 </script>
 
 <template>
-  <section ref="root" class="flex flex-col rounded-card border border-white/[0.06]" aria-label="Whole deck avatars">
+  <section ref="root" class="flex flex-col rounded-card border border-ov/[0.06]" aria-label="Whole deck avatars">
     <button
       type="button"
-      class="flex min-h-11 items-center gap-2 rounded-card px-3 text-left transition-colors duration-200 hover:bg-white/[0.03]"
+      class="flex min-h-11 items-center gap-2 rounded-card px-3 text-left transition-colors duration-200 hover:bg-ov/[0.03]"
       :aria-expanded="open"
       aria-controls="deck-avatars-body"
       @click="open = !open"
@@ -54,7 +54,7 @@ const summary = computed(() => [languageName.value, `${eligibleSlides.value.leng
       <ChevronDown class="size-3.5 flex-none text-muted transition-transform duration-200" :class="open && 'rotate-180'" aria-hidden="true" />
     </button>
 
-    <div v-show="open" id="deck-avatars-body" class="flex flex-col gap-5 border-t border-white/[0.06] p-3">
+    <div v-show="open" id="deck-avatars-body" class="flex flex-col gap-5 border-t border-ov/[0.06] p-3">
       <p class="text-[11px] text-muted" data-testid="avatar-language">
         Avatars are lip-synced to <strong class="font-semibold text-tx-d4dadd">{{ languageName }}</strong> narration. Change the language in the Voice tab.
       </p>
@@ -87,7 +87,7 @@ const summary = computed(() => [languageName.value, `${eligibleSlides.value.leng
       <div v-if="activeSlide" class="flex flex-col gap-2">
         <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Voice bubble</h3>
         <p class="text-[11px] text-muted">Where the narrator sits on slides without an avatar. Drag it here; it applies to every slide.</p>
-        <div class="relative overflow-hidden rounded-control border border-white/[0.06]">
+        <div class="relative overflow-hidden rounded-control border border-ov/[0.06]">
           <SlideView :slide="activeSlide" :theme="props.presentation.theme" :fonts="props.presentation.fonts" fit="width" class="pointer-events-none" />
           <BubblePlacer :presentation-id="presentationId" :slide="activeSlide" :language="language" />
         </div>

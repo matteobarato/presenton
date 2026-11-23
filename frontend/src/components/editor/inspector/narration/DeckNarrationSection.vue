@@ -44,10 +44,10 @@ function deleteNarration() {
 </script>
 
 <template>
-  <section class="flex flex-col rounded-card border border-white/[0.06] bg-white/[0.015]" aria-label="Whole deck">
+  <section class="flex flex-col rounded-card border border-ov/[0.06] bg-ov/[0.015]" aria-label="Whole deck">
     <button
       type="button"
-      class="flex min-h-11 items-center gap-2 px-3 text-left transition-colors duration-200 hover:bg-white/[0.03]"
+      class="flex min-h-11 items-center gap-2 px-3 text-left transition-colors duration-200 hover:bg-ov/[0.03]"
       :class="open ? 'rounded-t-card' : 'rounded-card'"
       :aria-expanded="open"
       aria-controls="deck-narration-body"
@@ -63,7 +63,7 @@ function deleteNarration() {
       <span class="text-[11px] text-muted">{{ task?.message || 'Generating narration…' }}</span>
     </div>
 
-    <div v-show="open" id="deck-narration-body" class="flex flex-1 flex-col gap-3 border-t border-white/[0.06] p-3">
+    <div v-show="open" id="deck-narration-body" class="flex flex-1 flex-col gap-3 border-t border-ov/[0.06] p-3">
       <TtsLanguageSelect :model-value="language" :languages="languages ?? []" :disabled="running" @update:model-value="setLanguage" />
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
         <p v-if="tts" class="min-w-0 text-[11px] text-muted tabular-nums" data-testid="narration-counts">

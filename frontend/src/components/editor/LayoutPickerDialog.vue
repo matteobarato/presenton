@@ -67,7 +67,7 @@ function choose(layout: NewSlideLayout | null) {
         <li>
           <button
             type="button"
-            class="grid aspect-video w-full place-items-center rounded-card border border-dashed border-white/20 bg-white/[0.03] text-[12px] text-muted transition-colors duration-200 hover:border-accent hover:text-text"
+            class="grid aspect-video w-full place-items-center rounded-card border border-dashed border-ov/20 bg-ov/[0.03] text-[12px] text-muted transition-colors duration-200 hover:border-accent hover:text-text"
             aria-label="Add Blank slide layout"
             @click="choose(null)"
           >
@@ -77,7 +77,7 @@ function choose(layout: NewSlideLayout | null) {
         <li v-for="o in options" :key="o.id">
           <button
             type="button"
-            class="relative block aspect-video w-full overflow-hidden rounded-card border border-white/10 bg-white transition-[border-color,box-shadow] duration-200 hover:border-accent focus-visible:border-accent"
+            class="relative block aspect-video w-full overflow-hidden rounded-card border border-ov/10 bg-white transition-[border-color,box-shadow] duration-200 hover:border-accent focus-visible:border-accent"
             :title="o.description"
             :aria-label="`Add ${o.description} layout`"
             @click="choose({ id: o.id, ui: o.ui, group: templateId })"

@@ -28,7 +28,7 @@ function run(action: LayerAction, label: string) {
 }
 
 const button =
-  'inline-flex h-11 flex-col items-center justify-center gap-0.5 rounded-control border border-white/[0.06] bg-field px-1 text-[9px] font-normal text-tx-c6ced3 hover:bg-sx-303a3f hover:text-white disabled:opacity-35 disabled:hover:bg-field'
+  'inline-flex h-11 flex-col items-center justify-center gap-0.5 rounded-control border border-ov/[0.06] bg-field px-1 text-[9px] font-normal text-tx-c6ced3 hover:bg-sx-303a3f hover:text-white disabled:opacity-35 disabled:hover:bg-field'
 </script>
 
 <template>

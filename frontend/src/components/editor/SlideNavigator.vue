@@ -151,7 +151,7 @@ watch(
               <template v-if="element.id && !editor.locked">
                 <button
                   type="button"
-                  class="grid h-6 w-[23px] flex-none place-items-center rounded-control text-muted hover:bg-white/[0.04] hover:text-white"
+                  class="grid h-6 w-[23px] flex-none place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-white"
                   :aria-label="`Duplicate slide ${index + 1}`"
                   title="Duplicate slide"
                   @click="mutations.duplicateSlide(element.id)"
@@ -160,7 +160,7 @@ watch(
                 </button>
                 <button
                   type="button"
-                  class="grid h-6 w-[23px] flex-none place-items-center rounded-control text-muted hover:bg-white/[0.04] hover:text-danger-text disabled:opacity-35 disabled:hover:bg-transparent"
+                  class="grid h-6 w-[23px] flex-none place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-danger-text disabled:opacity-35 disabled:hover:bg-transparent"
                   :disabled="slides.length <= 1"
                   :aria-label="`Delete slide ${index + 1}`"
                   title="Delete slide"
@@ -179,7 +179,7 @@ watch(
       <Button
         variant="outline"
         :disabled="editor.locked"
-        class="h-[34px] w-full justify-start border-dashed border-white/[0.13] px-2.5 text-[11px]"
+        class="h-[34px] w-full justify-start border-dashed border-ov/[0.13] px-2.5 text-[11px]"
         @click="pickerOpen = true"
       >
         <Plus class="size-4" aria-hidden="true" />Add slide

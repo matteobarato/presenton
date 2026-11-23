@@ -33,7 +33,7 @@ function chooseVoiceOnly() {
 const card =
   'group relative flex flex-1 items-start gap-3.5 rounded-card border p-4 text-left transition-[border-color,background] duration-200 disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 const on = 'border-accent bg-sx-bee3f30d'
-const off = 'border-white/[0.07] bg-white/[0.02] hover:border-white/[0.16] hover:bg-white/[0.04]'
+const off = 'border-ov/[0.07] bg-ov/[0.02] hover:border-ov/[0.16] hover:bg-ov/[0.04]'
 const iconWrap = 'grid size-10 flex-none place-items-center rounded-full bg-sx-bee3f31a text-accent'
 </script>
 

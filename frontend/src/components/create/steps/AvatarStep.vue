@@ -234,7 +234,7 @@ function go(step: DeckStepKey) {
   <div class="flex w-full flex-col gap-5">
     <!-- Generation: live checklist -->
     <section
-      class="flex flex-col gap-5 rounded-card border border-white/[0.06] bg-white/[0.015] p-6 max-[520px]:p-4"
+      class="flex flex-col gap-5 rounded-card border border-ov/[0.06] bg-ov/[0.015] p-6 max-[520px]:p-4"
       aria-label="Progress"
       data-testid="avatar-progress"
     >
@@ -292,7 +292,7 @@ function go(step: DeckStepKey) {
           :key="j.key"
           :data-testid="`pipeline-${j.key}`"
           :data-state="segmentState(j.key)"
-          class="flex items-center gap-3 rounded-control border border-white/[0.05] px-3.5 py-3 transition-colors duration-300"
+          class="flex items-center gap-3 rounded-control border border-ov/[0.05] px-3.5 py-3 transition-colors duration-300"
           :class="{ 'bg-accent/[0.04]': segmentState(j.key) === 'running' }"
         >
           <!-- Pending and skipped rows dim the icon and bar only: the detail text must stay readable. -->
@@ -312,7 +312,7 @@ function go(step: DeckStepKey) {
                 <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-opacity="0.25" stroke-width="2.5" />
                 <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" :stroke-dasharray="`${((percent(j.key) ?? 0) / 100) * 50.3} 50.3`" />
               </svg>
-              <span v-else key="wait" class="size-2.5 rounded-full border border-white/20" aria-hidden="true" />
+              <span v-else key="wait" class="size-2.5 rounded-full border border-ov/20" aria-hidden="true" />
             </Transition>
           </span>
           <div class="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -323,7 +323,7 @@ function go(step: DeckStepKey) {
             </div>
             <div
               v-if="segmentState(j.key) !== 'skipped'"
-              class="h-1 overflow-hidden rounded-full bg-white/[0.06]"
+              class="h-1 overflow-hidden rounded-full bg-ov/[0.06]"
               :class="{ 'opacity-60': segmentState(j.key) === 'pending' }"
             >
               <div

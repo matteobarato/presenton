@@ -45,8 +45,8 @@ const icon = computed(() => ICONS[props.node.type] ?? Box)
 
 <template>
   <div
-    class="group flex h-8 items-center rounded-control text-[10px] text-tx-c6ced3 hover:bg-white/[0.04] hover:text-white min-[1600px]:text-[11px]"
-    :class="selected && 'bg-white/[0.06] text-white'"
+    class="group flex h-8 items-center rounded-control text-[10px] text-tx-c6ced3 hover:bg-ov/[0.04] hover:text-white min-[1600px]:text-[11px]"
+    :class="selected && 'bg-ov/[0.06] text-white'"
     :style="{ paddingLeft: `${depth * 14}px` }"
     data-layer-row
     @mouseenter="emit('hover', true)"

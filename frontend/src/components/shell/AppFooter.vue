@@ -29,7 +29,7 @@ const workspace = computed(() => (session.user?.username ? `${session.user.usern
         @click="show"
       >
         <span class="max-[760px]:sr-only">Keyboard shortcuts</span>
-        <span class="grid size-[15px] place-items-center rounded-[4px] border border-white/[0.09]" aria-hidden="true">?</span>
+        <span class="grid size-[15px] place-items-center rounded-[4px] border border-ov/[0.09]" aria-hidden="true">?</span>
       </button>
     </div>
   </footer>

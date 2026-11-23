@@ -96,9 +96,9 @@ function replace() {
 onBeforeUnmount(stop)
 
 const fieldClass =
-  'h-9 min-w-0 flex-1 rounded-control border border-white/[0.06] bg-field px-3 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60'
+  'h-9 min-w-0 flex-1 rounded-control border border-ov/[0.06] bg-field px-3 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60'
 const thumb =
-  'grid aspect-square place-items-center rounded-control border border-white/[0.06] bg-field hover:border-accent/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent'
+  'grid aspect-square place-items-center rounded-control border border-ov/[0.06] bg-field hover:border-accent/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent'
 const alertClass = 'flex items-center justify-between gap-2 rounded-control bg-danger px-3 py-2 text-[12px] text-danger-text'
 </script>
 
@@ -120,7 +120,7 @@ const alertClass = 'flex items-center justify-between gap-2 rounded-control bg-d
         <SegmentedControl :model-value="weight" :options="WEIGHTS" label="Icon weight" @update:model-value="setWeight" />
         <p v-if="error" role="alert" :class="alertClass">
           <span>{{ error }}</span>
-          <button type="button" class="rounded-control px-2 py-1 hover:bg-white/[0.08]" @click="run">Retry</button>
+          <button type="button" class="rounded-control px-2 py-1 hover:bg-ov/[0.08]" @click="run">Retry</button>
         </p>
         <p v-else-if="loading && !results.length" class="text-[12px] text-tx-9aa9b0">Searching...</p>
         <p v-else-if="searched && !results.length" class="text-[12px] text-tx-9aa9b0">No icons for "{{ query.trim() }}"</p>

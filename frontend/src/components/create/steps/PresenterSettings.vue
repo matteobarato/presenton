@@ -27,7 +27,7 @@ const voiceOnlyReason = 'This deck has no presenter slides, so it is narrated wi
     <div class="flex w-full flex-col gap-3" data-testid="avatar-setup">
       <!-- Language: one full-width row -->
       <section
-        class="flex items-center gap-3 rounded-card border border-white/[0.06] bg-white/[0.015] px-4 py-3 max-[560px]:flex-col max-[560px]:items-stretch"
+        class="flex items-center gap-3 rounded-card border border-ov/[0.06] bg-ov/[0.015] px-4 py-3 max-[560px]:flex-col max-[560px]:items-stretch"
         data-testid="setup-language"
         :data-ok="String(languageOk)"
       >
@@ -46,14 +46,14 @@ const voiceOnlyReason = 'This deck has no presenter slides, so it is narrated wi
         </div>
       </section>
 
-      <p v-if="!avatarWork" class="rounded-card border border-white/[0.06] bg-white/[0.015] px-4 py-3 text-[12px] text-muted" data-testid="setup-voice-only">
+      <p v-if="!avatarWork" class="rounded-card border border-ov/[0.06] bg-ov/[0.015] px-4 py-3 text-[12px] text-muted" data-testid="setup-voice-only">
         {{ voiceOnlyReason }}
       </p>
 
       <!-- Presenter: the big card -->
       <section
         v-if="avatarWork"
-        class="flex flex-col gap-4 rounded-card border border-white/[0.06] bg-white/[0.015] p-5"
+        class="flex flex-col gap-4 rounded-card border border-ov/[0.06] bg-ov/[0.015] p-5"
         data-testid="setup-portrait"
         :data-ok="String(portraitOk)"
       >

@@ -14,7 +14,7 @@ const forwarded = useForwardPropsEmits(delegated, emits)
 <template>
   <CheckboxRoot
     v-bind="forwarded"
-    :class="cn('grid size-4 shrink-0 place-items-center rounded-[5px] border border-white/25 bg-field transition-colors duration-200 data-[state=checked]:border-accent data-[state=checked]:bg-accent data-[state=checked]:text-accent-ink disabled:cursor-not-allowed disabled:opacity-40', props.class)"
+    :class="cn('grid size-4 shrink-0 place-items-center rounded-[5px] border border-ov/25 bg-field transition-colors duration-200 data-[state=checked]:border-accent data-[state=checked]:bg-accent data-[state=checked]:text-accent-ink disabled:cursor-not-allowed disabled:opacity-40', props.class)"
   >
     <CheckboxIndicator class="grid place-items-center"><Check :size="12" :stroke-width="3" /></CheckboxIndicator>
   </CheckboxRoot>

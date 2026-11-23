@@ -40,7 +40,7 @@ const section = 'border-t border-line py-[18px] min-[1600px]:py-[22px]'
 const label = 'mb-3 flex items-center justify-between text-[10px] font-medium text-tx-d0d7dc min-[1600px]:text-[11px]'
 const muted = 'truncate pl-2 text-[9px] font-normal text-tx-9aa9b0'
 const segment =
-  'flex h-9 flex-1 items-center justify-center gap-1.5 rounded-control border border-white/[0.05] bg-field text-[10px] text-tx-909fa7 hover:bg-sx-303a3f hover:text-tx-d9e6ed'
+  'flex h-9 flex-1 items-center justify-center gap-1.5 rounded-control border border-ov/[0.05] bg-field text-[10px] text-tx-909fa7 hover:bg-sx-303a3f hover:text-tx-d9e6ed'
 const segmentOn = '!border-accent/50 !bg-sx-303c42 !text-tx-c4e4f4'
 </script>
 
@@ -51,7 +51,7 @@ const segmentOn = '!border-accent/50 !bg-sx-303c42 !text-tx-c4e4f4'
       <button
         v-if="previewSrc"
         type="button"
-        class="group relative mb-2 block aspect-video w-full overflow-hidden rounded-control border border-white/[0.05] bg-sx-11171a"
+        class="group relative mb-2 block aspect-video w-full overflow-hidden rounded-control border border-ov/[0.05] bg-sx-11171a"
         aria-label="Image preview, click to replace"
         title="Replace image"
         data-testid="image-preview"

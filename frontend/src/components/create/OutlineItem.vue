@@ -42,13 +42,13 @@ function onKeydown(e: KeyboardEvent) {
 
 <template>
   <li
-    class="outline-item group flex flex-wrap items-start gap-x-3 gap-y-1 rounded-card border bg-white/[0.02] py-3 pr-2 pl-3 max-[760px]:pr-3 transition-[border-color,background] duration-200"
-    :class="showSource || active ? 'border-lx-bee3f340 bg-white/[0.035]' : 'border-white/[0.07] hover:border-white/[0.12]'"
+    class="outline-item group flex flex-wrap items-start gap-x-3 gap-y-1 rounded-card border bg-ov/[0.02] py-3 pr-2 pl-3 max-[760px]:pr-3 transition-[border-color,background] duration-200"
+    :class="showSource || active ? 'border-lx-bee3f340 bg-ov/[0.035]' : 'border-ov/[0.07] hover:border-ov/[0.12]'"
     data-testid="outline-item"
     @keydown="onKeydown"
   >
     <span
-      class="mt-px grid size-6 shrink-0 place-items-center rounded-full bg-white/[0.06] text-[12px] font-medium text-tx-b8c7cf tabular-nums"
+      class="mt-px grid size-6 shrink-0 place-items-center rounded-full bg-ov/[0.06] text-[12px] font-medium text-tx-b8c7cf tabular-nums"
       aria-hidden="true"
       data-testid="outline-number"
     >{{ index + 1 }}</span>

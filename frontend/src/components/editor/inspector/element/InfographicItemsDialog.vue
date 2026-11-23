@@ -151,10 +151,10 @@ onBeforeUnmount(() => {
 })
 
 const input =
-  'h-8 w-full min-w-0 rounded-control border border-white/[0.06] bg-field px-2 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60 aria-[invalid=true]:border-red-400/70'
-const area = 'w-full min-w-0 resize-none rounded-control border border-white/[0.06] bg-field px-2 py-1.5 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60'
+  'h-8 w-full min-w-0 rounded-control border border-ov/[0.06] bg-field px-2 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60 aria-[invalid=true]:border-red-400/70'
+const area = 'w-full min-w-0 resize-none rounded-control border border-ov/[0.06] bg-field px-2 py-1.5 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60'
 const ghost =
-  'inline-flex h-8 items-center gap-1.5 rounded-control px-2.5 text-[12px] text-tx-dce3e7 hover:bg-white/[0.08] disabled:opacity-40 disabled:hover:bg-transparent'
+  'inline-flex h-8 items-center gap-1.5 rounded-control px-2.5 text-[12px] text-tx-dce3e7 hover:bg-ov/[0.08] disabled:opacity-40 disabled:hover:bg-transparent'
 </script>
 
 <template>
@@ -165,7 +165,7 @@ const ghost =
         <DialogDescription>Changes preview on the slide. Done saves them.</DialogDescription>
       </DialogHeader>
       <div class="mt-4 flex max-h-[min(420px,calc(100dvh-280px))] flex-col gap-2 overflow-auto">
-        <div v-for="(item, i) in items" :key="i" class="flex items-start gap-2 rounded-control border border-white/[0.06] p-2">
+        <div v-for="(item, i) in items" :key="i" class="flex items-start gap-2 rounded-control border border-ov/[0.06] p-2">
           <div class="flex min-w-0 flex-1 flex-col gap-1.5">
             <div class="flex items-center gap-2">
               <input
@@ -185,7 +185,7 @@ const ghost =
                 type="button"
                 :aria-label="`Change icon ${i + 1}`"
                 title="Change icon"
-                class="inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-control border border-white/[0.06] bg-field hover:bg-white/[0.08]"
+                class="inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-control border border-ov/[0.06] bg-field hover:bg-ov/[0.08]"
                 @click="pickerIndex = i"
               >
                 <img v-if="iconUrl(item)" :src="resolveAssetUrl(iconUrl(item))" alt="" class="size-5 object-contain" />
@@ -215,7 +215,7 @@ const ghost =
         <button type="button" :class="ghost" :disabled="items.length >= limits.max" @click="add"><Plus class="size-3.5" />Add item</button>
       </div>
       <div class="mt-6 flex justify-end gap-2">
-        <button type="button" class="inline-flex h-9 items-center rounded-control px-3.5 text-[12px] text-tx-dce3e7 hover:bg-white/[0.08]" @click="cancel">Cancel</button>
+        <button type="button" class="inline-flex h-9 items-center rounded-control px-3.5 text-[12px] text-tx-dce3e7 hover:bg-ov/[0.08]" @click="cancel">Cancel</button>
         <button type="button" class="inline-flex h-9 items-center rounded-control bg-accent px-3.5 text-[12px] font-semibold text-tx-0b1a22 disabled:opacity-40" :disabled="!complete" @click="done">Done</button>
       </div>
     </DialogContent>

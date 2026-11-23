@@ -140,9 +140,9 @@ function restructure(next: ChartGrid) {
 }
 
 const input =
-  'h-8 w-full min-w-0 rounded-control border border-white/[0.06] bg-field px-2 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60'
+  'h-8 w-full min-w-0 rounded-control border border-ov/[0.06] bg-field px-2 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60'
 const ghost =
-  'inline-flex h-8 items-center gap-1.5 rounded-control px-2.5 text-[12px] text-tx-dce3e7 hover:bg-white/[0.08] disabled:opacity-40 disabled:hover:bg-transparent'
+  'inline-flex h-8 items-center gap-1.5 rounded-control px-2.5 text-[12px] text-tx-dce3e7 hover:bg-ov/[0.08] disabled:opacity-40 disabled:hover:bg-transparent'
 </script>
 
 <template>
@@ -212,7 +212,7 @@ const ghost =
         <button v-if="multi" type="button" :class="ghost" :disabled="!canAddSeries(grid, type)" @click="restructure(addSeries(grid))"><Plus class="size-3.5" />Add series</button>
       </div>
       <div class="mt-6 flex justify-end gap-2">
-        <button type="button" class="inline-flex h-9 items-center rounded-control px-3.5 text-[12px] text-tx-dce3e7 hover:bg-white/[0.08]" @click="cancel">Cancel</button>
+        <button type="button" class="inline-flex h-9 items-center rounded-control px-3.5 text-[12px] text-tx-dce3e7 hover:bg-ov/[0.08]" @click="cancel">Cancel</button>
         <button type="button" class="inline-flex h-9 items-center rounded-control bg-accent px-3.5 text-[12px] font-semibold text-tx-0b1a22" @click="done">Done</button>
       </div>
     </DialogContent>

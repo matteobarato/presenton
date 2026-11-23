@@ -166,13 +166,13 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
     <template v-else>
       <div
         v-if="showReset"
-        class="mb-4 flex items-start gap-2 rounded-control border border-white/[0.06] bg-field px-2.5 py-2 text-[10px] leading-[1.5] text-tx-dce3e7"
+        class="mb-4 flex items-start gap-2 rounded-control border border-ov/[0.06] bg-field px-2.5 py-2 text-[10px] leading-[1.5] text-tx-dce3e7"
         role="status"
       >
         <span class="flex-1">Your edits were reset because the layout changed.</span>
         <button
           type="button"
-          class="-m-0.5 grid size-5 shrink-0 place-items-center rounded-control text-tx-9aa9b0 hover:bg-white/[0.04] hover:text-white"
+          class="-m-0.5 grid size-5 shrink-0 place-items-center rounded-control text-tx-9aa9b0 hover:bg-ov/[0.04] hover:text-white"
           aria-label="Dismiss"
           @click="dismissedFor = animation.slide_id"
         >

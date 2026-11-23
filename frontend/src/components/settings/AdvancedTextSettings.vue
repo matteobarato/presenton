@@ -50,7 +50,7 @@ const uid = useId()
 const id = (name: string) => `${uid}-${name}`
 
 const selectClass =
-  'flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-tx-dce6ec transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40'
+  'flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-tx-dce6ec transition-colors duration-200 hover:border-ov/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40'
 const labelClass = 'mb-2 block text-[12px] font-medium text-tx-dbe7ef'
 const helpClass = 'mt-1.5 text-[11px] leading-5 text-tx-95aab7'
 
@@ -249,7 +249,7 @@ onBeforeUnmount(() => {
 <template>
   <details class="group min-w-0">
     <summary
-      class="flex cursor-pointer list-none items-center justify-between gap-4 rounded-button border border-white/[0.09] px-4 py-3 select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden"
+      class="flex cursor-pointer list-none items-center justify-between gap-4 rounded-button border border-ov/[0.09] px-4 py-3 select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden"
     >
       <span class="min-w-0">
         <span class="block text-[12px] font-medium text-tx-dbe7ef">

@@ -48,7 +48,7 @@ const tip = (s: WizardStepItem) => (s.state === 'locked' ? (s.reason ?? undefine
         <ChevronDown class="size-3.5" aria-hidden="true" />
         <!-- Progress at a glance: one segment per step, done ones filled. -->
         <span class="pointer-events-none absolute inset-x-2.5 bottom-0 flex gap-[3px]" aria-hidden="true" data-testid="steps-compact-track">
-          <span v-for="s in items" :key="s.key" class="h-[2px] flex-1 rounded-full" :class="s.key === current ? 'bg-accent' : s.state === 'done' ? 'bg-accent/65' : 'bg-white/[0.1]'" />
+          <span v-for="s in items" :key="s.key" class="h-[2px] flex-1 rounded-full" :class="s.key === current ? 'bg-accent' : s.state === 'done' ? 'bg-accent/65' : 'bg-ov/[0.1]'" />
         </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" class="max-h-[var(--reka-dropdown-menu-content-available-height)] max-w-[calc(100vw-1.5rem)] min-w-52 overflow-y-auto">
@@ -90,15 +90,15 @@ const tip = (s: WizardStepItem) => (s.state === 'locked' ? (s.reason ?? undefine
             cn(
               tile,
               'relative overflow-hidden',
-              s.key === current ? 'border-lx-bee3f347 bg-sx-bee3f30f text-tx-eef6fa' : s.state === 'done' ? 'border-lx-bee3f31f bg-white/[0.015] text-tx-dbe8ee' : 'border-white/[0.06] bg-white/[0.015] text-tx-c9d5db',
-              s.state === 'locked' ? 'cursor-not-allowed opacity-55' : s.key !== current && 'hover:border-white/[0.12] hover:bg-white/[0.035]',
+              s.key === current ? 'border-lx-bee3f347 bg-sx-bee3f30f text-tx-eef6fa' : s.state === 'done' ? 'border-lx-bee3f31f bg-ov/[0.015] text-tx-dbe8ee' : 'border-ov/[0.06] bg-ov/[0.015] text-tx-c9d5db',
+              s.state === 'locked' ? 'cursor-not-allowed opacity-55' : s.key !== current && 'hover:border-ov/[0.12] hover:bg-ov/[0.035]',
             )
           "
           @click="pick(s)"
         >
           <span
             class="grid size-[22px] flex-none place-items-center rounded-full text-[12px] leading-none font-semibold tabular-nums transition-colors duration-200"
-            :class="s.key === current ? 'bg-accent text-accent-ink' : s.state === 'done' ? 'border border-lx-bee3f373 bg-sx-bee3f333 text-accent' : 'border border-white/[0.14] text-tx-a5b3ba'"
+            :class="s.key === current ? 'bg-accent text-accent-ink' : s.state === 'done' ? 'border border-lx-bee3f373 bg-sx-bee3f333 text-accent' : 'border border-ov/[0.14] text-tx-a5b3ba'"
             aria-hidden="true"
           >
             <Loader2 v-if="s.state === 'running'" data-icon="spinner" class="size-3.5 animate-spin motion-reduce:animate-none" />
@@ -115,7 +115,7 @@ const tip = (s: WizardStepItem) => (s.state === 'locked' ? (s.reason ?? undefine
         <span
           v-if="i > 0"
           class="pointer-events-none absolute top-1/2 right-full h-0.5 w-3 -translate-y-1/2 rounded-full max-[1279px]:w-2"
-          :class="items[i - 1]!.state === 'done' && (s.state === 'done' || s.key === current) ? 'bg-accent/65' : 'bg-white/[0.1]'"
+          :class="items[i - 1]!.state === 'done' && (s.state === 'done' || s.key === current) ? 'bg-accent/65' : 'bg-ov/[0.1]'"
           :data-testid="`step-link-${s.key}`"
           aria-hidden="true"
         />

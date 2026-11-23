@@ -28,7 +28,7 @@ function onGenerate() {
 </script>
 
 <template>
-  <section class="flex flex-col rounded-card border border-white/[0.06] bg-white/[0.015]" aria-label="Slide voice" :data-state="state" data-testid="slide-voice">
+  <section class="flex flex-col rounded-card border border-ov/[0.06] bg-ov/[0.015]" aria-label="Slide voice" :data-state="state" data-testid="slide-voice">
     <div class="flex min-h-11 items-center gap-2 px-3">
       <span class="text-[12px] font-semibold text-tx-f6f8f9">This slide</span>
       <Badge
@@ -39,7 +39,7 @@ function onGenerate() {
         {{ label }}
       </Badge>
     </div>
-    <div class="flex flex-1 flex-col gap-3 border-t border-white/[0.06] p-3">
+    <div class="flex flex-1 flex-col gap-3 border-t border-ov/[0.06] p-3">
       <audio v-if="audio" controls preload="none" :src="audioSrc(audio)" :aria-label="`Narration for slide ${n}`" class="h-8 w-full" />
       <p v-if="state === 'stale'" class="text-[11px] leading-normal text-muted">The note changed since this audio was made.</p>
       <p v-else-if="state === 'translated'" class="text-[11px] leading-normal text-muted">{{ TRANSLATED_HINT }}</p>

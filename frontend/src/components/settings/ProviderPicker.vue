@@ -57,7 +57,7 @@ function choose(value: string) {
           :aria-expanded="open"
           :aria-controls="open ? listId : undefined"
           :aria-labelledby="label ? `${labelId} ${triggerId}` : undefined"
-          class="flex h-[42px] w-full items-center justify-between gap-3 rounded-button border border-transparent bg-field px-3 text-left text-[12px] transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+          class="flex h-[42px] w-full items-center justify-between gap-3 rounded-button border border-transparent bg-field px-3 text-left text-[12px] transition-colors duration-200 hover:border-ov/15 focus-visible:border-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
         >
           <span class="flex min-w-0 flex-1 items-center gap-2.5" :class="selected ? 'text-tx-dce6ec' : 'text-muted'">
             <img v-if="selected?.icon" :src="selected.icon" alt="" class="size-5 shrink-0 rounded-[4px] object-contain" />
@@ -75,8 +75,8 @@ function choose(value: string) {
             type="button"
             role="option"
             :aria-selected="o.value === modelValue"
-            class="flex w-full items-center gap-2.5 rounded-button px-2.5 py-2 text-left transition-colors hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
-            :class="o.value === modelValue && 'bg-white/[0.04]'"
+            class="flex w-full items-center gap-2.5 rounded-button px-2.5 py-2 text-left transition-colors hover:bg-ov/[0.05] focus-visible:bg-ov/[0.05] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+            :class="o.value === modelValue && 'bg-ov/[0.04]'"
             @click="choose(o.value)"
           >
             <img v-if="o.icon" :src="o.icon" alt="" class="size-5 shrink-0 rounded-[4px] object-contain" />

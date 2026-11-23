@@ -97,7 +97,7 @@ async function removeConversation(id: string) {
         />
         <button
           type="button"
-          class="grid size-7 place-items-center rounded-control text-muted hover:bg-white/[0.04] hover:text-white"
+          class="grid size-7 place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-white"
           aria-label="Close Ask AI"
           title="Close (Ctrl+K)"
           @click="editor.chatOpen = false"
@@ -125,7 +125,7 @@ async function removeConversation(id: string) {
             :key="s.label"
             type="button"
             :disabled="chat.sending.value || editor.generating"
-            class="flex items-center gap-2.5 rounded-[9px] border border-white/[0.02] bg-sx-282f33 px-2.5 py-3 text-left text-[11px] text-tx-c0cdd5 hover:bg-sx-34434c hover:text-tx-e3f6ff disabled:opacity-50"
+            class="flex items-center gap-2.5 rounded-[9px] border border-ov/[0.02] bg-sx-282f33 px-2.5 py-3 text-left text-[11px] text-tx-c0cdd5 hover:bg-sx-34434c hover:text-tx-e3f6ff disabled:opacity-50"
             @click="suggest(s.prompt)"
           >
             <component :is="s.icon" class="size-4 text-tx-b8d9eb" aria-hidden="true" />

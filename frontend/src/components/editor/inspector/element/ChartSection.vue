@@ -170,7 +170,7 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
 
     <div :class="section">
       <div :class="label"><h3>Data</h3></div>
-      <div data-chart-mini class="overflow-hidden rounded-control border border-white/[0.06] bg-field text-[10px] text-tx-dce3e7">
+      <div data-chart-mini class="overflow-hidden rounded-control border border-ov/[0.06] bg-field text-[10px] text-tx-dce3e7">
         <p v-if="empty" class="px-2.5 py-2 text-tx-9aa9b0">No data</p>
         <table v-else class="w-full table-fixed">
           <thead>
@@ -180,13 +180,13 @@ const yLabels = computed(() => (radial.value ? { axis: 'Value labels', grid: 'Ri
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(r, i) in mini.rows" :key="i" class="border-t border-white/[0.05]">
+            <tr v-for="(r, i) in mini.rows" :key="i" class="border-t border-ov/[0.05]">
               <td class="truncate px-2 py-1">{{ r.category }}</td>
               <td v-for="(v, j) in r.values" :key="j" class="truncate px-2 py-1">{{ v }}</td>
             </tr>
           </tbody>
         </table>
-        <p v-if="!empty && (mini.moreRows || mini.moreSeries)" class="border-t border-white/[0.05] px-2 py-1 text-[9px] text-tx-9aa9b0">
+        <p v-if="!empty && (mini.moreRows || mini.moreSeries)" class="border-t border-ov/[0.05] px-2 py-1 text-[9px] text-tx-9aa9b0">
           <template v-if="mini.moreRows">+{{ mini.moreRows }} more</template>
           <template v-if="mini.moreRows && mini.moreSeries">, </template>
           <template v-if="mini.moreSeries">+{{ mini.moreSeries }} more series</template>

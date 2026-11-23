@@ -34,13 +34,13 @@ const anyRunning = computed(() => running.pptx || running.pdf)
         :class="
           format === f.id
             ? 'border-lx-a4d2e77a bg-sx-303c42 text-tx-e4f2f9'
-            : 'border-white/[0.05] bg-field text-tx-c0cdd5 hover:bg-sx-2e373b'
+            : 'border-ov/[0.05] bg-field text-tx-c0cdd5 hover:bg-sx-2e373b'
         "
         @click="format = f.id"
       >
         <span
           class="grid size-9 flex-none place-items-center rounded-[10px]"
-          :class="format === f.id ? 'bg-sx-badbef1f text-tx-c4e4f4' : 'bg-white/[0.04] text-tx-9fb2bd'"
+          :class="format === f.id ? 'bg-sx-badbef1f text-tx-c4e4f4' : 'bg-ov/[0.04] text-tx-9fb2bd'"
           aria-hidden="true"
         >
           <component :is="f.icon" class="size-[18px]" />

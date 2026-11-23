@@ -37,9 +37,9 @@ const thumbWidth = computed(() => {
 })
 
 const cardClass =
-  'group relative flex min-w-0 flex-col gap-2.5 rounded-card border p-[7px] pb-2.5 text-left transition-[border-color,background,box-shadow,translate] duration-200 hover:-translate-y-px hover:bg-white/[0.04] scroll-mb-28 focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-40 disabled:hover:translate-y-0'
+  'group relative flex min-w-0 flex-col gap-2.5 rounded-card border p-[7px] pb-2.5 text-left transition-[border-color,background,box-shadow,translate] duration-200 hover:-translate-y-px hover:bg-ov/[0.04] scroll-mb-28 focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-40 disabled:hover:translate-y-0'
 const on = 'border-accent bg-sx-bee3f30d shadow-[0_8px_24px_#0000004d]'
-const off = 'border-white/[0.07] bg-white/[0.02]'
+const off = 'border-ov/[0.07] bg-ov/[0.02]'
 </script>
 
 <template>
@@ -63,7 +63,7 @@ const off = 'border-white/[0.07] bg-white/[0.02]'
       @click="pick(null)"
     >
       <span
-        class="grid aspect-video w-full place-items-center rounded border border-dashed border-white/[0.1] bg-white/[0.02] text-tx-93a6b0 group-hover:text-tx-c8dbe4"
+        class="grid aspect-video w-full place-items-center rounded border border-dashed border-ov/[0.1] bg-ov/[0.02] text-tx-93a6b0 group-hover:text-tx-c8dbe4"
       >
         <Clock3 class="size-5" aria-hidden="true" />
       </span>

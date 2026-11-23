@@ -231,7 +231,7 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
         <header class="summary-kicker"><Palette class="size-3.5" aria-hidden="true" />Look</header>
         <div ref="thumbBox" class="w-full">
           <TemplateCardThumb v-if="template" :template="template" :width="thumbWidth" />
-          <div v-else class="grid aspect-video w-full place-items-center rounded border border-dashed border-white/[0.1] text-[12px] text-tx-8e9ca4">No preview</div>
+          <div v-else class="grid aspect-video w-full place-items-center rounded border border-dashed border-ov/[0.1] text-[12px] text-tx-8e9ca4">No preview</div>
         </div>
         <div class="flex min-w-0 flex-col gap-1">
           <p class="truncate text-[14px] font-medium text-tx-eef6fa">{{ template?.name ?? 'Template' }}</p>

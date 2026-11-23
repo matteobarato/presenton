@@ -277,7 +277,7 @@ function continueToPreview() {
     </div>
 
     <aside
-      class="sticky top-0 flex flex-col gap-3 rounded-card border border-white/[0.07] bg-white/[0.02] p-3 max-[900px]:static max-[900px]:order-first max-[900px]:flex-row max-[900px]:items-center"
+      class="sticky top-0 flex flex-col gap-3 rounded-card border border-ov/[0.07] bg-ov/[0.02] p-3 max-[900px]:static max-[900px]:order-first max-[900px]:flex-row max-[900px]:items-center"
       aria-label="Template"
       data-testid="outline-look"
     >

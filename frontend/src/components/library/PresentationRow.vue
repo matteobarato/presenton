@@ -16,7 +16,7 @@ const cover = computed(() => coverSlide(props.presentation))
 <template>
   <article
     data-testid="deck"
-    class="flex items-center gap-4 rounded-card border border-white/[0.05] bg-sx-1e2427 p-2.5 transition-colors duration-200 hover:border-white/[0.12]"
+    class="flex items-center gap-4 rounded-card border border-ov/[0.05] bg-sx-1e2427 p-2.5 transition-colors duration-200 hover:border-ov/[0.12]"
   >
     <RouterLink :to="deckOpenPath(presentation)" :aria-label="`Open ${title}`" class="block aspect-video w-36 flex-none overflow-hidden rounded-[8px] bg-sx-101416 shadow-[0_6px_15px_#0002]">
       <SlideView v-if="cover" :slide="cover" :theme="presentation.theme" :fonts="presentation.fonts" fit="width" lazy />

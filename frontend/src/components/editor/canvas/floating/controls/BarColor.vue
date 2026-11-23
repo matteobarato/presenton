@@ -46,7 +46,7 @@ function none() {
         @mousedown.prevent
       >
         <span
-          class="size-[18px] rounded-full outline outline-1 outline-white/25"
+          class="size-[18px] rounded-full outline outline-1 outline-ov/25"
           :class="!current && NONE"
           :style="current ? { background: current } : undefined"
         />
@@ -66,7 +66,7 @@ function none() {
         <button
           v-if="noneLabel"
           type="button"
-          class="size-6 rounded-full border border-white/20"
+          class="size-6 rounded-full border border-ov/20"
           :class="NONE"
           :aria-label="noneLabel"
           :title="noneLabel"
@@ -86,7 +86,7 @@ function none() {
           @click="pick(c)"
         />
         <label
-          class="relative ml-auto grid size-6 cursor-pointer place-items-center overflow-hidden rounded-full border border-white/[0.07] bg-sx-30373b text-tx-9daab2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent"
+          class="relative ml-auto grid size-6 cursor-pointer place-items-center overflow-hidden rounded-full border border-ov/[0.07] bg-sx-30373b text-tx-9daab2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent"
           title="Custom colour"
         >
           <Palette class="size-3" aria-hidden="true" />

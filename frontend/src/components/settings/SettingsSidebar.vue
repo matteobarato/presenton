@@ -21,7 +21,7 @@ const NAMES: Record<SettingsSection, string> = {
 const narrow = useMediaQuery('(max-width: 760px)')
 
 const item =
-  'flex min-w-0 items-center gap-3 rounded-[11px] px-3 py-2.5 text-left transition-colors duration-200 hover:bg-white/[0.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent max-[760px]:flex-none max-[760px]:gap-2 max-[760px]:py-2'
+  'flex min-w-0 items-center gap-3 rounded-[11px] px-3 py-2.5 text-left transition-colors duration-200 hover:bg-ov/[0.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent max-[760px]:flex-none max-[760px]:gap-2 max-[760px]:py-2'
 const tile = 'grid size-8 flex-none place-items-center rounded-[9px] transition-colors duration-200 max-[760px]:size-6 max-[760px]:rounded-[7px]'
 
 function onTabKeydown(event: KeyboardEvent) {
@@ -70,7 +70,7 @@ function onTabKeydown(event: KeyboardEvent) {
       :class="[item, s === section ? 'bg-sx-222b30' : '']"
       @click="emit('select', s)"
     >
-      <span :class="[tile, s === section ? 'bg-sx-c2e5f5/12 text-tx-c2e5f5' : 'bg-white/[0.04] text-tx-95aab7']">
+      <span :class="[tile, s === section ? 'bg-sx-c2e5f5/12 text-tx-c2e5f5' : 'bg-ov/[0.04] text-tx-95aab7']">
         <component :is="SECTION_ICONS[s]" class="size-[14px] stroke-[1.75]" aria-hidden="true" />
       </span>
       <span class="text-[13px] font-medium whitespace-nowrap" :class="s === section ? 'text-tx-c2e5f5' : 'text-tx-dbe7ef'">{{ NAMES[s] }}</span>
@@ -85,7 +85,7 @@ function onTabKeydown(event: KeyboardEvent) {
       :class="[item, s === section ? 'bg-sx-222b30' : '']"
       @click="emit('select', s)"
     >
-      <span :class="[tile, s === section ? 'bg-sx-c2e5f5/12 text-tx-c2e5f5' : 'bg-white/[0.04] text-tx-95aab7']">
+      <span :class="[tile, s === section ? 'bg-sx-c2e5f5/12 text-tx-c2e5f5' : 'bg-ov/[0.04] text-tx-95aab7']">
         <component :is="SECTION_ICONS[s]" class="size-4 stroke-[1.75]" aria-hidden="true" />
       </span>
       <span class="flex min-w-0 flex-col gap-[3px]">

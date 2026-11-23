@@ -20,14 +20,14 @@ const id = computed(() => String(route.params.id ?? ''))
 const number = computed(() => String(props.position).padStart(2, '0'))
 
 const btn =
-  'grid size-6 place-items-center rounded-control text-muted hover:bg-white/[0.04] hover:text-white disabled:opacity-35 disabled:hover:bg-transparent'
+  'grid size-6 place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-white disabled:opacity-35 disabled:hover:bg-transparent'
 </script>
 
 <template>
   <div class="mt-2.5 flex h-7 flex-none items-center justify-between gap-3 px-2 text-[11px] text-tx-99a6ac max-[760px]:px-1 max-[450px]:mt-2">
     <div class="flex min-w-0 items-center gap-1.5 text-tx-b2bfc7">
       <span class="sr-only" aria-live="polite" data-testid="slide-position">Slide {{ position }} of {{ total }}</span>
-      <span class="grid h-6 min-w-6 flex-none place-items-center rounded-control border border-white/[0.08] px-1.5 text-[10px] font-medium leading-none text-tx-c6d2d8 tabular-nums" aria-hidden="true">
+      <span class="grid h-6 min-w-6 flex-none place-items-center rounded-control border border-ov/[0.08] px-1.5 text-[10px] font-medium leading-none text-tx-c6d2d8 tabular-nums" aria-hidden="true">
         {{ number }}
       </span>
       <input
@@ -47,13 +47,13 @@ const btn =
       <button type="button" :class="btn" :disabled="editor.zoom <= ZOOM_MIN" aria-label="Zoom out" @click="editor.setZoom(editor.zoom - 0.1)">
         <Minus class="size-[13px]" aria-hidden="true" />
       </button>
-      <button type="button" class="grid h-6 min-w-10 place-items-center rounded-control px-1 text-[11px] leading-none text-tx-b3bfc6 tabular-nums hover:bg-white/[0.04] hover:text-white" title="Fit to canvas" @click="editor.setZoom(1)">
+      <button type="button" class="grid h-6 min-w-10 place-items-center rounded-control px-1 text-[11px] leading-none text-tx-b3bfc6 tabular-nums hover:bg-ov/[0.04] hover:text-white" title="Fit to canvas" @click="editor.setZoom(1)">
         {{ Math.round(editor.zoom * 100) }}%
       </button>
       <button type="button" :class="btn" :disabled="editor.zoom >= ZOOM_MAX" aria-label="Zoom in" @click="editor.setZoom(editor.zoom + 0.1)">
         <Plus class="size-[13px]" aria-hidden="true" />
       </button>
-      <span class="mx-1.5 h-3.5 w-px bg-white/[0.06]" aria-hidden="true" />
+      <span class="mx-1.5 h-3.5 w-px bg-ov/[0.06]" aria-hidden="true" />
       <RouterLink
         :to="{ name: 'present', params: { id }, query: position > 1 ? { from: String(position - 1) } : {} }"
         :class="btn"

@@ -124,7 +124,7 @@ function editSlides() {
       <li v-for="(slide, i) in slides" :key="slide.id ?? `slide-${i}`" class="flex min-w-0 flex-col gap-1.5">
         <button
           type="button"
-          class="group relative block overflow-hidden rounded-[9px] border border-white/[0.07] bg-sx-101416 p-0 text-left transition-colors duration-200 hover:border-lx-7f9fab focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
+          class="group relative block overflow-hidden rounded-[9px] border border-ov/[0.07] bg-sx-101416 p-0 text-left transition-colors duration-200 hover:border-lx-7f9fab focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
           :aria-label="`Open slide ${i + 1}`"
           @click="openSlide(i, $event)"
         >

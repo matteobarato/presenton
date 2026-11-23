@@ -57,7 +57,7 @@ const narrationTo = computed(() => {
       <RouterLink :to="narrationTo" data-testid="export-gaps-link" class="underline decoration-tx-e9d6bb66 underline-offset-[3px] hover:text-white max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center">Go to Narration</RouterLink>
       <span class="text-tx-c9b99f">You can still export now.</span>
     </p>
-    <section class="rounded-card border border-white/[0.06] bg-white/[0.015] p-4">
+    <section class="rounded-card border border-ov/[0.06] bg-ov/[0.015] p-4">
       <ExportOptions :presentation-id="id" :presentation="presentation" :video-note="videoNote" />
     </section>
     <!-- Where to go next: reachable, but quieter than the export card. -->

@@ -68,7 +68,7 @@ const TONE = { ok: 'text-accent', todo: 'text-muted', warn: 'text-danger-text', 
 </script>
 
 <template>
-  <section class="flex flex-col rounded-card border border-white/[0.06]" aria-label="Avatar generation" data-testid="avatar-overview">
+  <section class="flex flex-col rounded-card border border-ov/[0.06]" aria-label="Avatar generation" data-testid="avatar-overview">
     <header class="flex flex-col gap-1 px-3 pt-3 pb-2.5">
       <div class="flex items-center gap-2">
         <h3 class="text-[12px] font-semibold text-tx-f6f8f9">Avatar generation</h3>
@@ -81,7 +81,7 @@ const TONE = { ok: 'text-accent', todo: 'text-muted', warn: 'text-danger-text', 
       <Progress :model-value="progress" aria-label="Avatar generation progress" />
     </div>
 
-    <table class="w-full border-t border-white/[0.06] text-[11px]">
+    <table class="w-full border-t border-ov/[0.06] text-[11px]">
       <caption class="sr-only">What an avatar is made from</caption>
       <thead>
         <tr class="text-left text-muted">
@@ -91,7 +91,7 @@ const TONE = { ok: 'text-accent', todo: 'text-muted', warn: 'text-danger-text', 
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in rows" :key="row.id" class="border-t border-white/[0.04]">
+        <tr v-for="row in rows" :key="row.id" class="border-t border-ov/[0.04]">
           <th scope="row" class="py-1.5 pr-2 pl-3 text-left font-normal whitespace-nowrap text-tx-d4dadd">{{ row.label }}</th>
           <template v-for="col in (['deck', 'slide'] as const)" :key="col">
             <td v-if="col === 'deck' || row.slide" class="py-1.5 pr-2 align-middle last:pr-3" :data-testid="`overview-${row.id}-${col}`">

@@ -9,7 +9,7 @@ const model = defineModel<string>({ required: true })
 </script>
 
 <template>
-  <section :class="bare ? 'flex flex-col gap-6' : 'flex flex-col gap-6 rounded-card border border-white/[0.07] bg-gradient-to-b from-white/[0.03] to-white/[0.01] p-5 shadow-[inset_0_1px_0_#ffffff0a] max-[520px]:p-4'">
+  <section :class="bare ? 'flex flex-col gap-6' : 'flex flex-col gap-6 rounded-card border border-ov/[0.07] bg-gradient-to-b from-ov/[0.03] to-ov/[0.01] p-5 shadow-[inset_0_1px_0_#ffffff0a] max-[520px]:p-4'">
     <header v-if="!bare" class="flex items-center gap-3">
       <span class="grid size-8 flex-none place-items-center rounded-full bg-sx-bee3f31a text-accent" aria-hidden="true"><Languages class="size-4" /></span>
       <span class="flex min-w-0 flex-col">
@@ -21,7 +21,7 @@ const model = defineModel<string>({ required: true })
       <Label for="opt-language" class="sr-only">Language</Label>
       <select
         id="opt-language"
-        class="h-10 w-full max-w-[340px] rounded-button border bg-field px-3 text-[13px] text-tx-dce6ec hover:border-white/15 focus-visible:border-accent disabled:opacity-40"
+        class="h-10 w-full max-w-[340px] rounded-button border bg-field px-3 text-[13px] text-tx-dce6ec hover:border-ov/15 focus-visible:border-accent disabled:opacity-40"
         :class="model === AUTO_LANGUAGE ? 'border-transparent' : 'border-lx-bee3f355'"
         :value="model"
         :disabled="disabled"

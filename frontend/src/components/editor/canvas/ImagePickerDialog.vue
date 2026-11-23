@@ -144,12 +144,12 @@ const assets = (list: ImageAsset[] | undefined) => list ?? []
 
 const tabClass = 'mt-4 flex flex-col gap-3 outline-none'
 const fieldClass =
-  'h-9 min-w-0 flex-1 rounded-control border border-white/[0.06] bg-field px-3 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60'
+  'h-9 min-w-0 flex-1 rounded-control border border-ov/[0.06] bg-field px-3 text-[12px] text-tx-dce3e7 outline-none focus:border-accent/60'
 const primary =
   'inline-flex h-9 items-center gap-2 rounded-control bg-accent px-3.5 text-[12px] font-semibold text-tx-0b1a22 disabled:opacity-40'
 const gridClass = 'grid grid-cols-3 gap-2'
 const thumb =
-  'aspect-[4/3] w-full overflow-hidden rounded-control border border-white/[0.06] bg-field hover:border-accent/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent'
+  'aspect-[4/3] w-full overflow-hidden rounded-control border border-ov/[0.06] bg-field hover:border-accent/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent'
 const alertClass = 'rounded-control bg-danger px-3 py-2 text-[12px] text-danger-text'
 </script>
 
@@ -207,7 +207,7 @@ const alertClass = 'rounded-control bg-danger px-3 py-2 text-[12px] text-danger-
           <div v-if="generating" class="flex items-center gap-3 text-[12px] text-muted">
             <span role="status" aria-label="Generating image" class="inline-flex"><Loader2 class="size-4 animate-spin" aria-hidden="true" /></span>
             <span>Generating...</span>
-            <button type="button" class="ml-auto inline-flex items-center gap-1 rounded-control px-2 py-1 hover:bg-white/[0.04] hover:text-text" aria-label="Cancel generation" @click="cancelGenerate">
+            <button type="button" class="ml-auto inline-flex items-center gap-1 rounded-control px-2 py-1 hover:bg-ov/[0.04] hover:text-text" aria-label="Cancel generation" @click="cancelGenerate">
               <X class="size-3.5" aria-hidden="true" />
               Cancel
             </button>

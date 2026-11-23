@@ -71,7 +71,7 @@ function onNative(event: Event) {
     <PopoverTrigger as-child>
       <button type="button" :class="[field, 'w-full cursor-pointer']" :aria-label="label">
         <span
-          class="size-4 shrink-0 rounded-full border border-white/20"
+          class="size-4 shrink-0 rounded-full border border-ov/20"
           :class="!current && 'bg-[linear-gradient(135deg,transparent_45%,#e5484d_45%,#e5484d_55%,transparent_55%)]'"
           :style="current ? { background: current } : undefined"
         />
@@ -83,7 +83,7 @@ function onNative(event: Event) {
         <button
           v-if="allowNone"
           type="button"
-          class="size-6 rounded-full border border-white/20 bg-[linear-gradient(135deg,transparent_45%,#e5484d_45%,#e5484d_55%,transparent_55%)]"
+          class="size-6 rounded-full border border-ov/20 bg-[linear-gradient(135deg,transparent_45%,#e5484d_45%,#e5484d_55%,transparent_55%)]"
           aria-label="None"
           @click="pick(null)"
         />

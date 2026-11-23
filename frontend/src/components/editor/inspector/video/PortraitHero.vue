@@ -20,12 +20,12 @@ defineExpose({ pick: () => input.value?.click() })
 
 <template>
   <section class="flex flex-col gap-2" aria-label="Presenter portrait" data-testid="portrait-hero">
-    <div class="relative aspect-[4/3] w-full overflow-hidden rounded-card border border-white/[0.06] bg-black/20">
+    <div class="relative aspect-[4/3] w-full overflow-hidden rounded-card border border-ov/[0.06] bg-black/20">
       <img v-if="portrait" :src="portrait.url" alt="Presenter portrait" class="size-full object-cover" />
       <button
         v-else
         type="button"
-        class="group relative flex size-full cursor-pointer flex-col items-center justify-end gap-1.5 overflow-hidden bg-gradient-to-b from-white/[0.04] to-accent/[0.08] px-4 pb-4 text-center transition-colors hover:to-accent/[0.16] disabled:cursor-default"
+        class="group relative flex size-full cursor-pointer flex-col items-center justify-end gap-1.5 overflow-hidden bg-gradient-to-b from-ov/[0.04] to-accent/[0.08] px-4 pb-4 text-center transition-colors hover:to-accent/[0.16] disabled:cursor-default"
         :disabled="busy"
         @click="input?.click()"
       >

@@ -331,7 +331,7 @@ const emptyMessage = computed(() =>
       <select
         id="ollama-model"
         :value="selected"
-        class="flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-tx-dce6ec transition-colors duration-200 hover:border-white/15 focus-visible:border-accent focus-visible:outline-none"
+        class="flex h-9 w-full min-w-0 rounded-button border border-transparent bg-field px-3 text-[12px] text-tx-dce6ec transition-colors duration-200 hover:border-ov/15 focus-visible:border-accent focus-visible:outline-none"
         @change="onModelChange"
       >
         <option value="" disabled>Select a model</option>
@@ -368,7 +368,7 @@ const emptyMessage = computed(() =>
       </ul>
     </details>
 
-    <div v-if="pull" class="grid min-w-0 gap-2 rounded-button border border-white/[0.09] p-3">
+    <div v-if="pull" class="grid min-w-0 gap-2 rounded-button border border-ov/[0.09] p-3">
       <template v-if="pull.phase === 'running'">
         <div class="flex items-center justify-between gap-2 text-[12px] text-tx-dce6ec">
           <span class="truncate" aria-live="polite">Downloading {{ pull.name }}: {{ pull.status }}</span>

@@ -31,7 +31,7 @@ const forwarded = useForwardPropsEmits(delegated, emits)
       "
     >
       <slot />
-      <DialogClose class="absolute top-3 right-3 max-[559px]:top-1.5 max-[559px]:right-1.5 grid size-7 max-[559px]:size-11 place-items-center rounded-control text-muted hover:bg-white/10 hover:text-white" aria-label="Close panel">
+      <DialogClose class="absolute top-3 right-3 max-[559px]:top-1.5 max-[559px]:right-1.5 grid size-7 max-[559px]:size-11 place-items-center rounded-control text-muted hover:bg-ov/10 hover:text-white" aria-label="Close panel">
         <X :size="16" />
       </DialogClose>
     </DialogContent>

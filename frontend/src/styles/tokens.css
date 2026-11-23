@@ -26,6 +26,10 @@
   --color-danger: #5a2929;
   --color-danger-text: #f4c0bc;
   --color-line: rgb(255 255 255 / 0.075);
+  /* Overlay ink: white washes on dark, dark washes on light (use bg-ov/5, border-ov/10 ...) */
+  --color-ov: #ffffff;
+  --color-tab-icon: #a2adb3;
+  --color-tab-icon-active: #edf1f2;
 
   /* shadcn-vue semantic aliases */
   --color-background: #121415;
@@ -113,6 +117,9 @@
   --color-danger: #fbe3e1;
   --color-danger-text: #8f2a24;
   --color-line: rgb(0 0 0 / 0.09);
+  --color-ov: #1d2427;
+  --color-tab-icon: #6a7880;
+  --color-tab-icon-active: #1f7aa5;
 
   --color-background: #e7ebed;
   --color-popover-foreground: #1d2427;

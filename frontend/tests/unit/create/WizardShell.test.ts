@@ -71,7 +71,7 @@ describe('WizardSteps styling', () => {
     expect(w.get('[data-testid="step-topic"] [data-icon="check"]').element.parentElement!.className).toContain('text-accent')
     expect(w.get('[data-testid="step-link-presenter"]').classes()).toContain('bg-accent/65')
     expect(w.get('[data-testid="step-link-outline"]').classes()).toContain('bg-accent/65')
-    expect(w.get('[data-testid="step-link-preview"]').classes()).toContain('bg-white/[0.1]')
+    expect(w.get('[data-testid="step-link-preview"]').classes()).toContain('bg-ov/[0.1]')
   })
 })
 

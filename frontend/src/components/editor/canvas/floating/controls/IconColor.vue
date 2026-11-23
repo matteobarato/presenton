@@ -40,7 +40,7 @@ function pick(value: string) {
         data-bar-item="icon-color"
         @mousedown.prevent
       >
-        <span class="size-[18px] rounded-full outline outline-1 outline-white/25" :style="{ background: swatch(color) }" />
+        <span class="size-[18px] rounded-full outline outline-1 outline-ov/25" :style="{ background: swatch(color) }" />
       </button>
     </PopoverTrigger>
     <PopoverContent
@@ -67,7 +67,7 @@ function pick(value: string) {
           @click="pick(c)"
         />
         <label
-          class="relative ml-auto grid size-6 cursor-pointer place-items-center overflow-hidden rounded-full border border-white/[0.07] bg-sx-30373b text-tx-9daab2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent"
+          class="relative ml-auto grid size-6 cursor-pointer place-items-center overflow-hidden rounded-full border border-ov/[0.07] bg-sx-30373b text-tx-9daab2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent"
           title="Custom colour"
         >
           <Palette class="size-3" aria-hidden="true" />

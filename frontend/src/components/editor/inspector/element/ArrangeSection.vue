@@ -17,7 +17,7 @@ const isMulti = computed(() => toolbarKind(ctx.ui.value, ctx.selection.value) ==
 const editingText = computed(() => !!ctx.inlineEdit.value)
 
 const button =
-  'inline-flex h-8 items-center justify-center gap-1.5 rounded-control border border-white/[0.06] bg-field px-2 text-[10px] font-normal text-tx-c6ced3 hover:bg-sx-303a3f hover:text-white disabled:opacity-35 disabled:hover:bg-field'
+  'inline-flex h-8 items-center justify-center gap-1.5 rounded-control border border-ov/[0.06] bg-field px-2 text-[10px] font-normal text-tx-c6ced3 hover:bg-sx-303a3f hover:text-white disabled:opacity-35 disabled:hover:bg-field'
 
 function run(label: string, op: typeof duplicateSelection) {
   void actions.run(label, (ui) => op(ui, ctx.selection.value))

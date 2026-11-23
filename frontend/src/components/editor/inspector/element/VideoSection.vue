@@ -33,7 +33,7 @@ const name = computed(() =>
     />
     <div
       v-else
-      class="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-control border border-dashed border-white/[0.08] bg-field px-4 text-center text-[10px] leading-[1.5] text-tx-9aa9b0"
+      class="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-control border border-dashed border-ov/[0.08] bg-field px-4 text-center text-[10px] leading-[1.5] text-tx-9aa9b0"
     >
       <Film class="size-5" aria-hidden="true" />
       <span v-if="isPending">Loading video…</span>

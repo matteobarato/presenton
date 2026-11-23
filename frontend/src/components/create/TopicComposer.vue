@@ -89,7 +89,7 @@ defineExpose({ focus: () => textarea.value?.focus() })
         <li
           v-for="(file, i) in files"
           :key="`${file.name}-${file.size}-${i}`"
-          class="anim-pop-in inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/[0.06] bg-sx-1d2427 py-1 pr-1.5 pl-2.5 text-[12px] text-tx-cfdde5"
+          class="anim-pop-in inline-flex max-w-full items-center gap-1.5 rounded-full border border-ov/[0.06] bg-sx-1d2427 py-1 pr-1.5 pl-2.5 text-[12px] text-tx-cfdde5"
         >
           <FileText class="size-3.5 text-tx-8fb4c6" aria-hidden="true" />
           <span class="max-w-[200px] truncate" :title="file.name">{{ file.name }}</span>
@@ -97,7 +97,7 @@ defineExpose({ focus: () => textarea.value?.focus() })
             type="button"
             :disabled="disabled"
             :aria-label="`Remove ${file.name}`"
-            class="grid size-5 place-items-center rounded-full text-muted hover:bg-white/[0.06] hover:text-text"
+            class="grid size-5 place-items-center rounded-full text-muted hover:bg-ov/[0.06] hover:text-text"
             @click="remove(i)"
           >
             <X :size="12" />
@@ -106,7 +106,7 @@ defineExpose({ focus: () => textarea.value?.focus() })
       </ul>
       <div class="flex items-center justify-between gap-3 px-3 pt-1 pb-3">
         <label
-          class="inline-flex h-[30px] max-[559px]:h-11 cursor-pointer items-center gap-2 rounded-button px-2.5 text-[12px] text-tx-a9b8c0 transition-colors hover:bg-white/[0.05] hover:text-text has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent"
+          class="inline-flex h-[30px] max-[559px]:h-11 cursor-pointer items-center gap-2 rounded-button px-2.5 text-[12px] text-tx-a9b8c0 transition-colors hover:bg-ov/[0.05] hover:text-text has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent"
         >
           <Paperclip :size="14" aria-hidden="true" />
           <span>{{ files.length ? `Attach more (${files.length}/${MAX_FILES})` : 'Attach documents' }}</span>
@@ -135,7 +135,7 @@ defineExpose({ focus: () => textarea.value?.focus() })
           :key="s"
           type="button"
           :disabled="disabled"
-          class="max-w-full truncate rounded-full border border-white/[0.07] bg-white/[0.02] px-3 py-1.5 max-[559px]:min-h-11 text-left text-[12px] text-tx-b9c8d0 hover:border-lx-bee3f340 hover:bg-white/[0.04] hover:text-tx-e4eef3"
+          class="max-w-full truncate rounded-full border border-ov/[0.07] bg-ov/[0.02] px-3 py-1.5 max-[559px]:min-h-11 text-left text-[12px] text-tx-b9c8d0 hover:border-lx-bee3f340 hover:bg-ov/[0.04] hover:text-tx-e4eef3"
           :title="s"
           @click="useStarter(s)"
         >

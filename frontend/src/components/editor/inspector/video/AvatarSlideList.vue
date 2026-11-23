@@ -36,7 +36,7 @@ function select(s: Slide) {
       <li v-for="s in sorted" :key="s.id ?? s.index">
         <button
           type="button"
-          class="flex w-full cursor-pointer items-center gap-2.5 rounded-control px-2 py-1.5 text-left transition-colors duration-150 hover:bg-white/[0.04] aria-[current=true]:bg-white/[0.07]"
+          class="flex w-full cursor-pointer items-center gap-2.5 rounded-control px-2 py-1.5 text-left transition-colors duration-150 hover:bg-ov/[0.04] aria-[current=true]:bg-ov/[0.07]"
           :aria-current="activeSlide && activeSlide.index === s.index ? 'true' : undefined"
           :data-testid="`avatar-row-${s.index}`"
           @click="select(s)"

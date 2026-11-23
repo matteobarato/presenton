@@ -333,7 +333,7 @@ watch(
         </p>
       </section>
 
-      <section ref="look" class="flex flex-col gap-3 border-t border-white/[0.06] pt-5" aria-labelledby="new-look-h">
+      <section ref="look" class="flex flex-col gap-3 border-t border-ov/[0.06] pt-5" aria-labelledby="new-look-h">
         <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h3 id="new-look-h" class="flex items-center gap-2 text-[13px] font-medium text-tx-e4ecf0">
             <span class="grid size-5 place-items-center rounded-full bg-sx-bee3f31f text-[12px] font-semibold text-accent">2</span>

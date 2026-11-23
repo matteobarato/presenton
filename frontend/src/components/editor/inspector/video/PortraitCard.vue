@@ -27,7 +27,7 @@ function picked(e: Event) {
         alt="Presenter portrait"
         class="size-16 rounded-control object-cover"
       />
-      <div v-else class="grid size-16 place-items-center rounded-control border border-dashed border-white/15 text-muted">
+      <div v-else class="grid size-16 place-items-center rounded-control border border-dashed border-ov/15 text-muted">
         <ImagePlus class="size-5" aria-hidden="true" />
       </div>
       <div class="flex flex-col gap-1.5">
