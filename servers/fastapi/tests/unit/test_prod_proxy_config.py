@@ -42,3 +42,11 @@ def test_only_one_published_port():
         '      - "${PRESENTON_HTTP_HOST_PORT:-5001}:80"'
     ]
     assert "1455" not in compose
+
+
+def test_api_edit_links_open_the_vue_editor():
+    """FastAPI and MCP return `edit_path=/presentation?id=<uuid>`."""
+    public_server, _ = _servers()
+    assert "location = /presentation {" in public_server
+    assert "return 302 /p/$arg_id;" in public_server
+    assert "absolute_redirect off;" in public_server
