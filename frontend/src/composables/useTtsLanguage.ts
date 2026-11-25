@@ -23,7 +23,8 @@ const read = (key: string): string => {
 }
 
 function matchDeckLanguage(list: TtsLanguage[], deckLanguage: string | null | undefined): string {
-  const wanted = deckLanguage?.trim().toLowerCase()
+  // Deck creation stores labels like "Italian (Italiano)". "Auto (English)" strips to "auto" and matches nothing.
+  const wanted = deckLanguage?.replace(/\s*\(.*\)\s*$/, '').trim().toLowerCase()
   if (!wanted) return ''
   const hit =
     list.find((l) => l.code.toLowerCase() === wanted || l.name.toLowerCase() === wanted) ??

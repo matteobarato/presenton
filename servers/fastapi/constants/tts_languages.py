@@ -186,6 +186,10 @@ def find_tts_language(value: Optional[str]) -> Optional[TTSLanguage]:
 
     # "it-IT", "en-GB", "pt-BR" all carry their language in the first subtag.
     candidates = [normalized]
+    # Deck creation stores labels like "Italian (Italiano)". "Auto (English)"
+    # strips to "auto", which stays unresolved: the deck follows its prompt.
+    if normalized.endswith(")") and "(" in normalized:
+        candidates.append(normalized.split("(", 1)[0].strip())
     if "-" in normalized:
         candidates.append(normalized.split("-", 1)[0])
     candidates.append(normalized.replace("-", " "))

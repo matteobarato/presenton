@@ -65,6 +65,13 @@ describe('useTtsLanguage', () => {
     expect(api.language.value).toBe('fr-FR')
   })
 
+  it('matches the "Name (Endonym)" label saved by deck creation, over the last used language', async () => {
+    localStorage.setItem('slideshows.tts.lang', 'en-US')
+    const { api } = useIn('deck-label', 'French (Français)')
+    await flushPromises()
+    expect(api.language.value).toBe('fr-FR')
+  })
+
   it('falls back to the last language used anywhere, then to English', async () => {
     localStorage.setItem('slideshows.tts.lang', 'fr-FR')
     const a = useIn('deck-x2', 'Klingon')

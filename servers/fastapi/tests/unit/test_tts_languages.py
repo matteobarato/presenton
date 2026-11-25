@@ -51,3 +51,20 @@ def test_unsupported_error_lists_the_supported_languages():
     message = str(error.value)
     assert "Klingon" in message
     assert "Italian (it)" in message
+
+
+@pytest.mark.parametrize(
+    "label, code",
+    [
+        ("Italian (Italiano)", "it"),
+        ("French (Français)", "fr"),
+        ("Chinese (Simplified - 中文, 汉语)", "zh"),
+    ],
+)
+def test_resolves_the_labels_saved_by_deck_creation(label, code):
+    assert find_tts_language(label).code == code
+
+
+@pytest.mark.parametrize("label", ["Auto (English)", "Bengali (বাংলা)"])
+def test_leaves_auto_detect_and_unsupported_labels_unresolved(label):
+    assert find_tts_language(label) is None
