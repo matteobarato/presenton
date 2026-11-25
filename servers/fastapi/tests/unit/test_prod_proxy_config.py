@@ -50,3 +50,10 @@ def test_api_edit_links_open_the_vue_editor():
     assert "location = /presentation {" in public_server
     assert "return 302 /p/$arg_id;" in public_server
     assert "absolute_redirect off;" in public_server
+
+
+def test_api_template_preview_links_open_the_vue_template_page():
+    """FastAPI returns `preview_url=/template-preview?templateV2Id=<id>`."""
+    public_server, _ = _servers()
+    assert "location = /template-preview {" in public_server
+    assert "return 302 /templates/$arg_templateV2Id;" in public_server

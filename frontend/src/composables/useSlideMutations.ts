@@ -8,6 +8,7 @@ import type { Presentation, Slide } from '@/api/types'
 import { slideKey, useEditorStore } from '@/stores/editor'
 import { useHistoryStore } from '@/stores/history'
 import type { RawUi } from '@/slide-editor/model'
+import { uuid } from '@/lib/uuid'
 
 export const MAX_SLIDES = 50
 export const BLANK_SLIDE_LAYOUT_ID = '__blank_slide__'
@@ -320,7 +321,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
       (l) => {
         index = indexOfId(l, id)
         if (index < 0) return null
-        return { ...JSON.parse(JSON.stringify(l[index])), id: crypto.randomUUID() }
+        return { ...JSON.parse(JSON.stringify(l[index])), id: uuid() }
       },
     )
   }
@@ -331,7 +332,7 @@ export function useSlideMutations(presentationId: Ref<string>) {
       i18n.global.t('editor.mutations.labels.addSlide'),
       () => afterIndex + 1,
       (l) => ({
-        id: crypto.randomUUID(),
+        id: uuid(),
         presentation: presentationId.value,
         index: 0,
         content: {},
