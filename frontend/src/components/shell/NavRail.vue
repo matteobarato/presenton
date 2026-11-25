@@ -34,7 +34,7 @@ const settingsSection = computed(() => defaultSettingsSection(session.user?.role
       aria-label="Slideshows"
       class="grid size-10 place-items-center rounded-[12px] max-[760px]:size-[33px] max-[760px]:rounded-[10px] bg-accent text-accent-ink shadow-[0_5px_20px_#0003] transition-[background,transform] duration-200 hover:-rotate-[5deg] hover:bg-accent-hover"
     >
-      <Presentation class="size-6" aria-hidden="true" />
+      <img src="/favicon.svg" alt="Slideshows" class="size-8" aria-hidden="true" />
     </RouterLink>
 
     <div class="mt-[38px] flex w-full flex-col gap-[13px] px-[7px] max-[760px]:mt-[30px] max-[760px]:gap-[15px] max-[760px]:px-1 [@media(max-height:780px)_and_(min-width:1051px)]:mt-[29px]">
