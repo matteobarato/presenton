@@ -10,6 +10,7 @@ from api.v1.auth.internal import authenticated_internal_request_headers
 from templates.custom_layout_from_db import load_custom_presentation_layout
 from templates.presentation_layout import PresentationLayoutModel
 from utils.icon_weights import extract_icon_type_from_settings
+from utils.service_urls import get_web_base_url
 
 LOGGER = logging.getLogger(__name__)
 
@@ -78,7 +79,7 @@ def _read_builtin_template_settings(layout_name: str) -> dict[str, Any] | None:
 async def _fetch_template_fallback_payload(
     layout_name: str,
 ) -> tuple[dict[str, Any] | None, str | None]:
-    fallback_url = f"http://localhost/api/template?group={layout_name}"
+    fallback_url = f"{get_web_base_url()}/api/template?group={layout_name}"
     LOGGER.info(
         "[template_layout] trying HTTP fallback template=%r url=%s",
         layout_name,

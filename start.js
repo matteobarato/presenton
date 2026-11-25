@@ -40,6 +40,8 @@ const nginxRuntimeConfigPath = "/etc/nginx/nginx.conf";
 const args = process.argv.slice(2);
 const hasDevArg = args.includes("--dev") || args.includes("-d");
 const isDev = hasDevArg;
+// Production compose: nginx and Next.js run in their own containers.
+const splitServices = process.env.PRESENTON_SPLIT_SERVICES === "true";
 const canChangeKeys = process.env.CAN_CHANGE_KEYS !== "false";
 
 const fastapiPort = 8000;
@@ -639,7 +641,7 @@ const startServers = async (nginxReadyPromise) => {
     ["mcp_server.py", "--port", appmcpPort.toString()],
     {
       cwd: fastapiDir,
-      stdio: "ignore",
+      stdio: splitServices ? "inherit" : "ignore",
       env: process.env,
     }
   );
@@ -648,17 +650,21 @@ const startServers = async (nginxReadyPromise) => {
     console.error("App MCP process failed to start:", err);
   });
 
-  let nextjsProcess = spawnNextjsProcess();
-  const restartNextjs = () => {
-    nextjsProcess = spawnNextjsProcess(["ignore", "inherit", "inherit"]);
+  let nextjsProcess = null;
+  let nextjsReadyPromise = Promise.resolve();
+  if (!splitServices) {
+    nextjsProcess = spawnNextjsProcess();
+    const restartNextjs = () => {
+      nextjsProcess = spawnNextjsProcess(["ignore", "inherit", "inherit"]);
+      watchManagedProcess("Next.js", nextjsProcess, restartNextjs);
+    };
     watchManagedProcess("Next.js", nextjsProcess, restartNextjs);
-  };
-  watchManagedProcess("Next.js", nextjsProcess, restartNextjs);
 
-  const nextjsReadyPromise = waitForProcessOutputLine("Next.js", nextjsProcess, [
-    /Ready in\s+\d+/i,
-    /started server on/i,
-  ]);
+    nextjsReadyPromise = waitForProcessOutputLine("Next.js", nextjsProcess, [
+      /Ready in\s+\d+/i,
+      /started server on/i,
+    ]);
+  }
   const fastApiReadyPromise = isDev
     ? waitForProcessOutputLine("FastAPI", fastApiProcess, [
         /Application startup complete\./i,
@@ -677,10 +683,10 @@ const startServers = async (nginxReadyPromise) => {
   forwardProcessOutput(fastApiProcess.stderr, process.stderr, {
     suppressStartupUrls,
   });
-  forwardProcessOutput(nextjsProcess.stdout, process.stdout, {
+  forwardProcessOutput(nextjsProcess?.stdout, process.stdout, {
     suppressStartupUrls,
   });
-  forwardProcessOutput(nextjsProcess.stderr, process.stderr, {
+  forwardProcessOutput(nextjsProcess?.stderr, process.stderr, {
     suppressStartupUrls,
   });
 
@@ -707,15 +713,19 @@ const startServers = async (nginxReadyPromise) => {
     );
   }
 
-  try {
-    await Promise.all([fastApiReadyPromise, nextjsReadyPromise, nginxReadyPromise]);
-    printPresentonStartupBanner({
-      mode: isDev ? "development" : "production",
-      nextPort: nextjsPort,
-      fastapiPort,
-    });
-  } catch (err) {
-    console.warn(`Skipping startup banner: ${err.message}`);
+  if (splitServices) {
+    fastApiReadyPromise.catch((err) => console.warn(err.message));
+  } else {
+    try {
+      await Promise.all([fastApiReadyPromise, nextjsReadyPromise, nginxReadyPromise]);
+      printPresentonStartupBanner({
+        mode: isDev ? "development" : "production",
+        nextPort: nextjsPort,
+        fastapiPort,
+      });
+    } catch (err) {
+      console.warn(`Skipping startup banner: ${err.message}`);
+    }
   }
 
   await new Promise(() => {});
@@ -759,9 +769,11 @@ const main = async () => {
     setupUserConfigFromEnv();
   }
 
-  syncNginxConfigForDev();
+  if (!splitServices) {
+    syncNginxConfigForDev();
+  }
 
-  const nginxReadyPromise = startNginx();
+  const nginxReadyPromise = splitServices ? Promise.resolve(true) : startNginx();
   startServers(nginxReadyPromise);
   await nginxReadyPromise;
 };

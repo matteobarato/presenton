@@ -1,6 +1,7 @@
 import uvicorn
 import argparse
 from api.main import app
+from utils.service_urls import get_bind_host
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the FastAPI server")
@@ -18,7 +19,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     reload = args.reload == "true"
-    host = "127.0.0.1"
+    host = get_bind_host()
 
     uvicorn.run(
         "api.main:app",

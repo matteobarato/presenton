@@ -26,6 +26,7 @@ from services.api_keys import API_KEY_PREFIX, verify_api_key
 from api.v1.auth.config import SESSION_COOKIE_NAME
 from api.v1.auth.users import get_jwt_strategy
 from utils.mcp_public_urls import MCP_REQUEST_HEADER
+from utils.service_urls import get_bind_host
 
 OPENAPI_SPEC_PATH = Path(__file__).with_name("openai_spec.json")
 MCP_API_BASE_URL = "http://127.0.0.1:8000"
@@ -453,10 +454,10 @@ async def main():
 
             # Start the MCP server
             uvicorn_config = {"reload": False}
-            print(f"DEBUG: Starting MCP server on host=127.0.0.1, port={args.port}")
+            print(f"DEBUG: Starting MCP server on host={get_bind_host()}, port={args.port}")
             await mcp.run_async(
                 transport="http",
-                host="127.0.0.1",
+                host=get_bind_host(),
                 port=args.port,
                 uvicorn_config=uvicorn_config,
                 host_origin_protection=True,
