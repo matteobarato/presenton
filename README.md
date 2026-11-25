@@ -346,6 +346,20 @@ Deploy and manage Presenton across your organization with versioned Helm charts 
 
 #
 
+#### Production stack with the new web app
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Serves the app on port 5001 (`PRESENTON_HTTP_HOST_PORT` changes it) with data in
+`./app_data` (`PRESENTON_APP_DATA_PATH`). Four containers: an nginx `proxy`, the
+`frontend`, the `api`, and a hidden `renderer`. The renderer is the previous
+Next.js app, still needed for PDF/PPTX/video export and templates.
+
+Do not run it next to `docker-compose.yml` on the same `app_data`. HTTPS is not
+included (put a TLS proxy in front), and ChatGPT/Codex sign-in is not supported.
+
 ### ⚙️ Deployment Configurations
 
 The tables below match the environment variables forwarded in this repository’s **`docker-compose.yml`** (`production`, `production-gpu`, `development`, and `development-gpu`). Put values in a `.env` file next to the compose file, or export them before `docker compose up`. The Electron app backend can read the same names when run outside Docker.
