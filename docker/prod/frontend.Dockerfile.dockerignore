@@ -1,0 +1,7 @@
+*
+!frontend
+!docker/prod/frontend.nginx.conf
+**/node_modules
+frontend/dist
+frontend/.env
+frontend/test-results
