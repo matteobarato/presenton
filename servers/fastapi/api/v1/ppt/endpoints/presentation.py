@@ -26,12 +26,18 @@ from pydantic import BaseModel
 from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
-from constants.presentation import MAX_NUMBER_OF_SLIDES
+from constants.presentation import (
+    BLANK_PRESENTATION_LAYOUT_GROUP,
+    BLANK_PRESENTATION_LAYOUT_ID,
+    MAX_NUMBER_OF_SLIDES,
+    PRESENTATION_SOURCE_PPTX,
+)
 from enums.async_task_status import AsyncTaskStatus
 from enums.webhook_event import WebhookEvent
 from models.api_error_model import APIErrorModel
 from models.generate_presentation_request import GeneratePresentationRequest
 from models.presentation_and_path import PresentationPathAndEditPath
+from models.presentation_import import ImportPresentationRequest
 from models.presentation_from_template import EditPresentationRequest
 from models.presentation_outline_model import (
     PresentationOutlineModel,
@@ -44,6 +50,10 @@ from models.presentation_with_slides import (
     PresentationWithSlides,
 )
 from services.documents_loader import DocumentsLoader
+from services.pptx_import.service import (
+    build_imported_deck,
+    imported_presentation_title,
+)
 from services.chat.slide_ui_helpers import _normalize_generated_image_fit
 from services.temp_file_service import TEMP_FILE_SERVICE
 from services.webhook_service import WebhookService
@@ -214,8 +224,6 @@ ASYNC_TASK_TYPE_PRESENTATION_GENERATE = "presentation.generate"
 ASYNC_TASK_TYPE_SPEAKER_NOTES_TTS = "presentation.speaker-notes.tts"
 ASYNC_TASK_TYPE_PRESENTATION_VIDEO = "presentation.video"
 CUSTOM_TEMPLATE_PREFIX = "custom-"
-BLANK_PRESENTATION_LAYOUT_GROUP = "blank"
-BLANK_PRESENTATION_LAYOUT_ID = "__blank_slide__"
 BLANK_PRESENTATION_SLIDE_UI: dict[str, Any] = {
     "id": BLANK_PRESENTATION_LAYOUT_ID,
     "description": "Empty slide.",
@@ -2986,6 +2994,65 @@ async def create_blank_presentation(
     return PresentationWithSlides(
         **_presentation_response_data(presentation),
         slides=[slide],
+    )
+
+
+@PRESENTATION_ROUTER.post(
+    "/import",
+    response_model=PresentationWithSlides,
+    status_code=201,
+)
+async def import_presentation(
+    request: ImportPresentationRequest,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Start a presentation whose slides are an uploaded PowerPoint's own."""
+    deck = await build_imported_deck(request)
+
+    presentation_id = uuid.uuid4()
+    presentation = PresentationModel(
+        id=presentation_id,
+        version=PresentationVersion.V2_STANDARD,
+        source=PRESENTATION_SOURCE_PPTX,
+        source_name=request.source_name,
+        content="",
+        n_slides=len(deck.slides),
+        language=request.language,
+        title=imported_presentation_title(request),
+        layout=None,
+        fonts=_coerce_presentation_font_map(request.fonts),
+        include_title_slide=False,
+        include_table_of_contents=False,
+        n_videos=request.n_videos,
+    )
+    slides = [
+        SlideModel(
+            presentation=presentation_id,
+            layout_group=BLANK_PRESENTATION_LAYOUT_GROUP,
+            layout=BLANK_PRESENTATION_LAYOUT_ID,
+            index=index,
+            content={},
+            speaker_note=imported.speaker_note,
+            ui=imported.ui,
+        )
+        for index, imported in enumerate(deck.slides)
+    ]
+
+    sql_session.add(presentation)
+    sql_session.add_all(slides)
+    try:
+        await sql_session.commit()
+    except Exception:
+        await sql_session.rollback()
+        raise
+
+    await sql_session.refresh(presentation)
+    for slide in slides:
+        await sql_session.refresh(slide)
+
+    return PresentationWithSlides(
+        **_presentation_response_data(presentation),
+        slides=slides,
     )
 
 
