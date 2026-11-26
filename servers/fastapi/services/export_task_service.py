@@ -710,6 +710,7 @@ class ExportTaskService:
                 output_data,
                 "pptx-to-json",
             )
+            output_data = self._normalize_pptx_json_text_runs(output_data)
 
             return PptxToJsonDocument(**output_data)
         except json.JSONDecodeError as exc:
@@ -722,6 +723,32 @@ class ExportTaskService:
                 status_code=500,
                 detail="PPTX-to-JSON export produced invalid output",
             ) from exc
+
+    @staticmethod
+    def _normalize_pptx_json_text_runs(data: Any) -> Any:
+        """Give empty text runs an empty string instead of null.
+
+        The converter emits `<a:r><a:t></a:t></a:r>` with no `text` (JSON drops `undefined`) or
+        `"text": null`, but the JSON-to-image
+        renderer and the template `TextRun` model both require a string, so any deck with an
+        empty run would fail to preview or to become a template.
+        """
+        if isinstance(data, dict):
+            runs = data.get("runs")
+            if isinstance(runs, list):
+                for run in runs:
+                    if (
+                        isinstance(run, dict)
+                        and run.get("type") in (None, "text")
+                        and not isinstance(run.get("text"), str)
+                    ):
+                        run["text"] = ""
+            for value in data.values():
+                ExportTaskService._normalize_pptx_json_text_runs(value)
+        elif isinstance(data, list):
+            for item in data:
+                ExportTaskService._normalize_pptx_json_text_runs(item)
+        return data
 
     @staticmethod
     def _absolutize_conversion_asset_urls(
