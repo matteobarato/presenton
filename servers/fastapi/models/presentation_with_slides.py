@@ -24,3 +24,5 @@ class PresentationWithSlides(BaseModel):
     generation_mode: Literal["standard", "smart"] = "standard"
     type: Literal["standard", "smart"] = "standard"
     community_design_ids: Optional[List[int]] = None
+    source: Optional[str] = None
+    source_name: Optional[str] = None

@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 MAX_NUMBER_OF_SLIDES = 50
+PRESENTATION_SOURCE_PPTX = "pptx"
 DEFAULT_MAX_OUTLINE_WORDS = 100
 
 

@@ -5,7 +5,7 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from alembic.script import ScriptDirectory
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, inspect, text
 
 import migrations
 
@@ -957,7 +957,7 @@ def test_database_at_either_video_head_upgrades_to_head(tmp_path, monkeypatch, s
             tables = _table_names(connection)
 
         assert version == migrations.REVISION_HEAD
-        assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_ANIMATION
+        assert migrations.REVISION_HEAD == migrations.REVISION_PRESENTATION_SOURCE
         assert {"slide_videos", "presentation_videos"} <= tables
     finally:
         engine.dispose()
@@ -1115,16 +1115,79 @@ def test_presentation_n_videos_revision_sits_on_n_images():
     )
 
 
-def test_slide_animation_revision_is_the_head_on_n_videos():
+def test_slide_animation_revision_sits_on_n_videos():
     script = ScriptDirectory.from_config(_alembic_config("sqlite://"))
 
     assert migrations.REVISION_SLIDE_ANIMATION == "c4d6e8f0a2b3"
-    assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_ANIMATION
     assert (
         script.get_revision(migrations.REVISION_SLIDE_ANIMATION).down_revision
         == migrations.REVISION_PRESENTATION_N_VIDEOS
     )
-    assert script.get_heads() == [migrations.REVISION_SLIDE_ANIMATION]
+
+
+def test_presentation_source_revision_is_the_head_on_slide_animation():
+    script = ScriptDirectory.from_config(_alembic_config("sqlite://"))
+
+    assert migrations.REVISION_PRESENTATION_SOURCE == "d5e7f9a1b3c6"
+    assert migrations.REVISION_HEAD == migrations.REVISION_PRESENTATION_SOURCE
+    assert (
+        script.get_revision(migrations.REVISION_PRESENTATION_SOURCE).down_revision
+        == migrations.REVISION_SLIDE_ANIMATION
+    )
+    assert script.get_heads() == [migrations.REVISION_PRESENTATION_SOURCE]
+
+
+def test_presentation_source_columns_are_added_nullable_and_dropped_on_downgrade(
+    tmp_path,
+):
+    database_url = f"sqlite:///{tmp_path / 'source.db'}"
+    config = _alembic_config(database_url)
+    engine = create_engine(database_url)
+
+    def columns():
+        with engine.connect() as connection:
+            return {
+                row[1]: row
+                for row in connection.execute(text("PRAGMA table_info(presentations)"))
+            }
+
+    try:
+        command.upgrade(config, migrations.REVISION_SLIDE_ANIMATION)
+        assert "source" not in columns()
+        assert "source_name" not in columns()
+
+        command.upgrade(config, migrations.REVISION_PRESENTATION_SOURCE)
+        assert columns()["source"][3] == 0  # nullable: earlier decks are not imports
+        assert columns()["source_name"][3] == 0
+
+        command.downgrade(config, migrations.REVISION_SLIDE_ANIMATION)
+        assert "source" not in columns()
+        assert "source_name" not in columns()
+        assert "n_videos" in columns()
+    finally:
+        engine.dispose()
+
+
+def test_schema_with_presentation_source_is_detected_at_its_revision(
+    tmp_path, monkeypatch
+):
+    database_url = f"sqlite:///{tmp_path / 'source-detect.db'}"
+    monkeypatch.setattr(
+        migrations, "get_database_url_and_connect_args", lambda: (database_url, {})
+    )
+    engine = create_engine(database_url)
+    try:
+        command.upgrade(_alembic_config(database_url), migrations.REVISION_PRESENTATION_SOURCE)
+        with engine.connect() as connection:
+            inspector = inspect(connection)
+            assert (
+                migrations._revision_past_unified_api_keys(
+                    inspector, set(inspector.get_table_names())
+                )
+                == migrations.REVISION_PRESENTATION_SOURCE
+            )
+    finally:
+        engine.dispose()
 
 
 def test_presentation_n_videos_is_added_nullable_and_dropped_on_downgrade(tmp_path):
@@ -1175,6 +1238,8 @@ def _set_version(engine, revision):
         migrations.REVISION_SLIDE_VIDEO_SOURCE,
         migrations.REVISION_PRESENTATION_N_IMAGES,
         migrations.REVISION_PRESENTATION_N_VIDEOS,
+        migrations.REVISION_SLIDE_ANIMATION,
+        migrations.REVISION_PRESENTATION_SOURCE,
     ],
 )
 def test_an_unknown_revision_is_restamped_where_the_schema_really_is(
@@ -1247,7 +1312,7 @@ def test_slides_have_animation_column_after_upgrade(tmp_path):
             }
 
         assert version == migrations.REVISION_HEAD
-        assert migrations.REVISION_HEAD == migrations.REVISION_SLIDE_ANIMATION
+        assert migrations.REVISION_HEAD == migrations.REVISION_PRESENTATION_SOURCE
         assert "animation" in slide_columns
     finally:
         engine.dispose()
