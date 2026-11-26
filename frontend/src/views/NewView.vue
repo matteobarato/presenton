@@ -220,8 +220,8 @@ type BlockerId = 'topic' | 'look' | 'deck' | 'language'
 const blockers = computed(() => {
   const list: { id: BlockerId; text: string }[] = []
   if (isPptx.value) {
-    if (!pptx.preview.value) list.push({ id: 'deck', text: t('views.new.blockers.deck') })
-    // While fonts are re-applied a preview exists but is not ready: nothing to fix, just wait.
+    // Only while nothing is being read: during a check or a re-render there is nothing to fix, just wait.
+    if (pptx.phase.value === 'idle' && !pptx.preview.value) list.push({ id: 'deck', text: t('views.new.blockers.deck') })
     if (!hasLanguage.value) list.push({ id: 'language', text: t('views.new.blockers.language') })
     return list
   }

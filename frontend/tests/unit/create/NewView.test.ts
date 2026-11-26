@@ -920,6 +920,20 @@ describe('From PowerPoint', () => {
     expect(wrapper.find('[data-testid="fix-language"]').exists()).toBe(false)
   })
 
+  it('no upload blocker while the first deck is being read', async () => {
+    let finish!: (p: unknown) => void
+    m.prepareImport.mockReturnValue(new Promise((r) => (finish = r)))
+    const { wrapper } = await mountView('both', {}, '/new?start=pptx')
+    expect(wrapper.get('[data-testid="fix-deck"]').text()).toBe('Upload a PowerPoint')
+    await uploadDeck(wrapper)
+    expect(wrapper.find('[data-testid="import-dropzone"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="fix-deck"]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="fix-language"]').text()).toBe('Choose the narration language')
+    finish(previewOf(12))
+    await flushPromises()
+    expect(wrapper.find('[data-testid="fix-deck"]').exists()).toBe(false)
+  })
+
   it('Import slides creates the deck and lands on Preview', async () => {
     const { wrapper, router, photo } = await readyToImport()
     expect(primary(wrapper).text()).toBe('Import slides')
