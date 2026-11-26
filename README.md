@@ -353,7 +353,9 @@ docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 Serves the app on port 5001 (`PRESENTON_HTTP_HOST_PORT` changes it) with data in
-`./app_data` (`PRESENTON_APP_DATA_PATH`). Four containers: an nginx `proxy`, the
+the named Docker volume `app_data` (`presenton-prod_app_data`), which survives
+rebuilds and redeploys. Set `PRESENTON_APP_DATA_PATH` to an absolute host path to
+use a folder instead. Four containers: an nginx `proxy`, the
 `frontend`, the `api`, and a hidden `renderer`. The renderer is the previous
 Next.js app, still needed for PDF/PPTX/video export and templates.
 
