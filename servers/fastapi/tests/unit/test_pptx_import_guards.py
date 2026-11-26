@@ -5,10 +5,13 @@ import pytest
 from fastapi import HTTPException
 
 from api.v1.ppt.endpoints.outlines import stream_outlines
+from api.v1.ppt.endpoints.slide import edit_slide
 from api.v1.ppt.endpoints.presentation import prepare_presentation, stream_presentation
 from constants.presentation import IMPORTED_DECK_REBUILD_MESSAGE, IMPORTED_SLIDE_CHAT_MESSAGE
 from models.presentation_outline_model import SlideOutlineModel
 from models.sql.presentation import PresentationModel, PresentationVersion
+from models.sql.slide import SlideModel
+from services.pptx_import.guards import ensure_not_imported
 from services.chat.memory_layer import PresentationChatMemoryLayer
 from tests.conftest import FakeAsyncSession
 
@@ -66,3 +69,28 @@ def test_chat_save_slide_refuses_imported_deck():
             "message": IMPORTED_SLIDE_CHAT_MESSAGE,
             "validation_errors": [],
         }
+
+
+def test_ensure_not_imported_allows_template_deck():
+    ensure_not_imported(_presentation(None))
+
+
+def test_chat_save_slide_not_refused_for_template_deck():
+    p = _presentation(None)
+    memory = PresentationChatMemoryLayer(_session(p), p.id)
+    result = asyncio.run(
+        memory.save_slide(
+            content={}, layout_id="x", index=0, replace_old_slide_at_index=True
+        )
+    )
+    assert result["message"] != IMPORTED_SLIDE_CHAT_MESSAGE
+
+
+def test_edit_slide_refuses_imported_deck():
+    p = _presentation("pptx")
+    slide = SlideModel(
+        id=uuid.uuid4(), presentation=p.id, layout_group="g", layout="l",
+        index=0, content={},
+    )
+    session = FakeAsyncSession({slide.id: slide, p.id: p})
+    _assert_409(edit_slide(slide.id, "make it shorter", session))

@@ -8,6 +8,7 @@ from models.sql.presentation import PresentationModel
 from models.sql.slide import SlideModel
 from services.database import get_async_session
 from services.image_generation_service import ImageGenerationService
+from services.pptx_import.guards import ensure_not_imported
 from services.mem0_presentation_memory_service import (
     MEM0_PRESENTATION_MEMORY_SERVICE,
 )
@@ -38,6 +39,7 @@ async def edit_slide(
     presentation = await sql_session.get(PresentationModel, slide.presentation)
     if not presentation:
         raise HTTPException(status_code=404, detail="Presentation not found")
+    ensure_not_imported(presentation)
 
     memory_context = await MEM0_PRESENTATION_MEMORY_SERVICE.retrieve_context(
         presentation.id,
