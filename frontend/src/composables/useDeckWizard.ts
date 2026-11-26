@@ -59,6 +59,7 @@ export function useDeckWizard(
   const ttsQuery = useTts(id, narration.language)
 
   const slideCount = computed(() => presentation.value.slides.length)
+  const imported = computed(() => presentation.value.source === 'pptx')
   const ready = computed(
     () => slideCount.value === 0 || (videosQuery.isFetched.value && ttsQuery.isFetched.value),
   )
@@ -77,6 +78,7 @@ export function useDeckWizard(
         generationAvailable: avatars.videos.value?.generation_available,
       },
       pipelineRunning: opts.pipelineRunning.value,
+      imported: imported.value,
     })
   })
 
@@ -93,7 +95,9 @@ export function useDeckWizard(
     const n = slideCount.value
     const counts = narration.counts.value
     const summaries: Record<string, string> = {
-      topic: [clip(p.content ?? '', 40), templateName.value].filter(Boolean).join(' · '),
+      topic: imported.value
+        ? i18n.global.t('create.wizard.imported.topicSummary', { name: clip(p.source_name?.trim() || p.title?.trim() || '', 40), count: n }, n)
+        : [clip(p.content ?? '', 40), templateName.value].filter(Boolean).join(' · '),
       presenter: presenterSummary(Boolean(avatars.videos.value?.portrait)),
       outline: n ? i18n.global.t('create.wizard.outlineSummary', { count: n }) : '',
       preview: '',

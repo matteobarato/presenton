@@ -164,3 +164,26 @@ describe('deckProgress', () => {
     expect(Object.keys(p.steps.avatar)).not.toContain('badge')
   })
 })
+
+describe('deckProgress: imported (PowerPoint) deck', () => {
+  it('with slides and no narration resumes on preview', () => {
+    const p = deckProgress(input({ imported: true, slideCount: 3 }))
+    expect(p.steps.preview.state).toBe('done')
+    expect(p.resume).toBe('preview')
+  })
+
+  it('with one narrated slide resumes on avatar', () => {
+    const p = deckProgress(input({ imported: true, slideCount: 3, narration: { ready: 1, stale: 0 } }))
+    expect(p.resume).toBe('avatar')
+  })
+
+  it('while the pipeline runs resumes on avatar', () => {
+    const p = deckProgress(input({ imported: true, slideCount: 3, pipelineRunning: true }))
+    expect(p.resume).toBe('avatar')
+  })
+
+  it('a non-imported deck is unchanged', () => {
+    expect(deckProgress(input({ slideCount: 3 })).resume).toBe('avatar')
+    expect(deckProgress(input({ imported: false, slideCount: 3 })).resume).toBe('avatar')
+  })
+})

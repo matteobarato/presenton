@@ -13,6 +13,8 @@ import { useDeckWizard } from '@/composables/useDeckWizard'
 import OutlineStep from '@/components/create/steps/OutlineStep.vue'
 import PreviewStep from '@/components/create/steps/PreviewStep.vue'
 import DeckSetupChips from '@/components/create/DeckSetupChips.vue'
+import ImportedOutlineSummary from '@/components/create/ImportedOutlineSummary.vue'
+import ImportedTopicSummary from '@/components/create/ImportedTopicSummary.vue'
 import PresenterSettings from '@/components/create/steps/PresenterSettings.vue'
 import AvatarStep from '@/components/create/steps/AvatarStep.vue'
 import ExportStep from '@/components/create/steps/ExportStep.vue'
@@ -53,6 +55,8 @@ const slidesStreaming = ref(streamFlag.value)
 
 const id = computed(() => props.presentationId)
 const deck = computed(() => props.presentation)
+/** Read from a PowerPoint: its slides keep the file's design, so the AI outline (stream, Generate slides) never runs. */
+const imported = computed(() => props.presentation.source === 'pptx')
 // The narration/avatar pipeline lives here, not in the Avatar step: it keeps chaining while the user looks at
 // another step or a summary. One per deck: DeckStateProvider (our parent) is keyed on the presentation id.
 const deckAvatars = injectDeckAvatars()
@@ -191,7 +195,13 @@ const COPY = computed<Record<WizardStepKey, { heading: string; lede: string }>>(
   avatar: { heading: t('create.wizard.copy.avatar.heading'), lede: t('create.wizard.copy.avatar.lede') },
   export: { heading: t('create.wizard.copy.export.heading'), lede: t('create.wizard.copy.export.lede') },
 }))
-const copy = computed(() => COPY.value[current.value])
+// An imported deck has no topic, template or AI outline: Topic and Outline describe the PowerPoint's slides instead.
+const IMPORTED_COPY = computed<Partial<Record<WizardStepKey, { heading: string; lede: string }>>>(() => ({
+  topic: { heading: t('create.wizard.imported.copy.topic.heading'), lede: t('create.wizard.imported.copy.topic.lede') },
+  outline: { heading: t('create.wizard.imported.copy.outline.heading'), lede: t('create.wizard.imported.copy.outline.lede') },
+}))
+const copy = computed(() => (imported.value && IMPORTED_COPY.value[current.value]) || COPY.value[current.value])
+const topicStatus = computed(() => (imported.value ? t('create.wizard.imported.footerStatus') : t('create.wizard.fixedAtCreate')))
 // The body is keyed by the deck step only: a summary shown over it must not remount it (and abort its stream).
 const panelKey = computed(() => step.value ?? requested.value ?? progress.value.resume)
 const title = computed(() => props.presentation.title?.trim() || t('create.wizard.newPresentation'))
@@ -219,7 +229,8 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
     @blocked="explainLocked"
     @navigate="navigate"
   >
-    <section v-if="summary === 'topic'" data-testid="summary-topic" class="grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-4 max-[760px]:grid-cols-1">
+    <ImportedTopicSummary v-if="summary === 'topic' && imported" :presentation="presentation" />
+    <section v-else-if="summary === 'topic'" data-testid="summary-topic" class="grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-4 max-[760px]:grid-cols-1">
       <article class="summary-card flex min-w-0 flex-col gap-3">
         <header class="summary-kicker"><PencilLine class="size-3.5" aria-hidden="true" />{{ t('create.steps.topic') }}</header>
         <blockquote class="relative max-h-[320px] overflow-y-auto border-l-2 border-accent/60 pl-4 text-[13.5px] leading-[1.75] whitespace-pre-wrap text-tx-dbe5ea">
@@ -243,7 +254,7 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
         </div>
       </article>
     </section>
-    <DeckSetupChips v-if="summary === 'topic'" :presentation="presentation" />
+    <DeckSetupChips v-if="summary === 'topic' && !imported" :presentation="presentation" />
     <PresenterSettings
       v-else-if="summary === 'presenter'"
       data-testid="step-presenter"
@@ -255,7 +266,8 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
     <!-- Step bodies: filled by the Outline, Preview, Narration and Export steps. They stay mounted (hidden) behind the
          Topic summary, so a running stream or pipeline is not aborted by a look at step 1. -->
     <section v-if="step === 'outline'" v-show="!summary" data-testid="step-body-outline">
-      <OutlineStep :presentation="presentation" :pipeline-running="pipelineRunning" @streaming="outlineStreaming = $event" />
+      <ImportedOutlineSummary v-if="imported" :presentation="presentation" />
+      <OutlineStep v-else :presentation="presentation" :pipeline-running="pipelineRunning" @streaming="outlineStreaming = $event" />
     </section>
     <section v-else-if="step === 'preview'" v-show="!summary" data-testid="step-body-preview">
       <PreviewStep :presentation="presentation" @streaming="slidesStreaming = $event" />
@@ -272,7 +284,7 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
 
     <template #footer>
       <div :ref="setFooterTarget" class="contents" />
-      <WizardFooter v-if="summary || !footer.claims.value" :status="notice.text.value || (summary === 'topic' ? t('create.wizard.fixedAtCreate') : summary ? undefined : (nextLockReason ?? undefined))">
+      <WizardFooter v-if="summary || !footer.claims.value" :status="notice.text.value || (summary === 'topic' ? topicStatus : summary ? undefined : (nextLockReason ?? undefined))">
         <template #back>
           <WizardBackButton v-if="neighbour('back')" @click="navigate('back')" />
         </template>

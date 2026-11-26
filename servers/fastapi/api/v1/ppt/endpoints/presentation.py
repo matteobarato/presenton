@@ -23,15 +23,22 @@ from fastapi import (
 )
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from sqlalchemy import delete, update
+from sqlalchemy import delete, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 from sqlmodel import select
-from constants.presentation import MAX_NUMBER_OF_SLIDES
+from constants.presentation import (
+    BLANK_PRESENTATION_LAYOUT_GROUP,
+    BLANK_PRESENTATION_LAYOUT_ID,
+    MAX_NUMBER_OF_SLIDES,
+    PRESENTATION_SOURCE_PPTX,
+)
 from enums.async_task_status import AsyncTaskStatus
 from enums.webhook_event import WebhookEvent
 from models.api_error_model import APIErrorModel
 from models.generate_presentation_request import GeneratePresentationRequest
 from models.presentation_and_path import PresentationPathAndEditPath
+from models.presentation_import import ImportPresentationRequest
 from models.presentation_from_template import EditPresentationRequest
 from models.presentation_outline_model import (
     PresentationOutlineModel,
@@ -44,6 +51,10 @@ from models.presentation_with_slides import (
     PresentationWithSlides,
 )
 from services.documents_loader import DocumentsLoader
+from services.pptx_import.service import (
+    build_imported_deck,
+    imported_presentation_title,
+)
 from services.chat.slide_ui_helpers import _normalize_generated_image_fit
 from services.temp_file_service import TEMP_FILE_SERVICE
 from services.webhook_service import WebhookService
@@ -70,6 +81,7 @@ from services.database import get_async_session
 from services.database import async_session_maker
 from services.concurrent_service import CONCURRENT_SERVICE
 from models.sql.presentation import PresentationModel, PresentationVersion
+from services.pptx_import.guards import ensure_not_imported
 from models.sql.template_v2 import TemplateV2
 from models.sql.async_task import AsyncTaskModel
 from utils.asset_directory_utils import get_images_directory
@@ -102,6 +114,7 @@ from utils.process_slides import (
 )
 from utils.icon_weights import DEFAULT_ICON_TYPE, extract_icon_type_from_settings
 from utils.llm_utils import TextGenerationMetrics, message_content_to_text
+from utils.slide_ui_text import slide_ui_text
 from utils.sse import safe_sse_stream
 from api.v1.auth.config import SESSION_COOKIE_NAME
 from utils.web_search import get_selected_web_search_provider, get_web_search_route
@@ -214,8 +227,6 @@ ASYNC_TASK_TYPE_PRESENTATION_GENERATE = "presentation.generate"
 ASYNC_TASK_TYPE_SPEAKER_NOTES_TTS = "presentation.speaker-notes.tts"
 ASYNC_TASK_TYPE_PRESENTATION_VIDEO = "presentation.video"
 CUSTOM_TEMPLATE_PREFIX = "custom-"
-BLANK_PRESENTATION_LAYOUT_GROUP = "blank"
-BLANK_PRESENTATION_LAYOUT_ID = "__blank_slide__"
 BLANK_PRESENTATION_SLIDE_UI: dict[str, Any] = {
     "id": BLANK_PRESENTATION_LAYOUT_ID,
     "description": "Empty slide.",
@@ -1599,7 +1610,16 @@ async def get_all_presentations(
     sql_session: AsyncSession = Depends(get_async_session),
 ):
     if include_slides:
-        query = select(PresentationModel, SlideModel).join(
+        # Only the first slide is returned (for the cover preview), so the real
+        # slide count travels separately as a correlated count.
+        counted = aliased(SlideModel)
+        slide_count = (
+            select(func.count(counted.id))
+            .where(counted.presentation == PresentationModel.id)
+            .correlate(PresentationModel)
+            .scalar_subquery()
+        )
+        query = select(PresentationModel, SlideModel, slide_count).join(
             SlideModel,
             (SlideModel.presentation == PresentationModel.id) & (SlideModel.index == 0),
         )
@@ -1622,12 +1642,12 @@ async def get_all_presentations(
 
     rows = results.all()
     presentations_with_slides = []
-    for presentation, first_slide in rows:
-        slides = [first_slide]
+    for presentation, first_slide, total_slides in rows:
         presentations_with_slides.append(
             PresentationWithSlides(
                 **_presentation_response_data(presentation),
-                slides=slides,
+                slides=[first_slide],
+                slide_count=total_slides,
             )
         )
     return presentations_with_slides
@@ -2989,6 +3009,69 @@ async def create_blank_presentation(
     )
 
 
+@PRESENTATION_ROUTER.post(
+    "/import",
+    response_model=PresentationWithSlides,
+    status_code=201,
+)
+async def import_presentation(
+    request: ImportPresentationRequest,
+    sql_session: AsyncSession = Depends(get_async_session),
+):
+    """Start a presentation whose slides are an uploaded PowerPoint's own."""
+    deck = await build_imported_deck(request)
+
+    presentation_id = uuid.uuid4()
+    presentation = PresentationModel(
+        id=presentation_id,
+        version=PresentationVersion.V2_STANDARD,
+        source=PRESENTATION_SOURCE_PPTX,
+        source_name=request.source_name,
+        content="",
+        n_slides=len(deck.slides),
+        language=request.language,
+        title=imported_presentation_title(request),
+        layout=None,
+        fonts=_coerce_presentation_font_map(request.fonts),
+        include_title_slide=False,
+        include_table_of_contents=False,
+        n_videos=(
+            None
+            if request.n_videos is None
+            else min(request.n_videos, len(deck.slides))
+        ),
+    )
+    slides = [
+        SlideModel(
+            presentation=presentation_id,
+            layout_group=BLANK_PRESENTATION_LAYOUT_GROUP,
+            layout=BLANK_PRESENTATION_LAYOUT_ID,
+            index=index,
+            content={},
+            speaker_note=imported.speaker_note,
+            ui=imported.ui,
+        )
+        for index, imported in enumerate(deck.slides)
+    ]
+
+    sql_session.add(presentation)
+    sql_session.add_all(slides)
+    try:
+        await sql_session.commit()
+    except Exception:
+        await sql_session.rollback()
+        raise
+
+    await sql_session.refresh(presentation)
+    for slide in slides:
+        await sql_session.refresh(slide)
+
+    return PresentationWithSlides(
+        **_presentation_response_data(presentation),
+        slides=slides,
+    )
+
+
 @PRESENTATION_ROUTER.post("/prepare", response_model=PresentationPrepareResponse)
 async def prepare_presentation(
     presentation_id: Annotated[uuid.UUID, Body()],
@@ -3008,6 +3091,7 @@ async def prepare_presentation(
     presentation = await sql_session.get(PresentationModel, presentation_id)
     if not presentation:
         raise HTTPException(status_code=404, detail="Presentation not found")
+    ensure_not_imported(presentation)
 
     presentation_outline_model = PresentationOutlineModel(slides=outlines)
 
@@ -3097,6 +3181,13 @@ async def prepare_presentation(
     return PresentationPrepareResponse(presentation_id=presentation.id)
 
 
+def _speaker_note_ui_text(slide: SlideModel) -> str:
+    """Imported slides keep their copy only in ``ui``; others need no override."""
+    if slide.html_content or slide.content:
+        return ""
+    return slide_ui_text(slide.ui)
+
+
 def _speaker_note_slide_title(slide: SlideModel) -> str:
     content = slide.content or {}
     title = content.get("title")
@@ -3106,7 +3197,8 @@ def _speaker_note_slide_title(slide: SlideModel) -> str:
                 nested = value.get("title") or value.get("headline")
                 if isinstance(nested, str) and nested.strip():
                     return nested.strip()
-        return ""
+        ui_text = _speaker_note_ui_text(slide)
+        return ui_text.split("\n", 1)[0][:120] if ui_text else ""
     return title.strip()
 
 
@@ -3120,6 +3212,7 @@ def _speaker_note_deck_context(slides: Sequence[SlideModel]) -> list[dict[str, A
     context: list[dict[str, Any]] = []
     for slide in slides:
         html = slide.html_content or ""
+        ui_text = _speaker_note_ui_text(slide)
         context.append(
             {
                 "title": _speaker_note_slide_title(slide),
@@ -3128,6 +3221,7 @@ def _speaker_note_deck_context(slides: Sequence[SlideModel]) -> list[dict[str, A
                 ),
                 "html": html,
                 "content": slide.content or {},
+                **({"text": ui_text} if ui_text else {}),
             }
         )
     return context
@@ -3557,6 +3651,7 @@ async def stream_presentation(
     presentation = await sql_session.get(PresentationModel, id)
     if not presentation:
         raise HTTPException(status_code=404, detail="Presentation not found")
+    ensure_not_imported(presentation)
     if presentation.generation_mode == "smart":
         return await stream_smart_presentation(presentation, sql_session)
     if not presentation.structure:

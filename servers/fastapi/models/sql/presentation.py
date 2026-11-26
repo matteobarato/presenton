@@ -92,6 +92,12 @@ class PresentationModel(SQLModel, table=True):
     n_videos: Optional[int] = Field(
         sa_column=Column(Integer, nullable=True), default=None
     )
+    # Where the deck came from ("pptx" for a PowerPoint import, None otherwise)
+    # and the original file name.
+    source: Optional[str] = Field(sa_column=Column(String, nullable=True), default=None)
+    source_name: Optional[str] = Field(
+        sa_column=Column(String, nullable=True), default=None
+    )
 
     def get_new_presentation(self):
         return PresentationModel(
@@ -119,6 +125,8 @@ class PresentationModel(SQLModel, table=True):
             narration=copy.deepcopy(self.narration),
             n_images=self.n_images,
             n_videos=self.n_videos,
+            source=self.source,
+            source_name=self.source_name,
         )
 
     def get_presentation_outline(self):

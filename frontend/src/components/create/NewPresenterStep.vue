@@ -6,7 +6,7 @@ import GenerationOptions from './GenerationOptions.vue'
 import PresenterPicker from './PresenterPicker.vue'
 import type { CreateOptions } from './options'
 import { rovingKeydown, rovingTab } from '@/lib/roving'
-import { presenterNote } from './setupSummary'
+import { importPresenterNote, presenterNote } from './setupSummary'
 const { t } = useI18n()
 
 /**
@@ -15,7 +15,7 @@ const { t } = useI18n()
  * rendered here: the videos are made at the Narration step. `wants` is the choice itself: it can be "presenter" before
  * a photo exists, which the parent needs to say so (step bar, footer).
  */
-const props = defineProps<{ disabled?: boolean; error?: string; photoLost?: boolean }>()
+const props = defineProps<{ disabled?: boolean; error?: string; photoLost?: boolean; slideCount?: number }>()
 const portrait = defineModel<File | null>({ required: true })
 /** Only the presenter video count is edited here. */
 const options = defineModel<CreateOptions>('options', { required: true })
@@ -24,7 +24,11 @@ const emit = defineEmits<{ error: [message: string] }>()
 // Choosing "digital presenter" before a photo exists must keep the picker open.
 const wantsPresenter = defineModel<boolean>('wants', { default: false })
 const withPresenter = computed(() => wantsPresenter.value || portrait.value !== null)
-const note = computed(() => presenterNote(portrait.value !== null, options.value.videos))
+const note = computed(() =>
+  props.slideCount === undefined
+    ? presenterNote(portrait.value !== null, options.value.videos)
+    : importPresenterNote(portrait.value !== null, options.value.videos, props.slideCount),
+)
 
 function chooseVoiceOnly() {
   wantsPresenter.value = false
@@ -64,7 +68,7 @@ const iconWrap = 'grid size-10 flex-none place-items-center rounded-full bg-sx-b
       <PresenterPicker v-model="portrait" :disabled="disabled" @error="emit('error', $event)" />
       <p v-if="error" role="alert" class="text-center text-[12px] text-tx-e8a2a2">{{ error }}</p>
       <p v-if="photoLost" role="note" class="text-center text-[12px] text-tx-a9c4d2">{{ t('create.presenter.photoAgain') }}</p>
-      <GenerationOptions v-model="options" :has-photo="portrait !== null" :disabled="props.disabled" :sections="['videos']" bare />
+      <GenerationOptions v-model="options" :has-photo="portrait !== null" :disabled="props.disabled" :sections="['videos']" :max-videos="slideCount" bare />
       <p v-if="note" role="note" data-testid="presenter-note" class="text-center text-[12px] text-tx-a9c4d2">{{ note }}</p>
       <p v-else role="note" data-testid="presenter-note" class="text-center text-[12px] text-tx-a9c4d2">{{ t('create.presenter.rendersLater') }}</p>
     </template>

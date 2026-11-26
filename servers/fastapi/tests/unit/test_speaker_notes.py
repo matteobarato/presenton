@@ -3,7 +3,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from api.v1.ppt.endpoints.presentation import _apply_speaker_notes
+from api.v1.ppt.endpoints.presentation import (
+    _apply_speaker_notes,
+    _speaker_note_deck_context,
+)
 from models.sql.presentation import PresentationModel
 from models.sql.slide import SlideModel
 from utils.llm_calls.generate_speaker_notes import (
@@ -349,3 +352,79 @@ def test_extract_slide_content_text_reads_template_copy_only():
     assert text == "Hiring plan Engineering 8 roles Sales 3 roles 11"
 
 
+
+
+def _imported_slide_model(index, speaker_note=None):
+    return SlideModel(
+        presentation="11111111-1111-1111-1111-111111111111",
+        layout_group="imported",
+        layout="imported",
+        index=index,
+        content={},
+        ui={
+            "elements": [
+                {"type": "text", "runs": [{"text": "Title"}]},
+                {"type": "text-list", "items": ["One", "Two"]},
+            ]
+        },
+        speaker_note=speaker_note,
+    )
+
+
+def test_imported_slide_context_reads_ui_text():
+    context = _speaker_note_deck_context([_imported_slide_model(0)])
+
+    assert context[0]["text"] == "Title\nOne\nTwo"
+    assert context[0]["title"] == "Title"
+
+
+def test_imported_slide_title_is_clipped_to_120_characters():
+    slide = _imported_slide_model(0)
+    slide.ui = {"elements": [{"type": "text", "runs": [{"text": "x" * 200}]}]}
+
+    assert _speaker_note_deck_context([slide])[0]["title"] == "x" * 120
+
+
+def test_template_slide_context_has_no_text_override():
+    slide = SlideModel(
+        presentation="11111111-1111-1111-1111-111111111111",
+        layout_group="general",
+        layout="general:intro",
+        index=0,
+        content={"title": "X"},
+        ui={"elements": [{"type": "text", "runs": [{"text": "Other"}]}]},
+    )
+
+    context = _speaker_note_deck_context([slide])
+
+    assert "text" not in context[0]
+    assert context[0]["title"] == "X"
+
+
+def test_existing_imported_notes_are_kept(monkeypatch):
+    slides = [_imported_slide_model(0, "Existing note"), _imported_slide_model(1)]
+    presentation = PresentationModel(
+        content="Deck",
+        n_slides=2,
+        language="English",
+        title="Deck",
+        layout=None,
+        fonts=None,
+        include_title_slide=True,
+    )
+    captured = {}
+
+    async def fake_notes(**kwargs):
+        captured.update(kwargs)
+        return {1: "Walk through the points."}
+
+    monkeypatch.setattr(
+        "api.v1.ppt.endpoints.presentation.generate_speaker_notes",
+        fake_notes,
+    )
+
+    asyncio.run(_apply_speaker_notes(slides, presentation, deck_title="Deck"))
+
+    assert captured["indexes"] == [1]
+    assert slides[0].speaker_note == "Existing note"
+    assert slides[1].speaker_note == "Walk through the points."

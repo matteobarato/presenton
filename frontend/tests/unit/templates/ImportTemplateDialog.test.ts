@@ -9,9 +9,16 @@ const mocks = vi.hoisted(() => ({
   startImport: vi.fn(),
   retryImport: vi.fn(),
   getTask: vi.fn(),
+  listTemplates: vi.fn(),
+  listImportTasks: vi.fn(),
+}))
+vi.mock('@/api/templates', async (orig) => ({
+  ...(await orig<typeof import('@/api/templates')>()),
+  listTemplates: mocks.listTemplates,
 }))
 vi.mock('@/api/templateImport', async (orig) => ({
   ...(await orig<typeof import('@/api/templateImport')>()),
+  listImportTasks: mocks.listImportTasks,
   checkFonts: mocks.checkFonts,
   prepareImport: mocks.prepareImport,
   startImport: mocks.startImport,
@@ -20,8 +27,7 @@ vi.mock('@/api/templateImport', async (orig) => ({
 vi.mock('@/api/tasks', () => ({ getTask: mocks.getTask }))
 
 import { ApiError } from '@/api/errors'
-import { router as appRouter } from '@/router'
-import ImportTemplateView from '@/views/ImportTemplateView.vue'
+import TemplatesView from '@/views/TemplatesView.vue'
 import { IMPORT_TASK_STORAGE_KEY } from '@/composables/useTemplateImport'
 
 const preview = {
@@ -34,12 +40,14 @@ const task = (status: string, data: Record<string, unknown> = {}, extra: Record<
   id: 't1', type: 'template.create', status, data, ...extra,
 })
 
-async function mountAt(path = '/templates/import') {
+const mounted: ReturnType<typeof mount>[] = []
+
+/** The import runs in a dialog over the Templates page, opened by `?import=new|<task id>`. */
+async function mountAt(path = '/templates?import=new') {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
-      { path: '/templates', name: 'templates', component: { template: '<div />' } },
-      { path: '/templates/import', name: 'template-import', component: ImportTemplateView },
+      { path: '/templates', name: 'templates', component: TemplatesView },
       { path: '/templates/:id', name: 'template', component: { template: '<div data-testid="detail" />' } },
     ],
   })
@@ -47,33 +55,46 @@ async function mountAt(path = '/templates/import') {
   await router.isReady()
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const wrapper = mount({ template: '<RouterView />' }, { global: { plugins: [router, [VueQueryPlugin, { queryClient }]] }, attachTo: document.body })
+  mounted.push(wrapper)
   await flushPromises()
   return { wrapper, router }
 }
 
-async function pick(wrapper: ReturnType<typeof mount>, file: File) {
-  const input = wrapper.get('[data-testid="import-file-input"]')
-  Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
-  await input.trigger('change')
+async function pick(file: File) {
+  const input = dialog()!.querySelector<HTMLInputElement>('[data-testid="import-file-input"]')!
+  Object.defineProperty(input, 'files', { value: [file], configurable: true })
+  input.dispatchEvent(new Event('change'))
   await flushPromises()
 }
 
-const button = (w: ReturnType<typeof mount>, text: string) => w.findAll('button').find((b) => b.text().includes(text))
+// The dialog is teleported to <body>, so look there rather than inside the wrapper.
+const dialog = () => document.querySelector<HTMLElement>('[data-testid="import-dialog"]')
+const dialogText = () => dialog()?.textContent ?? ''
+const has = (selector: string) => !!dialog()?.querySelector(selector)
+const button = (text: string) => [...(dialog()?.querySelectorAll('button') ?? [])].find((b) => b.textContent?.includes(text))!
+async function click(el: HTMLElement) {
+  el.click()
+  await flushPromises()
+}
 
-describe('ImportTemplateView', () => {
+describe('ImportTemplateDialog', () => {
   beforeEach(() => {
     document.body.innerHTML = ''
     sessionStorage.clear()
     Object.values(mocks).forEach((m) => m.mockReset())
+    mocks.listTemplates.mockResolvedValue([])
+    mocks.listImportTasks.mockResolvedValue([])
   })
-  afterEach(() => vi.useRealTimers())
+  afterEach(() => {
+    // An open dialog keeps a focus-trap observer alive; unmount before the DOM is torn down.
+    mounted.splice(0).forEach((w) => w.unmount())
+    vi.useRealTimers()
+  })
 
-  it('routes /templates/import to the import view, not the detail view', async () => {
-    expect(appRouter.resolve('/templates/import').name).toBe('template-import')
-    expect(appRouter.resolve('/templates/abc').name).toBe('template')
-    const { wrapper } = await mountAt()
-    expect(wrapper.find('[data-testid="import-dropzone"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Turn a deck into a template.')
+  it('opens over the Templates page at the upload step', async () => {
+    await mountAt()
+    expect(has('[data-testid="import-dropzone"]')).toBe(true)
+    expect(dialogText()).toContain('Turn a deck into a template.')
   })
 
   it('walks upload → review → create', async () => {
@@ -81,43 +102,41 @@ describe('ImportTemplateView', () => {
     mocks.prepareImport.mockResolvedValue(preview)
     mocks.startImport.mockResolvedValue(task('pending'))
     mocks.getTask.mockResolvedValue(task('pending', { created_layouts: 1, remaining_layouts: 2 }))
-    const { wrapper } = await mountAt()
-    await pick(wrapper, new File(['pk'], 'deck.pptx'))
-    expect(wrapper.findAll('[data-testid="import-review"] img')).toHaveLength(3)
-    expect(wrapper.text()).toContain('3 slides found')
-    expect((wrapper.get('#import-name').element as HTMLInputElement).value).toBe('deck')
-    await button(wrapper, 'Create template')!.trigger('click')
-    await flushPromises()
+    await mountAt()
+    await pick(new File(['pk'], 'deck.pptx'))
+    expect(dialog()!.querySelectorAll('[data-testid="import-review"] img')).toHaveLength(3)
+    expect(dialogText()).toContain('3 slides found')
+    expect(dialog()!.querySelector<HTMLInputElement>('#import-name')!.value).toBe('deck')
+    await click(button('Create template'))
     expect(mocks.startImport).toHaveBeenCalledWith(preview, { name: 'deck', description: '' })
-    expect(wrapper.find('[data-testid="import-progress"]').exists()).toBe(true)
+    expect(has('[data-testid="import-progress"]')).toBe(true)
     await flushPromises()
-    expect(wrapper.text()).toContain('1 of 3 slides')
-    expect(wrapper.findAll('[data-testid="import-slide-done"]')).toHaveLength(1)
+    expect(dialogText()).toContain('1 of 3 slides')
+    expect(dialog()!.querySelectorAll('[data-testid="import-slide-done"]')).toHaveLength(1)
   })
 
   it('rejects a non-pptx file with a message', async () => {
-    const { wrapper } = await mountAt()
-    await pick(wrapper, new File([''], 'deck.key'))
-    expect(wrapper.text()).toContain('Choose a PowerPoint file (.pptx).')
+    await mountAt()
+    await pick(new File([''], 'deck.key'))
+    expect(dialogText()).toContain('Choose a PowerPoint file (.pptx).')
     expect(mocks.checkFonts).not.toHaveBeenCalled()
   })
 
   it('shows fonts step and continues', async () => {
     mocks.checkFonts.mockResolvedValue([{ name: 'Gotham Bold' }])
     mocks.prepareImport.mockResolvedValue(preview)
-    const { wrapper } = await mountAt()
-    await pick(wrapper, new File(['pk'], 'deck.pptx'))
-    expect(wrapper.text()).toContain('Gotham Bold')
-    expect(wrapper.text()).toContain("Some fonts aren't installed")
-    await button(wrapper, 'Continue')!.trigger('click')
-    await flushPromises()
+    await mountAt()
+    await pick(new File(['pk'], 'deck.pptx'))
+    expect(dialogText()).toContain('Gotham Bold')
+    expect(dialogText()).toContain("Some fonts aren't installed")
+    await click(button('Continue'))
     expect(mocks.prepareImport).toHaveBeenCalled()
-    expect(wrapper.find('[data-testid="import-review"]').exists()).toBe(true)
+    expect(has('[data-testid="import-review"]')).toBe(true)
   })
 
   it('navigates to the template when done', async () => {
     mocks.getTask.mockResolvedValue(task('completed', { template_v2_id: 'tpl', created_layouts: 3, remaining_layouts: 0 }))
-    const { router } = await mountAt('/templates/import?task=t1')
+    const { router } = await mountAt('/templates?import=t1')
     await flushPromises()
     expect(router.currentRoute.value.path).toBe('/templates/tpl')
   })
@@ -125,51 +144,56 @@ describe('ImportTemplateView', () => {
   it('does not reopen an import that finished while away', async () => {
     sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
     mocks.getTask.mockResolvedValue(task('completed', { template_v2_id: 'tpl', created_layouts: 3, remaining_layouts: 0 }))
-    const { wrapper, router } = await mountAt()
+    const { router } = await mountAt()
     await flushPromises()
-    expect(router.currentRoute.value.path).toBe('/templates/import')
-    expect(wrapper.find('[data-testid="import-dropzone"]').exists()).toBe(true)
+    expect(router.currentRoute.value.fullPath).toBe('/templates?import=new')
+    expect(has('[data-testid="import-dropzone"]')).toBe(true)
   })
 
   it('can start another import while one runs', async () => {
     sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
     mocks.getTask.mockResolvedValue(task('pending', { created_layouts: 1, remaining_layouts: 2 }))
-    const { wrapper } = await mountAt()
+    await mountAt()
     await flushPromises()
-    expect(wrapper.text()).toContain('Templates page')
-    await button(wrapper, 'Import another')!.trigger('click')
-    await flushPromises()
-    expect(wrapper.find('[data-testid="import-dropzone"]').exists()).toBe(true)
+    expect(dialogText()).toContain('if you close this window')
+    await click(button('Import another'))
+    expect(has('[data-testid="import-dropzone"]')).toBe(true)
     expect(sessionStorage.getItem(IMPORT_TASK_STORAGE_KEY)).toBeNull()
+  })
+
+  it('starting over from an adopted task keeps the dialog open on a fresh import', async () => {
+    mocks.getTask.mockResolvedValue(task('pending', { created_layouts: 0, remaining_layouts: 2 }))
+    const { router } = await mountAt('/templates?import=t5')
+    await click(button('Import another'))
+    expect(router.currentRoute.value.query.import).toBe('new')
+    expect(has('[data-testid="import-dropzone"]')).toBe(true)
   })
 
   it('shows why a retry failed', async () => {
     sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
     mocks.getTask.mockResolvedValue(task('error', {}, { error: { detail: 'LLM down' } }))
     mocks.retryImport.mockRejectedValue(new ApiError('Template has already been created', 409, { detail: 'Template has already been created' }))
-    const { wrapper } = await mountAt()
+    await mountAt()
     await flushPromises()
-    await button(wrapper, 'Try again')!.trigger('click')
-    await flushPromises()
-    expect(wrapper.text()).toContain('Template has already been created')
+    await click(button('Try again'))
+    expect(dialogText()).toContain('Template has already been created')
   })
 
   it('adopts the task in the query', async () => {
     mocks.getTask.mockResolvedValue(task('pending', { created_layouts: 0, remaining_layouts: 2 }))
-    const { wrapper } = await mountAt('/templates/import?task=t5')
+    await mountAt('/templates?import=t5')
     expect(mocks.getTask).toHaveBeenCalledWith('t5')
-    expect(wrapper.find('[data-testid="import-progress"]').exists()).toBe(true)
+    expect(has('[data-testid="import-progress"]')).toBe(true)
   })
 
   it('shows retry on failure', async () => {
     sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
     mocks.getTask.mockResolvedValue(task('error', { created_layouts: 0, remaining_layouts: 2 }, { error: { detail: 'LLM down' } }))
     mocks.retryImport.mockResolvedValue(task('pending'))
-    const { wrapper } = await mountAt()
+    await mountAt()
     await flushPromises()
-    expect(wrapper.text()).toContain('LLM down')
-    await button(wrapper, 'Try again')!.trigger('click')
-    await flushPromises()
+    expect(dialogText()).toContain('LLM down')
+    await click(button('Try again'))
     expect(mocks.retryImport).toHaveBeenCalledWith('t1')
   })
 })

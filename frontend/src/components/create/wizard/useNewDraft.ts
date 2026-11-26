@@ -11,6 +11,8 @@ interface Draft {
   options: CreateOptions
   hadFiles: boolean
   hadPhoto: boolean
+  /** A PowerPoint had been read in "From PowerPoint" mode. */
+  hadPptx?: boolean
   savedAt?: number
 }
 
@@ -28,8 +30,8 @@ function read(): Partial<Draft> | null {
 
 /**
  * Keeps the /new form across a reload or a killed mobile tab (localStorage, versioned key, dropped after two weeks and once the deck is created). Restores synchronously on call, then mirrors
- * every change. Files can't be stored, so `hadFiles` (and `hadPhoto`, the presenter photo) tell the page to ask for them again.
- * The caller sets `hadFiles` as documents are added or removed.
+ * every change. Files can't be stored, so `hadFiles` (and `hadPhoto`, the presenter photo, and `hadPptx`, the PowerPoint)
+ * tell the page to ask for them again. The caller sets `hadFiles` as documents are added or removed.
  */
 export function useNewDraft(prompt: Ref<string>, options: Ref<CreateOptions>) {
   const saved = read()
@@ -39,15 +41,16 @@ export function useNewDraft(prompt: Ref<string>, options: Ref<CreateOptions>) {
   }
   const hadFiles = ref(saved?.hadFiles === true)
   const hadPhoto = ref(saved?.hadPhoto === true)
+  const hadPptx = ref(saved?.hadPptx === true)
   const restored = !!saved
   let cleared = false
 
   watch(
-    [prompt, options, hadFiles, hadPhoto],
+    [prompt, options, hadFiles, hadPhoto, hadPptx],
     () => {
       if (cleared) return
       try {
-        const draft: Draft = { prompt: prompt.value, options: options.value, hadFiles: hadFiles.value, hadPhoto: hadPhoto.value, savedAt: Date.now() }
+        const draft: Draft = { prompt: prompt.value, options: options.value, hadFiles: hadFiles.value, hadPhoto: hadPhoto.value, hadPptx: hadPptx.value, savedAt: Date.now() }
         localStorage.setItem(NEW_DRAFT_KEY, JSON.stringify(draft))
       } catch {
         // Storage unavailable: the draft just won't survive a reload.
@@ -66,5 +69,5 @@ export function useNewDraft(prompt: Ref<string>, options: Ref<CreateOptions>) {
     }
   }
 
-  return { clear, hadFiles, hadPhoto, restored }
+  return { clear, hadFiles, hadPhoto, hadPptx, restored }
 }

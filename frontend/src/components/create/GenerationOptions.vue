@@ -15,9 +15,14 @@ const { t } = useI18n()
  * `sections` picks which groups show (all by default). `bare` drops each group's card and header: the setup chips
  * put one or two groups in a popover that already has its own title.
  */
-const props = withDefaults(defineProps<{ disabled?: boolean; hasPhoto: boolean; sections?: OptionSection[]; bare?: boolean }>(), {
+const props = withDefaults(defineProps<{ disabled?: boolean; hasPhoto: boolean; sections?: OptionSection[]; bare?: boolean; maxVideos?: number }>(), {
   sections: () => ['length', 'videos', 'style', 'extras', 'instructions'],
 })
+/** The largest count the input takes: the video count can be capped (an imported deck has a fixed slide count). */
+const maxFor = (key: 'images' | 'videos') => (key === 'videos' && props.maxVideos !== undefined ? props.maxVideos : MAX_SLIDES)
+/** Presets above the cap are hidden; Auto and None ('' and '0') always stay. */
+const presetsFor = (m: { key: 'images' | 'videos'; presets: { value: string; label: string }[] }) =>
+  m.presets.filter((p) => Number(p.value) <= maxFor(m.key))
 const show = (s: OptionSection) => props.sections.includes(s)
 const model = defineModel<CreateOptions>({ required: true })
 
@@ -120,11 +125,11 @@ const hint = 'text-[12px] text-tx-8e9ca4'
           </legend>
           <div class="flex flex-wrap items-center gap-2" role="radiogroup" :aria-label="m.group" @keydown="rovingKeydown">
             <button
-              v-for="(p, i) in m.presets"
+              v-for="(p, i) in presetsFor(m)"
               :key="p.value"
               type="button"
               role="radio"
-              :tabindex="rovingTab(i, checked(m.presets, shown(m.key)))"
+              :tabindex="rovingTab(i, checked(presetsFor(m), shown(m.key)))"
               :aria-checked="shown(m.key) === p.value"
               :disabled="disabled || locked(m.key)"
               :class="[chip, shown(m.key) === p.value ? chipOn : chipOff]"
@@ -141,9 +146,9 @@ const hint = 'text-[12px] text-tx-8e9ca4'
                 :class="shown(m.key) && !m.presets.some((p) => p.value === shown(m.key)) && 'border-accent'"
                 :model-value="shown(m.key)"
                 :disabled="disabled || locked(m.key)"
-                :aria-label="t('create.options.countAria', { group: m.group, max: MAX_SLIDES })"
+                :aria-label="t('create.options.countAria', { group: m.group, max: maxFor(m.key) })"
                 placeholder="—"
-                @update:model-value="patch({ [m.key]: clampMediaCount(String($event)) })"
+                @update:model-value="patch({ [m.key]: clampMediaCount(String($event), maxFor(m.key)) })"
               />
             </span>
           </div>

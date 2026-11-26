@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { AlertTriangle } from 'lucide-vue-next'
 import { readImportProgress } from '@/api/templateImport'
 import type { AsyncTask } from '@/api/tasks'
 
 /**
  * A PowerPoint import still running on the server, shown in the Templates grid until it lands as a template.
- * A failed one stays visible (it opens the import page, which offers Try again / Start over).
+ * A failed one stays visible (it opens the import dialog, which offers Try again / Start over).
  */
 const props = defineProps<{ task: AsyncTask }>()
 const { t } = useI18n()
+const route = useRoute()
 
 const progress = computed(() => readImportProgress(props.task))
 const failed = computed(() => props.task.status === 'error')
@@ -29,7 +30,7 @@ const meta = computed(() =>
 <template>
   <article data-testid="import-task-card" class="group min-w-0">
     <RouterLink
-      :to="{ name: 'template-import', query: { task: task.id } }"
+      :to="{ name: 'templates', query: { ...route.query, import: task.id } }"
       :aria-label="t('templates.importCard.open', { name })"
       class="block rounded-card focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
     >

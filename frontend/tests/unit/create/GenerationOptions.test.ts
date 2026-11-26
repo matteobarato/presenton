@@ -28,4 +28,11 @@ describe('GenerationOptions videos', () => {
   it('has no language select', () => {
     expect(mount(GenerationOptions, { props: { modelValue: base, hasPhoto: true } }).find('#opt-language').exists()).toBe(false)
   })
+  it('caps the count and hides presets above max-videos', async () => {
+    const w = mount(GenerationOptions, { props: { modelValue: base, hasPhoto: true, maxVideos: 4 } })
+    const labels = videos(w).findAll('[role="radio"]').map((r) => r.text())
+    expect(labels).toEqual(['Auto', 'None', '1', '3'])
+    await w.get('#opt-videos').setValue('9')
+    expect((w.emitted('update:modelValue')!.at(-1)![0] as CreateOptions).videos).toBe('4')
+  })
 })

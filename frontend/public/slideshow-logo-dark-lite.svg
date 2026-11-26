@@ -27,10 +27,10 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="0.89720607"
-     inkscape:cx="187.24795"
+     inkscape:cx="186.69067"
      inkscape:cy="185.01881"
-     inkscape:window-width="1536"
-     inkscape:window-height="795"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -70,7 +70,8 @@
      id="layer1"
      transform="translate(-31.841666,-137.87111)">
     <g
-       id="g5">
+       id="g5"
+       transform="translate(-0.52916667)">
       <rect
          style="opacity:0.865749;fill:#1a1a1a;fill-opacity:0.5;stroke-width:0.245684;filter:url(#filter3)"
          id="rect3"
@@ -80,7 +81,7 @@
          y="160.20039"
          transform="rotate(-15)" />
       <rect
-         style="opacity:1;fill:#bee3f3;fill-opacity:1.0;stroke-width:0.245684"
+         style="opacity:1;fill:#bee3f3;fill-opacity:1;stroke-width:0.245684"
          id="rect1-1"
          width="13.322093"
          height="8.2335052"
@@ -95,7 +96,7 @@
        aria-label="   lideshows" />
     <g
        id="g4"
-       transform="rotate(-14.771971,44.175756,148.21038)">
+       transform="rotate(-14.771971,43.911173,150.25147)">
       <rect
          style="opacity:0.865749;fill:#1b1b1b;fill-opacity:0.5;stroke-width:0.245684;filter:url(#filter4)"
          id="rect2"
@@ -105,7 +106,7 @@
          y="150.47701"
          transform="rotate(-15)" />
       <rect
-         style="opacity:1;fill:#bee3f3;fill-opacity:1.0;stroke-width:0.245684"
+         style="opacity:1;fill:#bee3f3;fill-opacity:1;stroke-width:0.245684"
          id="rect1"
          width="13.322093"
          height="8.2335052"

@@ -4,6 +4,7 @@
 
 - `frontend/` is the new Vue 3 + Vite + shadcn-vue + Tailwind v4 app that replaces `servers/nextjs` in phases. The phase 1 spec is `docs/superpowers/specs/2026-11-06-vue-frontend-phase1-design.md`. Do not modify `servers/nextjs` (the old frontend) as part of new-frontend work.
 - **Template-based generation only.** The new frontend supports template-based presentation generation (outline → template → slides). Smart presentations (`generation_mode: "smart"`, `/api/v2/ppt/presentation/generate/smart*`, `slide/edit-html`) are out of scope: do not build UI or features for them. All future work is based on templates only.
+- Importing a `.pptx` as a deck ("From PowerPoint", `presentations.source = "pptx"`) is allowed: imported slides use the template-v2 element model and get no Smart features; nothing may rebuild them from a template.
 - Existing smart slides in old decks may still render through `SlideView` (already built), but they get no smart-specific features or fixes.
 - Dev: run the backend stack (`docker compose up production`), then `docker compose -f docker-compose.frontend.yml up` (Vite on :5173, proxied to the stack on :5001).
 - Production: `docker compose -f docker-compose.prod.yml up -d --build` (files in `docker/prod/`). nginx proxy, Vue app, API, and the old Next.js as a hidden `renderer` still doing export, video composition, template routes and five `/api/*` routes the Vue app calls. A change to routing in `nginx.conf` also needs `docker/prod/proxy.*.conf`.

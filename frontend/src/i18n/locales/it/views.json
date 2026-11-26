@@ -13,7 +13,8 @@
       "topicHeading": "Ogni grande storia comincia da qualche parte.",
       "topicLede": "Di’ di cosa parla, scegli un aspetto e imposta le basi. Poi scegli chi presenta; rivedi la scaletta prima che venga creata qualsiasi diapositiva.",
       "presenterHeading": "Chi presenta?",
-      "presenterLede": "Aggiungi una foto e il tuo relatore digitale appare come video parlante nelle diapositive che ne hanno bisogno. Oppure lascia la presentazione solo con la voce."
+      "presenterLede": "Aggiungi una foto e il tuo relatore digitale appare come video parlante nelle diapositive che ne hanno bisogno. Oppure lascia la presentazione solo con la voce.",
+      "pptxLede": "Carica un PowerPoint: diapositive e design vengono mantenuti. Poi scegli chi presenta e rivedi le diapositive."
     },
     "locked": "Crea prima la scaletta",
     "documentCount": "{count} documento | {count} documenti",
@@ -22,6 +23,7 @@
     "lookTitle": "Scegli un aspetto",
     "lookPlaceholder": "Scegli un modello per le tue diapositive.",
     "filesLost": "Aggiungi di nuovo i documenti; i file non vengono conservati dopo un ricaricamento.",
+    "pptxLost": "Carica di nuovo il PowerPoint; i file non vengono conservati dopo un ricaricamento.",
     "languageNeeded": "I documenti richiedono una lingua.",
     "chooseLanguage": "Scegline una",
     "templatesFailed": "Impossibile caricare i modelli. Ricarica la pagina per riprovare.",
@@ -30,28 +32,41 @@
     "stage": {
       "documents": "Elaborazione dei documenti…",
       "outline": "Preparazione della scaletta…",
-      "photo": "Caricamento della foto del relatore…"
+      "photo": "Caricamento della foto del relatore…",
+      "import": "Importazione delle diapositive…"
     },
     "blockers": {
       "topic": "Aggiungi un argomento o un documento",
-      "look": "Scegli un modello"
+      "look": "Scegli un modello",
+      "deck": "Carica un PowerPoint",
+      "language": "Scegli la lingua della narrazione"
     },
     "lockedNotice": {
       "presenter": "Crea prima la scaletta: apre i passaggi successivi",
-      "topic": "Crea prima la scaletta: continua con Relatore, poi scegli Crea scaletta"
+      "topic": "Crea prima la scaletta: continua con Relatore, poi scegli Crea scaletta",
+      "importPresenter": "Importa prima le diapositive: apre i passaggi successivi",
+      "importTopic": "Importa prima le diapositive: continua con Relatore, poi scegli Importa diapositive"
     },
     "status": {
       "noPhoto": "Ancora nessuna foto: questa presentazione sarà solo voce",
       "outlineCount": "Scrive una scaletta per {count} diapositiva | Scrive una scaletta per {count} diapositive",
       "outlineAuto": "Scrive una scaletta; il numero di diapositive è scelto automaticamente",
-      "noSlidesYet": "Nessuna diapositiva viene creata finché non la approvi."
+      "noSlidesYet": "Nessuna diapositiva viene creata finché non la approvi.",
+      "importCount": "Importa {count} diapositiva con il suo design | Importa {count} diapositive con il loro design"
     },
     "nextPresenter": "Avanti: Relatore",
     "createOutline": "Crea scaletta",
     "working": "Elaborazione…",
     "startFailed": "Impossibile avviare la presentazione",
     "startRetry": "Riprova con Crea scaletta; argomento e impostazioni sono conservati.",
-    "photoUploadFailed": "La foto del relatore non è stata caricata, quindi per ora la presentazione è solo voce. Aggiungila di nuovo in Relatore e lingua nel passaggio Narrazione."
+    "photoUploadFailed": "La foto del relatore non è stata caricata, quindi per ora la presentazione è solo voce. Aggiungila di nuovo in Relatore e lingua nel passaggio Narrazione.",
+    "pptxSummary": "{name} · {count} diapositiva | {name} · {count} diapositive",
+    "pptxHint": "Vuoi mantenerne il design?",
+    "pptxHintSwitch": "Passa a Da PowerPoint",
+    "lockedImport": "Importa prima le diapositive",
+    "importSlides": "Importa diapositive",
+    "importFailed": "Impossibile importare il PowerPoint",
+    "importRetry": "Riprova con Importa diapositive; presentazione e impostazioni sono conservate."
   },
   "presentation": {
     "loading": "Caricamento della presentazione",

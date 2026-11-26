@@ -19,8 +19,13 @@ const m = vi.hoisted(() => ({
   createPresentation: vi.fn(),
   listTemplates: vi.fn(),
   uploadPortrait: vi.fn(),
+  checkFonts: vi.fn(),
+  prepareImport: vi.fn(),
+  importPresentation: vi.fn(),
 }))
 vi.mock('@/api/videos', () => ({ uploadPortrait: m.uploadPortrait }))
+vi.mock('@/api/templateImport', async (orig) => ({ ...(await orig<object>()), checkFonts: m.checkFonts, prepareImport: m.prepareImport }))
+vi.mock('@/api/presentationImport', () => ({ importPresentation: m.importPresentation }))
 vi.mock('@/api/templates', async (orig) => ({ ...(await orig<typeof import('@/api/templates')>()), listTemplates: m.listTemplates }))
 vi.mock('@/api/files', async (orig) => ({ ...(await orig<typeof import('@/api/files')>()), uploadFiles: m.uploadFiles, decomposeFiles: m.decomposeFiles }))
 vi.mock('@/api/generation', () => ({ createPresentation: m.createPresentation, getGenerationDefaults: vi.fn() }))
@@ -114,6 +119,7 @@ beforeEach(() => {
   localStorage.clear()
   Object.values(m).forEach((f) => f.mockReset())
   m.listTemplates.mockResolvedValue([{ id: 'c1', name: 'Pitch', kind: 'custom', layouts: [{}] }])
+  m.checkFonts.mockResolvedValue([])
   document.body.innerHTML = ''
   sessionStorage.clear()
 })
@@ -769,5 +775,287 @@ describe('NewView', () => {
       expect(router.currentRoute.value.query.template).toBeUndefined()
       expect(wrapper.get('[data-testid="new-template-c1"]').attributes('aria-checked')).toBe('false')
     })
+  })
+})
+
+describe('From PowerPoint', () => {
+  const primary = (w: W) => w.get('[data-testid="wizard-primary"]')
+  const previewOf = (n: number, extra: Record<string, unknown> = {}) => ({
+    slide_image_urls: Array.from({ length: n }, (_, i) => `/app_data/q3/slide_${i + 1}.png`),
+    pptx_url: '/app_data/q3.pptx',
+    modified_pptx_url: '/app_data/q3-modified.pptx',
+    fonts: { Inter: '/fonts/inter.ttf' },
+    original_slide_count: null,
+    ...extra,
+  })
+  async function switchMode(w: W, to: 'topic' | 'pptx') {
+    await w.get(`[data-testid="start-mode-${to}"]`).trigger('click')
+    await flushPromises()
+  }
+  async function uploadDeck(w: W, name = 'Q3 Review.pptx') {
+    const input = w.get('[data-testid="import-file-input"]')
+    const file = new File(['x'], name)
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    await input.trigger('change')
+    await flushPromises()
+    return file
+  }
+  async function chooseLanguage(w: W, language = 'English') {
+    await w.get('#opt-language').setValue(language)
+    await flushPromises()
+  }
+  /** A deck uploaded, English chosen, on the Presenter step. */
+  async function readyToImport(path = '/new?start=pptx', withPhoto = true) {
+    const mountedView = await mountView('both', {}, path)
+    await uploadDeck(mountedView.wrapper)
+    await chooseLanguage(mountedView.wrapper)
+    const photo = withPhoto ? await addPhoto(mountedView.wrapper) : null
+    await goTo(mountedView.wrapper, 'presenter')
+    return { ...mountedView, photo }
+  }
+
+  beforeEach(() => {
+    m.prepareImport.mockResolvedValue(previewOf(12))
+    m.importPresentation.mockResolvedValue({ id: 'new-id' })
+    m.uploadPortrait.mockResolvedValue({})
+  })
+
+  it('shows the topic view by default and the PowerPoint view on ?start=pptx', async () => {
+    const topic = await mountView()
+    expect(topic.wrapper.get('[data-testid="start-mode-topic"]').attributes('aria-checked')).toBe('true')
+    expect(topic.wrapper.get('[data-testid="start-mode-pptx"]').attributes('aria-checked')).toBe('false')
+    expect(topic.wrapper.find('#create-prompt').exists()).toBe(true)
+    expect(topic.wrapper.find('[data-testid="import-dropzone"]').exists()).toBe(false)
+    topic.wrapper.unmount()
+
+    const pptx = await mountView('both', {}, '/new?start=pptx')
+    expect(pptx.wrapper.get('[data-testid="start-mode-pptx"]').attributes('aria-checked')).toBe('true')
+    expect(pptx.wrapper.get('[role="radiogroup"]').text()).toContain('From a topic')
+    expect(pptx.wrapper.find('[data-testid="import-dropzone"]').exists()).toBe(true)
+    expect(pptx.wrapper.find('#create-prompt').exists()).toBe(false)
+  })
+
+  it('switching modes keeps the typed topic and the uploaded deck', async () => {
+    const { wrapper, router } = await mountView()
+    await typeTopic(wrapper, 'Octopuses')
+    await switchMode(wrapper, 'pptx')
+    expect(router.currentRoute.value.query).toEqual({ template: 'c1', start: 'pptx' })
+    await uploadDeck(wrapper)
+    expect(wrapper.findAll('[data-testid="pptx-thumbs"] img')).toHaveLength(12)
+
+    await switchMode(wrapper, 'topic')
+    expect(router.currentRoute.value.query).toEqual({ template: 'c1' })
+    expect((wrapper.get('#create-prompt').element as HTMLTextAreaElement).value).toBe('Octopuses')
+
+    await switchMode(wrapper, 'pptx')
+    expect(wrapper.findAll('[data-testid="pptx-thumbs"] img')).toHaveLength(12)
+    expect(wrapper.text()).toContain('Q3 Review.pptx')
+    expect(m.prepareImport).toHaveBeenCalledTimes(1)
+  })
+
+  it('hides the template grid and setup chips in PowerPoint mode', async () => {
+    const { wrapper } = await mountView('both', {}, '/new?start=pptx')
+    await uploadDeck(wrapper)
+    expect(wrapper.find('[data-testid="setup-chips"]').exists()).toBe(false)
+    expect(wrapper.find('[aria-labelledby="new-look-h"]').exists()).toBe(false)
+    expect(wrapper.find('#create-prompt').exists()).toBe(false)
+    // The step bar sums the deck up instead of a prompt and a template.
+    expect(wrapper.get('[data-testid="step-topic"]').text()).toContain('Q3 Review.pptx · 12 slides')
+  })
+
+  it('shows the first-50 note', async () => {
+    m.prepareImport.mockResolvedValue(previewOf(50, { original_slide_count: 70 }))
+    const { wrapper } = await mountView('both', {}, '/new?start=pptx')
+    await uploadDeck(wrapper)
+    const note = wrapper.get('[data-testid="pptx-limit-note"]').text()
+    expect(note).toContain('50')
+    expect(note).toContain('70')
+  })
+
+  it('missing fonts show a warning whose Fix applies replacements', async () => {
+    m.checkFonts.mockResolvedValue([{ name: 'Brand Sans' }])
+    const { wrapper } = await mountView('both', {}, '/new?start=pptx')
+    const deck = await uploadDeck(wrapper)
+    const warning = wrapper.get('[data-testid="pptx-fonts-note"]')
+    expect(warning.attributes('role')).toBe('note')
+    expect(warning.text()).toContain('Brand Sans')
+    await wrapper.get('[data-testid="pptx-fonts-fix"]').trigger('click')
+    await flushPromises()
+    const dialog = new DOMWrapper(document.body.querySelector('[role="dialog"]')!)
+    const input = dialog.get('input[type="file"]')
+    const font = new File(['f'], 'brand.ttf')
+    Object.defineProperty(input.element, 'files', { value: [font], configurable: true })
+    await input.trigger('change')
+    await flushPromises()
+    expect(dialog.text()).toContain('brand.ttf')
+    await dialog.get('[data-testid="pptx-fonts-apply"]').trigger('click')
+    await flushPromises()
+    expect(m.prepareImport).toHaveBeenLastCalledWith(deck, [{ name: 'Brand Sans', file: font }])
+    expect(wrapper.findAll('[data-testid="pptx-thumbs"] img')).toHaveLength(12)
+  })
+
+  it('Next needs a deck and a language', async () => {
+    const { wrapper } = await mountView('both', {}, '/new?start=pptx')
+    expect(primary(wrapper).attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-testid="fix-deck"]').text()).toBe('Upload a PowerPoint')
+    await wrapper.get('[data-testid="fix-deck"]').trigger('click')
+    await flushPromises()
+    expect(document.activeElement?.getAttribute('data-testid')).toBe('import-file-input')
+
+    await uploadDeck(wrapper)
+    expect(wrapper.find('[data-testid="fix-deck"]').exists()).toBe(false)
+    expect(primary(wrapper).attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-testid="fix-language"]').text()).toBe('Choose the narration language')
+    await wrapper.get('[data-testid="fix-language"]').trigger('click')
+    await flushPromises()
+    expect(document.activeElement?.id).toBe('opt-language')
+    // Enter goes to the language too; nothing is imported.
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.get('h2').text()).not.toBe('Who presents?')
+    expect(m.importPresentation).not.toHaveBeenCalled()
+
+    await chooseLanguage(wrapper)
+    expect(primary(wrapper).attributes('disabled')).toBeUndefined()
+    expect(wrapper.find('[data-testid="fix-language"]').exists()).toBe(false)
+  })
+
+  it('no upload blocker while the first deck is being read', async () => {
+    let finish!: (p: unknown) => void
+    m.prepareImport.mockReturnValue(new Promise((r) => (finish = r)))
+    const { wrapper } = await mountView('both', {}, '/new?start=pptx')
+    expect(wrapper.get('[data-testid="fix-deck"]').text()).toBe('Upload a PowerPoint')
+    await uploadDeck(wrapper)
+    expect(wrapper.find('[data-testid="import-dropzone"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="fix-deck"]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="fix-language"]').text()).toBe('Choose the narration language')
+    finish(previewOf(12))
+    await flushPromises()
+    expect(wrapper.find('[data-testid="fix-deck"]').exists()).toBe(false)
+  })
+
+  it('Import slides creates the deck and lands on Preview', async () => {
+    const { wrapper, router, photo } = await readyToImport()
+    expect(primary(wrapper).text()).toBe('Import slides')
+    await wrapper.get('#opt-videos').setValue('3')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(m.importPresentation).toHaveBeenCalledTimes(1)
+    expect(m.importPresentation).toHaveBeenCalledWith({
+      pptx_url: '/app_data/q3-modified.pptx',
+      language: 'English',
+      n_videos: 3,
+      fonts: { Inter: '/fonts/inter.ttf' },
+      title: 'Q3 Review',
+      source_name: 'Q3 Review.pptx',
+    })
+    expect(m.uploadPortrait).toHaveBeenCalledWith('new-id', photo)
+    expect(m.createPresentation).not.toHaveBeenCalled()
+    expect(router.currentRoute.value.fullPath).toBe('/p/new-id/create/preview')
+    // No template look, no animation flag; the draft is done.
+    expect(localStorage.getItem('slideshows.deckLook.new-id')).toBeNull()
+    expect(Object.keys(sessionStorage).filter((k) => k.includes('new-id'))).toEqual([])
+    expect(localStorage.getItem('slideshows.newDraft.v1')).toBeNull()
+  })
+
+  it('Automatic presenter count is sent as null', async () => {
+    const { wrapper } = await readyToImport()
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(m.importPresentation).toHaveBeenCalledWith(expect.objectContaining({ n_videos: null }))
+  })
+
+  it('no photo sends 0', async () => {
+    const { wrapper } = await readyToImport('/new?start=pptx', false)
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(m.importPresentation).toHaveBeenCalledWith(expect.objectContaining({ n_videos: 0 }))
+    expect(m.uploadPortrait).not.toHaveBeenCalled()
+  })
+
+  it('a presenter count above the slide count is sent as the slide count', async () => {
+    const { wrapper } = await mountView()
+    await addPhoto(wrapper)
+    await goTo(wrapper, 'presenter')
+    await wrapper.get('#opt-videos').setValue('30')
+    await goTo(wrapper, 'topic')
+    await switchMode(wrapper, 'pptx')
+    await uploadDeck(wrapper)
+    await chooseLanguage(wrapper)
+    await goTo(wrapper, 'presenter')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(m.importPresentation).toHaveBeenCalledWith(expect.objectContaining({ n_videos: 12 }))
+  })
+
+  it('a failed import keeps everything and says why', async () => {
+    m.importPresentation.mockRejectedValue(new ApiError('The deck could not be read', 422))
+    const { wrapper, router } = await readyToImport()
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('new')
+    expect(wrapper.text()).toContain('The deck could not be read')
+    expect(primary(wrapper).attributes('disabled')).toBeUndefined()
+  })
+
+  it('the Presenter step before any upload reads like topic mode, with no slide cap', async () => {
+    const { wrapper } = await mountView('both', {}, '/new?start=pptx')
+    await addPhoto(wrapper)
+    await goTo(wrapper, 'presenter')
+    expect(wrapper.text()).toContain('The writer and template decide how many slides get one.')
+    expect(wrapper.text()).not.toContain('of 0 slides')
+    await wrapper.get('#opt-videos').setValue('3')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Adds 3 presenter videos at the Narration step')
+  })
+
+  it('asks to upload the PowerPoint again after a reload', async () => {
+    const note = 'Upload your PowerPoint again; files can’t be kept across a reload.'
+    const first = await mountView('both', {}, '/new?start=pptx')
+    expect(first.wrapper.text()).not.toContain(note)
+    await uploadDeck(first.wrapper)
+    expect(JSON.parse(localStorage.getItem('slideshows.newDraft.v1')!).hadPptx).toBe(true)
+    first.wrapper.unmount()
+
+    const second = await mountView('both', {}, '/new?start=pptx')
+    const lost = second.wrapper.get('[data-testid="pptx-lost"]')
+    expect(lost.attributes('role')).toBe('note')
+    expect(lost.text()).toBe(note)
+    await uploadDeck(second.wrapper)
+    expect(second.wrapper.find('[data-testid="pptx-lost"]').exists()).toBe(false)
+    second.wrapper.unmount()
+
+    // Topic mode never shows it; a cleared draft forgets it.
+    const topic = await mountView()
+    expect(topic.wrapper.find('[data-testid="pptx-lost"]').exists()).toBe(false)
+    topic.wrapper.unmount()
+    localStorage.removeItem('slideshows.newDraft.v1')
+    const fresh = await mountView('both', {}, '/new?start=pptx')
+    expect(fresh.wrapper.find('[data-testid="pptx-lost"]').exists()).toBe(false)
+  })
+
+  it('a .pptx attached in topic mode offers to switch, moving the file over', async () => {
+    const { wrapper, router } = await mountView()
+    expect(wrapper.find('[data-testid="pptx-hint"]').exists()).toBe(false)
+    const input = wrapper.get('[data-testid="file-input"]')
+    const deck = new File(['x'], 'Q3 Review.pptx')
+    Object.defineProperty(input.element, 'files', { value: [deck], configurable: true })
+    await input.trigger('change')
+    await flushPromises()
+    const hint = wrapper.get('[data-testid="pptx-hint"]')
+    expect(hint.attributes('role')).toBe('note')
+    expect(hint.text()).toContain('Keep its design?')
+    const button = hint.get('button')
+    expect(button.text()).toBe('Switch to From PowerPoint')
+    expect(button.attributes('type')).toBe('button')
+    await button.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.query.start).toBe('pptx')
+    expect(m.prepareImport).toHaveBeenCalledWith(deck, [])
+    expect(wrapper.findAll('[data-testid="pptx-thumbs"] img')).toHaveLength(12)
+
+    await switchMode(wrapper, 'topic')
+    expect(wrapper.find('[data-testid="pptx-hint"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Q3 Review.pptx')
   })
 })
