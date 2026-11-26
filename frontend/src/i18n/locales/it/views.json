@@ -23,6 +23,7 @@
     "lookTitle": "Scegli un aspetto",
     "lookPlaceholder": "Scegli un modello per le tue diapositive.",
     "filesLost": "Aggiungi di nuovo i documenti; i file non vengono conservati dopo un ricaricamento.",
+    "pptxLost": "Carica di nuovo il PowerPoint; i file non vengono conservati dopo un ricaricamento.",
     "languageNeeded": "I documenti richiedono una lingua.",
     "chooseLanguage": "Scegline una",
     "templatesFailed": "Impossibile caricare i modelli. Ricarica la pagina per riprovare.",

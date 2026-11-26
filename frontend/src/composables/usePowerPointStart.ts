@@ -11,6 +11,8 @@ export interface PowerPointStart {
   error: Ref<string | null>
   missingFonts: Ref<FontInfo[]>
   replacements: Ref<Record<string, File>>
+  /** The replacements the current preview was rendered with (the last successful `applyFonts`). */
+  appliedReplacements: Ref<Record<string, File>>
   /** `slide_image_urls.length`; 0 before a preview exists. */
   slideCount: ComputedRef<number>
   /** `original_slide_count ?? slideCount`. */
@@ -33,6 +35,7 @@ export function usePowerPointStart(): PowerPointStart {
   const error = ref<string | null>(null)
   const missingFonts = ref<FontInfo[]>([])
   const replacements = ref<Record<string, File>>({})
+  const appliedReplacements = ref<Record<string, File>>({})
   let ticket = 0
 
   const slideCount = computed(() => preview.value?.slide_image_urls.length ?? 0)
@@ -45,10 +48,19 @@ export function usePowerPointStart(): PowerPointStart {
       return
     }
     const mine = ++ticket
+    // A failed Replace must not cost the user the deck they already had.
+    const before = {
+      file: file.value,
+      preview: preview.value,
+      missingFonts: missingFonts.value,
+      replacements: replacements.value,
+      appliedReplacements: appliedReplacements.value,
+    }
     error.value = null
     file.value = f
     missingFonts.value = []
     replacements.value = {}
+    appliedReplacements.value = {}
     phase.value = 'checking'
     try {
       const missing = (await checkFonts(f)) ?? []
@@ -62,10 +74,12 @@ export function usePowerPointStart(): PowerPointStart {
     } catch (e) {
       if (mine !== ticket) return
       error.value = uploadErrorMessage(e, 'prepareFailed')
-      file.value = null
-      preview.value = null
-      missingFonts.value = []
-      phase.value = 'idle'
+      file.value = before.file
+      preview.value = before.preview
+      missingFonts.value = before.missingFonts
+      replacements.value = before.replacements
+      appliedReplacements.value = before.appliedReplacements
+      phase.value = before.preview ? 'ready' : 'idle'
     }
   }
 
@@ -89,11 +103,13 @@ export function usePowerPointStart(): PowerPointStart {
     const mine = ++ticket
     error.value = null
     phase.value = 'preparing'
-    const fonts = Object.entries(replacements.value).map(([name, font]) => ({ name, file: font }))
+    const sent = { ...replacements.value }
+    const fonts = Object.entries(sent).map(([name, font]) => ({ name, file: font }))
     try {
       const prepared = await prepareImport(f, fonts)
       if (mine !== ticket) return
       preview.value = prepared
+      appliedReplacements.value = sent
       phase.value = 'ready'
     } catch (e) {
       if (mine !== ticket) return
@@ -111,7 +127,8 @@ export function usePowerPointStart(): PowerPointStart {
     error.value = null
     missingFonts.value = []
     replacements.value = {}
+    appliedReplacements.value = {}
   }
 
-  return { file, preview, phase, error, missingFonts, replacements, slideCount, originalSlideCount, selectFile, setReplacement, applyFonts, reset }
+  return { file, preview, phase, error, missingFonts, replacements, appliedReplacements, slideCount, originalSlideCount, selectFile, setReplacement, applyFonts, reset }
 }

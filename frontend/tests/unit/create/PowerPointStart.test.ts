@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
-import type { ImportPreview } from '@/api/templateImport'
+import type { FontInfo, ImportPreview } from '@/api/templateImport'
 import PowerPointStart from '@/components/create/PowerPointStart.vue'
 import { usePowerPointStart } from '@/composables/usePowerPointStart'
 
@@ -96,5 +96,79 @@ describe('PowerPointStart', () => {
     expect(wrapper.find('[data-testid="pptx-language-error"]').exists()).toBe(false)
     await wrapper.setProps({ languageError: true })
     expect(wrapper.get('[data-testid="pptx-language-error"]').text()).toContain('language')
+  })
+
+  describe('missing fonts', () => {
+    const fonts = [{ name: 'Gotham' }, { name: 'Futura' }] as FontInfo[]
+    const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]')
+    const applyButton = () => document.querySelector<HTMLButtonElement>('[data-testid="pptx-fonts-apply"]')!
+    const fontInputs = () => Array.from(dialog()!.querySelectorAll<HTMLInputElement>('input[type="file"]'))
+
+    async function openFonts(wrapper: Awaited<ReturnType<typeof mountReady>>['wrapper']) {
+      await wrapper.get('[data-testid="pptx-fonts-fix"]').trigger('click')
+      await flushPromises()
+    }
+    async function pick(index: number, file: File) {
+      const input = fontInputs()[index]
+      Object.defineProperty(input, 'files', { value: [file], configurable: true })
+      input.dispatchEvent(new Event('change'))
+      await flushPromises()
+    }
+    async function cancel() {
+      Array.from(dialog()!.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Cancel')!.click()
+      await flushPromises()
+    }
+
+    beforeEach(() => api.checkFonts.mockResolvedValue(fonts))
+
+    it('the warning lists only fonts with no applied replacement', async () => {
+      const { wrapper } = await mountReady()
+      expect(wrapper.get('[data-testid="pptx-fonts-note"]').text()).toContain('Gotham, Futura')
+      await openFonts(wrapper)
+      await pick(0, new File(['f'], 'Gotham.ttf'))
+      applyButton().click()
+      await flushPromises()
+      expect(wrapper.get('[data-testid="pptx-fonts-note"]').text()).toContain('Futura')
+      expect(wrapper.get('[data-testid="pptx-fonts-note"]').text()).not.toContain('Gotham')
+    })
+
+    it('says the fonts were replaced once every missing font is applied', async () => {
+      const { wrapper } = await mountReady()
+      await openFonts(wrapper)
+      await pick(0, new File(['f'], 'Gotham.ttf'))
+      await pick(1, new File(['f'], 'Futura.otf'))
+      applyButton().click()
+      await flushPromises()
+      expect(wrapper.find('[data-testid="pptx-fonts-note"]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid="pptx-fonts-done"]').text()).toContain('Fonts replaced')
+    })
+
+    it('a pick that was cancelled, not applied, keeps the warning', async () => {
+      const { wrapper } = await mountReady()
+      await openFonts(wrapper)
+      await pick(0, new File(['f'], 'Gotham.ttf'))
+      await pick(1, new File(['f'], 'Futura.otf'))
+      await cancel()
+      expect(wrapper.get('[data-testid="pptx-fonts-note"]').text()).toContain('Gotham, Futura')
+      expect(wrapper.find('[data-testid="pptx-fonts-done"]').exists()).toBe(false)
+    })
+
+    it('Apply is disabled until a replacement is chosen', async () => {
+      const { wrapper } = await mountReady()
+      await openFonts(wrapper)
+      expect(applyButton().disabled).toBe(true)
+      await pick(0, new File(['f'], 'Gotham.ttf'))
+      expect(applyButton().disabled).toBe(false)
+    })
+
+    it('closing the dialog clears its font error', async () => {
+      const { wrapper } = await mountReady()
+      await openFonts(wrapper)
+      await pick(0, new File(['f'], 'Gotham.zip'))
+      expect(dialog()!.querySelector('[role="alert"]')?.textContent).toBeTruthy()
+      await cancel()
+      await openFonts(wrapper)
+      expect(dialog()!.querySelector('[role="alert"]')).toBeNull()
+    })
   })
 })

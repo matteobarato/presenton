@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Presentation, RefreshCw, TriangleAlert } from 'lucide-vue-next'
+import { CircleCheck, Presentation, RefreshCw, TriangleAlert } from 'lucide-vue-next'
 import type { PowerPointStart as Start } from '@/composables/usePowerPointStart'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -46,7 +46,22 @@ function onReplace(event: Event) {
 
 const fontsOpen = ref(false)
 const fontError = ref('')
-const missingNames = computed(() => props.start.missingFonts.value.map((f) => f.name).join(', '))
+watch(fontsOpen, (open) => {
+  if (!open) fontError.value = ''
+})
+/** Missing fonts the preview still stands in for: a pick only counts once it has been applied. */
+const unreplacedFonts = computed(() =>
+  props.start.missingFonts.value.filter((f) => !(f.name in props.start.appliedReplacements.value)),
+)
+const missingNames = computed(() => unreplacedFonts.value.map((f) => f.name).join(', '))
+const allFontsReplaced = computed(() => props.start.missingFonts.value.length > 0 && unreplacedFonts.value.length === 0)
+/** Apply would re-render the same preview: the picks are the ones already applied (none at first). */
+const nothingToApply = computed(() => {
+  const chosen = props.start.replacements.value
+  const applied = props.start.appliedReplacements.value
+  const names = Object.keys(chosen)
+  return names.length === Object.keys(applied).length && names.every((name) => chosen[name] === applied[name])
+})
 function onFontReplace(name: string, file: File | null) {
   fontError.value = props.start.setReplacement(name, file) ?? ''
 }
@@ -116,7 +131,7 @@ defineExpose({ focusLanguage, focusDeck })
         {{ t('create.start.limitNote', { count: start.slideCount.value, total: start.originalSlideCount.value }) }}
       </p>
       <p v-if="needsFit" role="note" data-testid="pptx-fit-note" class="text-[12px] text-tx-a9c4d2">{{ t('create.start.fitNote') }}</p>
-      <p v-if="start.missingFonts.value.length" role="note" data-testid="pptx-fonts-note" class="flex items-start gap-2 rounded-control border border-ov/[0.07] bg-sx-1a2125 px-3 py-2.5 text-[12px] text-tx-a9c4d2 max-[559px]:flex-wrap">
+      <p v-if="unreplacedFonts.length" role="note" data-testid="pptx-fonts-note" class="flex items-start gap-2 rounded-control border border-ov/[0.07] bg-sx-1a2125 px-3 py-2.5 text-[12px] text-tx-a9c4d2 max-[559px]:flex-wrap">
         <TriangleAlert class="mt-px size-4 flex-none text-accent" aria-hidden="true" />
         <span class="min-w-0 flex-1">{{ t('create.start.fontsNote', { fonts: missingNames }) }}</span>
         <button
@@ -127,6 +142,19 @@ defineExpose({ focusLanguage, focusDeck })
           @click="fontsOpen = true"
         >
           {{ t('create.start.fix') }}
+        </button>
+      </p>
+      <p v-else-if="allFontsReplaced" role="note" data-testid="pptx-fonts-done" class="flex items-start gap-2 text-[12px] text-tx-a9c4d2 max-[559px]:flex-wrap">
+        <CircleCheck class="mt-px size-4 flex-none text-accent" aria-hidden="true" />
+        <span class="min-w-0 flex-1">{{ t('create.start.fontsReplaced') }}</span>
+        <button
+          type="button"
+          data-testid="pptx-fonts-change"
+          class="font-semibold text-accent underline decoration-tx-bee3f366 underline-offset-[3px] disabled:opacity-40 max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          :disabled="disabled || !ready"
+          @click="fontsOpen = true"
+        >
+          {{ t('create.start.changeFonts') }}
         </button>
       </p>
       <p v-if="start.error.value" role="alert" class="text-[12px] text-danger-text">{{ start.error.value }}</p>
@@ -151,7 +179,7 @@ defineExpose({ focusLanguage, focusDeck })
         </div>
         <DialogFooter class="mt-6">
           <Button type="button" variant="ghost" @click="fontsOpen = false">{{ t('common.actions.cancel') }}</Button>
-          <Button type="button" data-testid="pptx-fonts-apply" :disabled="!ready" @click="applyFonts">{{ t('create.start.apply') }}</Button>
+          <Button type="button" data-testid="pptx-fonts-apply" :disabled="!ready || nothingToApply" @click="applyFonts">{{ t('create.start.apply') }}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

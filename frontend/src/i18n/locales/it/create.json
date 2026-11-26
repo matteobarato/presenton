@@ -53,7 +53,7 @@
     "presenterAdds": "Aggiunge {count} video del relatore nel passaggio Narrazione | Aggiunge {count} video del relatore nel passaggio Narrazione",
     "presenterAuto": "I video del relatore vengono generati nel passaggio Narrazione. L’autore e il modello decidono a quante diapositive assegnarne uno.",
     "importPresenterAuto": "Prima e ultima diapositiva, più le introduzioni delle sezioni. Posizionato in basso a destra; spostalo nell’editor.",
-    "importPresenterAdds": "Relatore su {count} diapositive su {total}, posizionato in basso a destra; spostalo nell’editor."
+    "importPresenterAdds": "Relatore su {picked} diapositiva su {total}, posizionato in basso a destra; spostalo nell’editor. | Relatore su {picked} delle {total} diapositive, posizionato in basso a destra; spostalo nell’editor."
   },
   "tones": {
     "default": "Predefinito",
@@ -400,6 +400,8 @@
     "limitNote": "Verranno importate solo le prime {count} di {total} diapositive",
     "fitNote": "Le diapositive verranno adattate al formato 16:9; i lati vengono riempiti con il colore di sfondo della diapositiva.",
     "fontsNote": "Questi font non sono installati, quindi viene usato un font simile: {fonts}.",
+    "fontsReplaced": "Font sostituiti.",
+    "changeFonts": "Modifica",
     "fix": "Correggi",
     "apply": "Applica",
     "languageError": "Scegli la lingua in cui parlerà la narrazione."

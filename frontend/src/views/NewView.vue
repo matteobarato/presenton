@@ -103,6 +103,14 @@ watch(
   },
 )
 const filesLost = computed(() => draft.hadFiles.value && files.value.length === 0)
+// Likewise the PowerPoint: after a reload in PowerPoint mode the dropzone is empty, so say why.
+watch(
+  () => pptx.preview.value !== null,
+  (has) => {
+    draft.hadPptx.value = has
+  },
+)
+const pptxLost = computed(() => isPptx.value && draft.hadPptx.value && pptx.preview.value === null)
 /** A PowerPoint attached as a document: offer to start from it instead, keeping its design. */
 const pptxInTopic = computed(() => files.value.find((f) => f.name.toLowerCase().endsWith('.pptx')) ?? null)
 function moveToPowerPoint() {
@@ -420,6 +428,7 @@ watch(
     <form id="new-form" class="flex flex-col gap-6" @submit.prevent="onCreate">
       <template v-if="step === 'topic'">
       <StartModeSwitch v-model="mode" :disabled="pending" />
+      <p v-if="pptxLost" role="note" data-testid="pptx-lost" class="text-[12px] text-tx-a9c4d2">{{ t('views.new.pptxLost') }}</p>
       <PowerPointStart v-if="isPptx" ref="pptxStart" v-model:language="options.language" :start="pptx" :disabled="pending" :language-error="languageError" />
       <template v-else>
       <section class="flex flex-col gap-3" aria-labelledby="new-topic-h">
@@ -464,7 +473,7 @@ watch(
         v-model="portrait"
         v-model:wants="wantsPresenter"
         v-model:options="options"
-        :slide-count="isPptx ? pptx.slideCount.value : undefined"
+        :slide-count="isPptx && pptx.preview.value ? pptx.slideCount.value : undefined"
         :disabled="pending"
         :error="photoError"
         :photo-lost="photoLost"

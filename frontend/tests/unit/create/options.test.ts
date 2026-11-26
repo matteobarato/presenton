@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
+import { i18n } from '@/i18n'
 import { PHOTO_MAX_BYTES, clampMediaCount, effectiveVideos, validatePortrait } from '@/components/create/options'
 import { importPresenterNote, presenterNote } from '@/components/create/setupSummary'
 
@@ -44,5 +45,24 @@ describe('importPresenterNote', () => {
     expect(importPresenterNote(true, '20', 12)).toContain('12 of 12')
     expect(importPresenterNote(true, '', 12)).toContain('First and last slide')
     expect(importPresenterNote(true, '0', 12)).toBe(presenterNote(true, '0'))
+  })
+
+  describe('agrees with the slide total', () => {
+    afterEach(() => {
+      i18n.global.locale.value = 'en'
+    })
+
+    it('in English', () => {
+      expect(importPresenterNote(true, '1', 1)).toMatch(/^Presenter on 1 of 1 slide,/)
+      expect(importPresenterNote(true, '3', 12)).toMatch(/^Presenter on 3 of 12 slides,/)
+      expect(importPresenterNote(true, '1', 12)).toMatch(/^Presenter on 1 of 12 slides,/)
+    })
+
+    it('in Italian', () => {
+      i18n.global.locale.value = 'it'
+      expect(importPresenterNote(true, '1', 1)).toMatch(/^Relatore su 1 diapositiva su 1,/)
+      expect(importPresenterNote(true, '3', 12)).toMatch(/^Relatore su 3 delle 12 diapositive,/)
+      expect(importPresenterNote(true, '1', 12)).toMatch(/^Relatore su 1 delle 12 diapositive,/)
+    })
   })
 })

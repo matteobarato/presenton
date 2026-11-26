@@ -23,6 +23,7 @@
     "lookTitle": "Pick a look",
     "lookPlaceholder": "Choose a template for your slides.",
     "filesLost": "Re-add your documents; files aren't kept after a reload.",
+    "pptxLost": "Upload your PowerPoint again; files can’t be kept across a reload.",
     "languageNeeded": "Documents need a language.",
     "chooseLanguage": "Choose one",
     "templatesFailed": "Templates couldn’t load. Reload the page to try again.",

@@ -69,5 +69,6 @@ export function importPresenterNote(hasPhoto: boolean, videos: string, slideCoun
   if (!hasPhoto) return null
   if (videos === '0') return t('create.summary.presenterNone')
   if (videos === '') return t('create.summary.importPresenterAuto')
-  return t('create.summary.importPresenterAdds', { count: Math.min(Number(videos), slideCount), total: slideCount })
+  // The noun agrees with the total ("1 of 1 slide", "3 of 12 slides"); a named `count` would override that choice.
+  return t('create.summary.importPresenterAdds', { picked: Math.min(Number(videos), slideCount), total: slideCount }, slideCount)
 }

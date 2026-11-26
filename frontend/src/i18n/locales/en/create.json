@@ -53,7 +53,7 @@
     "presenterAdds": "Adds {count} presenter video at the Narration step | Adds {count} presenter videos at the Narration step",
     "presenterAuto": "Presenter videos are rendered at the Narration step. The writer and template decide how many slides get one.",
     "importPresenterAuto": "First and last slide, plus section introductions. Placed bottom-right; move it in the editor.",
-    "importPresenterAdds": "Presenter on {count} of {total} slides, placed bottom-right; move it in the editor."
+    "importPresenterAdds": "Presenter on {picked} of {total} slide, placed bottom-right; move it in the editor. | Presenter on {picked} of {total} slides, placed bottom-right; move it in the editor."
   },
   "tones": {
     "default": "Default",
@@ -400,6 +400,8 @@
     "limitNote": "Only the first {count} of {total} slides will be imported",
     "fitNote": "Slides will be fitted to 16:9; the sides are filled with the slide’s background colour.",
     "fontsNote": "These fonts aren’t installed, so a similar font stands in: {fonts}.",
+    "fontsReplaced": "Fonts replaced.",
+    "changeFonts": "Change",
     "fix": "Fix",
     "apply": "Apply",
     "languageError": "Choose the language the narration will speak."

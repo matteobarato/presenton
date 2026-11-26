@@ -998,6 +998,42 @@ describe('From PowerPoint', () => {
     expect(primary(wrapper).attributes('disabled')).toBeUndefined()
   })
 
+  it('the Presenter step before any upload reads like topic mode, with no slide cap', async () => {
+    const { wrapper } = await mountView('both', {}, '/new?start=pptx')
+    await addPhoto(wrapper)
+    await goTo(wrapper, 'presenter')
+    expect(wrapper.text()).toContain('The writer and template decide how many slides get one.')
+    expect(wrapper.text()).not.toContain('of 0 slides')
+    await wrapper.get('#opt-videos').setValue('3')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Adds 3 presenter videos at the Narration step')
+  })
+
+  it('asks to upload the PowerPoint again after a reload', async () => {
+    const note = 'Upload your PowerPoint again; files can’t be kept across a reload.'
+    const first = await mountView('both', {}, '/new?start=pptx')
+    expect(first.wrapper.text()).not.toContain(note)
+    await uploadDeck(first.wrapper)
+    expect(JSON.parse(localStorage.getItem('slideshows.newDraft.v1')!).hadPptx).toBe(true)
+    first.wrapper.unmount()
+
+    const second = await mountView('both', {}, '/new?start=pptx')
+    const lost = second.wrapper.get('[data-testid="pptx-lost"]')
+    expect(lost.attributes('role')).toBe('note')
+    expect(lost.text()).toBe(note)
+    await uploadDeck(second.wrapper)
+    expect(second.wrapper.find('[data-testid="pptx-lost"]').exists()).toBe(false)
+    second.wrapper.unmount()
+
+    // Topic mode never shows it; a cleared draft forgets it.
+    const topic = await mountView()
+    expect(topic.wrapper.find('[data-testid="pptx-lost"]').exists()).toBe(false)
+    topic.wrapper.unmount()
+    localStorage.removeItem('slideshows.newDraft.v1')
+    const fresh = await mountView('both', {}, '/new?start=pptx')
+    expect(fresh.wrapper.find('[data-testid="pptx-lost"]').exists()).toBe(false)
+  })
+
   it('a .pptx attached in topic mode offers to switch, moving the file over', async () => {
     const { wrapper, router } = await mountView()
     expect(wrapper.find('[data-testid="pptx-hint"]').exists()).toBe(false)

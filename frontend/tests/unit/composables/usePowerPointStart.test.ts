@@ -58,16 +58,47 @@ describe('usePowerPointStart', () => {
     expect(s.phase.value).toBe('ready')
   })
 
-  it('drops the previous deck and shows the error when preparing fails', async () => {
-    api.checkFonts.mockResolvedValue([])
+  it('a failed Replace keeps the working deck, its fonts and picks, and shows the error', async () => {
+    const gotham = [{ name: 'Gotham' }] as FontInfo[]
+    api.checkFonts.mockResolvedValueOnce(gotham).mockResolvedValueOnce([{ name: 'Other' }] as FontInfo[])
     api.prepareImport.mockResolvedValueOnce(previewOf(3)).mockRejectedValueOnce(new Error('x'))
     const s = usePowerPointStart()
-    await s.selectFile(pptx('a.pptx'))
+    const good = pptx('a.pptx')
+    await s.selectFile(good)
+    const font = new File(['f'], 'Gotham.ttf')
+    s.setReplacement('Gotham', font)
+    const preview = s.preview.value
     await s.selectFile(pptx('b.pptx'))
+    expect(s.phase.value).toBe('ready')
+    expect(s.error.value).toBeTruthy()
+    expect(s.file.value).toBe(good)
+    expect(s.preview.value).toBe(preview)
+    expect(s.missingFonts.value).toEqual(gotham)
+    expect(s.replacements.value).toEqual({ Gotham: font })
+  })
+
+  it('a failed Replace keeps the applied fonts', async () => {
+    api.checkFonts.mockResolvedValue([{ name: 'Gotham' }] as FontInfo[])
+    api.prepareImport.mockResolvedValueOnce(previewOf(3)).mockResolvedValueOnce(previewOf(3)).mockRejectedValueOnce(new Error('x'))
+    const s = usePowerPointStart()
+    await s.selectFile(pptx('a.pptx'))
+    const font = new File(['f'], 'Gotham.ttf')
+    s.setReplacement('Gotham', font)
+    await s.applyFonts()
+    await s.selectFile(pptx('b.pptx'))
+    expect(s.appliedReplacements.value).toEqual({ Gotham: font })
+  })
+
+  it('a failed first upload ends idle with no deck', async () => {
+    api.checkFonts.mockResolvedValue([])
+    api.prepareImport.mockRejectedValueOnce(new Error('x'))
+    const s = usePowerPointStart()
+    await s.selectFile(pptx('a.pptx'))
     expect(s.phase.value).toBe('idle')
     expect(s.error.value).toBeTruthy()
     expect(s.file.value).toBeNull()
     expect(s.preview.value).toBeNull()
+    expect(s.missingFonts.value).toEqual([])
   })
 
   it('drops a stale result', async () => {
@@ -104,6 +135,29 @@ describe('usePowerPointStart', () => {
     expect(api.prepareImport).toHaveBeenLastCalledWith(expect.any(File), [{ name: 'Gotham', file: font }])
     expect(s.slideCount.value).toBe(4)
     expect(s.phase.value).toBe('ready')
+    expect(s.appliedReplacements.value).toEqual({ Gotham: font })
+  })
+
+  it('appliedReplacements holds only what the last successful apply used', async () => {
+    api.checkFonts.mockResolvedValue([{ name: 'Gotham' }, { name: 'Futura' }] as FontInfo[])
+    api.prepareImport.mockResolvedValueOnce(previewOf(2))
+    const s = usePowerPointStart()
+    await s.selectFile(pptx())
+    expect(s.appliedReplacements.value).toEqual({})
+    const gotham = new File(['f'], 'Gotham.ttf')
+    s.setReplacement('Gotham', gotham)
+    expect(s.appliedReplacements.value).toEqual({})
+    api.prepareImport.mockResolvedValueOnce(previewOf(2))
+    await s.applyFonts()
+    // A later pick that is not applied (or an apply that fails) does not count.
+    s.setReplacement('Futura', new File(['f'], 'Futura.ttf'))
+    api.prepareImport.mockRejectedValueOnce(new Error('x'))
+    await s.applyFonts()
+    expect(s.appliedReplacements.value).toEqual({ Gotham: gotham })
+    // A new deck starts with nothing applied.
+    api.prepareImport.mockResolvedValueOnce(previewOf(2))
+    await s.selectFile(pptx('other.pptx'))
+    expect(s.appliedReplacements.value).toEqual({})
   })
 
   it('originalSlideCount falls back to slideCount', async () => {
