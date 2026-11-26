@@ -53,7 +53,7 @@ const narrationTo = computed(() => {
     >
       <AlertTriangle class="size-4 flex-none" aria-hidden="true" />
       <span>{{ t('create.export.gapsLine', { gaps }) }}</span>
-      <RouterLink :to="narrationTo" data-testid="export-gaps-link" class="underline decoration-tx-e9d6bb66 underline-offset-[3px] hover:text-white max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center">{{ t('create.export.goToNarration') }}</RouterLink>
+      <RouterLink :to="narrationTo" data-testid="export-gaps-link" class="underline decoration-tx-e9d6bb66 underline-offset-[3px] hover:text-strong max-[559px]:inline-flex max-[559px]:min-h-11 max-[559px]:items-center">{{ t('create.export.goToNarration') }}</RouterLink>
       <span class="text-tx-c9b99f">{{ t('create.export.canExportNow') }}</span>
     </p>
     <section class="rounded-card border border-ov/[0.06] bg-ov/[0.015] p-4">

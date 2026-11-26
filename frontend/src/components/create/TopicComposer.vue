@@ -65,7 +65,7 @@ defineExpose({ focus: () => textarea.value?.focus() })
 <template>
   <div class="flex flex-col gap-5">
     <div
-      class="glass-prompt relative flex flex-col focus-within:border-lx-bee3f366 focus-within:shadow-[0_10px_30px_#0003]"
+      class="glass-prompt relative flex flex-col focus-within:border-lx-bee3f366 focus-within:shadow-[0_10px_30px_var(--shade-33)]"
       :class="dragging && 'border-accent! bg-sx-26313680'"
       data-testid="dropzone"
       @dragover.prevent="dragging = !disabled"

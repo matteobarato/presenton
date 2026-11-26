@@ -109,7 +109,7 @@
     "webSearch": "Ricerca web",
     "webSearchHint": "Verifica i fatti online",
     "animate": "Anima le diapositive",
-    "animateHint": "Pianifica i movimenti d’ingresso dopo la generazione",
+    "animateHint": "Pianifica le animazioni d’ingresso dopo la generazione",
     "anythingElse": "Altro?",
     "anythingElseHint": "Istruzioni libere per l’autore",
     "instructionsPlaceholder": "Es. resta sotto i 10 minuti, evita il gergo, chiudi con un invito all’azione"
@@ -268,8 +268,8 @@
     "continueToNarration": "Continua con la narrazione",
     "openSlide": "Apri la diapositiva {n}",
     "presenterMarker": "Relatore",
-    "planning": "Pianificazione dei movimenti per ogni diapositiva…",
-    "motionLabel": "Pianificazione dei movimenti",
+    "planning": "Pianificazione delle animazioni per ogni diapositiva…",
+    "motionLabel": "Pianificazione delle animazioni",
     "lightbox": {
       "title": "{title} — diapositiva {n}",
       "description": "Anteprima della diapositiva. Usa le frecce per spostarti tra le diapositive.",

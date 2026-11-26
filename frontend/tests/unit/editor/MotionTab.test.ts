@@ -110,9 +110,9 @@ describe('MotionTab', () => {
   it('marks the current effect and filters the palette by search', async () => {
     const { w } = await mountTab()
     expect(w.find('.motion-effects button[aria-pressed="true"]').text()).toBe('Fade')
-    await w.find('input[aria-label="Search motion effects"]').setValue('focus')
+    await w.find('input[aria-label="Search animation effects"]').setValue('focus')
     expect(w.findAll('.motion-effects button').map((b) => b.text())).toEqual(['Blur'])
-    await w.find('input[aria-label="Search motion effects"]').setValue('zzz')
+    await w.find('input[aria-label="Search animation effects"]').setValue('zzz')
     expect(w.text()).toContain('No effects found.')
   })
 
@@ -171,7 +171,7 @@ describe('MotionTab', () => {
 
   it('missing plan shows the empty state with Generate with AI', async () => {
     const { w, fake } = await mountTab(entry({ status: 'missing', source: null, tweens: [] }))
-    expect(w.text()).toContain('No motion yet')
+    expect(w.text()).toContain('No animations yet')
     expect(w.find('.motion-effects').exists()).toBe(false)
     button('Generate with AI')!.click()
     await flushPromises()
@@ -213,7 +213,7 @@ describe('MotionTab', () => {
     })
     mounted.push(w)
     await flushPromises()
-    expect(w.find('[role="alert"]').text()).toContain("Could not load this deck's motion.")
+    expect(w.find('[role="alert"]').text()).toContain("Could not load this deck's animations.")
     expect(w.find('.skeleton-shimmer').exists()).toBe(false)
   })
 
@@ -226,7 +226,7 @@ describe('MotionTab', () => {
 
   it('⌘K / Ctrl+K focuses the search only while the Motion tab is open', async () => {
     const { w, editor } = await mountTab()
-    const search = w.find('input[aria-label="Search motion effects"]').element as HTMLInputElement
+    const search = w.find('input[aria-label="Search animation effects"]').element as HTMLInputElement
     const ev = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true, cancelable: true })
     window.dispatchEvent(ev)
     expect(document.activeElement).toBe(search)
@@ -294,8 +294,8 @@ describe('MotionTab', () => {
     sessionStorage.setItem('slideshows.task.animations.p1', 'task-1')
     h.getTask.mockResolvedValue({ id: 'task-1', status: 'pending' })
     const { w, fake } = await mountTab()
-    await vi.waitFor(() => expect(w.text()).toContain('Planning motion for every slide'))
-    const reason = 'Unavailable while motion is planned for every slide'
+    await vi.waitFor(() => expect(w.text()).toContain('Planning animations for every slide'))
+    const reason = 'Unavailable while animations are planned for every slide'
     const effects = w.find('fieldset.motion-effects')
     expect((effects.element as HTMLFieldSetElement).disabled).toBe(true)
     expect(effects.attributes('title')).toBe(reason)
@@ -309,7 +309,7 @@ describe('MotionTab', () => {
       expect(button(name)!.title).toBe(reason)
     }
     // Enter in the search does not apply an effect either.
-    await w.find('input[aria-label="Search motion effects"]').trigger('keydown', { key: 'Enter' })
+    await w.find('input[aria-label="Search animation effects"]').trigger('keydown', { key: 'Enter' })
     expect(fake.setEffect).not.toHaveBeenCalled()
   })
 })

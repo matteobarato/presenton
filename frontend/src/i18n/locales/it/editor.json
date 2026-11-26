@@ -21,7 +21,7 @@
     "presentFromCurrent": "Presenta dalla diapositiva corrente",
     "presentFromBeginning": "Presenta dall'inizio",
     "narration": "Narrazione",
-    "motion": "Movimento",
+    "motion": "Animazioni",
     "avatars": "Avatar",
     "exportFormats": "Esporta PPTX, PDF o video…",
     "untitled": "Presentazione senza titolo"
@@ -95,12 +95,12 @@
     "tabs": {
       "notes": "Note",
       "voice": "Voce",
-      "motion": "Movimento"
+      "motion": "Animazioni"
     },
     "collapse": "Comprimi",
     "expand": "Espandi",
-    "resize": "Ridimensiona note, voce e movimento",
-    "tabsLabel": "Note, voce e movimento",
+    "resize": "Ridimensiona note, voce e animazioni",
+    "tabsLabel": "Note, voce e animazioni",
     "onlyYou": "Solo tu puoi vederle"
   },
   "inspector": {
@@ -163,7 +163,7 @@
       "couldNotStart": "Impossibile avviare l'esportazione del video",
       "couldNotDelete": "Impossibile eliminare il video",
       "animations": "Animazioni: {animated} diapositive su {total}",
-      "editInMotion": "Modifica nella scheda Movimento",
+      "editInMotion": "Modifica nella scheda Animazioni",
       "renderAgain": "Genera di nuovo",
       "renderMp4": "Genera MP4",
       "queued": "In coda...",
@@ -276,8 +276,8 @@
     "interrupted": "Interrotto, riprova per continuare"
   },
   "animation": {
-    "failed": "Pianificazione del movimento non riuscita",
-    "couldNotStartPlanning": "Impossibile avviare la pianificazione del movimento",
+    "failed": "Pianificazione delle animazioni non riuscita",
+    "couldNotStartPlanning": "Impossibile avviare la pianificazione delle animazioni",
     "couldNotStartDeck": "Impossibile avviare la pianificazione della presentazione."
   },
   "undo": {
@@ -285,7 +285,7 @@
     "couldNotRedo": "Impossibile ripetere"
   },
   "motion": {
-    "lockedByDeckRun": "Non disponibile mentre il movimento viene pianificato per ogni diapositiva",
+    "lockedByDeckRun": "Non disponibile mentre le animazioni vengono pianificate per ogni diapositiva",
     "custom": "Personalizzato",
     "animationTimeline": "Timeline dell'animazione",
     "timeline": "Timeline",
@@ -301,19 +301,19 @@
     "cannotAnimate": "Questa diapositiva non può essere animata.",
     "nothingToAnimate": "Niente da animare in questa diapositiva.",
     "layoutChanged": "Layout modificato — ripianifica.",
-    "elementsChanged": "Gli elementi di questa diapositiva sono cambiati da quando è stato creato il suo movimento.",
+    "elementsChanged": "Gli elementi di questa diapositiva sono cambiati da quando sono state create le sue animazioni.",
     "replan": "Ripianifica",
     "clipAria": "Animazione {name}. {hint}",
     "dragHint": "Trascina o usa i tasti freccia per cambiare il tempo di inizio.",
     "clipTitle": "{name} · {delay}s",
-    "addMotionTo": "Aggiungi movimento a {name}",
+    "addMotionTo": "Aggiungi animazione a {name}",
     "add": "Aggiungi",
     "scrubPreview": "Scorri l'anteprima",
     "playhead": "Cursore dell'animazione in secondi",
     "lockedNote": "{reason}.",
     "help": "Trascina le clip per ordinarle. I tasti freccia regolano di 0,1 s. La modifica della diapositiva è sospesa durante l'anteprima.",
     "replaceTitle": "Sostituire le tue modifiche?",
-    "replaceDescription": "Hai modificato a mano il movimento di questa diapositiva. Rigenerarlo lo sostituisce con un nuovo piano dell'IA.",
+    "replaceDescription": "Hai modificato a mano le animazioni di questa diapositiva. Rigenerarle le sostituisce con un nuovo piano dell'IA.",
     "replace": "Sostituisci"
   }
 }

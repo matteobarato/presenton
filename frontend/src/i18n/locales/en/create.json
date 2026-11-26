@@ -109,7 +109,7 @@
     "webSearch": "Web search",
     "webSearchHint": "Ground facts online",
     "animate": "Animate slides",
-    "animateHint": "Plan entrance motion once generated",
+    "animateHint": "Plan entrance animations once generated",
     "anythingElse": "Anything else?",
     "anythingElseHint": "Free-form instructions for the writer",
     "instructionsPlaceholder": "E.g. keep it under 10 minutes, avoid jargon, end with a call to action"
@@ -268,8 +268,8 @@
     "continueToNarration": "Continue to Narration",
     "openSlide": "Open slide {n}",
     "presenterMarker": "Presenter",
-    "planning": "Planning motion for every slide…",
-    "motionLabel": "Deck motion planning",
+    "planning": "Planning animations for every slide…",
+    "motionLabel": "Deck animation planning",
     "lightbox": {
       "title": "{title} — slide {n}",
       "description": "Slide preview. Use the arrow keys to move between slides.",

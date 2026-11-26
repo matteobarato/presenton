@@ -121,7 +121,7 @@ async function deleteDeck() {
 }
 
 const iconBtn =
-  'inline-flex size-8 items-center justify-center rounded-control text-muted transition-colors duration-200 hover:bg-ov/[0.06] hover:text-white disabled:opacity-35 disabled:hover:bg-transparent data-[state=open]:bg-ov/[0.08] data-[state=open]:text-white'
+  'inline-flex size-8 items-center justify-center rounded-control text-muted transition-colors duration-200 hover:bg-ov/[0.06] hover:text-strong disabled:opacity-35 disabled:hover:bg-transparent data-[state=open]:bg-ov/[0.08] data-[state=open]:text-strong'
 </script>
 
 <template>

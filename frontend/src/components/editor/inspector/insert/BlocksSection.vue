@@ -102,7 +102,7 @@ function insert(variant: TemplateBlock, label: string) {
             <button
               v-if="group.variants.length > 1"
               type="button"
-              class="absolute right-1 bottom-1 inline-flex size-5 items-center justify-center rounded-[4px] text-tx-9aa9b0 transition-colors duration-150 hover:bg-ov/[0.06] hover:text-white"
+              class="absolute right-1 bottom-1 inline-flex size-5 items-center justify-center rounded-[4px] text-tx-9aa9b0 transition-colors duration-150 hover:bg-ov/[0.06] hover:text-strong"
               :aria-label="t('editorInspector.insert.blocks.showVariants', { title: group.title })"
               :aria-expanded="expanded === group.key"
               :title="t('editorInspector.insert.blocks.variants', { count: group.variants.length })"

@@ -2,16 +2,13 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
-import { CircleHelp, FolderOpen, LayoutTemplate, Plus, Settings2, Presentation } from 'lucide-vue-next'
+import { CircleHelp, FolderOpen, LayoutTemplate, Plus, Presentation } from 'lucide-vue-next'
 import { useHelpDialog } from '@/composables/useHelpDialog'
-import { defaultSettingsSection } from '@/settings/types'
-import { useSessionStore } from '@/stores/session'
 import UserMenu from './UserMenu.vue'
 
 const { t } = useI18n()
 const route = useRoute()
 const help = useHelpDialog()
-const session = useSessionStore()
 const link =
   'flex w-full flex-col items-center gap-2 rounded-[11px] py-3 text-[9px] font-medium text-tx-9aa3a8 transition-colors duration-200 hover:bg-sx-1d2225 hover:text-tx-d9e0e4 max-[760px]:gap-1.5 max-[760px]:text-[7px]'
 const cta =
@@ -20,8 +17,6 @@ const active = 'bg-sx-222b30 text-tx-c2e5f5'
 const libraryActive = computed(() => route.name === 'library' || route.name === 'editor')
 const newActive = computed(() => route.name === 'new' || route.name === 'create')
 const templatesActive = computed(() => route.name === 'templates' || route.name === 'template')
-const settingsActive = computed(() => route.name === 'settings')
-const settingsSection = computed(() => defaultSettingsSection(session.user?.role === 'admin'))
 </script>
 
 <template>
@@ -32,7 +27,7 @@ const settingsSection = computed(() => defaultSettingsSection(session.user?.role
     <RouterLink
       :to="{ name: 'library' }"
       aria-label="Slideshows"
-      class="grid size-10 place-items-center rounded-[12px] max-[760px]:size-[33px] max-[760px]:rounded-[10px] bg-accent text-accent-ink shadow-[0_5px_20px_#0003] transition-[background,transform] duration-200 hover:-rotate-[5deg] hover:bg-accent-hover"
+      class="grid size-10 place-items-center rounded-[12px] max-[760px]:size-[33px] max-[760px]:rounded-[10px] bg-accent text-accent-ink shadow-[0_5px_20px_var(--shade-33)] transition-[background,transform] duration-200 hover:-rotate-[5deg] hover:bg-accent-hover"
     >
       <img src="/favicon.svg" alt="Slideshows" class="size-8" aria-hidden="true" />
     </RouterLink>
@@ -52,9 +47,6 @@ const settingsSection = computed(() => defaultSettingsSection(session.user?.role
       </RouterLink>
       <RouterLink :to="{ name: 'templates' }" :class="[link, templatesActive && active]" :aria-current="templatesActive ? 'page' : undefined">
         <LayoutTemplate class="size-[19px] stroke-[1.5]" aria-hidden="true" />{{ t('shell.nav.templates') }}
-      </RouterLink>
-      <RouterLink :to="{ name: 'settings', params: { section: settingsSection } }" :class="[link, settingsActive && active]" :aria-current="settingsActive ? 'page' : undefined">
-        <Settings2 class="size-[19px] stroke-[1.5]" aria-hidden="true" />{{ t('shell.nav.settings') }}
       </RouterLink>
     </div>
 

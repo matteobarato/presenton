@@ -21,7 +21,7 @@
     "presentFromCurrent": "Present from current slide",
     "presentFromBeginning": "Present from beginning",
     "narration": "Narration",
-    "motion": "Motion",
+    "motion": "Animations",
     "avatars": "Avatars",
     "exportFormats": "Export PPTX, PDF or video…",
     "untitled": "Untitled presentation"
@@ -95,12 +95,12 @@
     "tabs": {
       "notes": "Notes",
       "voice": "Voice",
-      "motion": "Motion"
+      "motion": "Animations"
     },
     "collapse": "Collapse",
     "expand": "Expand",
-    "resize": "Resize notes, voice and motion",
-    "tabsLabel": "Notes, voice and motion",
+    "resize": "Resize notes, voice and animations",
+    "tabsLabel": "Notes, voice and animations",
     "onlyYou": "Only you can see these"
   },
   "inspector": {
@@ -163,7 +163,7 @@
       "couldNotStart": "Could not start the video export",
       "couldNotDelete": "Could not delete the video",
       "animations": "Animations: {animated} of {total} slides",
-      "editInMotion": "Edit in Motion tab",
+      "editInMotion": "Edit in Animations tab",
       "renderAgain": "Render again",
       "renderMp4": "Render MP4",
       "queued": "Queued...",
@@ -276,8 +276,8 @@
     "interrupted": "Interrupted, retry to continue"
   },
   "animation": {
-    "failed": "Motion planning failed",
-    "couldNotStartPlanning": "Motion planning could not start",
+    "failed": "Animation planning failed",
+    "couldNotStartPlanning": "Animation planning could not start",
     "couldNotStartDeck": "Could not start planning the deck."
   },
   "undo": {
@@ -285,7 +285,7 @@
     "couldNotRedo": "Could not redo"
   },
   "motion": {
-    "lockedByDeckRun": "Unavailable while motion is planned for every slide",
+    "lockedByDeckRun": "Unavailable while animations are planned for every slide",
     "custom": "Custom",
     "animationTimeline": "Animation timeline",
     "timeline": "Timeline",
@@ -301,19 +301,19 @@
     "cannotAnimate": "This slide can't be animated.",
     "nothingToAnimate": "Nothing to animate on this slide.",
     "layoutChanged": "Layout changed — re-plan.",
-    "elementsChanged": "This slide's elements changed since its motion was made.",
+    "elementsChanged": "This slide's elements changed since its animations were made.",
     "replan": "Re-plan",
     "clipAria": "{name} animation. {hint}",
     "dragHint": "Drag or use arrow keys to change its start time.",
     "clipTitle": "{name} · {delay}s",
-    "addMotionTo": "Add motion to {name}",
+    "addMotionTo": "Add animation to {name}",
     "add": "Add",
     "scrubPreview": "Scrub preview",
     "playhead": "Animation playhead in seconds",
     "lockedNote": "{reason}.",
     "help": "Drag clips to sequence. Arrow keys fine-tune by 0.1 s. Slide editing pauses while the preview plays.",
     "replaceTitle": "Replace your edits?",
-    "replaceDescription": "You've edited this slide's motion by hand. Regenerating replaces it with a new AI plan.",
+    "replaceDescription": "You've edited this slide's animations by hand. Regenerating replaces them with a new AI plan.",
     "replace": "Replace"
   }
 }

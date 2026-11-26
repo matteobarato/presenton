@@ -31,7 +31,7 @@ const meta = computed(
       :aria-label="t('templates.card.view', { name: template.name })"
       class="block rounded-card focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
     >
-      <div class="aspect-video overflow-hidden rounded-card bg-sx-101416 shadow-[0_6px_15px_#0002] transition-transform duration-200 motion-safe:group-hover:-translate-y-1">
+      <div class="aspect-video overflow-hidden rounded-card bg-sx-101416 shadow-[0_6px_15px_var(--shade-22)] transition-transform duration-200 motion-safe:group-hover:-translate-y-1">
         <Skeleton v-if="pending" data-testid="cover-skeleton" class="size-full rounded-none" />
         <SlideView v-else-if="cover" :slide="cover" :theme="theme" :fonts="fonts" show-placeholders fit="width" lazy />
         <div v-else class="size-full bg-sx-1a2125" />

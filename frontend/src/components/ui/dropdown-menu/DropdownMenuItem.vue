@@ -10,5 +10,5 @@ const forwarded = useForwardProps(delegated)
 </script>
 
 <template>
-  <DropdownMenuItem v-bind="forwarded" :class="cn('relative flex cursor-default items-center gap-2 rounded-control px-2.5 py-2 text-[11px] text-tx-d4dadd outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-ov/10 data-[highlighted]:text-white', props.class)"><slot /></DropdownMenuItem>
+  <DropdownMenuItem v-bind="forwarded" :class="cn('relative flex cursor-default items-center gap-2 rounded-control px-2.5 py-2 text-[11px] text-tx-d4dadd outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-ov/10 data-[highlighted]:text-strong', props.class)"><slot /></DropdownMenuItem>
 </template>

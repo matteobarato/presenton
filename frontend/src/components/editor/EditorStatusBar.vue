@@ -22,7 +22,7 @@ const id = computed(() => String(route.params.id ?? ''))
 const number = computed(() => String(props.position).padStart(2, '0'))
 
 const btn =
-  'grid size-6 place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-white disabled:opacity-35 disabled:hover:bg-transparent'
+  'grid size-6 place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-strong disabled:opacity-35 disabled:hover:bg-transparent'
 </script>
 
 <template>
@@ -49,7 +49,7 @@ const btn =
       <button type="button" :class="btn" :disabled="editor.zoom <= ZOOM_MIN" :aria-label="t('editor.statusBar.zoomOut')" @click="editor.setZoom(editor.zoom - 0.1)">
         <Minus class="size-[13px]" aria-hidden="true" />
       </button>
-      <button type="button" class="grid h-6 min-w-10 place-items-center rounded-control px-1 text-[11px] leading-none text-tx-b3bfc6 tabular-nums hover:bg-ov/[0.04] hover:text-white" :title="t('editor.statusBar.fitToCanvas')" @click="editor.setZoom(1)">
+      <button type="button" class="grid h-6 min-w-10 place-items-center rounded-control px-1 text-[11px] leading-none text-tx-b3bfc6 tabular-nums hover:bg-ov/[0.04] hover:text-strong" :title="t('editor.statusBar.fitToCanvas')" @click="editor.setZoom(1)">
         {{ Math.round(editor.zoom * 100) }}%
       </button>
       <button type="button" :class="btn" :disabled="editor.zoom >= ZOOM_MAX" :aria-label="t('editor.statusBar.zoomIn')" @click="editor.setZoom(editor.zoom + 0.1)">

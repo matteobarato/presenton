@@ -62,8 +62,8 @@
     "backToLibrary": "Torna alla libreria"
   },
   "editor": {
-    "planningStage": "Pianificazione dei movimenti per ogni diapositiva…",
-    "planningLabel": "Pianificazione dei movimenti"
+    "planningStage": "Pianificazione delle animazioni per ogni diapositiva…",
+    "planningLabel": "Pianificazione delle animazioni"
   },
   "present": {
     "loadFailed": "Impossibile caricare questa presentazione."

@@ -9,7 +9,7 @@ const props = defineProps<ToasterProps>()
 
 const toastOptions = {
   classes: {
-    toast: '!rounded-card !border-lx-a3c7db20 !bg-dialog !text-popover-foreground !shadow-[0_12px_35px_#0005] !text-[11px]',
+    toast: '!rounded-card !border-lx-a3c7db20 !bg-dialog !text-popover-foreground !shadow-[0_12px_35px_var(--shade-55)] !text-[11px]',
   },
 }
 </script>

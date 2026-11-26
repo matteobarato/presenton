@@ -11,7 +11,7 @@ defineEmits<{ save: []; discard: [] }>()
 <template>
   <div
     v-if="dirty"
-    class="sticky bottom-0 z-10 mt-8 flex items-center justify-between gap-3 rounded-[12px] border border-ov/[0.06] bg-sx-20272b px-4 py-3 shadow-[0_-6px_20px_#0003]"
+    class="sticky bottom-0 z-10 mt-8 flex items-center justify-between gap-3 rounded-[12px] border border-ov/[0.06] bg-sx-20272b px-4 py-3 shadow-[0_-6px_20px_var(--shade-33)]"
   >
     <p class="text-[11px] text-tx-9aabb4">{{ t('settings.saveBar.unsaved') }}</p>
     <div class="flex items-center gap-2">

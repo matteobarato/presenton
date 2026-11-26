@@ -175,7 +175,7 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
         <span class="flex-1">{{ t('editorInspector.motion.resetNotice') }}</span>
         <button
           type="button"
-          class="-m-0.5 grid size-5 shrink-0 place-items-center rounded-control text-tx-9aa9b0 hover:bg-ov/[0.04] hover:text-white"
+          class="-m-0.5 grid size-5 shrink-0 place-items-center rounded-control text-tx-9aa9b0 hover:bg-ov/[0.04] hover:text-strong"
           :aria-label="t('editorInspector.motion.dismiss')"
           @click="dismissedFor = animation.slide_id"
         >
@@ -278,7 +278,7 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
 
             <button
               type="button"
-              class="mt-3.5 flex w-full items-center justify-between text-[10px] font-medium text-tx-d0d7dc hover:text-white"
+              class="mt-3.5 flex w-full items-center justify-between text-[10px] font-medium text-tx-d0d7dc hover:text-strong"
               :aria-expanded="customOpen"
               aria-controls="motion-custom"
               @click="customOpen = !customOpen"

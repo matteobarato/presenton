@@ -132,8 +132,8 @@ function onHandleKeydown(e: KeyboardEvent) {
           aria-controls="footer-panel"
           :aria-selected="editor.footerTab === tab.id"
           :tabindex="editor.footerTab === tab.id ? 0 : -1"
-          class="inline-flex h-7 items-center gap-1.5 rounded-control px-2.5 text-[11px] leading-none hover:bg-ov/[0.04] hover:text-white"
-          :class="editor.footerTab !== tab.id ? 'text-tx-919fa7' : editor.footerOpen ? 'bg-ov/[0.07] text-white' : 'text-white'"
+          class="inline-flex h-7 items-center gap-1.5 rounded-control px-2.5 text-[11px] leading-none hover:bg-ov/[0.04] hover:text-strong"
+          :class="editor.footerTab !== tab.id ? 'text-tx-919fa7' : editor.footerOpen ? 'bg-ov/[0.07] text-strong' : 'text-strong'"
           @click="onTabClick(tab.id)"
           @keydown="onTabKeydown($event, i)"
         >
@@ -145,7 +145,7 @@ function onHandleKeydown(e: KeyboardEvent) {
       </div>
       <button
         type="button"
-        class="inline-flex size-7 items-center justify-center rounded-control text-tx-919fa7 hover:bg-ov/[0.04] hover:text-white"
+        class="inline-flex size-7 items-center justify-center rounded-control text-tx-919fa7 hover:bg-ov/[0.04] hover:text-strong"
         :aria-label="editor.footerOpen ? t('editor.footer.collapse') : t('editor.footer.expand')"
         :aria-expanded="editor.footerOpen"
         aria-controls="footer-panel"

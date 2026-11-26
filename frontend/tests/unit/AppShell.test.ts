@@ -12,6 +12,13 @@ vi.mock('@/api/next-routes', () => ({ getRuntimeConfig: vi.fn().mockResolvedValu
 
 const view = { template: '<div />' }
 
+/** Opens the avatar dropdown (portalled to body) and returns its Settings item. */
+async function openSettingsItem(wrapper: Awaited<ReturnType<typeof mountShell>>) {
+  await wrapper.get('button[aria-label="Account menu"]').trigger('keydown', { key: 'Enter' })
+  await flushPromises()
+  return [...document.querySelectorAll('[role="menuitem"]')].find((el) => el.textContent?.trim() === 'Settings')!
+}
+
 async function mountShell(path = '/') {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -67,12 +74,12 @@ describe('AppShell', () => {
     expect(wrapper.find('[role="alert"]').exists()).toBe(false)
   })
 
-  it('renders the rail with Library, New, Settings and the user menu', async () => {
+  it('renders the rail with Library, New and the user menu, without a Settings button', async () => {
     const wrapper = await mountShell()
     const nav = wrapper.get('nav[aria-label="Main"]')
     expect(nav.get('a[href="/"]:not([aria-label])').text()).toBe('Library')
     expect(nav.get('a[href="/new"]').text()).toBe('New')
-    expect(nav.get('a[href="/settings/text"]').text()).toBe('Settings')
+    expect(nav.find('a[href^="/settings"]').exists()).toBe(false)
     expect(nav.find('button[aria-label="Account menu"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('page')
   })
@@ -85,19 +92,17 @@ describe('AppShell', () => {
     expect(wrapper.get('nav[aria-label="Main"] a[href="/new"]').attributes('aria-current')).toBeUndefined()
   })
 
-  it('links a non-admin straight to their account settings', async () => {
+  it('links a non-admin straight to their account settings from the user menu', async () => {
     useSessionStore().user = { username: 'bob', role: 'user' }
     const wrapper = await mountShell('/')
-    expect(wrapper.get('nav[aria-label="Main"] a[href="/settings/account"]').text()).toBe('Settings')
+    expect((await openSettingsItem(wrapper)).getAttribute('href')).toBe('/settings/account')
   })
 
   it('links Settings inside the app and marks it current on settings routes', async () => {
     const wrapper = await mountShell('/settings/images')
-    const settings = wrapper.get('nav[aria-label="Main"] a[href="/settings/text"]')
-    expect(settings.text()).toBe('Settings')
-    expect(settings.attributes('target')).toBeUndefined()
-    expect(settings.attributes('aria-label')).toBeUndefined()
-    expect(settings.attributes('aria-current')).toBe('page')
-    expect(wrapper.find('[aria-label="Settings (classic app)"]').exists()).toBe(false)
+    const settings = await openSettingsItem(wrapper)
+    expect(settings.getAttribute('href')).toBe('/settings/text')
+    expect(settings.getAttribute('target')).toBeNull()
+    expect(settings.getAttribute('aria-current')).toBe('page')
   })
 })

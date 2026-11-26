@@ -40,7 +40,7 @@ const thumbWidth = computed(() => {
 
 const cardClass =
   'group relative flex min-w-0 flex-col gap-2.5 rounded-card border p-[7px] pb-2.5 text-left transition-[border-color,background,box-shadow,translate] duration-200 hover:-translate-y-px hover:bg-ov/[0.04] scroll-mb-28 focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-40 disabled:hover:translate-y-0'
-const on = 'border-accent bg-sx-bee3f30d shadow-[0_8px_24px_#0000004d]'
+const on = 'border-accent bg-sx-bee3f30d shadow-[0_8px_24px_var(--shade-4d)]'
 const off = 'border-ov/[0.07] bg-ov/[0.02]'
 </script>
 

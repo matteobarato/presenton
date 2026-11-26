@@ -23,7 +23,7 @@ const forwarded = useForwardPropsEmits(delegated, emits)
       :class="
         cn(
           'anim-dialog-in fixed top-1/2 left-1/2 z-71 w-[min(490px,calc(100vw-32px))] max-h-[calc(100dvh-40px)] overflow-y-auto',
-          'rounded-dialog border border-lx-a3c7db20 bg-dialog p-8 text-popover-foreground shadow-[0_30px_100px_#0008] outline-none [transform:translate(-50%,-50%)]',
+          'rounded-dialog border border-lx-a3c7db20 bg-dialog p-8 text-popover-foreground shadow-[0_30px_100px_var(--shade-88)] outline-none [transform:translate(-50%,-50%)]',
           props.class,
         )
       "

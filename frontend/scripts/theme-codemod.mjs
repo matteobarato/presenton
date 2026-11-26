@@ -28,7 +28,7 @@ export function expandHex(h) {
 // --- colour maths (sRGB <-> OKLab) ---
 const lin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)
 const gam = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055)
-function toOklch([r, g, b]) {
+export function toOklch([r, g, b]) {
   const [R, G, B] = [r, g, b].map((v) => lin(v / 255))
   const l = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B)
   const m = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B)
@@ -38,7 +38,7 @@ function toOklch([r, g, b]) {
   const bb = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s
   return { L, C: Math.hypot(a, bb), h: Math.atan2(bb, a) }
 }
-function fromOklch({ L, C, h }) {
+export function fromOklch({ L, C, h }) {
   const a = C * Math.cos(h), b = C * Math.sin(h)
   const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3
   const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3

@@ -23,7 +23,7 @@ defineExpose({ pick: () => input.value?.click() })
 
 <template>
   <section class="flex flex-col gap-2" :aria-label="t('editorInspector.avatar.portrait.ariaLabel')" data-testid="portrait-hero">
-    <div class="relative aspect-[4/3] w-full overflow-hidden rounded-card border border-ov/[0.06] bg-black/20">
+    <div class="relative aspect-[4/3] w-full overflow-hidden rounded-card border border-ov/[0.06] bg-well">
       <img v-if="portrait" :src="portrait.url" :alt="t('editorInspector.avatar.portrait.ariaLabel')" class="size-full object-cover" />
       <button
         v-else

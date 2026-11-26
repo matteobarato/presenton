@@ -62,8 +62,8 @@
     "backToLibrary": "Back to library"
   },
   "editor": {
-    "planningStage": "Planning motion for every slide…",
-    "planningLabel": "Deck motion planning"
+    "planningStage": "Planning animations for every slide…",
+    "planningLabel": "Deck animation planning"
   },
   "present": {
     "loadFailed": "Couldn't load this presentation."

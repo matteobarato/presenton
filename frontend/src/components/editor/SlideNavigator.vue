@@ -153,7 +153,7 @@ watch(
               <template v-if="element.id && !editor.locked">
                 <button
                   type="button"
-                  class="grid h-6 w-[23px] flex-none place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-white"
+                  class="grid h-6 w-[23px] flex-none place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-strong"
                   :aria-label="t('editor.navigator.duplicateSlideNumber', { n: index + 1 })"
                   :title="t('editor.navigator.duplicateSlide')"
                   @click="mutations.duplicateSlide(element.id)"

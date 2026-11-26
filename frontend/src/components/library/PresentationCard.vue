@@ -20,7 +20,7 @@ const cover = computed(() => coverSlide(props.presentation))
     <RouterLink
       :to="deckOpenPath(presentation)"
       :aria-label="t('library.deck.open', { title })"
-      class="block aspect-video overflow-hidden rounded-card bg-sx-101416 shadow-[0_6px_15px_#0002] transition-transform duration-200 motion-safe:group-hover:-translate-y-1"
+      class="block aspect-video overflow-hidden rounded-card bg-sx-101416 shadow-[0_6px_15px_var(--shade-22)] transition-transform duration-200 motion-safe:group-hover:-translate-y-1"
     >
       <SlideView v-if="cover" :slide="cover" :theme="presentation.theme" :fonts="presentation.fonts" fit="width" lazy />
     </RouterLink>

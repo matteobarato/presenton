@@ -80,7 +80,7 @@ describe('SpeakerNotes footer', () => {
     expect(editor.footerOpen).toBe(false)
     expect(editor.footerTab).toBe('notes')
     expect(w.find('[data-testid="voice-stub"]').exists()).toBe(false)
-    expect(w.get('[role="tablist"]').attributes('aria-label')).toBe('Notes, voice and motion')
+    expect(w.get('[role="tablist"]').attributes('aria-label')).toBe('Notes, voice and animations')
     expect(tab(w, 'Voice').attributes('aria-controls')).toBe('footer-panel')
 
     await tab(w, 'Voice').trigger('click')
@@ -177,7 +177,7 @@ describe('SpeakerNotes footer', () => {
     await tab(w, 'Notes').trigger('click')
     const handle = w.get('[role="separator"]')
     expect(handle.attributes('aria-orientation')).toBe('horizontal')
-    expect(handle.attributes('aria-label')).toBe('Resize notes, voice and motion')
+    expect(handle.attributes('aria-label')).toBe('Resize notes, voice and animations')
     expect(handle.attributes('tabindex')).toBe('0')
     expect(handle.attributes('style')).toContain('touch-action: none')
 

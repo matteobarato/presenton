@@ -172,7 +172,7 @@ function errorMessage(error: unknown, fallback: string): string {
           class="group block min-w-0 rounded-[9px] p-0 text-left focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent"
           @click="openLightbox(i, $event)"
         >
-          <div class="aspect-video overflow-hidden rounded-[9px] bg-sx-101416 shadow-[0_6px_15px_#0002] transition-transform duration-[180ms] motion-safe:group-hover:-translate-y-[3px]">
+          <div class="aspect-video overflow-hidden rounded-[9px] bg-sx-101416 shadow-[0_6px_15px_var(--shade-22)] transition-transform duration-[180ms] motion-safe:group-hover:-translate-y-[3px]">
             <SlideView :slide="layoutToSlide(template.id, layout, i)" :theme="theme" :fonts="fonts" show-placeholders fit="width" lazy />
           </div>
           <span class="mt-[11px] block text-[10px] text-tx-9eb7c7 tabular-nums">{{ String(i + 1).padStart(2, '0') }}</span>

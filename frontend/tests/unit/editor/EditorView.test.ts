@@ -266,7 +266,7 @@ describe('EditorView', () => {
       expect(api.generateAnimationsAsync).toHaveBeenCalledTimes(1)
       expect(api.generateAnimationsAsync).toHaveBeenCalledWith('p1', {})
       expect(sessionStorage.getItem('slideshows.animate.p1')).toBeNull()
-      expect(w.find('[aria-label="Deck motion planning"]').exists()).toBe(true)
+      expect(w.find('[aria-label="Deck animation planning"]').exists()).toBe(true)
       await flushPromises()
       expect(api.generateAnimationsAsync).toHaveBeenCalledTimes(1)
     })

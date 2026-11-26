@@ -30,6 +30,10 @@
   --color-ov: #ffffff;
   --color-tab-icon: #a2adb3;
   --color-tab-icon-active: #edf1f2;
+  /* Emphasised chrome ink (hover, active, open): never use text-white on themed surfaces */
+  --color-strong: #ffffff;
+  /* Recessed media well behind portraits */
+  --color-well: #0003;
 
   /* shadcn-vue semantic aliases */
   --color-background: #121415;
@@ -90,64 +94,91 @@
   --sheen-a: rgb(255 255 255 / 0.035);
   --sheen-b: rgb(255 255 255 / 0.012);
   --sheen-inset: rgb(255 255 255 / 0.04);
+  --workspace-shadow: none;
+  --shade-11: #0001;
+  --shade-22: #0002;
+  --shade-33: #0003;
+  --shade-44: #0004;
+  --shade-4d: #0000004d;
+  --shade-55: #0005;
+  --shade-88: #0008;
 }
 
-/* Light theme: the Aera look with lightness inverted. Unlayered, so it beats the @theme layer. */
+/* Light theme: white surfaces on a pale blue shell, depth from hairlines and soft shadows. Unlayered, so it beats the @theme layer. */
 .light {
   color-scheme: light;
+  --color-strong: #0b1a23;
+  --color-well: #eef5f9;
+  --workspace-shadow: 0 0 0 1px var(--color-line), 0 8px 28px rgb(23 70 96 / 0.06);
+  --shade-11: rgb(23 70 96 / 0.05);
+  --shade-22: rgb(23 70 96 / 0.08);
+  --shade-33: rgb(23 70 96 / 0.1);
+  --shade-44: rgb(23 70 96 / 0.12);
+  --shade-4d: rgb(23 70 96 / 0.13);
+  --shade-55: rgb(23 70 96 / 0.14);
+  --shade-88: rgb(23 70 96 / 0.22);
 
-  --color-rail: #e3e8eb;
-  --color-shell: #eaeef0;
-  --color-canvas: #eef2f4;
-  --color-storyboard: #f1f4f6;
-  --color-inspector: #f6f8f9;
+  --color-rail: #f2f7fa;
+  --color-shell: #f5f9fb;
+  --color-canvas: #eef5f9;
+  --color-storyboard: #ffffff;
+  --color-inspector: #ffffff;
   --color-dialog: #ffffff;
-  --color-field: #e8edf0;
+  --color-field: #eef5f8;
 
-  --color-accent: #1f7aa5;
+  --color-accent: #176f99;
   --color-accent-ink: #ffffff;
-  --color-accent-hover: #2b8fbd;
+  --color-accent-hover: #125b7e;
 
-  --color-text: #1d2427;
-  --color-muted: #566269;
-  --color-faint: #66727a;
-  --color-secondary: #e0e6e9;
-  --color-secondary-text: #26323a;
-  --color-secondary-hover: #d3dbe0;
+  --color-text: #14242d;
+  --color-muted: #4a606d;
+  --color-faint: #586e7b;
+  --color-secondary: #ecf4f8;
+  --color-secondary-text: #1d3340;
+  --color-secondary-hover: #dfedf4;
   --color-danger: #fbe3e1;
   --color-danger-text: #8f2a24;
-  --color-line: rgb(0 0 0 / 0.09);
-  --color-ov: #1d2427;
-  --color-tab-icon: #6a7880;
-  --color-tab-icon-active: #1f7aa5;
+  --color-line: rgb(16 74 105 / 0.15);
+  --color-ov: #0a4060;
+  --color-tab-icon: #567080;
+  --color-tab-icon-active: #176f99;
 
-  --color-background: #e7ebed;
-  --color-popover-foreground: #1d2427;
+  --color-background: #f2f7fa;
+  --color-popover-foreground: #14242d;
 
   --glass-tools: #ffffffeb;
-  --glass-tools-shadow: #1d242722;
-  --glass-prompt: linear-gradient(125deg, #ffffffe0, #f3f6f8ec);
-  --glass-prompt-border: #4a63711f;
-  --glass-prompt-shadow: #1d24271a;
-  --glass-overlay: #1d242766;
+  --glass-tools-shadow: #17466014;
+  --glass-prompt: linear-gradient(125deg, #ffffff, #fafdff);
+  --glass-prompt-border: #175a7a2b;
+  --glass-prompt-shadow: #17466012;
+  --glass-overlay: #16394d4d;
   --glass-popover: #fffffff5;
-  --glass-popover-border: #0000001a;
-  --glass-popover-shadow: #1d242730;
-  --dotted-dot: #4a5a6322;
-  --scrollbar: #b4bec3;
-  --scrollbar-card: #aab5ba;
+  --glass-popover-border: #175a7a1f;
+  --glass-popover-shadow: #17466024;
+  --dotted-dot: #175a7a26;
+  --scrollbar: #bfd2dd;
+  --scrollbar-card: #bfd2dd;
   --kbd-fg: #47606f;
-  --kbd-bg: #eaf0f4;
-  --kbd-border: #0000001f;
+  --kbd-bg: #f2f7f9;
+  --kbd-border: #175a7a29;
   --selection-bg: #a8d8ee;
   --selection-fg: #14242c;
-  --workspace-bg: #f7f9fa;
-  --hero-a: #dbeaf2;
-  --hero-b: #eef5f9;
-  --tile-a: #cfe3ee99;
-  --tile-b: #e3eff6aa;
-  --sheen-border: rgb(0 0 0 / 0.08);
-  --sheen-a: rgb(255 255 255 / 0.85);
-  --sheen-b: rgb(255 255 255 / 0.55);
-  --sheen-inset: rgb(255 255 255 / 0.9);
+  --workspace-bg: #ffffff;
+  --hero-a: #d9eef8;
+  --hero-b: #f2f9fd;
+  --tile-a: #cdeaf899;
+  --tile-b: #e4f4fcaa;
+  --sheen-border: rgb(23 90 122 / 0.12);
+  --sheen-a: #ffffff;
+  --sheen-b: #fbfdfe;
+  --sheen-inset: #ffffff;
+}
+
+/* A 5% white hairline reads on a dark surface; the same alpha of ink vanishes on white. In light the
+   resting hairlines take the line token and empty tracks get more body. `:where` keeps these at the
+   weight of one class, so hover, checked and focus variants still win. */
+@layer utilities {
+  :where(.light) :is(.border-ov\/\[0\.04\], .border-ov\/\[0\.05\], .border-ov\/\[0\.06\], .border-ov\/\[0\.07\], .border-ov\/\[0\.08\], .border-ov\/\[0\.09\]) { border-color: var(--color-line); }
+  :where(.light) .border-ov\/20 { border-color: color-mix(in oklab, var(--color-ov) 34%, transparent); }
+  :where(.light) :is(.bg-ov\/\[0\.06\], .bg-ov\/\[0\.1\], .bg-ov\/\[0\.14\]) { background-color: color-mix(in oklab, var(--color-ov) 13%, transparent); }
 }

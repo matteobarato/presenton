@@ -2,7 +2,7 @@
   "tabs": {
     "insert": "Inserisci",
     "avatar": "Avatar",
-    "motion": "Movimento",
+    "motion": "Animazioni",
     "layers": "Livelli"
   },
   "layers": {
@@ -200,34 +200,34 @@
     "slider": "Cursore {label}"
   },
   "motion": {
-    "ariaLabel": "Movimento",
-    "title": "Movimento, con intenzione.",
+    "ariaLabel": "Animazioni",
+    "title": "Animazioni, con intenzione.",
     "intro": "Definisci come ogni elemento entra nella diapositiva.",
-    "noSlide": "Seleziona una diapositiva per modificarne il movimento.",
-    "loadError": "Impossibile caricare il movimento di questa presentazione.",
-    "notReady": "Il movimento di questa diapositiva non è ancora pronto.",
-    "unsupported": "Questa diapositiva non si può animare. Il movimento funziona con le diapositive create da un modello.",
+    "noSlide": "Seleziona una diapositiva per modificarne le animazioni.",
+    "loadError": "Impossibile caricare le animazioni di questa presentazione.",
+    "notReady": "Le animazioni di questa diapositiva non sono ancora pronte.",
+    "unsupported": "Questa diapositiva non si può animare. Le animazioni funzionano con le diapositive create da un modello.",
     "nothingToAnimate": "Niente da animare in questa diapositiva.",
     "resetNotice": "Le tue modifiche sono state reimpostate perché il layout è cambiato.",
     "dismiss": "Chiudi",
-    "planningSlide": "Pianificazione del movimento di questa diapositiva…",
-    "planningSlideLabel": "Pianificazione del movimento",
-    "planningDeck": "Pianificazione del movimento per ogni diapositiva…",
-    "planningDeckLabel": "Pianificazione del movimento della presentazione",
+    "planningSlide": "Pianificazione delle animazioni di questa diapositiva…",
+    "planningSlideLabel": "Pianificazione delle animazioni",
+    "planningDeck": "Pianificazione delle animazioni per ogni diapositiva…",
+    "planningDeckLabel": "Pianificazione delle animazioni della presentazione",
     "stale": {
       "title": "Layout cambiato — ripianifica",
-      "hint": "Gli elementi di questa diapositiva sono cambiati dopo la creazione del movimento, quindi il piano non corrisponde più. Ripianificalo per modificare di nuovo il movimento.",
+      "hint": "Gli elementi di questa diapositiva sono cambiati dopo la creazione delle animazioni, quindi il piano non corrisponde più. Ripianificalo per modificare di nuovo le animazioni.",
       "replan": "Ripianifica questa diapositiva"
     },
     "missing": {
-      "title": "Ancora nessun movimento",
+      "title": "Ancora nessuna animazione",
       "hint": "Lascia che l'IA pianifichi come entrano gli elementi di questa diapositiva, oppure parti da una sequenza qui sotto.",
       "generate": "Genera con l'IA"
     },
-    "lockReason": "Non disponibile mentre il movimento viene pianificato per ogni diapositiva",
+    "lockReason": "Non disponibile mentre le animazioni vengono pianificate per ogni diapositiva",
     "selectedElement": "Elemento selezionato",
     "findEffect": "Cerca un effetto…",
-    "searchEffects": "Cerca effetti di movimento",
+    "searchEffects": "Cerca effetti di animazione",
     "effectsLegend": "Effetti",
     "effectsLegendLocked": "Effetti ({reason})",
     "timingLegend": "Tempi",
@@ -263,7 +263,7 @@
     "clearPlan": "Cancella piano",
     "replaceDialog": {
       "title": "Sostituire le tue modifiche?",
-      "description": "Hai modificato a mano il movimento di questa diapositiva. La rigenerazione lo sostituisce con un nuovo piano dell'IA.",
+      "description": "Hai modificato a mano le animazioni di questa diapositiva. La rigenerazione le sostituisce con un nuovo piano dell'IA.",
       "replace": "Sostituisci"
     }
   },

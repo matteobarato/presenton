@@ -2,7 +2,7 @@
   "tabs": {
     "insert": "Insert",
     "avatar": "Avatar",
-    "motion": "Motion",
+    "motion": "Animations",
     "layers": "Layers"
   },
   "layers": {
@@ -200,34 +200,34 @@
     "slider": "{label} slider"
   },
   "motion": {
-    "ariaLabel": "Motion",
-    "title": "Motion, with intent.",
+    "ariaLabel": "Animations",
+    "title": "Animations, with intent.",
     "intro": "Shape how each element arrives on the slide.",
-    "noSlide": "Select a slide to edit its motion.",
-    "loadError": "Could not load this deck's motion.",
-    "notReady": "Motion for this slide isn't ready yet.",
-    "unsupported": "This slide can't be animated. Motion works on slides built from a template.",
+    "noSlide": "Select a slide to edit its animations.",
+    "loadError": "Could not load this deck's animations.",
+    "notReady": "Animations for this slide aren't ready yet.",
+    "unsupported": "This slide can't be animated. Animations work on slides built from a template.",
     "nothingToAnimate": "Nothing to animate on this slide.",
     "resetNotice": "Your edits were reset because the layout changed.",
     "dismiss": "Dismiss",
-    "planningSlide": "Planning this slide's motion…",
-    "planningSlideLabel": "Motion planning",
-    "planningDeck": "Planning motion for every slide…",
-    "planningDeckLabel": "Deck motion planning",
+    "planningSlide": "Planning this slide's animations…",
+    "planningSlideLabel": "Animation planning",
+    "planningDeck": "Planning animations for every slide…",
+    "planningDeckLabel": "Deck animation planning",
     "stale": {
       "title": "Layout changed — re-plan",
-      "hint": "This slide's elements changed since its motion was made, so the plan no longer matches them. Re-plan it to edit motion again.",
+      "hint": "This slide's elements changed since its animations were made, so the plan no longer matches them. Re-plan it to edit animations again.",
       "replan": "Re-plan this slide"
     },
     "missing": {
-      "title": "No motion yet",
+      "title": "No animations yet",
       "hint": "Let AI plan how this slide's elements arrive, or start from a sequence below.",
       "generate": "Generate with AI"
     },
-    "lockReason": "Unavailable while motion is planned for every slide",
+    "lockReason": "Unavailable while animations are planned for every slide",
     "selectedElement": "Selected element",
     "findEffect": "Find an effect…",
-    "searchEffects": "Search motion effects",
+    "searchEffects": "Search animation effects",
     "effectsLegend": "Effects",
     "effectsLegendLocked": "Effects ({reason})",
     "timingLegend": "Timing",
@@ -263,7 +263,7 @@
     "clearPlan": "Clear plan",
     "replaceDialog": {
       "title": "Replace your edits?",
-      "description": "You've edited this slide's motion by hand. Regenerating replaces it with a new AI plan.",
+      "description": "You've edited this slide's animations by hand. Regenerating replaces them with a new AI plan.",
       "replace": "Replace"
     }
   },

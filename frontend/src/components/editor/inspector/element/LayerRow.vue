@@ -48,8 +48,8 @@ const icon = computed(() => ICONS[props.node.type] ?? Box)
 
 <template>
   <div
-    class="group flex h-8 items-center rounded-control text-[10px] text-tx-c6ced3 hover:bg-ov/[0.04] hover:text-white min-[1600px]:text-[11px]"
-    :class="selected && 'bg-ov/[0.06] text-white'"
+    class="group flex h-8 items-center rounded-control text-[10px] text-tx-c6ced3 hover:bg-ov/[0.04] hover:text-strong min-[1600px]:text-[11px]"
+    :class="selected && 'bg-ov/[0.06] text-strong'"
     :style="{ paddingLeft: `${depth * 14}px` }"
     data-layer-row
     @mouseenter="emit('hover', true)"
@@ -58,7 +58,7 @@ const icon = computed(() => ICONS[props.node.type] ?? Box)
     <button
       v-if="expandable"
       type="button"
-      class="inline-flex size-6 shrink-0 items-center justify-center rounded-control text-tx-9aa9b0 hover:text-white"
+      class="inline-flex size-6 shrink-0 items-center justify-center rounded-control text-tx-9aa9b0 hover:text-strong"
       :aria-label="expanded ? t('editorInspector.element.layers.collapse', { label: node.label }) : t('editorInspector.element.layers.expand', { label: node.label })"
       :aria-expanded="expanded"
       tabindex="-1"

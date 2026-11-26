@@ -68,7 +68,9 @@ test.describe('mocked backend', () => {
 
     await page.goto('/')
     await expect(page.getByTestId('deck')).toHaveCount(2)
-    await expect(page.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings/text')
+    await page.getByRole('button', { name: 'Account menu' }).click()
+    await expect(page.getByRole('menuitem', { name: 'Settings' })).toHaveAttribute('href', '/settings/text')
+    await page.keyboard.press('Escape')
 
     // The card opens the wizard's Preview step; the editor is the deck's Edit action.
     await expect(page.getByRole('link', { name: 'Open Quarterly Review' })).toHaveAttribute('href', `/p/${DECK_ID}/create/preview`)
@@ -424,7 +426,7 @@ test.describe('on-slide editing (mocked)', () => {
       await expect(list).toBeVisible()
       const tabs = list.getByRole('tab')
       await expect(tabs).toHaveCount(5)
-      for (const name of ['Layers', 'Insert', 'Design', 'Motion', 'Avatar']) {
+      for (const name of ['Layers', 'Insert', 'Design', 'Animations', 'Avatar']) {
         await list.getByRole('tab', { name }).click()
         await expect(list.getByRole('tab', { name })).toHaveAttribute('aria-selected', 'true')
         const fit = await list.evaluate((el) => {
@@ -509,8 +511,8 @@ test.describe('motion editor (mocked)', () => {
     await expect(page.getByTestId('selection-overlay')).toBeVisible()
     await expect(page.locator('[data-hf-el="e0"]')).toBeAttached()
 
-    await page.getByRole('tablist', { name: 'Inspector sections' }).getByRole('tab', { name: 'Motion' }).click()
-    await page.getByRole('tablist', { name: 'Notes, voice and motion' }).getByRole('tab', { name: 'Motion' }).click()
+    await page.getByRole('tablist', { name: 'Inspector sections' }).getByRole('tab', { name: 'Animations' }).click()
+    await page.getByRole('tablist', { name: 'Notes, voice and animations' }).getByRole('tab', { name: 'Animations' }).click()
     await expect(page.getByRole('region', { name: 'Animation timeline' })).toBeVisible()
     return { puts, unexpected }
   }
@@ -519,7 +521,7 @@ test.describe('motion editor (mocked)', () => {
     const { puts, unexpected } = await open(page)
 
     // The first element is selected by default; Rise gives it a clip on the timeline.
-    await page.getByRole('region', { name: 'Motion' }).getByRole('button', { name: 'Rise', exact: true }).click()
+    await page.getByRole('region', { name: 'Animations' }).getByRole('button', { name: 'Rise', exact: true }).click()
     const clip = page.locator('[data-motion-clip="e0"]')
     await expect(clip).toBeVisible()
     await clip.scrollIntoViewIfNeeded()
@@ -553,7 +555,7 @@ test.describe('motion editor (mocked)', () => {
 
   test('motion editor: Play styles the element inline; Stop restores the slide', async ({ page }) => {
     const { unexpected } = await open(page)
-    await page.getByRole('region', { name: 'Motion' }).getByRole('button', { name: 'Rise', exact: true }).click()
+    await page.getByRole('region', { name: 'Animations' }).getByRole('button', { name: 'Rise', exact: true }).click()
     await expect(page.locator('[data-motion-clip="e0"]')).toBeVisible()
 
     // The layer is in the slide's shadow root; CSS locators pierce it.
@@ -1073,14 +1075,15 @@ test.describe('settings (mocked)', () => {
 
   const toast = (page: Page, title: string) => page.locator('[data-sonner-toast]').filter({ hasText: title })
 
-  test('rail Settings link opens the in-app settings page', async ({ page }) => {
+  test('account menu Settings item opens the in-app settings page', async ({ page }) => {
     const { unexpected } = await settingsApi(page)
     const popups: unknown[] = []
     page.context().on('page', (p) => popups.push(p.url()))
 
     await page.goto('/')
     await expect(page.getByTestId('deck')).toHaveCount(2)
-    await page.getByRole('link', { name: 'Settings' }).click()
+    await page.getByRole('button', { name: 'Account menu' }).click()
+    await page.getByRole('menuitem', { name: 'Settings' }).click()
 
     await expect(page).toHaveURL('/settings/text')
     await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).locator('[aria-current="page"]')).toHaveText('Settings')

@@ -21,7 +21,7 @@ const forwarded = useForwardPropsEmits(delegated, emits)
       v-for="(_, i) in modelValue"
       :key="i"
       :aria-label="label ?? t('ui.slider.value')"
-      class="block size-2.5 rounded-full bg-sx-cee6f2 shadow-[0_2px_6px_#0004] outline-none focus-visible:shadow-[0_0_0_3px_#bde3f333]"
+      class="block size-2.5 rounded-full bg-sx-cee6f2 shadow-[0_2px_6px_var(--shade-44)] outline-none focus-visible:shadow-[0_0_0_3px_#bde3f333]"
     />
   </SliderRoot>
 </template>

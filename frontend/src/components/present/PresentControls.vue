@@ -17,7 +17,7 @@ defineEmits<{ prev: []; next: []; exit: []; 'toggle-audio': []; 'toggle-play': [
 
 const { t } = useI18n()
 const btn =
-  'inline-flex size-9 items-center justify-center rounded-full text-white/90 transition-colors hover:bg-ov/15 focus-visible:outline-2 focus-visible:outline-white disabled:opacity-40'
+  'inline-flex size-9 items-center justify-center rounded-full text-white/90 transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white disabled:opacity-40'
 </script>
 
 <template>
@@ -35,7 +35,7 @@ const btn =
       <button type="button" :class="btn" :aria-label="t('present.controls.next')" :disabled="index >= total - 1" @click="$emit('next')">
         <ChevronRight class="size-5" />
       </button>
-      <span class="mx-1 h-5 w-px bg-ov/20" />
+      <span class="mx-1 h-5 w-px bg-white/20" />
       <button type="button" :class="btn" :aria-label="running ? t('present.controls.pause') : t('present.controls.play')" @click="$emit('toggle-play')">
         <Pause v-if="running" class="size-5" />
         <Play v-else class="size-5" />
@@ -51,7 +51,7 @@ const btn =
         <Volume2 v-if="audioOn" class="size-5" />
         <VolumeX v-else class="size-5" />
       </button>
-      <span class="mx-1 h-5 w-px bg-ov/20" />
+      <span class="mx-1 h-5 w-px bg-white/20" />
       <button type="button" :class="btn" :aria-label="t('present.controls.exit')" @click="$emit('exit')">
         <X class="size-5" />
       </button>

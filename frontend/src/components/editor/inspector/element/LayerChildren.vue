@@ -41,14 +41,14 @@ onBeforeUnmount(() => {
 <template>
   <div class="border-t border-line py-[18px] min-[1600px]:py-[22px]" data-testid="layer-children">
     <nav :aria-label="t('editorInspector.element.children.path')" v-if="path.length > 0" class="mb-3 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[10px] text-tx-9aa9b0 min-[1600px]:text-[11px]">
-      <button type="button" class="hover:text-white" @mousedown.prevent @click="select(null)">{{ t('editorInspector.element.children.slide') }}</button>
+      <button type="button" class="hover:text-strong" @mousedown.prevent @click="select(null)">{{ t('editorInspector.element.children.slide') }}</button>
       <template v-for="(node, i) in path" :key="node.key">
         <ChevronRight class="size-3 shrink-0 opacity-60" aria-hidden="true" />
         <span v-if="i === path.length - 1" class="font-medium text-tx-f0f2f3" aria-current="location">{{ node.label }}</span>
         <button
           v-else
           type="button"
-          class="hover:text-white"
+          class="hover:text-strong"
           @mousedown.prevent
           @mouseenter="hover(node, true)"
           @mouseleave="hover(node, false)"

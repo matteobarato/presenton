@@ -81,7 +81,7 @@ const slideWidth = computed(() => {
             :theme="presentation?.theme"
             :fonts="presentation?.fonts"
             :video-src="videoSrc"
-            class="isolate rounded-[10px] shadow-[0_18px_38px_#0004] max-[450px]:rounded-[7px]"
+            class="isolate rounded-[10px] shadow-[0_18px_38px_var(--shade-44)] max-[450px]:rounded-[7px]"
           />
           <SlideView
             v-else
@@ -89,7 +89,7 @@ const slideWidth = computed(() => {
             :slide="slide"
             :theme="presentation?.theme"
             :fonts="presentation?.fonts"
-            class="isolate overflow-hidden rounded-[10px] shadow-[0_18px_38px_#0004] max-[450px]:rounded-[7px]"
+            class="isolate overflow-hidden rounded-[10px] shadow-[0_18px_38px_var(--shade-44)] max-[450px]:rounded-[7px]"
           />
         </Transition>
         <span

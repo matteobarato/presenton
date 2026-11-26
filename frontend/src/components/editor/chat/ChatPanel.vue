@@ -99,7 +99,7 @@ async function removeConversation(id: string) {
         />
         <button
           type="button"
-          class="grid size-7 place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-white"
+          class="grid size-7 place-items-center rounded-control text-muted hover:bg-ov/[0.04] hover:text-strong"
           :aria-label="t('editor.chat.closeAria')"
           :title="t('editor.chat.closeTitle')"
           @click="editor.chatOpen = false"
@@ -112,7 +112,7 @@ async function removeConversation(id: string) {
     <div ref="list" class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-5 pt-5 pb-4" aria-live="polite">
       <div v-if="!chat.messages.value.length && !chat.loading.value" class="anim-fade-in pt-2">
         <div
-          class="mb-[21px] grid size-[55px] place-items-center rounded-[17px] border border-lx-c7e9ff12 bg-[linear-gradient(135deg,var(--tile-a),var(--tile-b))] text-tx-c5e6f5 shadow-[0_10px_20px_#0002]"
+          class="mb-[21px] grid size-[55px] place-items-center rounded-[17px] border border-lx-c7e9ff12 bg-[linear-gradient(135deg,var(--tile-a),var(--tile-b))] text-tx-c5e6f5 shadow-[0_10px_20px_var(--shade-22)]"
           aria-hidden="true"
         >
           <Sparkles class="size-[26px]" />

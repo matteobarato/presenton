@@ -254,7 +254,7 @@ function go(step: DeckStepKey) {
           data-testid="avatar-overall"
         >
           <svg viewBox="0 0 36 36" class="absolute inset-0 size-full -rotate-90" aria-hidden="true">
-            <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-width="2.5" class="text-white/[0.06]" />
+            <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-width="2.5" class="text-strong/[0.06]" />
             <circle
               cx="18"
               cy="18"
