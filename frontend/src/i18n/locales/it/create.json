@@ -365,5 +365,23 @@
     "goToNarration": "Vai alla narrazione",
     "canExportNow": "Puoi comunque esportare ora.",
     "afterExporting": "Dopo l’esportazione"
+  },
+  "start": {
+    "modeLabel": "Inizia da",
+    "fromTopic": "Da un argomento",
+    "fromPowerPoint": "Da PowerPoint",
+    "checkingFonts": "Controllo dei font…",
+    "readingSlides": "Lettura delle diapositive…",
+    "progressLabel": "Preparazione del PowerPoint",
+    "slideCount": "{count} diapositiva | {count} diapositive",
+    "thumbsLabel": "Diapositive della presentazione",
+    "slideAlt": "Diapositiva {n}",
+    "replace": "Sostituisci",
+    "limitNote": "Verranno importate solo le prime {count} di {total} diapositive",
+    "fitNote": "Le diapositive verranno adattate al formato 16:9; i lati vengono riempiti con il colore di sfondo della diapositiva.",
+    "fontsNote": "Questi font non sono installati, quindi viene usato un font simile: {fonts}.",
+    "fix": "Correggi",
+    "apply": "Applica",
+    "languageError": "Scegli la lingua in cui parlerà la narrazione."
   }
 }
