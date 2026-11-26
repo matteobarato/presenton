@@ -24,10 +24,10 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="0.90666744"
-     inkscape:cx="174.81603"
-     inkscape:cy="24.264685"
-     inkscape:window-width="1536"
-     inkscape:window-height="795"
+     inkscape:cx="153.86016"
+     inkscape:cy="159.92633"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -67,7 +67,8 @@
      id="layer1"
      transform="translate(-31.841666,-137.87111)">
     <g
-       id="g5">
+       id="g5"
+       transform="translate(-0.52916667)">
       <rect
          style="opacity:0.865749;fill:#1a1a1a;fill-opacity:0.5;stroke-width:0.245684;filter:url(#filter3)"
          id="rect3"
@@ -92,7 +93,7 @@
        aria-label="   lideshows" />
     <g
        id="g4"
-       transform="rotate(-14.771971,44.175756,148.21038)">
+       transform="rotate(-14.771971,43.911173,150.25147)">
       <rect
          style="opacity:0.865749;fill:#1b1b1b;fill-opacity:0.5;stroke-width:0.245684;filter:url(#filter4)"
          id="rect2"
