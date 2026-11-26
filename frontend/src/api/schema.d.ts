@@ -708,13 +708,13 @@ export interface paths {
         put?: never;
         /**
          * Generate Slide Avatars
-         * @description Generate lip-synced avatars with HeyGen, as a task to poll.
+         * @description Generate lip-synced avatars with HeyGen Avatar 6 Turbo (via OpenRouter), as a task to poll.
          *
          *     Each chosen slide that has a placeholder and up-to-date narration gets a
          *     video made from the deck's portrait and the slide's audio. Slides whose
          *     avatar is already up to date are skipped unless `force` is set; the task's
          *     `data.slides` says what happens to each slide and why. Generating spends
-         *     HeyGen credits for every slide that is not skipped.
+         *     OpenRouter credits for every slide that is not skipped.
          */
         post: operations["generate_slide_avatars_api_v1_ppt_presentation__id__videos_generate_post"];
         delete?: never;
@@ -1256,6 +1256,26 @@ export interface paths {
         put?: never;
         /** Create Blank Presentation */
         post: operations["create_blank_presentation_api_v1_ppt_presentation_create_blank_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ppt/presentation/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Presentation
+         * @description Start a presentation whose slides are an uploaded PowerPoint's own.
+         */
+        post: operations["import_presentation_api_v1_ppt_presentation_import_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1983,6 +2003,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List My Api Keys */
+        get: operations["list_my_api_keys_api_v1_auth_api_keys_get"];
+        put?: never;
+        /** Create My Api Key */
+        post: operations["create_my_api_key_api_v1_auth_api_keys_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/api-keys/{api_key_id}/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Api Key Token */
+        get: operations["get_my_api_key_token_api_v1_auth_api_keys__api_key_id__token_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/api-keys/{api_key_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke My Api Key */
+        post: operations["revoke_my_api_key_api_v1_auth_api_keys__api_key_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/status": {
         parameters: {
             query?: never;
@@ -2045,6 +2117,29 @@ export interface paths {
         put?: never;
         /** Login */
         post: operations["login_api_v1_auth_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change Password
+         * @description Let the signed-in user change their own password.
+         *
+         *     Bumping ``auth_version`` signs every other session out; this one gets a fresh
+         *     cookie so the user stays signed in. API keys are unaffected.
+         */
+        post: operations["change_password_api_v1_auth_password_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2715,6 +2810,13 @@ export interface components {
             /** Br */
             br: number;
         };
+        /** ChangePasswordRequest */
+        ChangePasswordRequest: {
+            /** Current Password */
+            current_password: string;
+            /** New Password */
+            new_password: string;
+        };
         /** Chart */
         Chart: {
             /**
@@ -3190,6 +3292,8 @@ export interface components {
             fonts: {
                 [key: string]: unknown;
             };
+            /** Original Slide Count */
+            original_slide_count?: number | null;
         };
         /** GaugeInfographicData */
         GaugeInfographicData: {
@@ -3556,6 +3660,8 @@ export interface components {
             clip_path?: string | null;
             /** Color */
             color?: string | null;
+            /** Tint */
+            tint?: boolean | null;
             /** Video Placeholder */
             video_placeholder?: boolean | null;
             /** Decorative */
@@ -3573,6 +3679,26 @@ export interface components {
          * @enum {string}
          */
         ImageFit: "contain" | "cover" | "fill";
+        /**
+         * ImportPresentationRequest
+         * @description Start a presentation from an uploaded PowerPoint deck.
+         */
+        ImportPresentationRequest: {
+            /** Pptx Url */
+            pptx_url: string;
+            /** Language */
+            language: string;
+            /** N Videos */
+            n_videos?: number | null;
+            /** Fonts */
+            fonts?: {
+                [key: string]: unknown;
+            } | null;
+            /** Title */
+            title?: string | null;
+            /** Source Name */
+            source_name?: string | null;
+        };
         /** Infographic */
         Infographic: {
             /**
@@ -3815,6 +3941,22 @@ export interface components {
             layouts?: components["schemas"]["PatchTemplateSlideLayoutItem"][] | null;
         };
         /**
+         * PersonalCreateApiKeyRequest
+         * @description Self-service key: always acts as the signed-in user, so there is no ``user_id``.
+         */
+        PersonalCreateApiKeyRequest: {
+            /**
+             * Label
+             * @default API client
+             */
+            label: string;
+            /**
+             * Expiry Days
+             * @default 90
+             */
+            expiry_days: number;
+        };
+        /**
          * PlaceholderRequest
          * @description Slide coordinates (1280×720) for the placeholder; unset keeps or defaults.
          */
@@ -4008,6 +4150,10 @@ export interface components {
             n_images?: number | null;
             /** N Videos */
             n_videos?: number | null;
+            /** Source */
+            source?: string | null;
+            /** Source Name */
+            source_name?: string | null;
         };
         /** PresentationOutlineModel */
         PresentationOutlineModel: {
@@ -4330,6 +4476,10 @@ export interface components {
             type: "standard" | "smart";
             /** Community Design Ids */
             community_design_ids?: number[] | null;
+            /** Source */
+            source?: string | null;
+            /** Source Name */
+            source_name?: string | null;
         };
         /** PresentonDevicePollRequest */
         PresentonDevicePollRequest: {
@@ -7710,6 +7860,39 @@ export interface operations {
             };
         };
     };
+    import_presentation_api_v1_ppt_presentation_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportPresentationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresentationWithSlides"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     prepare_presentation_api_v1_ppt_presentation_prepare_post: {
         parameters: {
             query?: never;
@@ -9085,6 +9268,121 @@ export interface operations {
             };
         };
     };
+    list_my_api_keys_api_v1_auth_api_keys_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiKeyPublic"][];
+                };
+            };
+        };
+    };
+    create_my_api_key_api_v1_auth_api_keys_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonalCreateApiKeyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiKeyCreated"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_api_key_token_api_v1_auth_api_keys__api_key_id__token_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                api_key_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiKeyToken"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_my_api_key_api_v1_auth_api_keys__api_key_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                api_key_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiKeyPublic"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_status_api_v1_auth_status_get: {
         parameters: {
             query?: never;
@@ -9168,6 +9466,39 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["LoginCredentialsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    change_password_api_v1_auth_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordRequest"];
             };
         };
         responses: {
