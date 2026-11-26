@@ -209,7 +209,18 @@
       "topicSummary": "{name} · {count} diapositiva | {name} · {count} diapositive",
       "outlineHeading": "Da PowerPoint · {count} diapositiva | Da PowerPoint · {count} diapositive",
       "outlineNote": "Queste diapositive mantengono il design del tuo PowerPoint. Per modificarle, apri l’editor.",
-      "slideAlt": "Diapositiva {n}"
+      "slideAlt": "Diapositiva {n}",
+      "copy": {
+        "topic": {
+          "heading": "Da PowerPoint",
+          "lede": "La presentazione che hai importato, con il suo design. Modifica le diapositive nell’editor."
+        },
+        "outline": {
+          "heading": "Le tue diapositive",
+          "lede": "Arrivano così come sono dal tuo PowerPoint. Nulla viene riscritto; rifinisci qualsiasi diapositiva nell’editor."
+        }
+      },
+      "footerStatus": "Importata da PowerPoint; modifica le diapositive nell’editor"
     }
   },
   "progress": {

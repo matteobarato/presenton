@@ -195,7 +195,13 @@ const COPY = computed<Record<WizardStepKey, { heading: string; lede: string }>>(
   avatar: { heading: t('create.wizard.copy.avatar.heading'), lede: t('create.wizard.copy.avatar.lede') },
   export: { heading: t('create.wizard.copy.export.heading'), lede: t('create.wizard.copy.export.lede') },
 }))
-const copy = computed(() => COPY.value[current.value])
+// An imported deck has no topic, template or AI outline: Topic and Outline describe the PowerPoint's slides instead.
+const IMPORTED_COPY = computed<Partial<Record<WizardStepKey, { heading: string; lede: string }>>>(() => ({
+  topic: { heading: t('create.wizard.imported.copy.topic.heading'), lede: t('create.wizard.imported.copy.topic.lede') },
+  outline: { heading: t('create.wizard.imported.copy.outline.heading'), lede: t('create.wizard.imported.copy.outline.lede') },
+}))
+const copy = computed(() => (imported.value && IMPORTED_COPY.value[current.value]) || COPY.value[current.value])
+const topicStatus = computed(() => (imported.value ? t('create.wizard.imported.footerStatus') : t('create.wizard.fixedAtCreate')))
 // The body is keyed by the deck step only: a summary shown over it must not remount it (and abort its stream).
 const panelKey = computed(() => step.value ?? requested.value ?? progress.value.resume)
 const title = computed(() => props.presentation.title?.trim() || t('create.wizard.newPresentation'))
@@ -278,7 +284,7 @@ const thumbWidth = computed(() => Math.max(160, Math.floor(thumbBoxWidth.value |
 
     <template #footer>
       <div :ref="setFooterTarget" class="contents" />
-      <WizardFooter v-if="summary || !footer.claims.value" :status="notice.text.value || (summary === 'topic' ? t('create.wizard.fixedAtCreate') : summary ? undefined : (nextLockReason ?? undefined))">
+      <WizardFooter v-if="summary || !footer.claims.value" :status="notice.text.value || (summary === 'topic' ? topicStatus : summary ? undefined : (nextLockReason ?? undefined))">
         <template #back>
           <WizardBackButton v-if="neighbour('back')" @click="navigate('back')" />
         </template>

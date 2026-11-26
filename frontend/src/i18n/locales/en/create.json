@@ -209,7 +209,18 @@
       "topicSummary": "{name} · {count} slide | {name} · {count} slides",
       "outlineHeading": "From PowerPoint · {count} slide | From PowerPoint · {count} slides",
       "outlineNote": "These slides keep your PowerPoint’s design. To change them, open the editor.",
-      "slideAlt": "Slide {n}"
+      "slideAlt": "Slide {n}",
+      "copy": {
+        "topic": {
+          "heading": "From PowerPoint",
+          "lede": "The deck you imported, with its own design. Change its slides in the editor."
+        },
+        "outline": {
+          "heading": "Your slides",
+          "lede": "These come straight from your PowerPoint. Nothing is rewritten; tune any slide in the editor."
+        }
+      },
+      "footerStatus": "Imported from PowerPoint; edit slides in the editor"
     }
   },
   "progress": {

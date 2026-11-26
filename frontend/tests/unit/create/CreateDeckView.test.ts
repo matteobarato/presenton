@@ -553,6 +553,30 @@ describe('imported deck', () => {
     expect(m.outlineStream).not.toHaveBeenCalled()
   })
 
+  it('the step copy speaks of the imported slides, never of generating them', async () => {
+    const stepCopy = (w: { get: (s: string) => { text: () => string } }) => w.get('section > header').text()
+    const { wrapper, router } = await mountView('/p/p1/create/outline')
+    expect(wrapper.get('section > header > h2').text()).toBe('Your slides')
+    expect(stepCopy(wrapper)).toContain('These come straight from your PowerPoint')
+    expect(stepCopy(wrapper)).not.toMatch(/generate/i)
+
+    await router.push('/p/p1/create/topic')
+    await flushPromises()
+    expect(wrapper.get('section > header > h2').text()).toBe('From PowerPoint')
+    expect(stepCopy(wrapper)).not.toMatch(/template|generate/i)
+    const footer = wrapper.get('[data-testid="wizard-footer"]').text()
+    expect(footer).toContain('Imported from PowerPoint')
+    expect(footer).not.toContain('Topic and look were fixed')
+  })
+
+  it('Next: Preview drops the stream flag and keeps the rest of the query', async () => {
+    const { wrapper, router } = await mountView('/p/p1/create/outline?stream=1&template=modern')
+    expect(wrapper.find('[data-testid="imported-outline"]').exists()).toBe(true)
+    await wrapper.get('[data-testid="imported-outline-next"]').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/preview?template=modern')
+  })
+
   it('falls back to the title when the file name is missing', async () => {
     m.getPresentation.mockResolvedValue({ ...imported(), source_name: null })
     const { wrapper } = await mountView('/p/p1/create/topic')

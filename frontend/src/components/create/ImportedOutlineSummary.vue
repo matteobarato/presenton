@@ -19,8 +19,11 @@ const router = useRouter()
 
 const count = computed(() => props.presentation.slides.length)
 
+/** Like the wizard's own Next; the stream flag is dropped since nothing is generating (see `PreviewStep.go`). */
 function next() {
-  void router.push({ name: 'create', params: { id: props.presentation.id, step: 'preview' }, query: { ...route.query } })
+  const query = { ...route.query }
+  delete query.stream
+  void router.push({ name: 'create', params: { id: props.presentation.id, step: 'preview' }, query })
 }
 </script>
 
