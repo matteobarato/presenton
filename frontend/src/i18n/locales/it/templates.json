@@ -28,5 +28,16 @@
     "description": "Anteprima del layout",
     "previous": "Layout precedente",
     "next": "Layout successivo"
+  },
+  "import": {
+    "errors": {
+      "notPptx": "Scegli un file PowerPoint (.pptx).",
+      "tooLarge": "Il file supera i 100 MB.",
+      "fontType": "Usa un file di font .ttf, .otf, .woff o .woff2.",
+      "fontTooLarge": "I file dei font devono essere inferiori a 10 MB.",
+      "prepareFailed": "Impossibile leggere la presentazione.",
+      "startFailed": "Impossibile avviare l'importazione.",
+      "retryFailed": "Impossibile riavviare l'importazione."
+    }
   }
 }
