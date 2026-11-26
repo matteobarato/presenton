@@ -71,12 +71,13 @@
       "finishing": "Salvataggio del modello",
       "detail": "{done} di {total} slide",
       "label": "Avanzamento dell'importazione",
-      "leaveNote": "L'importazione continua anche se lasci questa pagina.",
+      "leaveNote": "L'importazione continua anche se lasci questa pagina. La trovi nella pagina Modelli.",
       "slideDone": "Slide {n} pronta",
       "slidePending": "Slide {n} in lavorazione",
       "failed": "L'importazione si è interrotta",
       "retry": "Riprova",
-      "startOver": "Ricomincia"
+      "startOver": "Ricomincia",
+      "importAnother": "Importa un altro"
     },
     "errors": {
       "notPptx": "Scegli un file PowerPoint (.pptx).",
@@ -93,6 +94,7 @@
     "metaStarting": "Importazione…",
     "open": "Apri l'importazione di {name}",
     "untitled": "Modello senza nome",
-    "progress": "Avanzamento dell'importazione"
+    "progress": "Avanzamento dell'importazione",
+    "failed": "Importazione non riuscita · apri per riprovare"
   }
 }

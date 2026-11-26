@@ -71,12 +71,13 @@
       "finishing": "Saving the template",
       "detail": "{done} of {total} slides",
       "label": "Template import progress",
-      "leaveNote": "This keeps running if you leave this page.",
+      "leaveNote": "This keeps running if you leave this page. You'll find it on the Templates page.",
       "slideDone": "Slide {n} ready",
       "slidePending": "Slide {n} in progress",
       "failed": "The import stopped",
       "retry": "Try again",
-      "startOver": "Start over"
+      "startOver": "Start over",
+      "importAnother": "Import another"
     },
     "errors": {
       "notPptx": "Choose a PowerPoint file (.pptx).",
@@ -93,6 +94,7 @@
     "metaStarting": "Importing…",
     "open": "Open the import of {name}",
     "untitled": "Untitled template",
-    "progress": "Import progress"
+    "progress": "Import progress",
+    "failed": "Import failed · open to retry"
   }
 }

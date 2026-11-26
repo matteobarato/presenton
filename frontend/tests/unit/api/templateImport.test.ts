@@ -84,13 +84,15 @@ describe('template import api', () => {
     expect(req.body).toEqual({ pptx_url: '/m.pptx', slide_image_urls: ['/1.png'], fonts: {}, name: 'Deck', icon_type: 'bold' })
   })
 
-  it('listImportTasks sends type, status and since', async () => {
-    fetchMock.mockResolvedValueOnce(json([]))
-    await listImportTasks(new Date('2026-11-26T12:00:00Z'))
+  it('listImportTasks returns recent running and failed imports', async () => {
+    const t = (id: string, status: string) => ({ id, type: 'template.create', status, created_at: '', updated_at: '' })
+    fetchMock.mockResolvedValueOnce(json([t('a', 'pending'), t('b', 'completed'), t('c', 'error')]))
+    const tasks = await listImportTasks(new Date('2026-11-26T12:00:00Z'))
+    expect(tasks.map((x) => x.id)).toEqual(['a', 'c'])
     const req = await sent(fetchMock.mock.calls[0])
     expect(req.url.pathname).toBe('/api/v1/async-tasks')
     expect(req.url.searchParams.get('type')).toBe('template.create')
-    expect(req.url.searchParams.get('status')).toBe('pending')
+    expect(req.url.searchParams.get('status')).toBeNull()
     expect(req.url.searchParams.get('created_at_from')).toBe('2026-11-26T06:00:00.000Z')
   })
 

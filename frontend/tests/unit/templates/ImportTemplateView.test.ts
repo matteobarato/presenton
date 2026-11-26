@@ -19,6 +19,7 @@ vi.mock('@/api/templateImport', async (orig) => ({
 }))
 vi.mock('@/api/tasks', () => ({ getTask: mocks.getTask }))
 
+import { ApiError } from '@/api/errors'
 import { router as appRouter } from '@/router'
 import ImportTemplateView from '@/views/ImportTemplateView.vue'
 import { IMPORT_TASK_STORAGE_KEY } from '@/composables/useTemplateImport'
@@ -115,11 +116,42 @@ describe('ImportTemplateView', () => {
   })
 
   it('navigates to the template when done', async () => {
-    sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
     mocks.getTask.mockResolvedValue(task('completed', { template_v2_id: 'tpl', created_layouts: 3, remaining_layouts: 0 }))
-    const { router } = await mountAt()
+    const { router } = await mountAt('/templates/import?task=t1')
     await flushPromises()
     expect(router.currentRoute.value.path).toBe('/templates/tpl')
+  })
+
+  it('does not reopen an import that finished while away', async () => {
+    sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
+    mocks.getTask.mockResolvedValue(task('completed', { template_v2_id: 'tpl', created_layouts: 3, remaining_layouts: 0 }))
+    const { wrapper, router } = await mountAt()
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/templates/import')
+    expect(wrapper.find('[data-testid="import-dropzone"]').exists()).toBe(true)
+  })
+
+  it('can start another import while one runs', async () => {
+    sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
+    mocks.getTask.mockResolvedValue(task('pending', { created_layouts: 1, remaining_layouts: 2 }))
+    const { wrapper } = await mountAt()
+    await flushPromises()
+    expect(wrapper.text()).toContain('Templates page')
+    await button(wrapper, 'Import another')!.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="import-dropzone"]').exists()).toBe(true)
+    expect(sessionStorage.getItem(IMPORT_TASK_STORAGE_KEY)).toBeNull()
+  })
+
+  it('shows why a retry failed', async () => {
+    sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
+    mocks.getTask.mockResolvedValue(task('error', {}, { error: { detail: 'LLM down' } }))
+    mocks.retryImport.mockRejectedValue(new ApiError('Template has already been created', 409, { detail: 'Template has already been created' }))
+    const { wrapper } = await mountAt()
+    await flushPromises()
+    await button(wrapper, 'Try again')!.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Template has already been created')
   })
 
   it('adopts the task in the query', async () => {

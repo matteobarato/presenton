@@ -77,6 +77,8 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
   /** One preview image per slide: this session's preview, or the one remembered for a resumed task. */
   slideImages: ComputedRef<string[]>
   taskError: ComputedRef<string | null>
+  /** What the Generating/error step shows: a failed action (e.g. retry) wins over the task's own error. */
+  displayError: ComputedRef<string | null>
   selectFile(f: File): Promise<void>
   setReplacement(fontName: string, f: File | null): string | null
   continueFromFonts(): Promise<void>
@@ -95,17 +97,31 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
   const busy = ref(false)
 
   const taskId = ref<string | null>(opts.initialTaskId || null)
+  // Only a completion the user is waiting for opens the template: one adopted from a link, started here,
+  // or seen running on this page. An import that finished while they were elsewhere is just forgotten.
+  let watching = !!opts.initialTaskId
   const async = useAsyncTask(taskId, {
     storageKey: IMPORT_TASK_STORAGE_KEY,
     onDone: (task) => {
       const id = readImportProgress(task).templateId
-      step.value = 'done'
       // A finished import is not resumed on the next visit.
       async.clear()
       storeSlides(null)
+      if (!watching) {
+        step.value = 'upload'
+        return
+      }
+      step.value = 'done'
       if (id) opts.onDone?.(id)
     },
   })
+  watch(
+    () => async.task.value?.status,
+    (status) => {
+      if (status === 'pending') watching = true
+    },
+    { flush: 'sync' },
+  )
   const progress = computed(() => readImportProgress(async.task.value))
   const storedSlides = ref<string[]>(readStoredSlides(taskId.value))
   const slideImages = computed(() => preview.value?.slide_image_urls ?? storedSlides.value)
@@ -185,6 +201,7 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
       const task = await startImport(preview.value, { name: name.value.trim(), description: description.value.trim() })
       if (!task.id) throw new Error('Template import task has no id')
       storeSlides(task.id, preview.value.slide_image_urls)
+      watching = true
       async.start(task.id)
       step.value = 'generating'
     } catch (e) {
@@ -201,6 +218,7 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
     error.value = null
     try {
       await retryImport(id)
+      watching = true
       // Same id: clear first so the poller sees a change and starts over.
       async.clear()
       async.start(id)
@@ -240,6 +258,7 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
     progress,
     slideImages,
     taskError: async.error,
+    displayError: computed(() => error.value ?? async.error.value),
     selectFile,
     setReplacement,
     continueFromFonts: () => prepare('fonts'),

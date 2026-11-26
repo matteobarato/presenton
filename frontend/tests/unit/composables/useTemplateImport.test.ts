@@ -210,6 +210,52 @@ describe('useTemplateImport', () => {
     expect(setup({ initialTaskId: 'other' }).imp.slideImages.value).toEqual([])
   })
 
+  it('does not redirect when the stored task already finished', async () => {
+    sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
+    mocks.getTask.mockResolvedValue(task('completed', { template_v2_id: 'tpl' }))
+    const onDone = vi.fn()
+    const { imp, stop } = setup({ onDone })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(onDone).not.toHaveBeenCalled()
+    expect(imp.step.value).toBe('upload')
+    expect(sessionStorage.getItem(IMPORT_TASK_STORAGE_KEY)).toBeNull()
+    stop()
+  })
+
+  it('redirects when an adopted task already finished', async () => {
+    mocks.getTask.mockResolvedValue(task('completed', { template_v2_id: 'tpl' }))
+    const onDone = vi.fn()
+    const { stop } = setup({ initialTaskId: 't1', onDone })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(onDone).toHaveBeenCalledWith('tpl')
+    stop()
+  })
+
+  it('redirects when a resumed task finishes while watched', async () => {
+    sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
+    mocks.getTask
+      .mockResolvedValueOnce(task('pending'))
+      .mockResolvedValue(task('completed', { template_v2_id: 'tpl' }))
+    const onDone = vi.fn()
+    const { stop } = setup({ onDone })
+    await vi.advanceTimersByTimeAsync(0)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(onDone).toHaveBeenCalledWith('tpl')
+    stop()
+  })
+
+  it('shows the retry failure instead of the old task error', async () => {
+    sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't1')
+    mocks.getTask.mockResolvedValue(task('error', {}, { error: { detail: 'LLM down' } }))
+    mocks.retryImport.mockRejectedValue(new ApiError('Template has already been created', 409, { detail: 'Template has already been created' }))
+    const { imp, stop } = setup()
+    await vi.advanceTimersByTimeAsync(0)
+    await imp.retry()
+    expect(imp.step.value).toBe('error')
+    expect(imp.displayError.value).toContain('Template has already been created')
+    stop()
+  })
+
   it('resumes from storage', async () => {
     sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't9')
     mocks.getTask.mockResolvedValue(task('pending'))

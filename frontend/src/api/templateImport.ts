@@ -13,7 +13,8 @@ export const MAX_FONT_BYTES = 10 * 1024 * 1024
 export const FONT_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2'] as const
 
 const TASK_TYPE = 'template.create'
-/** Older pending tasks are assumed orphaned (e.g. by a backend restart) and not shown. */
+export const importTasksKey = ['template-import-tasks'] as const
+/** Older tasks are not shown: a pending one that old has most likely hung, a failed one is stale. */
 const RECENT_TASK_MS = 6 * 60 * 60 * 1000
 
 export interface FontReplacement {
@@ -70,19 +71,19 @@ export function retryImport(taskId: string): Promise<AsyncTask> {
   return unwrap(api.POST('/api/v1/ppt/template/async/{task_id}/retry', { params: { path: { task_id: taskId } } }))
 }
 
-/** Imports still running, newest first. */
-export function listImportTasks(now: Date = new Date()): Promise<AsyncTask[]> {
-  return unwrap(
+/** Recent imports that are still running or that failed (so they can be retried), newest first. */
+export async function listImportTasks(now: Date = new Date()): Promise<AsyncTask[]> {
+  const tasks = await unwrap(
     api.GET('/api/v1/async-tasks', {
       params: {
         query: {
           type: TASK_TYPE,
-          status: 'pending',
           created_at_from: new Date(now.getTime() - RECENT_TASK_MS).toISOString(),
         },
       },
     }),
   )
+  return tasks.filter((t) => t.status === 'pending' || t.status === 'error')
 }
 
 export type SlideImportStatus = 'completed' | 'pending'

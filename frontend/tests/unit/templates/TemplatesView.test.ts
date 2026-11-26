@@ -32,7 +32,7 @@ const builtins: TemplateSummary[] = [
 ]
 const custom: TemplateSummary = { id: 'c1', name: 'Brand Kit', kind: 'custom', layouts: [1, 2, 3] }
 
-async function mountAt(path = '/templates') {
+async function mountAt(path = '/templates', client?: QueryClient) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -43,7 +43,8 @@ async function mountAt(path = '/templates') {
   })
   await router.push(path)
   await router.isReady()
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  // Same defaults as the app (src/api/query.ts): cached data stays fresh for 30s.
+  const queryClient = client ?? new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } })
   const wrapper = mount(TemplatesView, { global: { plugins: [router, [VueQueryPlugin, { queryClient }]] }, attachTo: document.body })
   await flushPromises()
   return { wrapper, router, queryClient }
@@ -82,6 +83,23 @@ describe('TemplatesView imports', () => {
     const card = wrapper.get('[data-testid="import-task-card"]')
     expect(card.text()).toContain('Brand deck')
     expect(card.text()).toContain('1 of 4')
+    expect(card.get('a').attributes('href')).toBe('/templates/import?task=task-1')
+  })
+
+  it('shows a running import started after the list was cached', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } })
+    const first = await mountAt('/templates', client)
+    first.wrapper.unmount()
+    mocks.listImportTasks.mockResolvedValue([running])
+    const { wrapper } = await mountAt('/templates', client)
+    expect(wrapper.find('[data-testid="import-task-card"]').exists()).toBe(true)
+  })
+
+  it('shows failed imports with a link to retry', async () => {
+    mocks.listImportTasks.mockResolvedValue([{ ...running, status: 'error' }])
+    const { wrapper } = await mountAt()
+    const card = wrapper.get('[data-testid="import-task-card"]')
+    expect(card.text()).toContain('Import failed')
     expect(card.get('a').attributes('href')).toBe('/templates/import?task=task-1')
   })
 

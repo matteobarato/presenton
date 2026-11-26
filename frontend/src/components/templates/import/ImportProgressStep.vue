@@ -61,7 +61,10 @@ const tiles = computed(() =>
         :label="t('templates.import.progress.label')"
         :expected-ms="90_000"
       />
-      <p class="-mt-2 text-[12px] text-tx-9aabb4">{{ t('templates.import.progress.leaveNote') }}</p>
+      <div class="-mt-2 flex items-center justify-between gap-4 max-[560px]:flex-col max-[560px]:items-start">
+        <p class="text-[12px] text-tx-9aabb4">{{ t('templates.import.progress.leaveNote') }}</p>
+        <Button variant="ghost" size="sm" class="flex-none" @click="emit('reset')">{{ t('templates.import.progress.importAnother') }}</Button>
+      </div>
     </template>
 
     <ol class="grid list-none grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-3 max-[520px]:grid-cols-2 max-[520px]:gap-2.5">

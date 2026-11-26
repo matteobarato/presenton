@@ -4,7 +4,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { ApiError, extractApiErrorMessage } from '@/api/errors'
 import { listTemplates, templatesKey, type TemplateKind } from '@/api/templates'
-import { listImportTasks } from '@/api/templateImport'
+import { importTasksKey, listImportTasks } from '@/api/templateImport'
 import { FileUp, Search } from 'lucide-vue-next'
 import PageHeader from '@/components/shell/PageHeader.vue'
 import ImportTaskCard from '@/components/templates/ImportTaskCard.vue'
@@ -21,19 +21,18 @@ const router = useRouter()
 const query = useQuery({ queryKey: templatesKey, queryFn: listTemplates })
 const queryClient = useQueryClient()
 
-// PowerPoint imports still running on the server: polled while there are any, and when one finishes the
-// template list is refetched so the new template takes its place.
+// PowerPoint imports running (or failed) on the server: always refetched on visit, polled while any is
+// running, and when one stops running the template list is refetched so the new template takes its place.
 const imports = useQuery({
-  queryKey: ['template-import-tasks'],
+  queryKey: importTasksKey,
   queryFn: () => listImportTasks(),
-  refetchInterval: (q) => (q.state.data?.length ? 5000 : false),
+  staleTime: 0,
+  refetchInterval: (q) => (q.state.data?.some((task) => task.status === 'pending') ? 5000 : false),
 })
-watch(
-  () => imports.data.value?.length ?? 0,
-  (now, before) => {
-    if (now < (before ?? 0)) void queryClient.invalidateQueries({ queryKey: templatesKey })
-  },
-)
+const runningCount = computed(() => imports.data.value?.filter((task) => task.status === 'pending').length ?? 0)
+watch(runningCount, (now, before) => {
+  if (now < before) void queryClient.invalidateQueries({ queryKey: templatesKey })
+})
 
 const search = ref('')
 const kind = computed<'all' | TemplateKind>({

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
+import { importTasksKey } from '@/api/templateImport'
 import { templatesKey } from '@/api/templates'
 import { useTemplateImport } from '@/composables/useTemplateImport'
 import PageHeader from '@/components/shell/PageHeader.vue'
@@ -24,11 +25,17 @@ const imp = useTemplateImport({
   initialTaskId,
   onDone: (id) => {
     void queryClient.invalidateQueries({ queryKey: templatesKey })
+    void queryClient.invalidateQueries({ queryKey: importTasksKey })
     toast.success(t('templates.import.done'))
     void router.replace(`/templates/${encodeURIComponent(id)}`)
   },
 })
-const { step, missingFonts, replacements, name, description, error, busy, progress, slideImages, taskError } = imp
+const { step, missingFonts, replacements, name, description, error, busy, progress, slideImages, displayError } = imp
+
+// The Templates page lists running imports; make sure it sees one that just started or restarted here.
+watch(step, (now) => {
+  if (now === 'generating') void queryClient.invalidateQueries({ queryKey: importTasksKey })
+})
 
 const fontError = ref<string | null>(null)
 function replaceFont(fontName: string, file: File | null) {
@@ -96,7 +103,7 @@ function startOver() {
       :progress="progress"
       :slides="slideImages"
       :status="step"
-      :error="taskError ?? error"
+      :error="displayError"
       :busy="busy"
       @retry="imp.retry"
       @reset="startOver"
