@@ -60,3 +60,14 @@ export function presenterNote(hasPhoto: boolean, videos: string): string | null 
   if (videos !== '' && n > 0) return t('create.summary.presenterAdds', { count: n }, n)
   return t('create.summary.presenterAuto')
 }
+
+/**
+ * The presenter note for an imported deck: its slide count is fixed, so the note says how many slides get a
+ * presenter and where it goes.
+ */
+export function importPresenterNote(hasPhoto: boolean, videos: string, slideCount: number): string | null {
+  if (!hasPhoto) return null
+  if (videos === '0') return t('create.summary.presenterNone')
+  if (videos === '') return t('create.summary.importPresenterAuto')
+  return t('create.summary.importPresenterAdds', { count: Math.min(Number(videos), slideCount), total: slideCount })
+}

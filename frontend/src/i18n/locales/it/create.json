@@ -51,7 +51,9 @@
     "voiceOnly": "Solo voce",
     "presenterNone": "Nessun video del relatore richiesto, quindi la foto non verrà usata in nessuna diapositiva.",
     "presenterAdds": "Aggiunge {count} video del relatore nel passaggio Narrazione | Aggiunge {count} video del relatore nel passaggio Narrazione",
-    "presenterAuto": "I video del relatore vengono generati nel passaggio Narrazione. L’autore e il modello decidono a quante diapositive assegnarne uno."
+    "presenterAuto": "I video del relatore vengono generati nel passaggio Narrazione. L’autore e il modello decidono a quante diapositive assegnarne uno.",
+    "importPresenterAuto": "Prima e ultima diapositiva, più le introduzioni delle sezioni. Posizionato in basso a destra; spostalo nell’editor.",
+    "importPresenterAdds": "Relatore su {count} diapositive su {total}, posizionato in basso a destra; spostalo nell’editor."
   },
   "tones": {
     "default": "Predefinito",

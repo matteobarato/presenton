@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { PHOTO_MAX_BYTES, effectiveVideos, validatePortrait } from '@/components/create/options'
+import { PHOTO_MAX_BYTES, clampMediaCount, effectiveVideos, validatePortrait } from '@/components/create/options'
+import { importPresenterNote, presenterNote } from '@/components/create/setupSummary'
 
 const file = (type: string, size: number) => {
   const f = new File(['x'], 'p', { type })
@@ -26,5 +27,22 @@ describe('validatePortrait', () => {
   it('rejects other types and oversize files', () => {
     expect(validatePortrait(file('image/gif', 10))).toMatch(/JPEG, PNG or WebP/)
     expect(validatePortrait(file('image/jpeg', PHOTO_MAX_BYTES + 1))).toMatch(/10 MB/)
+  })
+})
+
+describe('clampMediaCount cap', () => {
+  it('caps at max, defaulting to MAX_SLIDES', () => {
+    expect(clampMediaCount('9', 4)).toBe('4')
+    expect(clampMediaCount('9')).toBe('9')
+  })
+})
+
+describe('importPresenterNote', () => {
+  it('speaks about the imported deck', () => {
+    expect(importPresenterNote(false, '3', 12)).toBeNull()
+    expect(importPresenterNote(true, '3', 12)).toContain('3 of 12')
+    expect(importPresenterNote(true, '20', 12)).toContain('12 of 12')
+    expect(importPresenterNote(true, '', 12)).toContain('First and last slide')
+    expect(importPresenterNote(true, '0', 12)).toBe(presenterNote(true, '0'))
   })
 })

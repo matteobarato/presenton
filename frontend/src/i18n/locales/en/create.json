@@ -51,7 +51,9 @@
     "voiceOnly": "Voice only",
     "presenterNone": "No presenter videos requested, so the photo will not be used on any slide.",
     "presenterAdds": "Adds {count} presenter video at the Narration step | Adds {count} presenter videos at the Narration step",
-    "presenterAuto": "Presenter videos are rendered at the Narration step. The writer and template decide how many slides get one."
+    "presenterAuto": "Presenter videos are rendered at the Narration step. The writer and template decide how many slides get one.",
+    "importPresenterAuto": "First and last slide, plus section introductions. Placed bottom-right; move it in the editor.",
+    "importPresenterAdds": "Presenter on {count} of {total} slides, placed bottom-right; move it in the editor."
   },
   "tones": {
     "default": "Default",
