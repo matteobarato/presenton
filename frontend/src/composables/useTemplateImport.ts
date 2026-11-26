@@ -1,9 +1,5 @@
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
-import { ApiError, extractApiErrorMessage } from '@/api/errors'
 import {
-  FONT_EXTENSIONS,
-  MAX_FONT_BYTES,
-  MAX_PPTX_BYTES,
   checkFonts,
   prepareImport,
   readImportProgress,
@@ -14,7 +10,7 @@ import {
   type ImportProgress,
 } from '@/api/templateImport'
 import { useAsyncTask } from '@/composables/useAsyncTask'
-import { i18n } from '@/i18n'
+import { baseName, fontFileError, pptxFileError, uploadErrorMessage } from '@/lib/pptxUpload'
 
 export type ImportStep = 'upload' | 'preparing' | 'fonts' | 'review' | 'generating' | 'done' | 'error'
 
@@ -41,22 +37,6 @@ function storeSlides(taskId: string | null, urls: string[] = []) {
   } catch {
     // Storage unavailable: a resumed import just shows placeholders.
   }
-}
-
-const t = (key: string) => i18n.global.t(`templates.import.errors.${key}`)
-
-function messageOf(e: unknown, fallbackKey: string): string {
-  const fallback = t(fallbackKey)
-  return e instanceof ApiError ? extractApiErrorMessage(e.body, e.message || fallback, e.status) : fallback
-}
-
-const extensionOf = (name: string) => {
-  const dot = name.lastIndexOf('.')
-  return dot >= 0 ? name.slice(dot).toLowerCase() : ''
-}
-const baseName = (name: string) => {
-  const dot = name.lastIndexOf('.')
-  return (dot > 0 ? name.slice(0, dot) : name).trim()
 }
 
 /**
@@ -143,19 +123,16 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
       preview.value = await prepareImport(file.value, fonts)
       step.value = 'review'
     } catch (e) {
-      error.value = messageOf(e, 'prepareFailed')
+      error.value = uploadErrorMessage(e, 'prepareFailed')
       step.value = from
     }
   }
 
   async function selectFile(f: File) {
     error.value = null
-    if (extensionOf(f.name) !== '.pptx') {
-      error.value = t('notPptx')
-      return
-    }
-    if (f.size > MAX_PPTX_BYTES) {
-      error.value = t('tooLarge')
+    const invalid = pptxFileError(f)
+    if (invalid) {
+      error.value = invalid
       return
     }
     file.value = f
@@ -172,7 +149,7 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
         return
       }
     } catch (e) {
-      error.value = messageOf(e, 'prepareFailed')
+      error.value = uploadErrorMessage(e, 'prepareFailed')
       step.value = 'upload'
       return
     }
@@ -186,8 +163,8 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
       replacements.value = next
       return null
     }
-    if (!(FONT_EXTENSIONS as readonly string[]).includes(extensionOf(f.name))) return t('fontType')
-    if (f.size > MAX_FONT_BYTES) return t('fontTooLarge')
+    const invalid = fontFileError(f)
+    if (invalid) return invalid
     next[fontName] = f
     replacements.value = next
     return null
@@ -205,7 +182,7 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
       async.start(task.id)
       step.value = 'generating'
     } catch (e) {
-      error.value = messageOf(e, 'startFailed')
+      error.value = uploadErrorMessage(e, 'startFailed')
     } finally {
       busy.value = false
     }
@@ -224,7 +201,7 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
       async.start(id)
       step.value = 'generating'
     } catch (e) {
-      error.value = messageOf(e, 'retryFailed')
+      error.value = uploadErrorMessage(e, 'retryFailed')
     } finally {
       busy.value = false
     }
