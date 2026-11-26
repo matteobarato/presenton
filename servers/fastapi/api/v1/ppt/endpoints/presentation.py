@@ -112,6 +112,7 @@ from utils.process_slides import (
 )
 from utils.icon_weights import DEFAULT_ICON_TYPE, extract_icon_type_from_settings
 from utils.llm_utils import TextGenerationMetrics, message_content_to_text
+from utils.slide_ui_text import slide_ui_text
 from utils.sse import safe_sse_stream
 from api.v1.auth.config import SESSION_COOKIE_NAME
 from utils.web_search import get_selected_web_search_provider, get_web_search_route
@@ -3164,6 +3165,13 @@ async def prepare_presentation(
     return PresentationPrepareResponse(presentation_id=presentation.id)
 
 
+def _speaker_note_ui_text(slide: SlideModel) -> str:
+    """Imported slides keep their copy only in ``ui``; others need no override."""
+    if slide.html_content or slide.content:
+        return ""
+    return slide_ui_text(slide.ui)
+
+
 def _speaker_note_slide_title(slide: SlideModel) -> str:
     content = slide.content or {}
     title = content.get("title")
@@ -3173,7 +3181,8 @@ def _speaker_note_slide_title(slide: SlideModel) -> str:
                 nested = value.get("title") or value.get("headline")
                 if isinstance(nested, str) and nested.strip():
                     return nested.strip()
-        return ""
+        ui_text = _speaker_note_ui_text(slide)
+        return ui_text.split("\n", 1)[0][:120] if ui_text else ""
     return title.strip()
 
 
@@ -3187,6 +3196,7 @@ def _speaker_note_deck_context(slides: Sequence[SlideModel]) -> list[dict[str, A
     context: list[dict[str, Any]] = []
     for slide in slides:
         html = slide.html_content or ""
+        ui_text = _speaker_note_ui_text(slide)
         context.append(
             {
                 "title": _speaker_note_slide_title(slide),
@@ -3195,6 +3205,7 @@ def _speaker_note_deck_context(slides: Sequence[SlideModel]) -> list[dict[str, A
                 ),
                 "html": html,
                 "content": slide.content or {},
+                **({"text": ui_text} if ui_text else {}),
             }
         )
     return context
