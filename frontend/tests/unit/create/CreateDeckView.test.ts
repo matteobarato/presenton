@@ -7,6 +7,7 @@ import { useTtsLanguage } from '@/composables/useTtsLanguage'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { ApiError } from '@/api/errors'
 import CreateDeckView from '@/views/CreateDeckView.vue'
+import OutlineStep from '@/components/create/steps/OutlineStep.vue'
 
 const m = vi.hoisted(() => ({
   getPresentation: vi.fn(),
@@ -499,5 +500,63 @@ describe('CreateDeckView', () => {
     m.getPresentation.mockRejectedValue(new ApiError('Not found', 404))
     const { wrapper } = await mountView('/p/p1/create/outline')
     expect(wrapper.text()).toContain('Presentation not found')
+  })
+})
+
+describe('imported deck', () => {
+  // A deck read from a PowerPoint: its slides keep the file's design, so the AI outline must never run.
+  const imported = () => ({
+    ...deck(false),
+    content: '',
+    title: 'Quarterly review',
+    source: 'pptx',
+    source_name: 'Q3 review.pptx',
+  })
+  beforeEach(() => m.getPresentation.mockResolvedValue(imported()))
+
+  it('resumes on Preview until narration exists', async () => {
+    const { wrapper, router } = await mountView('/p/p1/create')
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/preview')
+    expect(wrapper.find(panel('preview')).exists()).toBe(true)
+    expect(m.toast.info).not.toHaveBeenCalled()
+  })
+
+  it('Outline shows the imported slides read-only, never the AI outline step', async () => {
+    const { wrapper, router } = await mountView('/p/p1/create/outline')
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/outline')
+    const outline = wrapper.get('[data-testid="imported-outline"]')
+    expect(outline.text()).toContain('From PowerPoint · 3 slides')
+    expect(outline.findAll('ol > li')).toHaveLength(3)
+    expect(wrapper.findComponent(OutlineStep).exists()).toBe(false)
+    expect(m.outlineStream).not.toHaveBeenCalled()
+    // One footer (the summary's own), with no AI actions: the only primary is Next: Preview.
+    expect(wrapper.findAll('[data-testid="wizard-footer"]')).toHaveLength(1)
+    const footerButtons = wrapper.findAll('[data-testid="wizard-footer"] button').map((b) => b.text())
+    expect(footerButtons.some((t) => /generate|regenerate/i.test(t))).toBe(false)
+    const next = wrapper.findAll('[data-testid="wizard-footer"] button').find((b) => /^Next: Preview$/.test(b.text()))
+    await next!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.fullPath).toBe('/p/p1/create/preview')
+    expect(m.outlineStream).not.toHaveBeenCalled()
+  })
+
+  it('Topic summary names the file and slide count, with no template card and no setup chips', async () => {
+    const { wrapper } = await mountView('/p/p1/create/topic')
+    expect(wrapper.get('[data-testid="step-topic"]').text()).toContain('Q3 review.pptx · 3 slides')
+    const summary = wrapper.get('[data-testid="summary-topic"]')
+    expect(summary.text()).toContain('From PowerPoint')
+    expect(summary.text()).toContain('Q3 review.pptx')
+    expect(summary.text()).toContain('3 slides')
+    expect(wrapper.find('[data-testid="summary-look"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="setup-chips"]').exists()).toBe(false)
+    expect(wrapper.findComponent(OutlineStep).exists()).toBe(false)
+    expect(m.outlineStream).not.toHaveBeenCalled()
+  })
+
+  it('falls back to the title when the file name is missing', async () => {
+    m.getPresentation.mockResolvedValue({ ...imported(), source_name: null })
+    const { wrapper } = await mountView('/p/p1/create/topic')
+    expect(wrapper.get('[data-testid="step-topic"]').text()).toContain('Quarterly review · 3 slides')
+    expect(wrapper.get('[data-testid="summary-topic"]').text()).toContain('Quarterly review')
   })
 })

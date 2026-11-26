@@ -201,7 +201,16 @@
     "fixedAtCreate": "Topic and look were fixed when the deck was created",
     "waitGenerating": "Wait for the slides to finish generating",
     "outlineSummary": "{count} slides",
-    "narratedSummary": "{done} of {count} narrated"
+    "narratedSummary": "{done} of {count} narrated",
+    "imported": {
+      "fromPowerPoint": "From PowerPoint",
+      "slideCount": "{count} slide | {count} slides",
+      "firstSlide": "First slide",
+      "topicSummary": "{name} · {count} slide | {name} · {count} slides",
+      "outlineHeading": "From PowerPoint · {count} slide | From PowerPoint · {count} slides",
+      "outlineNote": "These slides keep your PowerPoint’s design. To change them, open the editor.",
+      "slideAlt": "Slide {n}"
+    }
   },
   "progress": {
     "generateFirst": "Generate slides from the outline first",

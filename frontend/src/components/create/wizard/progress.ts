@@ -38,6 +38,8 @@ export interface DeckProgressInput {
     generationAvailable: boolean | undefined
   }
   pipelineRunning: boolean
+  /** Read from a PowerPoint (`source === 'pptx'`): the slides are in from the start, so it resumes on Preview until narration begins. */
+  imported?: boolean
 }
 
 export interface DeckProgress {
@@ -100,10 +102,10 @@ export function deckProgress(i: DeckProgressInput): DeckProgress {
     avatar: avatarStep,
     export: exportStep,
   }
-  const resume: DeckStepKey =
-    (['outline', 'preview', 'avatar'] as const).find(
-      (k) => steps[k].state !== 'done',
-    ) ?? 'export'
+  const importedFresh = i.imported && previewDone && narration.ready === 0 && !i.pipelineRunning
+  const resume: DeckStepKey = importedFresh
+    ? 'preview'
+    : ((['outline', 'preview', 'avatar'] as const).find((k) => steps[k].state !== 'done') ?? 'export')
 
   const missing = {
     narration: Math.max(0, slideCount - narration.ready),
