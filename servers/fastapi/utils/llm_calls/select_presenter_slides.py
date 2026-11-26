@@ -6,7 +6,9 @@ nicety, so this never raises: any failure gives the evenly spaced fallback.
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import math
 from typing import Any, Sequence
 
 from llmai import get_client
@@ -23,6 +25,7 @@ from utils.llm_utils import generate_structured_with_schema_retries
 LOGGER = logging.getLogger(__name__)
 
 _EXCERPT_CHARS = 300
+PRESENTER_SELECTION_TIMEOUT_SECONDS = 30
 
 SYSTEM_PROMPT = (
     "You choose which slides of a presentation get a video presenter. The "
@@ -67,26 +70,39 @@ async def select_presenter_slides(
         client = get_client(config=get_llm_config())
         model = get_model()
         schema = presenter_slides_schema()
-        response = await generate_structured_with_schema_retries(
-            client,
-            model,
-            messages=[
-                SystemMessage(content=SYSTEM_PROMPT),
-                UserMessage(
-                    content=USER_PROMPT.format(
-                        deck_title=deck_title.strip() or "Untitled Presentation",
-                        slides=_slides_prompt(slides),
-                    )
+        response = await asyncio.wait_for(
+            generate_structured_with_schema_retries(
+                client,
+                model,
+                messages=[
+                    SystemMessage(content=SYSTEM_PROMPT),
+                    UserMessage(
+                        content=USER_PROMPT.format(
+                            deck_title=deck_title.strip() or "Untitled Presentation",
+                            slides=_slides_prompt(slides),
+                        )
+                    ),
+                ],
+                response_format=JSONSchemaResponse(
+                    name="response", json_schema=schema, strict=True
                 ),
-            ],
-            response_format=JSONSchemaResponse(
-                name="response", json_schema=schema, strict=True
+                json_schema=schema,
+                strict=False,
+                validate_schema=True,
             ),
-            json_schema=schema,
-            strict=False,
-            validate_schema=True,
+            timeout=PRESENTER_SELECTION_TIMEOUT_SECONDS,
         )
-        return normalize_presenter_slides((response or {}).get("indexes") or [], slide_count)
+        picks = normalize_presenter_slides(
+            (response or {}).get("indexes") or [], slide_count
+        )
+        if len(picks) > max(2, math.ceil(slide_count / 2)):
+            LOGGER.warning(
+                "presenter slide choice picked %d of %d slides; using the fallback",
+                len(picks),
+                slide_count,
+            )
+            return fallback_presenter_slides(slide_count)
+        return picks
     except Exception:
         LOGGER.warning(
             "presenter slide choice failed; using the fallback", exc_info=True

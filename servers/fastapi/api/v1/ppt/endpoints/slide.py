@@ -123,6 +123,7 @@ async def edit_slide_html(
     presentation = await sql_session.get(PresentationModel, slide.presentation)
     if not presentation:
         raise HTTPException(status_code=404, detail="Presentation not found")
+    ensure_not_imported(presentation)
 
     html_to_edit = html or slide.html_content
     if not html_to_edit:

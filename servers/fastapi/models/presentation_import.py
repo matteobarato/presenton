@@ -11,5 +11,5 @@ class ImportPresentationRequest(BaseModel):
     # None lets the AI choose the presenter slides.
     n_videos: Optional[int] = Field(default=None, ge=0)
     fonts: Optional[dict[str, Any]] = None
-    title: Optional[str] = None
-    source_name: Optional[str] = None
+    title: Optional[str] = Field(default=None, max_length=255)
+    source_name: Optional[str] = Field(default=None, max_length=255)

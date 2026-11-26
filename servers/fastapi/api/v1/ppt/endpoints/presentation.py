@@ -3025,7 +3025,11 @@ async def import_presentation(
         fonts=_coerce_presentation_font_map(request.fonts),
         include_title_slide=False,
         include_table_of_contents=False,
-        n_videos=request.n_videos,
+        n_videos=(
+            None
+            if request.n_videos is None
+            else min(request.n_videos, len(deck.slides))
+        ),
     )
     slides = [
         SlideModel(

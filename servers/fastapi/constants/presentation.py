@@ -10,6 +10,10 @@ IMPORTED_DECK_REBUILD_MESSAGE = (
 IMPORTED_SLIDE_CHAT_MESSAGE = (
     "This slide came from PowerPoint; edit it directly in the editor."
 )
+IMPORTED_OUTLINE_CHAT_MESSAGE = (
+    "This presentation came from PowerPoint; it has no outline to edit. "
+    "Edit its slides directly in the editor."
+)
 BLANK_PRESENTATION_LAYOUT_GROUP = "blank"
 BLANK_PRESENTATION_LAYOUT_ID = "__blank_slide__"
 DEFAULT_MAX_OUTLINE_WORDS = 100

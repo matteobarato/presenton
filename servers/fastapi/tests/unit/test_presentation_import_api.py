@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import HTTPException
+from pydantic import ValidationError
 from pptx import Presentation
 from pptx.util import Emu, Inches
 
@@ -302,3 +303,39 @@ def test_notes_failure_does_not_fail_import(tmp_path, session):
         )
 
     assert [slide.speaker_note for slide in presentation.slides] == ["", ""]
+
+
+def _stored(session) -> PresentationModel:
+    return next(obj for obj in session.added if isinstance(obj, PresentationModel))
+
+
+def test_n_videos_is_stored_clamped_to_the_slide_count(tmp_path, session):
+    presentation = _run_import(
+        session,
+        pptx_path=_deck(tmp_path, 4),
+        layouts=_layouts(4),
+        n_videos=20,
+    )
+
+    assert _slot_indexes(presentation) == [0, 1, 2, 3]
+    assert _stored(session).n_videos == 4
+
+
+def test_automatic_n_videos_is_stored_as_none(tmp_path, session):
+    _run_import(
+        session,
+        pptx_path=_deck(tmp_path, 4),
+        layouts=_layouts(4),
+        selector=AsyncMock(return_value=[0, 3]),
+        n_videos=None,
+    )
+
+    assert _stored(session).n_videos is None
+
+
+@pytest.mark.parametrize("field", ["title", "source_name"])
+def test_long_title_and_source_name_are_rejected(field):
+    base = {"pptx_url": "/app_data/uploads/upload.pptx", "language": "English"}
+    ImportPresentationRequest(**base, **{field: "x" * 255})
+    with pytest.raises(ValidationError):
+        ImportPresentationRequest(**base, **{field: "x" * 256})

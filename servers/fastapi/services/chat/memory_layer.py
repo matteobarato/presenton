@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from constants.presentation import (
+    IMPORTED_OUTLINE_CHAT_MESSAGE,
     IMPORTED_SLIDE_CHAT_MESSAGE,
     MAX_NUMBER_OF_SLIDES,
     PRESENTATION_SOURCE_PPTX,
@@ -549,6 +550,11 @@ class PresentationChatMemoryLayer:
                 "saved": False,
                 "message": "Presentation not found.",
             }
+        if presentation.source == PRESENTATION_SOURCE_PPTX:
+            return {
+                "saved": False,
+                "message": IMPORTED_OUTLINE_CHAT_MESSAGE,
+            }
 
         slides = self._normalize_outline_slides(presentation.outlines)
         if len(slides) >= MAX_NUMBER_OF_SLIDES:
@@ -576,6 +582,11 @@ class PresentationChatMemoryLayer:
             return {
                 "saved": False,
                 "message": "Presentation not found.",
+            }
+        if presentation.source == PRESENTATION_SOURCE_PPTX:
+            return {
+                "saved": False,
+                "message": IMPORTED_OUTLINE_CHAT_MESSAGE,
             }
 
         slides = self._normalize_outline_slides(presentation.outlines)
@@ -606,6 +617,11 @@ class PresentationChatMemoryLayer:
                 "deleted": False,
                 "message": "Presentation not found.",
             }
+        if presentation.source == PRESENTATION_SOURCE_PPTX:
+            return {
+                "deleted": False,
+                "message": IMPORTED_OUTLINE_CHAT_MESSAGE,
+            }
 
         slides = self._normalize_outline_slides(presentation.outlines)
         target_index = max(0, index)
@@ -634,6 +650,11 @@ class PresentationChatMemoryLayer:
             return {
                 "saved": False,
                 "message": "Presentation not found.",
+            }
+        if presentation.source == PRESENTATION_SOURCE_PPTX:
+            return {
+                "saved": False,
+                "message": IMPORTED_OUTLINE_CHAT_MESSAGE,
             }
 
         slides = self._normalize_outline_slides(presentation.outlines)

@@ -67,3 +67,27 @@ def test_schema_is_claude_compatible():
         "required": ["indexes"],
         "additionalProperties": False,
     }
+
+
+def test_llm_call_that_never_returns_falls_back(monkeypatch):
+    async def never_returns(*args, **kwargs):
+        await asyncio.sleep(60)
+
+    monkeypatch.setattr(module, "PRESENTER_SELECTION_TIMEOUT_SECONDS", 0.01)
+    a, b, c, d = _patched(never_returns)
+    with a, b, c, d:
+        assert _run(12) == [0, 4, 8, 11]
+
+
+def test_llm_picking_too_many_slides_falls_back():
+    structured = AsyncMock(return_value={"indexes": list(range(10))})
+    a, b, c, d = _patched(structured)
+    with a, b, c, d:
+        assert _run(10) == [0, 4, 8, 9]
+
+
+def test_llm_picking_up_to_half_is_kept():
+    structured = AsyncMock(return_value={"indexes": [0, 2, 4, 6, 9]})
+    a, b, c, d = _patched(structured)
+    with a, b, c, d:
+        assert _run(10) == [0, 2, 4, 6, 9]

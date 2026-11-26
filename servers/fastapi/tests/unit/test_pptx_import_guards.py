@@ -5,9 +5,13 @@ import pytest
 from fastapi import HTTPException
 
 from api.v1.ppt.endpoints.outlines import stream_outlines
-from api.v1.ppt.endpoints.slide import edit_slide
+from api.v1.ppt.endpoints.slide import edit_slide, edit_slide_html
 from api.v1.ppt.endpoints.presentation import prepare_presentation, stream_presentation
-from constants.presentation import IMPORTED_DECK_REBUILD_MESSAGE, IMPORTED_SLIDE_CHAT_MESSAGE
+from constants.presentation import (
+    IMPORTED_DECK_REBUILD_MESSAGE,
+    IMPORTED_OUTLINE_CHAT_MESSAGE,
+    IMPORTED_SLIDE_CHAT_MESSAGE,
+)
 from models.presentation_outline_model import SlideOutlineModel
 from models.sql.presentation import PresentationModel, PresentationVersion
 from models.sql.slide import SlideModel
@@ -94,3 +98,48 @@ def test_edit_slide_refuses_imported_deck():
     )
     session = FakeAsyncSession({slide.id: slide, p.id: p})
     _assert_409(edit_slide(slide.id, "make it shorter", session))
+
+
+def test_edit_slide_html_refuses_imported_deck():
+    p = _presentation("pptx")
+    slide = SlideModel(
+        id=uuid.uuid4(), presentation=p.id, layout_group="g", layout="l",
+        index=0, content={}, html_content="<div></div>",
+    )
+    session = FakeAsyncSession({slide.id: slide, p.id: p})
+    _assert_409(edit_slide_html(slide.id, "make it shorter", None, session))
+
+
+def _outline_deck(source):
+    p = _presentation(source)
+    p.outlines = {"slides": [{"content": "# One"}, {"content": "# Two"}]}
+    return p
+
+
+def _outline_calls(memory):
+    return {
+        "add": (lambda: memory.add_outline(content="# New"), "saved"),
+        "update": (lambda: memory.update_outline(index=0, content="# Renamed"), "saved"),
+        "delete": (lambda: memory.delete_outline(index=0), "deleted"),
+        "move": (lambda: memory.move_outline(from_index=0, to_index=1), "saved"),
+    }
+
+
+def test_chat_outline_tools_refuse_imported_deck():
+    p = _outline_deck("pptx")
+    before = p.outlines
+    memory = PresentationChatMemoryLayer(_session(p), p.id)
+    for name, (call, flag) in _outline_calls(memory).items():
+        result = asyncio.run(call())
+        assert result == {flag: False, "message": IMPORTED_OUTLINE_CHAT_MESSAGE}, name
+    assert p.outlines == before
+
+
+def test_chat_outline_tools_not_refused_for_template_deck():
+    p = _outline_deck(None)
+    memory = PresentationChatMemoryLayer(_session(p), p.id)
+    for name in ("add", "update"):
+        call, flag = _outline_calls(memory)[name]
+        result = asyncio.run(call())
+        assert result[flag] is True, name
+        assert result["message"] != IMPORTED_OUTLINE_CHAT_MESSAGE
