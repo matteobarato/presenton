@@ -6,9 +6,10 @@ import { Sparkles } from 'lucide-vue-next'
 /**
  * Aera's AI progress card (aera-frontend AiProgress): a stage line, a filling track with a light
  * sweep and an elapsed-time row. Real jobs have no known duration, so the fill eases towards 95%
- * over `expectedMs` and the caller supplies the honest detail (e.g. "3 slides drafted").
+ * over `expectedMs` and the caller supplies the honest detail (e.g. "3 slides drafted"). When the job does
+ * report real progress, pass it as `value` (0-100) and the fill follows it instead.
  */
-const props = withDefaults(defineProps<{ stage: string; detail?: string; label?: string; expectedMs?: number }>(), {
+const props = withDefaults(defineProps<{ stage: string; detail?: string; label?: string; expectedMs?: number; value?: number }>(), {
   detail: '',
   expectedMs: 30_000,
 })
@@ -23,7 +24,11 @@ onMounted(() => {
 onUnmounted(() => clearInterval(ticker))
 
 const elapsed = computed(() => Math.max(0, now.value - startedAt))
-const progress = computed(() => Math.min(95, Math.round(95 * (1 - Math.exp(-elapsed.value / (props.expectedMs / 2))))))
+const progress = computed(() =>
+  props.value !== undefined
+    ? Math.min(100, Math.max(0, Math.round(props.value)))
+    : Math.min(95, Math.round(95 * (1 - Math.exp(-elapsed.value / (props.expectedMs / 2))))),
+)
 </script>
 
 <template>
