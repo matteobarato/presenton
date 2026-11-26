@@ -23,6 +23,10 @@ from llmai.shared import (
 )
 from pydantic import BaseModel, TypeAdapter, ValidationError
 
+from templates.v2.anthropic_schema import (
+    anthropic_compatible_json_schema,
+    is_anthropic_model,
+)
 from templates.v2.models.layouts import (
     Component,
     FlexibleFlowItemPlan,
@@ -4237,6 +4241,9 @@ def _response_schema_for_model(
         and response_name == "VisualDataReplacementPlanResponse"
     ):
         return visual_data_replacement_plan_llm_json_schema()
+    if is_anthropic_model(model):
+        # Claude rejects `oneOf` and `anyOf` beside object keywords (HTTP 400 on every attempt).
+        return anthropic_compatible_json_schema(response_schema)
     return response_schema
 
 
