@@ -149,7 +149,7 @@ services:
     image: nginx:1.28-alpine
     restart: unless-stopped
     ports:
-      - "${PRESENTON_HTTP_HOST_PORT:-5001}:80"
+      - "${PRESENTON_HTTP_HOST_PORT}:80"
     volumes:
       - ./docker/prod/proxy.nginx.conf:/etc/nginx/nginx.conf:ro
       - ./docker/prod/proxy.locations.conf:/etc/nginx/presenton/locations.conf:ro
