@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { createMemoryHistory, createRouter } from 'vue-router'
@@ -32,12 +32,15 @@ const builtins: TemplateSummary[] = [
 ]
 const custom: TemplateSummary = { id: 'c1', name: 'Brand Kit', kind: 'custom', layouts: [1, 2, 3] }
 
+const mounted: ReturnType<typeof mount>[] = []
+// An open import dialog keeps a focus-trap observer alive; unmount before the DOM is torn down.
+afterEach(() => mounted.splice(0).forEach((w) => w.unmount()))
+
 async function mountAt(path = '/templates', client?: QueryClient) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
       { path: '/templates', name: 'templates', component: TemplatesView },
-      { path: '/templates/import', name: 'template-import', component: { template: '<div />' } },
       { path: '/templates/:id', name: 'template', component: { template: '<div />' } },
     ],
   })
@@ -46,6 +49,7 @@ async function mountAt(path = '/templates', client?: QueryClient) {
   // Same defaults as the app (src/api/query.ts): cached data stays fresh for 30s.
   const queryClient = client ?? new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } })
   const wrapper = mount(TemplatesView, { global: { plugins: [router, [VueQueryPlugin, { queryClient }]] }, attachTo: document.body })
+  mounted.push(wrapper)
   await flushPromises()
   return { wrapper, router, queryClient }
 }
@@ -69,10 +73,22 @@ const running = {
 }
 
 describe('TemplatesView imports', () => {
-  it('links to the import page', async () => {
-    const { wrapper } = await mountAt()
-    const link = wrapper.findAll('a').find((a) => a.text().includes('Import PowerPoint'))
-    expect(link?.attributes('href')).toBe('/templates/import')
+  it('opens the import dialog from the header button', async () => {
+    const { wrapper, router } = await mountAt()
+    expect(document.querySelector('[data-testid="import-dialog"]')).toBeNull()
+    await wrapper.findAll('button').find((b) => b.text().includes('Import PowerPoint'))!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.query.import).toBe('new')
+    expect(document.querySelector('[data-testid="import-dialog"] [data-testid="import-dropzone"]')).not.toBeNull()
+  })
+
+  it('closes the import dialog and drops it from the url', async () => {
+    const { router } = await mountAt('/templates?kind=custom&import=new')
+    expect(document.querySelector('[data-testid="import-dialog"]')).not.toBeNull()
+    ;(document.querySelector('[data-testid="import-dialog"] button[aria-label="Close dialog"]') as HTMLButtonElement).click()
+    await flushPromises()
+    expect(router.currentRoute.value.query).toEqual({ kind: 'custom' })
+    expect(document.querySelector('[data-testid="import-dialog"]')).toBeNull()
   })
 
   it('shows running imports first', async () => {
@@ -83,7 +99,7 @@ describe('TemplatesView imports', () => {
     const card = wrapper.get('[data-testid="import-task-card"]')
     expect(card.text()).toContain('Brand deck')
     expect(card.text()).toContain('1 of 4')
-    expect(card.get('a').attributes('href')).toBe('/templates/import?task=task-1')
+    expect(card.get('a').attributes('href')).toBe('/templates?import=task-1')
   })
 
   it('shows a running import started after the list was cached', async () => {
@@ -100,7 +116,7 @@ describe('TemplatesView imports', () => {
     const { wrapper } = await mountAt()
     const card = wrapper.get('[data-testid="import-task-card"]')
     expect(card.text()).toContain('Import failed')
-    expect(card.get('a').attributes('href')).toBe('/templates/import?task=task-1')
+    expect(card.get('a').attributes('href')).toBe('/templates?import=task-1')
   })
 
   it('hides running imports for built-in filter', async () => {
@@ -113,8 +129,8 @@ describe('TemplatesView imports', () => {
     mocks.listTemplates.mockResolvedValue(builtins)
     const { wrapper } = await mountAt('/templates?kind=custom')
     expect(wrapper.text()).toContain('No custom templates')
-    const links = wrapper.findAll('a').filter((a) => a.attributes('href') === '/templates/import')
-    expect(links.length).toBe(2)
+    const buttons = wrapper.findAll('button').filter((b) => b.text().includes('Import PowerPoint'))
+    expect(buttons.length).toBe(2)
   })
 
   it('refreshes the templates when a running import finishes', async () => {

@@ -30,7 +30,6 @@
     "next": "Layout successivo"
   },
   "import": {
-    "title": "Importa PowerPoint",
     "heading": "Trasforma una presentazione in un modello.",
     "intro": "Carica un file .pptx: ogni slide diventa un layout riutilizzabile, con i suoi font e colori.",
     "back": "Indietro",
@@ -71,7 +70,7 @@
       "finishing": "Salvataggio del modello",
       "detail": "{done} di {total} slide",
       "label": "Avanzamento dell'importazione",
-      "leaveNote": "L'importazione continua anche se lasci questa pagina. La trovi nella pagina Modelli.",
+      "leaveNote": "L'importazione continua anche se chiudi questa finestra e resta tra i tuoi modelli finché non è pronta.",
       "slideDone": "Slide {n} pronta",
       "slidePending": "Slide {n} in lavorazione",
       "failed": "L'importazione si è interrotta",

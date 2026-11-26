@@ -30,7 +30,6 @@
     "next": "Next layout"
   },
   "import": {
-    "title": "Import PowerPoint",
     "heading": "Turn a deck into a template.",
     "intro": "Upload a .pptx and every slide becomes a reusable layout with its fonts and colours.",
     "back": "Back",
@@ -71,7 +70,7 @@
       "finishing": "Saving the template",
       "detail": "{done} of {total} slides",
       "label": "Template import progress",
-      "leaveNote": "This keeps running if you leave this page. You'll find it on the Templates page.",
+      "leaveNote": "This keeps running if you close this window, and stays in your templates until it's ready.",
       "slideDone": "Slide {n} ready",
       "slidePending": "Slide {n} in progress",
       "failed": "The import stopped",

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { ApiError, extractApiErrorMessage } from '@/api/errors'
 import { listTemplates, templatesKey, type TemplateKind } from '@/api/templates'
@@ -8,10 +8,11 @@ import { importTasksKey, listImportTasks } from '@/api/templateImport'
 import { FileUp, Search } from 'lucide-vue-next'
 import PageHeader from '@/components/shell/PageHeader.vue'
 import ImportTaskCard from '@/components/templates/ImportTaskCard.vue'
+import ImportTemplateDialog from '@/components/templates/import/ImportTemplateDialog.vue'
 import TemplateCard from '@/components/templates/TemplateCard.vue'
 import TemplatesToolbar from '@/components/templates/TemplatesToolbar.vue'
 import { Alert } from '@/components/ui/alert'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useI18n } from 'vue-i18n'
 
@@ -33,6 +34,18 @@ const runningCount = computed(() => imports.data.value?.filter((task) => task.st
 watch(runningCount, (now, before) => {
   if (now < before) void queryClient.invalidateQueries({ queryKey: templatesKey })
 })
+
+// The PowerPoint import dialog lives in the URL so a card (or an old /templates/import link) can open it:
+// `?import=new` starts or resumes this tab's import, `?import=<task id>` adopts that server task.
+const importParam = computed(() => (typeof route.query.import === 'string' && route.query.import ? route.query.import : null))
+const importOpen = computed({
+  get: () => importParam.value !== null,
+  set: (open) => setImport(open ? 'new' : undefined),
+})
+const importTaskId = computed(() => (importParam.value && importParam.value !== 'new' ? importParam.value : null))
+function setImport(value: string | undefined) {
+  void router.replace({ query: { ...route.query, import: value } })
+}
 
 const search = ref('')
 const kind = computed<'all' | TemplateKind>({
@@ -86,9 +99,9 @@ function clearFilters() {
         <span v-if="query.data.value" class="ml-2 rounded-[6px] bg-sx-303d45 px-[7px] py-[3px] text-[10px] text-tx-9db3c0 tabular-nums">{{ query.data.value.length }}</span>
       </h2>
       <div class="flex items-center gap-3 max-[760px]:w-full max-[760px]:flex-col max-[760px]:items-stretch">
-        <RouterLink to="/templates/import" :class="buttonVariants({ variant: 'default' })" class="max-[760px]:h-11">
+        <Button class="max-[760px]:h-11" @click="setImport('new')">
           <FileUp class="size-4" aria-hidden="true" />{{ t('views.templates.import') }}
-        </RouterLink>
+        </Button>
         <TemplatesToolbar v-model:search="search" v-model:kind="kind" />
       </div>
     </div>
@@ -110,9 +123,9 @@ function clearFilters() {
       <template v-else-if="kind === 'custom'">
         <h2 class="mt-[17px] mb-[7px] text-[20px] font-medium">{{ t('views.templates.noCustom') }}</h2>
         <p class="mb-5 text-[12px] text-tx-97aebc">{{ t('views.templates.customHint') }}</p>
-        <RouterLink to="/templates/import" :class="buttonVariants({ variant: 'secondary' })">
+        <Button variant="secondary" @click="setImport('new')">
           <FileUp class="size-4" aria-hidden="true" />{{ t('views.templates.import') }}
-        </RouterLink>
+        </Button>
       </template>
       <template v-else>
         <h2 class="mt-[17px] mb-[7px] text-[20px] font-medium">{{ t('views.templates.none') }}</h2>
@@ -124,4 +137,6 @@ function clearFilters() {
       <TemplateCard v-for="t in visible" :key="t.id" :template="t" :from="kind === 'all' ? undefined : kind" />
     </div>
   </section>
+
+  <ImportTemplateDialog v-model:open="importOpen" :task-id="importTaskId" @restart="setImport('new')" />
 </template>
