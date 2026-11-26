@@ -23,8 +23,9 @@ from fastapi import (
 )
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from sqlalchemy import delete, update
+from sqlalchemy import delete, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 from sqlmodel import select
 from constants.presentation import (
     BLANK_PRESENTATION_LAYOUT_GROUP,
@@ -1609,7 +1610,16 @@ async def get_all_presentations(
     sql_session: AsyncSession = Depends(get_async_session),
 ):
     if include_slides:
-        query = select(PresentationModel, SlideModel).join(
+        # Only the first slide is returned (for the cover preview), so the real
+        # slide count travels separately as a correlated count.
+        counted = aliased(SlideModel)
+        slide_count = (
+            select(func.count(counted.id))
+            .where(counted.presentation == PresentationModel.id)
+            .correlate(PresentationModel)
+            .scalar_subquery()
+        )
+        query = select(PresentationModel, SlideModel, slide_count).join(
             SlideModel,
             (SlideModel.presentation == PresentationModel.id) & (SlideModel.index == 0),
         )
@@ -1632,12 +1642,12 @@ async def get_all_presentations(
 
     rows = results.all()
     presentations_with_slides = []
-    for presentation, first_slide in rows:
-        slides = [first_slide]
+    for presentation, first_slide, total_slides in rows:
         presentations_with_slides.append(
             PresentationWithSlides(
                 **_presentation_response_data(presentation),
-                slides=slides,
+                slides=[first_slide],
+                slide_count=total_slides,
             )
         )
     return presentations_with_slides

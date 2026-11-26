@@ -4456,6 +4456,8 @@ export interface components {
             verbosity?: string | null;
             /** Slides */
             slides: components["schemas"]["SlideModel-Output"][];
+            /** Slide Count */
+            slide_count?: number | null;
             /** Fonts */
             fonts?: unknown | null;
             /** Theme */

@@ -19,6 +19,8 @@ class PresentationWithSlides(BaseModel):
     tone: Optional[str] = None
     verbosity: Optional[str] = None
     slides: List[SlideModel]
+    # Total slides in the deck; set by list endpoints that return only a preview slide.
+    slide_count: Optional[int] = None
     fonts: Optional[Any] = None
     theme: Optional[dict[str, Any]] = None
     generation_mode: Literal["standard", "smart"] = "standard"
