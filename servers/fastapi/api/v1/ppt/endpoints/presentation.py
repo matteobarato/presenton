@@ -80,6 +80,7 @@ from services.database import get_async_session
 from services.database import async_session_maker
 from services.concurrent_service import CONCURRENT_SERVICE
 from models.sql.presentation import PresentationModel, PresentationVersion
+from services.pptx_import.guards import ensure_not_imported
 from models.sql.template_v2 import TemplateV2
 from models.sql.async_task import AsyncTaskModel
 from utils.asset_directory_utils import get_images_directory
@@ -3076,6 +3077,7 @@ async def prepare_presentation(
     presentation = await sql_session.get(PresentationModel, presentation_id)
     if not presentation:
         raise HTTPException(status_code=404, detail="Presentation not found")
+    ensure_not_imported(presentation)
 
     presentation_outline_model = PresentationOutlineModel(slides=outlines)
 
@@ -3635,6 +3637,7 @@ async def stream_presentation(
     presentation = await sql_session.get(PresentationModel, id)
     if not presentation:
         raise HTTPException(status_code=404, detail="Presentation not found")
+    ensure_not_imported(presentation)
     if presentation.generation_mode == "smart":
         return await stream_smart_presentation(presentation, sql_session)
     if not presentation.structure:

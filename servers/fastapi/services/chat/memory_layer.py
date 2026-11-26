@@ -10,7 +10,11 @@ from jsonschema import Draft202012Validator
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from constants.presentation import MAX_NUMBER_OF_SLIDES
+from constants.presentation import (
+    IMPORTED_SLIDE_CHAT_MESSAGE,
+    MAX_NUMBER_OF_SLIDES,
+    PRESENTATION_SOURCE_PPTX,
+)
 from models.image_prompt import ImagePrompt
 from models.presentation_outline_model import PresentationOutlineModel, SlideOutlineModel
 from models.sql.image_asset import ImageAsset
@@ -1052,6 +1056,13 @@ class PresentationChatMemoryLayer:
             return {
                 "saved": False,
                 "message": "Presentation not found.",
+                "validation_errors": [],
+            }
+
+        if presentation.source == PRESENTATION_SOURCE_PPTX:
+            return {
+                "saved": False,
+                "message": IMPORTED_SLIDE_CHAT_MESSAGE,
                 "validation_errors": [],
             }
 
