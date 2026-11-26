@@ -20,6 +20,28 @@ export type ImportStep = 'upload' | 'preparing' | 'fonts' | 'review' | 'generati
 
 /** Keeps the running import's task id so a refresh or a return visit picks it up again. */
 export const IMPORT_TASK_STORAGE_KEY = 'template-import-task'
+/** The status endpoint does not return the slide previews, so they are kept beside the task id. */
+const SLIDES_STORAGE_KEY = 'template-import-slides'
+
+function readStoredSlides(taskId: string | null): string[] {
+  if (!taskId) return []
+  try {
+    const parsed: unknown = JSON.parse(sessionStorage.getItem(SLIDES_STORAGE_KEY) ?? 'null')
+    if (!parsed || typeof parsed !== 'object' || (parsed as { taskId?: unknown }).taskId !== taskId) return []
+    const urls = (parsed as { urls?: unknown }).urls
+    return Array.isArray(urls) ? urls.filter((u): u is string => typeof u === 'string') : []
+  } catch {
+    return []
+  }
+}
+function storeSlides(taskId: string | null, urls: string[] = []) {
+  try {
+    if (taskId && urls.length) sessionStorage.setItem(SLIDES_STORAGE_KEY, JSON.stringify({ taskId, urls }))
+    else sessionStorage.removeItem(SLIDES_STORAGE_KEY)
+  } catch {
+    // Storage unavailable: a resumed import just shows placeholders.
+  }
+}
 
 const t = (key: string) => i18n.global.t(`templates.import.errors.${key}`)
 
@@ -52,6 +74,8 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
   error: Ref<string | null>
   busy: Ref<boolean>
   progress: ComputedRef<ImportProgress>
+  /** One preview image per slide: this session's preview, or the one remembered for a resumed task. */
+  slideImages: ComputedRef<string[]>
   taskError: ComputedRef<string | null>
   selectFile(f: File): Promise<void>
   setReplacement(fontName: string, f: File | null): string | null
@@ -78,10 +102,13 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
       step.value = 'done'
       // A finished import is not resumed on the next visit.
       async.clear()
+      storeSlides(null)
       if (id) opts.onDone?.(id)
     },
   })
   const progress = computed(() => readImportProgress(async.task.value))
+  const storedSlides = ref<string[]>(readStoredSlides(taskId.value))
+  const slideImages = computed(() => preview.value?.slide_image_urls ?? storedSlides.value)
 
   if (taskId.value) step.value = 'generating'
 
@@ -157,6 +184,7 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
     try {
       const task = await startImport(preview.value, { name: name.value.trim(), description: description.value.trim() })
       if (!task.id) throw new Error('Template import task has no id')
+      storeSlides(task.id, preview.value.slide_image_urls)
       async.start(task.id)
       step.value = 'generating'
     } catch (e) {
@@ -186,6 +214,8 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
 
   function reset() {
     async.clear()
+    storeSlides(null)
+    storedSlides.value = []
     step.value = 'upload'
     file.value = null
     missingFonts.value = []
@@ -208,6 +238,7 @@ export function useTemplateImport(opts: { initialTaskId?: string | null; onDone?
     error,
     busy,
     progress,
+    slideImages,
     taskError: async.error,
     selectFile,
     setReplacement,

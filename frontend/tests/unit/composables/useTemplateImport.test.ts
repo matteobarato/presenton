@@ -180,6 +180,36 @@ describe('useTemplateImport', () => {
     stop()
   })
 
+  it('remembers slide images for resume', async () => {
+    mocks.checkFonts.mockResolvedValue([])
+    mocks.prepareImport.mockResolvedValue(preview)
+    mocks.startImport.mockResolvedValue(task('pending'))
+    mocks.getTask.mockResolvedValue(task('pending'))
+    const first = setup()
+    await first.imp.selectFile(pptx())
+    await first.imp.create()
+    expect(first.imp.slideImages.value).toEqual(['/1.png', '/2.png'])
+    first.stop()
+    const again = setup()
+    expect(again.imp.slideImages.value).toEqual(['/1.png', '/2.png'])
+    again.imp.reset()
+    expect(again.imp.slideImages.value).toEqual([])
+    again.stop()
+    expect(setup().imp.slideImages.value).toEqual([])
+  })
+
+  it('ignores remembered slides of a different task', async () => {
+    mocks.checkFonts.mockResolvedValue([])
+    mocks.prepareImport.mockResolvedValue(preview)
+    mocks.startImport.mockResolvedValue(task('pending'))
+    mocks.getTask.mockResolvedValue(task('pending'))
+    const first = setup()
+    await first.imp.selectFile(pptx())
+    await first.imp.create()
+    first.stop()
+    expect(setup({ initialTaskId: 'other' }).imp.slideImages.value).toEqual([])
+  })
+
   it('resumes from storage', async () => {
     sessionStorage.setItem(IMPORT_TASK_STORAGE_KEY, 't9')
     mocks.getTask.mockResolvedValue(task('pending'))

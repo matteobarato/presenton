@@ -25,6 +25,7 @@ export const router = createRouter({
     { path: '/p/:id', name: 'editor', component: () => import('@/views/EditorView.vue'), meta: { layout: 'app' } },
     { path: '/p/:id/present', name: 'present', component: () => import('@/views/PresentView.vue'), meta: { layout: 'bare' } },
     { path: '/templates', name: 'templates', component: () => import('@/views/TemplatesView.vue'), meta: { layout: 'app' } },
+    { path: '/templates/import', name: 'template-import', component: () => import('@/views/ImportTemplateView.vue'), meta: { layout: 'app' } },
     { path: '/templates/:id', name: 'template', component: () => import('@/views/TemplateDetailView.vue'), meta: { layout: 'app' } },
     { path: '/settings', redirect: '/settings/text' },
     {

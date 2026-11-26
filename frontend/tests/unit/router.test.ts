@@ -13,6 +13,8 @@ describe('router', () => {
     expect(router.resolve({ name: 'present', params: { id: 'x' } }).path).toBe('/p/x/present')
     expect(router.resolve({ name: 'templates' }).path).toBe('/templates')
     expect(router.resolve({ name: 'template', params: { id: 'x' } }).path).toBe('/templates/x')
+    expect(router.resolve({ name: 'template-import' }).path).toBe('/templates/import')
+    expect(router.resolve('/templates/import').name).toBe('template-import')
     expect(router.resolve({ name: 'settings', params: { section: 'text' } }).path).toBe('/settings/text')
     expect(router.resolve('/nope/nothing').name).toBe('not-found')
   })
@@ -27,7 +29,7 @@ describe('router', () => {
     for (const name of ['login', 'setup', 'present']) {
       expect(router.resolve({ name, params: { id: 'x' } }).meta.layout).toBe('bare')
     }
-    for (const name of ['library', 'new', 'create', 'editor', 'templates', 'template', 'settings', 'not-found']) {
+    for (const name of ['library', 'new', 'create', 'editor', 'templates', 'template-import', 'template', 'settings', 'not-found']) {
       expect(router.resolve({ name, params: { id: 'x', section: 'text' } }).meta.layout).toBe('app')
     }
   })
