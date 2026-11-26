@@ -87,5 +87,12 @@
       "startFailed": "Could not start the import.",
       "retryFailed": "Could not restart the import."
     }
+  },
+  "importCard": {
+    "meta": "Importing · {done} of {total} slides",
+    "metaStarting": "Importing…",
+    "open": "Open the import of {name}",
+    "untitled": "Untitled template",
+    "progress": "Import progress"
   }
 }

@@ -144,7 +144,8 @@
     "none": "Nessun modello",
     "noneHint": "Non ci sono ancora modelli da mostrare.",
     "loadFailed": "Impossibile caricare i modelli",
-    "retry": "Riprova"
+    "retry": "Riprova",
+    "import": "Importa PowerPoint"
   },
   "settings": {
     "title": "Impostazioni",

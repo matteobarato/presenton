@@ -4,10 +4,14 @@ import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { TemplateSummary } from '@/api/templates'
 
-const mocks = vi.hoisted(() => ({ listTemplates: vi.fn(), getTemplate: vi.fn() }))
+const mocks = vi.hoisted(() => ({ listTemplates: vi.fn(), getTemplate: vi.fn(), listImportTasks: vi.fn() }))
 vi.mock('@/api/templates', async (orig) => ({
   ...(await orig<typeof import('@/api/templates')>()),
   listTemplates: mocks.listTemplates,
+}))
+vi.mock('@/api/templateImport', async (orig) => ({
+  ...(await orig<typeof import('@/api/templateImport')>()),
+  listImportTasks: mocks.listImportTasks,
 }))
 vi.mock('@/api/outlines', async (orig) => ({
   ...(await orig<typeof import('@/api/outlines')>()),
@@ -33,6 +37,7 @@ async function mountAt(path = '/templates') {
     history: createMemoryHistory(),
     routes: [
       { path: '/templates', name: 'templates', component: TemplatesView },
+      { path: '/templates/import', name: 'template-import', component: { template: '<div />' } },
       { path: '/templates/:id', name: 'template', component: { template: '<div />' } },
     ],
   })
@@ -53,6 +58,59 @@ beforeEach(() => {
   mocks.getTemplate.mockReset()
   mocks.listTemplates.mockResolvedValue([custom, ...builtins])
   mocks.getTemplate.mockResolvedValue({ layouts: [{ id: 'c-l0' }], theme: {}, fonts: [] })
+  mocks.listImportTasks.mockReset()
+  mocks.listImportTasks.mockResolvedValue([])
+})
+
+const running = {
+  id: 'task-1', type: 'template.create', status: 'pending', created_at: '', updated_at: '',
+  data: { name: 'Brand deck', created_layouts: 1, remaining_layouts: 3, template_v2_id: 'x' },
+}
+
+describe('TemplatesView imports', () => {
+  it('links to the import page', async () => {
+    const { wrapper } = await mountAt()
+    const link = wrapper.findAll('a').find((a) => a.text().includes('Import PowerPoint'))
+    expect(link?.attributes('href')).toBe('/templates/import')
+  })
+
+  it('shows running imports first', async () => {
+    mocks.listImportTasks.mockResolvedValue([running])
+    const { wrapper } = await mountAt()
+    const grid = wrapper.get('[data-testid="import-task-card"]').element.parentElement!
+    expect((grid.firstElementChild as HTMLElement).dataset.testid).toBe('import-task-card')
+    const card = wrapper.get('[data-testid="import-task-card"]')
+    expect(card.text()).toContain('Brand deck')
+    expect(card.text()).toContain('1 of 4')
+    expect(card.get('a').attributes('href')).toBe('/templates/import?task=task-1')
+  })
+
+  it('hides running imports for built-in filter', async () => {
+    mocks.listImportTasks.mockResolvedValue([running])
+    const { wrapper } = await mountAt('/templates?kind=builtin')
+    expect(wrapper.find('[data-testid="import-task-card"]').exists()).toBe(false)
+  })
+
+  it('offers import in the empty custom state', async () => {
+    mocks.listTemplates.mockResolvedValue(builtins)
+    const { wrapper } = await mountAt('/templates?kind=custom')
+    expect(wrapper.text()).toContain('No custom templates')
+    const links = wrapper.findAll('a').filter((a) => a.attributes('href') === '/templates/import')
+    expect(links.length).toBe(2)
+  })
+
+  it('refreshes the templates when a running import finishes', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    mocks.listImportTasks.mockResolvedValueOnce([running]).mockResolvedValue([])
+    const { wrapper } = await mountAt()
+    expect(wrapper.find('[data-testid="import-task-card"]').exists()).toBe(true)
+    const calls = mocks.listTemplates.mock.calls.length
+    await vi.advanceTimersByTimeAsync(5000)
+    await flushPromises()
+    expect(wrapper.find('[data-testid="import-task-card"]').exists()).toBe(false)
+    expect(mocks.listTemplates.mock.calls.length).toBeGreaterThan(calls)
+    vi.useRealTimers()
+  })
 })
 
 describe('TemplatesView', () => {

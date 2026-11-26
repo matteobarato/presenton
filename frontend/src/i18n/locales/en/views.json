@@ -144,7 +144,8 @@
     "none": "No templates",
     "noneHint": "There are no templates to show yet.",
     "loadFailed": "Could not load templates",
-    "retry": "Retry"
+    "retry": "Retry",
+    "import": "Import PowerPoint"
   },
   "settings": {
     "title": "Settings",

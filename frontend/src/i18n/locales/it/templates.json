@@ -87,5 +87,12 @@
       "startFailed": "Impossibile avviare l'importazione.",
       "retryFailed": "Impossibile riavviare l'importazione."
     }
+  },
+  "importCard": {
+    "meta": "Importazione · {done} di {total} slide",
+    "metaStarting": "Importazione…",
+    "open": "Apri l'importazione di {name}",
+    "untitled": "Modello senza nome",
+    "progress": "Avanzamento dell'importazione"
   }
 }

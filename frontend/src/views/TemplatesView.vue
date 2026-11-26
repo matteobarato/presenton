@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useQuery } from '@tanstack/vue-query'
+import { computed, ref, watch } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { ApiError, extractApiErrorMessage } from '@/api/errors'
 import { listTemplates, templatesKey, type TemplateKind } from '@/api/templates'
-import { Search } from 'lucide-vue-next'
+import { listImportTasks } from '@/api/templateImport'
+import { FileUp, Search } from 'lucide-vue-next'
 import PageHeader from '@/components/shell/PageHeader.vue'
+import ImportTaskCard from '@/components/templates/ImportTaskCard.vue'
 import TemplateCard from '@/components/templates/TemplateCard.vue'
 import TemplatesToolbar from '@/components/templates/TemplatesToolbar.vue'
 import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useI18n } from 'vue-i18n'
 
@@ -17,6 +19,21 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const query = useQuery({ queryKey: templatesKey, queryFn: listTemplates })
+const queryClient = useQueryClient()
+
+// PowerPoint imports still running on the server: polled while there are any, and when one finishes the
+// template list is refetched so the new template takes its place.
+const imports = useQuery({
+  queryKey: ['template-import-tasks'],
+  queryFn: () => listImportTasks(),
+  refetchInterval: (q) => (q.state.data?.length ? 5000 : false),
+})
+watch(
+  () => imports.data.value?.length ?? 0,
+  (now, before) => {
+    if (now < (before ?? 0)) void queryClient.invalidateQueries({ queryKey: templatesKey })
+  },
+)
 
 const search = ref('')
 const kind = computed<'all' | TemplateKind>({
@@ -35,6 +52,10 @@ const visible = computed(() => {
     (t) => (kind.value === 'all' || t.kind === kind.value) && (!needle || t.name.toLowerCase().includes(needle)),
   )
 })
+
+const runningImports = computed(() =>
+  (kind.value === 'all' || kind.value === 'custom') && !search.value.trim() ? (imports.data.value ?? []) : [],
+)
 
 function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof ApiError) return extractApiErrorMessage(error.body, fallback, error.status)
@@ -65,7 +86,12 @@ function clearFilters() {
         {{ t('views.templates.title') }}
         <span v-if="query.data.value" class="ml-2 rounded-[6px] bg-sx-303d45 px-[7px] py-[3px] text-[10px] text-tx-9db3c0 tabular-nums">{{ query.data.value.length }}</span>
       </h2>
-      <TemplatesToolbar v-model:search="search" v-model:kind="kind" />
+      <div class="flex items-center gap-3 max-[760px]:w-full max-[760px]:flex-col max-[760px]:items-stretch">
+        <RouterLink to="/templates/import" :class="buttonVariants({ variant: 'default' })" class="max-[760px]:h-11">
+          <FileUp class="size-4" aria-hidden="true" />{{ t('views.templates.import') }}
+        </RouterLink>
+        <TemplatesToolbar v-model:search="search" v-model:kind="kind" />
+      </div>
     </div>
 
     <div v-if="query.isPending.value" class="grid grid-cols-3 gap-6 max-[1050px]:grid-cols-2 max-[760px]:grid-cols-1" aria-busy="true">
@@ -75,7 +101,7 @@ function clearFilters() {
       <span>{{ errorMessage(query.error.value, t('views.templates.loadFailed')) }}</span>
       <Button variant="secondary" size="sm" @click="query.refetch()">{{ t('views.templates.retry') }}</Button>
     </Alert>
-    <div v-else-if="!visible.length" class="flex flex-col items-center px-6 py-[55px] text-center text-tx-acc3d2">
+    <div v-else-if="!visible.length && !runningImports.length" class="flex flex-col items-center px-6 py-[55px] text-center text-tx-acc3d2">
       <Search class="size-7" aria-hidden="true" />
       <template v-if="search.trim() || (kind === 'builtin' && (query.data.value?.length ?? 0) > 0)">
         <h2 class="mt-[17px] mb-[7px] text-[20px] font-medium">{{ search.trim() ? t('views.templates.noMatch', { query: search.trim() }) : t('views.templates.noBuiltIn') }}</h2>
@@ -84,7 +110,10 @@ function clearFilters() {
       </template>
       <template v-else-if="kind === 'custom'">
         <h2 class="mt-[17px] mb-[7px] text-[20px] font-medium">{{ t('views.templates.noCustom') }}</h2>
-        <p class="text-[12px] text-tx-97aebc">{{ t('views.templates.customHint') }}</p>
+        <p class="mb-5 text-[12px] text-tx-97aebc">{{ t('views.templates.customHint') }}</p>
+        <RouterLink to="/templates/import" :class="buttonVariants({ variant: 'secondary' })">
+          <FileUp class="size-4" aria-hidden="true" />{{ t('views.templates.import') }}
+        </RouterLink>
       </template>
       <template v-else>
         <h2 class="mt-[17px] mb-[7px] text-[20px] font-medium">{{ t('views.templates.none') }}</h2>
@@ -92,6 +121,7 @@ function clearFilters() {
       </template>
     </div>
     <div v-else class="grid grid-cols-3 gap-6 max-[1050px]:grid-cols-2 max-[760px]:grid-cols-1 max-[760px]:gap-[25px] min-[1800px]:grid-cols-4">
+      <ImportTaskCard v-for="task in runningImports" :key="task.id" :task="task" />
       <TemplateCard v-for="t in visible" :key="t.id" :template="t" :from="kind === 'all' ? undefined : kind" />
     </div>
   </section>
