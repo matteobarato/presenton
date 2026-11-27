@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: fix-agenda-overflow-studio
+expected_outcome: |
+  A copy of the Studio template where agenda_numbered_list is fixed so that a title at its max_length no longer collides with the paragraph (via box resize/reflow, max_length change, or both), element names unchanged, other layouts untouched. Before and after renders with worst-case (max-length) text are saved and the after render shows no overlap/overflow.

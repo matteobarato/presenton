@@ -2,6 +2,20 @@ import os
 from pathlib import Path
 
 MAX_NUMBER_OF_SLIDES = 50
+PRESENTATION_SOURCE_PPTX = "pptx"
+IMPORTED_DECK_REBUILD_MESSAGE = (
+    "This presentation was imported from PowerPoint; "
+    "its slides can't be rebuilt from a template."
+)
+IMPORTED_SLIDE_CHAT_MESSAGE = (
+    "This slide came from PowerPoint; edit it directly in the editor."
+)
+IMPORTED_OUTLINE_CHAT_MESSAGE = (
+    "This presentation came from PowerPoint; it has no outline to edit. "
+    "Edit its slides directly in the editor."
+)
+BLANK_PRESENTATION_LAYOUT_GROUP = "blank"
+BLANK_PRESENTATION_LAYOUT_ID = "__blank_slide__"
 DEFAULT_MAX_OUTLINE_WORDS = 100
 
 

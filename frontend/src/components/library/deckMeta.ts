@@ -10,8 +10,13 @@ export function coverSlide(p: PresentationSummary) {
   return [...p.slides].sort((a, b) => a.index - b.index)[0]
 }
 
+/** The list endpoint ships only the cover slide, so the deck's size comes from `slide_count`. */
+export function deckSlideCount(p: PresentationSummary): number {
+  return p.slide_count ?? p.slides.length
+}
+
 export function deckMeta(p: PresentationSummary): string {
-  const n = p.slides.length
+  const n = deckSlideCount(p)
   return `${i18n.global.t('library.slideCount', { count: n }, n)} · ${relativeTime(p.updated_at)}`
 }
 

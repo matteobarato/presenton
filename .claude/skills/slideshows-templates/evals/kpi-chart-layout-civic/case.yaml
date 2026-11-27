@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: kpi-chart-layout-civic
+expected_outcome: |
+  A copy of the Civic template.json with one new layout: an editable headline, an editable line chart whose colors come from Civic's theme, three KPI cards (icon + value + label) as a repeatable flex/grid or equivalent with editable fields, Civic fonts and palette. The layout validates against the backend Pydantic models, all components are registered in merged_components, and a rendered PNG preview exists with no overflow at maximum text lengths.

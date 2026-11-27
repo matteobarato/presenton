@@ -28,5 +28,72 @@
     "description": "Anteprima del layout",
     "previous": "Layout precedente",
     "next": "Layout successivo"
+  },
+  "import": {
+    "heading": "Trasforma una presentazione in un modello.",
+    "intro": "Carica un file .pptx: ogni slide diventa un layout riutilizzabile, con i suoi font e colori.",
+    "back": "Indietro",
+    "done": "Modello creato",
+    "dropzone": {
+      "label": "Trascina qui un file .pptx oppure",
+      "browse": "sfoglia",
+      "hint": "PowerPoint (.pptx), fino a 100 MB",
+      "dropNow": "Rilascia per caricare"
+    },
+    "preparing": {
+      "stage": "Lettura della presentazione",
+      "detail": "Creazione delle anteprime delle slide",
+      "label": "Preparazione della presentazione"
+    },
+    "fonts": {
+      "heading": "Alcuni font non sono installati",
+      "text": "Carica i file dei font per mantenere l'aspetto originale, oppure continua e verrà usato un font simile.",
+      "listLabel": "Font mancanti",
+      "upload": "Carica font",
+      "replace": "Sostituisci",
+      "remove": "Rimuovi il font per {name}",
+      "fallback": "Usa un font simile",
+      "continue": "Continua"
+    },
+    "review": {
+      "found": "{count} slide trovata | {count} slide trovate",
+      "nameLabel": "Nome del modello",
+      "descriptionLabel": "Descrizione (facoltativa)",
+      "descriptionPlaceholder": "A cosa serve questo modello?",
+      "create": "Crea modello",
+      "creating": "Avvio…",
+      "slideAlt": "Slide {n}"
+    },
+    "progress": {
+      "starting": "Avvio dell'importazione",
+      "stage": "Creazione del layout {current} di {total}",
+      "finishing": "Salvataggio del modello",
+      "detail": "{done} di {total} slide",
+      "label": "Avanzamento dell'importazione",
+      "leaveNote": "L'importazione continua anche se chiudi questa finestra e resta tra i tuoi modelli finché non è pronta.",
+      "slideDone": "Slide {n} pronta",
+      "slidePending": "Slide {n} in lavorazione",
+      "failed": "L'importazione si è interrotta",
+      "retry": "Riprova",
+      "startOver": "Ricomincia",
+      "importAnother": "Importa un altro"
+    },
+    "errors": {
+      "notPptx": "Scegli un file PowerPoint (.pptx).",
+      "tooLarge": "Il file supera i 100 MB.",
+      "fontType": "Usa un file di font .ttf, .otf, .woff o .woff2.",
+      "fontTooLarge": "I file dei font devono essere inferiori a 10 MB.",
+      "prepareFailed": "Impossibile leggere la presentazione.",
+      "startFailed": "Impossibile avviare l'importazione.",
+      "retryFailed": "Impossibile riavviare l'importazione."
+    }
+  },
+  "importCard": {
+    "meta": "Importazione · {done} di {total} slide",
+    "metaStarting": "Importazione…",
+    "open": "Apri l'importazione di {name}",
+    "untitled": "Modello senza nome",
+    "progress": "Avanzamento dell'importazione",
+    "failed": "Importazione non riuscita · apri per riprovare"
   }
 }

@@ -1,0 +1,278 @@
+{
+  "id": "avatar_split_title_points_0001",
+  "description": "Presenter avatar video framed on the left with an eyebrow label, headline, short explanation and up to four key points on the right. Use when a narrator introduces a topic, initiative or recommendation on camera.",
+  "components": [
+    {
+      "id": "slide_background",
+      "description": "Full-slide background in the template's base color.",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "elements": [
+        {
+          "type": "vector",
+          "shape": "polygon",
+          "fill": {
+            "color": "#FFFFFF",
+            "opacity": 1
+          },
+          "points": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 1280,
+              "y": 0
+            },
+            {
+              "x": 1280,
+              "y": 720
+            },
+            {
+              "x": 0,
+              "y": 720
+            }
+          ],
+          "closed": true
+        }
+      ]
+    },
+    {
+      "id": "video_frame_accent",
+      "description": "Offset accent panel framing the portrait presenter video from behind.",
+      "position": {
+        "x": 116,
+        "y": 124
+      },
+      "elements": [
+        {
+          "type": "container",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 288,
+            "height": 512
+          },
+          "fill": {
+            "color": "#F59E0B",
+            "opacity": 1
+          },
+          "border_radius": {
+            "tl": 8,
+            "tr": 8,
+            "bl": 8,
+            "br": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "video_placeholder",
+      "description": "Avatar video placeholder",
+      "position": {
+        "x": 96,
+        "y": 104
+      },
+      "elements": [
+        {
+          "type": "image",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 288,
+            "height": 512
+          },
+          "data": "/static/images/video-placeholder.png",
+          "fit": "cover",
+          "decorative": true,
+          "name": "avatar_video",
+          "is_icon": false,
+          "video_placeholder": true
+        }
+      ]
+    },
+    {
+      "id": "title_body_block",
+      "description": "Eyebrow label, two-line headline and supporting paragraph.",
+      "position": {
+        "x": 520,
+        "y": 104
+      },
+      "elements": [
+        {
+          "type": "text",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 696,
+            "height": 21
+          },
+          "font": {
+            "size": 14,
+            "family": "Montserrat",
+            "color": "#234CD9",
+            "line_height": 1.3,
+            "bold": true,
+            "letter_spacing": 1.2
+          },
+          "alignment": {
+            "horizontal": "left",
+            "vertical": "top"
+          },
+          "runs": [
+            {
+              "text": "MEET YOUR PRESENTER",
+              "font": {
+                "size": 14,
+                "family": "Montserrat",
+                "color": "#234CD9",
+                "line_height": 1.3,
+                "bold": true,
+                "letter_spacing": 1.2
+              }
+            }
+          ],
+          "decorative": false,
+          "name": "eyebrow_label",
+          "min_length": 6,
+          "max_length": 28
+        },
+        {
+          "type": "text",
+          "position": {
+            "x": 0,
+            "y": 36
+          },
+          "size": {
+            "width": 696,
+            "height": 106
+          },
+          "font": {
+            "size": 40,
+            "family": "Montserrat",
+            "color": "#234CD9",
+            "line_height": 1.25,
+            "bold": true
+          },
+          "alignment": {
+            "horizontal": "left",
+            "vertical": "top"
+          },
+          "runs": [
+            {
+              "text": "A clear message from the person behind it",
+              "font": {
+                "size": 40,
+                "family": "Montserrat",
+                "color": "#234CD9",
+                "line_height": 1.25,
+                "bold": true
+              }
+            }
+          ],
+          "decorative": false,
+          "name": "main_title",
+          "min_length": 18,
+          "max_length": 48
+        },
+        {
+          "type": "text",
+          "position": {
+            "x": 0,
+            "y": 160
+          },
+          "size": {
+            "width": 696,
+            "height": 70
+          },
+          "font": {
+            "size": 18,
+            "family": "Montserrat",
+            "color": "#334155",
+            "line_height": 1.3
+          },
+          "alignment": {
+            "horizontal": "left",
+            "vertical": "top"
+          },
+          "runs": [
+            {
+              "text": "Your presenter walks the audience through the idea in their own voice, so the key message lands in seconds.",
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#334155",
+                "line_height": 1.3
+              }
+            }
+          ],
+          "decorative": false,
+          "name": "supporting_text",
+          "min_length": 60,
+          "max_length": 150
+        }
+      ]
+    },
+    {
+      "id": "key_points",
+      "description": "Bulleted list of up to four short key points.",
+      "position": {
+        "x": 520,
+        "y": 372
+      },
+      "elements": [
+        {
+          "type": "text-list",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 696,
+            "height": 240
+          },
+          "font": {
+            "size": 18,
+            "family": "Montserrat",
+            "color": "#334155",
+            "line_height": 1.3
+          },
+          "marker": "bullet",
+          "gap": 14,
+          "marker_gap": 12,
+          "items": [
+            [
+              {
+                "text": "Clear goals everyone can repeat"
+              }
+            ],
+            [
+              {
+                "text": "Shared context before decisions"
+              }
+            ],
+            [
+              {
+                "text": "Concrete next steps and owners"
+              }
+            ]
+          ],
+          "decorative": false,
+          "name": "key_points",
+          "max_items": 4,
+          "min_items": 2,
+          "max_item_length": 60,
+          "min_item_length": 15
+        }
+      ]
+    }
+  ]
+}

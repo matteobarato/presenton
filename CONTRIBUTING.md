@@ -15,14 +15,12 @@ Thanks for helping improve **Presenton — the open-source AI presentation gener
 
 # Current Contribution Scope
 
-The Electron application contains:
+Presenton is a hosted web application deployed with Docker. The repository contains:
 
-- Desktop application
-- FastAPI backend
-- Next.js frontend
-- Local runtime integrations
-
-Contributions outside `electron/` may not be accepted at this time.
+- `frontend/` — Vue 3 + Vite web app
+- `servers/fastapi/` — FastAPI backend
+- `servers/nextjs/` — legacy Next.js app, kept as an internal renderer for export
+- `docker/` and the `docker-compose*.yml` files — development and production stacks
 
 ---
 
@@ -60,56 +58,27 @@ docs/update-readme
 
 ---
 
-# Development Setup (Electron)
+# Development Setup
 
 ### Prerequisites
 
-- Node.js (LTS)
-- npm
-- Python
-- `uv` (Python package manager)
+- Docker with Docker Compose
 
-# Setup Environment
+# Run the Stack (Development)
 
-From the `electron` directory:
+Start the backend stack, then the Vue dev server:
 
 ```
-cd electron
-npm run setup:env
+docker compose up production
+docker compose -f docker-compose.frontend.yml up
 ```
 
-This installs:
+Vite serves the app on http://localhost:5173 and proxies API calls to the stack on port 5001.
 
-- Node dependencies
-- FastAPI dependencies
-- Next.js dependencies
-
----
-
-# Run the Electron App (Development)
+# Production Build
 
 ```
-
-npm run dev
-
-```
-
-This will:
-
-- compile TypeScript
-- start the Electron app
-- run the backend and UI locally
-
----
-
-# Build the Electron App
-
-To build all components:
-
-```
-
-npm run build:all
-
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 ---
@@ -126,8 +95,7 @@ signing so maintainers can verify it.
 
 Please ensure:
 
-- Changes are **inside `electron/`**
-- Code runs locally on development as well as build environment both
+- Code runs in both the development and production Docker stacks
 - PRs are **small and focused**
 - You explain **what and why**
 

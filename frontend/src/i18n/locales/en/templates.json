@@ -28,5 +28,72 @@
     "description": "Layout preview",
     "previous": "Previous layout",
     "next": "Next layout"
+  },
+  "import": {
+    "heading": "Turn a deck into a template.",
+    "intro": "Upload a .pptx and every slide becomes a reusable layout with its fonts and colours.",
+    "back": "Back",
+    "done": "Template created",
+    "dropzone": {
+      "label": "Drop a .pptx here or",
+      "browse": "browse",
+      "hint": "PowerPoint (.pptx), up to 100 MB",
+      "dropNow": "Drop to upload"
+    },
+    "preparing": {
+      "stage": "Reading your presentation",
+      "detail": "Rendering slide previews",
+      "label": "Preparing the presentation"
+    },
+    "fonts": {
+      "heading": "Some fonts aren't installed",
+      "text": "Upload the font files to keep the original look, or continue and a similar font will be used.",
+      "listLabel": "Missing fonts",
+      "upload": "Upload font",
+      "replace": "Replace",
+      "remove": "Remove the font for {name}",
+      "fallback": "Uses a similar font",
+      "continue": "Continue"
+    },
+    "review": {
+      "found": "{count} slide found | {count} slides found",
+      "nameLabel": "Template name",
+      "descriptionLabel": "Description (optional)",
+      "descriptionPlaceholder": "What is this template for?",
+      "create": "Create template",
+      "creating": "Starting…",
+      "slideAlt": "Slide {n}"
+    },
+    "progress": {
+      "starting": "Starting the import",
+      "stage": "Building layout {current} of {total}",
+      "finishing": "Saving the template",
+      "detail": "{done} of {total} slides",
+      "label": "Template import progress",
+      "leaveNote": "This keeps running if you close this window, and stays in your templates until it's ready.",
+      "slideDone": "Slide {n} ready",
+      "slidePending": "Slide {n} in progress",
+      "failed": "The import stopped",
+      "retry": "Try again",
+      "startOver": "Start over",
+      "importAnother": "Import another"
+    },
+    "errors": {
+      "notPptx": "Choose a PowerPoint file (.pptx).",
+      "tooLarge": "The file is larger than 100 MB.",
+      "fontType": "Use a .ttf, .otf, .woff or .woff2 font file.",
+      "fontTooLarge": "Font files must be under 10 MB.",
+      "prepareFailed": "Could not read the presentation.",
+      "startFailed": "Could not start the import.",
+      "retryFailed": "Could not restart the import."
+    }
+  },
+  "importCard": {
+    "meta": "Importing · {done} of {total} slides",
+    "metaStarting": "Importing…",
+    "open": "Open the import of {name}",
+    "untitled": "Untitled template",
+    "progress": "Import progress",
+    "failed": "Import failed · open to retry"
   }
 }

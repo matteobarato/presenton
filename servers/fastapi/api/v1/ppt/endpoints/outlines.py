@@ -17,6 +17,7 @@ from models.sse_response import (
     SSEResponse,
     SSEStatusResponse,
 )
+from services.pptx_import.guards import ensure_not_imported
 from services.temp_file_service import TEMP_FILE_SERVICE
 from services.database import get_async_session
 from services.documents_loader import DocumentsLoader
@@ -91,6 +92,7 @@ async def stream_outlines(
 
     if not presentation:
         raise HTTPException(status_code=404, detail="Presentation not found")
+    ensure_not_imported(presentation)
 
     search_route, actual_search_provider = get_web_search_route()
     LOGGER.info(

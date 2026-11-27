@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: avatar-steps-layout-studio
+expected_outcome: |
+  A copy of templates/studio/template.json with exactly one new layout appended (existing layouts untouched). The new layout has one valid 9:16 video_placeholder image in its own 'video_placeholder' component, placed on the right, 'presenter avatar video' in its description, a title and three numbered steps on the left built as editable fields with sensible length limits, Studio's fonts/colors, and no text over the presenter. Renders (including a worst-case/long-text check and a filled-avatar check) are saved and show no overflow.

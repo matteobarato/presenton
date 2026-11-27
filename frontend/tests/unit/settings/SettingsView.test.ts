@@ -349,7 +349,7 @@ describe('SettingsView', () => {
 
   it('hides users, API keys and the password form when the backend runs without auth', async () => {
     signIn('admin')
-    useSessionStore().user = { username: 'electron', role: 'admin', authDisabled: true }
+    useSessionStore().user = { username: 'local', role: 'admin', authDisabled: true }
     getProviderSettings.mockResolvedValue(ADMIN_CONFIG)
     const w = await mountAt('/settings/users')
     await flushPromises()

@@ -66,6 +66,15 @@ describe('router', () => {
     expect(router.hasRoute('outline')).toBe(false)
   })
 
+  it('old /templates/import urls open the import dialog on the Templates page', async () => {
+    await router.push('/templates')
+    await router.push('/templates/import')
+    expect(router.currentRoute.value.fullPath).toBe('/templates?import=new')
+    await router.push('/templates')
+    await router.push('/templates/import?task=t9')
+    expect(router.currentRoute.value.fullPath).toBe('/templates?import=t9')
+  })
+
   it('redirects /settings and unknown sections to /settings/text', async () => {
     // beforeEnter runs on entering the record, so start each case from outside it.
     const visit = async (path: string) => {

@@ -1,13 +1,17 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { TemplateSummary } from '@/api/templates'
 
-const mocks = vi.hoisted(() => ({ listTemplates: vi.fn(), getTemplate: vi.fn() }))
+const mocks = vi.hoisted(() => ({ listTemplates: vi.fn(), getTemplate: vi.fn(), listImportTasks: vi.fn() }))
 vi.mock('@/api/templates', async (orig) => ({
   ...(await orig<typeof import('@/api/templates')>()),
   listTemplates: mocks.listTemplates,
+}))
+vi.mock('@/api/templateImport', async (orig) => ({
+  ...(await orig<typeof import('@/api/templateImport')>()),
+  listImportTasks: mocks.listImportTasks,
 }))
 vi.mock('@/api/outlines', async (orig) => ({
   ...(await orig<typeof import('@/api/outlines')>()),
@@ -28,7 +32,11 @@ const builtins: TemplateSummary[] = [
 ]
 const custom: TemplateSummary = { id: 'c1', name: 'Brand Kit', kind: 'custom', layouts: [1, 2, 3] }
 
-async function mountAt(path = '/templates') {
+const mounted: ReturnType<typeof mount>[] = []
+// An open import dialog keeps a focus-trap observer alive; unmount before the DOM is torn down.
+afterEach(() => mounted.splice(0).forEach((w) => w.unmount()))
+
+async function mountAt(path = '/templates', client?: QueryClient) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -38,8 +46,10 @@ async function mountAt(path = '/templates') {
   })
   await router.push(path)
   await router.isReady()
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  // Same defaults as the app (src/api/query.ts): cached data stays fresh for 30s.
+  const queryClient = client ?? new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } })
   const wrapper = mount(TemplatesView, { global: { plugins: [router, [VueQueryPlugin, { queryClient }]] }, attachTo: document.body })
+  mounted.push(wrapper)
   await flushPromises()
   return { wrapper, router, queryClient }
 }
@@ -53,6 +63,88 @@ beforeEach(() => {
   mocks.getTemplate.mockReset()
   mocks.listTemplates.mockResolvedValue([custom, ...builtins])
   mocks.getTemplate.mockResolvedValue({ layouts: [{ id: 'c-l0' }], theme: {}, fonts: [] })
+  mocks.listImportTasks.mockReset()
+  mocks.listImportTasks.mockResolvedValue([])
+})
+
+const running = {
+  id: 'task-1', type: 'template.create', status: 'pending', created_at: '', updated_at: '',
+  data: { name: 'Brand deck', created_layouts: 1, remaining_layouts: 3, template_v2_id: 'x' },
+}
+
+describe('TemplatesView imports', () => {
+  it('opens the import dialog from the header button', async () => {
+    const { wrapper, router } = await mountAt()
+    expect(document.querySelector('[data-testid="import-dialog"]')).toBeNull()
+    await wrapper.findAll('button').find((b) => b.text().includes('Import PowerPoint'))!.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.query.import).toBe('new')
+    expect(document.querySelector('[data-testid="import-dialog"] [data-testid="import-dropzone"]')).not.toBeNull()
+  })
+
+  it('closes the import dialog and drops it from the url', async () => {
+    const { router } = await mountAt('/templates?kind=custom&import=new')
+    expect(document.querySelector('[data-testid="import-dialog"]')).not.toBeNull()
+    ;(document.querySelector('[data-testid="import-dialog"] button[aria-label="Close dialog"]') as HTMLButtonElement).click()
+    await flushPromises()
+    expect(router.currentRoute.value.query).toEqual({ kind: 'custom' })
+    expect(document.querySelector('[data-testid="import-dialog"]')).toBeNull()
+  })
+
+  it('shows running imports first', async () => {
+    mocks.listImportTasks.mockResolvedValue([running])
+    const { wrapper } = await mountAt()
+    const grid = wrapper.get('[data-testid="import-task-card"]').element.parentElement!
+    expect((grid.firstElementChild as HTMLElement).dataset.testid).toBe('import-task-card')
+    const card = wrapper.get('[data-testid="import-task-card"]')
+    expect(card.text()).toContain('Brand deck')
+    expect(card.text()).toContain('1 of 4')
+    expect(card.get('a').attributes('href')).toBe('/templates?import=task-1')
+  })
+
+  it('shows a running import started after the list was cached', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } })
+    const first = await mountAt('/templates', client)
+    first.wrapper.unmount()
+    mocks.listImportTasks.mockResolvedValue([running])
+    const { wrapper } = await mountAt('/templates', client)
+    expect(wrapper.find('[data-testid="import-task-card"]').exists()).toBe(true)
+  })
+
+  it('shows failed imports with a link to retry', async () => {
+    mocks.listImportTasks.mockResolvedValue([{ ...running, status: 'error' }])
+    const { wrapper } = await mountAt()
+    const card = wrapper.get('[data-testid="import-task-card"]')
+    expect(card.text()).toContain('Import failed')
+    expect(card.get('a').attributes('href')).toBe('/templates?import=task-1')
+  })
+
+  it('hides running imports for built-in filter', async () => {
+    mocks.listImportTasks.mockResolvedValue([running])
+    const { wrapper } = await mountAt('/templates?kind=builtin')
+    expect(wrapper.find('[data-testid="import-task-card"]').exists()).toBe(false)
+  })
+
+  it('offers import in the empty custom state', async () => {
+    mocks.listTemplates.mockResolvedValue(builtins)
+    const { wrapper } = await mountAt('/templates?kind=custom')
+    expect(wrapper.text()).toContain('No custom templates')
+    const buttons = wrapper.findAll('button').filter((b) => b.text().includes('Import PowerPoint'))
+    expect(buttons.length).toBe(2)
+  })
+
+  it('refreshes the templates when a running import finishes', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    mocks.listImportTasks.mockResolvedValueOnce([running]).mockResolvedValue([])
+    const { wrapper } = await mountAt()
+    expect(wrapper.find('[data-testid="import-task-card"]').exists()).toBe(true)
+    const calls = mocks.listTemplates.mock.calls.length
+    await vi.advanceTimersByTimeAsync(5000)
+    await flushPromises()
+    expect(wrapper.find('[data-testid="import-task-card"]').exists()).toBe(false)
+    expect(mocks.listTemplates.mock.calls.length).toBeGreaterThan(calls)
+    vi.useRealTimers()
+  })
 })
 
 describe('TemplatesView', () => {

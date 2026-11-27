@@ -157,10 +157,10 @@ export function clampSlideCount(value: string): string {
   return digits ? String(Math.min(Number(digits), MAX_SLIDES)) : ''
 }
 
-/** Digits only, at most MAX_SLIDES; '0' means none and '' means automatic. */
-export function clampMediaCount(value: string): string {
+/** Digits only, at most `max` (MAX_SLIDES by default); '0' means none and '' means automatic. */
+export function clampMediaCount(value: string, max: number = MAX_SLIDES): string {
   const digits = value.replace(/\D+/g, '')
-  return digits ? String(Math.min(Number(digits), MAX_SLIDES)) : ''
+  return digits ? String(Math.min(Number(digits), max)) : ''
 }
 
 /** The `n_images` / `n_videos` the create endpoint takes: null for automatic. */

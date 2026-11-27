@@ -98,6 +98,12 @@ describe('LibraryView', () => {
     expect(w.findAll('[data-testid="deck"]')[2].text()).toContain('2 slides ·')
   })
 
+  it('counts the whole deck from slide_count, since the list only carries the cover slide', async () => {
+    api.listPresentations.mockResolvedValue([{ ...deck('b', 'Roadmap', '2026-11-05T10:00:00Z'), slide_count: 12 }])
+    const w = await mountView()
+    expect(w.find('[data-testid="deck"]').text()).toContain('12 slides ·')
+  })
+
   it('the card opens the wizard Preview step; Edit opens the editor', async () => {
     const w = await mountView()
     expect(w.get('a[aria-label="Open Roadmap"]').attributes('href')).toBe('/p/b/create/preview')

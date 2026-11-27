@@ -8,8 +8,8 @@ afterEach(() => vi.unstubAllGlobals())
 
 describe('auth status', () => {
   it('marks the DISABLE_AUTH stub (no user_id) as auth-disabled', async () => {
-    respond({ configured: true, authenticated: true, username: 'electron', user_id: null, role: 'admin' })
-    expect((await getAuthStatus()).user).toEqual({ username: 'electron', role: 'admin', authDisabled: true })
+    respond({ configured: true, authenticated: true, username: 'local', user_id: null, role: 'admin' })
+    expect((await getAuthStatus()).user).toEqual({ username: 'local', role: 'admin', authDisabled: true })
   })
 
   it('treats a real account as a normal user', async () => {

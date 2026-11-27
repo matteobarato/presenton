@@ -22,8 +22,15 @@ import { useEditingActions } from '@/slide-editor/useEditingActions'
 import { useEditorStore } from '@/stores/editor'
 import type { SlideEditing } from '@/slide-editor/useSlideEditing'
 
+/**
+ * Marks the motion editor (timeline, Motion tab). Picking a track there selects its element on the slide,
+ * but the keys pressed there (arrows, Delete) belong to the motion controls, never to the slide element.
+ */
+export const MOTION_KEYS_SCOPE_ATTR = 'data-motion-keys'
+
 function isEditableTarget(el: EventTarget | null): boolean {
   if (!(el instanceof HTMLElement)) return false
+  if (el.closest(`[${MOTION_KEYS_SCOPE_ATTR}]`)) return true
   if (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return true
   return !!el.closest('[contenteditable]:not([contenteditable="false"])')
 }

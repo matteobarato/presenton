@@ -148,7 +148,7 @@ const select = 'h-full w-full min-w-0 flex-1 cursor-pointer appearance-none bg-t
 </script>
 
 <template>
-  <section class="flex flex-1 flex-col px-5 pb-[18px] max-[1279px]:px-4 min-[1600px]:px-[23px]" :aria-label="t('editorInspector.motion.ariaLabel')">
+  <section data-motion-keys class="flex flex-1 flex-col px-5 pb-[18px] max-[1279px]:px-4 min-[1600px]:px-[23px]" :aria-label="t('editorInspector.motion.ariaLabel')">
     <div class="pt-6 pb-[22px] min-[1600px]:pt-7 min-[1600px]:pb-[26px] [@media(max-height:780px)_and_(min-width:1051px)]:pt-[17px] [@media(max-height:780px)_and_(min-width:1051px)]:pb-4">
       <h2 class="text-[19px] font-medium tracking-[-0.04em] text-tx-f0f2f3 max-[1279px]:text-[18px] min-[1600px]:text-[22px]">{{ t('editorInspector.motion.title') }}</h2>
       <p class="mt-[5px] text-[10px] leading-[1.6] text-tx-a0abb1">{{ t('editorInspector.motion.intro') }}</p>

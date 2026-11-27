@@ -158,11 +158,11 @@
                 "y": 40
               },
               "size": {
-                "width": 600,
-                "height": 216
+                "width": 620,
+                "height": 196
               },
               "font": {
-                "size": 66,
+                "size": 60,
                 "family": "DM Sans Bold",
                 "color": "#16181D",
                 "line_height": 1.02,
@@ -177,7 +177,7 @@
                 {
                   "text": "Designing the next decade",
                   "font": {
-                    "size": 66,
+                    "size": 60,
                     "family": "DM Sans Bold",
                     "color": "#16181D",
                     "line_height": 1.02,
@@ -188,7 +188,7 @@
               ],
               "decorative": false,
               "name": "cover_title",
-              "max_length": 40,
+              "max_length": 36,
               "min_length": 8
             },
             {
@@ -369,8 +369,8 @@
               "focus_x": 50,
               "focus_y": 50,
               "border_radius": {
-                "tl": 28,
-                "tr": 28,
+                "tl": 238,
+                "tr": 238,
                 "bl": 28,
                 "br": 28
               },
@@ -493,7 +493,7 @@
               ],
               "decorative": false,
               "name": "agenda_title",
-              "max_length": 28,
+              "max_length": 24,
               "min_length": 4
             },
             {
@@ -1252,7 +1252,7 @@
               ],
               "decorative": false,
               "name": "section_title",
-              "max_length": 34,
+              "max_length": 28,
               "min_length": 4
             },
             {
@@ -1405,7 +1405,7 @@
               ],
               "decorative": false,
               "name": "narrative_title",
-              "max_length": 40,
+              "max_length": 32,
               "min_length": 6
             },
             {
@@ -1669,7 +1669,7 @@
               "focus_y": 50,
               "border_radius": {
                 "tl": 24,
-                "tr": 24,
+                "tr": 140,
                 "bl": 24,
                 "br": 24
               },
@@ -1831,7 +1831,7 @@
               },
               "runs": [
                 {
-                  "text": "Three ideas that guide every decision",
+                  "text": "Three ideas behind every decision",
                   "font": {
                     "size": 46,
                     "family": "DM Sans Bold",
@@ -1844,7 +1844,7 @@
               ],
               "decorative": false,
               "name": "cards_title",
-              "max_length": 44,
+              "max_length": 34,
               "min_length": 6
             },
             {
@@ -3165,7 +3165,7 @@
               ],
               "x_axis": true,
               "y_axis": true,
-              "axis_color": "#DEDAD1",
+              "axis_color": "#8C877D",
               "categories": [
                 "Q1",
                 "Q2",
@@ -5699,7 +5699,7 @@
                 "height": 80
               },
               "font": {
-                "size": 66,
+                "size": 56,
                 "family": "DM Sans Bold",
                 "color": "#16181D",
                 "line_height": 1.05,
@@ -5714,7 +5714,7 @@
                 {
                   "text": "42%",
                   "font": {
-                    "size": 66,
+                    "size": 56,
                     "family": "DM Sans Bold",
                     "color": "#16181D",
                     "line_height": 1.05,
@@ -5824,7 +5824,7 @@
                 "height": 80
               },
               "font": {
-                "size": 66,
+                "size": 56,
                 "family": "DM Sans Bold",
                 "color": "#16181D",
                 "line_height": 1.05,
@@ -5839,7 +5839,7 @@
                 {
                   "text": "3.1x",
                   "font": {
-                    "size": 66,
+                    "size": 56,
                     "family": "DM Sans Bold",
                     "color": "#16181D",
                     "line_height": 1.05,
@@ -5949,7 +5949,7 @@
                 "height": 80
               },
               "font": {
-                "size": 66,
+                "size": 56,
                 "family": "DM Sans Bold",
                 "color": "#16181D",
                 "line_height": 1.05,
@@ -5964,7 +5964,7 @@
                 {
                   "text": "96",
                   "font": {
-                    "size": 66,
+                    "size": 56,
                     "family": "DM Sans Bold",
                     "color": "#16181D",
                     "line_height": 1.05,
@@ -6845,7 +6845,7 @@
               },
               "size": {
                 "width": 120,
-                "height": 120
+                "height": 160
               },
               "font": {
                 "size": 160,
@@ -6870,7 +6870,7 @@
                   }
                 }
               ],
-              "decorative": false,
+              "decorative": true,
               "name": "pv_quote_mark",
               "max_length": 1,
               "min_length": 1
@@ -7191,7 +7191,7 @@
               ],
               "x_axis": true,
               "y_axis": true,
-              "axis_color": "#DEDAD1",
+              "axis_color": "#8C877D",
               "categories": [
                 "Q1",
                 "Q2",
@@ -8328,6 +8328,808 @@
           ]
         }
       ]
+    },
+    {
+      "id": "cover_decor",
+      "description": "Cover decoration: topographic contour lines bleeding off the lower left, a persimmon dot grid and an offset persimmon arch behind the photo.",
+      "variants": [
+        {
+          "id": "cover_decor",
+          "description": "Cover decoration: topographic contour lines bleeding off the lower left, a persimmon dot grid and an offset persimmon arch behind the photo.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 400
+              },
+              "size": {
+                "width": 340,
+                "height": 320
+              },
+              "data": "static/studio-contours-375-0-425-400.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 678,
+                "y": 20
+              },
+              "size": {
+                "width": 180,
+                "height": 108
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 752,
+                "y": 76
+              },
+              "size": {
+                "width": 476,
+                "height": 608
+              },
+              "fill": {
+                "color": "#E4572E",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 238,
+                "tr": 238,
+                "bl": 28,
+                "br": 28
+              },
+              "name": "decor_offset_arch"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "agenda_decor",
+      "description": "Agenda decoration: concentric rings bleeding off the lower-left corner and a small persimmon dot grid top right.",
+      "variants": [
+        {
+          "id": "agenda_decor",
+          "description": "Agenda decoration: concentric rings bleeding off the lower-left corner and a small persimmon dot grid top right.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 480
+              },
+              "size": {
+                "width": 300,
+                "height": 240
+              },
+              "data": "static/studio-rings-300-0-300-240.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 1076,
+                "y": 40
+              },
+              "size": {
+                "width": 140,
+                "height": 84
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_decor",
+      "description": "Section divider decoration: large graphite topographic contours bleeding off the top right and a persimmon dot grid lower left.",
+      "variants": [
+        {
+          "id": "section_decor",
+          "description": "Section divider decoration: large graphite topographic contours bleeding off the top right and a persimmon dot grid lower left.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 640,
+                "y": 0
+              },
+              "size": {
+                "width": 640,
+                "height": 560
+              },
+              "data": "static/studio-contours-0-254-624-546.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#3B3F47",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 76,
+                "y": 568
+              },
+              "size": {
+                "width": 140,
+                "height": 84
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "narrative_decor",
+      "description": "Narrative decoration: an offset persimmon block behind the photo (up and right) and a persimmon dot grid peeking out at its lower-left corner.",
+      "variants": [
+        {
+          "id": "narrative_decor",
+          "description": "Narrative decoration: an offset persimmon block behind the photo (up and right) and a persimmon dot grid peeking out at its lower-left corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 636,
+                "y": 560
+              },
+              "size": {
+                "width": 120,
+                "height": 72
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 732,
+                "y": 52
+              },
+              "size": {
+                "width": 496,
+                "height": 576
+              },
+              "fill": {
+                "color": "#E4572E",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 24,
+                "tr": 140,
+                "bl": 24,
+                "br": 24
+              },
+              "name": "decor_offset_block"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cards_decor",
+      "description": "Cards decoration: a soft halftone dot field fading in from the bottom-right corner.",
+      "variants": [
+        {
+          "id": "cards_decor",
+          "description": "Cards decoration: a soft halftone dot field fading in from the bottom-right corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 864,
+                "y": 520
+              },
+              "size": {
+                "width": 416,
+                "height": 200
+              },
+              "data": "static/studio-halftone-0-0-416-200.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_halftone",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "metrics_decor",
+      "description": "Metrics decoration: topographic contour lines bleeding off the top-right corner.",
+      "variants": [
+        {
+          "id": "metrics_decor",
+          "description": "Metrics decoration: topographic contour lines bleeding off the top-right corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 900,
+                "y": 0
+              },
+              "size": {
+                "width": 380,
+                "height": 280
+              },
+              "data": "static/studio-contours-0-450-475-350.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chart_decor",
+      "description": "Chart decoration: a persimmon dot grid top right and concentric rings bleeding off the bottom-right corner.",
+      "variants": [
+        {
+          "id": "chart_decor",
+          "description": "Chart decoration: a persimmon dot grid top right and concentric rings bleeding off the bottom-right corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 1040,
+                "y": 480
+              },
+              "size": {
+                "width": 240,
+                "height": 240
+              },
+              "data": "static/studio-rings-0-0-300-300.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 1088,
+                "y": 44
+              },
+              "size": {
+                "width": 120,
+                "height": 72
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "table_decor",
+      "description": "Table decoration: concentric rings bleeding off the bottom-right corner.",
+      "variants": [
+        {
+          "id": "table_decor",
+          "description": "Table decoration: concentric rings bleeding off the bottom-right corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 1000,
+                "y": 440
+              },
+              "size": {
+                "width": 280,
+                "height": 280
+              },
+              "data": "static/studio-rings-0-0-300-300.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv_cover_decor",
+      "description": "Presenter cover decoration: graphite contour lines bleeding off the lower left and a persimmon dot grid tucked behind the avatar frame.",
+      "variants": [
+        {
+          "id": "pv_cover_decor",
+          "description": "Presenter cover decoration: graphite contour lines bleeding off the lower left and a persimmon dot grid tucked behind the avatar frame.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 300
+              },
+              "size": {
+                "width": 440,
+                "height": 420
+              },
+              "data": "static/studio-contours-337-0-463-442.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#3B3F47",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 1112,
+                "y": 570
+              },
+              "size": {
+                "width": 140,
+                "height": 84
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv_points_decor",
+      "description": "Presenter points decoration: concentric rings behind the avatar frame top left and a soft halftone field bottom right.",
+      "variants": [
+        {
+          "id": "pv_points_decor",
+          "description": "Presenter points decoration: concentric rings behind the avatar frame top left and a soft halftone field bottom right.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 340,
+                "height": 340
+              },
+              "data": "static/studio-rings-236-236-364-364.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 880,
+                "y": 600
+              },
+              "size": {
+                "width": 400,
+                "height": 120
+              },
+              "data": "static/studio-halftone-0-0-400-120.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_halftone",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv_metrics_decor",
+      "description": "Presenter metrics decoration: persimmon dot grid peeking from behind the avatar frame and contour lines bleeding off the lower left.",
+      "variants": [
+        {
+          "id": "pv_metrics_decor",
+          "description": "Presenter metrics decoration: persimmon dot grid peeking from behind the avatar frame and contour lines bleeding off the lower left.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 560
+              },
+              "size": {
+                "width": 240,
+                "height": 160
+              },
+              "data": "static/studio-contours-457-0-343-229.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 836,
+                "y": 48
+              },
+              "size": {
+                "width": 150,
+                "height": 90
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv_spot_decor",
+      "description": "Presenter spotlight decoration: concentric rings radiating from behind the central avatar frame.",
+      "variants": [
+        {
+          "id": "pv_spot_decor",
+          "description": "Presenter spotlight decoration: concentric rings radiating from behind the central avatar frame.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 360,
+                "y": 80
+              },
+              "size": {
+                "width": 560,
+                "height": 560
+              },
+              "data": "static/studio-rings.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv_quote_decor",
+      "description": "Presenter quote decoration: graphite contour lines on the dark band behind the avatar frame and a halftone field lower left.",
+      "variants": [
+        {
+          "id": "pv_quote_decor",
+          "description": "Presenter quote decoration: graphite contour lines on the dark band behind the avatar frame and a halftone field lower left.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 610
+              },
+              "size": {
+                "width": 376,
+                "height": 110
+              },
+              "data": "static/studio-halftone-40-0-376-110.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_halftone",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv_quote_band_decor",
+      "description": "Graphite topographic contour lines on the dark presenter band.",
+      "variants": [
+        {
+          "id": "pv_quote_band_decor",
+          "description": "Graphite topographic contour lines on the dark presenter band.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 896,
+                "y": 0
+              },
+              "size": {
+                "width": 384,
+                "height": 460
+              },
+              "data": "static/studio-contours-0-187-512-613.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#3B3F47",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv_chart_decor",
+      "description": "Presenter chart decoration: persimmon dot grid peeking from behind the avatar frame and rings off the top-right corner.",
+      "variants": [
+        {
+          "id": "pv_chart_decor",
+          "description": "Presenter chart decoration: persimmon dot grid peeking from behind the avatar frame and rings off the top-right corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 1060,
+                "y": 0
+              },
+              "size": {
+                "width": 220,
+                "height": 220
+              },
+              "data": "static/studio-rings-0-300-300-300.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 868,
+                "y": 92
+              },
+              "size": {
+                "width": 140,
+                "height": 84
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv_steps_decor",
+      "description": "Presenter steps decoration: persimmon dot grid top right and a soft halftone field bottom right.",
+      "variants": [
+        {
+          "id": "pv_steps_decor",
+          "description": "Presenter steps decoration: persimmon dot grid top right and a soft halftone field bottom right.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 1088,
+                "y": 36
+              },
+              "size": {
+                "width": 120,
+                "height": 72
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 880,
+                "y": 628
+              },
+              "size": {
+                "width": 400,
+                "height": 92
+              },
+              "data": "static/studio-halftone-0-0-400-92.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_halftone",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pv_close_decor",
+      "description": "Closing decoration: a deep persimmon arc band bleeding off the lower left and pale rings behind the avatar frame.",
+      "variants": [
+        {
+          "id": "pv_close_decor",
+          "description": "Closing decoration: a deep persimmon arc band bleeding off the lower left and pale rings behind the avatar frame.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 560
+              },
+              "size": {
+                "width": 200,
+                "height": 160
+              },
+              "data": "static/studio-arc-92-0-308-246.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_arc",
+              "is_icon": false,
+              "color": "#B8402A",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 760,
+                "y": 0
+              },
+              "size": {
+                "width": 520,
+                "height": 480
+              },
+              "data": "static/studio-rings-0-150-488-450.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#F2A285",
+              "tint": true
+            }
+          ]
+        }
+      ]
     }
   ],
   "layouts": [
@@ -8369,6 +9171,74 @@
                 }
               ],
               "closed": true
+            }
+          ]
+        },
+        {
+          "id": "cover_decor",
+          "description": "Cover decoration: topographic contour lines bleeding off the lower left, a persimmon dot grid and an offset persimmon arch behind the photo.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 400
+              },
+              "size": {
+                "width": 340,
+                "height": 320
+              },
+              "data": "static/studio-contours-375-0-425-400.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 678,
+                "y": 20
+              },
+              "size": {
+                "width": 180,
+                "height": 108
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 752,
+                "y": 76
+              },
+              "size": {
+                "width": 476,
+                "height": 608
+              },
+              "fill": {
+                "color": "#E4572E",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 238,
+                "tr": 238,
+                "bl": 28,
+                "br": 28
+              },
+              "name": "decor_offset_arch"
             }
           ]
         },
@@ -8448,11 +9318,11 @@
                 "y": 40
               },
               "size": {
-                "width": 600,
-                "height": 216
+                "width": 620,
+                "height": 196
               },
               "font": {
-                "size": 66,
+                "size": 60,
                 "family": "DM Sans Bold",
                 "color": "#16181D",
                 "line_height": 1.02,
@@ -8467,7 +9337,7 @@
                 {
                   "text": "Designing the next decade",
                   "font": {
-                    "size": 66,
+                    "size": 60,
                     "family": "DM Sans Bold",
                     "color": "#16181D",
                     "line_height": 1.02,
@@ -8478,7 +9348,7 @@
               ],
               "decorative": false,
               "name": "cover_title",
-              "max_length": 40,
+              "max_length": 36,
               "min_length": 8
             },
             {
@@ -8647,8 +9517,8 @@
               "focus_x": 50,
               "focus_y": 50,
               "border_radius": {
-                "tl": 28,
-                "tr": 28,
+                "tl": 238,
+                "tr": 238,
                 "bl": 28,
                 "br": 28
               },
@@ -8699,6 +9569,52 @@
                 }
               ],
               "closed": true
+            }
+          ]
+        },
+        {
+          "id": "agenda_decor",
+          "description": "Agenda decoration: concentric rings bleeding off the lower-left corner and a small persimmon dot grid top right.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 480
+              },
+              "size": {
+                "width": 300,
+                "height": 240
+              },
+              "data": "static/studio-rings-300-0-300-240.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 1076,
+                "y": 40
+              },
+              "size": {
+                "width": 140,
+                "height": 84
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
             }
           ]
         },
@@ -8808,7 +9724,7 @@
               ],
               "decorative": false,
               "name": "agenda_title",
-              "max_length": 28,
+              "max_length": 24,
               "min_length": 4
             },
             {
@@ -9434,6 +10350,52 @@
           ]
         },
         {
+          "id": "section_decor",
+          "description": "Section divider decoration: large graphite topographic contours bleeding off the top right and a persimmon dot grid lower left.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 640,
+                "y": 0
+              },
+              "size": {
+                "width": 640,
+                "height": 560
+              },
+              "data": "static/studio-contours-0-254-624-546.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#3B3F47",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 76,
+                "y": 568
+              },
+              "size": {
+                "width": 140,
+                "height": 84
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        },
+        {
           "id": "section_number",
           "description": "Oversized persimmon chapter number anchoring the left of the slide.",
           "position": {
@@ -9549,7 +10511,7 @@
               ],
               "decorative": false,
               "name": "section_title",
-              "max_length": 34,
+              "max_length": 28,
               "min_length": 4
             },
             {
@@ -9630,6 +10592,56 @@
                 }
               ],
               "closed": true
+            }
+          ]
+        },
+        {
+          "id": "narrative_decor",
+          "description": "Narrative decoration: an offset persimmon block behind the photo (up and right) and a persimmon dot grid peeking out at its lower-left corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 636,
+                "y": 560
+              },
+              "size": {
+                "width": 120,
+                "height": 72
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            },
+            {
+              "type": "container",
+              "position": {
+                "x": 732,
+                "y": 52
+              },
+              "size": {
+                "width": 496,
+                "height": 576
+              },
+              "fill": {
+                "color": "#E4572E",
+                "opacity": 1
+              },
+              "border_radius": {
+                "tl": 24,
+                "tr": 140,
+                "bl": 24,
+                "br": 24
+              },
+              "name": "decor_offset_block"
             }
           ]
         },
@@ -9739,7 +10751,7 @@
               ],
               "decorative": false,
               "name": "narrative_title",
-              "max_length": 40,
+              "max_length": 32,
               "min_length": 6
             },
             {
@@ -9991,7 +11003,7 @@
               "focus_y": 50,
               "border_radius": {
                 "tl": 24,
-                "tr": 24,
+                "tr": 140,
                 "bl": 24,
                 "br": 24
               },
@@ -10092,6 +11104,34 @@
           ]
         },
         {
+          "id": "cards_decor",
+          "description": "Cards decoration: a soft halftone dot field fading in from the bottom-right corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 864,
+                "y": 520
+              },
+              "size": {
+                "width": 416,
+                "height": 200
+              },
+              "data": "static/studio-halftone-0-0-416-200.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_halftone",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            }
+          ]
+        },
+        {
           "id": "cards_heading",
           "description": "Eyebrow and headline on the left with an intro paragraph on the right.",
           "position": {
@@ -10184,7 +11224,7 @@
               },
               "runs": [
                 {
-                  "text": "Three ideas that guide every decision",
+                  "text": "Three ideas behind every decision",
                   "font": {
                     "size": 46,
                     "family": "DM Sans Bold",
@@ -10197,7 +11237,7 @@
               ],
               "decorative": false,
               "name": "cards_title",
-              "max_length": 44,
+              "max_length": 34,
               "min_length": 6
             },
             {
@@ -10717,6 +11757,34 @@
                 }
               ],
               "closed": true
+            }
+          ]
+        },
+        {
+          "id": "metrics_decor",
+          "description": "Metrics decoration: topographic contour lines bleeding off the top-right corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 900,
+                "y": 0
+              },
+              "size": {
+                "width": 380,
+                "height": 280
+              },
+              "data": "static/studio-contours-0-450-475-350.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
             }
           ]
         },
@@ -11402,6 +12470,52 @@
           ]
         },
         {
+          "id": "chart_decor",
+          "description": "Chart decoration: a persimmon dot grid top right and concentric rings bleeding off the bottom-right corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 1040,
+                "y": 480
+              },
+              "size": {
+                "width": 240,
+                "height": 240
+              },
+              "data": "static/studio-rings-0-0-300-300.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 1088,
+                "y": 44
+              },
+              "size": {
+                "width": 120,
+                "height": 72
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        },
+        {
           "id": "chart_heading",
           "description": "Eyebrow and headline above the chart.",
           "position": {
@@ -11568,7 +12682,7 @@
               ],
               "x_axis": true,
               "y_axis": true,
-              "axis_color": "#DEDAD1",
+              "axis_color": "#8C877D",
               "categories": [
                 "Q1",
                 "Q2",
@@ -11913,6 +13027,34 @@
                 }
               ],
               "closed": true
+            }
+          ]
+        },
+        {
+          "id": "table_decor",
+          "description": "Table decoration: concentric rings bleeding off the bottom-right corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 1000,
+                "y": 440
+              },
+              "size": {
+                "width": 280,
+                "height": 280
+              },
+              "data": "static/studio-rings-0-0-300-300.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
             }
           ]
         },
@@ -12754,6 +13896,52 @@
           ]
         },
         {
+          "id": "pv_cover_decor",
+          "description": "Presenter cover decoration: graphite contour lines bleeding off the lower left and a persimmon dot grid tucked behind the avatar frame.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 300
+              },
+              "size": {
+                "width": 440,
+                "height": 420
+              },
+              "data": "static/studio-contours-337-0-463-442.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#3B3F47",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 1112,
+                "y": 570
+              },
+              "size": {
+                "width": 140,
+                "height": 84
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        },
+        {
           "id": "pv_cover_frame",
           "description": "Persimmon hairline frame around a graphite panel for the presenter avatar video on dark slides.",
           "position": {
@@ -13135,6 +14323,52 @@
                 }
               ],
               "closed": true
+            }
+          ]
+        },
+        {
+          "id": "pv_points_decor",
+          "description": "Presenter points decoration: concentric rings behind the avatar frame top left and a soft halftone field bottom right.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "size": {
+                "width": 340,
+                "height": 340
+              },
+              "data": "static/studio-rings-236-236-364-364.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 880,
+                "y": 600
+              },
+              "size": {
+                "width": 400,
+                "height": 120
+              },
+              "data": "static/studio-halftone-0-0-400-120.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_halftone",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
             }
           ]
         },
@@ -13823,6 +15057,52 @@
           ]
         },
         {
+          "id": "pv_metrics_decor",
+          "description": "Presenter metrics decoration: persimmon dot grid peeking from behind the avatar frame and contour lines bleeding off the lower left.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 560
+              },
+              "size": {
+                "width": 240,
+                "height": 160
+              },
+              "data": "static/studio-contours-457-0-343-229.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 836,
+                "y": 48
+              },
+              "size": {
+                "width": 150,
+                "height": 90
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        },
+        {
           "id": "pv_metrics_heading",
           "description": "Eyebrow, headline and context line above the KPI cards.",
           "position": {
@@ -14037,7 +15317,7 @@
                 "height": 80
               },
               "font": {
-                "size": 66,
+                "size": 56,
                 "family": "DM Sans Bold",
                 "color": "#16181D",
                 "line_height": 1.05,
@@ -14052,7 +15332,7 @@
                 {
                   "text": "42%",
                   "font": {
-                    "size": 66,
+                    "size": 56,
                     "family": "DM Sans Bold",
                     "color": "#16181D",
                     "line_height": 1.05,
@@ -14162,7 +15442,7 @@
                 "height": 80
               },
               "font": {
-                "size": 66,
+                "size": 56,
                 "family": "DM Sans Bold",
                 "color": "#16181D",
                 "line_height": 1.05,
@@ -14177,7 +15457,7 @@
                 {
                   "text": "3.1x",
                   "font": {
-                    "size": 66,
+                    "size": 56,
                     "family": "DM Sans Bold",
                     "color": "#16181D",
                     "line_height": 1.05,
@@ -14287,7 +15567,7 @@
                 "height": 80
               },
               "font": {
-                "size": 66,
+                "size": 56,
                 "family": "DM Sans Bold",
                 "color": "#16181D",
                 "line_height": 1.05,
@@ -14302,7 +15582,7 @@
                 {
                   "text": "96",
                   "font": {
-                    "size": 66,
+                    "size": 56,
                     "family": "DM Sans Bold",
                     "color": "#16181D",
                     "line_height": 1.05,
@@ -14484,6 +15764,34 @@
                 }
               ],
               "closed": true
+            }
+          ]
+        },
+        {
+          "id": "pv_spot_decor",
+          "description": "Presenter spotlight decoration: concentric rings radiating from behind the central avatar frame.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 360,
+                "y": 80
+              },
+              "size": {
+                "width": 560,
+                "height": 560
+              },
+              "data": "static/studio-rings.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
             }
           ]
         },
@@ -15196,6 +16504,34 @@
           ]
         },
         {
+          "id": "pv_quote_decor",
+          "description": "Presenter quote decoration: graphite contour lines on the dark band behind the avatar frame and a halftone field lower left.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 610
+              },
+              "size": {
+                "width": 376,
+                "height": 110
+              },
+              "data": "static/studio-halftone-40-0-376-110.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_halftone",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            }
+          ]
+        },
+        {
           "id": "pv_quote_band",
           "description": "Full-height deep ink band on the right that hosts the presenter avatar video.",
           "position": {
@@ -15217,6 +16553,34 @@
                 "color": "#16181D",
                 "opacity": 1
               }
+            }
+          ]
+        },
+        {
+          "id": "pv_quote_band_decor",
+          "description": "Graphite topographic contour lines on the dark presenter band.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 896,
+                "y": 0
+              },
+              "size": {
+                "width": 384,
+                "height": 460
+              },
+              "data": "static/studio-contours-0-187-512-613.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_contours",
+              "is_icon": false,
+              "color": "#3B3F47",
+              "tint": true
             }
           ]
         },
@@ -15326,7 +16690,7 @@
               },
               "size": {
                 "width": 120,
-                "height": 120
+                "height": 160
               },
               "font": {
                 "size": 160,
@@ -15351,7 +16715,7 @@
                   }
                 }
               ],
-              "decorative": false,
+              "decorative": true,
               "name": "pv_quote_mark",
               "max_length": 1,
               "min_length": 1
@@ -15537,6 +16901,52 @@
           ]
         },
         {
+          "id": "pv_chart_decor",
+          "description": "Presenter chart decoration: persimmon dot grid peeking from behind the avatar frame and rings off the top-right corner.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 1060,
+                "y": 0
+              },
+              "size": {
+                "width": 220,
+                "height": 220
+              },
+              "data": "static/studio-rings-0-300-300-300.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 868,
+                "y": 92
+              },
+              "size": {
+                "width": 140,
+                "height": 84
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            }
+          ]
+        },
+        {
           "id": "pv_chart_heading",
           "description": "Eyebrow and headline above the chart card.",
           "position": {
@@ -15703,7 +17113,7 @@
               ],
               "x_axis": true,
               "y_axis": true,
-              "axis_color": "#DEDAD1",
+              "axis_color": "#8C877D",
               "categories": [
                 "Q1",
                 "Q2",
@@ -15916,6 +17326,52 @@
                 }
               ],
               "closed": true
+            }
+          ]
+        },
+        {
+          "id": "pv_steps_decor",
+          "description": "Presenter steps decoration: persimmon dot grid top right and a soft halftone field bottom right.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 1088,
+                "y": 36
+              },
+              "size": {
+                "width": 120,
+                "height": 72
+              },
+              "data": "static/studio-dots.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_dots",
+              "is_icon": false,
+              "color": "#E4572E",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 880,
+                "y": 628
+              },
+              "size": {
+                "width": 400,
+                "height": 92
+              },
+              "data": "static/studio-halftone-0-0-400-92.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_halftone",
+              "is_icon": false,
+              "color": "#DEDAD1",
+              "tint": true
             }
           ]
         },
@@ -16621,6 +18077,52 @@
                 }
               ],
               "closed": true
+            }
+          ]
+        },
+        {
+          "id": "pv_close_decor",
+          "description": "Closing decoration: a deep persimmon arc band bleeding off the lower left and pale rings behind the avatar frame.",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "elements": [
+            {
+              "type": "image",
+              "position": {
+                "x": 0,
+                "y": 560
+              },
+              "size": {
+                "width": 200,
+                "height": 160
+              },
+              "data": "static/studio-arc-92-0-308-246.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_arc",
+              "is_icon": false,
+              "color": "#B8402A",
+              "tint": true
+            },
+            {
+              "type": "image",
+              "position": {
+                "x": 760,
+                "y": 0
+              },
+              "size": {
+                "width": 520,
+                "height": 480
+              },
+              "data": "static/studio-rings-0-150-488-450.svg",
+              "fit": "fill",
+              "decorative": true,
+              "name": "decor_rings",
+              "is_icon": false,
+              "color": "#F2A285",
+              "tint": true
             }
           ]
         },

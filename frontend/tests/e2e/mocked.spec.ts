@@ -573,6 +573,36 @@ test.describe('motion editor (mocked)', () => {
     expect(await layer.getAttribute('style')).toBe(before)
     expect(unexpected, 'API calls without a mock').toEqual([])
   })
+
+  test('motion editor: the slide and the timeline share one selection', async ({ page }) => {
+    await open(page)
+    const timeline = page.getByRole('region', { name: 'Animation timeline' })
+    const track = (i: number) => timeline.locator('[data-motion-track]').nth(i)
+    const selectionBox = page.locator('[data-selection-box]')
+
+    // A track picks its element on the slide: the selection box sits on that element's layer.
+    await track(2).getByRole('button').first().click()
+    await expect(track(2)).toHaveClass(/is-selected/)
+    await expect(selectionBox).toBeVisible()
+    // Each layer wrapper spans the stage: its drawn element is its child.
+    const drawn = (id: string) => page.locator(`[data-hf-el="${id}"] > *`).first()
+    const layer = await drawn('e2').boundingBox()
+    const boxed = await selectionBox.boundingBox()
+    if (!layer || !boxed) throw new Error('no layer or selection box')
+    expect(Math.abs(boxed.x + boxed.width / 2 - (layer.x + layer.width / 2))).toBeLessThan(4)
+    expect(Math.abs(boxed.y + boxed.height / 2 - (layer.y + layer.height / 2))).toBeLessThan(4)
+
+    // Keys on the focused track are the timeline's, never the slide element's.
+    await page.keyboard.press('Delete')
+    await expect(page.locator('[data-hf-el="e2"]')).toBeAttached()
+
+    // An element picked on the slide picks its track.
+    const headline = await drawn('e1').boundingBox()
+    if (!headline) throw new Error('no headline layer')
+    await page.mouse.click(headline.x + headline.width / 2, headline.y + headline.height / 2)
+    await expect(track(1)).toHaveClass(/is-selected/)
+    await expect(track(2)).not.toHaveClass(/is-selected/)
+  })
 })
 
 test.describe('present mode motion (mocked)', () => {

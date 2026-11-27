@@ -21,6 +21,7 @@ import { slideLabel } from '@/lib/slide-label'
 import { useSelectionScope } from '@/composables/useSelectionScope'
 import { useSlideEditing } from '@/slide-editor/useSlideEditing'
 import { animationKeys, provideSlideAnimation } from '@/composables/useSlideAnimation'
+import { useMotionSelectionSync } from '@/composables/useMotionSelectionSync'
 import { useQueryClient } from '@tanstack/vue-query'
 import { usePlanMotionAfterGeneration } from '@/composables/usePlanMotionAfterGeneration'
 import AiProgress from '@/components/shell/AiProgress.vue'
@@ -108,11 +109,13 @@ useSelectionScope(editing)
 // No slide → an index no slide has, so no plan is found and every edit is a no-op.
 const NO_SLIDE = { id: null, index: -1 } as unknown as Slide
 // The motion read renders the whole deck server-side: it waits until the deck has finished streaming in.
-provideSlideAnimation(
+const slideAnimation = provideSlideAnimation(
   id,
   computed(() => activeSlide.value ?? NO_SLIDE),
   computed(() => !generating.value),
 )
+// Selecting an element on the slide selects its motion track, and the other way round.
+useMotionSelectionSync(editing, slideAnimation)
 const notFound = computed(() => error.value instanceof ApiError && error.value.status === 404)
 
 </script>

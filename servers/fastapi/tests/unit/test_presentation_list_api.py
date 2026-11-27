@@ -100,3 +100,31 @@ def test_get_all_presentations_can_skip_slide_preview_join():
     assert "WHERE presentations.version = 'v1-standard'" in compiled
     assert "JOIN slides" not in compiled
     assert "ORDER BY presentations.created_at DESC" in compiled
+
+
+def test_get_all_presentations_reports_total_slide_count_with_preview_slide():
+    from models.sql.slide import SlideModel
+
+    now = datetime.now(timezone.utc)
+    deck = PresentationModel(
+        content="Deck",
+        n_slides=3,
+        language="en",
+        created_at=now,
+        updated_at=now,
+    )
+    first_slide = SlideModel(
+        presentation=deck.id, layout_group="g", layout="l", index=0, content={}
+    )
+    session = _CapturingAsyncSession([(deck, first_slide, 7)])
+
+    response = asyncio.run(
+        presentation_endpoint.get_all_presentations(sql_session=session)
+    )
+
+    assert len(response) == 1
+    assert len(response[0].slides) == 1
+    assert response[0].slide_count == 7
+    compiled = _compile_statement(session.executed_statement)
+    assert "(SELECT count(slides_1.id)" in compiled
+    assert "slides.\"index\" = 0" in compiled or "slides.index = 0" in compiled

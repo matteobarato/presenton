@@ -13,7 +13,8 @@
       "topicHeading": "Every great story starts somewhere.",
       "topicLede": "Say what it’s about, pick a look and set the basics. Next you choose who presents; you review the outline before any slides are made.",
       "presenterHeading": "Who presents?",
-      "presenterLede": "Add a photo and your digital presenter appears as a talking video on the slides that call for one. Or keep the deck voice-only."
+      "presenterLede": "Add a photo and your digital presenter appears as a talking video on the slides that call for one. Or keep the deck voice-only.",
+      "pptxLede": "Upload a PowerPoint: its slides and design are kept. Next you choose who presents, then review the slides."
     },
     "locked": "Create the outline first",
     "documentCount": "{count} document | {count} documents",
@@ -22,6 +23,7 @@
     "lookTitle": "Pick a look",
     "lookPlaceholder": "Choose a template for your slides.",
     "filesLost": "Re-add your documents; files aren't kept after a reload.",
+    "pptxLost": "Upload your PowerPoint again; files can’t be kept across a reload.",
     "languageNeeded": "Documents need a language.",
     "chooseLanguage": "Choose one",
     "templatesFailed": "Templates couldn’t load. Reload the page to try again.",
@@ -30,28 +32,41 @@
     "stage": {
       "documents": "Processing documents…",
       "outline": "Preparing outline…",
-      "photo": "Uploading your presenter photo…"
+      "photo": "Uploading your presenter photo…",
+      "import": "Importing slides…"
     },
     "blockers": {
       "topic": "Add a topic or a document",
-      "look": "Pick a template"
+      "look": "Pick a template",
+      "deck": "Upload a PowerPoint",
+      "language": "Choose the narration language"
     },
     "lockedNotice": {
       "presenter": "Create the outline first: it opens the next steps",
-      "topic": "Create the outline first: continue to Presenter, then choose Create outline"
+      "topic": "Create the outline first: continue to Presenter, then choose Create outline",
+      "importPresenter": "Import the slides first: it opens the next steps",
+      "importTopic": "Import the slides first: continue to Presenter, then choose Import slides"
     },
     "status": {
       "noPhoto": "No photo yet: this deck will be voice only",
       "outlineCount": "Writes an outline for {count} slide | Writes an outline for {count} slides",
       "outlineAuto": "Writes an outline; the slide count is chosen automatically",
-      "noSlidesYet": "No slides are made until you approve it."
+      "noSlidesYet": "No slides are made until you approve it.",
+      "importCount": "Imports {count} slide, design and all | Imports {count} slides, design and all"
     },
     "nextPresenter": "Next: Presenter",
     "createOutline": "Create outline",
     "working": "Working…",
     "startFailed": "Couldn’t start your presentation",
     "startRetry": "Try Create outline again; your topic and settings are kept.",
-    "photoUploadFailed": "Your presenter photo didn’t upload, so the deck is voice only for now. Add it again under Presenter and language on the Narration step."
+    "photoUploadFailed": "Your presenter photo didn’t upload, so the deck is voice only for now. Add it again under Presenter and language on the Narration step.",
+    "pptxSummary": "{name} · {count} slide | {name} · {count} slides",
+    "pptxHint": "Keep its design?",
+    "pptxHintSwitch": "Switch to From PowerPoint",
+    "lockedImport": "Import the slides first",
+    "importSlides": "Import slides",
+    "importFailed": "Couldn’t import your PowerPoint",
+    "importRetry": "Try Import slides again; your deck and settings are kept."
   },
   "presentation": {
     "loading": "Loading presentation",
@@ -144,7 +159,8 @@
     "none": "No templates",
     "noneHint": "There are no templates to show yet.",
     "loadFailed": "Could not load templates",
-    "retry": "Retry"
+    "retry": "Retry",
+    "import": "Import PowerPoint"
   },
   "settings": {
     "title": "Settings",

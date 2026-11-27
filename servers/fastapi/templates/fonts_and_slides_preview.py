@@ -71,6 +71,7 @@ class FontsUploadAndSlidesPreviewResponse(BaseModel):
     pptx_url: str
     modified_pptx_url: str
     fonts: dict
+    original_slide_count: Optional[int] = None
 
 
 def _selected_google_font_maps(
@@ -195,6 +196,20 @@ def _preview_dimensions_from_pptx(pptx_path: str) -> Tuple[int, int]:
         )
     except (KeyError, OSError, ValueError, zipfile.BadZipFile, ET.ParseError):
         return PREVIEW_WIDTH, PREVIEW_HEIGHT
+
+
+def _count_pptx_slides(pptx_path: str) -> Optional[int]:
+    """Number of slides listed in ppt/presentation.xml, or None if unreadable."""
+    try:
+        with zipfile.ZipFile(pptx_path, "r") as archive:
+            presentation_xml = archive.read("ppt/presentation.xml")
+        root = ET.fromstring(presentation_xml)
+        slide_id_list = root.find("p:sldIdLst", PPT_NS)
+        if slide_id_list is None:
+            return 0
+        return len(slide_id_list.findall("p:sldId", PPT_NS))
+    except (KeyError, OSError, zipfile.BadZipFile, ET.ParseError):
+        return None
 
 
 def _css_string(value: str) -> str:
@@ -1358,6 +1373,7 @@ async def upload_fonts_and_preview_handler(
         await asyncio.to_thread(_write_bytes_to_path, pptx_path, pptx_content)
         await asyncio.to_thread(_validate_pptx_package, pptx_path)
         logger.info(f"Saved PPTX file to {pptx_path}")
+        original_slide_count = await asyncio.to_thread(_count_pptx_slides, pptx_path)
         pptx_path = await asyncio.to_thread(
             _trim_pptx_to_max_slides,
             pptx_path,
@@ -1450,6 +1466,7 @@ async def upload_fonts_and_preview_handler(
             pptx_url=modified_pptx_url,
             modified_pptx_url=modified_pptx_url,
             fonts=fonts,
+            original_slide_count=original_slide_count,
         )
 
 

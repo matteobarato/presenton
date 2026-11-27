@@ -29,7 +29,7 @@ function num(v: string | number): number | null {
     <div class="flex flex-col gap-1.5">
       <Label for="mp4-language">{{ t('editor.export.options.language') }}</Label>
       <Select v-model="form.language" :disabled="disabled">
-        <SelectTrigger id="mp4-language" data-testid="mp4-language">:placeholder="t('editor.export.options.chooseLanguage')" /></SelectTrigger>
+        <SelectTrigger id="mp4-language" data-testid="mp4-language"><SelectValue :placeholder="t('editor.export.options.chooseLanguage')" /></SelectTrigger>
         <SelectContent>
           <SelectItem v-for="l in languages" :key="l.code" :value="l.code">{{ l.name }}</SelectItem>
         </SelectContent>
