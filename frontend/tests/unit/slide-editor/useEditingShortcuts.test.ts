@@ -219,6 +219,20 @@ describe('useEditingShortcuts races', () => {
 })
 
 describe('useEditingShortcuts', () => {
+  it('keys pressed in the motion editor never edit the selected slide element', async () => {
+    const { ctx, wrapper } = setup({ selection: { kind: 'component', componentIndex: 0 } })
+    const scope = document.createElement('section')
+    scope.setAttribute('data-motion-keys', '')
+    const track = document.createElement('button')
+    scope.appendChild(track)
+    document.body.appendChild(scope)
+    for (const key of ['ArrowRight', 'Delete', 'Backspace']) expect(press(key, {}, track).defaultPrevented).toBe(false)
+    await flush()
+    expect(ctx.commit).not.toHaveBeenCalled()
+    scope.remove()
+    wrapper.unmount()
+  })
+
   it('ArrowRight with a selection nudges and prevents default (so slide navigation cannot run)', async () => {
     const { ctx, wrapper } = setup({ selection: { kind: 'component', componentIndex: 0 } })
     const e = press('ArrowRight')

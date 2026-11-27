@@ -179,7 +179,7 @@ function askReplan() {
 </script>
 
 <template>
-  <section class="motion-timeline" :aria-label="t('editor.motion.animationTimeline')">
+  <section class="motion-timeline" data-motion-keys :aria-label="t('editor.motion.animationTimeline')">
     <div class="motion-header">
       <strong class="text-[11px] font-semibold text-tx-d4e7ef">{{ t('editor.motion.timeline') }}</strong>
       <div class="motion-transport">
