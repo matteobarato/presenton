@@ -54,9 +54,9 @@ def _oauth_config() -> tuple[str, str]:
 
 
 def _can_manage_provider(current_user: User | None) -> bool:
-    # Electron is intentionally started with DISABLE_AUTH=true and is treated as
-    # an administrator everywhere else in the local auth API. Keep the cloud
-    # provider controls consistent with that single-user desktop runtime.
+    # With DISABLE_AUTH=true the caller is treated as an administrator
+    # everywhere else in the local auth API. Keep the cloud provider controls
+    # consistent with that single-user runtime.
     return is_disable_auth_enabled() or bool(
         current_user and current_user.is_superuser
     )

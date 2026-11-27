@@ -19,7 +19,6 @@ from utils.get_env import (
     get_presentation_generation_mode,
     get_presenton_public_url,
     is_disable_auth_enabled,
-    is_presenton_electron_desktop,
 )
 from services.database import async_session_maker
 from services.api_keys import API_KEY_PREFIX, verify_api_key
@@ -317,11 +316,6 @@ class PresentonTokenVerifier(TokenVerifier):
         )
 
 
-def is_mcp_server_enabled() -> bool:
-    """MCP is only supported in server/Docker deployments, not the Electron app."""
-    return not is_presenton_electron_desktop()
-
-
 def create_mcp_auth_provider() -> TokenVerifier | None:
     """Require user-scoped bearer auth whenever server auth is enabled."""
     if is_disable_auth_enabled():
@@ -417,13 +411,6 @@ async def attach_request_auth_header(request: httpx.Request | httpx2.Request) ->
 
 async def main():
     try:
-        if not is_mcp_server_enabled():
-            print(
-                "INFO: MCP server is disabled in the Presenton Electron desktop app "
-                "(PRESENTON_ELECTRON=true)."
-            )
-            return
-
         print("DEBUG: MCP (OpenAPI) Server startup initiated")
         parser = argparse.ArgumentParser(
             description="Run the MCP server (from OpenAPI)"

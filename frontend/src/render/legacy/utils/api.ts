@@ -1,6 +1,6 @@
 // Shim for servers/nextjs/utils/api.ts @ 7cb5ab44. Local copy of the asset and
 // error helpers the renderer uses, with fixed same-origin behaviour (no
-// Electron / FastAPI URL override), so relative backend paths stay relative.
+// FastAPI URL override), so relative backend paths stay relative.
 import { extractApiErrorMessage } from "./apiErrorMessages";
 
 export type BackendAssetLike = {

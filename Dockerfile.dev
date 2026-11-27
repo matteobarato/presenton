@@ -57,7 +57,7 @@ RUN mkdir -p /app/document-extraction-liteparse \
     && cd /app/document-extraction-liteparse \
     && npm init -y \
     && npm install @llamaindex/liteparse@1.5.2 --omit=dev
-COPY electron/resources/document-extraction/liteparse_runner.mjs /app/document-extraction-liteparse/liteparse_runner.mjs
+COPY resources/document-extraction/liteparse_runner.mjs /app/document-extraction-liteparse/liteparse_runner.mjs
 
 # Installed outside /app because the dev bind mount (`.:/app`) would hide it.
 COPY video-render-hyperframes/package.json video-render-hyperframes/package-lock.json /opt/video-render-hyperframes/

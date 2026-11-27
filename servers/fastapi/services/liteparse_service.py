@@ -171,23 +171,6 @@ class LiteParseService:
                     "liteparse_runner.mjs",
                 )
             ),
-            # PyInstaller bundle layout
-            os.path.abspath(
-                os.path.join(
-                    cwd, "..", "..", "app", "resources", "document-extraction", "liteparse_runner.mjs"
-                )
-            ),
-            os.path.abspath(
-                os.path.join(
-                    cwd,
-                    "..",
-                    "..",
-                    "electron",
-                    "resources",
-                    "document-extraction",
-                    "liteparse_runner.mjs",
-                )
-            ),
         ]
         for path in candidates:
             if os.path.isfile(path):

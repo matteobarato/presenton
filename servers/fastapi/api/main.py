@@ -82,10 +82,10 @@ static_dir = get_resource_path("static")
 if os.path.isdir(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-# Electron serves Next.js and FastAPI from separate loopback ports. When its
-# runtime Next.js origin is available, use that exact origin so credentialed
-# requests remain standards-compliant. Docker stays same-origin behind nginx;
-# the wildcard fallback preserves standalone FastAPI development behavior.
+# When the UI is served from a separate origin (NEXT_PUBLIC_URL), allow exactly
+# that origin so credentialed requests remain standards-compliant. Docker stays
+# same-origin behind nginx; the wildcard fallback preserves standalone FastAPI
+# development behavior.
 next_public_origin = (os.getenv("NEXT_PUBLIC_URL") or "").strip().rstrip("/")
 origins = [next_public_origin] if next_public_origin else ["*"]
 app.add_middleware(

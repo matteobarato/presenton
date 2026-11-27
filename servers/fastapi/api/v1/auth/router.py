@@ -70,7 +70,7 @@ async def get_status(
         return {
             "configured": True,
             "authenticated": True,
-            "username": "electron",
+            "username": "local",
             "user_id": None,
             "role": "admin",
         }
@@ -92,7 +92,7 @@ async def verify_session(
     if is_disable_auth_enabled():
         return {
             "authenticated": True,
-            "username": "electron",
+            "username": "local",
             "role": "admin",
             "method": "local",
         }

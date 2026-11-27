@@ -59,7 +59,7 @@ RUN mkdir -p /app/document-extraction-liteparse \
     && npm init -y \
     && npm install @llamaindex/liteparse@1.5.2 --omit=dev
 
-COPY electron/resources/document-extraction/liteparse_runner.mjs /app/document-extraction-liteparse/liteparse_runner.mjs
+COPY resources/document-extraction/liteparse_runner.mjs /app/document-extraction-liteparse/liteparse_runner.mjs
 COPY scripts/sync-presentation-export.cjs /app/scripts/sync-presentation-export.cjs
 COPY scripts/run-presentation-export.mjs /app/scripts/run-presentation-export.mjs
 RUN rm -rf /app/presentation-export \
@@ -82,7 +82,7 @@ ARG INSTALL_TESSERACT=true
 ARG CHROMIUM_VERSION=149.0.7827.196-1~deb13u1
 ARG CHROMIUM_SNAPSHOT=20260625T180000Z
 
-# LiteParse uses Node + @llamaindex/liteparse (same runner as Electron); OCR uses Tesseract.
+# LiteParse uses Node + @llamaindex/liteparse; OCR uses Tesseract.
 ENV APP_DATA_DIRECTORY=/app_data \
     TEMP_DIRECTORY=/tmp/presenton \
     EXPORT_PACKAGE_ROOT=/app/presentation-export \
