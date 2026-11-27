@@ -1,0 +1,215 @@
+{
+  "id": "title_chevron_process_0003",
+  "description": "Headline and short intro above a full-width chevron process infographic with three to five steps, each with a heading and one-line description. Use for workflows, methodologies, rollout plans or any left-to-right sequence.",
+  "components": [
+    {
+      "id": "slide_background",
+      "description": "Full-slide background in the template's base color.",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "elements": [
+        {
+          "type": "vector",
+          "shape": "polygon",
+          "fill": {
+            "color": "#FFFFFF",
+            "opacity": 1
+          },
+          "points": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 1280,
+              "y": 0
+            },
+            {
+              "x": 1280,
+              "y": 720
+            },
+            {
+              "x": 0,
+              "y": 720
+            }
+          ],
+          "closed": true
+        }
+      ]
+    },
+    {
+      "id": "header_block",
+      "description": "Slide headline with a short intro line.",
+      "position": {
+        "x": 64,
+        "y": 56
+      },
+      "elements": [
+        {
+          "type": "text",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 1152,
+            "height": 48
+          },
+          "font": {
+            "size": 36,
+            "family": "Montserrat",
+            "color": "#234CD9",
+            "line_height": 1.25,
+            "bold": true
+          },
+          "alignment": {
+            "horizontal": "left",
+            "vertical": "top"
+          },
+          "runs": [
+            {
+              "text": "How we deliver, step by step",
+              "font": {
+                "size": 36,
+                "family": "Montserrat",
+                "color": "#234CD9",
+                "line_height": 1.25,
+                "bold": true
+              }
+            }
+          ],
+          "decorative": false,
+          "name": "title",
+          "min_length": 16,
+          "max_length": 48
+        },
+        {
+          "type": "text",
+          "position": {
+            "x": 0,
+            "y": 60
+          },
+          "size": {
+            "width": 900,
+            "height": 52
+          },
+          "font": {
+            "size": 18,
+            "family": "Montserrat",
+            "color": "#334155",
+            "line_height": 1.3
+          },
+          "alignment": {
+            "horizontal": "left",
+            "vertical": "top"
+          },
+          "runs": [
+            {
+              "text": "A repeatable process that turns a raw idea into a shipped, measured result.",
+              "font": {
+                "size": 18,
+                "family": "Montserrat",
+                "color": "#334155",
+                "line_height": 1.3
+              }
+            }
+          ],
+          "decorative": false,
+          "name": "intro",
+          "min_length": 40,
+          "max_length": 120
+        }
+      ]
+    },
+    {
+      "id": "process_infographic",
+      "description": "Chevron process infographic, three to five steps.",
+      "position": {
+        "x": 64,
+        "y": 200
+      },
+      "elements": [
+        {
+          "type": "infographic",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 1152,
+            "height": 400
+          },
+          "data": {
+            "type": "chevron_process",
+            "items": [
+              {
+                "heading": "Discover",
+                "description": "Research the opportunity."
+              },
+              {
+                "heading": "Design",
+                "description": "Shape the solution."
+              },
+              {
+                "heading": "Deliver",
+                "description": "Ship in small steps."
+              },
+              {
+                "heading": "Measure",
+                "description": "Learn from the results."
+              }
+            ]
+          },
+          "colors": [
+            "#234CD9",
+            "#3B82F6",
+            "#F59E0B",
+            "#334155"
+          ],
+          "text_color": "#334155",
+          "decorative": false,
+          "name": "process_steps"
+        }
+      ]
+    },
+    {
+      "id": "accent_rule",
+      "description": "Thin accent rule anchoring the bottom of the slide.",
+      "position": {
+        "x": 64,
+        "y": 648
+      },
+      "elements": [
+        {
+          "type": "vector",
+          "shape": "polygon",
+          "fill": {
+            "color": "#F59E0B",
+            "opacity": 1
+          },
+          "points": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 120,
+              "y": 0
+            },
+            {
+              "x": 120,
+              "y": 4
+            },
+            {
+              "x": 0,
+              "y": 4
+            }
+          ],
+          "closed": true
+        }
+      ]
+    }
+  ]
+}
