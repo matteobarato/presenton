@@ -169,6 +169,8 @@
       "queued": "Queued...",
       "dismiss": "Dismiss",
       "downloadMp4": "Download MP4",
+      "hideCaptions": "Hide captions",
+      "showCaptions": "Show captions",
       "deleteTitle": "Delete this video?",
       "deleteDescription": "The rendered MP4 file will be removed. You can render it again later."
     },

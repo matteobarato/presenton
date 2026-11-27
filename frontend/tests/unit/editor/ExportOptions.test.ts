@@ -138,6 +138,31 @@ describe('ExportOptions video', () => {
     expect(w.find('[data-testid="mp4-video"]').exists()).toBe(false)
   })
 
+  it('plays soft subtitles as a track and toggles them with the captions button', async () => {
+    m.getVideoExport.mockResolvedValue({ ...video, language_name: 'Italian', subtitles_mode: 'soft', subtitle_url: '/app_data/exports/v.vtt' })
+    const w = mountTab()
+    await flushPromises()
+    const track = w.get('[data-testid="mp4-video"] track')
+    expect(track.attributes('src')).toBe('/app_data/exports/v.vtt')
+    expect(track.attributes('srclang')).toBe('it')
+    const btn = w.get('[data-testid="mp4-captions"]')
+    expect(track.attributes('default')).toBeUndefined()
+    expect(btn.attributes('aria-pressed')).toBe('false')
+    expect(btn.text()).toContain('Show captions')
+    await btn.trigger('click')
+    expect(btn.attributes('aria-pressed')).toBe('true')
+    expect(btn.text()).toContain('Hide captions')
+  })
+
+  it('has no captions button when the video has no subtitle file', async () => {
+    m.getVideoExport.mockResolvedValue({ ...video, subtitles_mode: 'burned', subtitle_url: null })
+    const w = mountTab()
+    await flushPromises()
+    expect(w.find('[data-testid="mp4-video"]').exists()).toBe(true)
+    expect(w.find('[data-testid="mp4-video"] track').exists()).toBe(false)
+    expect(w.find('[data-testid="mp4-captions"]').exists()).toBe(false)
+  })
+
   it('shows a validation error inline', async () => {
     m.startVideoExport.mockRejectedValue(new ApiError('Unsupported language', 422))
     const w = mountTab()

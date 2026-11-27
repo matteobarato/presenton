@@ -169,6 +169,8 @@
       "queued": "In coda...",
       "dismiss": "Chiudi",
       "downloadMp4": "Scarica MP4",
+      "hideCaptions": "Nascondi sottotitoli",
+      "showCaptions": "Mostra sottotitoli",
       "deleteTitle": "Eliminare questo video?",
       "deleteDescription": "Il file MP4 generato verrà rimosso. Potrai generarlo di nuovo più tardi."
     },

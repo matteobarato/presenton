@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { computed, onMounted, reactive, ref, toRef, watch } from 'vue'
-import { Download, Film, Loader2, Trash2 } from 'lucide-vue-next'
+import { Captions, CaptionsOff, Download, Film, Loader2, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { extractApiErrorMessage } from '@/api/errors'
 import { deleteVideoExport, getVideoExport, startVideoExport, toDownloadUrl, type VideoExport, type VideoRequest } from '@/api/exports'
@@ -68,6 +68,17 @@ const startError = ref<string | null>(null)
 const starting = ref(false)
 const confirmDelete = ref(false)
 const taskId = ref<string | null>(null)
+
+// Soft subtitles come with a sidecar .vtt: the preview plays it as a track the captions button shows or hides (off until asked).
+// (Burned subtitles are part of the picture and can't be turned off.)
+const videoEl = ref<HTMLVideoElement | null>(null)
+const captionsOn = ref(false)
+const subtitleSrc = computed(() => (video.value?.subtitle_url ? toDownloadUrl(video.value.subtitle_url) : null))
+function applyCaptions() {
+  const track = videoEl.value?.textTracks?.[0]
+  if (track) track.mode = captionsOn.value ? 'showing' : 'hidden'
+}
+watch(captionsOn, applyCaptions)
 
 async function refetch() {
   try {
@@ -163,7 +174,17 @@ onMounted(async () => {
     </div>
 
     <div v-if="video" class="flex flex-col gap-2" data-testid="mp4-result">
-      <video :src="toDownloadUrl(video.url)" controls preload="metadata" class="w-full rounded-button bg-black" data-testid="mp4-video" />
+      <video
+        ref="videoEl"
+        :src="toDownloadUrl(video.url)"
+        controls
+        preload="metadata"
+        class="w-full rounded-button bg-black"
+        data-testid="mp4-video"
+        @loadedmetadata="applyCaptions"
+      >
+        <track v-if="subtitleSrc" kind="subtitles" :src="subtitleSrc" :srclang="video.language" :label="video.language_name || video.language" />
+      </video>
       <div class="flex items-center gap-2">
         <a
           :href="toDownloadUrl(video.url)"
@@ -173,7 +194,20 @@ onMounted(async () => {
         >
           <Download :size="13" /> {{ t('editor.export.video.downloadMp4') }}
         </a>
-        <Button variant="ghost" size="sm" class="ml-auto" data-testid="mp4-delete" @click="confirmDelete = true">
+        <Button
+          v-if="subtitleSrc"
+          variant="ghost"
+          size="sm"
+          class="ml-auto"
+          :aria-pressed="captionsOn"
+          data-testid="mp4-captions"
+          @click="captionsOn = !captionsOn"
+        >
+          <Captions v-if="captionsOn" :size="13" />
+          <CaptionsOff v-else :size="13" />
+          {{ captionsOn ? t('editor.export.video.hideCaptions') : t('editor.export.video.showCaptions') }}
+        </Button>
+        <Button variant="ghost" size="sm" :class="subtitleSrc ? '' : 'ml-auto'" data-testid="mp4-delete" @click="confirmDelete = true">
           <Trash2 :size="13" /> {{ t('common.actions.delete') }}
         </Button>
       </div>
